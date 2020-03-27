@@ -1,0 +1,6 @@
+django
+
+# dev
+black
+isort
+flake8

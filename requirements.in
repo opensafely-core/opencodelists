@@ -2,5 +2,5 @@ django
 
 # dev
 black
-isort
 flake8
+isort

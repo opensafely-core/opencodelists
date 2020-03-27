@@ -4,3 +4,4 @@ django
 black
 flake8
 isort
+litecli

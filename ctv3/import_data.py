@@ -20,7 +20,7 @@ def import_data(release_dir):
     )
 
     ConceptHierarchy.objects.bulk_create(
-        ConceptHierarchy(parent_id=r[0], child_id=r[1], unknown_field_3=r[2])
+        ConceptHierarchy(child_id=r[0], parent_id=r[1], unknown_field_3=r[2])
         for r in load_records("V3hier.v3")
     )
 

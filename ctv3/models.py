@@ -17,6 +17,10 @@ class Concept(models.Model):
         "Term", through="ConceptTermMapping", related_name="concepts",
     )
 
+    def all_terms(self):
+        assert "terms" in self._prefetched_objects_cache
+        return self.terms.all()
+
 
 class ConceptHierarchy(models.Model):
     parent = models.ForeignKey(
@@ -34,6 +38,9 @@ class Term(models.Model):
     name_1 = models.CharField(max_length=30)
     name_2 = models.CharField(max_length=60, null=True)
     name_3 = models.CharField(max_length=198, null=True)
+
+    def name(self):
+        return self.name_3 or self.name_2 or self.name_1
 
 
 class ConceptTermMapping(models.Model):

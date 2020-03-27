@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<br />
+<h3>CTV3 Search</h3>
+<br />
+
+<div class="row">
+  <div class="col-12">
+    <form>
+      <div class="form-group">
+        <div class="controls ">
+		<input type="text" name="q" {% if q %}value="{{ q }}" {% endif %}minlength="3" required class="form-control">
+        </div>
+      </div>
+
+      <input type="submit" name="submit" value="Search" class="btn btn-dark" id="submit-id-submit" />
+    </form>
+  </div>
+</div>
+
+{% if q %}
+<hr />
+<div class="row">
+  <div class="col-12">
+    {% for concept in concepts %}
+    {% include "./_concept.html" with link=True %}
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+{% endblock %}

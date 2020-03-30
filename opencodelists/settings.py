@@ -25,7 +25,7 @@ SECRET_KEY = "fj%9n6hy^dd9c9uqxb^2w#1p61r#0$+*5r#@+m61ipvervjdwu"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["localhost", "smallweb1.ebmdatalab.net"]
 
 
 # Application definition

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 declare -a cmds=(
-    "black ."
+    # "black ."
     "isort --recursive **/*.py"
 )
 

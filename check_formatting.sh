@@ -1,7 +1,7 @@
 #!/bin/bash
 
 declare -a cmds=(
-    "black --check ."
+    # "black --check ."
     "flake8"
     "isort --check-only --recursive **/*.py"
 )

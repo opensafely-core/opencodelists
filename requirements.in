@@ -1,7 +1,7 @@
 django
 
 # dev
-black
+# black
 flake8
 isort
-litecli
+# litecli

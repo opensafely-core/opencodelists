@@ -31,6 +31,7 @@ ALLOWED_HOSTS = ["localhost", "smallweb1.ebmdatalab.net"]
 # Application definition
 
 INSTALLED_APPS = [
+    "opencodelists",
     "ctv3",
     "readv2",
     "snomedct",

@@ -2,7 +2,7 @@
 
 declare -a cmds=(
     # "black ."
-    "isort --recursive **/*.py"
+    "isort --recursive --skip migrations ."
 )
 
 for cmd in "${cmds[@]}"; do

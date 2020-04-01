@@ -24,10 +24,10 @@ class Concept(models.Model):
 
 class ConceptHierarchy(models.Model):
     parent = models.ForeignKey(
-        "Concept", on_delete=models.CASCADE, related_name="parent_links"
+        "Concept", on_delete=models.CASCADE, related_name="child_links"
     )
     child = models.ForeignKey(
-        "Concept", on_delete=models.CASCADE, related_name="child_links"
+        "Concept", on_delete=models.CASCADE, related_name="parent_links"
     )
     unknown_field_3 = models.CharField(max_length=2)
 

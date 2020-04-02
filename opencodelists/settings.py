@@ -32,10 +32,10 @@ ALLOWED_HOSTS = ["localhost", "smallweb1.ebmdatalab.net"]
 
 INSTALLED_APPS = [
     "opencodelists",
-    "ctv3",
-    "rctctv3map",
-    "readv2",
-    "snomedct",
+    "coding_systems.ctv3",
+    "coding_systems.readv2",
+    "coding_systems.snomedct",
+    "mappings.rctctv3map",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",

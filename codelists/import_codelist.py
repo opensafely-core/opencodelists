@@ -10,7 +10,9 @@ class ImportCodelistError(Exception):
     pass
 
 
-def import_codelist(publisher_slug, codelist_slug, coding_system, version, csv_path):
+def import_codelist(
+    publisher_slug, codelist_slug, coding_system, version_str, csv_path
+):
     coding_systems = [tpl[0] for tpl in CODING_SYSTEMS]
     if coding_system not in coding_systems:
         raise ImportCodelistError("Invalid coding_system")
@@ -31,22 +33,22 @@ def import_codelist(publisher_slug, codelist_slug, coding_system, version, csv_p
             )
 
         try:
-            clv = CodelistVersion.objects.create(codelist=cl, version=version)
+            clv = CodelistVersion.objects.create(codelist=cl, version_str=version_str)
         except IntegrityError:
             raise ImportCodelistError(
                 "Version {} already exists for codelist {}/{}".format(
-                    version, publisher_slug, codelist_slug
+                    version_str, publisher_slug, codelist_slug
                 )
             )
 
         try:
             with open(csv_path) as f:
-                values = [r[0] for r in csv.reader(f)]
+                codes = [r[0] for r in csv.reader(f)]
         except FileNotFoundError:
             raise ImportCodelistError(
                 "Could not open '{}' for reading".format(csv_path)
             )
 
         CodelistMember.objects.bulk_create(
-            CodelistMember(codelist_version=clv, value=v) for v in values
+            CodelistMember(codelist_version=clv, code=c) for c in codes
         )

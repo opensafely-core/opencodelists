@@ -1,0 +1,18 @@
+{% extends 'base.html' %} {% block content %}
+
+<br />
+<h3>Codelists</h3>
+<br />
+
+<div class="row">
+  <div class="col-12">
+    <ul>
+      {% for cl in codelists %}
+      <li>
+        <a href="{{ cl.get_absolute_url }}">{{ cl.full_slug }}</a>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+{% endblock %}

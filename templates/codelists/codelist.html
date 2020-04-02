@@ -1,0 +1,60 @@
+{% extends 'base.html' %} {% block content %}
+
+<br />
+<h3>Codelist: {{ codelist.full_slug }}</h3>
+<br />
+
+<div class="row">
+  <div class="col-2">
+    <div class="btn-group btn-block" role="group">
+      <button
+        type="button"
+        class="btn btn-outline-info btn-block dropdown-toggle"
+        data-toggle="dropdown"
+	
+      >
+        Download
+      </button>
+      <div class="dropdown-menu">
+        <a class="dropdown-item" href="{{ download_csv_url }}">CSV</a>
+        <a class="dropdown-item" href="{{ download_json_url }}">JSON</a>
+      </div>
+    </div>
+    <hr />
+
+    <dl>
+      <dt>Coding system</dt>
+      <dd>{{ codelist.coding_system }}</dd>
+
+      <dt>Version</dt>
+      <dd>{{ version.version_str }}</dd>
+
+      <dt>Other versions</dt>
+      {% for v in other_versions %}
+      <dd><a href="{{ v.get_absolute_url }}">{{ v.version_str }}</a></dd>
+      {% empty %}
+      <dd>—</dd>
+      {% endfor %}
+    </dl>
+  </div>
+
+  <div class="col-8">
+    <table class="table table-sm">
+      <thead>
+        <tr>
+          <th>Code</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for code in codes %}
+        <tr>
+          <td><code>{{ code }}</code></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

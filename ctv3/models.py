@@ -2,9 +2,27 @@ from django.db import models
 
 
 class Concept(models.Model):
+    STATUS_C = "C"
+    STATUS_E = "E"
+    STATUS_O = "O"
+    STATUS_R = "R"
+    STATUS_CHOICES = [
+        (STATUS_C, "Current"),
+        (STATUS_E, "Extinct"),
+        (STATUS_O, "Optional"),
+        (STATUS_R, "Redundant"),
+    ]
+
+    UNKNOWN_FIELD_2_A = "A"
+    UNKNOWN_FIELD_2_N = "N"
+    UNKNOWN_FIELD_2_CHOICES = [
+        (UNKNOWN_FIELD_2_A, "Unknown field 2: A"),
+        (UNKNOWN_FIELD_2_A, "Unknown field 2: N"),
+    ]
+
     read_code = models.CharField(primary_key=True, max_length=5)
-    unknown_field_1 = models.CharField(max_length=1)
-    unknown_field_2 = models.CharField(max_length=1)
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES)
+    unknown_field_2 = models.CharField(max_length=1, choices=UNKNOWN_FIELD_2_CHOICES)
     another_concept = models.ForeignKey("Concept", on_delete=models.CASCADE)
     children = models.ManyToManyField(
         "self",
@@ -29,12 +47,19 @@ class ConceptHierarchy(models.Model):
     child = models.ForeignKey(
         "Concept", on_delete=models.CASCADE, related_name="parent_links"
     )
-    unknown_field_3 = models.CharField(max_length=2)
+    list_order = models.CharField(max_length=2)
 
 
 class Term(models.Model):
+    STATUS_C = "C"
+    STATUS_O = "O"
+    STATUS_CHOICES = [
+        (STATUS_C, "Status: C (Current?)"),
+        (STATUS_O, "Status: O (Optional?)"),
+    ]
+
     term_id = models.CharField(primary_key=True, max_length=5)
-    unknown_field_4 = models.CharField(max_length=1)
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES)
     name_1 = models.CharField(max_length=30)
     name_2 = models.CharField(max_length=60, null=True)
     name_3 = models.CharField(max_length=198, null=True)
@@ -44,6 +69,13 @@ class Term(models.Model):
 
 
 class ConceptTermMapping(models.Model):
+    PREFERRED = "P"
+    SYNONYM = "S"
+    TERM_TYPE_CHOICES = [
+        (PREFERRED, "Preferred"),
+        (SYNONYM, "Synonym"),
+    ]
+
     concept = models.ForeignKey("Concept", on_delete=models.CASCADE)
     term = models.ForeignKey("Term", on_delete=models.CASCADE)
-    unknown_field_5 = models.CharField(max_length=1)
+    term_type = models.CharField(max_length=1, choices=TERM_TYPE_CHOICES)

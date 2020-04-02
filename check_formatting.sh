@@ -3,7 +3,7 @@
 declare -a cmds=(
     # "black --check ."
     "flake8"
-    "isort --check-only --recursive --skip migrations ."
+    "isort --check-only --recursive ."
 )
 
 for cmd in "${cmds[@]}"; do

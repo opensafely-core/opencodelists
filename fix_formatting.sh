@@ -2,7 +2,7 @@
 
 declare -a cmds=(
     # "black ."
-    "isort --recursive --skip migrations ."
+    "isort --recursive ."
 )
 
 for cmd in "${cmds[@]}"; do

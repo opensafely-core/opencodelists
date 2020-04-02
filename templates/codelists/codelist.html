@@ -38,18 +38,20 @@
     </dl>
   </div>
 
-  <div class="col-8">
+  <div class="col-10">
     <table class="table table-sm">
       <thead>
         <tr>
-          <th>Code</th>
+          <th style="width: 10%">Code</th>
+          <th>Description</th>
         </tr>
       </thead>
 
       <tbody>
-        {% for code in codes %}
+        {% for row in member_table %}
         <tr>
-          <td><code>{{ code }}</code></td>
+          <td><code>{{ row.0 }}</code></td>
+          <td>{{ row.1 }}</td>
         </tr>
         {% endfor %}
       </tbody>

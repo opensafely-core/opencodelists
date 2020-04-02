@@ -49,6 +49,22 @@ class CodelistVersion(models.Model):
             self.version_str,
         )
 
+    def member_table(self):
+        # TODO make this general (obviously)
+        assert self.codelist.coding_system == "ctv3"
+        from coding_systems.ctv3.models import ConceptTermMapping
+
+        codes = [m.code for m in self.members.all()]
+        mappings = ConceptTermMapping.objects.filter(
+            term_type="P", concept_id__in=codes
+        ).select_related("term")
+
+        code_to_description = {
+            mapping.concept_id: mapping.term.name() for mapping in mappings
+        }
+
+        return [(code, code_to_description.get(code)) for code in codes]
+
 
 class CodelistMember(models.Model):
     codelist_version = models.ForeignKey(

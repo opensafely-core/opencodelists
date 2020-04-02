@@ -69,7 +69,7 @@ def codelist(request, publisher_slug, codelist_slug):
         "codelist": codelist,
         "version": version,
         "other_versions": other_versions,
-        "codes": codes,
+        "member_table": version.member_table(),
         "download_csv_url": _build_api_url(request, codelist, "csv"),
         "download_json_url": _build_api_url(request, codelist, "json"),
     }

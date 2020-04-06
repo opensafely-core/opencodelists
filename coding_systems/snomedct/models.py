@@ -1,8 +1,15 @@
 from django.db import models
+from django.db.models import F
 
 # Magic numbers
 FULLY_SPECIFIED_NAME = "900000000000003001"
 SYNONYM = "900000000000013009"
+
+IS_A = "116680003"
+
+STATED_RELATIONSHIP = "900000000000010007"
+INFERRED_RELATIONSHIP = "900000000000011006"
+ADDITIONAL_RELATIONSHIP = "900000000000227009"
 
 
 class Concept(models.Model):
@@ -73,6 +80,32 @@ class Concept(models.Model):
     def synonyms(self, synonyms):
         self._synonyms = synonyms
 
+    def parents(self):
+        return self.destinations.filter(
+            source_relationships__active=True,
+            source_relationships__type_id=IS_A,
+            source_relationships__characteristic_type_id=STATED_RELATIONSHIP,
+            source_relationships__destination__descriptions__active=True,
+            source_relationships__destination__descriptions__type_id=FULLY_SPECIFIED_NAME,
+        ).annotate(
+            fully_specified_name=F(
+                "source_relationships__destination__descriptions__term"
+            )
+        )
+
+    def children(self):
+        return self.sources.filter(
+            destination_relationships__active=True,
+            destination_relationships__type_id=IS_A,
+            destination_relationships__characteristic_type_id=STATED_RELATIONSHIP,
+            destination_relationships__source__descriptions__active=True,
+            destination_relationships__source__descriptions__type_id=FULLY_SPECIFIED_NAME,
+        ).annotate(
+            fully_specified_name=F(
+                "destination_relationships__source__descriptions__term"
+            )
+        )
+
 
 class Description(models.Model):
     id = models.CharField(primary_key=True, max_length=18)
@@ -81,7 +114,9 @@ class Description(models.Model):
     module = models.ForeignKey(
         "Concept", on_delete=models.CASCADE, related_name="+", db_index=False
     )
-    concept = models.ForeignKey("Concept", on_delete=models.CASCADE, related_name="descriptions")
+    concept = models.ForeignKey(
+        "Concept", on_delete=models.CASCADE, related_name="descriptions"
+    )
     language_code = models.CharField(max_length=3)
     type = models.ForeignKey(
         "Concept", on_delete=models.CASCADE, related_name="+", db_index=False

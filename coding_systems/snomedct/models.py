@@ -80,31 +80,31 @@ class Concept(models.Model):
     def synonyms(self, synonyms):
         self._synonyms = synonyms
 
-    def parents(self):
+    def parents(self, relationship_types):
         return self.destinations.filter(
             source_relationships__active=True,
             source_relationships__type_id=IS_A,
-            source_relationships__characteristic_type_id=STATED_RELATIONSHIP,
+            source_relationships__characteristic_type_id__in=relationship_types,
             source_relationships__destination__descriptions__active=True,
             source_relationships__destination__descriptions__type_id=FULLY_SPECIFIED_NAME,
         ).annotate(
             fully_specified_name=F(
                 "source_relationships__destination__descriptions__term"
             )
-        )
+        ).distinct()
 
-    def children(self):
+    def children(self, relationship_types):
         return self.sources.filter(
             destination_relationships__active=True,
             destination_relationships__type_id=IS_A,
-            destination_relationships__characteristic_type_id=STATED_RELATIONSHIP,
+            destination_relationships__characteristic_type_id__in=relationship_types,
             destination_relationships__source__descriptions__active=True,
             destination_relationships__source__descriptions__type_id=FULLY_SPECIFIED_NAME,
         ).annotate(
             fully_specified_name=F(
                 "destination_relationships__source__descriptions__term"
             )
-        )
+        ).distinct()
 
 
 class Description(models.Model):

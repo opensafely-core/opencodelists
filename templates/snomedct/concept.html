@@ -6,13 +6,38 @@
 <h3>SNOMED CT Concept: {{ concept.fully_specified_name }} <code>{{ concept.id }}</code></h3>
 <br />
 
-{% for parent in parents %}
-{% include "./_concept.html" with concept=parent width=11 arrows="after" link=True %}
-{% endfor %}
+<div class="row">
+  <div class="col-2">
 
-{% include "./_concept.html" with width=12 highlight=True synonyms=True %}
+    <div class="card">
+      <div class="card-header">
+        Relationship type
+      </div>
+      <div class="btn-group-vertical btn-block">
+        {% for button in buttons %}
+        <a
+          class="btn {% if button.selected %}btn-secondary {% else %}btn-outline-secondary {% endif %}btn-block"
+          href="{{ button.href }}"
+          role="button"
+          >
+          {{ button.label }}
+        </a>
+          {% endfor %}
+      </div>
+    </div>
+  </div>
 
-{% for child in children %}
-{% include "./_concept.html" with concept=child width=11 arrows="before" link=True %}
-{% endfor %}
+
+  <div class="col-10">
+    {% for parent in parents %}
+    {% include "./_concept.html" with concept=parent width=11 arrows="after" link=True %}
+    {% endfor %}
+
+    {% include "./_concept.html" with width=12 highlight=True synonyms=True %}
+
+    {% for child in children %}
+    {% include "./_concept.html" with concept=child width=11 arrows="before" link=True %}
+    {% endfor %}
+  </div>
+</div>
 {% endblock %}

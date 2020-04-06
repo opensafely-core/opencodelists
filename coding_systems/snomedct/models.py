@@ -11,6 +11,13 @@ class Concept(models.Model):
     definition_status = models.ForeignKey(
         "Concept", on_delete=models.CASCADE, related_name="+", db_index=False
     )
+    sources = models.ManyToManyField(
+        "self",
+        through="Relationship",
+        through_fields=("destination", "source"),
+        symmetrical=False,
+        related_name="destinations",
+    )
 
 
 class Description(models.Model):

@@ -1,7 +1,7 @@
 <div class="row">
   {% if arrows == "before" %}
   <div class="col-1">
-    <svg height="100%" width="auto" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <svg height="32px" width="100%" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
       <path
         fill="none"
 	stroke="black"
@@ -16,15 +16,13 @@
   </div>
   {% endif %}
 
-  <div class="col-{{ width }} border mt-1 mb-1 pt-2 pl-2 rounded{% if highlight %} bg-light{% endif %}">
-    <p>
-      {{ concept.fully_specified_name }}
-      <code>
-        {% if link %}
-        <a href="{% url 'snomedct:concept' concept.id %}">{{ concept.id}}</a>
-        {% else %} {{ concept.id}} {% endif %}
-      </code>
-    </p>
+  <div class="col-{{ width }} border mt-1 mb-1 p-1 rounded{% if highlight %} bg-light{% endif %}">
+    {{ concept.fully_specified_name }}
+    <code>
+      {% if link %}
+      <a href="{% url 'snomedct:concept' concept.id %}">{{ concept.id}}</a>
+      {% else %} {{ concept.id}} {% endif %}
+    </code>
 
     {% if synonyms %}
     <ul>
@@ -37,7 +35,7 @@
 
   {% if arrows == "after" %}
   <div class="col-1">
-    <svg height="100%" width="auto" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <svg height="32px" width="100%" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
       <path
         fill="none"
 	stroke="black"

@@ -10,7 +10,7 @@ def concept(request, id):
 
     ctx = {
         "concept": concept,
-        "parents": concept.parents(),
-        "children": concept.children(),
+        "parents": concept.parents().order_by("fully_specified_name"),
+        "children": concept.children().order_by("fully_specified_name"),
     }
     return render(request, "snomedct/concept.html", ctx)

@@ -30,6 +30,7 @@ def import_data(release_dir):
     connection = sqlite3.connect(**connection_params)
     connection.executemany(build_sql(Concept), load_records("Concept"))
     connection.executemany(build_sql(Description), load_records("Description"))
+    connection.executemany(build_sql(Relationship), load_records("StatedRelationship"))
     connection.executemany(build_sql(Relationship), load_records("Relationship"))
     connection.commit()
     connection.close()

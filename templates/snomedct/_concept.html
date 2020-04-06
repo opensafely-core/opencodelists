@@ -1,0 +1,54 @@
+<div class="row">
+  {% if arrows == "before" %}
+  <div class="col-1">
+    <svg height="100%" width="auto" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <path
+        fill="none"
+	stroke="black"
+	stroke-width="3"
+      {% if forloop.last %}
+	d="M 50,0 v 50 h 50"
+      {% else %}
+        d="M 50,0 v 100 v -50 h 50"
+      {% endif %}
+      />
+    </svg>
+  </div>
+  {% endif %}
+
+  <div class="col-{{ width }} border mt-1 mb-1 pt-2 pl-2 rounded{% if highlight %} bg-light{% endif %}">
+    <p>
+      {{ concept.fully_specified_name }}
+      <code>
+        {% if link %}
+        <a href="{% url 'snomedct:concept' concept.id %}">{{ concept.id}}</a>
+        {% else %} {{ concept.id}} {% endif %}
+      </code>
+    </p>
+
+    {% if synonyms %}
+    <ul>
+      {% for synonym in concept.synonyms %}
+      <li>{{ synonym }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </div>
+
+  {% if arrows == "after" %}
+  <div class="col-1">
+    <svg height="100%" width="auto" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <path
+        fill="none"
+	stroke="black"
+	stroke-width="3"
+      {% if forloop.first %}
+	d="M 0,50 h 50 v 50"
+      {% else %}
+        d="M 0,50  h 50 v -50 v 100"
+      {% endif %}
+      />
+    </svg>
+  </div>
+  {% endif %}
+</div>

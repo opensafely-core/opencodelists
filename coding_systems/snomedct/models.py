@@ -1,5 +1,7 @@
 from django.db import models
-from django.db.models import F
+from django.db.models import OuterRef, Subquery
+
+from mappings.ctv3sctmap2.models import Mapping
 
 # Magic numbers
 ROOT_CONCEPT = "138875005"
@@ -17,6 +19,7 @@ ADDITIONAL_RELATIONSHIP = "900000000000227009"
 class Concept(models.Model):
     _fully_specified_name = None
     _synonyms = None
+    _in_ctv3 = None
 
     id = models.CharField(primary_key=True, max_length=18)
     effective_time = models.DateField()
@@ -82,31 +85,53 @@ class Concept(models.Model):
     def synonyms(self, synonyms):
         self._synonyms = synonyms
 
+    @property
+    def in_ctv3(self):
+        if self._in_ctv3 is None:
+            self._in_ctv3 = self.ctv3_mappings.exists()
+
+        return self._in_ctv3
+
+    @in_ctv3.setter
+    def in_ctv3(self, in_ctv3):
+        self._in_ctv3 = bool(in_ctv3)
+
     def parents(self, relationship_types):
-        return self.destinations.filter(
-            source_relationships__active=True,
-            source_relationships__type_id=IS_A,
-            source_relationships__characteristic_type_id__in=relationship_types,
-            source_relationships__destination__descriptions__active=True,
-            source_relationships__destination__descriptions__type_id=FULLY_SPECIFIED_NAME,
-        ).annotate(
-            fully_specified_name=F(
-                "source_relationships__destination__descriptions__term"
+        descriptions = Description.objects.filter(
+            concept=OuterRef("source_relationships__destination_id"),
+            active=True,
+            type_id=FULLY_SPECIFIED_NAME,
+        ).values("term")
+
+        mappings = Mapping.objects.filter(
+            sct_concept=OuterRef("source_relationships__source_id")
+        ).values("id")[:1]
+
+        return (
+            self.destinations.filter(
+                source_relationships__active=True, source_relationships__type_id=IS_A,
             )
-        ).distinct()
+        ).annotate(
+            fully_specified_name=Subquery(descriptions), in_ctv3=Subquery(mappings),
+        )
 
     def children(self, relationship_types):
+        descriptions = Description.objects.filter(
+            concept=OuterRef("destination_relationships__source_id"),
+            active=True,
+            type_id=FULLY_SPECIFIED_NAME,
+        ).values("term")
+
+        mappings = Mapping.objects.filter(
+            sct_concept=OuterRef("destination_relationships__source_id")
+        ).values("id")[:1]
+
         return self.sources.filter(
             destination_relationships__active=True,
             destination_relationships__type_id=IS_A,
-            destination_relationships__characteristic_type_id__in=relationship_types,
-            destination_relationships__source__descriptions__active=True,
-            destination_relationships__source__descriptions__type_id=FULLY_SPECIFIED_NAME,
         ).annotate(
-            fully_specified_name=F(
-                "destination_relationships__source__descriptions__term"
-            )
-        ).distinct()
+            fully_specified_name=Subquery(descriptions), in_ctv3=Subquery(mappings),
+        )
 
 
 class Description(models.Model):

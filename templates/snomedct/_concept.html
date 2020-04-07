@@ -23,6 +23,9 @@
       <a href="{% url 'snomedct:concept' concept.id %}">{{ concept.id}}</a>
       {% else %} {{ concept.id}} {% endif %}
     </code>
+    {% if concept.in_ctv3 %}
+    <button type="button" class="btn btn-primary btn-sm">In CTV3</button>
+    {% endif %}
 
     {% if synonyms %}
     <ul>

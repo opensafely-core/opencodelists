@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     "coding_systems.readv2",
     "coding_systems.snomedct",
     "mappings.rctctv3map",
+    "mappings.ctv3sctmap2",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",

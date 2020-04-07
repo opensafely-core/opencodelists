@@ -2,6 +2,8 @@ from django.db import models
 from django.db.models import F
 
 # Magic numbers
+ROOT_CONCEPT = "138875005"
+
 FULLY_SPECIFIED_NAME = "900000000000003001"
 SYNONYM = "900000000000013009"
 

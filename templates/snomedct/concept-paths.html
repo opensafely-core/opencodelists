@@ -1,0 +1,49 @@
+{% extends 'base.html' %} {% block content %}
+
+<br />
+<h3>
+  SNOMED CT Concept: {{ concept.fully_specified_name }}
+  <code>{{ concept.id }}</code>
+</h3>
+<br />
+
+<div class="row">
+  <div class="col-6">
+    <h4>Ancestors</h4>
+    {% for path in ancestor_paths %}
+    <ul>
+      {% for c in path %}
+      <li>
+        {{ c.fully_specified_name }}
+        <code>
+          {% if concept == c %} {{ c.id }} {% else %}
+          <a href="{% url 'snomedct:concept-paths' c.id %}">{{ c.id }}</a>
+          {% endif %}
+        </code>
+      </li>
+      {% endfor %}
+    </ul>
+    <hr />
+    {% endfor %}
+  </div>
+
+  <div class="col-6">
+    <h4>Descendants</h4>
+    {% for path in descendant_paths %}
+    <ul>
+      {% for c in path %}
+      <li>
+        {{ c.fully_specified_name }}
+        <code>
+          {% if concept == c %} {{ c.id }} {% else %}
+          <a href="{% url 'snomedct:concept-paths' c.id %}">{{ c.id}}</a>
+          {% endif %}
+        </code>
+      </li>
+      {% endfor %}
+    </ul>
+    <hr />
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

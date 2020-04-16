@@ -33,6 +33,7 @@ ALLOWED_HOSTS = ["localhost", "smallweb1.ebmdatalab.net"]
 INSTALLED_APPS = [
     "opencodelists",
     "codelists",
+    "coding_systems.bnf",
     "coding_systems.ctv3",
     "coding_systems.readv2",
     "coding_systems.snomedct",

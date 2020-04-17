@@ -9,7 +9,8 @@ cffi==1.14.0              # via bcrypt, cryptography, pynacl
 cryptography==2.8         # via paramiko
 dbfread==2.0.7            # via -r requirements.in
 decorator==4.4.2          # via networkx
-django==2.2.11            # via -r requirements.in
+django-cors-headers==3.2.1  # via -r requirements.in
+django==2.2.11            # via -r requirements.in, django-cors-headers
 entrypoints==0.3          # via flake8
 fabric3==1.14.post1       # via -r requirements.in
 flake8==3.7.9             # via -r requirements.in

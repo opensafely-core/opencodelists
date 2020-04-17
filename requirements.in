@@ -1,6 +1,7 @@
 dbfread
 fabric3
 django
+django-cors-headers
 networkx
 
 # dev

@@ -1,6 +1,5 @@
 from django.db import models
 from django.db.models import OuterRef, Subquery
-
 from mappings.ctv3sctmap2.models import Mapping
 
 # Magic numbers
@@ -10,6 +9,8 @@ FULLY_SPECIFIED_NAME = "900000000000003001"
 SYNONYM = "900000000000013009"
 
 IS_A = "116680003"
+
+CORE_METADATA_CONCEPT = "900000000000010007"
 
 STATED_RELATIONSHIP = "900000000000010007"
 INFERRED_RELATIONSHIP = "900000000000011006"

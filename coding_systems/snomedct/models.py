@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models import OuterRef, Subquery
+
 from mappings.ctv3sctmap2.models import Mapping
 
 # Magic numbers

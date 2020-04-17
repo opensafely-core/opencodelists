@@ -1,7 +1,8 @@
 from functools import reduce
 
-from codelists.coding_system import BaseCodingSystem
 from django.db.models import Q
+
+from codelists.coding_system import BaseCodingSystem
 
 from .models import Presentation
 

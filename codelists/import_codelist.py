@@ -3,7 +3,8 @@ import csv
 from django.db import transaction
 from django.db.utils import IntegrityError
 
-from .models import CODING_SYSTEMS, Codelist, CodelistMember, CodelistVersion, Publisher
+from .coding_system import CODING_SYSTEMS
+from .models import Codelist, CodelistVersion, Publisher
 
 
 class ImportCodelistError(Exception):
@@ -11,10 +12,9 @@ class ImportCodelistError(Exception):
 
 
 def import_codelist(
-    publisher_slug, codelist_slug, coding_system, version_str, csv_path
+    publisher_slug, codelist_slug, coding_system_id, version_str, csv_path
 ):
-    coding_systems = [tpl[0] for tpl in CODING_SYSTEMS]
-    if coding_system not in coding_systems:
+    if coding_system_id not in CODING_SYSTEMS:
         raise ImportCodelistError("Invalid coding_system")
 
     with transaction.atomic():
@@ -22,13 +22,15 @@ def import_codelist(
 
         try:
             cl, _ = Codelist.objects.get_or_create(
-                publisher=publisher, slug=codelist_slug, coding_system=coding_system
+                publisher=publisher,
+                slug=codelist_slug,
+                coding_system_id=coding_system_id,
             )
         except IntegrityError:
             cl = Codelist.objects.get(publisher=publisher, slug=codelist_slug)
             raise ImportCodelistError(
                 "Codelist {}/{} already exists with coding system {}".format(
-                    publisher_slug, codelist_slug, cl.coding_system
+                    publisher_slug, codelist_slug, cl.coding_system_id
                 )
             )
 
@@ -49,6 +51,5 @@ def import_codelist(
                 "Could not open '{}' for reading".format(csv_path)
             )
 
-        CodelistMember.objects.bulk_create(
-            CodelistMember(codelist_version=clv, code=c) for c in codes
-        )
+        clv.definition = "\n".join(codes)
+        clv.save()

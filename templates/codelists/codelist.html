@@ -24,7 +24,7 @@
 
     <dl>
       <dt>Coding system</dt>
-      <dd>{{ codelist.coding_system }}</dd>
+      <dd>{{ codelist.coding_system.name }}</dd>
 
       <dt>Version</dt>
       <dd>{{ version.version_str }}</dd>
@@ -42,13 +42,13 @@
     <table class="table table-sm">
       <thead>
         <tr>
-          <th style="width: 10%">Code</th>
+          <th>Code</th>
           <th>Description</th>
         </tr>
       </thead>
 
       <tbody>
-        {% for row in member_table %}
+        {% for row in annotated_codes %}
         <tr>
           <td><code>{{ row.0 }}</code></td>
           <td>{{ row.1 }}</td>

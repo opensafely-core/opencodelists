@@ -14,17 +14,17 @@ def index(request):
 def codelist(request, publisher_slug, codelist_slug):
     codelist = get_object_or_404(Codelist, publisher=publisher_slug, slug=codelist_slug)
 
-    coding_system = request.GET.get("coding_system")
+    coding_system_id = request.GET.get("coding_system")
     version_str = request.GET.get("version")
     format_ = request.GET.get("format")
 
     if format_:
-        # When accessing via API, must specify coding_system and version_str
+        # When accessing via API, must specify coding_system_id and version_str
         assert format_ in ["csv", "json"]
-        assert coding_system
+        assert coding_system_id
         assert version_str
 
-    if coding_system and coding_system != codelist.coding_system:
+    if coding_system_id and coding_system_id != codelist.coding_system_id:
         assert False
 
     if version_str:
@@ -34,8 +34,6 @@ def codelist(request, publisher_slug, codelist_slug):
 
     other_versions = codelist.versions.exclude(version_str=version.version_str)
 
-    codes = [m.code for m in version.members.all()]
-
     if format_ == "csv":
         response = HttpResponse(content_type="text/csv")
         content_disposition = 'attachment; filename="{}.csv"'.format(
@@ -43,17 +41,17 @@ def codelist(request, publisher_slug, codelist_slug):
         )
         response["Content-Disposition"] = content_disposition
         writer = csv.writer(response)
-        writer.writerow([coding_system])
-        writer.writerows([c] for c in codes)
+        writer.writerow([coding_system_id])
+        writer.writerows([c] for c in version.codes)
         return response
 
     elif format_ == "json":
         json_data = {
             "url": _build_api_url(request, codelist, "json", domain=True),
             "codelist": codelist.full_slug(),
-            "coding_system": coding_system,
+            "coding_system": coding_system_id,
             "version": version_str,
-            "codes": codes,
+            "codes": version.codes,
         }
         response = JsonResponse(json_data, json_dumps_params={"indent": 2})
         content_disposition = 'attachment; filename="{}.json"'.format(
@@ -69,7 +67,7 @@ def codelist(request, publisher_slug, codelist_slug):
         "codelist": codelist,
         "version": version,
         "other_versions": other_versions,
-        "member_table": version.member_table(),
+        "annotated_codes": version.annotated_codes,
         "download_csv_url": _build_api_url(request, codelist, "csv"),
         "download_json_url": _build_api_url(request, codelist, "json"),
     }
@@ -79,7 +77,7 @@ def codelist(request, publisher_slug, codelist_slug):
 def _build_api_url(request, codelist, format_, domain=False):
     params = request.GET.copy()
     params["format"] = format_
-    params["coding_system"] = codelist.coding_system
+    params["coding_system"] = codelist.coding_system_id
     path_plus_qs = request.path + "?" + params.urlencode()
 
     if domain:

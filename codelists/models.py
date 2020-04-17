@@ -1,11 +1,8 @@
 from django.db import models
 from django.urls import reverse
+from django.utils.functional import cached_property
 
-CODING_SYSTEMS = [
-    ("readv2", "Read V2"),
-    ("ctv3", "Clinical Terms Version 3 (Read V3)"),
-    ("snomedct", "SNOMED CT"),
-]
+from . import coding_system
 
 
 class Publisher(models.Model):
@@ -17,10 +14,16 @@ class Codelist(models.Model):
         "Publisher", related_name="codelists", on_delete=models.CASCADE
     )
     slug = models.SlugField()
-    coding_system = models.CharField(choices=CODING_SYSTEMS, max_length=32)
+    coding_system_id = models.CharField(
+        choices=sorted(coding_system.CODING_SYSTEMS.items()), max_length=32
+    )
 
     class Meta:
         unique_together = ("publisher", "slug")
+
+    @cached_property
+    def coding_system(self):
+        return coding_system.get(self.coding_system_id)
 
     def get_absolute_url(self):
         return reverse("codelists:codelist", args=(self.publisher_id, self.slug))
@@ -34,6 +37,7 @@ class CodelistVersion(models.Model):
         "Codelist", related_name="versions", on_delete=models.CASCADE
     )
     version_str = models.CharField(max_length=12)
+    definition = models.TextField()
 
     class Meta:
         unique_together = ("codelist", "version_str")
@@ -45,32 +49,16 @@ class CodelistVersion(models.Model):
         return "{}-{}-{}-{}".format(
             self.codelist.publisher_id,
             self.codelist.slug,
-            self.codelist.coding_system,
+            self.codelist.coding_system_id,
             self.version_str,
         )
 
-    def member_table(self):
-        # TODO make this general (obviously)
-        assert self.codelist.coding_system == "ctv3"
-        from coding_systems.ctv3.models import ConceptTermMapping
+    @cached_property
+    def codes(self):
+        coding_system = self.codelist.coding_system
+        return coding_system.codes_from_query(self.definition)
 
-        codes = [m.code for m in self.members.all()]
-        mappings = ConceptTermMapping.objects.filter(
-            term_type="P", concept_id__in=codes
-        ).select_related("term")
-
-        code_to_description = {
-            mapping.concept_id: mapping.term.name() for mapping in mappings
-        }
-
-        return [(code, code_to_description.get(code)) for code in codes]
-
-
-class CodelistMember(models.Model):
-    codelist_version = models.ForeignKey(
-        "CodelistVersion", related_name="members", on_delete=models.CASCADE
-    )
-    code = models.CharField(max_length=18)  # Long enough for a SNOMED code
-
-    class Meta:
-        unique_together = ("codelist_version", "code")
+    @cached_property
+    def annotated_codes(self):
+        coding_system = self.codelist.coding_system
+        return coding_system.annotated_codes(self.codes)

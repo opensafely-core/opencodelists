@@ -1,9 +1,20 @@
+import glob
+import os
 from importlib import import_module
+
+CODING_SYSTEMS = {}
+
+for path in glob.glob(os.path.join("coding_systems", "*", "metadata.py")):
+    coding_system_id = path.split(os.path.sep)[-2]
+    mod = import_module(f"coding_systems.{coding_system_id}.metadata")
+    CODING_SYSTEMS[coding_system_id] = mod.name
 
 
 def get(coding_system_id):
     mod = import_module(f"coding_systems.{coding_system_id}.coding_system")
-    return mod.CodingSystem
+    coding_system = mod.CodingSystem
+    coding_system.name = CODING_SYSTEMS[coding_system_id]
+    return coding_system
 
 
 class BaseCodingSystem:

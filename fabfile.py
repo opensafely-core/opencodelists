@@ -12,16 +12,12 @@ env.path = "/var/www/opencodelists"
 
 def initalise_directory():
     if not exists(env.path):
-        run(
-            "git clone git@github.com:ebmdatalab/opencodelists.git {}".format(
-                env.path
-            )
-        )
+        run(f"git clone git@github.com:ebmdatalab/opencodelists.git {env.path}")
 
 
 def create_venv():
     if not exists("venv"):
-        run("python3.5 -m venv venv")
+        run("python3.6 -m venv venv")
 
 
 def update_from_git():
@@ -35,7 +31,7 @@ def install_requirements():
 
 
 def chown_everything():
-    run("chown -R www-data:www-data {}".format(env.path))
+    run(f"chown -R www-data:www-data {env.path}")
 
 
 def run_migrations():
@@ -45,9 +41,7 @@ def run_migrations():
 
 def set_up_systemd():
     run(
-        "ln -sf {}/deploy/systemd/app.opencodelists.web.service /etc/systemd/system".format(
-            env.path
-        )
+        f"ln -sf {env.path}/deploy/systemd/app.opencodelists.web.service /etc/systemd/system"
     )
 
     run("systemctl daemon-reload")

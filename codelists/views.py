@@ -1,3 +1,6 @@
+import csv
+from io import StringIO
+
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 
@@ -11,7 +14,14 @@ def index(request):
 
 def codelist(request, project_slug, codelist_slug):
     codelist = get_object_or_404(Codelist, project=project_slug, slug=codelist_slug)
-    ctx = {"codelist": codelist}
+    table = list(csv.reader(StringIO(codelist.csv_data)))
+    headers, *rows = table
+
+    ctx = {
+        "codelist": codelist,
+        "headers": headers,
+        "rows": rows,
+    }
     return render(request, "codelists/codelist.html", ctx)
 
 

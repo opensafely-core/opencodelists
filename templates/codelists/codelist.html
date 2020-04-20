@@ -88,9 +88,8 @@
         <ul>
           {% for signoff in codelist.signoffs.all %}
           <li>
-            {{ signoff.user.name }},
-	    {{ signoff.user.organisation.name }}
-	    ({{ signoff.date }})
+            {{ signoff.user.name }}, {{ signoff.user.organisation.name }} ({{
+            signoff.date }})
           </li>
           {% empty %}
           <li>...</li>
@@ -104,7 +103,22 @@
         role="tabpanel"
         aria-labelledby="browse-tab"
       >
-        <pre>{{ codelist.csv_data }}</pre>
+        <table class="table">
+          <thead>
+            {% for v in headers %}
+            <th>{{ v }}</th>
+            {% endfor %}
+          </thead>
+          <tbody>
+            {% for row in rows %}
+              <tr>
+                {% for v in row %}
+                <td>{{ v }}</td>
+                {% endfor %}
+              </tr>
+              {% endfor %}
+          </tbody>
+        </table>
       </div>
     </div>
 

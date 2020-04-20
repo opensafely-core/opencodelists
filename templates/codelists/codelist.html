@@ -88,8 +88,9 @@
         <ul>
           {% for signoff in codelist.signoffs.all %}
           <li>
-            {{ signoff.user.name }}, {{ signoff.user.organisation.name }} ({{
-            signoff.date }})
+            {{ signoff.user.name }},
+            {{ signoff.user.organisation.name }}
+	    ({{ signoff.date }})
           </li>
           {% empty %}
           <li>...</li>

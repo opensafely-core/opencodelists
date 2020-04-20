@@ -2,9 +2,13 @@ import glob
 import os
 from importlib import import_module
 
+from django.conf import settings
+
 CODING_SYSTEMS = {}
 
-for path in glob.glob(os.path.join("coding_systems", "*", "metadata.py")):
+for path in glob.glob(
+    os.path.join(settings.BASE_DIR, "coding_systems", "*", "metadata.py")
+):
     coding_system_id = path.split(os.path.sep)[-2]
     mod = import_module(f"coding_systems.{coding_system_id}.metadata")
     CODING_SYSTEMS[coding_system_id] = mod.name
@@ -13,7 +17,6 @@ for path in glob.glob(os.path.join("coding_systems", "*", "metadata.py")):
 def get(coding_system_id):
     mod = import_module(f"coding_systems.{coding_system_id}.coding_system")
     coding_system = mod.CodingSystem
-    assert False, CODING_SYSTEMS
     coding_system.name = CODING_SYSTEMS[coding_system_id]
     return coding_system
 

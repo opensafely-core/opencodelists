@@ -91,6 +91,10 @@ DATABASES = {
 }
 
 
+# Custom user model
+
+AUTH_USER_MODEL = "opencodelists.User"
+
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
 

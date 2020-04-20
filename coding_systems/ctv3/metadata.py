@@ -1,1 +1,1 @@
-name = "Clinical Terms Version 3 (Read V3)"
+name = "CTV3 (Read V3)"

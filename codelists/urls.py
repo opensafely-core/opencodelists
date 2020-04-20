@@ -6,5 +6,10 @@ app_name = "codelists"
 
 urlpatterns = [
     path("", views.index, name="index"),
-    path("codelist/<publisher_slug>/<codelist_slug>/", views.codelist, name="codelist"),
+    path("codelist/<project_slug>/<codelist_slug>/", views.codelist, name="codelist"),
+    path(
+        "codelist/<project_slug>/<codelist_slug>/download.csv",
+        views.codelist_download,
+        name="codelist_download",
+    ),
 ]

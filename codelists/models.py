@@ -1,64 +1,64 @@
 from django.db import models
 from django.urls import reverse
 from django.utils.functional import cached_property
+from django.utils.text import slugify
 
 from . import coding_system
 
 
-class Publisher(models.Model):
-    slug = models.SlugField(primary_key=True)
-
-
 class Codelist(models.Model):
-    publisher = models.ForeignKey(
-        "Publisher", related_name="codelists", on_delete=models.CASCADE
-    )
+    name = models.CharField(max_length=255)
     slug = models.SlugField()
-    coding_system_id = models.CharField(
-        choices=sorted(coding_system.CODING_SYSTEMS.items()), max_length=32
+    project = models.ForeignKey(
+        "opencodelists.Project", related_name="codelists", on_delete=models.CASCADE
     )
+    coding_system_id = models.CharField(
+        choices=sorted(coding_system.CODING_SYSTEMS.items()),
+        max_length=32,
+        verbose_name="Coding system",
+    )
+    version_str = models.CharField(max_length=12, verbose_name="Version")
+    description = models.TextField()
+    methodology = models.TextField()
+    csv_data = models.TextField(verbose_name="CSV data")
 
     class Meta:
-        unique_together = ("publisher", "slug")
+        unique_together = ("project", "slug")
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
 
     @cached_property
     def coding_system(self):
         return coding_system.get(self.coding_system_id)
 
     def get_absolute_url(self):
-        return reverse("codelists:codelist", args=(self.publisher_id, self.slug))
+        return reverse("codelists:codelist", args=(self.project_id, self.slug))
 
     def full_slug(self):
-        return "{}/{}".format(self.publisher_id, self.slug)
-
-
-class CodelistVersion(models.Model):
-    codelist = models.ForeignKey(
-        "Codelist", related_name="versions", on_delete=models.CASCADE
-    )
-    version_str = models.CharField(max_length=12)
-    definition = models.TextField()
-
-    class Meta:
-        unique_together = ("codelist", "version_str")
-
-    def get_absolute_url(self):
-        return self.codelist.get_absolute_url() + "?version=" + self.version_str
+        return "{}/{}".format(self.project_id, self.slug)
 
     def download_filename(self):
         return "{}-{}-{}-{}".format(
-            self.codelist.publisher_id,
-            self.codelist.slug,
-            self.codelist.coding_system_id,
-            self.version_str,
+            self.project_id, self.slug, self.coding_system_id, self.version_str
         )
 
-    @cached_property
-    def codes(self):
-        coding_system = self.codelist.coding_system
-        return coding_system.codes_from_query(self.definition)
 
-    @cached_property
-    def annotated_codes(self):
-        coding_system = self.codelist.coding_system
-        return coding_system.annotated_codes(self.codes)
+class SignOff(models.Model):
+    codelist = models.ForeignKey(
+        "Codelist", on_delete=models.CASCADE, related_name="signoffs"
+    )
+    user = models.ForeignKey("opencodelists.User", on_delete=models.CASCADE)
+    date = models.DateField()
+
+
+class Reference(models.Model):
+    codelist = models.ForeignKey(
+        "Codelist", on_delete=models.CASCADE, related_name="references"
+    )
+    text = models.CharField(max_length=255)
+    url = models.URLField()

@@ -1,6 +1,4 @@
-import csv
-
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 
 from .models import Codelist
@@ -11,77 +9,18 @@ def index(request):
     return render(request, "codelists/index.html", ctx)
 
 
-def codelist(request, publisher_slug, codelist_slug):
-    codelist = get_object_or_404(Codelist, publisher=publisher_slug, slug=codelist_slug)
-
-    coding_system_id = request.GET.get("coding_system")
-    version_str = request.GET.get("version")
-    format_ = request.GET.get("format")
-
-    if format_:
-        # When accessing via API, must specify coding_system_id and version_str
-        assert format_ in ["csv", "json"]
-        assert coding_system_id
-        assert version_str
-
-    if coding_system_id and coding_system_id != codelist.coding_system_id:
-        assert False
-
-    if version_str:
-        version = codelist.versions.get(version_str=version_str)
-    else:
-        version = codelist.versions.order_by("version_str").last()
-
-    other_versions = codelist.versions.exclude(version_str=version.version_str)
-
-    if format_ == "csv":
-        response = HttpResponse(content_type="text/csv")
-        content_disposition = 'attachment; filename="{}.csv"'.format(
-            version.download_filename()
-        )
-        response["Content-Disposition"] = content_disposition
-        writer = csv.writer(response)
-        writer.writerow([coding_system_id])
-        writer.writerows([c] for c in version.codes)
-        return response
-
-    elif format_ == "json":
-        json_data = {
-            "url": _build_api_url(request, codelist, "json", domain=True),
-            "codelist": codelist.full_slug(),
-            "coding_system": coding_system_id,
-            "version": version_str,
-            "codes": version.codes,
-        }
-        response = JsonResponse(json_data, json_dumps_params={"indent": 2})
-        content_disposition = 'attachment; filename="{}.json"'.format(
-            version.download_filename()
-        )
-        response["Content-Disposition"] = content_disposition
-        return response
-
-    elif format_:
-        assert False
-
-    ctx = {
-        "codelist": codelist,
-        "version": version,
-        "other_versions": other_versions,
-        "annotated_codes": version.annotated_codes,
-        "download_csv_url": _build_api_url(request, codelist, "csv"),
-        "download_json_url": _build_api_url(request, codelist, "json"),
-    }
+def codelist(request, project_slug, codelist_slug):
+    codelist = get_object_or_404(Codelist, project=project_slug, slug=codelist_slug)
+    ctx = {"codelist": codelist}
     return render(request, "codelists/codelist.html", ctx)
 
 
-def _build_api_url(request, codelist, format_, domain=False):
-    params = request.GET.copy()
-    params["format"] = format_
-    params["coding_system"] = codelist.coding_system_id
-    path_plus_qs = request.path + "?" + params.urlencode()
-
-    if domain:
-        # TODO don't hardcode this
-        return "https://opencodelists.net" + path_plus_qs
-    else:
-        return path_plus_qs
+def codelist_download(request, project_slug, codelist_slug):
+    codelist = get_object_or_404(Codelist, project=project_slug, slug=codelist_slug)
+    response = HttpResponse(content_type="text/csv")
+    content_disposition = 'attachment; filename="{}.csv"'.format(
+        codelist.download_filename()
+    )
+    response["Content-Disposition"] = content_disposition
+    response.write(codelist.csv_data)
+    return response

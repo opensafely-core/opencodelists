@@ -1,5 +1,6 @@
-{% extends 'base.html' %} {% block content %}
+{% extends 'base.html' %}
 
+{% block content %}
 <br />
 <h3>{{ codelist.name }}</h3>
 <br />
@@ -104,7 +105,7 @@
         role="tabpanel"
         aria-labelledby="browse-tab"
       >
-        <table class="table">
+        <table id="js-codelist-table" class="table">
           <thead>
             {% for v in headers %}
             <th>{{ v }}</th>
@@ -122,7 +123,16 @@
         </table>
       </div>
     </div>
-
-    {% endblock %}
   </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script type="text/javascript">
+  $(document).ready(function () {
+    $('#js-codelist-table').DataTable({
+      paging: false
+    });
+  });
+</script>
+{% endblock %}

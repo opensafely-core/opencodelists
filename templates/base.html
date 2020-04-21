@@ -12,6 +12,12 @@
       integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
       crossorigin="anonymous"
     />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.css"
+    />
+
     <script
       src="https://kit.fontawesome.com/7e05304e34.js"
       crossorigin="anonymous"
@@ -48,6 +54,14 @@
         integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
         crossorigin="anonymous"
       ></script>
+
+      <script
+        type="text/javascript"
+        charset="utf8"
+        src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.js"
+      ></script>
+
+      {% block extra_js %}{% endblock %}
     </div>
   </body>
 </html>

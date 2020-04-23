@@ -8,7 +8,7 @@ from .models import Codelist
 
 
 def index(request):
-    ctx = {"codelists": Codelist.objects.all()}
+    ctx = {"codelists": Codelist.objects.order_by("name")}
     return render(request, "codelists/index.html", ctx)
 
 

@@ -15,6 +15,7 @@ class CodelistAdmin(admin.ModelAdmin):
     model = Codelist
     exclude = ["slug"]
     inlines = [ReferenceInline, SignOffInline]
+    ordering = ["name"]
 
 
 admin.site.register(Codelist, CodelistAdmin)

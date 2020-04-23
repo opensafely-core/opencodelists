@@ -5,16 +5,19 @@
 #    pip-compile
 #
 bcrypt==3.1.7             # via paramiko
+bleach==3.1.4             # via django-markdown-filter
 cffi==1.14.0              # via bcrypt, cryptography, pynacl
 cryptography==2.8         # via paramiko
 dbfread==2.0.7            # via -r requirements.in
 decorator==4.4.2          # via networkx
 django-cors-headers==3.2.1  # via -r requirements.in
-django==2.2.11            # via -r requirements.in, django-cors-headers
+django-markdown-filter==0.0.1  # via -r requirements.in
+django==2.2.11            # via -r requirements.in, django-cors-headers, django-markdown-filter
 entrypoints==0.3          # via flake8
 fabric3==1.14.post1       # via -r requirements.in
 flake8==3.7.9             # via -r requirements.in
 isort==4.3.21             # via -r requirements.in
+markdown2==2.3.8          # via django-markdown-filter
 mccabe==0.6.1             # via flake8
 networkx==2.4             # via -r requirements.in
 paramiko==2.7.1           # via fabric3
@@ -23,5 +26,6 @@ pycparser==2.20           # via cffi
 pyflakes==2.1.1           # via flake8
 pynacl==1.3.0             # via paramiko
 pytz==2019.3              # via django
-six==1.14.0               # via bcrypt, cryptography, fabric3, pynacl
+six==1.14.0               # via bcrypt, bleach, cryptography, fabric3, pynacl
 sqlparse==0.3.1           # via django
+webencodings==0.5.1       # via bleach

@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "mappings.rctctv3map",
     "mappings.ctv3sctmap2",
     "corsheaders",
+    "markdown_filter",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -162,3 +163,18 @@ LOGGING = {
 # CORS
 
 CORS_ORIGIN_ALLOW_ALL = True
+
+
+MARKDOWN_FILTER_WHITELIST_TAGS = [
+    "h1",
+    "h2",
+    "h3",
+    "h4",
+    "h5",
+    "h6",
+    "a",
+    "p",
+    "ul",
+    "li",
+    "code",
+]

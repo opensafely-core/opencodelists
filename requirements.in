@@ -2,6 +2,7 @@ dbfread
 fabric3
 django
 django-cors-headers
+django-markdown-filter
 networkx
 
 # dev

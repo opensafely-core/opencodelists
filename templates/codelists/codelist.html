@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load markdown_filter %}
 
 {% block content %}
 <br />
@@ -69,11 +70,11 @@
         aria-labelledby="definition-tab"
       >
         <h4>Description</h4>
-        <p>{{ codelist.description }}</p>
+        <p>{{ codelist.description|markdown_filter|safe }}</p>
 
         {% if codelist.methodology %}
         <h4>Methodology</h4>
-        <p>{{ codelist.methodology }}</p>
+        <p>{{ codelist.methodology|markdown_filter|safe }}</p>
         {% endif %}
 
         <h4>References</h4>

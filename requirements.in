@@ -9,4 +9,4 @@ networkx
 black
 flake8
 isort
-# litecli
+litecli

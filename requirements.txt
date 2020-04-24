@@ -10,7 +10,9 @@ bcrypt==3.1.7             # via paramiko
 black==19.10b0            # via -r requirements.in
 bleach==3.1.4             # via django-markdown-filter
 cffi==1.14.0              # via bcrypt, cryptography, pynacl
-click==7.1.1              # via black
+cli-helpers[styles]==1.2.1  # via litecli
+click==7.1.1              # via black, litecli
+configobj==5.0.6          # via cli-helpers, litecli
 cryptography==2.8         # via paramiko
 dbfread==2.0.7            # via -r requirements.in
 decorator==4.4.2          # via networkx
@@ -21,19 +23,25 @@ entrypoints==0.3          # via flake8
 fabric3==1.14.post1       # via -r requirements.in
 flake8==3.7.9             # via -r requirements.in
 isort==4.3.21             # via -r requirements.in
+litecli==1.3.2            # via -r requirements.in
 markdown2==2.3.8          # via django-markdown-filter
 mccabe==0.6.1             # via flake8
 networkx==2.4             # via -r requirements.in
 paramiko==2.7.1           # via fabric3
 pathspec==0.8.0           # via black
+prompt-toolkit==3.0.5     # via litecli
 pycodestyle==2.5.0        # via flake8
 pycparser==2.20           # via cffi
 pyflakes==2.1.1           # via flake8
+pygments==2.6.1           # via cli-helpers, litecli
 pynacl==1.3.0             # via paramiko
 pytz==2019.3              # via django
 regex==2020.4.4           # via black
-six==1.14.0               # via bcrypt, bleach, cryptography, fabric3, pynacl
-sqlparse==0.3.1           # via django
+six==1.14.0               # via bcrypt, bleach, configobj, cryptography, fabric3, pynacl
+sqlparse==0.3.1           # via django, litecli
+tabulate[widechars]==0.8.7  # via cli-helpers
+terminaltables==3.1.0     # via cli-helpers
 toml==0.10.0              # via black
 typed-ast==1.4.1          # via black
+wcwidth==0.1.9            # via prompt-toolkit, tabulate
 webencodings==0.5.1       # via bleach

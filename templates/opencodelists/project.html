@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load markdown_filter %}
+{% block content %}
+
+<br />
+<h3>{{ project.name }}</h3>
+<br />
+
+<div class="row">
+  <div class="col-12">
+    <p>{{ project.details|markdown_filter|safe }}</p>
+
+    {% if project.url %}
+    <p>Visit the <a href="{{ project.url}}">{{ project.name }}</a> website.<p>
+    {% endif %}
+
+    <h4>Collaborating organisations</h4>
+    <ul>
+      {% for organisation in project.organisations.all %}
+      <li>
+        <a href="{{ organisation.url }}">
+          {{ organisation.name }}
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+{% endblock %}

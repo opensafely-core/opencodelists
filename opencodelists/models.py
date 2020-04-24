@@ -39,6 +39,7 @@ class User(AbstractBaseUser):
 class Organisation(models.Model):
     slug = models.SlugField(primary_key=True)
     name = models.CharField(max_length=255)
+    url = models.URLField()
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
@@ -52,6 +53,8 @@ class Project(models.Model):
     slug = models.SlugField(primary_key=True)
     name = models.CharField(max_length=255)
     organisations = models.ManyToManyField("Organisation", related_name="projects")
+    details = models.TextField()
+    url = models.URLField()
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)

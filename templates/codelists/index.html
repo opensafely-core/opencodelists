@@ -27,7 +27,10 @@
         <a href="{{ cl.get_absolute_url }}">{{ cl.name }}</a>
 	<span class="badge badge-secondary">{{ cl.coding_system.short_name }}</span>
       </dt>
-      <dd>{{ cl.description }}</dd>
+      <dd>
+      <div>{{ cl.description }}</div>
+      <div>Part of the <a href="{% url 'project' cl.project_id %}">{{ cl.project.name }}</a> project</div>
+      </dd>
       {% endfor %}
     </dl>
   </div>

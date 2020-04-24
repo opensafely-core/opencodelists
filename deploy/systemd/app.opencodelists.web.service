@@ -1,5 +1,5 @@
 [Unit]
-Description=OpenCodeLists
+Description=OpenCodelists
 
 [Service]
 User=www-data

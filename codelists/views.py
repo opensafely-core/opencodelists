@@ -8,7 +8,13 @@ from .models import Codelist
 
 
 def index(request):
-    ctx = {"codelists": Codelist.objects.order_by("name")}
+    q = request.GET.get("q")
+    if q:
+        codelists = Codelist.objects.filter(name__contains=q, description__contains=q)
+    else:
+        codelists = Codelist.objects.all()
+    codelists = codelists.order_by("name")
+    ctx = {"codelists": codelists, "q": q}
     return render(request, "codelists/index.html", ctx)
 
 

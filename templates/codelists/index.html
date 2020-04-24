@@ -4,6 +4,21 @@
 <h3>All codelists</h3>
 <br />
 
+<form class="form-inline mb-4">
+  <label class="sr-only" for="search-codelists">Query</label>
+  <input
+    name="q"
+    type="text"
+    id="search-codelists"
+    class="form-control mb-2 mr-2"
+    placeholder="Search codelists"
+    {% if q %}value={{ q }}{% endif %}
+  />
+
+  <button type="submit" class="btn btn-primary mb-2 mr-2">Search</button>
+  <a href="/" role="button" class="btn btn-primary mb-2">Reset</a>
+</form>
+
 <div class="row">
   <div class="col-12">
     <dl>

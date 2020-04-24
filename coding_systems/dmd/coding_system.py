@@ -1,5 +1,6 @@
-from codelists.coding_system import BaseCodingSystem
+from codelists.base_coding_system import BaseCodingSystem
 
 
 class CodingSystem(BaseCodingSystem):
-    pass
+    name = "Dictionary of Medicines and Devices"
+    short_name = "dm+d"

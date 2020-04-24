@@ -3,19 +3,21 @@ from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.text import slugify
 
-from . import coding_system
+from .coding_systems import CODING_SYSTEMS
 
 
 class Codelist(models.Model):
+    CODING_SYSTEMS_CHOICES = sorted(
+        (id, system.name) for id, system in CODING_SYSTEMS.items()
+    )
+
     name = models.CharField(max_length=255)
     slug = models.SlugField()
     project = models.ForeignKey(
         "opencodelists.Project", related_name="codelists", on_delete=models.CASCADE
     )
     coding_system_id = models.CharField(
-        choices=sorted(coding_system.CODING_SYSTEMS.items()),
-        max_length=32,
-        verbose_name="Coding system",
+        choices=CODING_SYSTEMS_CHOICES, max_length=32, verbose_name="Coding system",
     )
     version_str = models.CharField(max_length=12, verbose_name="Version")
     description = models.TextField()
@@ -34,7 +36,7 @@ class Codelist(models.Model):
 
     @cached_property
     def coding_system(self):
-        return coding_system.get(self.coding_system_id)
+        return CODING_SYSTEMS[self.coding_system_id]
 
     def get_absolute_url(self):
         return reverse("codelists:codelist", args=(self.project_id, self.slug))

@@ -137,7 +137,9 @@ class TestAPI(TestCase):
         ]
         # fmt: on
 
-        self.assertConcepts(expected_concepts, ["900000000000449001"], include_ancestors=True)
+        self.assertConcepts(
+            expected_concepts, ["900000000000449001"], include_ancestors=True
+        )
 
     def test_concepts_parent(self):
         # fmt: off

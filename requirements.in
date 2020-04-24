@@ -6,7 +6,7 @@ django-markdown-filter
 networkx
 
 # dev
-# black
+black
 flake8
 isort
 # litecli

@@ -39,7 +39,9 @@ def concept(request, id):
     ctx = {
         "concept": concept,
         "parents": concept.parents(relationship_types).order_by("fully_specified_name"),
-        "children": concept.children(relationship_types).order_by("fully_specified_name"),
+        "children": concept.children(relationship_types).order_by(
+            "fully_specified_name"
+        ),
         "buttons": buttons,
     }
 

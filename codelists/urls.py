@@ -8,7 +8,7 @@ urlpatterns = [
     path("", views.index, name="index"),
     path("codelist/<project_slug>/<codelist_slug>/", views.codelist, name="codelist"),
     path(
-        "codelist/<project_slug>/<codelist_slug>/download.csv",
+        "codelist/<project_slug>/<codelist_slug>/<version_str>/download.csv",
         views.codelist_download,
         name="codelist_download",
     ),

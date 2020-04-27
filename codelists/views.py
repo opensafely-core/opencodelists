@@ -1,7 +1,7 @@
 import csv
 from io import StringIO
 
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render
 
 from .models import Codelist
@@ -31,8 +31,13 @@ def codelist(request, project_slug, codelist_slug):
     return render(request, "codelists/codelist.html", ctx)
 
 
-def codelist_download(request, project_slug, codelist_slug):
+def codelist_download(request, project_slug, codelist_slug, version_str):
     codelist = get_object_or_404(Codelist, project=project_slug, slug=codelist_slug)
+    if codelist.version_str != version_str:
+        raise Http404(
+            f"Incorrect version: {version_str}, expected {codelist.version_str}"
+        )
+
     response = HttpResponse(content_type="text/csv")
     content_disposition = 'attachment; filename="{}.csv"'.format(
         codelist.download_filename()

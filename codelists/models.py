@@ -45,9 +45,7 @@ class Codelist(models.Model):
         return "{}/{}".format(self.project_id, self.slug)
 
     def download_filename(self):
-        return "{}-{}-{}-{}".format(
-            self.project_id, self.slug, self.coding_system_id, self.version_str
-        )
+        return "{}-{}-{}".format(self.project_id, self.slug, self.version_str)
 
 
 class SignOff(models.Model):

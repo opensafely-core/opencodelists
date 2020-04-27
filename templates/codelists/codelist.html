@@ -10,7 +10,7 @@
   <div class="col-2">
     <div class="btn-group btn-block" role="group">
       <a
-        href="{% url 'codelists:codelist_download' codelist.project_id codelist.slug %}"
+        href="{% url 'codelists:codelist_download' codelist.project_id codelist.slug codelist.version_str %}"
         role="button"
         class="btn btn-outline-info btn-block"
       >

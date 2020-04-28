@@ -1,4 +1,4 @@
-from fabric.api import env, prefix, run, task
+from fabric.api import abort, env, prefix, run, task
 from fabric.context_managers import cd, shell_env
 from fabric.contrib.files import exists
 
@@ -13,6 +13,13 @@ env.path = "/var/www/opencodelists"
 def initalise_directory():
     if not exists(env.path):
         run(f"git clone git@github.com:ebmdatalab/opencodelists.git {env.path}")
+
+
+def check_environment():
+    environment_path = "{}/environment".format(env.path)
+
+    if not exists(environment_path):
+        abort("Create {} before proceeding".format(environment_path))
 
 
 def create_venv():
@@ -62,6 +69,7 @@ def restart_service():
 @task
 def deploy():
     initalise_directory()
+    check_environment()
 
     with cd(env.path):
         with shell_env(DJANGO_SETTINGS_MODULE="opencodelists.settings"):

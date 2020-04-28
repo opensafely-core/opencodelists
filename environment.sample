@@ -1,0 +1,3 @@
+export IN_PRODUCTION=yes
+export ALLOWED_HOST=opencodelists.opensafely.org
+export SECRET_KEY=

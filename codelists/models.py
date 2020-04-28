@@ -29,6 +29,7 @@ class Codelist(models.Model):
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
+        self.csv_data = self.csv_data.replace("\r\n", "\n")
         super().save(*args, **kwargs)
 
     def __str__(self):

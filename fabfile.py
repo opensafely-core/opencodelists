@@ -70,5 +70,6 @@ def deploy():
             install_requirements()
             run_migrations()
             chown_everything()
+            set_up_nginx()
             set_up_systemd()
             restart_service()

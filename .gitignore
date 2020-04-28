@@ -1,5 +1,6 @@
 db.sqlite3
 environment
+staticfiles
 tmp
 coding_systems/snomedct/data
 venv

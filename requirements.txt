@@ -46,6 +46,7 @@ toml==0.10.0              # via black
 typed-ast==1.4.1          # via black
 wcwidth==0.1.9            # via prompt-toolkit, tabulate
 webencodings==0.5.1       # via bleach
+whitenoise==5.0.1         # via -r requirements.in
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools

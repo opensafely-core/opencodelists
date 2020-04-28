@@ -46,6 +46,11 @@ def run_migrations():
         run("python manage.py migrate")
 
 
+def collect_static_files():
+    with prefix("source venv/bin/activate"):
+        run("python manage.py collectstatic")
+
+
 def set_up_nginx():
     run(
         f"ln -sf {env.path}/deploy/nginx/opencodelists /etc/nginx/sites-enabled/opencodelists"
@@ -77,6 +82,7 @@ def deploy():
             update_from_git()
             install_requirements()
             run_migrations()
+            collect_static_files()
             chown_everything()
             set_up_nginx()
             set_up_systemd()

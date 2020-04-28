@@ -5,6 +5,7 @@ django-cors-headers
 django-markdown-filter
 gunicorn
 networkx
+whitenoise
 
 # dev
 black

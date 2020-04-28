@@ -25,10 +25,4 @@ server {
 
         proxy_pass http://opencodelists;
     }
-
-    location /static {
-        alias   /var/www/opencodelists/static;
-        expires max;
-        access_log off;
-    }
 }

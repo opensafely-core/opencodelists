@@ -8,4 +8,4 @@ source "$VIRTUALENV_PATH/activate"
 export PYTHONPATH="$PYTHONPATH:$REPO_ROOT"
 export DJANGO_SETTINGS_MODULE="opencodelists.settings"
 
-python "$REPO_ROOT/manage.py" runserver 0.0.0.0:8001
+python "$VIRTUALENV_PATH/gunicorn" opencodelists.wsgi --config "$REPO_ROOT/gunicorn/conf.py"

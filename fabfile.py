@@ -39,6 +39,14 @@ def run_migrations():
         run("python manage.py migrate")
 
 
+def set_up_nginx():
+    run(
+        f"ln -sf {env.path}/deploy/nginx/opencodelists /etc/nginx/sites-enabled/opencodelists"
+    )
+
+    run("/etc/init.d/nginx reload")
+
+
 def set_up_systemd():
     run(
         f"ln -sf {env.path}/deploy/systemd/app.opencodelists.web.service /etc/systemd/system"

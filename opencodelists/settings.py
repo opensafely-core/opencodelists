@@ -24,9 +24,9 @@ if IN_PRODUCTION:
     DEBUG = False
     ALLOWED_HOSTS = [os.environ["ALLOWED_HOST"]]
 
-    SECURE_SSL_REDIRECT = True
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
+    # SECURE_SSL_REDIRECT = True
+    # SESSION_COOKIE_SECURE = True
+    # CSRF_COOKIE_SECURE = True
 
 else:
     SECRET_KEY = "secret"

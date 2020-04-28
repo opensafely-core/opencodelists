@@ -7,7 +7,7 @@ upstream opencodelists {
 server {
     listen 80;
     listen [::]:80;
-    server_name opencodelists.opensafely.org;
+    server_name codelists.opensafely.org;
 
     resolver 8.8.8.8 8.8.4.4 valid=300s;
     resolver_timeout 5s;

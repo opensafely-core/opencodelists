@@ -15,7 +15,6 @@ cli-helpers[styles]==1.2.1  # via litecli
 click==7.1.2              # via black, litecli
 configobj==5.0.6          # via cli-helpers, litecli
 cryptography==2.9.2       # via paramiko
-dbfread==2.0.7            # via -r requirements.in
 decorator==4.4.2          # via networkx
 django-cors-headers==3.2.1  # via -r requirements.in
 django-markdown-filter==0.0.1  # via -r requirements.in

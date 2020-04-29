@@ -34,7 +34,7 @@ def update_from_git():
 
 def install_requirements():
     with prefix("source venv/bin/activate"):
-        run("pip install -r requirements.txt")
+        run("pip install --quiet --requirement requirements.txt")
 
 
 def chown_everything():

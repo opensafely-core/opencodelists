@@ -1,23 +1,27 @@
-<h4>
+{% if link %}
+<li>
+<a href="{% url 'ctv3:concept' concept.read_code %}">
+  {{ concept.preferred_term }}
   <code>
-    {% if link %}
-    <a href="{% url 'ctv3:concept' concept.read_code %}">{{ concept.read_code}}</a>
-    {% else %}
     {{ concept.read_code}}
-    {% endif %}
   </code>
-
-  <small>{{ concept.unknown_field_1 }} / {{ concept.unknown_field_2 }}</small>
+</a>
+  <small>({{ concept.get_status_display }})</small>
+</li>
+{% else %}
+<h4>
+  {{ concept.preferred_term }}
+  <code>
+    {{ concept.read_code}}
+  </code>
+  <small>({{ concept.get_status_display }})</small>
 </h4>
+{% endif %}
 
+{% if concept.synonyms %}
 <ul>
-  {% for term in concept.all_terms %}
-  <li>
-    {{ term.name }}
-    (<a href="{% url 'ctv3:term' term.term_id %}">
-	    <code>{{ term.term_id }}</code>
-    </a>
-    / {{ term.unknown_field_4 }})
-  </li>
+  {% for term in concept.synonyms %}
+  <li>{{ term }}</li>
   {% endfor %}
 </ul>
+{% endif %}

@@ -39,6 +39,23 @@ class Concept(models.Model):
         assert "terms" in self._prefetched_objects_cache
         return self.terms.all()
 
+    def preferred_term(self):
+        return (
+            self.terms.filter(
+                concepttermmapping__term_type=ConceptTermMapping.PREFERRED
+            )
+            .get()
+            .name()
+        )
+
+    def synonyms(self):
+        return sorted(
+            term.name()
+            for term in self.terms.exclude(
+                concepttermmapping__term_type=ConceptTermMapping.PREFERRED
+            )
+        )
+
 
 class ConceptHierarchy(models.Model):
     parent = models.ForeignKey(

@@ -24,9 +24,11 @@
 <hr />
 <div class="row">
   <div class="col-12">
+    <ul>
     {% for concept in concepts %}
     {% include "./_concept.html" with link=True %}
     {% endfor %}
+    </ul>
   </div>
 </div>
 {% endif %}

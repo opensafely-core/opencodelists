@@ -9,9 +9,11 @@
 
 <div class="row">
   <div class="col-12">
+    <ul>
     {% for parent in parents %}
     {% include "./_concept.html" with concept=parent link=True %}
     {% endfor %}
+    </ul>
   </div>
 </div>
 
@@ -24,9 +26,11 @@
 
 <div class="row">
   <div class="col-8 offset-4">
+    <ul>
     {% for child in children %}
     {% include "./_concept.html" with concept=child link=True %}
     {% endfor %}
+    </ul>
   </div>
 </div>
 {% endblock %}

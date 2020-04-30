@@ -60,6 +60,20 @@
           >Browse</a
         >
       </li>
+      {% if tree %}
+      <li class="nav-item">
+        <a
+          class="nav-link"
+          id="tree-tab"
+          data-toggle="tab"
+          href="#tree"
+          role="tab"
+          aria-controls="tree"
+          aria-selected="false"
+          >Tree</a
+        >
+        {% endif %}
+      </li>
     </ul>
 
     <div class="tab-content">
@@ -122,6 +136,17 @@
               {% endfor %}
           </tbody>
         </table>
+      </div>
+
+      {% if tree %}
+      <div
+        class="tab-pane fade p-4"
+        id="tree"
+        role="tabpanel"
+        aria-labelledby="tree-tab"
+      >
+      {{ tree|safe }}
+      {% endif %}
       </div>
     </div>
   </div>

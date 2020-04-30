@@ -1,3 +1,6 @@
+import csv
+from io import StringIO
+
 from django.db import models
 from django.urls import reverse
 from django.utils.functional import cached_property
@@ -38,6 +41,10 @@ class Codelist(models.Model):
     @cached_property
     def coding_system(self):
         return CODING_SYSTEMS[self.coding_system_id]
+
+    @cached_property
+    def table(self):
+        return list(csv.reader(StringIO(self.csv_data)))
 
     def get_absolute_url(self):
         return reverse("codelists:codelist", args=(self.project_id, self.slug))

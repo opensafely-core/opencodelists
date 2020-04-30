@@ -1,8 +1,7 @@
-import csv
-from io import StringIO
-
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render
+
+from coding_systems.ctv3 import tree_utils as ctv3_tree_utils
 
 from .models import Codelist
 
@@ -20,13 +19,24 @@ def index(request):
 
 def codelist(request, project_slug, codelist_slug):
     codelist = get_object_or_404(Codelist, project=project_slug, slug=codelist_slug)
-    table = list(csv.reader(StringIO(codelist.csv_data)))
-    headers, *rows = table
+    headers, *rows = codelist.table
+
+    if codelist.coding_system_id in ["ctv3", "ctv3tpp"]:
+        if codelist_slug == "ethnicity":
+            ix = 1
+        else:
+            ix = 0
+
+        codes = tuple(sorted({row[ix] for row in rows}))
+        tree = ctv3_tree_utils.html_tree_highlighting_codes(codes)
+    else:
+        tree = None
 
     ctx = {
         "codelist": codelist,
         "headers": headers,
         "rows": rows,
+        "tree": tree,
     }
     return render(request, "codelists/codelist.html", ctx)
 

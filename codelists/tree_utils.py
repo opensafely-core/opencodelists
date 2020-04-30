@@ -10,8 +10,8 @@ def edges_to_paths(root, edges):
 
     for parent, child in edges:
         map[parent].add(child)
-        paths = []
 
+    paths = []
     todo = [[root]]
 
     while todo:

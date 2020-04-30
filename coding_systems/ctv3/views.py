@@ -35,8 +35,12 @@ def concept(request, read_code):
     )
     ctx = {
         "concept": concept,
-        "parents": concept.parents.prefetch_related("terms"),
-        "children": concept.children.prefetch_related("terms"),
+        "parents": sorted(
+            concept.parents.prefetch_related("terms"), key=lambda c: c.preferred_term()
+        ),
+        "children": sorted(
+            concept.children.prefetch_related("terms"), key=lambda c: c.preferred_term()
+        ),
     }
     return render(request, "ctv3/concept.html", ctx)
 

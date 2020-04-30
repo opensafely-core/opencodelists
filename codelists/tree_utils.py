@@ -11,7 +11,8 @@ def edges_to_paths(root, edges):
     for parent, child in edges:
         map[parent].add(child)
         paths = []
-        todo = [[root]]
+
+    todo = [[root]]
 
     while todo:
         path = todo.pop()

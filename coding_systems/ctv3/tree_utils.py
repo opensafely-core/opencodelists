@@ -67,7 +67,7 @@ def html_tree_highlighting_codes(codes):
         last_depth = depth
 
         if code in codes:
-            color = "red"
+            color = "blue"
         else:
             color = "black"
 

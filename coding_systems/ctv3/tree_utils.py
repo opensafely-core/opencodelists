@@ -41,7 +41,8 @@ def lookup_names(codes):
 
 @lru_cache()
 def html_tree_highlighting_codes(codes):
-    paths = tree_utils.prune_paths(all_paths(), codes)
+    edges = ancestor_relationships(codes) + descendant_relationships(codes)
+    paths = tree_utils.edges_to_paths(root, edges)
 
     included_codes = set()
     for path in paths:
@@ -96,6 +97,29 @@ def ancestor_relationships(codes):
       FROM ctv3_concepthierarchy h
       INNER JOIN tree t
         ON h.child_id = t.parent_id
+    )
+
+    SELECT parent_id, child_id FROM tree
+    """
+
+    return query(sql, codes)
+
+
+@lru_cache()
+def descendant_relationships(codes):
+    placeholders = ", ".join(["%s"] * len(codes))
+    sql = f"""
+    WITH RECURSIVE tree(parent_id, child_id) AS (
+      SELECT parent_id, child_id
+      FROM ctv3_concepthierarchy
+      WHERE parent_id IN ({placeholders})
+
+      UNION
+
+      SELECT h.parent_id, h.child_id
+      FROM ctv3_concepthierarchy h
+      INNER JOIN tree t
+        ON h.parent_id = t.child_id
     )
 
     SELECT parent_id, child_id FROM tree

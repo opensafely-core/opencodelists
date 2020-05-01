@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
 {% load markdown_filter %}
 
+{% block title_extra %}: {{ codelist.name }}{% endblock %}
+
 {% block content %}
 <br />
 <h3>{{ codelist.name }}</h3>

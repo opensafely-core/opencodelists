@@ -1,4 +1,7 @@
-{% extends 'base.html' %} {% block content %}
+{% extends 'base.html' %}
+{% load markdown_filter %}
+
+{% block content %}
 
 <br />
 <h3>All codelists</h3>
@@ -28,7 +31,7 @@
 	<span class="badge badge-secondary">{{ cl.coding_system.short_name }}</span>
       </dt>
       <dd>
-      <div>{{ cl.description }}</div>
+      <div>{{ cl.description|markdown_filter|safe }}</div>
       <div>Part of the <a href="{% url 'project' cl.project_id %}">{{ cl.project.name }}</a> project</div>
       </dd>
       {% endfor %}

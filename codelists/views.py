@@ -1,9 +1,9 @@
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render
 
-from coding_systems.ctv3 import tree_utils as ctv3_tree_utils
-
+from .coding_systems import CODING_SYSTEMS
 from .models import Codelist
+from .tree_utils import html_tree_highlighting_codes
 
 
 def index(request):
@@ -22,13 +22,14 @@ def codelist(request, project_slug, codelist_slug):
     headers, *rows = codelist.table
 
     if codelist.coding_system_id in ["ctv3", "ctv3tpp"]:
+        coding_system = CODING_SYSTEMS["ctv3"]
         if codelist_slug == "ethnicity":
             ix = 1
         else:
             ix = 0
 
         codes = tuple(sorted({row[ix] for row in rows}))
-        tree = ctv3_tree_utils.html_tree_highlighting_codes(codes)
+        tree = html_tree_highlighting_codes(coding_system, codes)
     else:
         tree = None
 

@@ -11,4 +11,4 @@ for path in glob.glob(
 ):
     coding_system_id = path.split(os.path.sep)[-2]
     mod = import_module(f"coding_systems.{coding_system_id}.coding_system")
-    CODING_SYSTEMS[coding_system_id] = mod.CodingSystem
+    CODING_SYSTEMS[coding_system_id] = mod

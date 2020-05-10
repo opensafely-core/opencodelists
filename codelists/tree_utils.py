@@ -5,34 +5,37 @@ from django.urls import reverse
 
 def html_tree_highlighting_codes(coding_system, codes):
     subtree = build_subtree(coding_system, codes)
-    included_codes = set(tree_depth_first(subtree))
+    included_codes = set(walk_tree_depth_first(subtree))
     code_to_name = coding_system.lookup_names(included_codes)
+    sort_key = code_to_name.__getitem__
 
-    lines = ["<ul>"]
+    lines = []
 
-    last_depth = 0
-    for code, depth in tree_depth_first(subtree, code_to_name.__getitem__):
-        if depth - last_depth == 1:
+    last_direction = 1
+    for code, direction in walk_tree_depth_first(subtree, sort_key):
+        if direction == last_direction == 1:
             lines.append("<ul>")
-        else:
-            for i in range(last_depth - depth):
-                lines.append("</ul>")
+        elif direction == last_direction == -1:
+            lines.append("</ul>")
 
-        last_depth = depth
+        last_direction = direction
+
+        if direction == -1:
+            continue
 
         if code in codes:
-            color = "blue"
+            colour = "blue"
         else:
-            color = "black"
+            colour = "black"
+
+        style = f"color: {colour}"
 
         name = code_to_name[code]
         url = reverse("ctv3:concept", args=[code])
 
         lines.append(
-            f'<li><a href="{url}" style="color: {color}">{name}</a> (<code>{code}</code>)</li>'
+            f'<li><a href="{url}" style="{style}">{name}</a> (<code>{code}</code>)</li>'
         )
-
-    lines.append("</ul>")
 
     return "\n".join(lines)
 
@@ -79,10 +82,11 @@ def paths_to_tree(paths):
     return tree
 
 
-def tree_depth_first(tree, sort_key=None):
-    def helper(tree, depth):
+def walk_tree_depth_first(tree, sort_key=None):
+    def helper(tree):
         for node in sorted(tree, key=sort_key):
-            yield (node, depth)
-            yield from (helper(tree[node], depth + 1))
+            yield (node, 1)
+            yield from (helper(tree[node]))
+            yield (node, -1)
 
-    yield from helper(tree, 0)
+    yield from helper(tree)

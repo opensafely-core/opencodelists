@@ -68,7 +68,11 @@ class Definition:
                 codes |= descendants_map[e.code]
 
         for e in self.negated_elements():
-            codes.remove(e.code)
+            try:
+                codes.remove(e.code)
+            except KeyError:
+                print(e.code)
+                pass
             if e.includes_children:
                 codes -= descendants_map[e.code]
 

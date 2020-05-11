@@ -6,6 +6,9 @@ gunicorn
 networkx
 whitenoise
 
+# test
+hypothesis
+
 # dev
 black
 flake8

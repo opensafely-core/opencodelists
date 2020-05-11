@@ -90,3 +90,21 @@ def walk_tree_depth_first(tree, sort_key=None):
             yield (node, -1)
 
     yield from helper(tree)
+
+
+def build_descendants_map(tree):
+    descendants = {}
+
+    stack = []
+    for node, direction in walk_tree_depth_first(tree):
+        if direction == 1:
+            stack.append(node)
+            descendants[node] = set()
+        else:
+            old_head = stack.pop()
+            if stack:
+                new_head = stack[-1]
+                descendants[new_head].add(old_head)
+                descendants[new_head] |= descendants[old_head]
+
+    return descendants

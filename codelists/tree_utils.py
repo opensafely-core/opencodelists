@@ -3,14 +3,14 @@ from collections import defaultdict
 from django.urls import reverse
 
 
-def html_tree_highlighting_codes(coding_system, codes):
-    subtree = build_subtree(coding_system, codes)
-    included_codes = set(walk_tree_depth_first(subtree))
-    code_to_name = coding_system.lookup_names(included_codes)
+def build_html_tree_highlighting_codes(coding_system, subtree, definition):
+    codes = definition.codes(subtree)
+    codes_in_definition = {e.code for e in definition.unnegated_elements()}
+    codes_in_tree = set(walk_tree_depth_first(subtree))
+    code_to_name = coding_system.lookup_names(codes_in_tree)
     sort_key = code_to_name.__getitem__
 
     lines = []
-
     last_direction = 1
     for code, direction in walk_tree_depth_first(subtree, sort_key):
         if direction == last_direction == 1:
@@ -29,6 +29,9 @@ def html_tree_highlighting_codes(coding_system, codes):
             colour = "black"
 
         style = f"color: {colour}"
+
+        if code in codes_in_definition:
+            style += "; text-decoration: underline"
 
         name = code_to_name[code]
         url = reverse("ctv3:concept", args=[code])

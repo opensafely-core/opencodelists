@@ -1,10 +1,10 @@
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render
 
+from . import tree_utils
 from .coding_systems import CODING_SYSTEMS
-from .definition import html_definition
+from .definition import Definition, build_html_definition
 from .models import Codelist
-from .tree_utils import html_tree_highlighting_codes
 
 
 def index(request):
@@ -30,18 +30,22 @@ def codelist(request, project_slug, codelist_slug):
             ix = 0
 
         codes = tuple(sorted({row[ix] for row in rows}))
-        tree = html_tree_highlighting_codes(coding_system, codes)
-        definition = html_definition(coding_system, codes)
+        subtree = tree_utils.build_subtree(coding_system, codes)
+        definition = Definition.from_codes(codes, subtree)
+        html_definition = build_html_definition(coding_system, subtree, definition)
+        html_tree = tree_utils.build_html_tree_highlighting_codes(
+            coding_system, subtree, definition
+        )
     else:
-        tree = None
         definition = None
+        html_tree = None
 
     ctx = {
         "codelist": codelist,
         "headers": headers,
         "rows": rows,
-        "tree": tree,
-        "definition": definition,
+        "html_tree": html_tree,
+        "html_definition": html_definition,
     }
     return render(request, "codelists/codelist.html", ctx)
 

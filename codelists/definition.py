@@ -120,9 +120,7 @@ class Definition:
         return cls(list(helper(tree)))
 
 
-def html_definition(coding_system, codes):
-    subtree = tree_utils.build_subtree(coding_system, codes)
-    definition = Definition.from_codes(codes, subtree)
+def build_html_definition(coding_system, subtree, definition):
     code_to_name = coding_system.lookup_names([e.code for e in definition.elements])
     descendants_map = tree_utils.build_descendants_map(subtree)
 

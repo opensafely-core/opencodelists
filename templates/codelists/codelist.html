@@ -50,7 +50,7 @@
           >About</a
         >
       </li>
-      {% if definition %}
+      {% if html_definition %}
       <li class="nav-item">
         <a
           class="nav-link"
@@ -76,7 +76,7 @@
           >Full list</a
         >
       </li>
-      {% if tree %}
+      {% if html_tree %}
       <li class="nav-item">
         <a
           class="nav-link"
@@ -130,7 +130,7 @@
         </ul>
       </div>
 
-      {% if definition %}
+      {% if html_definition %}
       <div
         class="tab-pane fade p-4"
         id="definition"
@@ -139,11 +139,11 @@
       >
 
       <p>
-	This definition has been computed by taking the manually created
-	<a href="#full-list">full codelist</a> and converting it to a list of
-	rules that define the codelist.
+        This definition has been computed by taking the manually created
+        <a href="#full-list">full codelist</a> and converting it to a list of
+        rules that define the codelist.
       </p>
-      {{ definition|safe }}
+      {{ html_definition|safe }}
       </div>
       {% endif %}
 
@@ -171,7 +171,7 @@
         </table>
       </div>
 
-      {% if tree %}
+      {% if html_tree %}
       <div
         class="tab-pane fade p-4"
         id="tree"
@@ -180,10 +180,11 @@
       >
 
       <p>
-        This shows all the codes covered by the codelist in blue, and related
-        codes that were not included in this codelist in black.
+        Codes in the <a href="#definition">definition</a> are underlined.
+        Codes in the <a href="#full-list">full codelist</a> are in blue.
+        Related codes not in the codelist are in black.
       </p>
-      {{ tree|safe }}
+      {{ html_tree|safe }}
       </div>
       {% endif %}
     </div>

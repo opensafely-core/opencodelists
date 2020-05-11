@@ -37,7 +37,7 @@
   </div>
 
   <div class="col-md-9 col-lg-10">
-    <ul class="nav nav-tabs" role="tablist">
+    <ul id="tab-list" class="nav nav-tabs" role="tablist">
       <li class="nav-item">
         <a
           class="nav-link active"
@@ -196,6 +196,25 @@
     $('#js-codelist-table').DataTable({
       paging: false
     });
+
+    $('a[data-toggle="tab"]').on("click", function() {
+      var url = location.href.split("#")[0];
+
+      if ($(this).attr("href") !== "#about") {
+        url += $(this).attr("href");
+      }
+
+      history.pushState(null, null, url);
+    });
+
+    switchToTab();
   });
+
+  window.addEventListener("hashchange", switchToTab);
+
+  function switchToTab() {
+    var hash = location.hash || "#about";
+    $('#tab-list a[href="' + hash + '"]').tab("show");
+  }
 </script>
 {% endblock %}

@@ -67,13 +67,13 @@
       <li class="nav-item">
         <a
           class="nav-link"
-          id="browse-tab"
+          id="full-list-tab"
           data-toggle="tab"
-          href="#browse"
+          href="#full-list"
           role="tab"
-          aria-controls="browse"
+          aria-controls="full-list"
           aria-selected="false"
-          >Browse</a
+          >Full list</a
         >
       </li>
       {% if tree %}
@@ -140,7 +140,7 @@
 
       <p>
 	This definition has been computed by taking the manually created
-	<a href="#browse">full codelist</a> and converting it to a list of
+	<a href="#full-list">full codelist</a> and converting it to a list of
 	rules that define the codelist.
       </p>
       {{ definition|safe }}
@@ -149,9 +149,9 @@
 
       <div
         class="tab-pane fade p-4"
-        id="browse"
+        id="full-list"
         role="tabpanel"
-        aria-labelledby="browse-tab"
+        aria-labelledby="full-list-tab"
       >
         <table id="js-codelist-table" class="table table-sm">
           <thead>

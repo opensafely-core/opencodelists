@@ -50,6 +50,20 @@
           >About</a
         >
       </li>
+      {% if definition %}
+      <li class="nav-item">
+        <a
+          class="nav-link"
+          id="definition-tab"
+          data-toggle="tab"
+          href="#definition"
+          role="tab"
+          aria-controls="definition"
+          aria-selected="false"
+          >Definition</a
+        >
+      </li>
+      {% endif %}
       <li class="nav-item">
         <a
           class="nav-link"
@@ -73,20 +87,6 @@
           aria-controls="tree"
           aria-selected="false"
           >Tree</a
-        >
-      </li>
-      {% endif %}
-      {% if definition %}
-      <li class="nav-item">
-        <a
-          class="nav-link"
-          id="definition-tab"
-          data-toggle="tab"
-          href="#definition"
-          role="tab"
-          aria-controls="definition"
-          aria-selected="false"
-          >Definition</a
         >
       </li>
       {% endif %}
@@ -130,6 +130,23 @@
         </ul>
       </div>
 
+      {% if definition %}
+      <div
+        class="tab-pane fade p-4"
+        id="definition"
+        role="tabpanel"
+        aria-labelledby="definition-tab"
+      >
+
+      <p>
+	This definition has been computed by taking the manually created
+	<a href="#browse">full codelist</a> and converting it to a list of
+	rules that define the codelist.
+      </p>
+      {{ definition|safe }}
+      </div>
+      {% endif %}
+
       <div
         class="tab-pane fade p-4"
         id="browse"
@@ -167,23 +184,6 @@
         codes that were not included in this codelist in black.
       </p>
       {{ tree|safe }}
-      </div>
-      {% endif %}
-
-      {% if definition %}
-      <div
-        class="tab-pane fade p-4"
-        id="definition"
-        role="tabpanel"
-        aria-labelledby="definition-tab"
-      >
-
-      <p>
-	This definition has been computed by taking the manually created
-	<a href="#browse">full codelist</a> and converting it to a list of
-	rules that define the codelist.
-      </p>
-      {{ definition|safe }}
       </div>
       {% endif %}
     </div>

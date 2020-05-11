@@ -37,7 +37,7 @@ def codelist(request, project_slug, codelist_slug):
             coding_system, subtree, definition
         )
     else:
-        definition = None
+        html_definition = None
         html_tree = None
 
     ctx = {

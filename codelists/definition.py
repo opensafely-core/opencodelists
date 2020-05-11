@@ -158,7 +158,7 @@ def build_html_definition(coding_system, subtree, definition):
 
                     if ne.includes_children:
                         lines.append(
-                            f'<li><a href="{url} style="{style}"">{name}</a> (<code>{ne.code}</code>) and all descendants except:</li>'
+                            f'<li><a href="{url}" style="{style}">{name}</a> (<code>{ne.code}</code>) and all descendants except:</li>'
                         )
                     else:
                         lines.append(

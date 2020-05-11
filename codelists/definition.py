@@ -1,3 +1,5 @@
+from django.urls import reverse
+
 from . import tree_utils
 
 
@@ -116,3 +118,63 @@ class Definition:
                     yield from negative_helper(tree[code])
 
         return cls(list(helper(tree)))
+
+
+def html_definition(coding_system, codes):
+    subtree = tree_utils.build_subtree(coding_system, codes)
+    definition = Definition.from_codes(codes, subtree)
+    code_to_name = coding_system.lookup_names([e.code for e in definition.elements])
+    descendants_map = tree_utils.build_descendants_map(subtree)
+
+    def sort_key(e):
+        return code_to_name[e.code]
+
+    lines = ["</ul>"]
+
+    for e in sorted(definition.unnegated_elements(), key=sort_key):
+        name = code_to_name[e.code]
+        url = reverse("ctv3:concept", args=[e.code])
+        style = f"color: blue"
+
+        if e.includes_children:
+            matching_negated_elements = [
+                ne
+                for ne in definition.negated_elements()
+                if ne.code in descendants_map[e.code]
+            ]
+
+            if matching_negated_elements:
+                lines.append(
+                    f'<li><a href="{url}" style="{style}">{name}</a> (<code>{e.code}</code>) and all descendants except:</li>'
+                )
+                lines.append('<ul class="mb-0">')
+
+                for ne in sorted(matching_negated_elements, key=sort_key):
+                    name = code_to_name[ne.code]
+                    url = reverse("ctv3:concept", args=[ne.code])
+                    style = f"color: black"
+
+                    if ne.includes_children:
+                        lines.append(
+                            f'<li><a href="{url} style="{style}"">{name}</a> (<code>{ne.code}</code>) and all descendants except:</li>'
+                        )
+                    else:
+                        lines.append(
+                            f'<li><a href="{url}" style="{style}">{name}</a> (<code>{ne.code}</code>)</li>'
+                        )
+
+                lines.append("</ul>")
+
+            else:
+                lines.append(
+                    f'<li><a href="{url}" style="{style}">{name}</a> (<code>{e.code}</code>) and all descendants</li>'
+                )
+
+        else:
+            lines.append(
+                f'<li><a href="{url}" style="{style}">{name}</a> (<code>{e.code}</code>)</li>'
+            )
+
+    lines.append("</ul>")
+
+    return "\n".join(lines)

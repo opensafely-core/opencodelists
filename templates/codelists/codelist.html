@@ -41,11 +41,11 @@
       <li class="nav-item">
         <a
           class="nav-link active"
-          id="definition-tab"
+          id="about-tab"
           data-toggle="tab"
-          href="#definition"
+          href="#about"
           role="tab"
-          aria-controls="definition"
+          aria-controls="about"
           aria-selected="true"
           >About</a
         >
@@ -74,16 +74,30 @@
           aria-selected="false"
           >Tree</a
         >
-        {% endif %}
       </li>
+      {% endif %}
+      {% if definition %}
+      <li class="nav-item">
+        <a
+          class="nav-link"
+          id="definition-tab"
+          data-toggle="tab"
+          href="#definition"
+          role="tab"
+          aria-controls="definition"
+          aria-selected="false"
+          >Definition</a
+        >
+      </li>
+      {% endif %}
     </ul>
 
     <div class="tab-content">
       <div
         class="tab-pane fade show active p-4"
-        id="definition"
+        id="about"
         role="tabpanel"
-        aria-labelledby="definition-tab"
+        aria-labelledby="about-tab"
       >
         <h4>Description</h4>
         <p>{{ codelist.description|markdown_filter|safe }}</p>
@@ -153,8 +167,23 @@
         codes that were not included in this codelist in black.
       </p>
       {{ tree|safe }}
-      {% endif %}
       </div>
+      {% endif %}
+
+      {% if definition %}
+      <div
+        class="tab-pane fade p-4"
+        id="definition"
+        role="tabpanel"
+        aria-labelledby="definition-tab"
+      >
+
+      <p>
+        This definition has been derived from the original codelist.
+      </p>
+      {{ definition|safe }}
+      </div>
+      {% endif %}
     </div>
   </div>
 </div>

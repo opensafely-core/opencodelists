@@ -24,14 +24,8 @@ def codelist(request, project_slug, codelist_slug):
 
     if codelist.coding_system_id in ["ctv3", "ctv3tpp"]:
         coding_system = CODING_SYSTEMS["ctv3"]
-        if codelist_slug == "ethnicity":
-            ix = 1
-        else:
-            ix = 0
-
-        codes = tuple(sorted({row[ix] for row in rows}))
-        subtree = tree_utils.build_subtree(coding_system, codes)
-        definition = Definition.from_codes(codes, subtree)
+        subtree = tree_utils.build_subtree(coding_system, codelist.codes)
+        definition = Definition.from_codes(codelist.codes, subtree)
         html_definition = build_html_definition(coding_system, subtree, definition)
         html_tree = tree_utils.build_html_tree_highlighting_codes(
             coding_system, subtree, definition

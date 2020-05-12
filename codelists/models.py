@@ -46,6 +46,18 @@ class Codelist(models.Model):
     def table(self):
         return list(csv.reader(StringIO(self.csv_data)))
 
+    @cached_property
+    def codes(self):
+        if self.coding_system_id in ["ctv3", "ctv3tpp"]:
+            headers, *rows = self.table
+
+            if self.slug == "ethnicity":
+                ix = 1
+            else:
+                ix = 0
+
+            return tuple(sorted({row[ix] for row in rows}))
+
     def get_absolute_url(self):
         return reverse("codelists:codelist", args=(self.project_id, self.slug))
 

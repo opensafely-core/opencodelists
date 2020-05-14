@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render
 
@@ -10,7 +11,9 @@ from .models import Codelist
 def index(request):
     q = request.GET.get("q")
     if q:
-        codelists = Codelist.objects.filter(name__contains=q, description__contains=q)
+        codelists = Codelist.objects.filter(
+            Q(name__contains=q) | Q(description__contains=q)
+        )
     else:
         codelists = Codelist.objects.all()
     codelists = codelists.order_by("name")

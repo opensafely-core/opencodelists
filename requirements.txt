@@ -10,6 +10,7 @@ attrs==19.3.0             # via black, hypothesis
 bcrypt==3.1.7             # via paramiko
 black==19.10b0            # via -r requirements.in
 bleach==3.1.4             # via django-markdown-filter
+certifi==2020.4.5.1       # via sentry-sdk
 cffi==1.14.0              # via bcrypt, cryptography, pynacl
 cli-helpers[styles]==1.2.1  # via litecli
 click==7.1.2              # via black, litecli, pip-tools
@@ -41,6 +42,7 @@ pynacl==1.3.0             # via paramiko
 pysqlite3-binary==0.4.3   # via -r requirements.in
 pytz==2020.1              # via django
 regex==2020.4.4           # via black
+sentry-sdk==0.14.4        # via -r requirements.in
 six==1.14.0               # via bcrypt, bleach, configobj, cryptography, fabric3, pip-tools, pynacl
 sortedcontainers==2.1.0   # via hypothesis
 sqlparse==0.3.1           # via django, litecli
@@ -48,6 +50,7 @@ tabulate[widechars]==0.8.7  # via cli-helpers
 terminaltables==3.1.0     # via cli-helpers
 toml==0.10.0              # via black
 typed-ast==1.4.1          # via black
+urllib3==1.25.9           # via sentry-sdk
 wcwidth==0.1.9            # via prompt-toolkit, tabulate
 webencodings==0.5.1       # via bleach
 whitenoise==5.0.1         # via -r requirements.in

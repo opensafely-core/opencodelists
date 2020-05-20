@@ -1,3 +1,4 @@
 export IN_PRODUCTION=yes
 export ALLOWED_HOST=codelists.opensafely.org
 export SECRET_KEY=
+export SENTRY_DSN=

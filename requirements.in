@@ -6,6 +6,7 @@ gunicorn
 networkx
 pysqlite3-binary
 whitenoise
+sentry-sdk
 
 # test
 hypothesis

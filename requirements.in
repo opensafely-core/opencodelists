@@ -4,7 +4,9 @@ django-cors-headers
 django-markdown-filter
 gunicorn
 networkx
-pysqlite3-binary
+# pysqlite3-binary
+# Temporarily replace pysqlite3-binary with a custom compiled version which has had the parameter limit bumped
+https://github.com/evansd/pysqlite3/releases/download/0.4.2%2Bmaxargsbump/pysqlite3-0.4.2+maxargsbump-cp36-cp36m-manylinux1_x86_64.whl
 whitenoise
 
 # test

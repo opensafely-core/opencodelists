@@ -14,6 +14,9 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 import os
 import sys
 
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
+
 # Patch sqlite3 to ensure recent version
 __import__("pysqlite3")
 sys.modules["sqlite3"] = sys.modules.pop("pysqlite3")
@@ -175,6 +178,14 @@ LOGGING = {
 }
 # fmt: on
 
+
+# Sentry
+
+SENTRY_DSN = os.environ.get("SENTRY_DSN")
+if SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=SENTRY_DSN, integrations=[DjangoIntegration()], send_default_pii=True,
+    )
 
 # CORS
 

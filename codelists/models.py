@@ -53,8 +53,10 @@ class Codelist(models.Model):
 
             if self.slug == "ethnicity":
                 ix = 1
-            else:
+            elif "CTV3ID" in headers:
                 ix = headers.index("CTV3ID")
+            else:
+                ix = headers.index("CTV3Code")
 
             return tuple(sorted({row[ix] for row in rows}))
 

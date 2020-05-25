@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     "mappings.rctctv3map",
     "mappings.ctv3sctmap2",
     "corsheaders",
+    "django_extensions",
     "markdown_filter",
     "django.contrib.admin",
     "django.contrib.auth",

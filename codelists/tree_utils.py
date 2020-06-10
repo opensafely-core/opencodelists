@@ -72,15 +72,13 @@ def edges_to_paths(root, edges):
     return paths
 
 
-def tree_factory():
-    return defaultdict(tree_factory)
-
-
 def paths_to_tree(paths):
-    tree = tree_factory()
+    tree = {}
     for path in paths:
         subtree = tree
         for node in path:
+            if node not in subtree:
+                subtree[node] = {}
             subtree = subtree[node]
     return tree
 

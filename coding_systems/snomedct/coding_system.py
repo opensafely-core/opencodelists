@@ -1,11 +1,20 @@
 from opencodelists.db_utils import query
 
-from .models import IS_A
+from .models import FULLY_SPECIFIED_NAME, IS_A, Description
 
 name = "SNOMED CT"
 short_name = "SNOMED CT"
 
 root = "138875005"
+
+
+def lookup_names(codes):
+    return {
+        description.concept_id: description.term
+        for description in Description.objects.filter(
+            concept__in=codes, type=FULLY_SPECIFIED_NAME
+        )
+    }
 
 
 def ancestor_relationships(codes):

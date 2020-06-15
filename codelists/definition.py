@@ -131,7 +131,7 @@ def build_html_definition(coding_system, subtree, definition):
     def sort_key(e):
         return code_to_name[e.code]
 
-    lines = ["</ul>"]
+    lines = ["<ul>"]
 
     for e in sorted(definition.unnegated_elements(), key=sort_key):
         name = code_to_name[e.code]

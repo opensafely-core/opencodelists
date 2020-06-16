@@ -1,10 +1,7 @@
-import networkx as nx
-from django.http import Http404
 from django.shortcuts import get_object_or_404, render
 
 from .forms import BrowserForm
-from .isa_hierarchy import load_hierarchy
-from .models import ROOT_CONCEPT, STATED_RELATIONSHIP, Concept
+from .models import STATED_RELATIONSHIP, Concept
 
 
 def concept(request, id):
@@ -46,51 +43,3 @@ def concept(request, id):
     }
 
     return render(request, "snomedct/concept.html", ctx)
-
-
-def concept_paths(request, id):
-    hierarchy = load_hierarchy()
-    try:
-        concept = hierarchy.nodes[id]["concept"]
-    except KeyError:
-        raise Http404
-
-    subgraph = hierarchy.subgraph(
-        {id} | nx.ancestors(hierarchy, id) | nx.descendants(hierarchy, id)
-    )
-
-    # For reasons that I don't fully understand (it's something to do with the
-    # graph having a single root and lots of leaves) it's very quick to use
-    # networkx find all paths from the root to this node...
-    ancestor_paths = [
-        [subgraph.nodes[c]["concept"] for c in path]
-        for path in nx.all_simple_paths(subgraph, ROOT_CONCEPT, id)
-    ]
-    ancestor_paths.sort(key=lambda path: [c.fully_specified_name for c in path])
-
-    # ...but very very slow to use networkx to find all paths from this node to
-    # the leaves.
-    todo = [[id]]
-    descendant_code_paths = []
-
-    while todo:
-        path = todo.pop()
-        succs = subgraph.succ[path[-1]]
-        if succs:
-            for code1 in succs:
-                todo.append(path + [code1])
-        else:
-            descendant_code_paths.append(path)
-
-    descendant_paths = [
-        [hierarchy.nodes[id]["concept"] for id in path]
-        for path in descendant_code_paths
-    ]
-    descendant_paths.sort(key=lambda path: [c.fully_specified_name for c in path])
-
-    ctx = {
-        "concept": concept,
-        "ancestor_paths": ancestor_paths,
-        "descendant_paths": descendant_paths,
-    }
-    return render(request, "snomedct/concept-paths.html", ctx)

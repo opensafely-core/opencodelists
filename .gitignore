@@ -1,7 +1,6 @@
 db.sqlite3
 environment
 tmp
-coding_systems/snomedct/data
 venv
 __pycache__/
 .hypothesis

@@ -16,7 +16,6 @@ cli-helpers[styles]==1.2.1  # via litecli
 click==7.1.2              # via black, litecli, pip-tools
 configobj==5.0.6          # via cli-helpers, litecli
 cryptography==2.9.2       # via paramiko
-decorator==4.4.2          # via networkx
 django-cors-headers==3.2.1  # via -r requirements.in
 django-extensions==2.2.9  # via -r requirements.in
 django-markdown-filter==0.0.1  # via -r requirements.in
@@ -30,7 +29,6 @@ isort==4.3.21             # via -r requirements.in
 litecli==1.3.2            # via -r requirements.in
 markdown2==2.3.8          # via django-markdown-filter
 mccabe==0.6.1             # via flake8
-networkx==2.4             # via -r requirements.in
 paramiko==2.7.1           # via fabric3
 pathspec==0.8.0           # via black
 pip-tools==5.1.2          # via -r requirements.in

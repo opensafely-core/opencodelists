@@ -89,7 +89,7 @@ class Definition:
         descendants_map = tree_utils.build_descendants_map(tree)
 
         def helper(tree):
-            for code in tree:
+            for code in sorted(tree):
                 if code in codes:
                     descendants = descendants_map[code]
                     descendants_not_in_codes = descendants - codes
@@ -108,7 +108,7 @@ class Definition:
                     yield from helper(tree[code])
 
         def negative_helper(tree):
-            for code in tree:
+            for code in sorted(tree):
                 if code not in codes:
                     descendants = descendants_map[code]
                     if descendants and not descendants & codes:
@@ -121,7 +121,32 @@ class Definition:
                 else:
                     yield from negative_helper(tree[code])
 
-        return cls(list(helper(tree)))
+        elements = list(helper(tree))
+
+        # Remove any elements that are included unnecessarily.
+        #
+        # For instance, in a polyhierarchy that includes:
+        #
+        #      \ /
+        #       1
+        #      / \
+        #     2   3
+        #      \ /
+        #       4
+        #      / \
+        #
+        # where all descendants of 1 are included except 2, we can end up with
+        # the definition including 1< and 3<.  We can remove the 3<.
+
+        non_negated_element_codes = {e.code for e in elements if not e.negated}
+        for e in elements:
+            if e.includes_children:
+                non_negated_element_codes -= descendants_map[e.code]
+        elements = [
+            e for e in elements if e.negated or e.code in non_negated_element_codes
+        ]
+
+        return cls(elements)
 
 
 def build_html_definition(coding_system, subtree, definition):

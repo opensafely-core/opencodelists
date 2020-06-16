@@ -34,7 +34,7 @@ def build_html_tree_highlighting_codes(coding_system, subtree, definition):
             style += "; text-decoration: underline"
 
         name = code_to_name[code]
-        url = reverse("ctv3:concept", args=[code])
+        url = reverse(f"{coding_system.id}:concept", args=[code])
 
         lines.append(
             f'<li><a href="{url}" style="{style}">{name}</a> (<code>{code}</code>)</li>'

@@ -25,8 +25,11 @@ def codelist(request, project_slug, codelist_slug):
     codelist = get_object_or_404(Codelist, project=project_slug, slug=codelist_slug)
     headers, *rows = codelist.table
 
-    if codelist.coding_system_id in ["ctv3", "ctv3tpp"]:
-        coding_system = CODING_SYSTEMS["ctv3"]
+    if codelist.coding_system_id in ["ctv3", "ctv3tpp", "snomedct"]:
+        if codelist.coding_system_id in ["ctv3", "ctv3tpp"]:
+            coding_system = CODING_SYSTEMS["ctv3"]
+        else:
+            coding_system = CODING_SYSTEMS["snomedct"]
         subtree = tree_utils.build_subtree(coding_system, codelist.codes)
         definition = Definition.from_codes(codelist.codes, subtree)
         html_definition = build_html_definition(coding_system, subtree, definition)

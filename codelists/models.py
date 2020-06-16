@@ -48,10 +48,12 @@ class Codelist(models.Model):
 
     @cached_property
     def codes(self):
-        if self.coding_system_id in ["ctv3", "ctv3tpp"]:
+        if self.coding_system_id in ["ctv3", "ctv3tpp", "snomedct"]:
             headers, *rows = self.table
 
-            if self.slug == "ethnicity":
+            if self.coding_system_id == "snomedct":
+                ix = 0
+            elif self.slug == "ethnicity":
                 ix = 1
             elif "CTV3ID" in headers:
                 ix = headers.index("CTV3ID")

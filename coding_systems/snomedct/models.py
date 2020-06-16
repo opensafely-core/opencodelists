@@ -98,7 +98,8 @@ class Concept(models.Model):
     def in_ctv3(self, in_ctv3):
         self._in_ctv3 = bool(in_ctv3)
 
-    def parents(self, relationship_types):
+    @property
+    def parents(self):
         descriptions = Description.objects.filter(
             concept=OuterRef("source_relationships__destination_id"),
             active=True,
@@ -110,14 +111,20 @@ class Concept(models.Model):
         ).values("id")[:1]
 
         return (
-            self.destinations.filter(
-                source_relationships__active=True, source_relationships__type_id=IS_A,
+            (
+                self.destinations.filter(
+                    source_relationships__active=True,
+                    source_relationships__type_id=IS_A,
+                )
             )
-        ).annotate(
-            fully_specified_name=Subquery(descriptions), in_ctv3=Subquery(mappings),
+            .annotate(
+                fully_specified_name=Subquery(descriptions), in_ctv3=Subquery(mappings),
+            )
+            .distinct()
         )
 
-    def children(self, relationship_types):
+    @property
+    def children(self):
         descriptions = Description.objects.filter(
             concept=OuterRef("destination_relationships__source_id"),
             active=True,
@@ -128,11 +135,15 @@ class Concept(models.Model):
             sct_concept=OuterRef("destination_relationships__source_id")
         ).values("id")[:1]
 
-        return self.sources.filter(
-            destination_relationships__active=True,
-            destination_relationships__type_id=IS_A,
-        ).annotate(
-            fully_specified_name=Subquery(descriptions), in_ctv3=Subquery(mappings),
+        return (
+            self.sources.filter(
+                destination_relationships__active=True,
+                destination_relationships__type_id=IS_A,
+            )
+            .annotate(
+                fully_specified_name=Subquery(descriptions), in_ctv3=Subquery(mappings),
+            )
+            .distinct()
         )
 
 

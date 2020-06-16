@@ -7,28 +7,7 @@
 <br />
 
 <div class="row">
-  <div class="col-2">
-
-    <div class="card">
-      <div class="card-header">
-        Relationship type
-      </div>
-      <div class="btn-group-vertical btn-block">
-        {% for button in buttons %}
-        <a
-          class="btn {% if button.selected %}btn-secondary {% else %}btn-outline-secondary {% endif %}btn-block"
-          href="{{ button.href }}"
-          role="button"
-          >
-          {{ button.label }}
-        </a>
-          {% endfor %}
-      </div>
-    </div>
-  </div>
-
-
-  <div class="col-10">
+  <div class="col">
     {% for parent in parents %}
     {% include "./_concept.html" with concept=parent width=11 arrows="after" link=True %}
     {% endfor %}

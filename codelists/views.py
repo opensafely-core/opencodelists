@@ -33,9 +33,12 @@ def codelist(request, project_slug, codelist_slug):
         subtree = tree_utils.build_subtree(coding_system, codelist.codes)
         definition = Definition.from_codes(codelist.codes, subtree)
         html_definition = build_html_definition(coding_system, subtree, definition)
-        html_tree = tree_utils.build_html_tree_highlighting_codes(
-            coding_system, subtree, definition
-        )
+        if codelist.coding_system_id in ["ctv3", "ctv3tpp"]:
+            html_tree = tree_utils.build_html_tree_highlighting_codes(
+                coding_system, subtree, definition
+            )
+        else:
+            html_tree = None
     else:
         html_definition = None
         html_tree = None

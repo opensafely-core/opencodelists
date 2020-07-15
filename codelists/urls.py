@@ -15,11 +15,26 @@ urlpatterns = [
         ),
     ),
     path(
+        "codelist/opensafely/permanent-immunosuppresion/2020-06-02/download.csv",
+        RedirectView.as_view(
+            url="/codelist/opensafely/permanent-immunosuppression/2020-06-02/download.csv",
+            permanent=True,
+        ),
+    ),
+    path(
         "codelist/opensafely/temporary-immunosuppresion/",
         RedirectView.as_view(
             url="/codelist/opensafely/temporary-immunosuppression/", permanent=True
         ),
     ),
+    path(
+        "codelist/opensafely/temporary-immunosuppresion/2020-04-24/download.csv",
+        RedirectView.as_view(
+            url="/codelist/opensafely/temporary-immunosuppression/2020-04-24/download.csv",
+            permanent=True,
+        ),
+    ),
+    # ~~~
     path("", views.index, name="index"),
     path("codelist/<project_slug>/<codelist_slug>/", views.codelist, name="codelist"),
     path(

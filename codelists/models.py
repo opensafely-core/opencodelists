@@ -22,17 +22,14 @@ class Codelist(models.Model):
     coding_system_id = models.CharField(
         choices=CODING_SYSTEMS_CHOICES, max_length=32, verbose_name="Coding system",
     )
-    version_str = models.CharField(max_length=12, verbose_name="Version")
     description = models.TextField()
     methodology = models.TextField()
-    csv_data = models.TextField(verbose_name="CSV data")
 
     class Meta:
         unique_together = ("project", "slug")
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
-        self.csv_data = self.csv_data.replace("\r\n", "\n")
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -70,6 +67,22 @@ class Codelist(models.Model):
 
     def download_filename(self):
         return "{}-{}-{}".format(self.project_id, self.slug, self.version_str)
+
+
+class CodelistVersion(models.Model):
+    codelist = models.ForeignKey(
+        "Codelist", on_delete=models.CASCADE, related_name="versions"
+    )
+    version_str = models.CharField(max_length=12, verbose_name="Version")
+    csv_data = models.TextField(verbose_name="CSV data")
+    is_draft = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = ("codelist", "version_str")
+
+    def save(self, *args, **kwargs):
+        self.csv_data = self.csv_data.replace("\r\n", "\n")
+        super().save(*args, **kwargs)
 
 
 class SignOff(models.Model):

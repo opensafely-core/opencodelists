@@ -1,11 +1,11 @@
 from django.db.models import Q
-from django.http import Http404, HttpResponse
-from django.shortcuts import get_object_or_404, render
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, render, redirect
 
 from . import tree_utils
 from .coding_systems import CODING_SYSTEMS
 from .definition import Definition, build_html_definition
-from .models import Codelist
+from .models import Codelist, CodelistVersion
 
 
 def index(request):
@@ -22,18 +22,34 @@ def index(request):
 
 
 def codelist(request, project_slug, codelist_slug):
-    codelist = get_object_or_404(Codelist, project=project_slug, slug=codelist_slug)
-    headers, *rows = codelist.table
+    codelist = get_object_or_404(
+        Codelist.objects.prefetch_related("versions"),
+        project=project_slug,
+        slug=codelist_slug,
+    )
 
-    if codelist.coding_system_id in ["ctv3", "ctv3tpp", "snomedct"]:
-        if codelist.coding_system_id in ["ctv3", "ctv3tpp"]:
+    version = codelist.versions.order_by("version_str").last()
+    return redirect(version)
+
+
+def version(request, project_slug, codelist_slug, version_str):
+    clv = get_object_or_404(
+        CodelistVersion.objects.select_related("codelist"),
+        codelist__project_id=project_slug,
+        codelist__slug=codelist_slug,
+        version_str=version_str,
+    )
+    headers, *rows = clv.table
+
+    if clv.coding_system_id in ["ctv3", "ctv3tpp", "snomedct"]:
+        if clv.coding_system_id in ["ctv3", "ctv3tpp"]:
             coding_system = CODING_SYSTEMS["ctv3"]
         else:
             coding_system = CODING_SYSTEMS["snomedct"]
-        subtree = tree_utils.build_subtree(coding_system, codelist.codes)
-        definition = Definition.from_codes(codelist.codes, subtree)
+        subtree = tree_utils.build_subtree(coding_system, clv.codes)
+        definition = Definition.from_codes(clv.codes, subtree)
         html_definition = build_html_definition(coding_system, subtree, definition)
-        if codelist.coding_system_id in ["ctv3", "ctv3tpp"]:
+        if clv.coding_system_id in ["ctv3", "ctv3tpp"]:
             html_tree = tree_utils.build_html_tree_highlighting_codes(
                 coding_system, subtree, definition
             )
@@ -44,26 +60,27 @@ def codelist(request, project_slug, codelist_slug):
         html_tree = None
 
     ctx = {
-        "codelist": codelist,
+        "clv": clv,
+        "codelist": clv.codelist,
         "headers": headers,
         "rows": rows,
         "html_tree": html_tree,
         "html_definition": html_definition,
     }
-    return render(request, "codelists/codelist.html", ctx)
+    return render(request, "codelists/version.html", ctx)
 
 
-def codelist_download(request, project_slug, codelist_slug, version_str):
-    codelist = get_object_or_404(Codelist, project=project_slug, slug=codelist_slug)
-    if codelist.version_str != version_str:
-        raise Http404(
-            f"Incorrect version: {version_str}, expected {codelist.version_str}"
-        )
-
+def download(request, project_slug, codelist_slug, version_str):
+    clv = get_object_or_404(
+        CodelistVersion.objects.select_related("codelist"),
+        codelist__project_id=project_slug,
+        codelist__slug=codelist_slug,
+        version_str=version_str,
+    )
     response = HttpResponse(content_type="text/csv")
     content_disposition = 'attachment; filename="{}.csv"'.format(
-        codelist.download_filename()
+        clv.download_filename()
     )
     response["Content-Disposition"] = content_disposition
-    response.write(codelist.csv_data)
+    response.write(clv.csv_data)
     return response

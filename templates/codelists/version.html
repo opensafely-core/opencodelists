@@ -12,7 +12,7 @@
   <div class="col-md-3 col-lg-2">
     <div class="btn-group btn-block" role="group">
       <a
-        href="{% url 'codelists:codelist_download' codelist.project_id codelist.slug codelist.version_str %}"
+        href="{% url 'codelists:download' clv.codelist.project_id clv.codelist.slug clv.version_str %}"
         role="button"
         class="btn btn-outline-info btn-block"
       >
@@ -22,17 +22,17 @@
     <hr />
 
     <dl>
-      <dt>Project</dt>
-      <dd>{{ codelist.project.name }}</dd>
-
       <dt>Coding system</dt>
       <dd>{{ codelist.coding_system.name }}</dd>
 
-      <dt>Version</dt>
-      <dd>{{ codelist.version_str }}</dd>
+      <dt>Project</dt>
+      <dd>{{ codelist.project.name }}</dd>
 
       <dt>Codelist ID</dt>
       <dd>{{ codelist.full_slug }}</dd>
+
+      <dt>Version</dt>
+      <dd>{{ clv.version_str }}</dd>
     </dl>
   </div>
 

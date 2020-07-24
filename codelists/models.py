@@ -22,21 +22,54 @@ class Codelist(models.Model):
     coding_system_id = models.CharField(
         choices=CODING_SYSTEMS_CHOICES, max_length=32, verbose_name="Coding system",
     )
-    version_str = models.CharField(max_length=12, verbose_name="Version")
     description = models.TextField()
     methodology = models.TextField()
-    csv_data = models.TextField(verbose_name="CSV data")
 
     class Meta:
         unique_together = ("project", "slug")
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
-        self.csv_data = self.csv_data.replace("\r\n", "\n")
         super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
+
+    @cached_property
+    def coding_system(self):
+        return CODING_SYSTEMS[self.coding_system_id]
+
+    def get_absolute_url(self):
+        return reverse("codelists:codelist", args=(self.project_id, self.slug))
+
+    def full_slug(self):
+        return "{}/{}".format(self.project_id, self.slug)
+
+
+class CodelistVersion(models.Model):
+    codelist = models.ForeignKey(
+        "Codelist", on_delete=models.CASCADE, related_name="versions"
+    )
+    version_str = models.CharField(max_length=12, verbose_name="Version")
+    csv_data = models.TextField(verbose_name="CSV data")
+    is_draft = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = ("codelist", "version_str")
+
+    def save(self, *args, **kwargs):
+        self.csv_data = self.csv_data.replace("\r\n", "\n")
+        super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse(
+            "codelists:version",
+            args=(self.codelist.project_id, self.codelist.slug, self.version_str),
+        )
+
+    @cached_property
+    def coding_system_id(self):
+        return self.codelist.coding_system_id
 
     @cached_property
     def coding_system(self):
@@ -62,14 +95,10 @@ class Codelist(models.Model):
 
             return tuple(sorted({row[ix] for row in rows}))
 
-    def get_absolute_url(self):
-        return reverse("codelists:codelist", args=(self.project_id, self.slug))
-
-    def full_slug(self):
-        return "{}/{}".format(self.project_id, self.slug)
-
     def download_filename(self):
-        return "{}-{}-{}".format(self.project_id, self.slug, self.version_str)
+        return "{}-{}-{}".format(
+            self.codelist.project_id, self.codelist.slug, self.version_str
+        )
 
 
 class SignOff(models.Model):

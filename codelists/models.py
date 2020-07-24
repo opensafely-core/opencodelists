@@ -86,7 +86,7 @@ class CodelistVersion(models.Model):
 
             if self.coding_system_id == "snomedct":
                 ix = 0
-            elif self.slug == "ethnicity":
+            elif self.codelist.slug == "ethnicity":
                 ix = 1
             elif "CTV3ID" in headers:
                 ix = headers.index("CTV3ID")

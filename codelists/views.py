@@ -76,6 +76,20 @@ def version(request, project_slug, codelist_slug, version_str):
         codelist__slug=codelist_slug,
         version_str=version_str,
     )
+
+    if request.method == "POST":
+        update_version_form = CodelistVersionForm(request.POST, request.FILES)
+        if update_version_form.is_valid():
+            actions.update_version(
+                version=clv,
+                csv_data=update_version_form.cleaned_data["csv_data"]
+                .read()
+                .decode("utf8"),
+            )
+            return redirect(clv)
+    else:
+        update_version_form = CodelistVersionForm()
+
     headers, *rows = clv.table
 
     if clv.coding_system_id in ["ctv3", "ctv3tpp", "snomedct"]:
@@ -107,6 +121,7 @@ def version(request, project_slug, codelist_slug, version_str):
         "html_tree": html_tree,
         "html_definition": html_definition,
         "create_version_form": create_version_form,
+        "update_version_form": update_version_form,
     }
     return render(request, "codelists/version.html", ctx)
 

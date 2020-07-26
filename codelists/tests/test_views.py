@@ -62,6 +62,19 @@ def test_create_version(client):
     assertRedirects(rsp, f"/codelist/{cl.project.slug}/{cl.slug}/2020-07-23-a/")
 
 
+def test_update_version(client):
+    clv = factories.create_draft_version()
+    cl = clv.codelist
+    csv_data = "code,description\n1068181000000106, Injury whilst synchronised swimming (disorder)"
+    data = {
+        "csv_data": _build_file_for_upload(csv_data),
+    }
+    rsp = client.post(
+        f"/codelist/{cl.project.slug}/{cl.slug}/{clv.version_str}/", data, follow=True
+    )
+    assertRedirects(rsp, f"/codelist/{cl.project.slug}/{cl.slug}/{clv.version_str}/")
+
+
 def _build_file_for_upload(contents):
     buffer = BytesIO()
     buffer.write(contents.encode("utf8"))

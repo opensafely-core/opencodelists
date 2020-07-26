@@ -1,5 +1,5 @@
 from django.db.models import Q
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
 from opencodelists.models import Project
@@ -69,13 +69,23 @@ def codelist(request, project_slug, codelist_slug):
     return redirect(clv)
 
 
-def version(request, project_slug, codelist_slug, version_str):
+def version(request, project_slug, codelist_slug, qualified_version_str):
+    if qualified_version_str[-6:] == "-draft":
+        expect_draft = True
+        version_str = qualified_version_str[:-6]
+    else:
+        expect_draft = False
+        version_str = qualified_version_str
+
     clv = get_object_or_404(
         CodelistVersion.objects.select_related("codelist"),
         codelist__project_id=project_slug,
         codelist__slug=codelist_slug,
         version_str=version_str,
     )
+
+    if expect_draft != clv.is_draft:
+        return redirect(clv)
 
     if request.method == "POST":
         update_version_form = CodelistVersionForm(request.POST, request.FILES)
@@ -126,13 +136,24 @@ def version(request, project_slug, codelist_slug, version_str):
     return render(request, "codelists/version.html", ctx)
 
 
-def download(request, project_slug, codelist_slug, version_str):
+def download(request, project_slug, codelist_slug, qualified_version_str):
+    if qualified_version_str[-6:] == "-draft":
+        expect_draft = True
+        version_str = qualified_version_str[:-6]
+    else:
+        expect_draft = False
+        version_str = qualified_version_str
+
     clv = get_object_or_404(
         CodelistVersion.objects.select_related("codelist"),
         codelist__project_id=project_slug,
         codelist__slug=codelist_slug,
         version_str=version_str,
     )
+
+    if expect_draft != clv.is_draft:
+        raise Http404
+
     response = HttpResponse(content_type="text/csv")
     content_disposition = 'attachment; filename="{}.csv"'.format(
         clv.download_filename()

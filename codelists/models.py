@@ -61,10 +61,21 @@ class CodelistVersion(models.Model):
         self.csv_data = self.csv_data.replace("\r\n", "\n")
         super().save(*args, **kwargs)
 
+    @property
+    def qualified_version_str(self):
+        if self.is_draft:
+            return f"{self.version_str}-draft"
+        else:
+            return self.version_str
+
     def get_absolute_url(self):
         return reverse(
             "codelists:version",
-            args=(self.codelist.project_id, self.codelist.slug, self.version_str),
+            args=(
+                self.codelist.project_id,
+                self.codelist.slug,
+                self.qualified_version_str,
+            ),
         )
 
     @cached_property

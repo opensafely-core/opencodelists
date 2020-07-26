@@ -13,7 +13,7 @@
   <div class="col-md-3 col-lg-2">
     <div class="btn-group btn-block" role="group">
       <a
-        href="{% url 'codelists:download' clv.codelist.project_id clv.codelist.slug clv.version_str %}"
+        href="{% url 'codelists:download' clv.codelist.project_id clv.codelist.slug clv.qualified_version_str %}"
         role="button"
         class="btn btn-outline-info btn-block"
       >
@@ -33,7 +33,7 @@
       <dd>{{ codelist.full_slug }}</dd>
 
       <dt>Version</dt>
-      <dd>{{ clv.version_str }}</dd>
+      <dd>{{ clv.qualified_version_str }}</dd>
     </dl>
 
     <hr />

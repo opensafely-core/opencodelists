@@ -52,6 +52,16 @@ def test_download(client):
     assert data[1] == ["1067731000000107", "Injury whilst swimming (disorder)"]
 
 
+def test_create_version(client):
+    cl = factories.create_codelist()
+    csv_data = "code,description\n1068181000000106, Injury whilst synchronised swimming (disorder)"
+    data = {
+        "csv_data": _build_file_for_upload(csv_data),
+    }
+    rsp = client.post(f"/codelist/{cl.project.slug}/{cl.slug}/", data, follow=True)
+    assertRedirects(rsp, f"/codelist/{cl.project.slug}/{cl.slug}/2020-07-23-a/")
+
+
 def _build_file_for_upload(contents):
     buffer = BytesIO()
     buffer.write(contents.encode("utf8"))

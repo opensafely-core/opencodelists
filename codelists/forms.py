@@ -2,7 +2,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 from django import forms
 
-from .models import Codelist
+from .models import Codelist, CodelistVersion
 
 
 class CodelistForm(forms.ModelForm):
@@ -19,4 +19,13 @@ class CodelistForm(forms.ModelForm):
 
 
 class CodelistVersionForm(forms.Form):
-    pass
+    csv_data = forms.FileField(label="CSV data")
+
+    class Meta:
+        model = CodelistVersion
+        fields = ["csv_data"]
+
+    def __init__(self, *args, **kwargs):
+        self.helper = FormHelper()
+        self.helper.add_input(Submit("submit", "Submit"))
+        super().__init__(*args, **kwargs)

@@ -7,7 +7,7 @@ from opencodelists.models import Project
 from . import actions, tree_utils
 from .coding_systems import CODING_SYSTEMS
 from .definition import Definition, build_html_definition
-from .forms import CodelistForm
+from .forms import CodelistForm, CodelistVersionForm
 from .models import Codelist, CodelistVersion
 
 
@@ -56,8 +56,17 @@ def codelist(request, project_slug, codelist_slug):
         slug=codelist_slug,
     )
 
-    version = codelist.versions.order_by("version_str").last()
-    return redirect(version)
+    if request.method == "POST":
+        form = CodelistVersionForm(request.POST, request.FILES)
+        if form.is_valid():
+            clv = actions.create_version(
+                codelist=codelist,
+                csv_data=form.cleaned_data["csv_data"].read().decode("utf8"),
+            )
+            return redirect(clv)
+
+    clv = codelist.versions.order_by("version_str").last()
+    return redirect(clv)
 
 
 def version(request, project_slug, codelist_slug, version_str):
@@ -87,6 +96,9 @@ def version(request, project_slug, codelist_slug, version_str):
         html_definition = None
         html_tree = None
 
+    create_version_form = CodelistVersionForm()
+    create_version_form.helper.form_action = clv.codelist.get_absolute_url()
+
     ctx = {
         "clv": clv,
         "codelist": clv.codelist,
@@ -94,6 +106,7 @@ def version(request, project_slug, codelist_slug, version_str):
         "rows": rows,
         "html_tree": html_tree,
         "html_definition": html_definition,
+        "create_version_form": create_version_form,
     }
     return render(request, "codelists/version.html", ctx)
 

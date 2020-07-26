@@ -10,6 +10,7 @@ sentry-sdk
 # test
 hypothesis
 pytest-django
+pytest-freezegun
 
 # dev
 black

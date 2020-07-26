@@ -1,3 +1,5 @@
+from django.conf import settings
+from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -24,6 +26,7 @@ def index(request):
     return render(request, "codelists/index.html", ctx)
 
 
+@login_required
 def create_codelist(request, project_slug):
     project = get_object_or_404(Project, slug=project_slug)
     if request.method == "POST":
@@ -57,6 +60,9 @@ def codelist(request, project_slug, codelist_slug):
     )
 
     if request.method == "POST":
+        if not request.user.is_authenticated:
+            return redirect(f"{settings.LOGIN_URL}?next={request.path}")
+
         form = CodelistVersionForm(request.POST, request.FILES)
         if form.is_valid():
             clv = actions.create_version(
@@ -88,6 +94,9 @@ def version(request, project_slug, codelist_slug, qualified_version_str):
         return redirect(clv)
 
     if request.method == "POST":
+        if not request.user.is_authenticated:
+            return redirect(f"{settings.LOGIN_URL}?next={request.path}")
+
         update_version_form = CodelistVersionForm(request.POST, request.FILES)
         if update_version_form.is_valid():
             actions.update_version(

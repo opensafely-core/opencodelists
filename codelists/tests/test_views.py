@@ -4,12 +4,36 @@ from io import BytesIO, StringIO
 import pytest
 from pytest_django.asserts import assertContains, assertRedirects
 
+from opencodelists.tests import factories as opencodelists_factories
+
 from . import factories
 
 pytestmark = pytest.mark.freeze_time("2020-07-23")
 
 
-def test_create_codelist(client):
+@pytest.fixture()
+def logged_in_client(client, django_user_model):
+    """A Django test client logged in a user."""
+    user = opencodelists_factories.create_user()
+    client.force_login(user)
+    return client
+
+
+def test_create_codelist(logged_in_client):
+    p = factories.create_project()
+    csv_data = "code,description\n1067731000000107,Injury whilst swimming (disorder)"
+    data = {
+        "name": "Test Codelist",
+        "coding_system_id": "snomedct",
+        "description": "This is a test",
+        "methodology": "This is how we did it",
+        "csv_data": _build_file_for_upload(csv_data),
+    }
+    rsp = logged_in_client.post(f"/codelist/{p.slug}/", data, follow=True)
+    assertRedirects(rsp, f"/codelist/{p.slug}/test-codelist/2020-07-23-draft/")
+
+
+def test_create_codelist_when_not_logged_in(client):
     p = factories.create_project()
     csv_data = "code,description\n1067731000000107,Injury whilst swimming (disorder)"
     data = {
@@ -20,7 +44,7 @@ def test_create_codelist(client):
         "csv_data": _build_file_for_upload(csv_data),
     }
     rsp = client.post(f"/codelist/{p.slug}/", data, follow=True)
-    assertRedirects(rsp, f"/codelist/{p.slug}/test-codelist/2020-07-23-draft/")
+    assertRedirects(rsp, f"/accounts/login/?next=%2Fcodelist%2F{p.slug}%2F")
 
 
 def test_codelist(client):
@@ -117,7 +141,20 @@ def test_draft_download_does_not_redirect(client):
     assert rsp.status_code == 404
 
 
-def test_create_version(client):
+def test_create_version(logged_in_client):
+    clv = factories.create_published_version()
+    cl = clv.codelist
+    csv_data = "code,description\n1068181000000106, Injury whilst synchronised swimming (disorder)"
+    data = {
+        "csv_data": _build_file_for_upload(csv_data),
+    }
+    rsp = logged_in_client.post(
+        f"/codelist/{cl.project.slug}/{cl.slug}/", data, follow=True
+    )
+    assertRedirects(rsp, f"/codelist/{cl.project.slug}/{cl.slug}/2020-07-23-a-draft/")
+
+
+def test_create_version_when_not_logged_in(client):
     clv = factories.create_published_version()
     cl = clv.codelist
     csv_data = "code,description\n1068181000000106, Injury whilst synchronised swimming (disorder)"
@@ -125,10 +162,29 @@ def test_create_version(client):
         "csv_data": _build_file_for_upload(csv_data),
     }
     rsp = client.post(f"/codelist/{cl.project.slug}/{cl.slug}/", data, follow=True)
-    assertRedirects(rsp, f"/codelist/{cl.project.slug}/{cl.slug}/2020-07-23-a-draft/")
+    assertRedirects(
+        rsp, f"/accounts/login/?next=%2Fcodelist%2F{cl.project.slug}%2F{cl.slug}%2F"
+    )
 
 
-def test_update_version(client):
+def test_update_version(logged_in_client):
+    clv = factories.create_draft_version()
+    cl = clv.codelist
+    csv_data = "code,description\n1068181000000106, Injury whilst synchronised swimming (disorder)"
+    data = {
+        "csv_data": _build_file_for_upload(csv_data),
+    }
+    rsp = logged_in_client.post(
+        f"/codelist/{cl.project.slug}/{cl.slug}/{clv.version_str}-draft/",
+        data,
+        follow=True,
+    )
+    assertRedirects(
+        rsp, f"/codelist/{cl.project.slug}/{cl.slug}/{clv.version_str}-draft/"
+    )
+
+
+def test_update_version_when_not_logged_in(client):
     clv = factories.create_draft_version()
     cl = clv.codelist
     csv_data = "code,description\n1068181000000106, Injury whilst synchronised swimming (disorder)"
@@ -136,10 +192,13 @@ def test_update_version(client):
         "csv_data": _build_file_for_upload(csv_data),
     }
     rsp = client.post(
-        f"/codelist/{cl.project.slug}/{cl.slug}/{clv.version_str}/", data, follow=True
+        f"/codelist/{cl.project.slug}/{cl.slug}/{clv.version_str}-draft/",
+        data,
+        follow=True,
     )
     assertRedirects(
-        rsp, f"/codelist/{cl.project.slug}/{cl.slug}/{clv.version_str}-draft/"
+        rsp,
+        f"/accounts/login/?next=%2Fcodelist%2F{cl.project.slug}%2F{cl.slug}%2F{clv.version_str}-draft%2F",
     )
 
 

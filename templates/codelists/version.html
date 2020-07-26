@@ -36,6 +36,7 @@
       <dd>{{ clv.qualified_version_str }}</dd>
     </dl>
 
+    {% if user.is_authenticated %}
     <hr />
     <div class="btn-group-vertical btn-block" role="group">
       <button type="button" class="btn btn-outline-info btn-block" data-toggle="modal" data-target="#js-create-version-form">
@@ -47,6 +48,7 @@
       </button>
       {% endif %}
     </div>
+    {% endif %}
   </div>
 
   <div class="col-md-9 col-lg-10">

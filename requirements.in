@@ -9,6 +9,7 @@ sentry-sdk
 
 # test
 hypothesis
+pytest-django
 
 # dev
 black

@@ -180,6 +180,10 @@ LOGGING = {
 # fmt: on
 
 
+# Tests
+TEST_RUNNER = "opencodelists.django_test_runner.PytestTestRunner"
+
+
 # Sentry
 
 SENTRY_DSN = os.environ.get("SENTRY_DSN")

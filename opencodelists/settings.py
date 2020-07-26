@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     "mappings.rctctv3map",
     "mappings.ctv3sctmap2",
     "corsheaders",
+    "crispy_forms",
     "django_extensions",
     "markdown_filter",
     "django.contrib.admin",
@@ -126,6 +127,9 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
+# Post-login
+LOGIN_REDIRECT_URL = "codelists:index"
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
@@ -178,6 +182,14 @@ LOGGING = {
     },
 }
 # fmt: on
+
+
+# Tests
+TEST_RUNNER = "opencodelists.django_test_runner.PytestTestRunner"
+
+
+# Crispy
+CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 
 # Sentry

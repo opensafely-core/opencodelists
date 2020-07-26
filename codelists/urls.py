@@ -36,14 +36,15 @@ urlpatterns = [
     ),
     # ~~~
     path("", views.index, name="index"),
+    path("codelist/<project_slug>/", views.create_codelist, name="create_codelist"),
     path("codelist/<project_slug>/<codelist_slug>/", views.codelist, name="codelist"),
     path(
-        "codelist/<project_slug>/<codelist_slug>/<version_str>/",
+        "codelist/<project_slug>/<codelist_slug>/<qualified_version_str>/",
         views.version,
         name="version",
     ),
     path(
-        "codelist/<project_slug>/<codelist_slug>/<version_str>/download.csv",
+        "codelist/<project_slug>/<codelist_slug>/<qualified_version_str>/download.csv",
         views.download,
         name="download",
     ),

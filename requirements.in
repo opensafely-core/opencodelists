@@ -1,5 +1,6 @@
 fabric3
 django
+django-crispy-forms
 django-cors-headers
 django-markdown-filter
 gunicorn
@@ -9,6 +10,8 @@ sentry-sdk
 
 # test
 hypothesis
+pytest-django
+pytest-freezegun
 
 # dev
 black

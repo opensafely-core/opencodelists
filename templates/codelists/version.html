@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load crispy_forms_tags %}
 {% load markdown_filter %}
 
 {% block title_extra %}: {{ codelist.name }}{% endblock %}
@@ -12,7 +13,7 @@
   <div class="col-md-3 col-lg-2">
     <div class="btn-group btn-block" role="group">
       <a
-        href="{% url 'codelists:download' clv.codelist.project_id clv.codelist.slug clv.version_str %}"
+        href="{% url 'codelists:download' clv.codelist.project_id clv.codelist.slug clv.qualified_version_str %}"
         role="button"
         class="btn btn-outline-info btn-block"
       >
@@ -32,8 +33,22 @@
       <dd>{{ codelist.full_slug }}</dd>
 
       <dt>Version</dt>
-      <dd>{{ clv.version_str }}</dd>
+      <dd>{{ clv.qualified_version_str }}</dd>
     </dl>
+
+    {% if user.is_authenticated %}
+    <hr />
+    <div class="btn-group-vertical btn-block" role="group">
+      <button type="button" class="btn btn-outline-info btn-block" data-toggle="modal" data-target="#js-create-version-form">
+        Create new version
+      </button>
+      {% if clv.is_draft %}
+      <button type="button" class="btn btn-outline-info btn-block" data-toggle="modal" data-target="#js-update-version-form">
+        Update version
+      </button>
+      {% endif %}
+    </div>
+    {% endif %}
   </div>
 
   <div class="col-md-9 col-lg-10">
@@ -187,6 +202,38 @@
       {{ html_tree|safe }}
       </div>
       {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="js-create-version-form" tabindex="-1" role="dialog" aria-labelledby="create-version-form-label" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="create-version-form-label">Create new version</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        {% crispy create_version_form %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="js-update-version-form" tabindex="-1" role="dialog" aria-labelledby="update-version-form-label" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="update-version-form-label">Update version</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        {% crispy update_version_form %}
+      </div>
     </div>
   </div>
 </div>

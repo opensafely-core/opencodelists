@@ -36,6 +36,7 @@ urlpatterns = [
     ),
     # ~~~
     path("", views.index, name="index"),
+    path("codelist/<project_slug>/", views.create_codelist, name="create_codelist"),
     path("codelist/<project_slug>/<codelist_slug>/", views.codelist, name="codelist"),
     path(
         "codelist/<project_slug>/<codelist_slug>/<version_str>/",

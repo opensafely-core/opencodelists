@@ -17,6 +17,7 @@ click==7.1.2              # via black, litecli, pip-tools
 configobj==5.0.6          # via cli-helpers, litecli
 cryptography==2.9.2       # via paramiko
 django-cors-headers==3.2.1  # via -r requirements.in
+django-crispy-forms==1.9.2  # via -r requirements.in
 django-extensions==2.2.9  # via -r requirements.in
 django-markdown-filter==0.0.1  # via -r requirements.in
 django==3.0.7             # via -r requirements.in, django-cors-headers, django-markdown-filter

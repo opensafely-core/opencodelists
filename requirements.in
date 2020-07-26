@@ -1,5 +1,6 @@
 fabric3
 django
+django-crispy-forms
 django-cors-headers
 django-markdown-filter
 gunicorn

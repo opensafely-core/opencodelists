@@ -1,10 +1,13 @@
 from django.db.models import Q
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, render, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 
-from . import tree_utils
+from opencodelists.models import Project
+
+from . import actions, tree_utils
 from .coding_systems import CODING_SYSTEMS
 from .definition import Definition, build_html_definition
+from .forms import CodelistForm
 from .models import Codelist, CodelistVersion
 
 
@@ -19,6 +22,31 @@ def index(request):
     codelists = codelists.order_by("name")
     ctx = {"codelists": codelists, "q": q}
     return render(request, "codelists/index.html", ctx)
+
+
+def create_codelist(request, project_slug):
+    project = get_object_or_404(Project, slug=project_slug)
+    if request.method == "POST":
+        form = CodelistForm(request.POST, request.FILES)
+        if form.is_valid():
+            codelist = actions.create_codelist(
+                project=project,
+                name=form.cleaned_data["name"],
+                coding_system_id=form.cleaned_data["coding_system_id"],
+                description=form.cleaned_data["description"],
+                methodology=form.cleaned_data["methodology"],
+                csv_data=form.cleaned_data["csv_data"].read().decode("utf8"),
+            )
+            return redirect(codelist)
+    else:
+        form = CodelistForm()
+
+    ctx = {
+        "project": project,
+        "form": form,
+    }
+
+    return render(request, "codelists/create_codelist.html", ctx)
 
 
 def codelist(request, project_slug, codelist_slug):

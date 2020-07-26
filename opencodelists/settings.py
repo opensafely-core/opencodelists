@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     "mappings.rctctv3map",
     "mappings.ctv3sctmap2",
     "corsheaders",
+    "crispy_forms",
     "django_extensions",
     "markdown_filter",
     "django.contrib.admin",
@@ -182,6 +183,10 @@ LOGGING = {
 
 # Tests
 TEST_RUNNER = "opencodelists.django_test_runner.PytestTestRunner"
+
+
+# Crispy
+CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 
 # Sentry

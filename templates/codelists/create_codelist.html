@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title_extra %}: {{ codelist.name }}{% endblock %}
+
+{% block content %}
+<br />
+<h3>New Codelist</h3>
+
+{% crispy form %}
+{% endblock %}

@@ -218,3 +218,7 @@ MARKDOWN_FILTER_WHITELIST_TAGS = [
     "li",
     "code",
 ]
+
+
+# Login/logout config
+LOGOUT_REDIRECT_URL = "/"

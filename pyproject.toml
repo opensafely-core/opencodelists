@@ -17,3 +17,8 @@ line_length = 88
 multi_line_output = 3
 use_parentheses = true
 skip_glob = [".direnv", "*migrations*", "tmp", ".venv"]
+
+[tool.pytest.ini_options]
+env = [
+    "DJANGO_SETTINGS_MODULE = opencodelists.settings",
+]

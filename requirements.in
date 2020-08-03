@@ -2,6 +2,7 @@ fabric3
 django
 django-crispy-forms
 django-cors-headers
+django-debug-toolbar
 django-markdown-filter
 gunicorn
 pysqlite3-binary

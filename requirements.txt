@@ -20,9 +20,11 @@ cryptography==2.9.2       # via paramiko
 distlib==0.3.1            # via virtualenv
 django-cors-headers==3.4.0  # via -r requirements.in
 django-crispy-forms==1.9.2  # via -r requirements.in
+django-debug-toolbar==2.2  # via -r requirements.in
 django-extensions==3.0.4  # via -r requirements.in
 django-markdown-filter==0.0.1  # via -r requirements.in
 django==3.1               # via -r requirements.in, django-cors-headers, django-markdown-filter
+entrypoints==0.3          # via flake8
 fabric3==1.14.post1       # via -r requirements.in
 filelock==3.0.12          # via virtualenv
 flake8==3.8.3             # via -r requirements.in
@@ -62,7 +64,7 @@ regex==2020.4.4           # via black
 sentry-sdk==0.16.3        # via -r requirements.in
 six==1.14.0               # via bcrypt, bleach, configobj, cryptography, fabric3, freezegun, packaging, pip-tools, pynacl, python-dateutil, virtualenv
 sortedcontainers==2.1.0   # via hypothesis
-sqlparse==0.3.1           # via django, litecli
+sqlparse==0.3.1           # via django, django-debug-toolbar, litecli
 tabulate[widechars]==0.8.7  # via cli-helpers
 terminaltables==3.1.0     # via cli-helpers
 toml==0.10.0              # via black, pre-commit, pytest

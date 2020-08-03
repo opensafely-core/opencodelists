@@ -1,2 +1,11 @@
 [tool.black]
-exclude = '/migrations/'
+exclude = '''
+(
+  /(
+      \.git         # exclude a few common directories in the
+    | migrations    # root of the project
+    | \.direnv
+    | \.venv
+  )/
+)
+'''

@@ -52,7 +52,6 @@ class CodelistForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.helper = FormHelper()
         self.helper.form_tag = False
-        self.helper.disable_csrf = True
         super().__init__(*args, **kwargs)
 
 

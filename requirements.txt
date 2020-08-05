@@ -35,7 +35,7 @@ more-itertools==8.4.0     # via pytest
 packaging==20.4           # via pytest
 paramiko==2.7.1           # via fabric3
 pathspec==0.8.0           # via black
-pip-tools==5.1.2          # via -r requirements.in
+pip-tools==5.3.1          # via -r requirements.in
 pluggy==0.13.1            # via pytest
 prompt-toolkit==3.0.5     # via litecli
 py==1.9.0                 # via pytest

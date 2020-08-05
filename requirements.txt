@@ -63,7 +63,7 @@ typed-ast==1.4.1          # via black
 urllib3==1.25.9           # via sentry-sdk
 wcwidth==0.1.9            # via prompt-toolkit, pytest, tabulate
 webencodings==0.5.1       # via bleach
-whitenoise==5.0.1         # via -r requirements.in
+whitenoise==5.2.0         # via -r requirements.in
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip

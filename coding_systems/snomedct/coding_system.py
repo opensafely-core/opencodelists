@@ -1,6 +1,6 @@
 from opencodelists.db_utils import query
 
-from .models import FULLY_SPECIFIED_NAME, IS_A, Description
+from .models import FULLY_SPECIFIED_NAME, IS_A, Concept, Description
 
 name = "SNOMED CT"
 short_name = "SNOMED CT"
@@ -15,6 +15,14 @@ def lookup_names(codes):
             concept__in=codes, type=FULLY_SPECIFIED_NAME
         )
     }
+
+
+def search(term):
+    return set(
+        Concept.objects.filter(
+            descriptions__term__contains=term, descriptions__active=True, active=True
+        ).values_list("id", flat=True)
+    )
 
 
 def ancestor_relationships(codes):

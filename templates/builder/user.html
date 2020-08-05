@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<h2 class="my-4">Codelists created by {{ user.name }}</h2>
+
+<div class="row">
+  <div class="col-12">
+    {% if codelists %}
+    <ul>
+      {% for cl in codelists %}
+      <li><a href="{{ cl.get_absolute_url }}">{{ cl.name }}</a></li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p>
+      {% if user == request.user %}
+      You have
+      {% else %}
+      {{ request.user.name }} has
+      {% endif %}
+      not created any codelists yet.
+    </p>
+    {% endif %}
+  </div>
+</div>
+
+{% if user == request.user %}
+<hr />
+<h3>New Codelist</h3>
+{% crispy form %}
+{% endif %}
+
+{% endblock %}

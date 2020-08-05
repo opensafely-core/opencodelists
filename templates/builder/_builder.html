@@ -1,0 +1,12 @@
+{% load static %}
+
+{{ url|json_script:"url" }}
+{{ tables|json_script:"tables" }}
+{{ ancestors_map|json_script:"ancestors-map" }}
+{{ descendants_map|json_script:"descendants-map" }}
+{{ editable|json_script:"isEditable" }}
+
+<script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin ></script>
+<script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin ></script>
+<script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+<script type="text/babel" src="{% static 'builder.js' %}"></script>

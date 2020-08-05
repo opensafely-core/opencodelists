@@ -51,6 +51,13 @@ def build_subtree(coding_system, codes):
     return paths_to_tree(paths)
 
 
+def build_descendant_subtrees(coding_system, codes):
+    descendant_relationships = coding_system.descendant_relationships(codes)
+    return [
+        paths_to_tree(edges_to_paths(code, descendant_relationships)) for code in codes
+    ]
+
+
 def edges_to_paths(root, edges):
     map = defaultdict(set)
 
@@ -94,18 +101,18 @@ def walk_tree_depth_first(tree, sort_key=None):
 
 
 def build_descendants_map(tree):
-    descendants = {}
+    descendants_map = {}
 
     stack = []
     for node, direction in walk_tree_depth_first(tree):
         if direction == 1:
             stack.append(node)
-            descendants[node] = set()
+            descendants_map[node] = set()
         else:
             old_head = stack.pop()
             if stack:
                 new_head = stack[-1]
-                descendants[new_head].add(old_head)
-                descendants[new_head] |= descendants[old_head]
+                descendants_map[new_head].add(old_head)
+                descendants_map[new_head] |= descendants_map[old_head]
 
-    return descendants
+    return descendants_map

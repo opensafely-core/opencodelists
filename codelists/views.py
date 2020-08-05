@@ -41,6 +41,27 @@ class CreateCodelist(TemplateView):
     SignOffFormSet = formset_factory(SignOffForm)
     template_name = "codelists/create_codelist.html"
 
+    def dispatch(self, request, *args, **kwargs):
+        self.project = get_object_or_404(Project, slug=self.kwargs["project_slug"])
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        codelist_form = self.get_form(request.POST, request.FILES)
+        reference_formset = self.get_reference_formset(request.POST, request.FILES)
+        signoff_formset = self.get_signoff_formset(request.POST, request.FILES)
+
+        all_valid = (
+            codelist_form.is_valid()
+            and reference_formset.is_valid()
+            and signoff_formset.is_valid()
+        )
+
+        if all_valid:
+            return self.all_valid(codelist_form, reference_formset, signoff_formset)
+        else:
+            return self.some_invalid(codelist_form, reference_formset, signoff_formset)
+
     def all_valid(self, form, reference_formset, signoff_formset):
         # get changed forms so we ignore empty form instances
         references = (f.cleaned_data for f in reference_formset if f.has_changed())
@@ -59,10 +80,13 @@ class CreateCodelist(TemplateView):
 
         return redirect(codelist)
 
-    def dispatch(self, request, *args, **kwargs):
-        self.project = get_object_or_404(Project, slug=self.kwargs["project_slug"])
-
-        return super().dispatch(request, *args, **kwargs)
+    def some_invalid(self, form, reference_formset, signoff_formset):
+        context = self.get_context_data(
+            codelist_form=form,
+            reference_formset=reference_formset,
+            signoff_formset=signoff_formset,
+        )
+        return self.render_to_response(context)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -88,30 +112,6 @@ class CreateCodelist(TemplateView):
 
     def get_signoff_formset(self, data=None, files=None):
         return self.SignOffFormSet(data, files, prefix="signoff")
-
-    def post(self, request, *args, **kwargs):
-        codelist_form = self.get_form(request.POST, request.FILES)
-        reference_formset = self.get_reference_formset(request.POST, request.FILES)
-        signoff_formset = self.get_signoff_formset(request.POST, request.FILES)
-
-        all_valid = (
-            codelist_form.is_valid()
-            and reference_formset.is_valid()
-            and signoff_formset.is_valid()
-        )
-
-        if all_valid:
-            return self.all_valid(codelist_form, reference_formset, signoff_formset)
-        else:
-            return self.some_invalid(codelist_form, reference_formset, signoff_formset)
-
-    def some_invalid(self, form, reference_formset, signoff_formset):
-        context = self.get_context_data(
-            codelist_form=form,
-            reference_formset=reference_formset,
-            signoff_formset=signoff_formset,
-        )
-        return self.render_to_response(context)
 
 
 def codelist(request, project_slug, codelist_slug):

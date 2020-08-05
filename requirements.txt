@@ -4,7 +4,7 @@
 #
 #    pip-compile
 #
-appdirs==1.4.3            # via black
+appdirs==1.4.3            # via black, virtualenv
 asgiref==3.2.7            # via django
 attrs==19.3.0             # via black, hypothesis, pytest
 bcrypt==3.1.7             # via paramiko
@@ -12,10 +12,12 @@ black==19.10b0            # via -r requirements.in
 bleach==3.1.4             # via django-markdown-filter
 certifi==2020.4.5.1       # via sentry-sdk
 cffi==1.14.0              # via bcrypt, cryptography, pynacl
+cfgv==3.2.0               # via pre-commit
 cli-helpers[styles]==1.2.1  # via litecli
 click==7.1.2              # via black, litecli, pip-tools
 configobj==5.0.6          # via cli-helpers, litecli
 cryptography==2.9.2       # via paramiko
+distlib==0.3.1            # via virtualenv
 django-cors-headers==3.2.1  # via -r requirements.in
 django-crispy-forms==1.9.2  # via -r requirements.in
 django-extensions==3.0.4  # via -r requirements.in
@@ -23,20 +25,24 @@ django-markdown-filter==0.0.1  # via -r requirements.in
 django==3.0.7             # via -r requirements.in, django-cors-headers, django-markdown-filter
 entrypoints==0.3          # via flake8
 fabric3==1.14.post1       # via -r requirements.in
+filelock==3.0.12          # via virtualenv
 flake8==3.7.9             # via -r requirements.in
 freezegun==0.3.15         # via pytest-freezegun
 gunicorn==20.0.4          # via -r requirements.in
 hypothesis==5.10.5        # via -r requirements.in
+identify==1.4.25          # via pre-commit
 isort==5.3.0              # via -r requirements.in
 litecli==1.4.1            # via -r requirements.in
 markdown2==2.3.9          # via django-markdown-filter
 mccabe==0.6.1             # via flake8
 more-itertools==8.4.0     # via pytest
+nodeenv==1.4.0            # via pre-commit
 packaging==20.4           # via pytest
 paramiko==2.7.1           # via fabric3
 pathspec==0.8.0           # via black
 pip-tools==5.3.1          # via -r requirements.in
 pluggy==0.13.1            # via pytest
+pre-commit==2.6.0         # via -r requirements.in
 prompt-toolkit==3.0.5     # via litecli
 py==1.9.0                 # via pytest
 pycodestyle==2.5.0        # via flake8
@@ -51,16 +57,18 @@ pytest-freezegun==0.4.2   # via -r requirements.in
 pytest==5.4.3             # via pytest-django, pytest-freezegun
 python-dateutil==2.8.1    # via freezegun
 pytz==2020.1              # via django
+pyyaml==5.3.1             # via pre-commit
 regex==2020.4.4           # via black
 sentry-sdk==0.14.4        # via -r requirements.in
-six==1.14.0               # via bcrypt, bleach, configobj, cryptography, fabric3, freezegun, packaging, pip-tools, pynacl, python-dateutil
+six==1.14.0               # via bcrypt, bleach, configobj, cryptography, fabric3, freezegun, packaging, pip-tools, pynacl, python-dateutil, virtualenv
 sortedcontainers==2.1.0   # via hypothesis
 sqlparse==0.3.1           # via django, litecli
 tabulate[widechars]==0.8.7  # via cli-helpers
 terminaltables==3.1.0     # via cli-helpers
-toml==0.10.0              # via black
+toml==0.10.0              # via black, pre-commit
 typed-ast==1.4.1          # via black
 urllib3==1.25.9           # via sentry-sdk
+virtualenv==20.0.30       # via pre-commit
 wcwidth==0.1.9            # via prompt-toolkit, pytest, tabulate
 webencodings==0.5.1       # via bleach
 whitenoise==5.2.0         # via -r requirements.in

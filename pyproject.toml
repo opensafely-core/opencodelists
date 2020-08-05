@@ -17,6 +17,7 @@ line_length = 88
 multi_line_output = 3
 use_parentheses = true
 skip_glob = [".direnv", "*migrations*", "tmp", ".venv"]
+known_third_party = ["crispy_forms", "django", "fabric", "hypothesis", "pytest", "pytest_django", "sentry_sdk"]
 
 [tool.pytest.ini_options]
 env = [

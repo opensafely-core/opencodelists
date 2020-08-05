@@ -20,3 +20,4 @@ flake8
 isort
 litecli
 pip-tools
+pre-commit

@@ -1,15 +1,27 @@
+import itertools
+
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.db import transaction
 from django.db.models import Q
+from django.forms import formset_factory
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.decorators import method_decorator
+from django.views.generic import TemplateView
 
 from opencodelists.models import Project
 
 from . import actions, tree_utils
 from .coding_systems import CODING_SYSTEMS
 from .definition import Definition, build_html_definition
-from .forms import CodelistForm, CodelistVersionForm
+from .forms import (
+    CodelistForm,
+    CodelistVersionForm,
+    FormSetHelper,
+    ReferenceForm,
+    SignOffForm,
+)
 from .models import Codelist, CodelistVersion
 
 
@@ -26,30 +38,87 @@ def index(request):
     return render(request, "codelists/index.html", ctx)
 
 
-@login_required
-def create_codelist(request, project_slug):
-    project = get_object_or_404(Project, slug=project_slug)
-    if request.method == "POST":
-        form = CodelistForm(request.POST, request.FILES)
-        if form.is_valid():
-            codelist = actions.create_codelist(
-                project=project,
-                name=form.cleaned_data["name"],
-                coding_system_id=form.cleaned_data["coding_system_id"],
-                description=form.cleaned_data["description"],
-                methodology=form.cleaned_data["methodology"],
-                csv_data=form.cleaned_data["csv_data"].read().decode("utf8"),
-            )
-            return redirect(codelist)
-    else:
-        form = CodelistForm()
+@method_decorator(login_required, name="dispatch")
+class CreateCodelist(TemplateView):
+    ReferenceFormSet = formset_factory(ReferenceForm)
+    SignOffFormSet = formset_factory(SignOffForm)
+    template_name = "codelists/create_codelist.html"
 
-    ctx = {
-        "project": project,
-        "form": form,
-    }
+    @transaction.atomic()
+    def all_valid(self, form, reference_formset, signoff_formset):
+        codelist = actions.create_codelist(
+            project=self.project,
+            name=form.cleaned_data["name"],
+            coding_system_id=form.cleaned_data["coding_system_id"],
+            description=form.cleaned_data["description"],
+            methodology=form.cleaned_data["methodology"],
+            csv_data=form.cleaned_data["csv_data"].read().decode("utf8"),
+        )
 
-    return render(request, "codelists/create_codelist.html", ctx)
+        # get changed forms so we ignore empty form instances
+        reference_forms = (f for f in reference_formset if f.has_changed())
+        signoff_forms = (f for f in signoff_formset if f.has_changed())
+
+        for form in itertools.chain(reference_forms, signoff_forms):
+            instance = form.save(commit=False)
+            instance.codelist = codelist
+            instance.save()
+
+        return redirect(codelist)
+
+    def dispatch(self, request, *args, **kwargs):
+        self.project = get_object_or_404(Project, slug=self.kwargs["project_slug"])
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["helper"] = FormSetHelper()
+        context["project"] = self.project
+
+        if "codelist_form" not in kwargs:
+            context["codelist_form"] = self.get_form()
+
+        if "reference_formset" not in kwargs:
+            context["reference_formset"] = self.get_reference_formset()
+
+        if "signoff_formset" not in kwargs:
+            context["signoff_formset"] = self.get_signoff_formset()
+
+        return context
+
+    def get_form(self, data=None, files=None):
+        return CodelistForm(data, files)
+
+    def get_reference_formset(self, data=None, files=None):
+        return self.ReferenceFormSet(data, files, prefix="reference")
+
+    def get_signoff_formset(self, data=None, files=None):
+        return self.SignOffFormSet(data, files, prefix="signoff")
+
+    def post(self, request, *args, **kwargs):
+        codelist_form = self.get_form(request.POST, request.FILES)
+        reference_formset = self.get_reference_formset(request.POST, request.FILES)
+        signoff_formset = self.get_signoff_formset(request.POST, request.FILES)
+
+        all_valid = (
+            codelist_form.is_valid()
+            and reference_formset.is_valid()
+            and signoff_formset.is_valid()
+        )
+
+        if all_valid:
+            return self.all_valid(codelist_form, reference_formset, signoff_formset)
+        else:
+            return self.some_invalid(codelist_form, reference_formset, signoff_formset)
+
+    def some_invalid(self, form, reference_formset, signoff_formset):
+        context = self.get_context_data(
+            codelist_form=form,
+            reference_formset=reference_formset,
+            signoff_formset=signoff_formset,
+        )
+        return self.render_to_response(context)
 
 
 def codelist(request, project_slug, codelist_slug):

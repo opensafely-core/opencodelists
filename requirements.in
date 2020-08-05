@@ -10,6 +10,7 @@ whitenoise
 sentry-sdk
 
 # test
+factory_boy
 hypothesis
 pytest-django
 pytest-freezegun

@@ -4,7 +4,7 @@ from io import BytesIO, StringIO
 import pytest
 from pytest_django.asserts import assertContains, assertRedirects
 
-from opencodelists.tests import factories as opencodelists_factories
+from opencodelists.tests.factories import ProjectFactory, UserFactory
 
 from . import factories
 
@@ -14,13 +14,12 @@ pytestmark = pytest.mark.freeze_time("2020-07-23")
 @pytest.fixture()
 def logged_in_client(client, django_user_model):
     """A Django test client logged in a user."""
-    user = opencodelists_factories.create_user()
-    client.force_login(user)
+    client.force_login(UserFactory())
     return client
 
 
 def test_create_codelist(logged_in_client):
-    p = factories.create_project()
+    p = ProjectFactory()
     csv_data = "code,description\n1067731000000107,Injury whilst swimming (disorder)"
     data = {
         "name": "Test Codelist",
@@ -34,7 +33,7 @@ def test_create_codelist(logged_in_client):
 
 
 def test_create_codelist_when_not_logged_in(client):
-    p = factories.create_project()
+    p = ProjectFactory()
     csv_data = "code,description\n1067731000000107,Injury whilst swimming (disorder)"
     data = {
         "name": "Test Codelist",

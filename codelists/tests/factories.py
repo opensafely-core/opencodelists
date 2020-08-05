@@ -1,9 +1,9 @@
 from codelists import actions
-from opencodelists.tests.factories import create_project
+from opencodelists.tests.factories import ProjectFactory
 
 
 def create_codelist():
-    p = create_project()
+    p = ProjectFactory()
     return actions.create_codelist(
         project=p,
         name="Test Codelist",

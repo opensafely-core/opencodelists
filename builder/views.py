@@ -46,7 +46,7 @@ def user(request, username):
     return render(request, "builder/user.html", ctx)
 
 
-# @login_required
+@login_required
 def codelist(request, username, codelist_slug):
     codelist = get_object_or_404(DraftCodelist, owner=username, slug=codelist_slug,)
 

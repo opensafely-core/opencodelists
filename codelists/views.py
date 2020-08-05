@@ -1,8 +1,5 @@
-import itertools
-
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.db import transaction
 from django.db.models import Q
 from django.forms import formset_factory
 from django.http import Http404, HttpResponse
@@ -44,8 +41,11 @@ class CreateCodelist(TemplateView):
     SignOffFormSet = formset_factory(SignOffForm)
     template_name = "codelists/create_codelist.html"
 
-    @transaction.atomic()
     def all_valid(self, form, reference_formset, signoff_formset):
+        # get changed forms so we ignore empty form instances
+        references = (f.cleaned_data for f in reference_formset if f.has_changed())
+        signoffs = (f.cleaned_data for f in signoff_formset if f.has_changed())
+
         codelist = actions.create_codelist(
             project=self.project,
             name=form.cleaned_data["name"],
@@ -53,16 +53,9 @@ class CreateCodelist(TemplateView):
             description=form.cleaned_data["description"],
             methodology=form.cleaned_data["methodology"],
             csv_data=form.cleaned_data["csv_data"].read().decode("utf8"),
+            references=references,
+            signoffs=signoffs,
         )
-
-        # get changed forms so we ignore empty form instances
-        reference_forms = (f for f in reference_formset if f.has_changed())
-        signoff_forms = (f for f in signoff_formset if f.has_changed())
-
-        for form in itertools.chain(reference_forms, signoff_forms):
-            instance = form.save(commit=False)
-            instance.codelist = codelist
-            instance.save()
 
         return redirect(codelist)
 

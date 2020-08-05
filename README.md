@@ -57,11 +57,15 @@ To run tests:
 
 To check formatting:
 
-* `./check_formatting.sh`
+* `make format lint sort`
 
 To fix formatting:
 
-* `./fix_formatting.sh`
+* `make fix`
+
+To set up tooling via a pre-commit hook:
+
+* `pre-commit install`
 
 ## Deployment
 

@@ -1,0 +1,36 @@
+repos:
+  - repo: https://github.com/psf/black
+    rev: 19.10b0
+    hooks:
+    - id: black
+      language_version: python3.6
+
+  - repo: https://gitlab.com/pycqa/flake8
+    rev: 3.8.3
+    hooks:
+    - id: flake8
+      language_version: python3.6
+
+  - repo: https://github.com/asottile/seed-isort-config
+    rev: v2.2.0
+    hooks:
+    - id: seed-isort-config
+
+  - repo: https://github.com/pre-commit/mirrors-isort
+    rev: v5.3.0
+    hooks:
+    - id: isort
+      language_version: python3.6
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v3.2.0
+    hooks:
+    - id: trailing-whitespace
+    - id: end-of-file-fixer
+    - id: debug-statements
+    - id: check-ast
+    - id: check-json
+    - id: check-toml
+    - id: check-yaml
+    - id: detect-private-key
+    - id: detect-aws-credentials

@@ -1,0 +1,106 @@
+---
+name: CI
+
+on:
+  push:
+    branches: ["master"]
+  pull_request:
+    branches: ["master"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: "actions/setup-python@v2"
+        with:
+          python-version: "3.6"
+      - name: "Install dependencies"
+        run: |
+          set -xe
+          python -m pip install --upgrade pip
+          python -m venv venv
+          venv/bin/pip install --progress-bar=off --requirement requirements.txt
+      - name: Cache the venv
+        uses: actions/cache@v2
+        with:
+          path: ${{ github.workspace }}/venv
+          key: venv-${{ github.ref }}-${{ hashFiles('requirements.txt') }}
+
+  format:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: "actions/setup-python@v2"
+        with:
+          python-version: "3.6"
+      - name: Use the cached venv
+        uses: actions/cache@v2
+        with:
+          path: ${{ github.workspace }}/venv
+          key: venv-${{ github.ref }}-${{ hashFiles('requirements.txt') }}
+      - run: ls -lah ${{ github.workspace }}
+      - name: Check formatting
+        run: |
+          source ${{ github.workspace }}/venv/bin/activate
+          make format
+
+  lint:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: "actions/setup-python@v2"
+        with:
+          python-version: "3.6"
+      - name: Use the cached venv
+        uses: actions/cache@v2
+        with:
+          path: ${{ github.workspace }}/venv
+          key: venv-${{ github.ref }}-${{ hashFiles('requirements.txt') }}
+      - name: Check linting
+        run: |
+          source ${{ github.workspace }}/venv/bin/activate
+          make lint
+
+  sort:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: "actions/setup-python@v2"
+        with:
+          python-version: "3.6"
+      - name: Use the cached venv
+        uses: actions/cache@v2
+        with:
+          path: ${{ github.workspace }}/venv
+          key: venv-${{ github.ref }}-${{ hashFiles('requirements.txt') }}
+      - name: Check import sorting
+        run: |
+          source ${{ github.workspace }}/venv/bin/activate
+          make sort
+
+  test:
+    needs: [format, lint, sort]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: "actions/setup-python@v2"
+        with:
+          python-version: "3.6"
+      - name: Use the cached venv
+        uses: actions/cache@v2
+        with:
+          path: ${{ github.workspace }}/venv
+          key: venv-${{ github.ref }}-${{ hashFiles('requirements.txt') }}
+      - name: Run tests
+        run: |
+          source ${{ github.workspace }}/venv/bin/activate
+          make test

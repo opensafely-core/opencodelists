@@ -161,7 +161,7 @@ def build_html_definition(coding_system, subtree, definition):
     for e in sorted(definition.unnegated_elements(), key=sort_key):
         name = code_to_name[e.code]
         url = reverse(f"{coding_system.id}:concept", args=[e.code])
-        style = f"color: blue"
+        style = "color: blue"
 
         if e.includes_children:
             matching_negated_elements = [
@@ -179,7 +179,7 @@ def build_html_definition(coding_system, subtree, definition):
                 for ne in sorted(matching_negated_elements, key=sort_key):
                     name = code_to_name[ne.code]
                     url = reverse(f"{coding_system.id}:concept", args=[ne.code])
-                    style = f"color: black"
+                    style = "color: black"
 
                     if ne.includes_children:
                         lines.append(

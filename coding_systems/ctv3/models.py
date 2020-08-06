@@ -20,9 +20,9 @@ class Concept(models.Model):
         (UNKNOWN_FIELD_2_A, "Unknown field 2: N"),
     ]
 
-    read_code = models.CharField(primary_key=True, max_length=5)
-    status = models.CharField(max_length=1, choices=STATUS_CHOICES)
-    unknown_field_2 = models.CharField(max_length=1, choices=UNKNOWN_FIELD_2_CHOICES)
+    read_code = models.TextField(primary_key=True)
+    status = models.TextField(choices=STATUS_CHOICES)
+    unknown_field_2 = models.TextField(choices=UNKNOWN_FIELD_2_CHOICES)
     another_concept = models.ForeignKey("Concept", on_delete=models.CASCADE)
     children = models.ManyToManyField(
         "self",
@@ -64,7 +64,7 @@ class ConceptHierarchy(models.Model):
     child = models.ForeignKey(
         "Concept", on_delete=models.CASCADE, related_name="parent_links"
     )
-    list_order = models.CharField(max_length=2)
+    list_order = models.TextField()
 
 
 class Term(models.Model):
@@ -75,11 +75,11 @@ class Term(models.Model):
         (STATUS_O, "Status: O (Optional?)"),
     ]
 
-    term_id = models.CharField(primary_key=True, max_length=5)
-    status = models.CharField(max_length=1, choices=STATUS_CHOICES)
-    name_1 = models.CharField(max_length=30)
-    name_2 = models.CharField(max_length=60, null=True)
-    name_3 = models.CharField(max_length=198, null=True)
+    term_id = models.TextField(primary_key=True)
+    status = models.TextField(choices=STATUS_CHOICES)
+    name_1 = models.TextField()
+    name_2 = models.TextField(null=True)
+    name_3 = models.TextField(null=True)
 
     def name(self):
         return self.name_3 or self.name_2 or self.name_1
@@ -95,4 +95,4 @@ class ConceptTermMapping(models.Model):
 
     concept = models.ForeignKey("Concept", on_delete=models.CASCADE)
     term = models.ForeignKey("Term", on_delete=models.CASCADE)
-    term_type = models.CharField(max_length=1, choices=TERM_TYPE_CHOICES)
+    term_type = models.TextField(choices=TERM_TYPE_CHOICES)

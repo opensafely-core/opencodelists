@@ -23,7 +23,7 @@ class Concept(models.Model):
     _synonyms = None
     _in_ctv3 = None
 
-    id = models.CharField(primary_key=True, max_length=18)
+    id = models.TextField(primary_key=True)
     effective_time = models.DateField()
     active = models.BooleanField()
     module = models.ForeignKey(
@@ -148,8 +148,8 @@ class Concept(models.Model):
 
 
 class Description(models.Model):
-    id = models.CharField(primary_key=True, max_length=18)
-    effective_time = models.CharField(max_length=8)
+    id = models.TextField(primary_key=True)
+    effective_time = models.TextField()
     active = models.BooleanField()
     module = models.ForeignKey(
         "Concept", on_delete=models.CASCADE, related_name="+", db_index=False
@@ -157,19 +157,19 @@ class Description(models.Model):
     concept = models.ForeignKey(
         "Concept", on_delete=models.CASCADE, related_name="descriptions"
     )
-    language_code = models.CharField(max_length=3)
+    language_code = models.TextField()
     type = models.ForeignKey(
         "Concept", on_delete=models.CASCADE, related_name="+", db_index=False
     )
-    term = models.CharField(max_length=255)
+    term = models.TextField()
     case_significance = models.ForeignKey(
         "Concept", on_delete=models.CASCADE, related_name="+", db_index=False
     )
 
 
 class Relationship(models.Model):
-    id = models.CharField(primary_key=True, max_length=18)
-    effective_time = models.CharField(max_length=8)
+    id = models.TextField(primary_key=True)
+    effective_time = models.TextField()
     active = models.BooleanField()
     module = models.ForeignKey(
         "Concept", on_delete=models.CASCADE, related_name="+", db_index=False
@@ -180,7 +180,7 @@ class Relationship(models.Model):
     destination = models.ForeignKey(
         "Concept", on_delete=models.CASCADE, related_name="source_relationships"
     )
-    relationship_group = models.CharField(max_length=3)
+    relationship_group = models.TextField()
     type = models.ForeignKey(
         "Concept", on_delete=models.CASCADE, related_name="+", db_index=False
     )
@@ -196,17 +196,17 @@ class HistorySubstitution(models.Model):
     old_concept = models.ForeignKey(
         "Concept", on_delete=models.CASCADE, related_name="+", db_constraint=False
     )
-    old_concept_status = models.CharField(max_length=18)
+    old_concept_status = models.TextField()
     new_concept = models.ForeignKey(
         "Concept", on_delete=models.CASCADE, related_name="+", db_constraint=False
     )
-    new_concept_status = models.CharField(max_length=18)
-    path = models.CharField(max_length=255)
+    new_concept_status = models.TextField()
+    path = models.TextField()
     is_ambiguous = models.BooleanField()
     iterations = models.IntegerField()
-    old_concept_fsn = models.CharField(max_length=255)
+    old_concept_fsn = models.TextField()
     old_concept_fsn_tagcount = models.IntegerField()
-    new_concept_fsn = models.CharField(max_length=255)
+    new_concept_fsn = models.TextField()
     new_concept_fsn_tagcount = models.IntegerField()
     tlh_identical_flag = models.BooleanField()
     fsn_tagless_identical_flag = models.BooleanField()

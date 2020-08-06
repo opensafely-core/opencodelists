@@ -15,7 +15,7 @@ class Mapping(models.Model):
         on_delete=models.PROTECT,
         related_name="snomedct_mappings",
     )
-    ctv3_term_type = models.CharField(max_length=1)
+    ctv3_term_type = models.TextField()
     sct_concept = models.ForeignKey(
         "snomedct.Concept",
         db_constraint=False,

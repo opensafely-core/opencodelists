@@ -14,13 +14,13 @@ class Codelist(models.Model):
         (id, system.name) for id, system in CODING_SYSTEMS.items()
     )
 
-    name = models.CharField(max_length=255)
+    name = models.TextField()
     slug = models.SlugField()
     project = models.ForeignKey(
         "opencodelists.Project", related_name="codelists", on_delete=models.CASCADE
     )
-    coding_system_id = models.CharField(
-        choices=CODING_SYSTEMS_CHOICES, max_length=32, verbose_name="Coding system",
+    coding_system_id = models.TextField(
+        choices=CODING_SYSTEMS_CHOICES, verbose_name="Coding system",
     )
     description = models.TextField()
     methodology = models.TextField()
@@ -50,7 +50,7 @@ class CodelistVersion(models.Model):
     codelist = models.ForeignKey(
         "Codelist", on_delete=models.CASCADE, related_name="versions"
     )
-    version_str = models.CharField(max_length=12, verbose_name="Version")
+    version_str = models.TextField(verbose_name="Version")
     csv_data = models.TextField(verbose_name="CSV data")
     is_draft = models.BooleanField(default=True)
 
@@ -124,5 +124,5 @@ class Reference(models.Model):
     codelist = models.ForeignKey(
         "Codelist", on_delete=models.CASCADE, related_name="references"
     )
-    text = models.CharField(max_length=255)
+    text = models.TextField()
     url = models.URLField()

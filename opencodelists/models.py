@@ -44,7 +44,7 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser):
     username = models.SlugField(primary_key=True)
-    name = models.CharField(max_length=255)
+    name = models.TextField()
     email = models.EmailField(
         verbose_name="email address", max_length=255, unique=True,
     )
@@ -81,7 +81,7 @@ class User(AbstractBaseUser):
 
 class Organisation(models.Model):
     slug = models.SlugField(primary_key=True)
-    name = models.CharField(max_length=255)
+    name = models.TextField()
     url = models.URLField()
 
     def save(self, *args, **kwargs):
@@ -96,7 +96,7 @@ class Organisation(models.Model):
 
 class Project(models.Model):
     slug = models.SlugField(primary_key=True)
-    name = models.CharField(max_length=255)
+    name = models.TextField()
     organisations = models.ManyToManyField("Organisation", related_name="projects")
     details = models.TextField()
     url = models.URLField()

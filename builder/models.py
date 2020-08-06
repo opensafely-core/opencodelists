@@ -13,10 +13,10 @@ class DraftCodelist(models.Model):
     owner = models.ForeignKey(
         User, related_name="draft_codelists", on_delete=models.CASCADE
     )
-    name = models.CharField(max_length=255)
+    name = models.TextField()
     slug = models.SlugField()
-    coding_system_id = models.CharField(
-        choices=CODING_SYSTEMS_CHOICES, max_length=32, verbose_name="Coding system",
+    coding_system_id = models.TextField(
+        choices=CODING_SYSTEMS_CHOICES, verbose_name="Coding system",
     )
 
     class Meta:
@@ -41,7 +41,7 @@ class Search(models.Model):
     codelist = models.ForeignKey(
         "DraftCodelist", related_name="searches", on_delete=models.CASCADE
     )
-    term = models.CharField(max_length=255)
+    term = models.TextField()
     slug = models.SlugField()
 
     class Meta:
@@ -72,7 +72,7 @@ class SearchResult(models.Model):
     search = models.ForeignKey(
         "Search", related_name="results", on_delete=models.CASCADE
     )
-    code = models.CharField(max_length=18)
-    status = models.CharField(max_length=3, choices=STATUS_CHOICES, default="?")
+    code = models.TextField()
+    status = models.TextField(choices=STATUS_CHOICES, default="?")
     matches_term = models.BooleanField()
     is_ancestor = models.BooleanField()

@@ -1,6 +1,5 @@
 import csv
 from io import BytesIO, StringIO
-from unittest.mock import patch
 
 import pytest
 from pytest_django.asserts import assertContains, assertRedirects
@@ -98,19 +97,15 @@ def test_createcodelist_invalid_post(rf):
     }
 
     request = rf.post("/", data=data)
+    request.user = UserFactory()
+    response = CreateCodelist.as_view()(request, project_slug=project.slug)
 
-    view = CreateCodelist()
-    view.setup(request)
-    with patch("codelists.views.CreateCodelist.all_valid") as mock_all_valid, patch(
-        "codelists.views.CreateCodelist.some_invalid"
-    ) as mock_some_invalid:
-        view.post(request)
+    # we're returning an HTML response when there are errors so check we don't
+    # receive a redirect code
+    assert response.status_code == 200
 
-    # was the error handler, some_invalid, called?
-    # we're not doing any custom error handling in the form or formsets so no
-    # need to test what Django is already testing
-    mock_all_valid.assert_not_called()
-    mock_some_invalid.assert_called_once()
+    # confirm we have errors from the signoff formset
+    assert response.context_data["signoff_formset"].errors
 
 
 def test_create_codelist_when_not_logged_in(client):

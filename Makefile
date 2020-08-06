@@ -17,7 +17,7 @@ deploy:
 .PHONY: fix
 fix:
 	black .
-	isort --recursive .
+	isort .
 
 .PHONY: format
 format:

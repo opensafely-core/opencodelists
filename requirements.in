@@ -1,10 +1,11 @@
 fabric3
+dj-database-url
 django
 django-crispy-forms
 django-cors-headers
 django-markdown-filter
 gunicorn
-pysqlite3-binary
+psycopg2
 whitenoise
 sentry-sdk
 

@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "crispy_forms",
     "django_extensions",
+    "debug_toolbar",
     "markdown_filter",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -78,6 +79,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
 ROOT_URLCONF = "opencodelists.urls"
@@ -148,9 +150,8 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
-
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 STATIC_URL = "/static/"
-
 WHITENOISE_USE_FINDERS = True
 
 
@@ -223,3 +224,9 @@ MARKDOWN_FILTER_WHITELIST_TAGS = [
 
 # Login/logout config
 LOGOUT_REDIRECT_URL = "/"
+
+
+# Debug Toolbar
+INTERNAL_IPS = [
+    "127.0.0.1",
+]

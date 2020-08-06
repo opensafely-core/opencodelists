@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
+
 {% load crispy_forms_tags %}
+{% load static %}
 
 {% block title_extra %}: {{ codelist.name }}{% endblock %}
 
@@ -7,5 +9,48 @@
 <br />
 <h3>New Codelist</h3>
 
-{% crispy form %}
+<form method="POST" enctype="multipart/form-data">
+  <div class="mb-5">
+    {% crispy codelist_form %}
+  </div>
+
+  <div id="reference-forms" class="mb-5">
+
+    <div class="d-flex justify-content-between">
+      <h4>References</h4>
+      <button id="add-reference" class="btn btn-success">+</button>
+    </div>
+
+    <div class="d-none template">
+      {% crispy reference_formset.empty_form helper %}
+    </div>
+
+    {% crispy reference_formset helper %}
+
+  </div>
+
+  <div id="signoff-forms" class="mb-5">
+
+    <div class="d-flex justify-content-between">
+      <h4>Sign Offs</h4>
+      <button id="add-signoff" class="btn btn-success">+</button>
+    </div>
+
+    <div class="d-none template">
+      {% crispy signoff_formset.empty_form helper %}
+    </div>
+
+    {% crispy signoff_formset helper %}
+
+  </div>
+
+  <div class="form-group">
+    <button type="submit" class="btn btn-primary">Submit</button>
+  </div>
+</form>
+
+{% endblock %}
+
+{% block extra_js %}
+<script type="text/javascript" src="{% static 'js/create_codelist.js' %}"></script>
 {% endblock %}

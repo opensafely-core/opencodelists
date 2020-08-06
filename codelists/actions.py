@@ -3,21 +3,52 @@ from datetime import date
 
 from django.db import transaction
 
+from opencodelists.models import User
+
 
 def create_codelist(
-    *, project, name, coding_system_id, description, methodology, csv_data
+    *,
+    project,
+    name,
+    coding_system_id,
+    description,
+    methodology,
+    csv_data,
+    references=None,
+    signoffs=None,
 ):
     """Create a new codelist with a version."""
 
     with transaction.atomic():
-        cl = project.codelists.create(
+        codelist = project.codelists.create(
             name=name,
             coding_system_id=coding_system_id,
             description=description,
             methodology=methodology,
         )
-        create_version(codelist=cl, csv_data=csv_data)
-    return cl
+
+        create_version(codelist=codelist, csv_data=csv_data)
+
+        if references is not None:
+            for reference in references:
+                create_reference(codelist=codelist, **reference)
+
+        if signoffs is not None:
+            for signoff in signoffs:
+                create_signoff(codelist=codelist, **signoff)
+
+    return codelist
+
+
+def create_reference(*, codelist, text, url):
+    """Create a new Reference for the given Codelist."""
+    return codelist.references.create(text=text, url=url)
+
+
+def create_signoff(*, codelist, user, date):
+    """Create a new SignOff for the given Codelist."""
+    user = User.objects.get(username=user)
+    return codelist.signoffs.create(user=user, date=date)
 
 
 def create_version(*, codelist, csv_data):

@@ -1,6 +1,6 @@
 from opencodelists import actions
 
-from . import factories
+from .factories import OrganisationFactory
 
 
 def test_create_organisation():
@@ -11,7 +11,7 @@ def test_create_organisation():
 
 
 def test_create_project():
-    o = factories.create_organisation()
+    o = OrganisationFactory()
     p = actions.create_project(
         name="Test Project",
         url="https://test.org",

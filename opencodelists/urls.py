@@ -1,3 +1,4 @@
+import debug_toolbar
 from django.contrib import admin
 from django.urls import include, path
 
@@ -12,4 +13,5 @@ urlpatterns = [
     path("snomedct/", include("coding_systems.snomedct.urls")),
     path("api/v1/snomedct/", include("coding_systems.snomedct.api_urls")),
     path("project/<project_slug>/", views.project, name="project"),
+    path("__debug__/", include(debug_toolbar.urls)),
 ]

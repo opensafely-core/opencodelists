@@ -1,6 +1,7 @@
 import pytest
 
 from codelists import actions
+from opencodelists.tests.factories import ProjectFactory
 
 from . import factories
 
@@ -8,7 +9,7 @@ pytestmark = pytest.mark.freeze_time("2020-07-23")
 
 
 def test_create_codelist():
-    p = factories.create_project()
+    p = ProjectFactory()
     cl = actions.create_codelist(
         project=p,
         name="Test Codelist",

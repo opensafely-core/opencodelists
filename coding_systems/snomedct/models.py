@@ -149,7 +149,7 @@ class Concept(models.Model):
 
 class Description(models.Model):
     id = models.CharField(primary_key=True, max_length=18)
-    effective_time = models.CharField(max_length=8)
+    effective_time = models.DateField()
     active = models.BooleanField()
     module = models.ForeignKey(
         "Concept", on_delete=models.CASCADE, related_name="+", db_index=False
@@ -169,7 +169,7 @@ class Description(models.Model):
 
 class Relationship(models.Model):
     id = models.CharField(primary_key=True, max_length=18)
-    effective_time = models.CharField(max_length=8)
+    effective_time = models.DateField()
     active = models.BooleanField()
     module = models.ForeignKey(
         "Concept", on_delete=models.CASCADE, related_name="+", db_index=False

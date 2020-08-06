@@ -31,6 +31,7 @@ freezegun==0.3.15         # via pytest-freezegun
 gunicorn==20.0.4          # via -r requirements.in
 hypothesis==5.10.5        # via -r requirements.in
 identify==1.4.25          # via pre-commit
+iniconfig==1.0.1          # via pytest
 isort==5.3.0              # via -r requirements.in
 litecli==1.4.1            # via -r requirements.in
 markdown2==2.3.9          # via django-markdown-filter
@@ -54,7 +55,7 @@ pyparsing==2.4.7          # via packaging
 pysqlite3-binary==0.4.3   # via -r requirements.in
 pytest-django==3.9.0      # via -r requirements.in
 pytest-freezegun==0.4.2   # via -r requirements.in
-pytest==5.4.3             # via pytest-django, pytest-freezegun
+pytest==6.0.1             # via pytest-django, pytest-freezegun
 python-dateutil==2.8.1    # via freezegun
 pytz==2020.1              # via django
 pyyaml==5.3.1             # via pre-commit
@@ -65,11 +66,11 @@ sortedcontainers==2.1.0   # via hypothesis
 sqlparse==0.3.1           # via django, litecli
 tabulate[widechars]==0.8.7  # via cli-helpers
 terminaltables==3.1.0     # via cli-helpers
-toml==0.10.0              # via black, pre-commit
+toml==0.10.0              # via black, pre-commit, pytest
 typed-ast==1.4.1          # via black
 urllib3==1.25.9           # via sentry-sdk
 virtualenv==20.0.30       # via pre-commit
-wcwidth==0.1.9            # via prompt-toolkit, pytest, tabulate
+wcwidth==0.1.9            # via prompt-toolkit, tabulate
 webencodings==0.5.1       # via bleach
 whitenoise==5.2.0         # via -r requirements.in
 

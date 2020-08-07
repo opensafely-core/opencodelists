@@ -1,11 +1,10 @@
-from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.forms import formset_factory
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.decorators import method_decorator
-from django.views.generic import TemplateView
+from django.views.generic import FormView, TemplateView
 
 from opencodelists.models import Project
 
@@ -121,20 +120,29 @@ def codelist(request, project_slug, codelist_slug):
         slug=codelist_slug,
     )
 
-    if request.method == "POST":
-        if not request.user.is_authenticated:
-            return redirect(f"{settings.LOGIN_URL}?next={request.path}")
-
-        form = CodelistVersionForm(request.POST, request.FILES)
-        if form.is_valid():
-            clv = actions.create_version(
-                codelist=codelist,
-                csv_data=form.cleaned_data["csv_data"].read().decode("utf8"),
-            )
-            return redirect(clv)
-
     clv = codelist.versions.order_by("version_str").last()
     return redirect(clv)
+
+
+@method_decorator(login_required, name="dispatch")
+class VersionCreate(FormView):
+    form_class = CodelistVersionForm
+    template_name = "codelists/version_create.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        self.codelist = get_object_or_404(
+            Codelist.objects.prefetch_related("versions"),
+            project=self.kwargs["project_slug"],
+            slug=self.kwargs["codelist_slug"],
+        )
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        version = actions.create_version(
+            codelist=self.codelist, csv_data=form.cleaned_data["csv_data"],
+        )
+        return redirect(version)
 
 
 def version(request, project_slug, codelist_slug, qualified_version_str):
@@ -154,22 +162,6 @@ def version(request, project_slug, codelist_slug, qualified_version_str):
 
     if expect_draft != clv.is_draft:
         return redirect(clv)
-
-    if request.method == "POST":
-        if not request.user.is_authenticated:
-            return redirect(f"{settings.LOGIN_URL}?next={request.path}")
-
-        update_version_form = CodelistVersionForm(request.POST, request.FILES)
-        if update_version_form.is_valid():
-            actions.update_version(
-                version=clv,
-                csv_data=update_version_form.cleaned_data["csv_data"]
-                .read()
-                .decode("utf8"),
-            )
-            return redirect(clv)
-    else:
-        update_version_form = CodelistVersionForm()
 
     headers, *rows = clv.table
 
@@ -191,9 +183,6 @@ def version(request, project_slug, codelist_slug, qualified_version_str):
         html_definition = None
         html_tree = None
 
-    create_version_form = CodelistVersionForm()
-    create_version_form.helper.form_action = clv.codelist.get_absolute_url()
-
     ctx = {
         "clv": clv,
         "codelist": clv.codelist,
@@ -201,10 +190,63 @@ def version(request, project_slug, codelist_slug, qualified_version_str):
         "rows": rows,
         "html_tree": html_tree,
         "html_definition": html_definition,
-        "create_version_form": create_version_form,
-        "update_version_form": update_version_form,
     }
     return render(request, "codelists/version.html", ctx)
+
+
+@method_decorator(login_required, name="dispatch")
+class VersionUpdate(TemplateView):
+    """
+    Update a given CodelistVersion's CSV data.
+
+    This uses TemplateView instead of UpdateView view since getting a
+    CodelistVersion requires a few extra hoops (extra looks params and post
+    lookup checks).  Using an UpdateView required enough modifications to the
+    method hooks that readability started to suffer.
+    """
+
+    template_name = "codelists/version_update.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        version_string = self.kwargs["qualified_version_str"]
+        if version_string[-6:] == "-draft":
+            expect_draft = True
+            version_str = version_string[:-6]
+        else:
+            expect_draft = False
+            version_str = version_string
+
+        self.version = get_object_or_404(
+            CodelistVersion.objects.select_related("codelist"),
+            codelist__project_id=self.kwargs["project_slug"],
+            codelist__slug=self.kwargs["codelist_slug"],
+            version_str=version_str,
+        )
+
+        if expect_draft != self.version.is_draft:
+            return redirect(self.version)
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        form = CodelistVersionForm(request.POST, request.FILES)
+        if not form.is_valid():
+            return self.render_to_response(self.get_context_data(form=form))
+
+        actions.update_version(
+            version=self.version, csv_data=form.cleaned_data["csv_data"]
+        )
+
+        return redirect(self.version)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["version"] = self.version
+
+        if "form" not in kwargs:
+            context["form"] = CodelistVersionForm()
+
+        return context
 
 
 def download(request, project_slug, codelist_slug, qualified_version_str):

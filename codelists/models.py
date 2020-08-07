@@ -70,7 +70,7 @@ class CodelistVersion(models.Model):
 
     def get_absolute_url(self):
         return reverse(
-            "codelists:version",
+            "codelists:version-detail",
             args=(
                 self.codelist.project_id,
                 self.codelist.slug,

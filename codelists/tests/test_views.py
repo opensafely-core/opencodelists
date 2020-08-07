@@ -2,9 +2,11 @@ import csv
 from io import StringIO
 
 import pytest
+from django.contrib.auth.models import AnonymousUser
+from django.http import Http404
 from pytest_django.asserts import assertContains, assertRedirects
 
-from codelists.views import CreateCodelist
+from codelists.views import CreateCodelist, VersionCreate, VersionUpdate
 from opencodelists.tests.factories import ProjectFactory, UserFactory
 
 from . import factories
@@ -217,62 +219,151 @@ def test_draft_download_does_not_redirect(client):
     assert rsp.status_code == 404
 
 
-def test_create_version(logged_in_client):
-    clv = factories.create_published_version()
-    cl = clv.codelist
+def test_versioncreate_missing_field(rf):
+    codelist = factories.create_published_version().codelist
+
+    request = rf.post("/", data={})
+    request.user = UserFactory()
+    response = VersionCreate.as_view()(
+        request, project_slug=codelist.project.slug, codelist_slug=codelist.slug,
+    )
+
+    assert response.status_code == 200
+    assert "form" in response.context_data
+    assert len(response.context_data["form"].errors) == 1
+    assert "csv_data" in response.context_data["form"].errors
+
+
+def test_versioncreate_success(rf):
+    codelist = factories.create_published_version().codelist
+
+    assert codelist.versions.count() == 1
+
     csv_data = "code,description\n1068181000000106, Injury whilst synchronised swimming (disorder)"
     data = {
         "csv_data": csv_builder(csv_data),
     }
-    rsp = logged_in_client.post(
-        f"/codelist/{cl.project.slug}/{cl.slug}/", data, follow=True
+
+    request = rf.post("/", data=data)
+    request.user = UserFactory()
+    response = VersionCreate.as_view()(
+        request, project_slug=codelist.project.slug, codelist_slug=codelist.slug,
     )
-    assertRedirects(rsp, f"/codelist/{cl.project.slug}/{cl.slug}/2020-07-23-a-draft/")
+
+    assert response.status_code == 302
+    assert (
+        response.url
+        == f"/codelist/{codelist.project.slug}/{codelist.slug}/2020-07-23-a-draft/"
+    )
+
+    assert codelist.versions.count() == 2
 
 
-def test_create_version_when_not_logged_in(client):
-    clv = factories.create_published_version()
-    cl = clv.codelist
+def test_versioncreate_unknown_codelist(rf):
+    codelist = factories.create_codelist()
+
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    with pytest.raises(Http404):
+        VersionCreate.as_view()(
+            request, project_slug=codelist.project.slug, codelist_slug="test",
+        )
+
+
+def test_versionupdate_unknown_version(rf):
+    codelist = factories.create_codelist()
+
+    request = rf.get("/")
+    request.user = UserFactory()
+    with pytest.raises(Http404):
+        VersionUpdate.as_view()(
+            request,
+            project_slug=codelist.project.slug,
+            codelist_slug=codelist.slug,
+            qualified_version_str="test",
+        )
+
+
+def test_versionupdate_draft_mismatch(rf):
+    version = factories.create_published_version()
+
+    # set the version string to that of a draft
+    qualified_version_str = f"{version.qualified_version_str}-draft"
+
+    request = rf.get("/")
+    request.user = UserFactory()
+    response = VersionUpdate.as_view()(
+        request,
+        project_slug=version.codelist.project.slug,
+        codelist_slug=version.codelist.slug,
+        qualified_version_str=qualified_version_str,
+    )
+
+    # we should get redirected to the Version page
+    assert response.status_code == 302
+    assert response.url == version.get_absolute_url()
+
+
+def test_versionupdate_form_error(rf):
+    version = factories.create_published_version()
+
+    request = rf.post("/", data={})
+    request.user = UserFactory()
+    response = VersionUpdate.as_view()(
+        request,
+        project_slug=version.codelist.project.slug,
+        codelist_slug=version.codelist.slug,
+        qualified_version_str=version.qualified_version_str,
+    )
+
+    assert response.status_code == 200
+    assert "form" in response.context_data
+    assert "csv_data" in response.context_data["form"].errors
+
+
+def test_versionupdate_success(rf):
+    version = factories.create_draft_version()
+
+    assert version.codelist.versions.count() == 1
+
     csv_data = "code,description\n1068181000000106, Injury whilst synchronised swimming (disorder)"
     data = {
         "csv_data": csv_builder(csv_data),
     }
-    rsp = client.post(f"/codelist/{cl.project.slug}/{cl.slug}/", data, follow=True)
-    assertRedirects(
-        rsp, f"/accounts/login/?next=%2Fcodelist%2F{cl.project.slug}%2F{cl.slug}%2F"
+
+    request = rf.post("/", data=data)
+    request.user = UserFactory()
+    response = VersionUpdate.as_view()(
+        request,
+        project_slug=version.codelist.project.slug,
+        codelist_slug=version.codelist.slug,
+        qualified_version_str=version.qualified_version_str,
     )
 
-
-def test_update_version(logged_in_client):
-    clv = factories.create_draft_version()
-    cl = clv.codelist
-    csv_data = "code,description\n1068181000000106, Injury whilst synchronised swimming (disorder)"
-    data = {
-        "csv_data": csv_builder(csv_data),
-    }
-    rsp = logged_in_client.post(
-        f"/codelist/{cl.project.slug}/{cl.slug}/{clv.version_str}-draft/",
-        data,
-        follow=True,
-    )
-    assertRedirects(
-        rsp, f"/codelist/{cl.project.slug}/{cl.slug}/{clv.version_str}-draft/"
+    assert response.status_code == 302
+    assert (
+        response.url
+        == f"/codelist/{version.codelist.project.slug}/{version.codelist.slug}/2020-07-23-draft/"
     )
 
+    assert version.codelist.versions.count() == 1
 
-def test_update_version_when_not_logged_in(client):
-    clv = factories.create_draft_version()
-    cl = clv.codelist
-    csv_data = "code,description\n1068181000000106, Injury whilst synchronised swimming (disorder)"
-    data = {
-        "csv_data": csv_builder(csv_data),
-    }
-    rsp = client.post(
-        f"/codelist/{cl.project.slug}/{cl.slug}/{clv.version_str}-draft/",
-        data,
-        follow=True,
+
+def test_versionupdate_not_logged_in(rf):
+    version = factories.create_published_version()
+    codelist = version.codelist
+
+    assert version.codelist.versions.count() == 1
+
+    request = rf.post("/the/current/url/", data={})
+    request.user = AnonymousUser()
+    response = VersionUpdate.as_view()(
+        request,
+        project_slug=codelist.project.slug,
+        codelist_slug=codelist.slug,
+        qualified_version_str=version.qualified_version_str,
     )
-    assertRedirects(
-        rsp,
-        f"/accounts/login/?next=%2Fcodelist%2F{cl.project.slug}%2F{cl.slug}%2F{clv.version_str}-draft%2F",
-    )
+
+    assert response.status_code == 302
+    assert response.url == "/accounts/login/?next=/the/current/url/"

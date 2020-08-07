@@ -1,5 +1,5 @@
 import csv
-from io import BytesIO, StringIO
+from io import StringIO
 
 import pytest
 from pytest_django.asserts import assertContains, assertRedirects
@@ -8,6 +8,7 @@ from codelists.views import CreateCodelist
 from opencodelists.tests.factories import ProjectFactory, UserFactory
 
 from . import factories
+from .helpers import csv_builder
 
 pytestmark = pytest.mark.freeze_time("2020-07-23")
 
@@ -31,7 +32,7 @@ def test_createcodelist_success(rf):
         "coding_system_id": "snomedct",
         "description": "This is a test",
         "methodology": "This is how we did it",
-        "csv_data": _build_file_for_upload(csv_data),
+        "csv_data": csv_builder(csv_data),
         "reference-TOTAL_FORMS": "1",
         "reference-INITIAL_FORMS": "0",
         "reference-MIN_NUM_FORMS": "0",
@@ -82,7 +83,7 @@ def test_createcodelist_invalid_post(rf):
         "coding_system_id": "snomedct",
         "description": "This is a test",
         "methodology": "This is how we did it",
-        "csv_data": _build_file_for_upload(csv_data),
+        "csv_data": csv_builder(csv_data),
         "reference-TOTAL_FORMS": "1",
         "reference-INITIAL_FORMS": "0",
         "reference-MIN_NUM_FORMS": "0",
@@ -116,7 +117,7 @@ def test_create_codelist_when_not_logged_in(client):
         "coding_system_id": "snomedct",
         "description": "This is a test",
         "methodology": "This is how we did it",
-        "csv_data": _build_file_for_upload(csv_data),
+        "csv_data": csv_builder(csv_data),
     }
     rsp = client.post(f"/codelist/{p.slug}/", data, follow=True)
     assertRedirects(rsp, f"/accounts/login/?next=%2Fcodelist%2F{p.slug}%2F")
@@ -221,7 +222,7 @@ def test_create_version(logged_in_client):
     cl = clv.codelist
     csv_data = "code,description\n1068181000000106, Injury whilst synchronised swimming (disorder)"
     data = {
-        "csv_data": _build_file_for_upload(csv_data),
+        "csv_data": csv_builder(csv_data),
     }
     rsp = logged_in_client.post(
         f"/codelist/{cl.project.slug}/{cl.slug}/", data, follow=True
@@ -234,7 +235,7 @@ def test_create_version_when_not_logged_in(client):
     cl = clv.codelist
     csv_data = "code,description\n1068181000000106, Injury whilst synchronised swimming (disorder)"
     data = {
-        "csv_data": _build_file_for_upload(csv_data),
+        "csv_data": csv_builder(csv_data),
     }
     rsp = client.post(f"/codelist/{cl.project.slug}/{cl.slug}/", data, follow=True)
     assertRedirects(
@@ -247,7 +248,7 @@ def test_update_version(logged_in_client):
     cl = clv.codelist
     csv_data = "code,description\n1068181000000106, Injury whilst synchronised swimming (disorder)"
     data = {
-        "csv_data": _build_file_for_upload(csv_data),
+        "csv_data": csv_builder(csv_data),
     }
     rsp = logged_in_client.post(
         f"/codelist/{cl.project.slug}/{cl.slug}/{clv.version_str}-draft/",
@@ -264,7 +265,7 @@ def test_update_version_when_not_logged_in(client):
     cl = clv.codelist
     csv_data = "code,description\n1068181000000106, Injury whilst synchronised swimming (disorder)"
     data = {
-        "csv_data": _build_file_for_upload(csv_data),
+        "csv_data": csv_builder(csv_data),
     }
     rsp = client.post(
         f"/codelist/{cl.project.slug}/{cl.slug}/{clv.version_str}-draft/",
@@ -275,10 +276,3 @@ def test_update_version_when_not_logged_in(client):
         rsp,
         f"/accounts/login/?next=%2Fcodelist%2F{cl.project.slug}%2F{cl.slug}%2F{clv.version_str}-draft%2F",
     )
-
-
-def _build_file_for_upload(contents):
-    buffer = BytesIO()
-    buffer.write(contents.encode("utf8"))
-    buffer.seek(0)
-    return buffer

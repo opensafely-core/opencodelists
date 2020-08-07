@@ -73,7 +73,7 @@ class CreateCodelist(TemplateView):
             coding_system_id=form.cleaned_data["coding_system_id"],
             description=form.cleaned_data["description"],
             methodology=form.cleaned_data["methodology"],
-            csv_data=form.cleaned_data["csv_data"].read().decode("utf8"),
+            csv_data=form.cleaned_data["csv_data"],
             references=references,
             signoffs=signoffs,
         )

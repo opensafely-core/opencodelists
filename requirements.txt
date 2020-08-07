@@ -23,8 +23,7 @@ django-crispy-forms==1.9.2  # via -r requirements.in
 django-debug-toolbar==2.2  # via -r requirements.in
 django-extensions==3.0.4  # via -r requirements.in
 django-markdown-filter==0.0.1  # via -r requirements.in
-django==3.1               # via -r requirements.in, django-cors-headers, django-markdown-filter
-entrypoints==0.3          # via flake8
+django==3.1               # via -r requirements.in, django-cors-headers, django-debug-toolbar, django-markdown-filter
 fabric3==1.14.post1       # via -r requirements.in
 factory-boy==2.12.0       # via -r requirements.in
 faker==4.1.1              # via factory-boy
@@ -35,7 +34,7 @@ gunicorn==20.0.4          # via -r requirements.in
 hypothesis==5.23.11       # via -r requirements.in
 identify==1.4.25          # via pre-commit
 iniconfig==1.0.1          # via pytest
-isort==5.3.0              # via -r requirements.in
+isort==5.3.2              # via -r requirements.in
 litecli==1.4.1            # via -r requirements.in
 markdown2==2.3.9          # via django-markdown-filter
 mccabe==0.6.1             # via flake8

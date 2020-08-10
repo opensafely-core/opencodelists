@@ -215,7 +215,7 @@ def version_publish(request, project_slug, codelist_slug, qualified_version_str)
     if expect_draft != version.is_draft:
         return redirect(version)
 
-    actions.publish_version(version=version)
+    version = actions.publish_version(version=version)
 
     return redirect(version)
 

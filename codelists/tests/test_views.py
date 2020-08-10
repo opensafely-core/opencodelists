@@ -12,7 +12,13 @@ from opencodelists.tests.factories import ProjectFactory, UserFactory
 from . import factories
 from .helpers import csv_builder
 
-pytestmark = pytest.mark.freeze_time("2020-07-23")
+pytestmark = [
+    pytest.mark.freeze_time("2020-07-23"),
+    pytest.mark.filterwarnings(
+        "ignore::DeprecationWarning:bleach",
+        "ignore::django.utils.deprecation.RemovedInDjango40Warning:debug_toolbar",
+    ),
+]
 
 
 @pytest.fixture()

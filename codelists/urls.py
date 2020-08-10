@@ -43,9 +43,19 @@ urlpatterns = [
     ),
     path("codelist/<project_slug>/<codelist_slug>/", views.codelist, name="codelist"),
     path(
+        "codelist/<project_slug>/<codelist_slug>/add",
+        views.VersionCreate.as_view(),
+        name="version-create",
+    ),
+    path(
         "codelist/<project_slug>/<codelist_slug>/<qualified_version_str>/",
         views.version,
-        name="version",
+        name="version-detail",
+    ),
+    path(
+        "codelist/<project_slug>/<codelist_slug>/<qualified_version_str>/update/",
+        views.VersionUpdate.as_view(),
+        name="version-update",
     ),
     path(
         "codelist/<project_slug>/<codelist_slug>/<qualified_version_str>/download.csv",

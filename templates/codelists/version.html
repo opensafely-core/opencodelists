@@ -50,6 +50,15 @@
         href="{% url 'codelists:version-update' project_slug=codelist.project.slug codelist_slug=codelist.slug qualified_version_str=clv.qualified_version_str %}">
         Update version
       </a>
+      {% if clv.is_draft %}
+      <button
+        type="button"
+        class="btn btn-outline-info btn-block"
+        data-toggle="modal"
+        data-target="#js-publish-version-form">
+        Publish version
+      </button>
+      {% endif %}
       {% endif %}
     </div>
     {% endif %}
@@ -206,6 +215,36 @@
       {{ html_tree|safe }}
       </div>
       {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="js-publish-version-form" tabindex="-1" role="dialog" aria-labelledby="publish-version-label" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+
+        <h5 class="modal-title" id="publish-version-label">Publish Version</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+
+      </div>
+      <div class="modal-body">
+
+        <form method="POST" action="{{ clv.get_publish_url }}">
+          {% csrf_token %}
+
+          <p>Are you sure you want to publish this version?</p>
+
+          <div class="d-flex justify-content-between">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Publish</button>
+          </div>
+
+        </form>
+
+      </div>
     </div>
   </div>
 </div>

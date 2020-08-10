@@ -53,6 +53,11 @@ urlpatterns = [
         name="version-detail",
     ),
     path(
+        "codelist/<project_slug>/<codelist_slug>/<qualified_version_str>/publish/",
+        views.version_publish,
+        name="version-publish",
+    ),
+    path(
         "codelist/<project_slug>/<codelist_slug>/<qualified_version_str>/update/",
         views.VersionUpdate.as_view(),
         name="version-update",

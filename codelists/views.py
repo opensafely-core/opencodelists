@@ -4,6 +4,7 @@ from django.forms import formset_factory
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.decorators import method_decorator
+from django.views.decorators.http import require_POST
 from django.views.generic import FormView, TemplateView
 
 from opencodelists.models import Project
@@ -192,6 +193,31 @@ def version(request, project_slug, codelist_slug, qualified_version_str):
         "html_definition": html_definition,
     }
     return render(request, "codelists/version.html", ctx)
+
+
+@require_POST
+@login_required
+def version_publish(request, project_slug, codelist_slug, qualified_version_str):
+    if qualified_version_str[-6:] == "-draft":
+        expect_draft = True
+        version_str = qualified_version_str[:-6]
+    else:
+        expect_draft = False
+        version_str = qualified_version_str
+
+    version = get_object_or_404(
+        CodelistVersion.objects.select_related("codelist"),
+        codelist__project_id=project_slug,
+        codelist__slug=codelist_slug,
+        version_str=version_str,
+    )
+
+    if expect_draft != version.is_draft:
+        return redirect(version)
+
+    actions.publish_version(version=version)
+
+    return redirect(version)
 
 
 @method_decorator(login_required, name="dispatch")

@@ -215,6 +215,10 @@ def version_publish(request, project_slug, codelist_slug, qualified_version_str)
     if expect_draft != version.is_draft:
         return redirect(version)
 
+    # We want to redirect to the now-published Version after publishing it, but
+    # the in-memory instance in this view won't be updated by the .save() call
+    # inside the action.  So instead we return the new instance from the action
+    # and use that.
     version = actions.publish_version(version=version)
 
     return redirect(version)

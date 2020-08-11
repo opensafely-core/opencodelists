@@ -1,5 +1,27 @@
+import datetime
+
+import factory
+import factory.fuzzy
+
 from codelists import actions
+from codelists.models import Reference, SignOff
 from opencodelists.tests.factories import ProjectFactory
+
+
+class ReferenceFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Reference
+
+    text = factory.Sequence(lambda n: f"Reference {n}")
+    url = factory.Sequence(lambda n: f"http://example.com/{n}")
+
+
+class SignOffFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = SignOff
+
+    user = factory.SubFactory("opencodelists.tests.factories.UserFactory")
+    date = factory.fuzzy.FuzzyDate(datetime.date(2020, 1, 1))
 
 
 def create_codelist():

@@ -38,10 +38,15 @@ urlpatterns = [
     path("", views.index, name="index"),
     path(
         "codelist/<project_slug>/",
-        views.CreateCodelist.as_view(),
+        views.CodelistCreate.as_view(),
         name="create_codelist",
     ),
     path("codelist/<project_slug>/<codelist_slug>/", views.codelist, name="codelist"),
+    path(
+        "codelist/<project_slug>/<codelist_slug>/edit/",
+        views.CodelistUpdate.as_view(),
+        name="codelist-edit",
+    ),
     path(
         "codelist/<project_slug>/<codelist_slug>/add",
         views.VersionCreate.as_view(),

@@ -38,6 +38,17 @@
 
     {% if user.is_authenticated %}
     <hr />
+
+    <div class="btn-group-vertical btn-block" role="group">
+      <a
+        class="btn btn-outline-info btn-block"
+        href="{% url 'codelists:codelist-edit' project_slug=codelist.project.slug codelist_slug=codelist.slug %}">
+        Edit
+      </a>
+    </div>
+
+    <hr />
+
     <div class="btn-group-vertical btn-block" role="group">
       <a
         class="btn btn-outline-info btn-block"

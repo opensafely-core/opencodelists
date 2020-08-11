@@ -65,12 +65,29 @@ class CSVValidationMixin:
         return data
 
 
-class CodelistForm(forms.ModelForm, CSVValidationMixin):
+class CodelistCreateForm(forms.ModelForm, CSVValidationMixin):
     csv_data = forms.FileField(label="CSV data")
 
     class Meta:
         model = Codelist
         fields = ["name", "coding_system_id", "description", "methodology", "csv_data"]
+
+    def __init__(self, *args, **kwargs):
+        self.helper = FormHelper()
+        self.helper.form_tag = False
+        super().__init__(*args, **kwargs)
+
+
+class CodelistUpdateForm(forms.ModelForm):
+    class Meta:
+        fields = [
+            "name",
+            "project",
+            "coding_system_id",
+            "description",
+            "methodology",
+        ]
+        model = Codelist
 
     def __init__(self, *args, **kwargs):
         self.helper = FormHelper()

@@ -1,0 +1,87 @@
+<div id="reference-{{ id }}" class="row mb-4">
+
+  <input
+    type="hidden"
+    id="id_reference-{{ id }}-id"
+    {% if form.id.value != None %}
+    value="{{ form.id.value }}"
+    {% endif %}
+    name="reference-{{ id }}-id" />
+
+  <div class="col-11">
+
+    <div class="row mb-2 align-items-center">
+      <div class="col-1">
+        <label for="id_reference-{{ id }}_text">
+          Text *
+        </label>
+      </div>
+
+      <div class="col-11">
+
+        <input
+          type="text"
+          name="reference-{{ id }}-text"
+          {% if form.text.value != None %}
+          value="{{ form.text.value }}"
+          {% endif %}
+          class="form-control"
+          id="id_reference-{{ id }}-text" />
+      </div>
+
+        {% if form.text.errors %}
+        <ul class="list-unstyled my-2">
+          {% for error in form.text.errors %}
+          <li class="text-danger">{{ error }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+
+    </div>
+
+    <div class="row align-items-center">
+      <div class="col-1">
+        <label for="id_reference-{{ id }}-url">
+          URL *
+        </label>
+      </div>
+
+      <div class="col-11">
+
+        <input
+          type="text"
+          name="reference-{{ id }}-url"
+          {% if form.url.value != None %}
+          value="{{ form.url.value }}"
+          {% endif %}
+          class="form-control"
+          id="id_reference-{{ id }}-url" />
+      </div>
+
+        {% if form.url.errors %}
+        <ul class="list-unstyled my-2">
+          {% for error in form.url.errors %}
+          <li class="text-danger">{{ error }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+
+    </div>
+
+    {% if form.non_field_errors %}
+    <div class="non-field-errors">
+      {% for error in form.non_field_errors %}
+      <p class="form-error">{{ error }}</p>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+  </div>
+
+  <div class="col-1">
+    <button type="button" class="btn btn-danger remove-reference reference-{{ id }}">
+      &times;
+    </button>
+  </div>
+
+</div>

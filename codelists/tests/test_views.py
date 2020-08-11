@@ -1,4 +1,5 @@
 import csv
+import datetime
 from io import StringIO
 
 import pytest
@@ -7,7 +8,8 @@ from django.http import Http404
 from pytest_django.asserts import assertContains, assertRedirects
 
 from codelists.views import (
-    CreateCodelist,
+    CodelistCreate,
+    CodelistUpdate,
     VersionCreate,
     VersionUpdate,
     version_publish,
@@ -33,7 +35,7 @@ def logged_in_client(client, django_user_model):
     return client
 
 
-def test_createcodelist_success(rf):
+def test_codelistcreate_success(rf):
     project = ProjectFactory()
     signoff_user = UserFactory()
 
@@ -62,7 +64,7 @@ def test_createcodelist_success(rf):
 
     request = rf.post("/", data=data)
     request.user = UserFactory()
-    response = CreateCodelist.as_view()(request, project_slug=project.slug)
+    response = CodelistCreate.as_view()(request, project_slug=project.slug)
 
     assert response.status_code == 302
     assert response.url == f"/codelist/{project.slug}/test-codelist/"
@@ -82,7 +84,7 @@ def test_createcodelist_success(rf):
     assert signoff.user == signoff_user
 
 
-def test_createcodelist_invalid_post(rf):
+def test_codelistcreate_invalid_post(rf):
     project = ProjectFactory()
     signoff_user = UserFactory()
 
@@ -112,7 +114,7 @@ def test_createcodelist_invalid_post(rf):
 
     request = rf.post("/", data=data)
     request.user = UserFactory()
-    response = CreateCodelist.as_view()(request, project_slug=project.slug)
+    response = CodelistCreate.as_view()(request, project_slug=project.slug)
 
     # we're returning an HTML response when there are errors so check we don't
     # receive a redirect code
@@ -122,7 +124,7 @@ def test_createcodelist_invalid_post(rf):
     assert response.context_data["signoff_formset"].errors
 
 
-def test_create_codelist_when_not_logged_in(client):
+def test_codelistcreate_when_not_logged_in(client):
     p = ProjectFactory()
     csv_data = "code,description\n1067731000000107,Injury whilst swimming (disorder)"
     data = {
@@ -134,6 +136,126 @@ def test_create_codelist_when_not_logged_in(client):
     }
     rsp = client.post(f"/codelist/{p.slug}/", data, follow=True)
     assertRedirects(rsp, f"/accounts/login/?next=%2Fcodelist%2F{p.slug}%2F")
+
+
+def test_codelistupdate_invalid_post(rf):
+    codelist = factories.create_codelist()
+    signoff_1 = factories.SignOffFactory(codelist=codelist)
+    reference_1 = factories.ReferenceFactory(codelist=codelist)
+
+    # missing signoff-0-date
+    data = {
+        "project": codelist.project.slug,
+        "name": "Test Codelist",
+        "coding_system_id": "snomedct",
+        "description": "This is a test",
+        "methodology": "This is how we did it",
+        "reference-TOTAL_FORMS": "1",
+        "reference-INITIAL_FORMS": "0",
+        "reference-MIN_NUM_FORMS": "0",
+        "reference-MAX_NUM_FORMS": "1000",
+        "reference-0-text": reference_1.text,
+        "reference-0-url": reference_1.url,
+        "signoff-TOTAL_FORMS": "1",
+        "signoff-INITIAL_FORMS": "0",
+        "signoff-MIN_NUM_FORMS": "0",
+        "signoff-MAX_NUM_FORMS": "1000",
+        "signoff-0-user": signoff_1.user.username,
+    }
+
+    request = rf.post("/", data=data)
+    request.user = UserFactory()
+    response = CodelistUpdate.as_view()(
+        request, project_slug=codelist.project.slug, codelist_slug=codelist.slug
+    )
+
+    # we're returning an HTML response when there are errors so check we don't
+    # receive a redirect code
+    assert response.status_code == 200
+
+    # confirm we have errors from the signoff formset
+    assert response.context_data["signoff_formset"].errors
+
+
+def test_codelistupdate_success(rf):
+    codelist = factories.create_codelist()
+    signoff_1 = factories.SignOffFactory(codelist=codelist)
+    signoff_2 = factories.SignOffFactory(codelist=codelist)
+    reference_1 = factories.ReferenceFactory(codelist=codelist)
+    reference_2 = factories.ReferenceFactory(codelist=codelist)
+
+    assert codelist.references.count() == 2
+    assert codelist.signoffs.count() == 2
+
+    new_signoff_user = UserFactory()
+
+    data = {
+        "project": codelist.project.slug,
+        "name": "Test Codelist",
+        "coding_system_id": "snomedct",
+        "description": "This is a test CHANGED",
+        "methodology": "This is how we did it",
+        "reference-TOTAL_FORMS": "3",
+        "reference-INITIAL_FORMS": "2",
+        "reference-MIN_NUM_FORMS": "0",
+        "reference-MAX_NUM_FORMS": "1000",
+        "reference-0-text": reference_1.text,
+        "reference-0-url": reference_1.url,
+        "reference-0-id": reference_1.id,
+        "reference-0-DELETE": "on",
+        "reference-1-text": reference_2.text + " CHANGED",
+        "reference-1-url": reference_2.url,
+        "reference-1-id": reference_2.id,
+        "reference-2-text": "This is a new reference",
+        "reference-2-url": "http://example.com",
+        "signoff-TOTAL_FORMS": "3",
+        "signoff-INITIAL_FORMS": "2",
+        "signoff-MIN_NUM_FORMS": "0",
+        "signoff-MAX_NUM_FORMS": "1000",
+        "signoff-0-user": signoff_1.user.username,
+        "signoff-0-date": signoff_1.date,
+        "signoff-0-id": signoff_1.id,
+        "signoff-0-DELETE": "on",
+        "signoff-1-user": signoff_2.user.username,
+        "signoff-1-date": signoff_2.date + datetime.timedelta(days=2),
+        "signoff-1-id": signoff_2.id,
+        "signoff-2-user": new_signoff_user.username,
+        "signoff-2-date": "2000-01-01",
+    }
+
+    request = rf.post("/", data=data)
+    request.user = UserFactory()
+    response = CodelistUpdate.as_view()(
+        request, project_slug=codelist.project.slug, codelist_slug=codelist.slug
+    )
+
+    assert response.status_code == 302
+    assert response.url == f"/codelist/{codelist.project.slug}/{codelist.slug}/"
+
+    # we should have still have 2 references but the first should be changed
+    # while the second is new.
+    assert codelist.references.count() == 2
+    assert codelist.references.first().text == reference_2.text + " CHANGED"
+    assert codelist.references.last().text == "This is a new reference"
+
+    # we should have still have 2 signoffs but the first should be changed
+    # while the second is new.
+    assert codelist.signoffs.count() == 2
+    assert codelist.signoffs.first().date == signoff_2.date + datetime.timedelta(days=2)
+    assert codelist.signoffs.last().user == new_signoff_user
+
+
+def test_codelistupdate_when_not_logged_in(rf):
+    codelist = factories.create_codelist()
+
+    request = rf.post("/the/current/url/")
+    request.user = AnonymousUser()
+    response = CodelistUpdate.as_view()(
+        request, project_slug=codelist.project.slug, codelist_slug=codelist.slug
+    )
+
+    assert response.status_code == 302
+    assert response.url == "/accounts/login/?next=/the/current/url/"
 
 
 def test_codelist(client):

@@ -79,15 +79,7 @@ def update_codelist(
     codelist.description = description
     codelist.methodology = methodology
 
-    codelist.save(
-        update_fields=[
-            "project",
-            "name",
-            "coding_system_id",
-            "description",
-            "methodology",
-        ]
-    )
+    codelist.save()
 
     return codelist
 

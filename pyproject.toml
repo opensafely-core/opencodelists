@@ -10,6 +10,20 @@ exclude = '''
 )
 '''
 
+[tool.coverage.run]
+branch = true
+omit = [
+  "opencodelists/asgi.py",
+  "opencodelists/django_test_runner.py",
+  "opencodelists/settings.py",
+  "opencodelists/wsgi.py",
+]
+
+[tool.coverage.report]
+skip_covered = true
+
+[tool.coverage.html]
+
 [tool.isort]
 force_grid_wrap = 0
 include_trailing_comma = true

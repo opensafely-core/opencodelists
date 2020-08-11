@@ -12,6 +12,7 @@ sentry-sdk
 # test
 factory_boy
 hypothesis
+pytest-cov
 pytest-django
 pytest-freezegun
 

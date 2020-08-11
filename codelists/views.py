@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.db.models import Q
-from django.forms import formset_factory, modelformset_factory
+from django.forms import formset_factory
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.decorators import method_decorator
@@ -18,9 +18,11 @@ from .forms import (
     CodelistUpdateForm,
     CodelistVersionForm,
     ReferenceForm,
+    ReferenceFormSet,
     SignOffForm,
+    SignOffFormSet,
 )
-from .models import Codelist, CodelistVersion, Reference, SignOff
+from .models import Codelist, CodelistVersion
 
 
 def index(request):
@@ -115,10 +117,6 @@ class CodelistCreate(TemplateView):
 
 @method_decorator(login_required, name="dispatch")
 class CodelistUpdate(TemplateView):
-    ReferenceFormSet = modelformset_factory(
-        Reference, form=ReferenceForm, can_delete=True
-    )
-    SignOffFormSet = modelformset_factory(SignOff, form=SignOffForm, can_delete=True)
     template_name = "codelists/codelist.html"
 
     def dispatch(self, request, *args, **kwargs):
@@ -206,12 +204,12 @@ class CodelistUpdate(TemplateView):
         return CodelistUpdateForm(data, files, instance=self.codelist)
 
     def get_reference_formset(self, data=None, files=None):
-        return self.ReferenceFormSet(
+        return ReferenceFormSet(
             data, files, queryset=self.codelist.references.all(), prefix="reference"
         )
 
     def get_signoff_formset(self, data=None, files=None):
-        return self.SignOffFormSet(
+        return SignOffFormSet(
             data, files, queryset=self.codelist.signoffs.all(), prefix="signoff"
         )
 

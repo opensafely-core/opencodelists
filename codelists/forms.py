@@ -17,6 +17,11 @@ class ReferenceForm(forms.ModelForm):
         ]
 
 
+ReferenceFormSet = forms.modelformset_factory(
+    Reference, form=ReferenceForm, can_delete=True
+)
+
+
 class SignOffForm(forms.ModelForm):
     date = forms.DateField(widget=forms.TextInput(attrs={"type": "date"}))
 
@@ -26,6 +31,9 @@ class SignOffForm(forms.ModelForm):
             "user",
             "date",
         ]
+
+
+SignOffFormSet = forms.modelformset_factory(SignOff, form=SignOffForm, can_delete=True)
 
 
 class CSVValidationMixin:

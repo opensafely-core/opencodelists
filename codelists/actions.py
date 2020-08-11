@@ -67,6 +67,23 @@ def create_version(*, codelist, csv_data):
     raise ValueError("E_TOO_MANY_VERSIONS")
 
 
+@transaction.atomic
+def update_codelist(
+    *, codelist, project, name, coding_system_id, description, methodology,
+):
+    """Update a Codelist."""
+
+    codelist.project = project
+    codelist.name = name
+    codelist.coding_system_id = coding_system_id
+    codelist.description = description
+    codelist.methodology = methodology
+
+    codelist.save()
+
+    return codelist
+
+
 def update_version(*, version, csv_data):
     """Update a version."""
 

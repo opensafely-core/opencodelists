@@ -8,23 +8,6 @@ from django import forms
 from .models import Codelist, CodelistVersion, Reference, SignOff
 
 
-class FormSetHelper(FormHelper):
-    """
-    FormHelper for use with Crispy Forms and FormSets
-
-    When using Crispy Forms helpers with FormSet their layout is applied to the
-    Forms but attributes to the FormSet, so we need to pass the FormHelper
-    instance into the crispy_forms templatetag in the view.
-
-    https://django-crispy-forms.readthedocs.io/en/latest/crispy_tag_formsets.html#formsets
-    """
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.disable_csrf = True
-        self.form_tag = False
-
-
 class ReferenceForm(forms.ModelForm):
     class Meta:
         model = Reference
@@ -32,6 +15,11 @@ class ReferenceForm(forms.ModelForm):
             "text",
             "url",
         ]
+
+
+ReferenceFormSet = forms.modelformset_factory(
+    Reference, form=ReferenceForm, can_delete=True
+)
 
 
 class SignOffForm(forms.ModelForm):
@@ -43,6 +31,9 @@ class SignOffForm(forms.ModelForm):
             "user",
             "date",
         ]
+
+
+SignOffFormSet = forms.modelformset_factory(SignOff, form=SignOffForm, can_delete=True)
 
 
 class CSVValidationMixin:
@@ -65,12 +56,29 @@ class CSVValidationMixin:
         return data
 
 
-class CodelistForm(forms.ModelForm, CSVValidationMixin):
+class CodelistCreateForm(forms.ModelForm, CSVValidationMixin):
     csv_data = forms.FileField(label="CSV data")
 
     class Meta:
         model = Codelist
         fields = ["name", "coding_system_id", "description", "methodology", "csv_data"]
+
+    def __init__(self, *args, **kwargs):
+        self.helper = FormHelper()
+        self.helper.form_tag = False
+        super().__init__(*args, **kwargs)
+
+
+class CodelistUpdateForm(forms.ModelForm):
+    class Meta:
+        fields = [
+            "name",
+            "project",
+            "coding_system_id",
+            "description",
+            "methodology",
+        ]
+        model = Codelist
 
     def __init__(self, *args, **kwargs):
         self.helper = FormHelper()

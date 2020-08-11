@@ -1,0 +1,92 @@
+<div id="signoff-{{ id }}" class="row mb-4">
+
+  <input
+    type="hidden"
+    id="id_signoff-{{ id }}-id"
+    {% if form.id.value != None %}
+    value="{{ form.id.value }}"
+    {% endif %}
+    name="signoff-{{ id }}-id" />
+
+  <div class="col-11">
+
+    <div class="row mb-2 align-items-center">
+      <div class="col-1">
+        <label for="id_signoff-{{ id }}_user">
+          User *
+        </label>
+      </div>
+
+      <div class="col-11">
+
+        <select id="id_signoff-{{ id }}-user" class="select form-control" name="signoff-{{ id }}-user">
+
+          {% if form.user %}
+          {% for value, label in form.user.field.choices %}
+          <option
+            {% if form.user.value == value %}selected{% endif %}
+            value="{{ value }}"
+            >
+            {{ label }}
+          </option>
+          {% endfor %}
+          {% endif %}
+
+        </select>
+
+        {% if form.user.errors %}
+        <ul class="list-unstyled my-2">
+          {% for error in form.user.errors %}
+          <li class="text-danger">{{ error }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+
+      </div>
+    </div>
+
+    <div class="row align-items-center">
+      <div class="col-1">
+        <label for="id_signoff-{{ id }}-date">
+          Date *
+        </label>
+      </div>
+
+      <div class="col-11">
+
+        <input
+          type="date"
+          name="signoff-{{ id }}-date"
+          {% if form.date.value != None %}
+          value="{{ form.date.value|stringformat:'s' }}"
+          {% endif %}
+          class="form-control{% if form.date.errors %} border-danger{% endif %}"
+          id="id_signoff-{{ id }}-date" />
+
+        {% if form.date.errors %}
+        <ul class="list-unstyled my-2">
+          {% for error in form.date.errors %}
+          <li class="text-danger">{{ error }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if form.non_field_errors %}
+    <div class="non-field-errors">
+      {% for error in form.non_field_errors %}
+      <p class="form-error">{{ error }}</p>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+  </div>
+
+  <div class="col-1">
+    <button type="button" class="btn btn-danger remove-signoff signoff-{{ id }}">
+      &times;
+    </button>
+  </div>
+
+</div>

@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block title_extra %}: {{ codelist.name }}{% endblock %}
+
+{% block content %}
+<br />
+<h3>{{ codelist.name }}</h3>
+
+<form method="POST" enctype="multipart/form-data">
+  <div class="mb-5">
+    {% crispy codelist_form %}
+  </div>
+
+  <div id="reference-forms" class="mb-5">
+
+    <h4 class="mb-3">References</h4>
+
+    {{ reference_formset.management_form }}
+
+    <div class="d-none template">
+      {% include "codelists/_reference_form.html" with id="__prefix__" form=reference_formset.empty_form %}
+    </div>
+
+    {% for form in reference_formset %}
+    {% include "codelists/_reference_form.html" with id=forloop.counter0 form=form %}
+    {% endfor %}
+
+    <button id="add-reference" class="btn btn-success">Add another Reference</button>
+
+  </div>
+
+  <div id="signoff-forms" class="mb-5">
+
+    <h4 class="mb-3">Sign Offs</h4>
+
+    {{ signoff_formset.management_form }}
+
+    <div class="d-none template">
+      {% include "codelists/_signoff_form.html" with id="__prefix__" form=signoff_formset.empty_form %}
+    </div>
+
+    {% for form in signoff_formset %}
+    {% include "codelists/_signoff_form.html" with id=forloop.counter0 form=form %}
+    {% endfor %}
+
+    <button id="add-signoff" type="button" class="btn btn-success">Add another Sign Off</button>
+
+  </div>
+
+  <div class="form-group">
+    <button type="submit" class="btn btn-primary">Submit</button>
+  </div>
+</form>
+
+{% endblock %}
+
+{% block extra_js %}
+<script type="text/javascript" src="{% static 'js/codelist.js' %}"></script>
+{% endblock %}

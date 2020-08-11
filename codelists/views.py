@@ -287,6 +287,7 @@ def version(request, project_slug, codelist_slug, qualified_version_str):
     ctx = {
         "clv": clv,
         "codelist": clv.codelist,
+        "versions": clv.codelist.versions.order_by("-version_str"),
         "headers": headers,
         "rows": rows,
         "html_tree": html_tree,

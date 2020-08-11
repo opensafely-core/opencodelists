@@ -38,6 +38,6 @@ $(document).ready(() => {
     $('#add-reference').click((event) => addForm('reference', event));
     $('#add-signoff').click((event) => addForm('signoff', event));
 
-    $('.remove-reference').bind('click', () => removeRow('reference', event));
-    $('.remove-signoff').bind('click', () => removeRow('signoff', event));
+    $('.remove-reference').bind('click', (event) => removeRow('reference', event));
+    $('.remove-signoff').bind('click', (event) => removeRow('signoff', event));
 });

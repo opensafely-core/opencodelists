@@ -55,13 +55,13 @@
         href="{% url 'codelists:version-create' project_slug=codelist.project.slug codelist_slug=codelist.slug %}">
         Create new version
       </a>
+
       {% if clv.is_draft %}
       <a
         class="btn btn-outline-info btn-block"
         href="{% url 'codelists:version-update' project_slug=codelist.project.slug codelist_slug=codelist.slug qualified_version_str=clv.qualified_version_str %}">
         Update version
       </a>
-      {% if clv.is_draft %}
       <button
         type="button"
         class="btn btn-outline-info btn-block"
@@ -70,8 +70,29 @@
         Publish version
       </button>
       {% endif %}
-      {% endif %}
     </div>
+
+    <hr />
+
+    <h6>Versions</h6>
+    <ul class="pl-3">
+      {% for version in versions %}
+      <li>
+
+        {% if version == clv %}
+        {{ version.version_str }}
+        {% else %}
+        <a href="{{ version.get_absolute_url }}">{{ version.version_str }}</a>
+        {% endif %}
+
+        {% if version.is_draft %}
+        <span class="badge badge-primary">Draft</span>
+        {% endif %}
+
+      </li>
+      {% endfor %}
+    </ul>
+
     {% endif %}
   </div>
 

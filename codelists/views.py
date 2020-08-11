@@ -17,7 +17,6 @@ from .forms import (
     CodelistCreateForm,
     CodelistUpdateForm,
     CodelistVersionForm,
-    FormSetHelper,
     ReferenceForm,
     SignOffForm,
 )
@@ -41,7 +40,7 @@ def index(request):
 class CodelistCreate(TemplateView):
     ReferenceFormSet = formset_factory(ReferenceForm)
     SignOffFormSet = formset_factory(SignOffForm)
-    template_name = "codelists/create_codelist.html"
+    template_name = "codelists/codelist.html"
 
     def dispatch(self, request, *args, **kwargs):
         self.project = get_object_or_404(Project, slug=self.kwargs["project_slug"])
@@ -92,8 +91,6 @@ class CodelistCreate(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["helper"] = FormSetHelper()
-        context["project"] = self.project
 
         if "codelist_form" not in kwargs:
             context["codelist_form"] = self.get_form()

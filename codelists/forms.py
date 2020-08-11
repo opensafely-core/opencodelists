@@ -8,23 +8,6 @@ from django import forms
 from .models import Codelist, CodelistVersion, Reference, SignOff
 
 
-class FormSetHelper(FormHelper):
-    """
-    FormHelper for use with Crispy Forms and FormSets
-
-    When using Crispy Forms helpers with FormSet their layout is applied to the
-    Forms but attributes to the FormSet, so we need to pass the FormHelper
-    instance into the crispy_forms templatetag in the view.
-
-    https://django-crispy-forms.readthedocs.io/en/latest/crispy_tag_formsets.html#formsets
-    """
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.disable_csrf = True
-        self.form_tag = False
-
-
 class ReferenceForm(forms.ModelForm):
     class Meta:
         model = Reference

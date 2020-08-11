@@ -78,6 +78,16 @@ class CodelistVersion(models.Model):
             ),
         )
 
+    def get_publish_url(self):
+        return reverse(
+            "codelists:version-publish",
+            kwargs={
+                "project_slug": self.codelist.project.slug,
+                "codelist_slug": self.codelist.slug,
+                "qualified_version_str": self.qualified_version_str,
+            },
+        )
+
     @cached_property
     def coding_system_id(self):
         return self.codelist.coding_system_id

@@ -81,3 +81,5 @@ def publish_version(*, version):
     assert version.is_draft
     version.is_draft = False
     version.save()
+
+    return version

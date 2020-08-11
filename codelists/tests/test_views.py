@@ -6,13 +6,24 @@ from django.contrib.auth.models import AnonymousUser
 from django.http import Http404
 from pytest_django.asserts import assertContains, assertRedirects
 
-from codelists.views import CreateCodelist, VersionCreate, VersionUpdate
+from codelists.views import (
+    CreateCodelist,
+    VersionCreate,
+    VersionUpdate,
+    version_publish,
+)
 from opencodelists.tests.factories import ProjectFactory, UserFactory
 
 from . import factories
 from .helpers import csv_builder
 
-pytestmark = pytest.mark.freeze_time("2020-07-23")
+pytestmark = [
+    pytest.mark.freeze_time("2020-07-23"),
+    pytest.mark.filterwarnings(
+        "ignore::DeprecationWarning:bleach",
+        "ignore::django.utils.deprecation.RemovedInDjango40Warning:debug_toolbar",
+    ),
+]
 
 
 @pytest.fixture()
@@ -269,6 +280,60 @@ def test_versioncreate_unknown_codelist(rf):
         VersionCreate.as_view()(
             request, project_slug=codelist.project.slug, codelist_slug="test",
         )
+
+
+def test_versionpublish_success(rf):
+    version = factories.create_draft_version()
+
+    request = rf.post("/")
+    request.user = UserFactory()
+    response = version_publish(
+        request,
+        project_slug=version.codelist.project.slug,
+        codelist_slug=version.codelist.slug,
+        qualified_version_str=version.qualified_version_str,
+    )
+
+    assert response.status_code == 302
+
+    version.refresh_from_db()
+
+    assert response.url == version.get_absolute_url()
+    assert not version.is_draft
+
+
+def test_versionpublish_unknown_version(rf):
+    codelist = factories.create_codelist()
+
+    request = rf.post("/")
+    request.user = UserFactory()
+    with pytest.raises(Http404):
+        version_publish(
+            request,
+            project_slug=codelist.project.slug,
+            codelist_slug=codelist.slug,
+            qualified_version_str="test",
+        )
+
+
+def test_versionpublish_draft_mismatch(rf):
+    version = factories.create_published_version()
+
+    # set the version string to that of a draft
+    qualified_version_str = f"{version.qualified_version_str}-draft"
+
+    request = rf.post("/")
+    request.user = UserFactory()
+    response = version_publish(
+        request,
+        project_slug=version.codelist.project.slug,
+        codelist_slug=version.codelist.slug,
+        qualified_version_str=qualified_version_str,
+    )
+
+    # we should get redirected to the Version page
+    assert response.status_code == 302
+    assert response.url == version.get_absolute_url()
 
 
 def test_versionupdate_unknown_version(rf):

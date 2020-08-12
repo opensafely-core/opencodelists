@@ -10,6 +10,20 @@ exclude = '''
 )
 '''
 
+[tool.coverage.run]
+branch = true
+omit = [
+  "opencodelists/asgi.py",
+  "opencodelists/django_test_runner.py",
+  "opencodelists/settings.py",
+  "opencodelists/wsgi.py",
+]
+
+[tool.coverage.report]
+skip_covered = true
+
+[tool.coverage.html]
+
 [tool.isort]
 force_grid_wrap = 0
 include_trailing_comma = true
@@ -20,6 +34,4 @@ skip_glob = [".direnv", "*migrations*", "tmp", ".venv"]
 known_third_party = ["crispy_forms", "debug_toolbar", "django", "fabric", "factory", "hypothesis", "pytest", "pytest_django", "sentry_sdk"]
 
 [tool.pytest.ini_options]
-env = [
-    "DJANGO_SETTINGS_MODULE = opencodelists.settings",
-]
+DJANGO_SETTINGS_MODULE = "opencodelists.settings"

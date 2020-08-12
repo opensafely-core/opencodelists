@@ -48,4 +48,9 @@ sort:
 
 .PHONY: test
 test:
-	python manage.py test
+	pytest \
+		--cov=builder \
+		--cov=codelists \
+		--cov=coding_systems \
+		--cov=mappings \
+		--cov=opencodelists \

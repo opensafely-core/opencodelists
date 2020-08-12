@@ -3,4 +3,6 @@ environment
 tmp
 venv
 __pycache__/
+.coverage
 .hypothesis
+htmlcov

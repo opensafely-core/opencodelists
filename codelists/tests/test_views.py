@@ -28,13 +28,6 @@ pytestmark = [
 ]
 
 
-@pytest.fixture()
-def logged_in_client(client, django_user_model):
-    """A Django test client logged in a user."""
-    client.force_login(UserFactory())
-    return client
-
-
 def test_codelistcreate_success(rf):
     project = ProjectFactory()
     signoff_user = UserFactory()

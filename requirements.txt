@@ -26,7 +26,7 @@ django-extensions==3.0.5  # via -r requirements.in
 django-markdown-filter==0.0.1  # via -r requirements.in
 django==3.1               # via -r requirements.in, django-cors-headers, django-debug-toolbar, django-markdown-filter
 fabric3==1.14.post1       # via -r requirements.in
-factory_boy==3.0.1        # via -r requirements.in
+factory-boy==3.0.1        # via -r requirements.in
 faker==4.1.1              # via factory-boy
 filelock==3.0.12          # via virtualenv
 flake8==3.8.3             # via -r requirements.in
@@ -64,7 +64,7 @@ python-dateutil==2.8.1    # via faker, freezegun
 pytz==2020.1              # via django
 pyyaml==5.3.1             # via pre-commit
 regex==2020.4.4           # via black
-sentry-sdk==0.16.3        # via -r requirements.in
+sentry-sdk==0.16.4        # via -r requirements.in
 six==1.14.0               # via bcrypt, bleach, configobj, cryptography, fabric3, freezegun, packaging, pip-tools, pynacl, python-dateutil, virtualenv
 sortedcontainers==2.1.0   # via hypothesis
 sqlparse==0.3.1           # via django, django-debug-toolbar, litecli

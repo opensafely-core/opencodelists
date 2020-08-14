@@ -1,577 +1,7 @@
 [
 {
   "model": "snomedct.concept",
-  "pk": "900000000000013009",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "900000000000443000",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "900000000000227009",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "999003121000000100",
-  "fields": {
-    "effective_time": "2019-06-01",
-    "active": true,
-    "module": "999000041000000102",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "900000000000003001",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "900000000000444006",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "900000000000012004",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "733981006",
-  "fields": {
-    "effective_time": "2017-07-31",
-    "active": true,
-    "module": "900000000000012004",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "900000000000073002",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "900000000000445007",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "718292005",
-  "fields": {
-    "effective_time": "2017-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "900000000000447004",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "718291003",
-  "fields": {
-    "effective_time": "2017-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "900000000000002006",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "900000000000453004",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "999000051000000104",
-  "fields": {
-    "effective_time": "2019-06-01",
-    "active": false,
-    "module": "999000041000000102",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "741814003",
-  "fields": {
-    "effective_time": "2018-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "715152001",
-  "fields": {
-    "effective_time": "2016-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "722137001",
-  "fields": {
-    "effective_time": "2017-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "116680003",
-  "fields": {
-    "effective_time": "2011-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "900000000000449001",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "900000000000294009",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
   "pk": "900000000000442005",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "999000041000000102",
-  "fields": {
-    "effective_time": "2019-06-01",
-    "active": true,
-    "module": "999000041000000102",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "999000021000000109",
-  "fields": {
-    "effective_time": "2019-06-01",
-    "active": true,
-    "module": "999000041000000102",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "999000031000000106",
-  "fields": {
-    "effective_time": "2019-06-01",
-    "active": true,
-    "module": "999000041000000102",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "900000000000006009",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "83821000000107",
-  "fields": {
-    "effective_time": "2019-06-01",
-    "active": true,
-    "module": "999000041000000102",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "900000000000446008",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "900000000000448009",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "999000011000000103",
-  "fields": {
-    "effective_time": "2019-06-01",
-    "active": true,
-    "module": "999000041000000102",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "900000000000011006",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "722136005",
-  "fields": {
-    "effective_time": "2017-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "900000000000010007",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "138875005",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000207008",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "449079008",
-  "fields": {
-    "effective_time": "2011-07-31",
-    "active": true,
-    "module": "900000000000012004",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "900000000000020002",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "900000000000225001",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "722135009",
-  "fields": {
-    "effective_time": "2017-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "900000000000452009",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "733983009",
-  "fields": {
-    "effective_time": "2017-07-31",
-    "active": true,
-    "module": "900000000000012004",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "722133002",
-  "fields": {
-    "effective_time": "2017-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "715515008",
-  "fields": {
-    "effective_time": "2017-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "466707005",
-  "fields": {
-    "effective_time": "2015-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "449081005",
-  "fields": {
-    "effective_time": "2011-07-31",
-    "active": true,
-    "module": "900000000000012004",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "900000000000450001",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "900000000000550004",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "722134008",
-  "fields": {
-    "effective_time": "2017-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "900000000000451002",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "748131000000104",
-  "fields": {
-    "effective_time": "2019-10-01",
-    "active": true,
-    "module": "999000041000000102",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "733984003",
-  "fields": {
-    "effective_time": "2017-07-31",
-    "active": true,
-    "module": "900000000000012004",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "715151008",
-  "fields": {
-    "effective_time": "2016-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "106237007",
-  "fields": {
-    "effective_time": "2011-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "408739003",
-  "fields": {
-    "effective_time": "2011-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "721230008",
-  "fields": {
-    "effective_time": "2017-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "246061005",
-  "fields": {
-    "effective_time": "2011-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "449080006",
-  "fields": {
-    "effective_time": "2011-07-31",
-    "active": true,
-    "module": "900000000000012004",
-    "definition_status": "900000000000074008"
-  }
-},
-{
-  "model": "snomedct.concept",
-  "pk": "900000000000441003",
   "fields": {
     "effective_time": "2002-01-31",
     "active": true,
@@ -591,6 +21,56 @@
 },
 {
   "model": "snomedct.concept",
+  "pk": "722137001",
+  "fields": {
+    "effective_time": "2017-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "106237007",
+  "fields": {
+    "effective_time": "2011-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "900000000000443000",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "715151008",
+  "fields": {
+    "effective_time": "2016-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "449080006",
+  "fields": {
+    "effective_time": "2011-07-31",
+    "active": true,
+    "module": "900000000000012004",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
   "pk": "900000000000017005",
   "fields": {
     "effective_time": "2002-01-31",
@@ -601,9 +81,19 @@
 },
 {
   "model": "snomedct.concept",
-  "pk": "705115006",
+  "pk": "999000011000000103",
   "fields": {
-    "effective_time": "2015-01-31",
+    "effective_time": "2019-06-01",
+    "active": true,
+    "module": "999000041000000102",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "900000000000448009",
+  "fields": {
+    "effective_time": "2002-01-31",
     "active": true,
     "module": "900000000000012004",
     "definition_status": "900000000000074008"
@@ -611,7 +101,247 @@
 },
 {
   "model": "snomedct.concept",
-  "pk": "900000000000074008",
+  "pk": "900000000000006009",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "900000000000011006",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "116680003",
+  "fields": {
+    "effective_time": "2011-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "900000000000453004",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "900000000000294009",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "900000000000225001",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "900000000000550004",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "900000000000445007",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "999000041000000102",
+  "fields": {
+    "effective_time": "2019-06-01",
+    "active": true,
+    "module": "999000041000000102",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "722135009",
+  "fields": {
+    "effective_time": "2017-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "900000000000002006",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "900000000000452009",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "999000051000000104",
+  "fields": {
+    "effective_time": "2019-06-01",
+    "active": false,
+    "module": "999000041000000102",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "900000000000446008",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "999000031000000106",
+  "fields": {
+    "effective_time": "2019-06-01",
+    "active": true,
+    "module": "999000041000000102",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "733981006",
+  "fields": {
+    "effective_time": "2017-07-31",
+    "active": true,
+    "module": "900000000000012004",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "900000000000447004",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "83821000000107",
+  "fields": {
+    "effective_time": "2019-06-01",
+    "active": true,
+    "module": "999000041000000102",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "900000000000451002",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "900000000000227009",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "722136005",
+  "fields": {
+    "effective_time": "2017-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "900000000000450001",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "722133002",
+  "fields": {
+    "effective_time": "2017-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "246061005",
+  "fields": {
+    "effective_time": "2011-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "900000000000444006",
   "fields": {
     "effective_time": "2002-01-31",
     "active": true,
@@ -630,14 +360,284 @@
   }
 },
 {
-  "model": "snomedct.relationship",
-  "pk": "4254423020",
+  "model": "snomedct.concept",
+  "pk": "900000000000074008",
   "fields": {
     "effective_time": "2002-01-31",
     "active": true,
     "module": "900000000000012004",
-    "source": "900000000000446008",
-    "destination": "900000000000442005",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "733983009",
+  "fields": {
+    "effective_time": "2017-07-31",
+    "active": true,
+    "module": "900000000000012004",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "741814003",
+  "fields": {
+    "effective_time": "2018-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "999000021000000109",
+  "fields": {
+    "effective_time": "2019-06-01",
+    "active": true,
+    "module": "999000041000000102",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "900000000000073002",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "408739003",
+  "fields": {
+    "effective_time": "2011-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "722134008",
+  "fields": {
+    "effective_time": "2017-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "718291003",
+  "fields": {
+    "effective_time": "2017-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "715152001",
+  "fields": {
+    "effective_time": "2016-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "721230008",
+  "fields": {
+    "effective_time": "2017-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "999003121000000100",
+  "fields": {
+    "effective_time": "2019-06-01",
+    "active": true,
+    "module": "999000041000000102",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "900000000000010007",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "449081005",
+  "fields": {
+    "effective_time": "2011-07-31",
+    "active": true,
+    "module": "900000000000012004",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "748131000000104",
+  "fields": {
+    "effective_time": "2019-10-01",
+    "active": true,
+    "module": "999000041000000102",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "900000000000003001",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "466707005",
+  "fields": {
+    "effective_time": "2015-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "705115006",
+  "fields": {
+    "effective_time": "2015-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "900000000000449001",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "449079008",
+  "fields": {
+    "effective_time": "2011-07-31",
+    "active": true,
+    "module": "900000000000012004",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "138875005",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000207008",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "900000000000013009",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "733984003",
+  "fields": {
+    "effective_time": "2017-07-31",
+    "active": true,
+    "module": "900000000000012004",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "900000000000441003",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "900000000000020002",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "715515008",
+  "fields": {
+    "effective_time": "2017-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "718292005",
+  "fields": {
+    "effective_time": "2017-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
+  "pk": "900000000000012004",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "6758237027",
+  "fields": {
+    "effective_time": "2017-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "722133002",
+    "destination": "900000000000445007",
     "relationship_group": "0",
     "type": "116680003",
     "characteristic_type": "900000000000010007",
@@ -646,13 +646,28 @@
 },
 {
   "model": "snomedct.relationship",
-  "pk": "4255221029",
+  "pk": "2765864025",
   "fields": {
-    "effective_time": "2002-01-31",
+    "effective_time": "2011-01-31",
     "active": true,
     "module": "900000000000012004",
-    "source": "900000000000453004",
-    "destination": "900000000000442005",
+    "source": "246061005",
+    "destination": "106237007",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000011006",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "7343927027",
+  "fields": {
+    "effective_time": "2018-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "741814003",
+    "destination": "900000000000445007",
     "relationship_group": "0",
     "type": "116680003",
     "characteristic_type": "900000000000010007",
@@ -661,13 +676,13 @@
 },
 {
   "model": "snomedct.relationship",
-  "pk": "4255223026",
+  "pk": "7101577025",
   "fields": {
-    "effective_time": "2002-01-31",
+    "effective_time": "2017-07-31",
     "active": true,
     "module": "900000000000012004",
-    "source": "900000000000450001",
-    "destination": "900000000000442005",
+    "source": "733984003",
+    "destination": "733981006",
     "relationship_group": "0",
     "type": "116680003",
     "characteristic_type": "900000000000010007",
@@ -676,13 +691,28 @@
 },
 {
   "model": "snomedct.relationship",
-  "pk": "4260751021",
+  "pk": "2540233025",
   "fields": {
-    "effective_time": "2002-01-31",
+    "effective_time": "2011-01-31",
     "active": true,
     "module": "900000000000012004",
-    "source": "900000000000444006",
-    "destination": "900000000000442005",
+    "source": "408739003",
+    "destination": "246061005",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000011006",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "6750244021",
+  "fields": {
+    "effective_time": "2017-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "721230008",
+    "destination": "718291003",
     "relationship_group": "0",
     "type": "116680003",
     "characteristic_type": "900000000000010007",
@@ -691,13 +721,13 @@
 },
 {
   "model": "snomedct.relationship",
-  "pk": "4263060022",
+  "pk": "6542803026",
   "fields": {
-    "effective_time": "2002-01-31",
+    "effective_time": "2017-01-31",
     "active": true,
     "module": "900000000000012004",
-    "source": "900000000000447004",
-    "destination": "900000000000442005",
+    "source": "715515008",
+    "destination": "900000000000445007",
     "relationship_group": "0",
     "type": "116680003",
     "characteristic_type": "900000000000010007",
@@ -706,13 +736,43 @@
 },
 {
   "model": "snomedct.relationship",
-  "pk": "4267773028",
+  "pk": "900000000000606020",
   "fields": {
     "effective_time": "2002-01-31",
     "active": true,
     "module": "900000000000012004",
-    "source": "900000000000449001",
-    "destination": "900000000000442005",
+    "source": "900000000000448009",
+    "destination": "900000000000447004",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000011006",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "900000000000015025",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "900000000000010007",
+    "destination": "900000000000006009",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000011006",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "4254425029",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "900000000000013009",
+    "destination": "900000000000446008",
     "relationship_group": "0",
     "type": "116680003",
     "characteristic_type": "900000000000010007",
@@ -721,28 +781,13 @@
 },
 {
   "model": "snomedct.relationship",
-  "pk": "4268884026",
+  "pk": "900000000000488027",
   "fields": {
     "effective_time": "2002-01-31",
     "active": true,
     "module": "900000000000012004",
-    "source": "900000000000443000",
-    "destination": "900000000000442005",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "900000000000601026",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000443000",
-    "destination": "900000000000442005",
+    "source": "900000000000207008",
+    "destination": "900000000000445007",
     "relationship_group": "0",
     "type": "116680003",
     "characteristic_type": "900000000000011006",
@@ -751,103 +796,13 @@
 },
 {
   "model": "snomedct.relationship",
-  "pk": "900000000000602022",
+  "pk": "7981683025",
   "fields": {
-    "effective_time": "2002-01-31",
+    "effective_time": "2018-01-31",
     "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000444006",
-    "destination": "900000000000442005",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "900000000000604023",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000446008",
-    "destination": "900000000000442005",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "900000000000605024",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000447004",
-    "destination": "900000000000442005",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "900000000000607027",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000449001",
-    "destination": "900000000000442005",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "900000000000608021",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000450001",
-    "destination": "900000000000442005",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "900000000000611022",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000453004",
-    "destination": "900000000000442005",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "4255222020",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000294009",
-    "destination": "900000000000453004",
+    "module": "900000000000207008",
+    "source": "735233007",
+    "destination": "900000000000445007",
     "relationship_group": "0",
     "type": "116680003",
     "characteristic_type": "900000000000010007",
@@ -871,696 +826,6 @@
 },
 {
   "model": "snomedct.relationship",
-  "pk": "900000000000003029",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000002006",
-    "destination": "900000000000453004",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "900000000000127025",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000294009",
-    "destination": "900000000000453004",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "4257206020",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000452009",
-    "destination": "900000000000450001",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "4260095021",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000451002",
-    "destination": "900000000000450001",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "900000000000609029",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000451002",
-    "destination": "900000000000450001",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "900000000000610023",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000452009",
-    "destination": "900000000000450001",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "4262160028",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000225001",
-    "destination": "900000000000449001",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "4262725029",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000006009",
-    "destination": "900000000000449001",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "4267774023",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000227009",
-    "destination": "900000000000449001",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "900000000000009025",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000006009",
-    "destination": "900000000000449001",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "900000000000543026",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000225001",
-    "destination": "900000000000449001",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "900000000000550027",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000227009",
-    "destination": "900000000000449001",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "4260750022",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000010007",
-    "destination": "900000000000006009",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "4262161029",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000011006",
-    "destination": "900000000000006009",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "900000000000015025",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000010007",
-    "destination": "900000000000006009",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "900000000000017022",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000011006",
-    "destination": "900000000000006009",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "4260750022",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000010007",
-    "destination": "900000000000006009",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "4262161029",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000011006",
-    "destination": "900000000000006009",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "900000000000015025",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000010007",
-    "destination": "900000000000006009",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "900000000000017022",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000011006",
-    "destination": "900000000000006009",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "4262720023",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000017005",
-    "destination": "900000000000447004",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "4263816021",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000448009",
-    "destination": "900000000000447004",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "4263817028",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000020002",
-    "destination": "900000000000447004",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "900000000000025024",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000017005",
-    "destination": "900000000000447004",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "900000000000032026",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000020002",
-    "destination": "900000000000447004",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "900000000000606020",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000448009",
-    "destination": "900000000000447004",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "4254424025",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000003001",
-    "destination": "900000000000446008",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "4254425029",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000013009",
-    "destination": "900000000000446008",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "4269635025",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000550004",
-    "destination": "900000000000446008",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "900000000000004024",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000003001",
-    "destination": "900000000000446008",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "900000000000205028",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000013009",
-    "destination": "900000000000446008",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "900000000000723024",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000550004",
-    "destination": "900000000000446008",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "4259398020",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000074008",
-    "destination": "900000000000444006",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "4259972020",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000073002",
-    "destination": "900000000000444006",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "900000000000138025",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000073002",
-    "destination": "900000000000444006",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "900000000000142027",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000074008",
-    "destination": "900000000000444006",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "4259244024",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000445007",
-    "destination": "900000000000443000",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "5257863027",
-  "fields": {
-    "effective_time": "2015-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "466707005",
-    "destination": "900000000000443000",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "4693136023",
-  "fields": {
-    "effective_time": "2015-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "466707005",
-    "destination": "900000000000443000",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "900000000000603028",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000445007",
-    "destination": "900000000000443000",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "1099891000000122",
-  "fields": {
-    "effective_time": "2019-10-01",
-    "active": true,
-    "module": "999000041000000102",
-    "source": "748131000000104",
-    "destination": "900000000000443000",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "999000011000000126",
-  "fields": {
-    "effective_time": "2019-06-01",
-    "active": false,
-    "module": "999000041000000102",
-    "source": "999000051000000104",
-    "destination": "900000000000443000",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "999005251000000128",
-  "fields": {
-    "effective_time": "2019-06-01",
-    "active": true,
-    "module": "999000041000000102",
-    "source": "999003121000000100",
-    "destination": "900000000000443000",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "5668081000000129",
-  "fields": {
-    "effective_time": "2019-06-01",
-    "active": true,
-    "module": "999000041000000102",
-    "source": "999000031000000106",
-    "destination": "999003121000000100",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "5668091000000127",
-  "fields": {
-    "effective_time": "2019-06-01",
-    "active": true,
-    "module": "999000041000000102",
-    "source": "999000011000000103",
-    "destination": "999003121000000100",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "5668101000000124",
-  "fields": {
-    "effective_time": "2019-06-01",
-    "active": true,
-    "module": "999000041000000102",
-    "source": "999000021000000109",
-    "destination": "999003121000000100",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
   "pk": "932201000000124",
   "fields": {
     "effective_time": "2019-06-01",
@@ -1568,66 +833,6 @@
     "module": "999000041000000102",
     "source": "83821000000107",
     "destination": "999003121000000100",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "999005361000000123",
-  "fields": {
-    "effective_time": "2019-06-01",
-    "active": true,
-    "module": "999000041000000102",
-    "source": "999000041000000102",
-    "destination": "999003121000000100",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "999000951000000128",
-  "fields": {
-    "effective_time": "2019-06-01",
-    "active": false,
-    "module": "999000041000000102",
-    "source": "999000011000000103",
-    "destination": "999000041000000102",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "999000961000000125",
-  "fields": {
-    "effective_time": "2019-06-01",
-    "active": false,
-    "module": "999000041000000102",
-    "source": "999000021000000109",
-    "destination": "999000041000000102",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "999000971000000121",
-  "fields": {
-    "effective_time": "2019-06-01",
-    "active": false,
-    "module": "999000041000000102",
-    "source": "999000031000000106",
-    "destination": "999000041000000102",
     "relationship_group": "0",
     "type": "116680003",
     "characteristic_type": "900000000000011006",
@@ -1666,13 +871,13 @@
 },
 {
   "model": "snomedct.relationship",
-  "pk": "4258863022",
+  "pk": "4262720023",
   "fields": {
     "effective_time": "2002-01-31",
     "active": true,
     "module": "900000000000012004",
-    "source": "900000000000012004",
-    "destination": "900000000000445007",
+    "source": "900000000000017005",
+    "destination": "900000000000447004",
     "relationship_group": "0",
     "type": "116680003",
     "characteristic_type": "900000000000010007",
@@ -1681,13 +886,13 @@
 },
 {
   "model": "snomedct.relationship",
-  "pk": "4592773020",
+  "pk": "4254424025",
   "fields": {
-    "effective_time": "2011-07-31",
+    "effective_time": "2002-01-31",
     "active": true,
     "module": "900000000000012004",
-    "source": "449079008",
-    "destination": "900000000000445007",
+    "source": "900000000000003001",
+    "destination": "900000000000446008",
     "relationship_group": "0",
     "type": "116680003",
     "characteristic_type": "900000000000010007",
@@ -1696,13 +901,13 @@
 },
 {
   "model": "snomedct.relationship",
-  "pk": "4592774025",
+  "pk": "4263058020",
   "fields": {
-    "effective_time": "2011-07-31",
+    "effective_time": "2002-01-31",
     "active": true,
     "module": "900000000000012004",
-    "source": "449080006",
-    "destination": "900000000000445007",
+    "source": "900000000000442005",
+    "destination": "900000000000441003",
     "relationship_group": "0",
     "type": "116680003",
     "characteristic_type": "900000000000010007",
@@ -1711,253 +916,13 @@
 },
 {
   "model": "snomedct.relationship",
-  "pk": "4592775029",
+  "pk": "900000000000009025",
   "fields": {
-    "effective_time": "2011-07-31",
+    "effective_time": "2002-01-31",
     "active": true,
     "module": "900000000000012004",
-    "source": "449081005",
-    "destination": "900000000000445007",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "5161079020",
-  "fields": {
-    "effective_time": "2015-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "705115006",
-    "destination": "900000000000445007",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "6501559027",
-  "fields": {
-    "effective_time": "2016-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "715152001",
-    "destination": "900000000000445007",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "6501562029",
-  "fields": {
-    "effective_time": "2016-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "715151008",
-    "destination": "900000000000445007",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "6542803026",
-  "fields": {
-    "effective_time": "2017-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "715515008",
-    "destination": "900000000000445007",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "6578465027",
-  "fields": {
-    "effective_time": "2017-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "718291003",
-    "destination": "900000000000445007",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "6758237027",
-  "fields": {
-    "effective_time": "2017-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "722133002",
-    "destination": "900000000000445007",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "7101252027",
-  "fields": {
-    "effective_time": "2017-07-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "733981006",
-    "destination": "900000000000445007",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "7343927027",
-  "fields": {
-    "effective_time": "2018-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "741814003",
-    "destination": "900000000000445007",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "7981683025",
-  "fields": {
-    "effective_time": "2018-01-31",
-    "active": true,
-    "module": "900000000000207008",
-    "source": "735233007",
-    "destination": "900000000000445007",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "3814447027",
-  "fields": {
-    "effective_time": "2011-07-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "449079008",
-    "destination": "900000000000445007",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "3814634029",
-  "fields": {
-    "effective_time": "2011-07-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "449081005",
-    "destination": "900000000000445007",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "3814809026",
-  "fields": {
-    "effective_time": "2011-07-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "449080006",
-    "destination": "900000000000445007",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "5983427020",
-  "fields": {
-    "effective_time": "2015-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "705115006",
-    "destination": "900000000000445007",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "6504728028",
-  "fields": {
-    "effective_time": "2016-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "715151008",
-    "destination": "900000000000445007",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "6504729020",
-  "fields": {
-    "effective_time": "2016-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "715152001",
-    "destination": "900000000000445007",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "6550400024",
-  "fields": {
-    "effective_time": "2017-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "715515008",
-    "destination": "900000000000445007",
+    "source": "900000000000006009",
+    "destination": "900000000000449001",
     "relationship_group": "0",
     "type": "116680003",
     "characteristic_type": "900000000000011006",
@@ -1981,13 +946,13 @@
 },
 {
   "model": "snomedct.relationship",
-  "pk": "6781267022",
+  "pk": "999000971000000121",
   "fields": {
-    "effective_time": "2017-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "722133002",
-    "destination": "900000000000445007",
+    "effective_time": "2019-06-01",
+    "active": false,
+    "module": "999000041000000102",
+    "source": "999000031000000106",
+    "destination": "999000041000000102",
     "relationship_group": "0",
     "type": "116680003",
     "characteristic_type": "900000000000011006",
@@ -1996,88 +961,28 @@
 },
 {
   "model": "snomedct.relationship",
-  "pk": "7106236026",
-  "fields": {
-    "effective_time": "2017-07-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "733981006",
-    "destination": "900000000000445007",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "7371843020",
-  "fields": {
-    "effective_time": "2018-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "741814003",
-    "destination": "900000000000445007",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "9068282020",
-  "fields": {
-    "effective_time": "2018-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "735233007",
-    "destination": "900000000000445007",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "900000000000020025",
+  "pk": "4255221029",
   "fields": {
     "effective_time": "2002-01-31",
     "active": true,
     "module": "900000000000012004",
-    "source": "900000000000012004",
-    "destination": "900000000000445007",
+    "source": "900000000000453004",
+    "destination": "900000000000442005",
     "relationship_group": "0",
     "type": "116680003",
-    "characteristic_type": "900000000000011006",
+    "characteristic_type": "900000000000010007",
     "modifier": "900000000000451002"
   }
 },
 {
   "model": "snomedct.relationship",
-  "pk": "900000000000488027",
+  "pk": "4259398020",
   "fields": {
     "effective_time": "2002-01-31",
     "active": true,
     "module": "900000000000012004",
-    "source": "900000000000207008",
-    "destination": "900000000000445007",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "7101577025",
-  "fields": {
-    "effective_time": "2017-07-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "733984003",
-    "destination": "733981006",
+    "source": "900000000000074008",
+    "destination": "900000000000444006",
     "relationship_group": "0",
     "type": "116680003",
     "characteristic_type": "900000000000010007",
@@ -2086,28 +991,13 @@
 },
 {
   "model": "snomedct.relationship",
-  "pk": "7101579027",
+  "pk": "900000000000004024",
   "fields": {
-    "effective_time": "2017-07-31",
+    "effective_time": "2002-01-31",
     "active": true,
     "module": "900000000000012004",
-    "source": "733983009",
-    "destination": "733981006",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "7106237024",
-  "fields": {
-    "effective_time": "2017-07-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "733983009",
-    "destination": "733981006",
+    "source": "900000000000003001",
+    "destination": "900000000000446008",
     "relationship_group": "0",
     "type": "116680003",
     "characteristic_type": "900000000000011006",
@@ -2116,28 +1006,13 @@
 },
 {
   "model": "snomedct.relationship",
-  "pk": "7106238025",
+  "pk": "4279587022",
   "fields": {
-    "effective_time": "2017-07-31",
+    "effective_time": "2011-01-31",
     "active": true,
     "module": "900000000000012004",
-    "source": "733984003",
-    "destination": "733981006",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "6768696026",
-  "fields": {
-    "effective_time": "2017-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "722136005",
-    "destination": "722133002",
+    "source": "106237007",
+    "destination": "900000000000441003",
     "relationship_group": "0",
     "type": "116680003",
     "characteristic_type": "900000000000010007",
@@ -2146,58 +1021,13 @@
 },
 {
   "model": "snomedct.relationship",
-  "pk": "6775512022",
+  "pk": "999000011000000126",
   "fields": {
-    "effective_time": "2017-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "722137001",
-    "destination": "722133002",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "6775632025",
-  "fields": {
-    "effective_time": "2017-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "722134008",
-    "destination": "722133002",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "6778142028",
-  "fields": {
-    "effective_time": "2017-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "722135009",
-    "destination": "722133002",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "6781268028",
-  "fields": {
-    "effective_time": "2017-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "722134008",
-    "destination": "722133002",
+    "effective_time": "2019-06-01",
+    "active": false,
+    "module": "999000041000000102",
+    "source": "999000051000000104",
+    "destination": "900000000000443000",
     "relationship_group": "0",
     "type": "116680003",
     "characteristic_type": "900000000000011006",
@@ -2206,31 +1036,16 @@
 },
 {
   "model": "snomedct.relationship",
-  "pk": "6781269020",
+  "pk": "3957015023",
   "fields": {
-    "effective_time": "2017-01-31",
+    "effective_time": "2011-01-31",
     "active": true,
     "module": "900000000000012004",
-    "source": "722135009",
-    "destination": "722133002",
+    "source": "408739003",
+    "destination": "246061005",
     "relationship_group": "0",
     "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "6781270021",
-  "fields": {
-    "effective_time": "2017-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "722136005",
-    "destination": "722133002",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
+    "characteristic_type": "900000000000010007",
     "modifier": "900000000000451002"
   }
 },
@@ -2246,441 +1061,6 @@
     "relationship_group": "0",
     "type": "116680003",
     "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "6576633025",
-  "fields": {
-    "effective_time": "2017-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "718292005",
-    "destination": "718291003",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "6750244021",
-  "fields": {
-    "effective_time": "2017-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "721230008",
-    "destination": "718291003",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "6580270025",
-  "fields": {
-    "effective_time": "2017-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "718292005",
-    "destination": "718291003",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "6756084029",
-  "fields": {
-    "effective_time": "2017-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "721230008",
-    "destination": "718291003",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "7101577025",
-  "fields": {
-    "effective_time": "2017-07-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "733984003",
-    "destination": "733981006",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "7101579027",
-  "fields": {
-    "effective_time": "2017-07-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "733983009",
-    "destination": "733981006",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "7106237024",
-  "fields": {
-    "effective_time": "2017-07-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "733983009",
-    "destination": "733981006",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "7106238025",
-  "fields": {
-    "effective_time": "2017-07-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "733984003",
-    "destination": "733981006",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "6768696026",
-  "fields": {
-    "effective_time": "2017-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "722136005",
-    "destination": "722133002",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "6775512022",
-  "fields": {
-    "effective_time": "2017-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "722137001",
-    "destination": "722133002",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "6775632025",
-  "fields": {
-    "effective_time": "2017-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "722134008",
-    "destination": "722133002",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "6778142028",
-  "fields": {
-    "effective_time": "2017-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "722135009",
-    "destination": "722133002",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "6781268028",
-  "fields": {
-    "effective_time": "2017-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "722134008",
-    "destination": "722133002",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "6781269020",
-  "fields": {
-    "effective_time": "2017-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "722135009",
-    "destination": "722133002",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "6781270021",
-  "fields": {
-    "effective_time": "2017-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "722136005",
-    "destination": "722133002",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "6781271020",
-  "fields": {
-    "effective_time": "2017-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "722137001",
-    "destination": "722133002",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "6576633025",
-  "fields": {
-    "effective_time": "2017-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "718292005",
-    "destination": "718291003",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "6750244021",
-  "fields": {
-    "effective_time": "2017-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "721230008",
-    "destination": "718291003",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "6580270025",
-  "fields": {
-    "effective_time": "2017-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "718292005",
-    "destination": "718291003",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "6756084029",
-  "fields": {
-    "effective_time": "2017-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "721230008",
-    "destination": "718291003",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "4258862028",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000207008",
-    "destination": "900000000000445007",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "4258863022",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000012004",
-    "destination": "900000000000445007",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "4592773020",
-  "fields": {
-    "effective_time": "2011-07-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "449079008",
-    "destination": "900000000000445007",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "4592774025",
-  "fields": {
-    "effective_time": "2011-07-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "449080006",
-    "destination": "900000000000445007",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "4592775029",
-  "fields": {
-    "effective_time": "2011-07-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "449081005",
-    "destination": "900000000000445007",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "5161079020",
-  "fields": {
-    "effective_time": "2015-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "705115006",
-    "destination": "900000000000445007",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "6501559027",
-  "fields": {
-    "effective_time": "2016-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "715152001",
-    "destination": "900000000000445007",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "6501562029",
-  "fields": {
-    "effective_time": "2016-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "715151008",
-    "destination": "900000000000445007",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "6542803026",
-  "fields": {
-    "effective_time": "2017-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "715515008",
-    "destination": "900000000000445007",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
     "modifier": "900000000000451002"
   }
 },
@@ -2701,73 +1081,13 @@
 },
 {
   "model": "snomedct.relationship",
-  "pk": "6758237027",
+  "pk": "6781268028",
   "fields": {
     "effective_time": "2017-01-31",
     "active": true,
     "module": "900000000000012004",
-    "source": "722133002",
-    "destination": "900000000000445007",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "7101252027",
-  "fields": {
-    "effective_time": "2017-07-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "733981006",
-    "destination": "900000000000445007",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "7343927027",
-  "fields": {
-    "effective_time": "2018-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "741814003",
-    "destination": "900000000000445007",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "7981683025",
-  "fields": {
-    "effective_time": "2018-01-31",
-    "active": true,
-    "module": "900000000000207008",
-    "source": "735233007",
-    "destination": "900000000000445007",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "3814447027",
-  "fields": {
-    "effective_time": "2011-07-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "449079008",
-    "destination": "900000000000445007",
+    "source": "722134008",
+    "destination": "722133002",
     "relationship_group": "0",
     "type": "116680003",
     "characteristic_type": "900000000000011006",
@@ -2776,7 +1096,7 @@
 },
 {
   "model": "snomedct.relationship",
-  "pk": "3814634029",
+  "pk": "4592775029",
   "fields": {
     "effective_time": "2011-07-31",
     "active": true,
@@ -2785,34 +1105,19 @@
     "destination": "900000000000445007",
     "relationship_group": "0",
     "type": "116680003",
-    "characteristic_type": "900000000000011006",
+    "characteristic_type": "900000000000010007",
     "modifier": "900000000000451002"
   }
 },
 {
   "model": "snomedct.relationship",
-  "pk": "3814809026",
-  "fields": {
-    "effective_time": "2011-07-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "449080006",
-    "destination": "900000000000445007",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "5983427020",
+  "pk": "4693136023",
   "fields": {
     "effective_time": "2015-01-31",
     "active": true,
     "module": "900000000000012004",
-    "source": "705115006",
-    "destination": "900000000000445007",
+    "source": "466707005",
+    "destination": "900000000000443000",
     "relationship_group": "0",
     "type": "116680003",
     "characteristic_type": "900000000000011006",
@@ -2827,141 +1132,6 @@
     "active": true,
     "module": "900000000000012004",
     "source": "715151008",
-    "destination": "900000000000445007",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "6504729020",
-  "fields": {
-    "effective_time": "2016-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "715152001",
-    "destination": "900000000000445007",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "6550400024",
-  "fields": {
-    "effective_time": "2017-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "715515008",
-    "destination": "900000000000445007",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "6580269026",
-  "fields": {
-    "effective_time": "2017-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "718291003",
-    "destination": "900000000000445007",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "6781267022",
-  "fields": {
-    "effective_time": "2017-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "722133002",
-    "destination": "900000000000445007",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "7106236026",
-  "fields": {
-    "effective_time": "2017-07-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "733981006",
-    "destination": "900000000000445007",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "7371843020",
-  "fields": {
-    "effective_time": "2018-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "741814003",
-    "destination": "900000000000445007",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "9068282020",
-  "fields": {
-    "effective_time": "2018-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "735233007",
-    "destination": "900000000000445007",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "900000000000020025",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000012004",
-    "destination": "900000000000445007",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "900000000000488027",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000207008",
     "destination": "900000000000445007",
     "relationship_group": "0",
     "type": "116680003",
@@ -2986,196 +1156,16 @@
 },
 {
   "model": "snomedct.relationship",
-  "pk": "5257863027",
-  "fields": {
-    "effective_time": "2015-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "466707005",
-    "destination": "900000000000443000",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "4693136023",
-  "fields": {
-    "effective_time": "2015-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "466707005",
-    "destination": "900000000000443000",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "900000000000603028",
+  "pk": "900000000000605024",
   "fields": {
     "effective_time": "2002-01-31",
     "active": true,
     "module": "900000000000012004",
-    "source": "900000000000445007",
-    "destination": "900000000000443000",
+    "source": "900000000000447004",
+    "destination": "900000000000442005",
     "relationship_group": "0",
     "type": "116680003",
     "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "1099891000000122",
-  "fields": {
-    "effective_time": "2019-10-01",
-    "active": true,
-    "module": "999000041000000102",
-    "source": "748131000000104",
-    "destination": "900000000000443000",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "999000011000000126",
-  "fields": {
-    "effective_time": "2019-06-01",
-    "active": false,
-    "module": "999000041000000102",
-    "source": "999000051000000104",
-    "destination": "900000000000443000",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "999005251000000128",
-  "fields": {
-    "effective_time": "2019-06-01",
-    "active": true,
-    "module": "999000041000000102",
-    "source": "999003121000000100",
-    "destination": "900000000000443000",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "4262160028",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000225001",
-    "destination": "900000000000449001",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "4262725029",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000006009",
-    "destination": "900000000000449001",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "4267774023",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000227009",
-    "destination": "900000000000449001",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "900000000000009025",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000006009",
-    "destination": "900000000000449001",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "900000000000543026",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000225001",
-    "destination": "900000000000449001",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "900000000000550027",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000227009",
-    "destination": "900000000000449001",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "4262720023",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000017005",
-    "destination": "900000000000447004",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
     "modifier": "900000000000451002"
   }
 },
@@ -3196,126 +1186,6 @@
 },
 {
   "model": "snomedct.relationship",
-  "pk": "4263817028",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000020002",
-    "destination": "900000000000447004",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "900000000000025024",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000017005",
-    "destination": "900000000000447004",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "900000000000032026",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000020002",
-    "destination": "900000000000447004",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "900000000000606020",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000448009",
-    "destination": "900000000000447004",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "4259398020",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000074008",
-    "destination": "900000000000444006",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "4259972020",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000073002",
-    "destination": "900000000000444006",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "900000000000138025",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000073002",
-    "destination": "900000000000444006",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "900000000000142027",
-  "fields": {
-    "effective_time": "2002-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "900000000000074008",
-    "destination": "900000000000444006",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
   "pk": "4257206020",
   "fields": {
     "effective_time": "2002-01-31",
@@ -3331,16 +1201,166 @@
 },
 {
   "model": "snomedct.relationship",
-  "pk": "4260095021",
+  "pk": "6781267022",
+  "fields": {
+    "effective_time": "2017-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "722133002",
+    "destination": "900000000000445007",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000011006",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "2537148029",
+  "fields": {
+    "effective_time": "2011-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "116680003",
+    "destination": "246061005",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000011006",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "6580270025",
+  "fields": {
+    "effective_time": "2017-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "718292005",
+    "destination": "718291003",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000011006",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "5983427020",
+  "fields": {
+    "effective_time": "2015-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "705115006",
+    "destination": "900000000000445007",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000011006",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "9068282020",
+  "fields": {
+    "effective_time": "2018-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "735233007",
+    "destination": "900000000000445007",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000011006",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "6768696026",
+  "fields": {
+    "effective_time": "2017-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "722136005",
+    "destination": "722133002",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000010007",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "999005361000000123",
+  "fields": {
+    "effective_time": "2019-06-01",
+    "active": true,
+    "module": "999000041000000102",
+    "source": "999000041000000102",
+    "destination": "999003121000000100",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000011006",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "7101579027",
+  "fields": {
+    "effective_time": "2017-07-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "733983009",
+    "destination": "733981006",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000010007",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "4254423020",
   "fields": {
     "effective_time": "2002-01-31",
     "active": true,
     "module": "900000000000012004",
-    "source": "900000000000451002",
-    "destination": "900000000000450001",
+    "source": "900000000000446008",
+    "destination": "900000000000442005",
     "relationship_group": "0",
     "type": "116680003",
     "characteristic_type": "900000000000010007",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "4262161029",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "900000000000011006",
+    "destination": "900000000000006009",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000010007",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "7371843020",
+  "fields": {
+    "effective_time": "2018-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "741814003",
+    "destination": "900000000000445007",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000011006",
     "modifier": "900000000000451002"
   }
 },
@@ -3361,13 +1381,13 @@
 },
 {
   "model": "snomedct.relationship",
-  "pk": "900000000000610023",
+  "pk": "900000000000017022",
   "fields": {
     "effective_time": "2002-01-31",
     "active": true,
     "module": "900000000000012004",
-    "source": "900000000000452009",
-    "destination": "900000000000450001",
+    "source": "900000000000011006",
+    "destination": "900000000000006009",
     "relationship_group": "0",
     "type": "116680003",
     "characteristic_type": "900000000000011006",
@@ -3391,13 +1411,28 @@
 },
 {
   "model": "snomedct.relationship",
-  "pk": "4263851029",
+  "pk": "6550400024",
+  "fields": {
+    "effective_time": "2017-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "715515008",
+    "destination": "900000000000445007",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000011006",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "4268884026",
   "fields": {
     "effective_time": "2002-01-31",
     "active": true,
     "module": "900000000000012004",
-    "source": "900000000000002006",
-    "destination": "900000000000453004",
+    "source": "900000000000443000",
+    "destination": "900000000000442005",
     "relationship_group": "0",
     "type": "116680003",
     "characteristic_type": "900000000000010007",
@@ -3421,13 +1456,43 @@
 },
 {
   "model": "snomedct.relationship",
-  "pk": "900000000000127025",
+  "pk": "4592773020",
+  "fields": {
+    "effective_time": "2011-07-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "449079008",
+    "destination": "900000000000445007",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000010007",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "5257863027",
+  "fields": {
+    "effective_time": "2015-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "466707005",
+    "destination": "900000000000443000",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000010007",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "900000000000020025",
   "fields": {
     "effective_time": "2002-01-31",
     "active": true,
     "module": "900000000000012004",
-    "source": "900000000000294009",
-    "destination": "900000000000453004",
+    "source": "900000000000012004",
+    "destination": "900000000000445007",
     "relationship_group": "0",
     "type": "116680003",
     "characteristic_type": "900000000000011006",
@@ -3436,13 +1501,13 @@
 },
 {
   "model": "snomedct.relationship",
-  "pk": "4254424025",
+  "pk": "7101252027",
   "fields": {
-    "effective_time": "2002-01-31",
+    "effective_time": "2017-07-31",
     "active": true,
     "module": "900000000000012004",
-    "source": "900000000000003001",
-    "destination": "900000000000446008",
+    "source": "733981006",
+    "destination": "900000000000445007",
     "relationship_group": "0",
     "type": "116680003",
     "characteristic_type": "900000000000010007",
@@ -3451,16 +1516,136 @@
 },
 {
   "model": "snomedct.relationship",
-  "pk": "4254425029",
+  "pk": "900000000000611022",
   "fields": {
     "effective_time": "2002-01-31",
     "active": true,
     "module": "900000000000012004",
-    "source": "900000000000013009",
+    "source": "900000000000453004",
+    "destination": "900000000000442005",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000011006",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "900000000000142027",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "900000000000074008",
+    "destination": "900000000000444006",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000011006",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "900000000000723024",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "900000000000550004",
     "destination": "900000000000446008",
     "relationship_group": "0",
     "type": "116680003",
+    "characteristic_type": "900000000000011006",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "4258863022",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "900000000000012004",
+    "destination": "900000000000445007",
+    "relationship_group": "0",
+    "type": "116680003",
     "characteristic_type": "900000000000010007",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "900000000000602022",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "900000000000444006",
+    "destination": "900000000000442005",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000011006",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "4262725029",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "900000000000006009",
+    "destination": "900000000000449001",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000010007",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "4263817028",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "900000000000020002",
+    "destination": "900000000000447004",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000010007",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "4592774025",
+  "fields": {
+    "effective_time": "2011-07-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "449080006",
+    "destination": "900000000000445007",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000010007",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "20244025",
+  "fields": {
+    "effective_time": "2004-07-31",
+    "active": false,
+    "module": "900000000000207008",
+    "source": "106237007",
+    "destination": "246061005",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000011006",
     "modifier": "900000000000451002"
   }
 },
@@ -3481,13 +1666,28 @@
 },
 {
   "model": "snomedct.relationship",
-  "pk": "900000000000004024",
+  "pk": "6756084029",
+  "fields": {
+    "effective_time": "2017-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "721230008",
+    "destination": "718291003",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000011006",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "900000000000138025",
   "fields": {
     "effective_time": "2002-01-31",
     "active": true,
     "module": "900000000000012004",
-    "source": "900000000000003001",
-    "destination": "900000000000446008",
+    "source": "900000000000073002",
+    "destination": "900000000000444006",
     "relationship_group": "0",
     "type": "116680003",
     "characteristic_type": "900000000000011006",
@@ -3511,13 +1711,673 @@
 },
 {
   "model": "snomedct.relationship",
-  "pk": "900000000000723024",
+  "pk": "4260751021",
   "fields": {
     "effective_time": "2002-01-31",
     "active": true,
     "module": "900000000000012004",
-    "source": "900000000000550004",
-    "destination": "900000000000446008",
+    "source": "900000000000444006",
+    "destination": "900000000000442005",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000010007",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "900000000000600025",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "900000000000442005",
+    "destination": "900000000000441003",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000011006",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "3814447027",
+  "fields": {
+    "effective_time": "2011-07-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "449079008",
+    "destination": "900000000000445007",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000011006",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "6778142028",
+  "fields": {
+    "effective_time": "2017-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "722135009",
+    "destination": "722133002",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000010007",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "6775512022",
+  "fields": {
+    "effective_time": "2017-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "722137001",
+    "destination": "722133002",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000010007",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "4259972020",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "900000000000073002",
+    "destination": "900000000000444006",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000010007",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "900000000000032026",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "900000000000020002",
+    "destination": "900000000000447004",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000011006",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "4260095021",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "900000000000451002",
+    "destination": "900000000000450001",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000010007",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "5161079020",
+  "fields": {
+    "effective_time": "2015-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "705115006",
+    "destination": "900000000000445007",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000010007",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "4279585025",
+  "fields": {
+    "effective_time": "2013-07-31",
+    "active": true,
+    "module": "900000000000207008",
+    "source": "900000000000441003",
+    "destination": "138875005",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000010007",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "6781269020",
+  "fields": {
+    "effective_time": "2017-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "722135009",
+    "destination": "722133002",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000011006",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "900000000000607027",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "900000000000449001",
+    "destination": "900000000000442005",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000011006",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "5668101000000124",
+  "fields": {
+    "effective_time": "2019-06-01",
+    "active": true,
+    "module": "999000041000000102",
+    "source": "999000021000000109",
+    "destination": "999003121000000100",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000011006",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "3814809026",
+  "fields": {
+    "effective_time": "2011-07-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "449080006",
+    "destination": "900000000000445007",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000011006",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "6781270021",
+  "fields": {
+    "effective_time": "2017-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "722136005",
+    "destination": "722133002",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000011006",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "2530694025",
+  "fields": {
+    "effective_time": "2005-07-31",
+    "active": false,
+    "module": "900000000000207008",
+    "source": "106237007",
+    "destination": "408739003",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000011006",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "6576633025",
+  "fields": {
+    "effective_time": "2017-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "718292005",
+    "destination": "718291003",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000010007",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "4263060022",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "900000000000447004",
+    "destination": "900000000000442005",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000010007",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "900000000000021026",
+  "fields": {
+    "effective_time": "2011-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "106237007",
+    "destination": "900000000000441003",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000011006",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "4267773028",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "900000000000449001",
+    "destination": "900000000000442005",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000010007",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "7106236026",
+  "fields": {
+    "effective_time": "2017-07-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "733981006",
+    "destination": "900000000000445007",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000011006",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "900000000000025024",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "900000000000017005",
+    "destination": "900000000000447004",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000011006",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "1099891000000122",
+  "fields": {
+    "effective_time": "2019-10-01",
+    "active": true,
+    "module": "999000041000000102",
+    "source": "748131000000104",
+    "destination": "900000000000443000",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000011006",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "4255223026",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "900000000000450001",
+    "destination": "900000000000442005",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000010007",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "6775632025",
+  "fields": {
+    "effective_time": "2017-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "722134008",
+    "destination": "722133002",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000010007",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "900000000000543026",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "900000000000225001",
+    "destination": "900000000000449001",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000011006",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "6501559027",
+  "fields": {
+    "effective_time": "2016-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "715152001",
+    "destination": "900000000000445007",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000010007",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "999000951000000128",
+  "fields": {
+    "effective_time": "2019-06-01",
+    "active": false,
+    "module": "999000041000000102",
+    "source": "999000011000000103",
+    "destination": "999000041000000102",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000011006",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "6501562029",
+  "fields": {
+    "effective_time": "2016-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "715151008",
+    "destination": "900000000000445007",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000010007",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "900000000000603028",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "900000000000445007",
+    "destination": "900000000000443000",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000011006",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "4267774023",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "900000000000227009",
+    "destination": "900000000000449001",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000010007",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "5668091000000127",
+  "fields": {
+    "effective_time": "2019-06-01",
+    "active": true,
+    "module": "999000041000000102",
+    "source": "999000011000000103",
+    "destination": "999003121000000100",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000011006",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "4260750022",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "900000000000010007",
+    "destination": "900000000000006009",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000010007",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "900000000000604023",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "900000000000446008",
+    "destination": "900000000000442005",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000011006",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "3792608028",
+  "fields": {
+    "effective_time": "2013-07-31",
+    "active": true,
+    "module": "900000000000207008",
+    "source": "900000000000441003",
+    "destination": "138875005",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000011006",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "5668081000000129",
+  "fields": {
+    "effective_time": "2019-06-01",
+    "active": true,
+    "module": "999000041000000102",
+    "source": "999000031000000106",
+    "destination": "999003121000000100",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000011006",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "7106238025",
+  "fields": {
+    "effective_time": "2017-07-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "733984003",
+    "destination": "733981006",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000011006",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "900000000000127025",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "900000000000294009",
+    "destination": "900000000000453004",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000011006",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "900000000000601026",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "900000000000443000",
+    "destination": "900000000000442005",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000011006",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "3878891026",
+  "fields": {
+    "effective_time": "2011-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "246061005",
+    "destination": "106237007",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000010007",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "3814634029",
+  "fields": {
+    "effective_time": "2011-07-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "449081005",
+    "destination": "900000000000445007",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000011006",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "900000000000608021",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "900000000000450001",
+    "destination": "900000000000442005",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000011006",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "6504729020",
+  "fields": {
+    "effective_time": "2016-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "715152001",
+    "destination": "900000000000445007",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000011006",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "900000000000610023",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "900000000000452009",
+    "destination": "900000000000450001",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000011006",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "900000000000550027",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": true,
+    "module": "900000000000012004",
+    "source": "900000000000227009",
+    "destination": "900000000000449001",
     "relationship_group": "0",
     "type": "116680003",
     "characteristic_type": "900000000000011006",
@@ -3556,13 +2416,13 @@
 },
 {
   "model": "snomedct.relationship",
-  "pk": "2537148029",
+  "pk": "999005251000000128",
   "fields": {
-    "effective_time": "2011-01-31",
+    "effective_time": "2019-06-01",
     "active": true,
-    "module": "900000000000012004",
-    "source": "116680003",
-    "destination": "246061005",
+    "module": "999000041000000102",
+    "source": "999003121000000100",
+    "destination": "900000000000443000",
     "relationship_group": "0",
     "type": "116680003",
     "characteristic_type": "900000000000011006",
@@ -3571,463 +2431,13 @@
 },
 {
   "model": "snomedct.relationship",
-  "pk": "3878891026",
-  "fields": {
-    "effective_time": "2011-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "246061005",
-    "destination": "106237007",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "144473025",
-  "fields": {
-    "effective_time": "2005-07-31",
-    "active": false,
-    "module": "900000000000207008",
-    "source": "246061005",
-    "destination": "138875005",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "2765864025",
-  "fields": {
-    "effective_time": "2011-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "246061005",
-    "destination": "106237007",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "4279586029",
-  "fields": {
-    "effective_time": "2011-01-31",
-    "active": false,
-    "module": "900000000000207008",
-    "source": "106237007",
-    "destination": "138875005",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "4279587022",
-  "fields": {
-    "effective_time": "2011-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "106237007",
-    "destination": "900000000000441003",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "20244025",
-  "fields": {
-    "effective_time": "2004-07-31",
-    "active": false,
-    "module": "900000000000207008",
-    "source": "106237007",
-    "destination": "246061005",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "2530694025",
-  "fields": {
-    "effective_time": "2005-07-31",
-    "active": false,
-    "module": "900000000000207008",
-    "source": "106237007",
-    "destination": "408739003",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "2764316020",
-  "fields": {
-    "effective_time": "2011-01-31",
-    "active": false,
-    "module": "900000000000207008",
-    "source": "106237007",
-    "destination": "138875005",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "900000000000021026",
-  "fields": {
-    "effective_time": "2011-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "106237007",
-    "destination": "900000000000441003",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "4279585025",
-  "fields": {
-    "effective_time": "2013-07-31",
-    "active": true,
-    "module": "900000000000207008",
-    "source": "900000000000441003",
-    "destination": "138875005",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "3792608028",
-  "fields": {
-    "effective_time": "2013-07-31",
-    "active": true,
-    "module": "900000000000207008",
-    "source": "900000000000441003",
-    "destination": "138875005",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "3957015023",
-  "fields": {
-    "effective_time": "2011-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "408739003",
-    "destination": "246061005",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "2540233025",
-  "fields": {
-    "effective_time": "2011-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "408739003",
-    "destination": "246061005",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "4279585025",
-  "fields": {
-    "effective_time": "2013-07-31",
-    "active": true,
-    "module": "900000000000207008",
-    "source": "900000000000441003",
-    "destination": "138875005",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "3792608028",
-  "fields": {
-    "effective_time": "2013-07-31",
-    "active": true,
-    "module": "900000000000207008",
-    "source": "900000000000441003",
-    "destination": "138875005",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "4279586029",
-  "fields": {
-    "effective_time": "2011-01-31",
-    "active": false,
-    "module": "900000000000207008",
-    "source": "106237007",
-    "destination": "138875005",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "4279587022",
-  "fields": {
-    "effective_time": "2011-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "106237007",
-    "destination": "900000000000441003",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "20244025",
-  "fields": {
-    "effective_time": "2004-07-31",
-    "active": false,
-    "module": "900000000000207008",
-    "source": "106237007",
-    "destination": "246061005",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "2530694025",
-  "fields": {
-    "effective_time": "2005-07-31",
-    "active": false,
-    "module": "900000000000207008",
-    "source": "106237007",
-    "destination": "408739003",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "2764316020",
-  "fields": {
-    "effective_time": "2011-01-31",
-    "active": false,
-    "module": "900000000000207008",
-    "source": "106237007",
-    "destination": "138875005",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "900000000000021026",
-  "fields": {
-    "effective_time": "2011-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "106237007",
-    "destination": "900000000000441003",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "4279586029",
-  "fields": {
-    "effective_time": "2011-01-31",
-    "active": false,
-    "module": "900000000000207008",
-    "source": "106237007",
-    "destination": "138875005",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "4279587022",
-  "fields": {
-    "effective_time": "2011-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "106237007",
-    "destination": "900000000000441003",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "20244025",
-  "fields": {
-    "effective_time": "2004-07-31",
-    "active": false,
-    "module": "900000000000207008",
-    "source": "106237007",
-    "destination": "246061005",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "2530694025",
-  "fields": {
-    "effective_time": "2005-07-31",
-    "active": false,
-    "module": "900000000000207008",
-    "source": "106237007",
-    "destination": "408739003",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "2764316020",
-  "fields": {
-    "effective_time": "2011-01-31",
-    "active": false,
-    "module": "900000000000207008",
-    "source": "106237007",
-    "destination": "138875005",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "900000000000021026",
-  "fields": {
-    "effective_time": "2011-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "106237007",
-    "destination": "900000000000441003",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "3878891026",
-  "fields": {
-    "effective_time": "2011-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "246061005",
-    "destination": "106237007",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000010007",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "144473025",
-  "fields": {
-    "effective_time": "2005-07-31",
-    "active": false,
-    "module": "900000000000207008",
-    "source": "246061005",
-    "destination": "138875005",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "2765864025",
-  "fields": {
-    "effective_time": "2011-01-31",
-    "active": true,
-    "module": "900000000000012004",
-    "source": "246061005",
-    "destination": "106237007",
-    "relationship_group": "0",
-    "type": "116680003",
-    "characteristic_type": "900000000000011006",
-    "modifier": "900000000000451002"
-  }
-},
-{
-  "model": "snomedct.relationship",
-  "pk": "4263058020",
+  "pk": "4262160028",
   "fields": {
     "effective_time": "2002-01-31",
     "active": true,
     "module": "900000000000012004",
-    "source": "900000000000442005",
-    "destination": "900000000000441003",
+    "source": "900000000000225001",
+    "destination": "900000000000449001",
     "relationship_group": "0",
     "type": "116680003",
     "characteristic_type": "900000000000010007",
@@ -4036,13 +2446,28 @@
 },
 {
   "model": "snomedct.relationship",
-  "pk": "900000000000600025",
+  "pk": "999000961000000125",
   "fields": {
-    "effective_time": "2002-01-31",
+    "effective_time": "2019-06-01",
+    "active": false,
+    "module": "999000041000000102",
+    "source": "999000021000000109",
+    "destination": "999000041000000102",
+    "relationship_group": "0",
+    "type": "116680003",
+    "characteristic_type": "900000000000011006",
+    "modifier": "900000000000451002"
+  }
+},
+{
+  "model": "snomedct.relationship",
+  "pk": "7106237024",
+  "fields": {
+    "effective_time": "2017-07-31",
     "active": true,
     "module": "900000000000012004",
-    "source": "900000000000442005",
-    "destination": "900000000000441003",
+    "source": "733983009",
+    "destination": "733981006",
     "relationship_group": "0",
     "type": "116680003",
     "characteristic_type": "900000000000011006",
@@ -4143,7 +2568,7 @@
     "concept": "138875005",
     "language_code": "en",
     "type": "900000000000013009",
-    "term": "\u00a92002 College of American Pathologists",
+    "term": "©2002 College of American Pathologists",
     "case_significance": "900000000000020002"
   }
 },
@@ -4255,7 +2680,7 @@
     "concept": "138875005",
     "language_code": "en",
     "type": "900000000000013009",
-    "term": "\u00a92002 - 2004 College of American Pathologists",
+    "term": "©2002 - 2004 College of American Pathologists",
     "case_significance": "900000000000020002"
   }
 },
@@ -4297,7 +2722,7 @@
     "concept": "138875005",
     "language_code": "en",
     "type": "900000000000013009",
-    "term": "\u00a92002 - 2005 College of American Pathologists. SNOMED and SNOMED CT are registered trademarks of the College of American Pathologists, all rights reserved.",
+    "term": "©2002 - 2005 College of American Pathologists. SNOMED and SNOMED CT are registered trademarks of the College of American Pathologists, all rights reserved.",
     "case_significance": "900000000000020002"
   }
 },
@@ -4325,7 +2750,7 @@
     "concept": "138875005",
     "language_code": "en",
     "type": "900000000000013009",
-    "term": "\u00a92002 - 2006 College of American Pathologists. SNOMED and SNOMED CT are registered trademarks of the College of American Pathologists, all rights reserved.",
+    "term": "©2002 - 2006 College of American Pathologists. SNOMED and SNOMED CT are registered trademarks of the College of American Pathologists, all rights reserved.",
     "case_significance": "900000000000020002"
   }
 },
@@ -4367,7 +2792,7 @@
     "concept": "138875005",
     "language_code": "en",
     "type": "900000000000013009",
-    "term": "\u00a92002 - 2007 College of American Pathologists. SNOMED and SNOMED CT are registered trademarks of the College of American Pathologists, all rights reserved",
+    "term": "©2002 - 2007 College of American Pathologists. SNOMED and SNOMED CT are registered trademarks of the College of American Pathologists, all rights reserved",
     "case_significance": "900000000000020002"
   }
 },
@@ -4409,7 +2834,7 @@
     "concept": "138875005",
     "language_code": "en",
     "type": "900000000000013009",
-    "term": "\u00a9 2002-2007 International Health Terminology Standards Development Organisation (IHTSDO). All rights reserved. SNOMED CT\u00ae, was originally created by The College of American Pathologists. \"SNOMED\" and \"SNOMED CT\" are registered trademarks of the IHTSDO.",
+    "term": "© 2002-2007 International Health Terminology Standards Development Organisation (IHTSDO). All rights reserved. SNOMED CT®, was originally created by The College of American Pathologists. \"SNOMED\" and \"SNOMED CT\" are registered trademarks of the IHTSDO.",
     "case_significance": "900000000000020002"
   }
 },
@@ -4423,7 +2848,7 @@
     "concept": "138875005",
     "language_code": "en",
     "type": "900000000000013009",
-    "term": "\u00a9 2002-2008 International Health Terminology Standards Development Organisation (IHTSDO). All rights reserved. SNOMED CT\u00ae, was originally created by The College of American Pathologists. \"SNOMED\" and \"SNOMED CT\" are registered trademarks of the IHTSDO.",
+    "term": "© 2002-2008 International Health Terminology Standards Development Organisation (IHTSDO). All rights reserved. SNOMED CT®, was originally created by The College of American Pathologists. \"SNOMED\" and \"SNOMED CT\" are registered trademarks of the IHTSDO.",
     "case_significance": "900000000000020002"
   }
 },
@@ -4479,7 +2904,7 @@
     "concept": "138875005",
     "language_code": "en",
     "type": "900000000000013009",
-    "term": "\u00a9 2002-2009 International Health Terminology Standards Development Organisation (IHTSDO). All rights reserved. SNOMED CT\u00ae, was originally created by The College of American Pathologists. \"SNOMED\" and \"SNOMED CT\" are registered trademarks of the IHTSDO.",
+    "term": "© 2002-2009 International Health Terminology Standards Development Organisation (IHTSDO). All rights reserved. SNOMED CT®, was originally created by The College of American Pathologists. \"SNOMED\" and \"SNOMED CT\" are registered trademarks of the IHTSDO.",
     "case_significance": "900000000000020002"
   }
 },
@@ -4521,7 +2946,7 @@
     "concept": "138875005",
     "language_code": "en",
     "type": "900000000000013009",
-    "term": "\u00a9 2002-2010 International Health Terminology Standards Development Organisation (IHTSDO). All rights reserved. SNOMED CT\u00ae, was originally created by The College of American Pathologists. \"SNOMED\" and \"SNOMED CT\" are registered trademarks of the IHTSDO.",
+    "term": "© 2002-2010 International Health Terminology Standards Development Organisation (IHTSDO). All rights reserved. SNOMED CT®, was originally created by The College of American Pathologists. \"SNOMED\" and \"SNOMED CT\" are registered trademarks of the IHTSDO.",
     "case_significance": "900000000000020002"
   }
 },
@@ -4563,7 +2988,7 @@
     "concept": "138875005",
     "language_code": "en",
     "type": "900000000000013009",
-    "term": "\u00a9 2002-2011 International Health Terminology Standards Development Organisation (IHTSDO). All rights reserved. SNOMED CT\u00ae, was originally created by The College of American Pathologists. \"SNOMED\" and \"SNOMED CT\" are registered trademarks of the IHTSDO.",
+    "term": "© 2002-2011 International Health Terminology Standards Development Organisation (IHTSDO). All rights reserved. SNOMED CT®, was originally created by The College of American Pathologists. \"SNOMED\" and \"SNOMED CT\" are registered trademarks of the IHTSDO.",
     "case_significance": "900000000000020002"
   }
 },
@@ -4591,7 +3016,7 @@
     "concept": "138875005",
     "language_code": "en",
     "type": "900000000000013009",
-    "term": "\u00a9 2002-2012 International Health Terminology Standards Development Organisation (IHTSDO). All rights reserved. SNOMED CT\u00ae, was originally created by The College of American Pathologists. \"SNOMED\" and \"SNOMED CT\" are registered trademarks of the IHTSDO.",
+    "term": "© 2002-2012 International Health Terminology Standards Development Organisation (IHTSDO). All rights reserved. SNOMED CT®, was originally created by The College of American Pathologists. \"SNOMED\" and \"SNOMED CT\" are registered trademarks of the IHTSDO.",
     "case_significance": "900000000000020002"
   }
 },
@@ -4647,7 +3072,7 @@
     "concept": "138875005",
     "language_code": "en",
     "type": "900000000000013009",
-    "term": "\u00a9 2002-2013 International Health Terminology Standards Development Organisation (IHTSDO). All rights reserved. SNOMED CT\u00ae, was originally created by The College of American Pathologists. \"SNOMED\" and \"SNOMED CT\" are registered trademarks of the IHTSDO.",
+    "term": "© 2002-2013 International Health Terminology Standards Development Organisation (IHTSDO). All rights reserved. SNOMED CT®, was originally created by The College of American Pathologists. \"SNOMED\" and \"SNOMED CT\" are registered trademarks of the IHTSDO.",
     "case_significance": "900000000000020002"
   }
 },
@@ -4675,7 +3100,7 @@
     "concept": "138875005",
     "language_code": "en",
     "type": "900000000000013009",
-    "term": "\u00a9 2002-2014 International Health Terminology Standards Development Organisation (IHTSDO). All rights reserved. SNOMED CT\u00ae, was originally created by The College of American Pathologists. \"SNOMED\" and \"SNOMED CT\" are registered trademarks of the IHTSDO.",
+    "term": "© 2002-2014 International Health Terminology Standards Development Organisation (IHTSDO). All rights reserved. SNOMED CT®, was originally created by The College of American Pathologists. \"SNOMED\" and \"SNOMED CT\" are registered trademarks of the IHTSDO.",
     "case_significance": "900000000000020002"
   }
 },
@@ -4745,7 +3170,7 @@
     "concept": "138875005",
     "language_code": "en",
     "type": "900000000000013009",
-    "term": "\u00a9 2002-2015 International Health Terminology Standards Development Organisation (IHTSDO). All rights reserved. SNOMED CT\u00ae, was originally created by The College of American Pathologists. \"SNOMED\" and \"SNOMED CT\" are registered trademarks of the IHTSDO.",
+    "term": "© 2002-2015 International Health Terminology Standards Development Organisation (IHTSDO). All rights reserved. SNOMED CT®, was originally created by The College of American Pathologists. \"SNOMED\" and \"SNOMED CT\" are registered trademarks of the IHTSDO.",
     "case_significance": "900000000000020002"
   }
 },
@@ -4773,7 +3198,7 @@
     "concept": "138875005",
     "language_code": "en",
     "type": "900000000000013009",
-    "term": "\u00a9 2002-2016 International Health Terminology Standards Development Organisation (IHTSDO). All rights reserved. SNOMED CT\u00ae, was originally created by The College of American Pathologists. \"SNOMED\" and \"SNOMED CT\" are registered trademarks of the IHTSDO.",
+    "term": "© 2002-2016 International Health Terminology Standards Development Organisation (IHTSDO). All rights reserved. SNOMED CT®, was originally created by The College of American Pathologists. \"SNOMED\" and \"SNOMED CT\" are registered trademarks of the IHTSDO.",
     "case_significance": "900000000000020002"
   }
 },
@@ -4829,7 +3254,7 @@
     "concept": "138875005",
     "language_code": "en",
     "type": "900000000000013009",
-    "term": "\u00a9 2002-2017 International Health Terminology Standards Development Organisation (IHTSDO). All rights reserved. SNOMED CT\u00ae, was originally created by The College of American Pathologists. \"SNOMED\" and \"SNOMED CT\" are registered trademarks of the IHTSDO.",
+    "term": "© 2002-2017 International Health Terminology Standards Development Organisation (IHTSDO). All rights reserved. SNOMED CT®, was originally created by The College of American Pathologists. \"SNOMED\" and \"SNOMED CT\" are registered trademarks of the IHTSDO.",
     "case_significance": "900000000000020002"
   }
 },
@@ -4871,7 +3296,7 @@
     "concept": "138875005",
     "language_code": "en",
     "type": "900000000000013009",
-    "term": "\u00a9 2002-2018 International Health Terminology Standards Development Organisation (IHTSDO). All rights reserved. SNOMED CT\u00ae, was originally created by The College of American Pathologists. \"SNOMED\" and \"SNOMED CT\" are registered trademarks of the IHTSDO.",
+    "term": "© 2002-2018 International Health Terminology Standards Development Organisation (IHTSDO). All rights reserved. SNOMED CT®, was originally created by The College of American Pathologists. \"SNOMED\" and \"SNOMED CT\" are registered trademarks of the IHTSDO.",
     "case_significance": "900000000000020002"
   }
 },
@@ -4977,8 +3402,8 @@
   "model": "snomedct.description",
   "pk": "1916571000000112",
   "fields": {
-    "effective_time": "2019-10-01",
-    "active": true,
+    "effective_time": "2020-04-01",
+    "active": false,
     "module": "999000041000000102",
     "concept": "138875005",
     "language_code": "en",
@@ -5215,13 +3640,41 @@
   "model": "snomedct.description",
   "pk": "2782161000000118",
   "fields": {
-    "effective_time": "2019-06-01",
-    "active": true,
+    "effective_time": "2020-04-01",
+    "active": false,
     "module": "999000041000000102",
     "concept": "138875005",
     "language_code": "en",
     "type": "900000000000013009",
     "term": "27.0.0_20190601000001 UK clinical extension",
+    "case_significance": "900000000000017005"
+  }
+},
+{
+  "model": "snomedct.description",
+  "pk": "2826211000000118",
+  "fields": {
+    "effective_time": "2020-04-15",
+    "active": false,
+    "module": "999000041000000102",
+    "concept": "138875005",
+    "language_code": "en",
+    "type": "900000000000013009",
+    "term": "29.0.0_20200401000001 UK clinical extension",
+    "case_significance": "900000000000017005"
+  }
+},
+{
+  "model": "snomedct.description",
+  "pk": "2829281000000117",
+  "fields": {
+    "effective_time": "2020-04-15",
+    "active": true,
+    "module": "999000041000000102",
+    "concept": "138875005",
+    "language_code": "en",
+    "type": "900000000000013009",
+    "term": "29.1.0_20200415000001 UK clinical extension",
     "case_significance": "900000000000017005"
   }
 },

@@ -1,0 +1,17 @@
+This directory contains the following fixtures:
+
+* tennis-elbow.json
+  * All SNOMED CT concepts related to 202855006 | Lateral epicondylitis (disorder) |
+  * Useful for tests that want to use some clinically-significant data
+* core-model-components.json
+  * All SNOMED CT concepts related to the magic numbers at the top of models.py
+* model-components.json
+  * All SNOMED CT concepts related to 900000000000441003 | SNOMED CT Model Component (metadata) |
+
+They were generated with eg:
+
+  ./manage.py dump_snomedct_fixtures 202855006 coding_systems/snomedct/fixtures/tennis-elbow.json
+
+They can be loaded with eg:
+
+  ./manage.py loaddata coding_systems/snomedct/fixtures/tennis-elbow.json

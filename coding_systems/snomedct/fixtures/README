@@ -1,12 +1,12 @@
 This directory contains the following JSON fixtures, which contain a slice of the SNOMED CT hierarchy:
 
 * tennis-elbow.json
-  * All SNOMED CT concepts related to 202855006 | Lateral epicondylitis (disorder) |
+  * All SNOMED CT concepts related to Lateral epicondylitis (202855006)
   * Useful for tests that want to use some clinically-significant data
 * core-model-components.json
   * All SNOMED CT concepts related to the magic numbers at the top of models.py
 * model-components.json
-  * All SNOMED CT concepts related to 900000000000441003 | SNOMED CT Model Component (metadata) |
+  * All SNOMED CT concepts related to SNOMED CT Model Component (900000000000441003)
 
 They were generated with eg:
 

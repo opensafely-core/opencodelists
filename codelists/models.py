@@ -54,6 +54,8 @@ class CodelistVersion(models.Model):
     csv_data = models.TextField(verbose_name="CSV data")
     is_draft = models.BooleanField(default=True)
 
+    definition = models.JSONField(null=False)
+
     class Meta:
         unique_together = ("codelist", "version_str")
 

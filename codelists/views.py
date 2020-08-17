@@ -12,7 +12,7 @@ from opencodelists.models import Project
 
 from . import actions
 from .coding_systems import CODING_SYSTEMS
-from .definition import Definition, build_html_definition
+from .definition import Definition
 from .forms import (
     CodelistCreateForm,
     CodelistUpdateForm,
@@ -268,23 +268,16 @@ def version(request, project_slug, codelist_slug, qualified_version_str):
 
     headers, *rows = clv.table
 
-    if clv.coding_system_id in ["ctv3", "ctv3tpp", "snomedct"]:
-        if clv.coding_system_id in ["ctv3", "ctv3tpp"]:
-            coding_system = CODING_SYSTEMS["ctv3"]
-        else:
-            coding_system = CODING_SYSTEMS["snomedct"]
+    html_tree = None
+
+    if clv.coding_system_id in ["ctv3", "ctv3tpp"]:
+        coding_system = CODING_SYSTEMS["ctv3"]
         hierarchy = Hierarchy.from_codes(coding_system, clv.codes)
         definition = Definition.from_codes(set(clv.codes), hierarchy)
-        html_definition = build_html_definition(coding_system, hierarchy, definition)
-        if clv.coding_system_id in ["ctv3", "ctv3tpp"]:
-            html_tree = build_html_tree_highlighting_codes(
-                coding_system, hierarchy, definition
-            )
-        else:
-            html_tree = None
-    else:
-        html_definition = None
-        html_tree = None
+
+        html_tree = build_html_tree_highlighting_codes(
+            coding_system, hierarchy, definition
+        )
 
     ctx = {
         "clv": clv,
@@ -293,7 +286,6 @@ def version(request, project_slug, codelist_slug, qualified_version_str):
         "headers": headers,
         "rows": rows,
         "html_tree": html_tree,
-        "html_definition": html_definition,
     }
     return render(request, "codelists/version.html", ctx)
 

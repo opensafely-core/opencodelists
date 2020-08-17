@@ -6,7 +6,22 @@ from django.db import transaction
 
 from opencodelists.models import User
 
+from . import tree_utils
+from .coding_systems import CODING_SYSTEMS
+from .definition import Definition, build_definition
+
 logger = structlog.get_logger()
+
+
+def _build_definition(version):
+    if version.coding_system_id in ["ctv3", "ctv3tpp"]:
+        coding_system = CODING_SYSTEMS["ctv3"]
+    else:
+        coding_system = CODING_SYSTEMS["snomedct"]
+
+    subtree = tree_utils.build_subtree(coding_system, version.codes)
+    definition = Definition.from_codes(version.codes, subtree)
+    return build_definition(coding_system, subtree, definition)
 
 
 def create_codelist(
@@ -82,9 +97,14 @@ def create_version(*, codelist, csv_data):
 
             logger.info("Created Version", version_pk=version.pk)
 
-            return version
+            break
+    else:
+        raise ValueError("E_TOO_MANY_VERSIONS")
 
-    raise ValueError("E_TOO_MANY_VERSIONS")
+    version.definition = _build_definition(version)
+    version.save()
+
+    return version
 
 
 @transaction.atomic
@@ -113,6 +133,9 @@ def update_version(*, version, csv_data):
     version.csv_data = csv_data
     version.save()
 
+    version.definition = _build_definition(version)
+    version.save()
+
     logger.info("Updated Version", version_pk=version.pk)
 
 
@@ -124,5 +147,4 @@ def publish_version(*, version):
     version.save()
 
     logger.info("Published Version", version_pk=version.pk)
-
     return version

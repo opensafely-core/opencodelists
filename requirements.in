@@ -10,6 +10,7 @@ pysqlite3-binary
 whitenoise
 sentry-sdk
 structlog
+attrs
 
 # test
 factory_boy

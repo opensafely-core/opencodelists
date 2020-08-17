@@ -6,7 +6,7 @@
 #
 appdirs==1.4.3            # via black, virtualenv
 asgiref==3.2.10           # via django
-attrs==19.3.0             # via black, hypothesis, pytest
+attrs==19.3.0             # via -r requirements.in, black, hypothesis, pytest
 bcrypt==3.1.7             # via paramiko
 black==19.10b0            # via -r requirements.in
 bleach==3.1.4             # via django-markdown-filter

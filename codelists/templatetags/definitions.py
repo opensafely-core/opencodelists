@@ -5,5 +5,5 @@ register = template.Library()
 
 
 @register.simple_tag
-def definition_url(coding_system_id, code):
+def concept_url(coding_system_id, code):
     return reverse(f"{coding_system_id}:concept", args=[code])

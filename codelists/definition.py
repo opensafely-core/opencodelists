@@ -1,3 +1,4 @@
+import attr
 from django.urls import reverse
 
 
@@ -206,6 +207,70 @@ class DefinitionRule:
         )
 
 
+@attr.s
+class Row:
+    """
+    Data structure for a Definition to prepare for display
+
+    name: name of the definition
+    code: code of the definition
+    excluded_children: list of excluded children (created with this class too)
+    all_descendants: are all of this Definitions descendants included?
+
+    Between all_descendants and excluded_children we can cover the three state
+    situation a Definition can be in:
+
+        * all descendants are included (all_descendants = True, excluded_children = [])
+        * all descendants except N (all_descendants = True, excluded_children = [...])
+        * no descendants (all_descendants = False, excluded_children ignored)
+
+    """
+
+    name: str = attr.ib()
+    code: str = attr.ib()
+    excluded_children: list = attr.ib(default=list())
+    all_descendants: bool = attr.ib(default=True)
+
+
+def iter_definitions(elements, code_to_name, descendants_map, excluded=None):
+    for element in elements:
+        row = Row(
+            name=code_to_name[element.code],
+            code=element.code,
+            all_descendants=element.includes_children,
+        )
+
+        # no descendents for this code so we can shortcut the iteration here
+        if not element.includes_children:
+            yield attr.asdict(row)
+            continue
+
+        # get child Definitions for this element
+        excluded_children = [
+            e for e in excluded if e.code in descendants_map[element.code]
+        ]
+
+        # generate excluded children
+        row.excluded_children = list(
+            iter_definitions(excluded_children, code_to_name, descendants_map)
+        )
+
+        yield attr.asdict(row)
+
+
+def build_definition(coding_system, subtree, definition):
+    code_to_name = coding_system.lookup_names([e.code for e in definition.elements])
+    descendants_map = tree_utils.build_descendants_map(subtree)
+
+    def sort_key(e):
+        return code_to_name[e.code]
+
+    elements = sorted(definition.unnegated_elements(), key=sort_key)
+    excluded = sorted(definition.negated_elements(), key=sort_key)
+
+    return list(iter_definitions(elements, code_to_name, descendants_map, excluded))
+
+
 def build_html_definition(coding_system, hierarchy, definition):
     """Render a Definition as HTML.
 
@@ -267,7 +332,5 @@ def build_html_definition(coding_system, hierarchy, definition):
             lines.append(
                 f'<li><a href="{url}" style="{style}">{name}</a> (<code>{rule.code}</code>)</li>'
             )
-
     lines.append("</ul>")
-
     return "\n".join(lines)

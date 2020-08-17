@@ -6,7 +6,9 @@ from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.text import slugify
 
+from . import tree_utils
 from .coding_systems import CODING_SYSTEMS
+from .definition import Definition, build_definition
 
 
 class Codelist(models.Model):
@@ -122,6 +124,18 @@ class CodelistVersion(models.Model):
         return "{}-{}-{}".format(
             self.codelist.project_id, self.codelist.slug, self.version_str
         )
+
+    def build_definition(self):
+        """
+        """
+        if self.coding_system_id in ["ctv3", "ctv3tpp"]:
+            coding_system = CODING_SYSTEMS["ctv3"]
+        else:
+            coding_system = CODING_SYSTEMS["snomedct"]
+
+        subtree = tree_utils.build_subtree(coding_system, self.codes)
+        definition = Definition.from_codes(self.codes, subtree)
+        return build_definition(coding_system, subtree, definition)
 
 
 class SignOff(models.Model):

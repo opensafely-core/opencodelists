@@ -64,6 +64,7 @@ def create_signoff(*, codelist, user, date):
     return signoff
 
 
+@transaction.atomic()
 def create_version(*, codelist, csv_data):
     """Create a new version of a codelist.
 
@@ -111,6 +112,7 @@ def update_codelist(
     return codelist
 
 
+@transaction.atomic()
 def update_version(*, version, csv_data):
     """Update a version."""
 

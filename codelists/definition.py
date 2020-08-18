@@ -134,35 +134,35 @@ class Definition:
 
         def helper(tree):
             for code in sorted(tree):
-                if code in codes:
-                    descendants = descendants_map[code]
-                    descendants_not_in_codes = descendants - codes
-                    if descendants:
-                        ratio = len(descendants_not_in_codes) / len(descendants)
-                    else:
-                        ratio = 1
+                if code not in codes:
+                    yield from helper(tree[code])
+                    continue
 
-                    if ratio < r:
-                        yield DefinitionElement(code, includes_children=True)
-                        yield from negative_helper(tree[code])
-                    else:
-                        yield DefinitionElement(code)
-                        yield from helper(tree[code])
+                descendants = descendants_map[code]
+                descendants_not_in_codes = descendants - codes
+                if descendants:
+                    ratio = len(descendants_not_in_codes) / len(descendants)
                 else:
+                    ratio = 1
+
+                if ratio < r:
+                    yield DefinitionElement(code, includes_children=True)
+                    yield from negative_helper(tree[code])
+                else:
+                    yield DefinitionElement(code)
                     yield from helper(tree[code])
 
         def negative_helper(tree):
             for code in sorted(tree):
-                if code not in codes:
-                    descendants = descendants_map[code]
-                    if descendants and not descendants & codes:
-                        yield DefinitionElement(
-                            code, excluded=True, includes_children=True
-                        )
-                    else:
-                        yield DefinitionElement(code, excluded=True)
-                        yield from negative_helper(tree[code])
+                if code in codes:
+                    yield from negative_helper(tree[code])
+                    continue
+
+                descendants = descendants_map[code]
+                if descendants and not descendants & codes:
+                    yield DefinitionElement(code, excluded=True, includes_children=True)
                 else:
+                    yield DefinitionElement(code, excluded=True)
                     yield from negative_helper(tree[code])
 
         elements = list(helper(tree))

@@ -16,13 +16,13 @@ class DefinitionElement:
      * how to express the above two and it's code as a query string
     """
 
-    def __init__(self, code, negated=False, includes_children=False):
+    def __init__(self, code, excluded=False, includes_children=False):
         self.code = code
-        self.negated = negated
+        self.excluded = excluded
         self.includes_children = includes_children
 
         self.fragment = str(self.code)
-        if self.negated:
+        if self.excluded:
             self.fragment = "~" + self.fragment
         if self.includes_children:
             self.fragment = self.fragment + "<"
@@ -48,10 +48,10 @@ class DefinitionElement:
         can deserialize a fragment string back into a DefinitionElement.
         """
         if fragment[0] == "~":
-            negated = True
+            excluded = True
             fragment = fragment[1:]
         else:
-            negated = False
+            excluded = False
 
         if fragment[-1] == "<":
             includes_children = True
@@ -59,7 +59,7 @@ class DefinitionElement:
         else:
             includes_children = False
 
-        return cls(fragment, negated=negated, includes_children=includes_children)
+        return cls(fragment, excluded=excluded, includes_children=includes_children)
 
 
 class Definition:
@@ -72,14 +72,14 @@ class Definition:
     def __init__(self, elements):
         self.elements = set(elements)
 
-    def negated_elements(self):
+    def excluded_elements(self):
         for e in self.elements:
-            if e.negated:
+            if e.excluded:
                 yield e
 
-    def unnegated_elements(self):
+    def included_elements(self):
         for e in self.elements:
-            if not e.negated:
+            if not e.excluded:
                 yield e
 
     def codes(self, tree):
@@ -92,12 +92,12 @@ class Definition:
         codes = set()
         descendants_map = tree_utils.build_descendants_map(tree)
 
-        for e in self.unnegated_elements():
+        for e in self.included_elements():
             codes.add(e.code)
             if e.includes_children:
                 codes |= descendants_map[e.code]
 
-        for e in self.negated_elements():
+        for e in self.excluded_elements():
             try:
                 codes.remove(e.code)
             except KeyError:
@@ -157,10 +157,10 @@ class Definition:
                     descendants = descendants_map[code]
                     if descendants and not descendants & codes:
                         yield DefinitionElement(
-                            code, negated=True, includes_children=True
+                            code, excluded=True, includes_children=True
                         )
                     else:
-                        yield DefinitionElement(code, negated=True)
+                        yield DefinitionElement(code, excluded=True)
                         yield from negative_helper(tree[code])
                 else:
                     yield from negative_helper(tree[code])
@@ -182,13 +182,11 @@ class Definition:
         # where all descendants of 1 are included except 2, we can end up with
         # the definition including 1< and 3<.  We can remove the 3<.
 
-        non_negated_element_codes = {e.code for e in elements if not e.negated}
+        excluded_codes = {e.code for e in elements if not e.excluded}
         for e in elements:
             if e.includes_children:
-                non_negated_element_codes -= descendants_map[e.code]
-        elements = [
-            e for e in elements if e.negated or e.code in non_negated_element_codes
-        ]
+                excluded_codes -= descendants_map[e.code]
+        elements = [e for e in elements if e.excluded or e.code in excluded_codes]
 
         return cls(elements)
 
@@ -251,7 +249,7 @@ def build_definition(coding_system, subtree, definition):
     def sort_key(e):
         return code_to_name[e.code]
 
-    elements = sorted(definition.unnegated_elements(), key=sort_key)
-    excluded = sorted(definition.negated_elements(), key=sort_key)
+    elements = sorted(definition.included_elements(), key=sort_key)
+    excluded = sorted(definition.excluded_elements(), key=sort_key)
 
     return list(iter_definitions(elements, code_to_name, descendants_map, excluded))

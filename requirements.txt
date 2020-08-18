@@ -61,7 +61,8 @@ pysqlite3-binary==0.4.3   # via -r requirements.in
 pytest-cov==2.10.1        # via -r requirements.in
 pytest-django==3.9.0      # via -r requirements.in
 pytest-freezegun==0.4.2   # via -r requirements.in
-pytest==6.0.1             # via pytest-cov, pytest-django, pytest-freezegun
+pytest-subtests==0.3.2    # via -r requirements.in
+pytest==6.0.1             # via pytest-cov, pytest-django, pytest-freezegun, pytest-subtests
 python-dateutil==2.8.1    # via faker, freezegun
 pytz==2020.1              # via django
 pyyaml==5.3.1             # via pre-commit

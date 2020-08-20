@@ -265,3 +265,43 @@ def test_render():
         "i": "(+)",
         "j": "(-)",
     }
+
+
+def test_find_ancestors():
+    tree = build_tree()
+
+    #       .
+    #      / \
+    #     b   .
+    #    / \ / \
+    #   d   e   .
+    #  / \ / \ / \
+    # .   .   .   .
+    assert tree_utils.find_ancestors(tree, {"b", "d", "e"}) == {"b"}
+
+    #       .
+    #      / \
+    #     b   .
+    #    / \ / \
+    #   d   e   f
+    #  / \ / \ / \
+    # .   .   .   .
+    assert tree_utils.find_ancestors(tree, {"b", "d", "e", "f"}) == {"b", "f"}
+
+    #       .
+    #      / \
+    #     b   c
+    #    / \ / \
+    #   d   e   f
+    #  / \ / \ / \
+    # .   .   .   .
+    assert tree_utils.find_ancestors(tree, {"b", "c", "d", "e", "f"}) == {"b", "c"}
+
+    #       .
+    #      / \
+    #     .   .
+    #    / \ / \
+    #   .   e   .
+    #  / \ / \ / \
+    # g   h   i   j
+    assert tree_utils.find_ancestors(tree, {"e", "g", "h", "i", "j"}) == {"e", "g", "j"}

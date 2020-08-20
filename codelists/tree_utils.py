@@ -291,3 +291,12 @@ def render(tree, included, excluded):
         return "!"
 
     return {node: render_node(node) for node in ancestors_map}
+
+
+def find_ancestors(subtree, nodes):
+    """Given set of nodes, return subset which are ancestors of other nodes.  An
+    ancestor has no ancestors itself.
+    """
+
+    ancestors_map = build_ancestors_map(subtree)
+    return {node for node in nodes if not ancestors_map[node] & nodes}

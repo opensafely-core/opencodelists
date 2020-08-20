@@ -62,8 +62,6 @@ def codelist(request, username, codelist_slug, search_slug=None):
         codes_for_display = search.results.values_list("code__code", flat=True)
 
     filter = request.GET.get("filter")
-    print(filter)
-    print(len(codes_for_display))
     if filter == "included":
         codes_for_display = {c for c in codes_for_display if "+" in code_to_status[c]}
     elif filter == "excluded":
@@ -75,7 +73,6 @@ def codelist(request, username, codelist_slug, search_slug=None):
         filter = "in conflict"
     else:
         codes_for_display = set(codes_for_display)
-    print(len(codes_for_display))
 
     code_to_term_and_type = {
         code: re.match(r"(^.*) \(([\w/ ]+)\)$", term).groups()

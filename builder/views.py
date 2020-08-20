@@ -14,7 +14,7 @@ from opencodelists.models import User
 
 from . import actions
 from .forms import DraftCodelistForm
-from .models import DraftCodelist, Search, SearchResult
+from .models import DraftCodelist
 
 
 @login_required
@@ -47,143 +47,55 @@ def user(request, username):
 
 
 @login_required
-def codelist(request, username, codelist_slug):
-    codelist = get_object_or_404(DraftCodelist, owner=username, slug=codelist_slug,)
-
-    if request.method == "POST":
-        term = request.POST["term"]
-        results = do_search(codelist.coding_system, term)
-        if not results["all_codes"]:
-            # TODO message about no hits
-            return redirect(codelist)
-
-        search = actions.create_search(codelist=codelist, term=term, results=results)
-        return redirect(search)
-
-    results = SearchResult.objects.filter(search__codelist=codelist)
-    results_context = _results_context(codelist, results)
-    tables = _tabulate_subtrees(results_context)
-    url = reverse("builder:results", args=[codelist.owner.username, codelist.slug])
-
-    ctx = {
-        "codelist": codelist,
-        "searches": codelist.searches.all(),
-        "results": results,
-        "url": url,
-        "tables": tables,
-        "ancestors_map": results_context["ancestors_map"],
-        "descendants_map": results_context["descendants_map"],
-        "editable": request.user == codelist.owner,
-    }
-    return render(request, "builder/codelist.html", ctx)
-
-
-@login_required
-def search(request, username, codelist_slug, search_slug):
-    search = get_object_or_404(
-        Search.objects.filter(slug=search_slug)
-        .prefetch_related("results")
-        .select_related("codelist"),
-        codelist__owner=username,
-        codelist__slug=codelist_slug,
-    )
-    codelist = search.codelist
-    results = search.results.all()
-    results_context = _results_context(codelist, results)
-    tables = _tabulate_subtrees(results_context)
-    url = (
-        reverse("builder:results", args=[codelist.owner.username, codelist.slug])
-        + f"?term={search.term}"
-    )
-
-    ctx = {
-        "codelist": codelist,
-        "search": search,
-        "url": url,
-        "tables": tables,
-        "ancestors_map": results_context["ancestors_map"],
-        "descendants_map": results_context["descendants_map"],
-        "editable": request.user == codelist.owner,
-    }
-    return render(request, "builder/search.html", ctx)
-
-
-@require_http_methods(["POST"])
-def results(request, username, codelist_slug):
+def codelist(request, username, codelist_slug, search_slug=None):
     codelist = get_object_or_404(DraftCodelist, owner=username, slug=codelist_slug)
+    coding_system = codelist.coding_system
 
-    if "term" in request.GET:
-        search = get_object_or_404(codelist.searches, term=request.GET["term"])
-        results = SearchResult.objects.filter(search=search)
+    code_to_status = dict(codelist.codes.values_list("code", "status"))
+    all_codes = list(code_to_status)
+
+    if search_slug is None:
+        search = None
+        codes_for_display = code_to_status
     else:
-        results = SearchResult.objects.filter(search__codelist=codelist)
+        search = get_object_or_404(codelist.searches, slug=search_slug)
+        codes_for_display = search.results.values_list("code__code", flat=True)
 
-    updates = json.loads(request.body)["updates"]
-    results_context = _results_context(codelist, results)
+    filter = request.GET.get("filter")
+    if filter == "included":
+        codes_for_display = {c for c in codes_for_display if "+" in code_to_status[c]}
+    elif filter == "excluded":
+        codes_for_display = {c for c in codes_for_display if "-" in code_to_status[c]}
+    elif filter == "unresolved":
+        codes_for_display = {c for c in codes_for_display if code_to_status[c] == "?"}
+    elif filter == "in-conflict":
+        codes_for_display = {c for c in codes_for_display if code_to_status[c] == "!"}
+        filter = "in conflict"
+    else:
+        codes_for_display = set(codes_for_display)
 
-    actions.update_search(
-        results=results,
-        updates=updates,
-        code_to_status=results_context["code_to_status"],
-        ancestors_map=results_context["ancestors_map"],
-        descendants_map=results_context["descendants_map"],
-    )
-    return JsonResponse({"updates": updates})
-
-
-def _results_context(codelist, results):
-    all_codes = [r.code for r in results]
     code_to_term_and_type = {
         code: re.match(r"(^.*) \(([\w/ ]+)\)$", term).groups()
-        for code, term in codelist.coding_system.lookup_names(all_codes).items()
+        for code, term in coding_system.lookup_names(all_codes).items()
     }
     code_to_term = {code: term for code, (term, _) in code_to_term_and_type.items()}
-    code_to_type = {code: typ_ for code, (_, typ_) in code_to_term_and_type.items()}
-    code_to_status = {result.code: result.status for result in results}
+    code_to_type = {code: type for code, (_, type) in code_to_term_and_type.items()}
 
-    ancestor_codes = [r.code for r in results if r.is_ancestor]
-    subtrees = tree_utils.build_descendant_subtrees(
-        codelist.coding_system, ancestor_codes
-    )
+    full_subtree = tree_utils.build_subtree(coding_system, all_codes)
+    ancestor_codes = tree_utils.find_ancestors(full_subtree, codes_for_display)
 
+    # Calling build_subtree multiple times is going to be inefficient, especially as we
+    # already have all the information we need in full_subtree.
     subtrees_by_type = defaultdict(list)
-    for code, subtree in zip(ancestor_codes, subtrees):
-        typ_ = code_to_type[code]
-        subtrees_by_type[typ_].append(subtree)
+    for code in ancestor_codes:
+        type = code_to_type[code]
+        subtree = tree_utils.build_descendant_subtree(coding_system, code)
+        subtrees_by_type[type].append(subtree)
 
-    descendants_map = {}
-    for subtree in subtrees:
-        descendants_map.update(tree_utils.build_descendants_map(subtree))
-    descendants_map = {
-        ancestor: list(descendants) for ancestor, descendants in descendants_map.items()
-    }
-
-    ancestors_map = {code: set() for code in all_codes}
-    for ancestor, descendants in descendants_map.items():
-        for descendant in descendants:
-            ancestors_map[descendant].add(ancestor)
-    ancestors_map = {
-        descendant: list(ancestors) for descendant, ancestors in ancestors_map.items()
-    }
-
-    return {
-        "code_to_term": code_to_term,
-        "code_to_type": code_to_type,
-        "code_to_status": code_to_status,
-        "subtrees_by_type": subtrees_by_type,
-        "descendants_map": descendants_map,
-        "ancestors_map": ancestors_map,
-    }
-
-
-def _tabulate_subtrees(results_context):
-    code_to_status = results_context["code_to_status"]
-    code_to_term = results_context["code_to_term"]
     sort_key = code_to_term.__getitem__
     tables = []
 
-    for typ_ in sorted(results_context["subtrees_by_type"]):
-        subtrees = results_context["subtrees_by_type"][typ_]
+    for type, subtrees in sorted(subtrees_by_type.items()):
         depth = -1
         rows = []
 
@@ -201,8 +113,70 @@ def _tabulate_subtrees(results_context):
                     )
 
         table = {
-            "heading": typ_.title(),
+            "heading": type.title(),
             "rows": rows,
         }
         tables.append(table)
-    return tables
+
+    relationship_maps = tree_utils.build_relationship_maps(full_subtree)
+    ancestors_map = {
+        descendant: [ancestor for ancestor in ancestors if ancestor in all_codes]
+        for descendant, ancestors in relationship_maps["ancestors"].items()
+        if descendant in all_codes
+    }
+    descendants_map = {
+        ancestor: [descendant for descendant in descendants if descendant in all_codes]
+        for ancestor, descendants in relationship_maps["descendants"].items()
+        if ancestor in all_codes
+    }
+
+    searches = [
+        {"term": s.term, "url": s.get_absolute_url(), "active": s == search}
+        for s in codelist.searches.order_by("term")
+    ]
+    update_url = reverse(
+        "builder:update", args=[codelist.owner.username, codelist.slug]
+    )
+    search_url = reverse(
+        "builder:new_search", args=[codelist.owner.username, codelist.slug]
+    )
+
+    ctx = {
+        "user": codelist.owner,
+        "codelist": codelist,
+        "search": search,
+        "searches": searches,
+        "filter": filter,
+        "code_to_status": code_to_status,
+        "tables": tables,
+        "ancestors_map": ancestors_map,
+        "descendants_map": descendants_map,
+        "is_editable": request.user == codelist.owner,
+        "update_url": update_url,
+        "search_url": search_url,
+    }
+
+    return render(request, "builder/codelist.html", ctx)
+
+
+@login_required
+@require_http_methods(["POST"])
+def update(request, username, codelist_slug):
+    codelist = get_object_or_404(DraftCodelist, owner=username, slug=codelist_slug)
+    updates = json.loads(request.body)["updates"]
+    actions.update_code_statuses(codelist=codelist, updates=updates)
+    return JsonResponse({"updates": updates})
+
+
+@login_required
+@require_http_methods(["POST"])
+def new_search(request, username, codelist_slug):
+    codelist = get_object_or_404(DraftCodelist, owner=username, slug=codelist_slug)
+    term = request.POST["term"]
+    codes = do_search(codelist.coding_system, term)["all_codes"]
+    if not codes:
+        # TODO message about no hits
+        return redirect(codelist)
+
+    search = actions.create_search(codelist=codelist, term=term, codes=codes)
+    return redirect(search)

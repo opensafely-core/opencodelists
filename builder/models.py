@@ -1,7 +1,6 @@
 from django.db import models
 from django.urls import reverse
 from django.utils.functional import cached_property
-from django.utils.text import slugify
 
 from codelists.coding_systems import CODING_SYSTEMS
 from opencodelists.models import User
@@ -22,10 +21,6 @@ class DraftCodelist(models.Model):
     class Meta:
         unique_together = ("owner", "slug")
 
-    def save(self, *args, **kwargs):
-        self.slug = slugify(self.name)
-        super().save(*args, **kwargs)
-
     def __str__(self):
         return self.name
 
@@ -35,6 +30,25 @@ class DraftCodelist(models.Model):
 
     def get_absolute_url(self):
         return reverse("builder:codelist", args=(self.owner.username, self.slug))
+
+
+class Code(models.Model):
+    STATUS_CHOICES = [
+        ("?", "Undecided"),
+        ("!", "In conflict"),
+        ("+", "Included with descendants"),
+        ("(+)", "Included by ancestor"),
+        ("-", "Excluded with descendants"),
+        ("(-)", "Excluded by ancestor"),
+    ]
+    codelist = models.ForeignKey(
+        "DraftCodelist", related_name="codes", on_delete=models.CASCADE
+    )
+    code = models.CharField(max_length=18)
+    status = models.CharField(max_length=3, choices=STATUS_CHOICES, default="?")
+
+    class Meta:
+        unique_together = ("codelist", "code")
 
 
 class Search(models.Model):
@@ -47,10 +61,6 @@ class Search(models.Model):
     class Meta:
         unique_together = ("codelist", "slug")
 
-    def save(self, *args, **kwargs):
-        self.slug = slugify(self.term)
-        super().save(*args, **kwargs)
-
     def get_absolute_url(self):
         return reverse(
             "builder:search",
@@ -59,20 +69,10 @@ class Search(models.Model):
 
 
 class SearchResult(models.Model):
-    STATUS_CHOICES = [
-        ("?", "Undecided"),
-        ("!", "In conflict"),
-        # ("+", "Included"),
-        ("+<", "Included with descendants"),
-        ("(+)", "Included by ancestor"),
-        # ("-", "Excluded"),
-        ("-<", "Excluded with descendants"),
-        ("(-)", "Excluded by ancestor"),
-    ]
     search = models.ForeignKey(
         "Search", related_name="results", on_delete=models.CASCADE
     )
-    code = models.CharField(max_length=18)
-    status = models.CharField(max_length=3, choices=STATUS_CHOICES, default="?")
-    matches_term = models.BooleanField()
-    is_ancestor = models.BooleanField()
+    code = models.ForeignKey("Code", related_name="results", on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ("search", "code")

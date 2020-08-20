@@ -1,47 +1,31 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
-<h2 class="my-4">{{ codelist.name }}</h2>
-
-<h3 class="mb-4">Term searches</h3>
-
-{% if searches %}
-<ul class="list-group">
-  {% for search in searches %}
-  <li class="list-group-item">
-    <a href="{{ search.get_absolute_url }}">{{ search.term }}</a>
-  </li>
-  {% endfor %}
-</ul>
+{% if search %}
+<h2 class="my-4"><a href="{{ codelist.get_absolute_url }}">{{ codelist.name }}</a></h2>
+<h3 class="mb-4">Search term: "{{ search.term }}"</h3>
 {% else %}
-<p>To start building a codelist, search for a term below.</p>
+<h2 class="my-4">{{ codelist.name }}</h2>
 {% endif %}
-
-{% if editable %}
 <hr />
-<form method="post" action="">
-  {% csrf_token %}
-  <div class="form-group">
-    <input
-      type="search"
-      class="form-control"
-      name="term"
-      placeholder="Search term"
-    />
-  </div>
-  <button type="submit" name="search" class="btn btn-primary">Search</button>
-</form>
-
-{% endif %}
-
-{% if results %}
-<hr />
-<h3 class="mb-4">All results</h3>
 
 <div id="codelist-builder-container"></div>
-{% endif %}
 {% endblock %}
 
 {% block extra_js %}
-{% include "./_builder.html" %}
+{{ searches|json_script:"searches" }}
+{{ filter|json_script:"filter" }}
+{{ code_to_status|json_script:"code-to-status" }}
+{{ tables|json_script:"tables" }}
+{{ ancestors_map|json_script:"ancestors-map" }}
+{{ descendants_map|json_script:"descendants-map" }}
+{{ is_editable|json_script:"isEditable" }}
+{{ update_url|json_script:"update-url" }}
+{{ search_url|json_script:"search-url" }}
+
+<script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin ></script>
+<script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin ></script>
+<script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+<script type="text/babel" src="{% static 'js/builder.js' %}"></script>
 {% endblock %}

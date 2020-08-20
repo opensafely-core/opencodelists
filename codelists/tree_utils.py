@@ -100,19 +100,59 @@ def walk_tree_depth_first(tree, sort_key=None):
     yield from helper(tree)
 
 
-def build_descendants_map(tree):
+def build_relationship_maps(tree):
+    """Return dict that maps "ancestors" and "descendants" to dicts that map
+    each node to the set of nodes that are ancestors or descendants of that
+    node.
+
+    Eg for this tree:
+
+       ┌--a--┐
+       |     |
+       b     c
+
+    It returns:
+
+    {
+        "ancestors": {"a": {"b", "c"}, "b": set(), "c": set()},
+        "descendants": {"a": set(), "b": {"a"}, "c": {"a"},
+    }
+    """
+
     descendants_map = {}
+    ancestors_map = {}
 
     stack = []
     for node, direction in walk_tree_depth_first(tree):
-        if direction == 1:
-            stack.append(node)
+        if node not in ancestors_map:
+            ancestors_map[node] = set()
+        if node not in descendants_map:
             descendants_map[node] = set()
-        else:
-            old_head = stack.pop()
-            if stack:
-                new_head = stack[-1]
-                descendants_map[new_head].add(old_head)
-                descendants_map[new_head] |= descendants_map[old_head]
 
-    return descendants_map
+        if direction == 1:
+            # We're moving away from the root, from parent to child.
+            child = node
+            if stack:
+                parent = stack[-1]
+                ancestors_map[child].add(parent)
+                ancestors_map[child] |= ancestors_map[parent]
+            stack.append(node)
+        else:
+            # We're moving towards the root, from child to parent.
+            child = stack.pop()
+            if stack:
+                parent = stack[-1]
+                descendants_map[parent].add(child)
+                descendants_map[parent] |= descendants_map[child]
+
+    return {"descendants": descendants_map, "ancestors": ancestors_map}
+
+
+def build_descendants_map(tree):
+    """Return "descendants" dict from build_relationship_maps."""
+    return build_relationship_maps(tree)["descendants"]
+
+
+def build_ancestors_map(tree):
+    """Return "ancestors" dict from build_relationship_maps."""
+    return build_relationship_maps(tree)["ancestors"]

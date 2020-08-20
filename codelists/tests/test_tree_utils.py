@@ -48,3 +48,32 @@ def test_walk_tree_depth_first():
         ("c", -1),
         ("a", -1),
     ]
+
+
+def test_build_relationship_maps():
+    tree = build_tree()
+    maps = tree_utils.build_relationship_maps(tree)
+
+    ancestors_map = maps["ancestors"]
+    assert ancestors_map["a"] == set()
+    assert ancestors_map["i"] == {"a", "b", "c", "e"}
+
+    descendants_map = maps["descendants"]
+    assert descendants_map["a"] == {
+        "b",
+        "c",
+        "d",
+        "e",
+        "f",
+        "g",
+        "h",
+        "i",
+        "j",
+        "k",
+        "l",
+    }
+    assert descendants_map["i"] == set()
+
+    for node in "abcdefghi":
+        assert node in ancestors_map
+        assert node in descendants_map

@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+{% if search %}
+<h2 class="my-4"><a href="{{ codelist.get_absolute_url }}">{{ codelist.name }}</a></h2>
+<h3 class="mb-4">Search term: "{{ search.term }}"</h3>
+{% else %}
+<h2 class="my-4">{{ codelist.name }}</h2>
+{% endif %}
+<hr />
+
+<div id="codelist-builder-container"></div>
+{% endblock %}
+
+{% block extra_js %}
+{{ searches|json_script:"searches" }}
+{{ filter|json_script:"filter" }}
+{{ code_to_status|json_script:"code-to-status" }}
+{{ tables|json_script:"tables" }}
+{{ ancestors_map|json_script:"ancestors-map" }}
+{{ descendants_map|json_script:"descendants-map" }}
+{{ is_editable|json_script:"isEditable" }}
+{{ update_url|json_script:"update-url" }}
+{{ search_url|json_script:"search-url" }}
+
+<script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin ></script>
+<script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin ></script>
+<script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+<script type="text/babel" src="{% static 'js/builder.js' %}"></script>
+{% endblock %}

@@ -31,6 +31,7 @@ def delete_search(*, search):
 
 @transaction.atomic
 def update_code_statuses(*, codelist, updates):
+    print(updates)
     code_to_status = dict(codelist.codes.values_list("code", "status"))
     subtree = tree_utils.build_subtree(codelist.coding_system, list(code_to_status))
     new_code_to_status = tree_utils.update(subtree, code_to_status, updates)

@@ -1,4 +1,5 @@
 from django.db import models
+from django.urls import reverse
 from django.utils.functional import cached_property
 
 from codelists.coding_systems import CODING_SYSTEMS
@@ -26,6 +27,9 @@ class DraftCodelist(models.Model):
     @cached_property
     def coding_system(self):
         return CODING_SYSTEMS[self.coding_system_id]
+
+    def get_absolute_url(self):
+        return reverse("builder:codelist", args=(self.owner.username, self.slug))
 
 
 class Code(models.Model):
@@ -56,6 +60,12 @@ class Search(models.Model):
 
     class Meta:
         unique_together = ("codelist", "slug")
+
+    def get_absolute_url(self):
+        return reverse(
+            "builder:search",
+            args=(self.codelist.owner.username, self.codelist.slug, self.slug),
+        )
 
 
 class SearchResult(models.Model):

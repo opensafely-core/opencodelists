@@ -16,24 +16,33 @@ def csv_builder(contents):
     return buffer
 
 
-def build_tree(depth=4):
-    r"""Return balanced binary tree.
+def build_tree():
+    """Return tree with this structure:
 
-    Nodes are labelled so that node i has children (2 * i) and (2 * i + 1).
+         ┌--a--┐
+         |     |
+      ┌--b--┌--c--┐
+      |     |     |
+    ┌-d-┐ ┌-e-┐ ┌-f-┐
+    |   | |   | |   |
+    g   h i   j k   l
 
-    For depth=4, a tree with the following structure is returned:
-
-           ┌-----1-----┐
-           |           |
-        ┌--2--┐     ┌--3--┐
-        |     |     |     |
-      ┌-4-┐ ┌-5-┐ ┌-6-┐ ┌-7-┐
-      |   | |   | |   | |   |
-      8   9 10 11 12 13 14 15
+    (This is actually a DAG.)
     """
 
-    paths = [
-        [str(2 ** j + (i >> (depth - 1 - j))) for j in range(depth)]
-        for i in range(2 ** (depth - 1))
+    edges = [
+        ("a", "b"),
+        ("a", "c"),
+        ("b", "d"),
+        ("b", "e"),
+        ("c", "e"),
+        ("c", "f"),
+        ("d", "g"),
+        ("d", "h"),
+        ("e", "i"),
+        ("e", "j"),
+        ("f", "k"),
+        ("f", "l"),
     ]
+    paths = tree_utils.edges_to_paths("a", edges)
     return tree_utils.paths_to_tree(paths)

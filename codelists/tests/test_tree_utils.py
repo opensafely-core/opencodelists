@@ -77,6 +77,52 @@ def test_build_relationship_maps():
         assert node in descendants_map
 
 
+def test_update():
+    tree = build_tree()
+
+    node_to_status = {
+        #        ?
+        #       / \
+        #      +   -
+        #     / \ / \
+        #   (+)  !  (-)
+        #   / \ / \ / \
+        # (+)  !   !  (-)
+        "a": "?",
+        "b": "+",
+        "c": "-",
+        "d": "(+)",
+        "e": "!",
+        "f": "(-)",
+        "g": "(+)",
+        "h": "!",
+        "i": "!",
+        "j": "(-)",
+    }
+
+    assert tree_utils.update(
+        tree, node_to_status, [("a", "-"), ("f", "+"), ("b", "?"), ("a", "+")]
+    ) == {
+        #        +
+        #       / \
+        #     (+)  -
+        #     / \ / \
+        #   (+) (-)  +
+        #   / \ / \ / \
+        # (+) (-) (+) (+)
+        "a": "+",
+        "b": "(+)",
+        "c": "-",
+        "d": "(+)",
+        "e": "(-)",
+        "f": "+",
+        "g": "(+)",
+        "h": "(-)",
+        "i": "(+)",
+        "j": "(+)",
+    }
+
+
 def test_render():
     tree = build_tree()
 

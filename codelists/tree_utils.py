@@ -158,17 +158,48 @@ def build_ancestors_map(tree):
     return build_relationship_maps(tree)["ancestors"]
 
 
-def render(tree, included, excluded):
-    r"""Return a mapping from each node in the tree to that node's status, which
-    can be one of:
+def update(tree, node_to_status, updates):
+    """Given a tree, a mapping from each node to its status, and a list of updates,
+    return an updated mapping.
+
+    Each status is one of:
 
     * +   included directly
     * -   excluded directly
     * (+) included indirectly by one or more ancestors
     * (-) excluded indirectly by one or more ancestors
     * ?   neither included nor excluded
-    * !   in conflict: has some ancestors which are directly included and some
-            which are directly excluded, and neither set overrides the other
+    * !   in conflict: has some ancestors which are directly included and some which are
+            directly excluded, and neither set overrides the other
+
+    Updates are tuples of (node, new_status), where new_status is one of:
+
+    * +   include this node, and all descendants that are not otherwise excluded
+    * -   exclude this node, and all descendants that are not otherwise included
+    * ?   clear this node's status, and do so for all descendants that are not otherwise
+            included or excluded
+    """
+
+    included = {node for node, status in node_to_status.items() if status == "+"}
+    excluded = {node for node, status in node_to_status.items() if status == "-"}
+
+    for node, status in updates:
+        if node in included:
+            included.remove(node)
+        if node in excluded:
+            excluded.remove(node)
+
+        if status == "+":
+            included.add(node)
+        if status == "-":
+            excluded.add(node)
+
+    return render(tree, included, excluded)
+
+
+def render(tree, included, excluded):
+    r"""Return a mapping from each node in the tree to that node's status.  See the
+    docstring for update() for possible status values.
 
     For example, for this tree:
 

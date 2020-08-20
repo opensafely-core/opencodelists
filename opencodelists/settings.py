@@ -48,7 +48,6 @@ else:
 
 INSTALLED_APPS = [
     "opencodelists",
-    "builder",
     "codelists",
     "coding_systems.bnf",
     "coding_systems.ctv3",

@@ -105,7 +105,7 @@ def codelist(request, username, codelist_slug, search_slug=None):
                 if direction == 1:
                     rows.append(
                         {
-                            "indent": (depth + 1) * 1.5,
+                            "depth": depth,
                             "code": code,
                             "status": code_to_status[code],
                             "term": code_to_term[code],

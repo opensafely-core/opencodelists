@@ -1,56 +1,34 @@
 "use strict";
 
-// These could/should be passed to CodelistBuilder as props
-const SEARCHES = JSON.parse(document.getElementById("searches").textContent);
-const FILTER = JSON.parse(document.getElementById("filter").textContent);
-const CODE_TO_STATUS = JSON.parse(
-  document.getElementById("code-to-status").textContent
-);
-const TABLES = JSON.parse(document.getElementById("tables").textContent);
-const ANCESTORS_MAP = JSON.parse(
-  document.getElementById("ancestors-map").textContent
-);
-const DESCENDANTS_MAP = JSON.parse(
-  document.getElementById("descendants-map").textContent
-);
-const CODES = Object.keys(ANCESTORS_MAP);
-const IS_EDITABLE = JSON.parse(
-  document.getElementById("isEditable").textContent
-);
-const UPDATE_URL = JSON.parse(
-  document.getElementById("update-url").textContent
-);
-const SEARCH_URL = JSON.parse(
-  document.getElementById("search-url").textContent
-);
-
 class CodelistBuilder extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = { updateQueue: [], updating: false, isEditable: IS_EDITABLE };
+    this.state = { updateQueue: [], updating: false };
 
-    TABLES.forEach((table) =>
-      table.rows.forEach((row) => {
-        this.state["status-" + row.code] = row.status;
-      })
-    );
-
-    CODES.forEach((code) => {
-      this.state["status-" + code] = CODE_TO_STATUS[code];
+    this.codes = Object.keys(props.ancestorsMap);
+    this.codes.forEach((code) => {
+      this.state["status-" + code] = props.codeToStatus[code];
       this.state["expanded-" + code] = true;
     });
 
     this.updateStatus = this.updateStatus.bind(this);
     this.toggleVisibility = this.toggleVisibility.bind(this);
+    this.getStatus = this.getStatus.bind(this);
+    this.getHasDescendants = this.getHasDescendants.bind(this);
+    this.getIsExpanded = this.getIsExpanded.bind(this);
+    this.getIsVisible = this.getIsVisible.bind(this);
   }
 
   updateStatus(code, status) {
     this.setState((state, props) => {
-      let included = CODES.filter(
+      const ancestorsMap = this.props.ancestorsMap;
+      const descendantsMap = this.props.descendantsMap;
+
+      let included = this.codes.filter(
         (c) => state["status-" + c] === "+" && c !== code
       );
-      let excluded = CODES.filter(
+      let excluded = this.codes.filter(
         (c) => state["status-" + c] === "-" && c !== code
       );
 
@@ -62,8 +40,6 @@ class CodelistBuilder extends React.Component {
 
       included = new Set(included);
       excluded = new Set(excluded);
-      console.log(included);
-      console.log(excluded);
 
       function newStatus(code) {
         // This function duplicates the logic of codelists.tree_utils.render
@@ -78,7 +54,7 @@ class CodelistBuilder extends React.Component {
         }
 
         // these are the ancestors of the node
-        const ancestors = ANCESTORS_MAP[code];
+        const ancestors = ancestorsMap[code];
 
         // these are the ancestors of the node that are directly included or excluded
         const includedOrExcludedAncestors = ancestors.filter(
@@ -89,7 +65,7 @@ class CodelistBuilder extends React.Component {
         // and which are not overridden by any of their descendants
         const significantIncludedOrExcludedAncestors = includedOrExcludedAncestors.filter(
           (a) =>
-            !DESCENDANTS_MAP[a].some((d) =>
+            !descendantsMap[a].some((d) =>
               includedOrExcludedAncestors.includes(d)
             )
         );
@@ -126,7 +102,7 @@ class CodelistBuilder extends React.Component {
       }
 
       let newState = {};
-      CODES.forEach((c) => (newState["status-" + c] = newStatus(c)));
+      this.codes.forEach((c) => (newState["status-" + c] = newStatus(c)));
       newState.updateQueue = state.updateQueue.concat([
         [code, newState["status-" + code]],
       ]);
@@ -143,7 +119,7 @@ class CodelistBuilder extends React.Component {
   }
 
   postUpdates() {
-    fetch(UPDATE_URL, {
+    fetch(this.props.updateURL, {
       method: "POST",
       credentials: "include",
       mode: "same-origin",
@@ -175,40 +151,28 @@ class CodelistBuilder extends React.Component {
     }));
   }
 
-  status(code) {
+  getStatus(code) {
     return this.state["status-" + code];
   }
 
-  isDirectlyRelated(code1, code2) {
-    return (
-      code1 === code2 ||
-      DESCENDANTS_MAP[code2].includes(code1) ||
-      DESCENDANTS_MAP[code1].includes(code2)
+  getIsVisible(code) {
+    return this.props.ancestorsMap[code].every((ancestor) =>
+      this.getIsExpanded(ancestor)
     );
   }
 
-  isVisible(code) {
-    return ANCESTORS_MAP[code].every((ancestor) => this.isExpanded(ancestor));
-  }
-
-  isExpanded(code) {
+  getIsExpanded(code) {
     return this.state["expanded-" + code];
   }
 
-  termStyle(code) {
-    return {
-      color: {
-        "!": "red",
-        "-": "gray",
-        "(-)": "gray",
-      }[this.status(code)],
-    };
+  getHasDescendants(code) {
+    return this.props.descendantsMap[code].length > 0;
   }
 
   counts() {
     let counts = { "?": 0, "!": 0, "+": 0, "(+)": 0, "-": 0, "(-)": 0 };
-    CODES.forEach((code) => {
-      counts[this.status(code)] += 1;
+    this.codes.forEach((code) => {
+      counts[this.getStatus(code)] += 1;
     });
     counts["total"] = Object.values(counts).reduce((a, b) => a + b);
     return counts;
@@ -219,96 +183,36 @@ class CodelistBuilder extends React.Component {
       <div className="row">
         <div className="col-3">
           <h3 className="mb-4">Summary</h3>
-          {FILTER ? (
-            <p>Filtered to {FILTER} concepts and their descendants.</p>
-          ) : null}
+          <Filter filter={this.props.filter} />
           <Summary counts={this.counts()} />
           <hr />
+
           <h3 className="mb-4">Term searches</h3>
           <ul className="list-group">
-            {SEARCHES.map((search) => (
-              <a
-                key={search.url}
-                href={search.url}
-                className={
-                  search.active
-                    ? "list-group-item list-group-item-action active"
-                    : "list-group-item list-group-item-action"
-                }
-              >
-                {search.term}
-              </a>
+            {this.props.searches.map((search) => (
+              <TermSearch key={search.url} search={search} />
             ))}
           </ul>
           <hr />
+
           <h3 className="mb-4">New term search</h3>
-          <form method="post" action={SEARCH_URL}>
-            <div className="form-group">
-              <input
-                type="hidden"
-                name="csrfmiddlewaretoken"
-                value={getCookie("csrftoken")}
-              />
-              <input
-                type="search"
-                className="form-control"
-                name="term"
-                placeholder="Search term"
-              />
-            </div>
-            <button type="submit" name="search" className="btn btn-primary">
-              Search
-            </button>
-          </form>
+          <SearchForm searchURL={this.props.searchURL} />
         </div>
 
         <div className="col-9 pl-5">
           <h3 className="mb-4">Results</h3>
-          {TABLES.map((table) => (
-            <div key={table.heading} className="mb-4">
-              <h4>{table.heading}</h4>
-              {table.rows.map((row, ix) => (
-                <div
-                  className="row"
-                  key={ix}
-                  style={{
-                    display: this.isVisible(row.code) ? "flex" : "none",
-                  }}
-                >
-                  <div className="btn-group btn-group-sm" role="group">
-                    <Button
-                      code={row.code}
-                      symbol="+"
-                      status={this.status(row.code)}
-                      isEditable={this.state.isEditable}
-                      handleClick={this.updateStatus}
-                    />
-                    <Button
-                      code={row.code}
-                      symbol="-"
-                      status={this.status(row.code)}
-                      isEditable={this.state.isEditable}
-                      handleClick={this.updateStatus}
-                    />
-                  </div>
-                  <div style={{ paddingLeft: row.indent + "em" }}>
-                    {DESCENDANTS_MAP[row.code].length ? (
-                      <span
-                        onClick={this.toggleVisibility.bind(null, row.code)}
-                        style={{ cursor: "pointer" }}
-                      >
-                        {this.isExpanded(row.code) ? "⊟" : "⊞"}
-                      </span>
-                    ) : null}
-                    <span style={this.termStyle(row.code)}>{row.term}</span>
-                    &nbsp;
-                    <span>
-                      (<code>{row.code}</code>)
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
+          {this.props.tables.map((table) => (
+            <Table
+              key={table.heading}
+              table={table}
+              getStatus={this.getStatus}
+              getHasDescendants={this.getHasDescendants}
+              getIsVisible={this.getIsVisible}
+              getIsExpanded={this.getIsExpanded}
+              isEditable={this.props.isEditable}
+              updateStatus={this.updateStatus}
+              toggleVisibility={this.toggleVisibility}
+            />
           ))}
         </div>
       </div>
@@ -316,11 +220,141 @@ class CodelistBuilder extends React.Component {
   }
 }
 
+function Filter(props) {
+  const { filter } = props;
+  return filter ? (
+    <p>Filtered to {filter} concepts and their descendants.</p>
+  ) : null;
+}
+
+function TermSearch(props) {
+  const { search } = props;
+
+  return (
+    <a
+      href={search.url}
+      className={
+        search.active
+          ? "list-group-item list-group-item-action active"
+          : "list-group-item list-group-item-action"
+      }
+    >
+      {search.term}
+    </a>
+  );
+}
+
+function SearchForm(props) {
+  const { searchURL } = props;
+
+  return (
+    <form method="post" action={searchURL}>
+      <div className="form-group">
+        <input
+          type="hidden"
+          name="csrfmiddlewaretoken"
+          value={getCookie("csrftoken")}
+        />
+        <input
+          type="search"
+          className="form-control"
+          name="term"
+          placeholder="Search term"
+        />
+      </div>
+      <button type="submit" name="search" className="btn btn-primary">
+        Search
+      </button>
+    </form>
+  );
+}
+
+function Table(props) {
+  const {
+    table,
+    getStatus,
+    getHasDescendants,
+    getIsVisible,
+    getIsExpanded,
+    isEditable,
+    updateStatus,
+    toggleVisibility,
+  } = props;
+
+  return (
+    <div className="mb-4">
+      <h4>{table.heading}</h4>
+      {table.rows.map((row, ix) => (
+        <Row
+          key={ix}
+          row={row}
+          status={getStatus(row.code)}
+          hasDescendants={getHasDescendants(row.code)}
+          isVisible={getIsVisible(row.code)}
+          isExpanded={getIsExpanded(row.code)}
+          isEditable={isEditable}
+          updateStatus={updateStatus}
+          toggleVisibility={toggleVisibility}
+        />
+      ))}
+    </div>
+  );
+}
+
+function Row(props) {
+  const {
+    row,
+    ix,
+    status,
+    hasDescendants,
+    isVisible,
+    isExpanded,
+    isEditable,
+    updateStatus,
+    toggleVisibility,
+  } = props;
+
+  const style = { display: isVisible ? "flex" : "none" };
+
+  return (
+    <div className="row" style={style}>
+      <div className="btn-group btn-group-sm" role="group">
+        <Button
+          code={row.code}
+          symbol="+"
+          status={status}
+          isEditable={isEditable}
+          updateStatus={updateStatus}
+        />
+        <Button
+          code={row.code}
+          symbol="-"
+          status={status}
+          isEditable={isEditable}
+          updateStatus={updateStatus}
+        />
+      </div>
+
+      <TermAndCode
+        term={row.term}
+        code={row.code}
+        depth={row.depth}
+        status={status}
+        hasDescendants={hasDescendants}
+        isExpanded={isExpanded}
+        toggleVisibility={toggleVisibility}
+      />
+    </div>
+  );
+}
+
 function Button(props) {
+  const { code, symbol, status, isEditable, updateStatus } = props;
+
   let buttonClasses = ["btn"];
-  if (props.status === props.symbol) {
+  if (status === symbol) {
     buttonClasses.push("btn-primary");
-  } else if (props.status === `(${props.symbol})`) {
+  } else if (status === `(${symbol})`) {
     buttonClasses.push("btn-secondary");
   } else {
     buttonClasses.push("btn-outline-secondary");
@@ -331,14 +365,49 @@ function Button(props) {
   return (
     <button
       type="button"
-      onClick={
-        props.isEditable &&
-        props.handleClick.bind(null, props.code, props.symbol)
-      }
+      onClick={isEditable && updateStatus.bind(null, code, symbol)}
       className={buttonClasses.join(" ")}
     >
-      {props.symbol}
+      {symbol}
     </button>
+  );
+}
+
+function TermAndCode(props) {
+  const {
+    term,
+    code,
+    depth,
+    status,
+    hasDescendants,
+    isExpanded,
+    toggleVisibility,
+  } = props;
+
+  const indent = (depth + 1) * 1.5;
+  const termStyle = {
+    color: {
+      "!": "red",
+      "-": "gray",
+      "(-)": "gray",
+    }[status],
+  };
+
+  return (
+    <div style={{ paddingLeft: indent + "em" }}>
+      {hasDescendants ? (
+        <span
+          onClick={toggleVisibility.bind(null, code)}
+          style={{ cursor: "pointer" }}
+        >
+          {isExpanded ? "⊟" : "⊞"}
+        </span>
+      ) : null}
+      <span style={termStyle}>{term}</span>{" "}
+      <span>
+        (<code>{code}</code>)
+      </span>
+    </div>
   );
 }
 
@@ -392,7 +461,21 @@ function getCookie(name) {
   return cookieValue;
 }
 
+function readValueFromPage(id) {
+  return JSON.parse(document.getElementById(id).textContent);
+}
+
 ReactDOM.render(
-  <CodelistBuilder />,
+  <CodelistBuilder
+    searches={readValueFromPage("searches")}
+    filter={readValueFromPage("filter")}
+    codeToStatus={readValueFromPage("code-to-status")}
+    tables={readValueFromPage("tables")}
+    ancestorsMap={readValueFromPage("ancestors-map")}
+    descendantsMap={readValueFromPage("descendants-map")}
+    isEditable={readValueFromPage("isEditable")}
+    updateURL={readValueFromPage("update-url")}
+    searchURL={readValueFromPage("search-url")}
+  />,
   document.querySelector("#codelist-builder-container")
 );

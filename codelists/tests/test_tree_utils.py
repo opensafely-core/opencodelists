@@ -1,8 +1,99 @@
+from pathlib import Path
+
+from django.conf import settings
+from django.core.management import call_command
+
 from codelists import tree_utils
+from codelists.coding_systems import CODING_SYSTEMS
 
 from .helpers import build_tree
 
-# build_tree() returns tree with this structure:
+
+def test_build_subtrees():
+    fixtures_path = Path(settings.BASE_DIR, "coding_systems", "snomedct", "fixtures")
+    call_command("loaddata", fixtures_path / "core-model-components.json")
+    call_command("loaddata", fixtures_path / "tennis-elbow.json")
+    coding_system = CODING_SYSTEMS["snomedct"]
+
+    assert tree_utils.build_subtree(coding_system, ["128133004"]) == {
+        "138875005": {
+            "404684003": {
+                "118234003": {
+                    "123946008": {
+                        "128605003": {
+                            "118947000": {
+                                "128133004": {
+                                    "239964003": {},
+                                    "35185008": {"73583000": {"202855006": {}}},
+                                    "429554009": {"439656005": {"202855006": {}}},
+                                }
+                            }
+                        }
+                    },
+                    "301857004": {
+                        "302293008": {
+                            "116307009": {
+                                "116309007": {
+                                    "128133004": {
+                                        "239964003": {},
+                                        "35185008": {"73583000": {"202855006": {}}},
+                                        "429554009": {"439656005": {"202855006": {}}},
+                                    }
+                                },
+                                "118947000": {
+                                    "128133004": {
+                                        "239964003": {},
+                                        "35185008": {"73583000": {"202855006": {}}},
+                                        "429554009": {"439656005": {"202855006": {}}},
+                                    }
+                                },
+                            },
+                            "128605003": {
+                                "118947000": {
+                                    "128133004": {
+                                        "239964003": {},
+                                        "35185008": {"73583000": {"202855006": {}}},
+                                        "429554009": {"439656005": {"202855006": {}}},
+                                    }
+                                }
+                            },
+                        }
+                    },
+                },
+                "64572001": {
+                    "123946008": {
+                        "128605003": {
+                            "118947000": {
+                                "128133004": {
+                                    "239964003": {},
+                                    "35185008": {"73583000": {"202855006": {}}},
+                                    "429554009": {"439656005": {"202855006": {}}},
+                                }
+                            }
+                        }
+                    }
+                },
+            }
+        }
+    }
+
+
+def test_build_descendant_subtree():
+    fixtures_path = Path(settings.BASE_DIR, "coding_systems", "snomedct", "fixtures")
+    call_command("loaddata", fixtures_path / "core-model-components.json")
+    call_command("loaddata", fixtures_path / "tennis-elbow.json")
+    coding_system = CODING_SYSTEMS["snomedct"]
+
+    assert tree_utils.build_descendant_subtree(coding_system, "128133004") == {
+        "128133004": {
+            "239964003": {},
+            "35185008": {"73583000": {"202855006": {}}},
+            "429554009": {"439656005": {"202855006": {}}},
+        }
+    }
+
+
+# In the following tests, build_tree() returns tree with this structure:
 #
 #       a
 #      / \

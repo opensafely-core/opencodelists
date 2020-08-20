@@ -44,6 +44,42 @@ def build_html_tree_highlighting_codes(coding_system, subtree, definition):
 
 
 def build_subtree(coding_system, codes):
+    r"""Build a "slice" of the coding system's hierarchy, containing just the given
+    codes, and their ancestors and descendants.
+
+    Given a hierarachy like this:
+
+           a
+          / \
+         b   c
+        / \ / \
+       d   e   f
+      / \ / \ / \
+     g   h   i   j
+
+    The slice containing [c] looks like:
+
+           a
+            \
+             c
+            / \
+           e   f
+          / \ / \
+         h   i   j
+
+    The returned slice is structured as nested dict.  So for a slice with this structure
+    above, this function would return:
+
+    {
+        a: {
+            c: {
+                e: {h: {}, i: {}},
+                f: {i: {}, j: {}},
+            }
+        }
+    }
+    """
+
     ancestor_relationships = coding_system.ancestor_relationships(codes)
     descendant_relationships = coding_system.descendant_relationships(codes)
     edges = ancestor_relationships + descendant_relationships
@@ -51,11 +87,41 @@ def build_subtree(coding_system, codes):
     return paths_to_tree(paths)
 
 
-def build_descendant_subtrees(coding_system, codes):
-    descendant_relationships = coding_system.descendant_relationships(codes)
-    return [
-        paths_to_tree(edges_to_paths(code, descendant_relationships)) for code in codes
-    ]
+def build_descendant_subtree(coding_system, code):
+    r"""Build subtree with root at code.
+
+    Given a hierarachy like this:
+
+           a
+          / \
+         b   c
+        / \ / \
+       d   e   f
+      / \ / \ / \
+     g   h   i   j
+
+    The descendant subtree for c is:
+
+         c
+        / \
+       e   f
+      / \ / \
+     h   i   j
+
+
+    This function would return:
+
+    {
+        c: {
+            e: {h: {}, i: {}},
+            f: {i: {}, j: {}},
+        }
+    }
+    """
+
+    edges = coding_system.descendant_relationships([code])
+    paths = edges_to_paths(code, edges)
+    return paths_to_tree(paths)
 
 
 def edges_to_paths(root, edges):

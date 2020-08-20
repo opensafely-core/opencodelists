@@ -156,3 +156,107 @@ def build_descendants_map(tree):
 def build_ancestors_map(tree):
     """Return "ancestors" dict from build_relationship_maps."""
     return build_relationship_maps(tree)["ancestors"]
+
+
+def render(tree, included, excluded):
+    r"""Return a mapping from each node in the tree to that node's status, which
+    can be one of:
+
+    * +   included directly
+    * -   excluded directly
+    * (+) included indirectly by one or more ancestors
+    * (-) excluded indirectly by one or more ancestors
+    * ?   neither included nor excluded
+    * !   in conflict: has some ancestors which are directly included and some
+            which are directly excluded, and neither set overrides the other
+
+    For example, for this tree:
+
+           a
+          / \
+         b   c
+        / \ / \
+       d   e   f
+      / \ / \ / \
+     g   h   i   j
+
+    with a and e included, and b and c excluded, nodes will have the statues according
+    to this diagram:
+
+           +
+          / \
+         -   -
+        / \ / \
+      (-)  +  (-)
+      / \ / \ / \
+    (-) (+) (+) (-)
+
+    So render(tree, {"a", "e"}, {"b", "c"}) returns
+
+    {
+        "a": "+",
+        "b": "-",
+        "c": "-",
+        "d": "(-)",
+        "e": "+",
+        "f": "(-)",
+        "g": "(-)",
+        "h": "(+)",
+        "i": "(+)",
+        "j": "(-)",
+    }
+
+    See test_render for more examples.
+    """
+
+    assert included & excluded == set()
+    relationship_maps = build_relationship_maps(tree)
+    ancestors_map = relationship_maps["ancestors"]
+    descendants_map = relationship_maps["descendants"]
+
+    def render_node(node):
+        if node in included:
+            # this node is explicitly included
+            return "+"
+        if node in excluded:
+            # this node is explicitly excluded
+            return "-"
+
+        # these are the ancestors of the node
+        ancestors = ancestors_map[node]
+
+        # these are the ancestors of the node that are directly included or excluded
+        included_or_excluded_ancestors = ancestors & (included | excluded)
+
+        # these are the ancestors of the node that are directly included or excluded,
+        # and which are not overridden by any of their descendants
+        significant_included_or_excluded_ancestors = {
+            a
+            for a in included_or_excluded_ancestors
+            if not (included_or_excluded_ancestors & descendants_map[a])
+        }
+
+        # these are the significant included ancestors of the node
+        included_ancestors = significant_included_or_excluded_ancestors & included
+
+        # these are the significant excluded ancestors of the node
+        excluded_ancestors = significant_included_or_excluded_ancestors & excluded
+
+        if not included_ancestors and not excluded_ancestors:
+            # no ancestors are included or excluded, so this node is neither excluded or
+            # excluded
+            return "?"
+        if included_ancestors and not excluded_ancestors:
+            # some ancestors are included and none are excluded, so this node is
+            # included
+            return "(+)"
+        if excluded_ancestors and not included_ancestors:
+            # some ancestors are excluded and none are included, so this node is
+            # excluded
+            return "(-)"
+
+        # some ancestors are included and some are excluded, and neither set of
+        # ancestors overrides the other
+        return "!"
+
+    return {node: render_node(node) for node in ancestors_map}

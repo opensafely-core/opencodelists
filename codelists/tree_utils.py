@@ -360,8 +360,20 @@ def render(tree, included, excluded):
 
 
 def find_ancestors(subtree, nodes):
-    """Given set of nodes, return subset which are ancestors of other nodes.  An
-    ancestor has no ancestors itself.
+    r"""Given set of nodes, return just those nodes which are ultimate ancestors.  An
+    ultimate ancestor has no ancestors itself.
+
+    For example, for this tree:
+
+           a
+          / \
+         b   c
+        / \ / \
+       d   e   f
+      / \ / \ / \
+     g   h   i   j
+
+    The set of ultimate ancesteors for the set {c, d, e, f, g, h, i, j} is {c, d}
     """
 
     ancestors_map = build_ancestors_map(subtree)

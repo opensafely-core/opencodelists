@@ -17,15 +17,15 @@ def csv_builder(contents):
 
 
 def build_tree():
-    """Return tree with this structure:
+    r"""Return tree with this structure:
 
-         ┌--a--┐
-         |     |
-      ┌--b--┌--c--┐
-      |     |     |
-    ┌-d-┐ ┌-e-┐ ┌-f-┐
-    |   | |   | |   |
-    g   h i   j k   l
+           a
+          / \
+         b   c
+        / \ / \
+       d   e   f
+      / \ / \ / \
+     g   h   i   j
 
     (This is actually a DAG.)
     """
@@ -39,10 +39,10 @@ def build_tree():
         ("c", "f"),
         ("d", "g"),
         ("d", "h"),
+        ("e", "h"),
         ("e", "i"),
-        ("e", "j"),
-        ("f", "k"),
-        ("f", "l"),
+        ("f", "i"),
+        ("f", "j"),
     ]
     paths = tree_utils.edges_to_paths("a", edges)
     return tree_utils.paths_to_tree(paths)

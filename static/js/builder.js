@@ -1,59 +1,34 @@
 "use strict";
 
-// These could/should be passed to CodelistBuilder as props
-const SEARCHES = JSON.parse(document.getElementById("searches").textContent);
-const FILTER = JSON.parse(document.getElementById("filter").textContent);
-const CODE_TO_STATUS = JSON.parse(
-  document.getElementById("code-to-status").textContent
-);
-const TABLES = JSON.parse(document.getElementById("tables").textContent);
-const ANCESTORS_MAP = JSON.parse(
-  document.getElementById("ancestors-map").textContent
-);
-const DESCENDANTS_MAP = JSON.parse(
-  document.getElementById("descendants-map").textContent
-);
-const CODES = Object.keys(ANCESTORS_MAP);
-const IS_EDITABLE = JSON.parse(
-  document.getElementById("isEditable").textContent
-);
-const UPDATE_URL = JSON.parse(
-  document.getElementById("update-url").textContent
-);
-const SEARCH_URL = JSON.parse(
-  document.getElementById("search-url").textContent
-);
-
 class CodelistBuilder extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = { updateQueue: [], updating: false, isEditable: IS_EDITABLE };
+    this.state = { updateQueue: [], updating: false };
 
-    TABLES.forEach((table) =>
-      table.rows.forEach((row) => {
-        this.state["status-" + row.code] = row.status;
-      })
-    );
-
-    CODES.forEach((code) => {
-      this.state["status-" + code] = CODE_TO_STATUS[code];
+    this.codes = Object.keys(props.ancestorsMap);
+    this.codes.forEach((code) => {
+      this.state["status-" + code] = props.codeToStatus[code];
       this.state["expanded-" + code] = true;
     });
 
     this.updateStatus = this.updateStatus.bind(this);
     this.toggleVisibility = this.toggleVisibility.bind(this);
     this.getStatus = this.getStatus.bind(this);
+    this.getHasDescendants = this.getHasDescendants.bind(this);
     this.getIsExpanded = this.getIsExpanded.bind(this);
     this.getIsVisible = this.getIsVisible.bind(this);
   }
 
   updateStatus(code, status) {
     this.setState((state, props) => {
-      let included = CODES.filter(
+      const ancestorsMap = this.props.ancestorsMap;
+      const descendantsMap = this.props.descendantsMap;
+
+      let included = this.codes.filter(
         (c) => state["status-" + c] === "+" && c !== code
       );
-      let excluded = CODES.filter(
+      let excluded = this.codes.filter(
         (c) => state["status-" + c] === "-" && c !== code
       );
 
@@ -79,7 +54,7 @@ class CodelistBuilder extends React.Component {
         }
 
         // these are the ancestors of the node
-        const ancestors = ANCESTORS_MAP[code];
+        const ancestors = ancestorsMap[code];
 
         // these are the ancestors of the node that are directly included or excluded
         const includedOrExcludedAncestors = ancestors.filter(
@@ -90,7 +65,7 @@ class CodelistBuilder extends React.Component {
         // and which are not overridden by any of their descendants
         const significantIncludedOrExcludedAncestors = includedOrExcludedAncestors.filter(
           (a) =>
-            !DESCENDANTS_MAP[a].some((d) =>
+            !descendantsMap[a].some((d) =>
               includedOrExcludedAncestors.includes(d)
             )
         );
@@ -127,7 +102,7 @@ class CodelistBuilder extends React.Component {
       }
 
       let newState = {};
-      CODES.forEach((c) => (newState["status-" + c] = newStatus(c)));
+      this.codes.forEach((c) => (newState["status-" + c] = newStatus(c)));
       newState.updateQueue = state.updateQueue.concat([
         [code, newState["status-" + code]],
       ]);
@@ -144,7 +119,7 @@ class CodelistBuilder extends React.Component {
   }
 
   postUpdates() {
-    fetch(UPDATE_URL, {
+    fetch(this.props.updateURL, {
       method: "POST",
       credentials: "include",
       mode: "same-origin",
@@ -176,20 +151,12 @@ class CodelistBuilder extends React.Component {
     }));
   }
 
-  isDirectlyRelated(code1, code2) {
-    return (
-      code1 === code2 ||
-      DESCENDANTS_MAP[code2].includes(code1) ||
-      DESCENDANTS_MAP[code1].includes(code2)
-    );
-  }
-
   getStatus(code) {
     return this.state["status-" + code];
   }
 
   getIsVisible(code) {
-    return ANCESTORS_MAP[code].every((ancestor) =>
+    return this.props.ancestorsMap[code].every((ancestor) =>
       this.getIsExpanded(ancestor)
     );
   }
@@ -198,9 +165,13 @@ class CodelistBuilder extends React.Component {
     return this.state["expanded-" + code];
   }
 
+  getHasDescendants(code) {
+    return this.props.descendantsMap[code].length > 0;
+  }
+
   counts() {
     let counts = { "?": 0, "!": 0, "+": 0, "(+)": 0, "-": 0, "(-)": 0 };
-    CODES.forEach((code) => {
+    this.codes.forEach((code) => {
       counts[this.getStatus(code)] += 1;
     });
     counts["total"] = Object.values(counts).reduce((a, b) => a + b);
@@ -212,32 +183,33 @@ class CodelistBuilder extends React.Component {
       <div className="row">
         <div className="col-3">
           <h3 className="mb-4">Summary</h3>
-          <Filter />
+          <Filter filter={this.props.filter} />
           <Summary counts={this.counts()} />
           <hr />
 
           <h3 className="mb-4">Term searches</h3>
           <ul className="list-group">
-            {SEARCHES.map((search) => (
+            {this.props.searches.map((search) => (
               <TermSearch key={search.url} search={search} />
             ))}
           </ul>
           <hr />
 
           <h3 className="mb-4">New term search</h3>
-          <SearchForm />
+          <SearchForm searchURL={this.props.searchURL} />
         </div>
 
         <div className="col-9 pl-5">
           <h3 className="mb-4">Results</h3>
-          {TABLES.map((table) => (
+          {this.props.tables.map((table) => (
             <Table
               key={table.heading}
               table={table}
               getStatus={this.getStatus}
+              getHasDescendants={this.getHasDescendants}
               getIsVisible={this.getIsVisible}
               getIsExpanded={this.getIsExpanded}
-              isEditable={this.state.isEditable}
+              isEditable={this.props.isEditable}
               updateStatus={this.updateStatus}
               toggleVisibility={this.toggleVisibility}
             />
@@ -249,8 +221,9 @@ class CodelistBuilder extends React.Component {
 }
 
 function Filter(props) {
-  return FILTER ? (
-    <p>Filtered to {FILTER} concepts and their descendants.</p>
+  const { filter } = props;
+  return filter ? (
+    <p>Filtered to {filter} concepts and their descendants.</p>
   ) : null;
 }
 
@@ -272,8 +245,10 @@ function TermSearch(props) {
 }
 
 function SearchForm(props) {
+  const { searchURL } = props;
+
   return (
-    <form method="post" action={SEARCH_URL}>
+    <form method="post" action={searchURL}>
       <div className="form-group">
         <input
           type="hidden"
@@ -298,6 +273,7 @@ function Table(props) {
   const {
     table,
     getStatus,
+    getHasDescendants,
     getIsVisible,
     getIsExpanded,
     isEditable,
@@ -313,6 +289,7 @@ function Table(props) {
           key={ix}
           row={row}
           status={getStatus(row.code)}
+          hasDescendants={getHasDescendants(row.code)}
           isVisible={getIsVisible(row.code)}
           isExpanded={getIsExpanded(row.code)}
           isEditable={isEditable}
@@ -329,6 +306,7 @@ function Row(props) {
     row,
     ix,
     status,
+    hasDescendants,
     isVisible,
     isExpanded,
     isEditable,
@@ -362,6 +340,7 @@ function Row(props) {
         code={row.code}
         depth={row.depth}
         status={status}
+        hasDescendants={hasDescendants}
         isExpanded={isExpanded}
         toggleVisibility={toggleVisibility}
       />
@@ -395,7 +374,15 @@ function Button(props) {
 }
 
 function TermAndCode(props) {
-  const { term, code, depth, status, isExpanded, toggleVisibility } = props;
+  const {
+    term,
+    code,
+    depth,
+    status,
+    hasDescendants,
+    isExpanded,
+    toggleVisibility,
+  } = props;
 
   const indent = (depth + 1) * 1.5;
   const termStyle = {
@@ -408,7 +395,7 @@ function TermAndCode(props) {
 
   return (
     <div style={{ paddingLeft: indent + "em" }}>
-      {DESCENDANTS_MAP[code].length ? (
+      {hasDescendants ? (
         <span
           onClick={toggleVisibility.bind(null, code)}
           style={{ cursor: "pointer" }}
@@ -474,7 +461,21 @@ function getCookie(name) {
   return cookieValue;
 }
 
+function readValueFromPage(id) {
+  return JSON.parse(document.getElementById(id).textContent);
+}
+
 ReactDOM.render(
-  <CodelistBuilder />,
+  <CodelistBuilder
+    searches={readValueFromPage("searches")}
+    filter={readValueFromPage("filter")}
+    codeToStatus={readValueFromPage("code-to-status")}
+    tables={readValueFromPage("tables")}
+    ancestorsMap={readValueFromPage("ancestors-map")}
+    descendantsMap={readValueFromPage("descendants-map")}
+    isEditable={readValueFromPage("isEditable")}
+    updateURL={readValueFromPage("update-url")}
+    searchURL={readValueFromPage("search-url")}
+  />,
   document.querySelector("#codelist-builder-container")
 );

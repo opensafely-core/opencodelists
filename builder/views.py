@@ -96,21 +96,18 @@ def codelist(request, username, codelist_slug, search_slug=None):
     tables = []
 
     for type, subtrees in sorted(subtrees_by_type.items()):
-        depth = -1
         rows = []
 
         for subtree in sorted(subtrees, key=lambda st: code_to_term[list(st)[0]]):
-            for code, direction in tree_utils.walk_tree_depth_first(subtree, sort_key):
-                depth += direction
-                if direction == 1:
-                    rows.append(
-                        {
-                            "depth": depth,
-                            "code": code,
-                            "status": code_to_status[code],
-                            "term": code_to_term[code],
-                        }
-                    )
+            for code, pipes in tree_utils.walk_with_pipes(subtree, sort_key):
+                rows.append(
+                    {
+                        "code": code,
+                        "status": code_to_status[code],
+                        "term": code_to_term[code],
+                        "pipes": pipes,
+                    }
+                )
 
         table = {
             "heading": type.title(),

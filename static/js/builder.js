@@ -394,7 +394,7 @@ function TermAndCode(props) {
   };
 
   return (
-    <div style={{ "padding-left": "10px" }}>
+    <div style={{ "padding-left": "10px", "white-space": "nowrap" }}>
       {pipes.map((pipe, ix) => (
         <span
           key={ix}

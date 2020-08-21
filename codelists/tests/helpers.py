@@ -16,6 +16,30 @@ def csv_builder(contents):
     return buffer
 
 
+def build_small_tree():
+    r"""Return tree with this structure:
+
+           a
+          / \
+         b   c
+        / \ / \
+       d   e   f
+
+    (This is actually a DAG.)
+    """
+
+    edges = [
+        ("a", "b"),
+        ("a", "c"),
+        ("b", "d"),
+        ("b", "e"),
+        ("c", "e"),
+        ("c", "f"),
+    ]
+    paths = tree_utils.edges_to_paths("a", edges)
+    return tree_utils.paths_to_tree(paths)
+
+
 def build_tree():
     r"""Return tree with this structure:
 

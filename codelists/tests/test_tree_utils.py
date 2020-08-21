@@ -6,7 +6,7 @@ from django.core.management import call_command
 from codelists import tree_utils
 from codelists.coding_systems import CODING_SYSTEMS
 
-from .helpers import build_tree
+from .helpers import build_small_tree, build_tree
 
 
 def test_build_subtrees():
@@ -93,6 +93,57 @@ def test_build_descendant_subtree():
     }
 
 
+# In the following tests, build_small_tree() returns tree with this structure:
+#
+#       a
+#      / \
+#     b   c
+#    / \ / \
+#   d   e   f
+
+
+def test_walk_tree_depth_first():
+    tree = build_small_tree()
+
+    assert list(tree_utils.walk_tree_depth_first(tree)) == [
+        ("a", 1),
+        ("b", 1),
+        ("d", 1),
+        ("d", -1),
+        ("e", 1),
+        ("e", -1),
+        ("b", -1),
+        ("c", 1),
+        ("e", 1),
+        ("e", -1),
+        ("f", 1),
+        ("f", -1),
+        ("c", -1),
+        ("a", -1),
+    ]
+
+
+def test_walk_tree_depth_first_extra():
+    tree = build_small_tree()
+
+    assert list(tree_utils.walk_tree_depth_first_extra(tree)) == [
+        ("a", 0, 0, 0, 1),
+        ("b", 1, 0, 1, 1),
+        ("d", 2, 0, 1, 1),
+        ("d", 2, 0, 1, -1),
+        ("e", 2, 1, 0, 1),
+        ("e", 2, 1, 0, -1),
+        ("b", 1, 0, 1, -1),
+        ("c", 1, 1, 0, 1),
+        ("e", 2, 0, 1, 1),
+        ("e", 2, 0, 1, -1),
+        ("f", 2, 1, 0, 1),
+        ("f", 2, 1, 0, -1),
+        ("c", 1, 1, 0, -1),
+        ("a", 0, 0, 0, -1),
+    ]
+
+
 # In the following tests, build_tree() returns tree with this structure:
 #
 #       a
@@ -102,43 +153,6 @@ def test_build_descendant_subtree():
 #   d   e   f
 #  / \ / \ / \
 # g   h   i   j
-
-
-def test_walk_tree_depth_first():
-    tree = build_tree()
-
-    assert list(tree_utils.walk_tree_depth_first(tree)) == [
-        ("a", 1),
-        ("b", 1),
-        ("d", 1),
-        ("g", 1),
-        ("g", -1),
-        ("h", 1),
-        ("h", -1),
-        ("d", -1),
-        ("e", 1),
-        ("h", 1),
-        ("h", -1),
-        ("i", 1),
-        ("i", -1),
-        ("e", -1),
-        ("b", -1),
-        ("c", 1),
-        ("e", 1),
-        ("h", 1),
-        ("h", -1),
-        ("i", 1),
-        ("i", -1),
-        ("e", -1),
-        ("f", 1),
-        ("i", 1),
-        ("i", -1),
-        ("j", 1),
-        ("j", -1),
-        ("f", -1),
-        ("c", -1),
-        ("a", -1),
-    ]
 
 
 def test_build_relationship_maps():
@@ -396,3 +410,41 @@ def test_find_ancestors():
     #  / \ / \ / \
     # g   h   i   j
     assert tree_utils.find_ancestors(tree, {"e", "g", "h", "i", "j"}) == {"e", "g", "j"}
+
+
+def test_walk_with_pipes():
+    tree = build_tree()
+
+    # a
+    # ├ b
+    # │ ├ d
+    # │ │ ├ g
+    # │ │ └ h
+    # │ └ e
+    # │   ├ h
+    # │   └ i
+    # └ c
+    #   ├ e
+    #   │ ├ h
+    #   │ └ i
+    #   └ f
+    #     ├ i
+    #     └ j
+
+    assert list(tree_utils.walk_with_pipes(tree)) == [
+        ("a", []),
+        ("b", ["├"]),
+        ("d", ["│", "├"]),
+        ("g", ["│", "│", "├"]),
+        ("h", ["│", "│", "└"]),
+        ("e", ["│", "└"]),
+        ("h", ["│", " ", "├"]),
+        ("i", ["│", " ", "└"]),
+        ("c", ["└"]),
+        ("e", [" ", "├"]),
+        ("h", [" ", "│", "├"]),
+        ("i", [" ", "│", "└"]),
+        ("f", [" ", "└"]),
+        ("i", [" ", " ", "├"]),
+        ("j", [" ", " ", "└"]),
+    ]

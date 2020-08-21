@@ -1,4 +1,4 @@
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 
 from django.urls import reverse
 
@@ -157,11 +157,41 @@ def paths_to_tree(paths):
 
 
 def walk_tree_depth_first(tree, sort_key=None):
+    """Walk tree depth-first from root, yielding (node, direction) on entering
+    and exiting each node.
+
+    direction is +1 on entering a node and -1 on exiting it.
+
+    See tests for an example.
+    """
+
     def helper(tree):
         for node in sorted(tree, key=sort_key):
             yield (node, 1)
             yield from (helper(tree[node]))
             yield (node, -1)
+
+    yield from helper(tree)
+
+
+NodeWithMetadata = namedtuple(
+    "NodeWithMetadata", ["label", "depth", "left_ix", "right_ix", "direction"],
+)
+
+
+def walk_tree_depth_first_extra(tree, sort_key=None):
+    """Walk tree depth-first from root, yielding NodeWithMetadata tuples on
+    entering and exiting each node.
+
+    See tests for an example.
+    """
+
+    def helper(tree, depth=0):
+        size = len(tree)
+        for ix, node in enumerate(sorted(tree, key=sort_key)):
+            yield NodeWithMetadata(node, depth, ix, (size - 1) - ix, 1)
+            yield from (helper(tree[node], depth + 1))
+            yield NodeWithMetadata(node, depth, ix, (size - 1) - ix, -1)
 
     yield from helper(tree)
 
@@ -378,3 +408,44 @@ def find_ancestors(subtree, nodes):
 
     ancestors_map = build_ancestors_map(subtree)
     return {node for node in nodes if not ancestors_map[node] & nodes}
+
+
+def walk_with_pipes(subtree, sort_key=None):
+    """Walk tree depth-first from root, yielding (label, pipe) on entering each node.
+
+    pipe is one of:
+
+    * " "
+    * "│"
+    * "└")
+    * "├")
+
+    (┛ಠ_ಠ)┛彡┻━┻
+    """
+    stack = []
+
+    for (label, depth, left_ix, right_ix, direction) in walk_tree_depth_first_extra(
+        subtree, sort_key
+    ):
+        if direction == 1:
+            if depth == 0:
+                yield (label, stack[::])
+                continue
+
+            if stack and stack[-1] != " ":
+                stack[-1] = "│"
+
+            if right_ix == 0:
+                stack.append("└")
+            else:
+                stack.append("├")
+
+            yield (label, stack[::])
+
+            if right_ix == 0:
+                stack[depth - 1] = " "
+
+        else:
+            if depth == 0:
+                continue
+            stack.pop()

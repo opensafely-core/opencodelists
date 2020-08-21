@@ -315,9 +315,10 @@ function Row(props) {
   } = props;
 
   const style = { display: isVisible ? "flex" : "none" };
+  const className = row.pipes.length === 0 ? "mt-2" : "mt-0";
 
   return (
-    <div className="row" style={style}>
+    <div className="row" style={style} className={className}>
       <div className="btn-group btn-group-sm" role="group">
         <Button
           code={row.code}
@@ -338,7 +339,7 @@ function Row(props) {
       <TermAndCode
         term={row.term}
         code={row.code}
-        depth={row.depth}
+        pipes={row.pipes}
         status={status}
         hasDescendants={hasDescendants}
         isExpanded={isExpanded}
@@ -377,14 +378,13 @@ function TermAndCode(props) {
   const {
     term,
     code,
-    depth,
+    pipes,
     status,
     hasDescendants,
     isExpanded,
     toggleVisibility,
   } = props;
 
-  const indent = (depth + 1) * 1.5;
   const termStyle = {
     color: {
       "!": "red",
@@ -394,7 +394,19 @@ function TermAndCode(props) {
   };
 
   return (
-    <div style={{ paddingLeft: indent + "em" }}>
+    <div style={{ "padding-left": "10px", "white-space": "nowrap" }}>
+      {pipes.map((pipe, ix) => (
+        <span
+          key={ix}
+          style={{
+            display: "inline-block",
+            "text-align": "center",
+            width: "20px",
+          }}
+        >
+          {pipe}
+        </span>
+      ))}
       {hasDescendants ? (
         <span
           onClick={toggleVisibility.bind(null, code)}

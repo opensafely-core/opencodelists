@@ -408,3 +408,44 @@ def find_ancestors(subtree, nodes):
 
     ancestors_map = build_ancestors_map(subtree)
     return {node for node in nodes if not ancestors_map[node] & nodes}
+
+
+def walk_with_pipes(subtree, sort_key=None):
+    """Walk tree depth-first from root, yielding (label, pipe) on entering each node.
+
+    pipe is one of:
+
+    * " "
+    * "│"
+    * "└")
+    * "├")
+
+    (┛ಠ_ಠ)┛彡┻━┻
+    """
+    stack = []
+
+    for (label, depth, left_ix, right_ix, direction) in walk_tree_depth_first_extra(
+        subtree, sort_key
+    ):
+        if direction == 1:
+            if depth == 0:
+                yield (label, stack[::])
+                continue
+
+            if stack and stack[-1] != " ":
+                stack[-1] = "│"
+
+            if right_ix == 0:
+                stack.append("└")
+            else:
+                stack.append("├")
+
+            yield (label, stack[::])
+
+            if right_ix == 0:
+                stack[depth - 1] = " "
+
+        else:
+            if depth == 0:
+                continue
+            stack.pop()

@@ -315,9 +315,10 @@ function Row(props) {
   } = props;
 
   const style = { display: isVisible ? "flex" : "none" };
+  const className = row.pipes.length === 0 ? "mt-2" : "mt-0";
 
   return (
-    <div className="row" style={style}>
+    <div className="row" style={style} className={className}>
       <div className="btn-group btn-group-sm" role="group">
         <Button
           code={row.code}

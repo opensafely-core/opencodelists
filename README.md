@@ -89,3 +89,9 @@ On the server, use `with_environment.sh` to run a management command in the virt
 ```
 ./with_environment.sh ./manage.py shell
 ```
+
+## Glossary
+* `Parent`: immediate parent of a child
+* `Child`: immediate child of parent
+* `Ancestors`: All parents to the root of a hierarchy
+* `Descendants`: All children to the leaves of the hierarchy

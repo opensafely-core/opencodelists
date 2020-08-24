@@ -16,10 +16,14 @@ class DefinitionElement:
      * how to express the above two and it's code as a query string
     """
 
-    def __init__(self, code, excluded=False, includes_children=False):
+    def __init__(self, code, name, excluded=False, includes_children=False):
         self.code = code
+        self.name = name
         self.excluded = excluded
         self.includes_children = includes_children
+
+        # missing: should be shown?
+        # missing:
 
         self.fragment = str(self.code)
         if self.excluded:
@@ -59,7 +63,10 @@ class DefinitionElement:
         else:
             includes_children = False
 
-        return cls(fragment, excluded=excluded, includes_children=includes_children)
+        print(f"Generating DefinitionElement from: {fragment}")
+        return cls(
+            fragment, name="", excluded=excluded, includes_children=includes_children
+        )
 
 
 class Definition:
@@ -69,8 +76,10 @@ class Definition:
     A Codelist is defined as a set of Concepts, a subset of a Coding System.
     """
 
-    def __init__(self, elements):
+    def __init__(self, tree, elements, descendants_map):
+        self.tree = tree
         self.elements = set(elements)
+        self.descendants_map = descendants_map
 
     def excluded_elements(self):
         for e in self.elements:
@@ -82,39 +91,14 @@ class Definition:
             if not e.excluded:
                 yield e
 
-    def codes(self, tree):
-        """
-        Get a Definition's Concept codes.
-
-        Generate a set of codes for this Definition from it's
-        DefinitionElements.
-        """
-        codes = set()
-        descendants_map = tree_utils.build_descendants_map(tree)
-
-        for e in self.included_elements():
-            codes.add(e.code)
-            if e.includes_children:
-                codes |= descendants_map[e.code]
-
-        for e in self.excluded_elements():
-            try:
-                codes.remove(e.code)
-            except KeyError:
-                print(e.code)
-                pass
-            if e.includes_children:
-                codes -= descendants_map[e.code]
-
-        return codes
-
     @classmethod
     def from_query(cls, fragments):
         elements = [DefinitionElement.from_fragment(f) for f in fragments]
+        print(f"Created {len(elements)} elements")
         return cls(elements)
 
     @classmethod
-    def from_codes(cls, codes, tree, r=0.25):
+    def from_codes(cls, code_to_name, codes, tree, r=0.25):
         """
         Generate a Definition from the given codes.
 
@@ -138,6 +122,7 @@ class Definition:
                     yield from helper(tree[code])
                     continue
 
+                name = code_to_name[code]
                 descendants = descendants_map[code]
                 descendants_not_in_codes = descendants - codes
                 if descendants:
@@ -146,10 +131,10 @@ class Definition:
                     ratio = 1
 
                 if ratio < r:
-                    yield DefinitionElement(code, includes_children=True)
+                    yield DefinitionElement(code, name, includes_children=True)
                     yield from negative_helper(tree[code])
                 else:
-                    yield DefinitionElement(code)
+                    yield DefinitionElement(code, name)
                     yield from helper(tree[code])
 
         def negative_helper(tree):
@@ -158,11 +143,14 @@ class Definition:
                     yield from negative_helper(tree[code])
                     continue
 
+                name = code_to_name[code]
                 descendants = descendants_map[code]
                 if descendants and not descendants & codes:
-                    yield DefinitionElement(code, excluded=True, includes_children=True)
+                    yield DefinitionElement(
+                        code, name, excluded=True, includes_children=True
+                    )
                 else:
-                    yield DefinitionElement(code, excluded=True)
+                    yield DefinitionElement(code, name, excluded=True)
                     yield from negative_helper(tree[code])
 
         elements = list(helper(tree))
@@ -188,7 +176,45 @@ class Definition:
                 excluded_codes -= descendants_map[e.code]
         elements = [e for e in elements if e.excluded or e.code in excluded_codes]
 
-        return cls(elements)
+        return cls(tree, elements, descendants_map)
+
+    @classmethod
+    def from_dag(cls, dag):
+        pass
+
+
+def build_codes(included_elements, excluded_elements, tree):
+    """Build a set of codes based on the given included/excluded DefinitionElements"""
+    codes = set()
+    descendants_map = tree_utils.build_descendants_map(tree)
+
+    for e in included_elements:
+        codes.add(e.code)
+        if e.includes_children:
+            codes |= descendants_map[e.code]
+
+    for e in excluded_elements:
+        try:
+            codes.remove(e.code)
+        except KeyError:
+            print(e.code)
+            pass
+        if e.includes_children:
+            codes -= descendants_map[e.code]
+
+    return codes
+
+
+def codes_from_query(coding_system, fragments):
+    elements = [DefinitionElement.from_fragment(f) for f in fragments]
+
+    included_elements = [e for e in elements if not e.excluded]
+    excluded_elements = [e for e in elements if e.excluded]
+
+    subtree = tree_utils.build_subtree(coding_system, [e.code for e in elements])
+    print(subtree)
+
+    return build_codes(included_elements, excluded_elements, subtree)
 
 
 @attr.s
@@ -216,10 +242,10 @@ class Row:
     all_descendants: bool = attr.ib(default=True)
 
 
-def iter_definitions(elements, code_to_name, descendants_map, excluded=None):
+def iter_rows(elements, descendants_map, excluded=None):
     for element in elements:
         row = Row(
-            name=code_to_name[element.code],
+            name=element.name,
             code=element.code,
             all_descendants=element.includes_children,
         )
@@ -235,21 +261,14 @@ def iter_definitions(elements, code_to_name, descendants_map, excluded=None):
         ]
 
         # generate excluded children
-        row.excluded_children = list(
-            iter_definitions(excluded_children, code_to_name, descendants_map)
-        )
+        row.excluded_children = list(iter_rows(excluded_children, descendants_map))
 
         yield attr.asdict(row)
 
 
-def build_definition(coding_system, subtree, definition):
-    code_to_name = coding_system.lookup_names([e.code for e in definition.elements])
+def build_rows(subtree, definition):
     descendants_map = tree_utils.build_descendants_map(subtree)
 
-    def sort_key(e):
-        return code_to_name[e.code]
-
-    elements = sorted(definition.included_elements(), key=sort_key)
-    excluded = sorted(definition.excluded_elements(), key=sort_key)
-
-    return list(iter_definitions(elements, code_to_name, descendants_map, excluded))
+    elements = sorted(definition.included_elements(), key=lambda e: e.name)
+    excluded = sorted(definition.excluded_elements(), key=lambda e: e.name)
+    return list(iter_rows(elements, descendants_map, excluded))

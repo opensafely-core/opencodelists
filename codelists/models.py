@@ -8,7 +8,7 @@ from django.utils.text import slugify
 
 from . import tree_utils
 from .coding_systems import CODING_SYSTEMS
-from .definition import Definition, build_definition
+from .definition import Definition, build_rows
 
 
 class Codelist(models.Model):
@@ -127,6 +127,7 @@ class CodelistVersion(models.Model):
 
     def build_definition(self):
         """
+        Build a Definition instance from this Version.
         """
         if self.coding_system_id in ["ctv3", "ctv3tpp"]:
             coding_system = CODING_SYSTEMS["ctv3"]
@@ -135,7 +136,7 @@ class CodelistVersion(models.Model):
 
         subtree = tree_utils.build_subtree(coding_system, self.codes)
         definition = Definition.from_codes(self.codes, subtree)
-        return build_definition(coding_system, subtree, definition)
+        return build_rows(coding_system, subtree, definition)
 
 
 class SignOff(models.Model):

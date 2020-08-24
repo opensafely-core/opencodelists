@@ -6,8 +6,7 @@ import csv
 from django.core.management import BaseCommand
 
 from codelists.coding_systems import CODING_SYSTEMS
-from codelists.definition import Definition
-from codelists.tree_utils import build_subtree
+from codelists.definition import codes_from_query
 
 
 class Command(BaseCommand):
@@ -19,12 +18,12 @@ class Command(BaseCommand):
 
     def handle(self, path, fragments, **kwargs):
         coding_system = CODING_SYSTEMS["snomedct"]
-        definition = Definition.from_query(fragments)
-        subtree = build_subtree(coding_system, [e.code for e in definition.elements])
-        codes = definition.codes(subtree)
+
+        codes = sorted(codes_from_query(coding_system, fragments))
+
         code_to_name = coding_system.lookup_names(codes)
 
-        with open(path, "w") as f:
+        with open(path, "w", newline="") as f:
             writer = csv.writer(f)
             writer.writerow(["id", "name"])
             for code in codes:

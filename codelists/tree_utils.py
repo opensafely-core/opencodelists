@@ -1,5 +1,52 @@
 from collections import defaultdict, namedtuple
 
+from django.urls import reverse
+
+
+def build_html_tree_highlighting_codes(coding_system, subtree, definition):
+    # TODO: can we move this to Definition?
+    from .definition import build_codes
+
+    codes = build_codes(
+        definition.included_elements, definition.excluded_elements, subtree
+    )
+    codes_in_definition = {e.code for e in definition.unnegated_elements()}
+    codes_in_tree = set(walk_tree_depth_first(subtree))
+    code_to_name = coding_system.lookup_names(codes_in_tree)
+    sort_key = code_to_name.__getitem__
+
+    lines = []
+    last_direction = 1
+    for code, direction in walk_tree_depth_first(subtree, sort_key):
+        if direction == last_direction == 1:
+            lines.append("<ul>")
+        elif direction == last_direction == -1:
+            lines.append("</ul>")
+
+        last_direction = direction
+
+        if direction == -1:
+            continue
+
+        if code in codes:
+            colour = "blue"
+        else:
+            colour = "black"
+
+        style = f"color: {colour}"
+
+        if code in codes_in_definition:
+            style += "; text-decoration: underline"
+
+        name = code_to_name[code]
+        url = reverse(f"{coding_system.id}:concept", args=[code])
+
+        lines.append(
+            f'<li><a href="{url}" style="{style}">{name}</a> (<code>{code}</code>)</li>'
+        )
+
+    return "\n".join(lines)
+
 
 def build_subtree(coding_system, codes):
     r"""Build a "slice" of the coding system's hierarchy, containing just the given
@@ -38,11 +85,23 @@ def build_subtree(coding_system, codes):
     }
     """
 
+    # print(f"sub tree codes: {codes}")
     ancestor_relationships = coding_system.ancestor_relationships(codes)
+    print(
+        f"ancestor_relationships ({len(ancestor_relationships)}): {ancestor_relationships}"
+    )
     descendant_relationships = coding_system.descendant_relationships(codes)
+    print(
+        f"descendant_relationships ({len(descendant_relationships)}): {descendant_relationships}"
+    )
     edges = ancestor_relationships + descendant_relationships
+    # print(f"edges from ancestors & descendants: {edges}")
+    print(f"root: {coding_system.root}")
     paths = edges_to_paths(coding_system.root, edges)
-    return paths_to_tree(paths)
+    # print(f"paths: {paths}")
+    tree = paths_to_tree(paths)
+    # print(f"tree: {tree}")
+    return tree
 
 
 def build_descendant_subtree(coding_system, code):
@@ -88,17 +147,28 @@ def edges_to_paths(root, edges):
     for parent, child in edges:
         map[parent].add(child)
 
+    print(f"edges: {edges}")
+
     paths = []
     todo = [[root]]
-
     while todo:
+        # import ipdb
+
+        # ipdb.set_trace()
+        # print(f"todo: {todo}")
+
         path = todo.pop()
+        # print(f"path: {path}")
         next_nodes = map[path[-1]]
+        # print(f"next nodes: {next_nodes}")
         if not next_nodes:
+            # print(f"Paths added: {path}")
             paths.append(path)
         else:
             for next_node in next_nodes:
+                # print(f"Todo added: {path + [next_node]}")
                 todo.append(path + [next_node])
+        # print(f"paths: {paths}")
 
     return paths
 

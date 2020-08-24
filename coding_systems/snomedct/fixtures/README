@@ -10,7 +10,7 @@ This directory contains the following JSON fixtures, which contain a slice of th
 
 They were generated with eg:
 
-  ./manage.py generate_snomedct_hierarchy_fixture 202855006 --path coding_systems/snomedct/fixtures/tennis-elbow.json
+  ./manage.py generate_snomedct_hierarchy_fixture 202855006 --path coding_systems/snomedct/fixtures/tennis-elbow2.json
 
 They can be loaded with eg:
 

@@ -122,7 +122,7 @@ class Hierarchy:
         )
 
     def filter_to_ultimate_ancestors(self, nodes):
-        """Return subset of nodes which have no ancestors in given set of nodes.
+        """Given a set of nodes, return subset which have no ancestors in the set.
         """
 
         return {node for node in nodes if not self.ancestors(node) & nodes}

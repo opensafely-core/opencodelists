@@ -1,4 +1,4 @@
-from codelists.hierarchy import Hierarchy
+from codelists.hierarchy import Hierarchy, NodeWithMetadata
 
 
 def build_small_hierarchy():
@@ -119,42 +119,50 @@ def test_walk_depth_first_as_tree_from_root():
     hierarchy = build_small_hierarchy()
 
     assert list(hierarchy.walk_depth_first_as_tree()) == [
-        ("a", 0, 0, 0, 1),
-        ("b", 1, 0, 1, 1),
-        ("d", 2, 0, 1, 1),
-        ("d", 2, 0, 1, -1),
-        ("e", 2, 1, 0, 1),
-        ("e", 2, 1, 0, -1),
-        ("b", 1, 0, 1, -1),
-        ("c", 1, 1, 0, 1),
-        ("e", 2, 0, 1, 1),
-        ("e", 2, 0, 1, -1),
-        ("f", 2, 1, 0, 1),
-        ("f", 2, 1, 0, -1),
-        ("c", 1, 1, 0, -1),
-        ("a", 0, 0, 0, -1),
+        NodeWithMetadata(label="a", depth=0, left_ix=0, right_ix=0, direction=1),
+        NodeWithMetadata(label="b", depth=1, left_ix=0, right_ix=1, direction=1),
+        NodeWithMetadata(label="d", depth=2, left_ix=0, right_ix=1, direction=1),
+        NodeWithMetadata(label="d", depth=2, left_ix=0, right_ix=1, direction=-1),
+        NodeWithMetadata(label="e", depth=2, left_ix=1, right_ix=0, direction=1),
+        NodeWithMetadata(label="e", depth=2, left_ix=1, right_ix=0, direction=-1),
+        NodeWithMetadata(label="b", depth=1, left_ix=0, right_ix=1, direction=-1),
+        NodeWithMetadata(label="c", depth=1, left_ix=1, right_ix=0, direction=1),
+        NodeWithMetadata(label="e", depth=2, left_ix=0, right_ix=1, direction=1),
+        NodeWithMetadata(label="e", depth=2, left_ix=0, right_ix=1, direction=-1),
+        NodeWithMetadata(label="f", depth=2, left_ix=1, right_ix=0, direction=1),
+        NodeWithMetadata(label="f", depth=2, left_ix=1, right_ix=0, direction=-1),
+        NodeWithMetadata(label="c", depth=1, left_ix=1, right_ix=0, direction=-1),
+        NodeWithMetadata(label="a", depth=0, left_ix=0, right_ix=0, direction=-1),
     ]
 
+
+def test_walk_depth_first_as_tree_from_intermediate_node():
+    hierarchy = build_small_hierarchy()
+
     assert list(hierarchy.walk_depth_first_as_tree(starting_node="b")) == [
-        ("b", 0, 0, 0, 1),
-        ("d", 1, 0, 1, 1),
-        ("d", 1, 0, 1, -1),
-        ("e", 1, 1, 0, 1),
-        ("e", 1, 1, 0, -1),
-        ("b", 0, 0, 0, -1),
+        NodeWithMetadata(label="b", depth=0, left_ix=0, right_ix=0, direction=1),
+        NodeWithMetadata(label="d", depth=1, left_ix=0, right_ix=1, direction=1),
+        NodeWithMetadata(label="d", depth=1, left_ix=0, right_ix=1, direction=-1),
+        NodeWithMetadata(label="e", depth=1, left_ix=1, right_ix=0, direction=1),
+        NodeWithMetadata(label="e", depth=1, left_ix=1, right_ix=0, direction=-1),
+        NodeWithMetadata(label="b", depth=0, left_ix=0, right_ix=0, direction=-1),
     ]
+
+
+def test_walk_depth_first_as_tree_with_sort_key():
+    hierarchy = build_small_hierarchy()
 
     assert list(
         hierarchy.walk_depth_first_as_tree(
             starting_node="b", sort_key=lambda label: -ord(label)
         )
     ) == [
-        ("b", 0, 0, 0, 1),
-        ("e", 1, 0, 1, 1),
-        ("e", 1, 0, 1, -1),
-        ("d", 1, 1, 0, 1),
-        ("d", 1, 1, 0, -1),
-        ("b", 0, 0, 0, -1),
+        NodeWithMetadata(label="b", depth=0, left_ix=0, right_ix=0, direction=1),
+        NodeWithMetadata(label="e", depth=1, left_ix=0, right_ix=1, direction=1),
+        NodeWithMetadata(label="e", depth=1, left_ix=0, right_ix=1, direction=-1),
+        NodeWithMetadata(label="d", depth=1, left_ix=1, right_ix=0, direction=1),
+        NodeWithMetadata(label="d", depth=1, left_ix=1, right_ix=0, direction=-1),
+        NodeWithMetadata(label="b", depth=0, left_ix=0, right_ix=0, direction=-1),
     ]
 
 

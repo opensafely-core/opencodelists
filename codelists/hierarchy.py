@@ -94,16 +94,32 @@ class Hierarchy:
             children = self.child_map[node]
             size = len(children)
             for ix, child in enumerate(sorted(children, key=sort_key)):
-                yield NodeWithMetadata(child, depth, ix, (size - 1) - ix, 1)
+                yield NodeWithMetadata(
+                    label=child,
+                    depth=depth,
+                    left_ix=ix,
+                    right_ix=(size - 1) - ix,
+                    direction=1,
+                )
                 yield from (helper(child, depth + 1))
-                yield NodeWithMetadata(child, depth, ix, (size - 1) - ix, -1)
+                yield NodeWithMetadata(
+                    label=child,
+                    depth=depth,
+                    left_ix=ix,
+                    right_ix=(size - 1) - ix,
+                    direction=-1,
+                )
 
         if starting_node is None:
             starting_node = self.root
 
-        yield NodeWithMetadata(starting_node, 0, 0, 0, 1)
+        yield NodeWithMetadata(
+            label=starting_node, depth=0, left_ix=0, right_ix=0, direction=1
+        )
         yield from helper(starting_node, 1)
-        yield NodeWithMetadata(starting_node, 0, 0, 0, -1)
+        yield NodeWithMetadata(
+            label=starting_node, depth=0, left_ix=0, right_ix=0, direction=-1
+        )
 
     def filter_to_ultimate_ancestors(self, nodes):
         """Return subset of nodes which have no ancestors in given set of nodes.

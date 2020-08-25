@@ -55,7 +55,7 @@ class Hierarchy:
             m[child].add(parent)
         return m
 
-    @lru_cache(None)
+    @lru_cache(maxsize=None)
     def descendants(self, node):
         """Return set of descendants of node.
 
@@ -69,7 +69,7 @@ class Hierarchy:
             descendants |= self.descendants(child)
         return descendants
 
-    @lru_cache(None)
+    @lru_cache(maxsize=None)
     def ancestors(self, node):
         """Return set of ancestors of node.
 

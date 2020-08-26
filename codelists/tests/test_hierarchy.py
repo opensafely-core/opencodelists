@@ -193,9 +193,7 @@ def test_filter_to_ultimate_ancestors():
     #      .   .
     #     / \ / \
     #    d   e   f
-    assert hierarchy.filter_to_ultimate_ancestors({"a", "b", "c", "d", "e", "f"}) == {
-        "a"
-    }
+    assert hierarchy.filter_to_ultimate_ancestors({"a", "d", "e", "f"}) == {"a"}
 
 
 def test_update_node_to_status():

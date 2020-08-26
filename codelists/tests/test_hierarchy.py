@@ -152,6 +152,7 @@ def test_walk_depth_first_as_tree_from_intermediate_node():
 def test_walk_depth_first_as_tree_with_sort_key():
     hierarchy = build_small_hierarchy()
 
+    # The sort_key means that nodes are visited in reverse alphabetical order
     assert list(
         hierarchy.walk_depth_first_as_tree(
             starting_node="b", sort_key=lambda label: -ord(label)

@@ -38,7 +38,7 @@ SignOffFormSet = forms.modelformset_factory(SignOff, form=SignOffForm, can_delet
 
 class CSVValidationMixin:
     def clean_csv_data(self):
-        data = self.cleaned_data["csv_data"].read().decode("utf-8")
+        data = self.cleaned_data["csv_data"].read().decode("utf-8-sig")
 
         reader = csv.reader(StringIO(data))
         num_columns = len(next(reader))  # expected to be headers

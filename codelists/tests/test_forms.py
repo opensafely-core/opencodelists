@@ -7,6 +7,19 @@ from codelists.forms import CSVValidationMixin
 from .helpers import csv_builder
 
 
+def test_csvvalidation_byte_order_mark():
+    form = CSVValidationMixin()
+
+    # wrap CSV up in SimpleUploadedFile to mirror how a Django view would
+    # handle it
+    csv_data = "code,description\n1067731000000107,Injury"
+    upload_file = csv_builder("\ufeff" + csv_data)
+    uploaded_file = SimpleUploadedFile("our csv", upload_file.read())
+    form.cleaned_data = {"csv_data": uploaded_file}
+
+    assert form.clean_csv_data() == csv_data
+
+
 def test_csvvalidation_correct_csv_column_count():
     form = CSVValidationMixin()
 

@@ -2,6 +2,16 @@ from django.db import models
 
 
 class Mapping(models.Model):
+    """
+    Mappings between CTV3 and SNOMED Concepts.
+
+    NHS Digital has published mappings between Concepts in the CTV3 and SNOMED
+    coding systems [1].  We ingest those mappings and store them with this
+    model.
+
+    1: https://isd.digital.nhs.uk/trud3/user/authenticated/group/0/pack/8/subpack/9/releases
+    """
+
     id = models.UUIDField(primary_key=True)
     ctv3_concept = models.ForeignKey(
         "ctv3.Concept",

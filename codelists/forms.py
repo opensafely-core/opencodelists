@@ -4,6 +4,7 @@ from io import StringIO
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 from django import forms
+from django.utils.text import slugify
 
 from .models import Codelist, CodelistVersion, Reference, SignOff
 
@@ -36,6 +37,38 @@ class SignOffForm(forms.ModelForm):
 SignOffFormSet = forms.modelformset_factory(SignOff, form=SignOffForm, can_delete=True)
 
 
+class CodelistUniquenessMixin:
+    def full_clean(self):
+        """
+        Override full_clean() to validate Name and Slug are unique to a Project.
+
+        The Codelist forms don't include `project` or `slug` fields.  However,
+        Codelists are unique based on the Project, Name, and Slug, and we still
+        want to take advantage of Django's ModelForm validation handling so we
+        can report non-unique errors to the user.
+
+        This method calls ModelForm's full_clean() to copy values from the form
+        to the instance.  Both the Create and Update views pass in an instance
+        (either with just a Project or with the existing Codelist which also
+        has it's Project).  It then generates a Slug before validating
+        uniqueness of the instance and adding errors if appropriate.
+        """
+        # Call super()'s full_clean to populate the Codelist instance with
+        # values from the form.
+        super().full_clean()
+
+        # populate the instance's slug so the validate_unique() check below can
+        # use it to check uniqueness
+        self.instance.slug = slugify(self.instance.name)
+
+        # Validate uniqueness of the instance now it's been populated with
+        # values from the form and the Project instance.
+        try:
+            self.instance.validate_unique()
+        except forms.ValidationError as e:
+            self._update_errors(e)
+
+
 class CSVValidationMixin:
     def clean_csv_data(self):
         data = self.cleaned_data["csv_data"].read().decode("utf-8-sig")
@@ -56,7 +89,7 @@ class CSVValidationMixin:
         return data
 
 
-class CodelistCreateForm(forms.ModelForm, CSVValidationMixin):
+class CodelistCreateForm(CodelistUniquenessMixin, forms.ModelForm, CSVValidationMixin):
     csv_data = forms.FileField(label="CSV data")
 
     class Meta:
@@ -69,7 +102,7 @@ class CodelistCreateForm(forms.ModelForm, CSVValidationMixin):
         super().__init__(*args, **kwargs)
 
 
-class CodelistUpdateForm(forms.ModelForm):
+class CodelistUpdateForm(CodelistUniquenessMixin, forms.ModelForm):
     class Meta:
         fields = [
             "name",

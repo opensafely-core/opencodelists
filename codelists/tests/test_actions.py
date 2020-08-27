@@ -1,6 +1,8 @@
 import pytest
+from django.db import IntegrityError
 
 from codelists import actions
+from codelists.models import Codelist
 from opencodelists.tests.factories import ProjectFactory
 
 from . import factories
@@ -28,6 +30,31 @@ def test_create_codelist():
     clv = cl.versions.get()
     assert clv.version_str == "2020-07-23"
     assert "whilst swimming" in clv.csv_data
+
+
+def test_create_codelist_with_duplicate_name():
+    p = ProjectFactory()
+
+    actions.create_codelist(
+        project=p,
+        name="Test",
+        coding_system_id="snomedct",
+        description="This is a test",
+        methodology="This is how we did it",
+        csv_data="code,description\n1067731000000107,Injury whilst swimming (disorder)",
+    )
+
+    with pytest.raises(IntegrityError):
+        actions.create_codelist(
+            project=p,
+            name="Test",
+            coding_system_id="snomedct",
+            description="This is a test",
+            methodology="This is how we did it",
+            csv_data="code,description\n1067731000000107,Injury whilst swimming (disorder)",
+        )
+
+    assert Codelist.objects.filter(name="Test").count() == 1
 
 
 def test_create_version_on_same_day():

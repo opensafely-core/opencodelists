@@ -7,6 +7,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.http import Http404
 from pytest_django.asserts import assertContains, assertRedirects
 
+from codelists.actions import create_codelist
 from codelists.views import (
     CodelistCreate,
     CodelistUpdate,
@@ -137,6 +138,51 @@ def test_codelistcreate_when_not_logged_in(client):
     assertRedirects(rsp, f"/accounts/login/?next=%2Fcodelist%2F{p.slug}%2F")
 
 
+def test_codelistcreate_with_duplicate_name(rf):
+    project = ProjectFactory()
+
+    create_codelist(
+        project=project,
+        name="Test",
+        coding_system_id="snomedct",
+        description="This is a test",
+        methodology="This is how we did it",
+        csv_data="code,description\n1067731000000107,Injury whilst swimming (disorder)",
+    )
+
+    assert project.codelists.count() == 1
+
+    csv_data = "code,description\n1067731000000107,Injury whilst swimming (disorder)"
+    data = {
+        "name": "Test",
+        "coding_system_id": "snomedct",
+        "description": "This is a test",
+        "methodology": "This is how we did it",
+        "csv_data": csv_builder(csv_data),
+        "reference-TOTAL_FORMS": "0",
+        "reference-INITIAL_FORMS": "0",
+        "reference-MIN_NUM_FORMS": "0",
+        "reference-MAX_NUM_FORMS": "1000",
+        "signoff-TOTAL_FORMS": "0",
+        "signoff-INITIAL_FORMS": "0",
+        "signoff-MIN_NUM_FORMS": "0",
+        "signoff-MAX_NUM_FORMS": "1000",
+    }
+
+    request = rf.post("/", data=data)
+    request.user = UserFactory()
+    response = CodelistCreate.as_view()(request, project_slug=project.slug)
+
+    assert project.codelists.count() == 1
+
+    # we're returning an HTML response when there are errors so check we don't
+    # receive a redirect code
+    assert response.status_code == 200
+
+    # confirm we have errors from the codelist form
+    assert response.context_data["codelist_form"].errors
+
+
 def test_codelistupdate_invalid_post(rf):
     codelist = CodelistFactory()
     signoff_1 = SignOffFactory(codelist=codelist)
@@ -255,6 +301,40 @@ def test_codelistupdate_when_not_logged_in(rf):
 
     assert response.status_code == 302
     assert response.url == "/accounts/login/?next=/the/current/url/"
+
+
+def test_codelistupdate_with_duplicate_name(rf):
+    project = ProjectFactory()
+
+    CodelistFactory(name="Existing Codelist", project=project)
+    codelist = CodelistFactory(project=project)
+
+    data = {
+        "project": codelist.project.slug,
+        "name": "Existing Codelist",
+        "coding_system_id": "snomedct",
+        "description": "This is a test CHANGED",
+        "methodology": "This is how we did it",
+        "reference-TOTAL_FORMS": "0",
+        "reference-INITIAL_FORMS": "0",
+        "reference-MIN_NUM_FORMS": "0",
+        "reference-MAX_NUM_FORMS": "1000",
+        "signoff-TOTAL_FORMS": "0",
+        "signoff-INITIAL_FORMS": "0",
+        "signoff-MIN_NUM_FORMS": "0",
+        "signoff-MAX_NUM_FORMS": "1000",
+    }
+
+    request = rf.post("/", data=data)
+    request.user = UserFactory()
+    response = CodelistUpdate.as_view()(
+        request, project_slug=codelist.project.slug, codelist_slug=codelist.slug
+    )
+
+    assert response.status_code == 200
+
+    # confirm we have errors from the codelist form
+    assert response.context_data["codelist_form"].errors
 
 
 def test_codelist(client):

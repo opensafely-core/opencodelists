@@ -215,13 +215,13 @@ def build_html_definition(coding_system, hierarchy, definition):
 
     code_to_name = coding_system.lookup_names([rule.code for rule in definition.rules])
 
-    def sort_key(rule):
-        return code_to_name[rule.code]
+    def name_for_rule(rule):
+        return code_to_name.get(rule.code, "Unknown code (a TPP Y-code?)")
 
     lines = ["<ul>"]
 
-    for rule in sorted(definition.including_rules(), key=sort_key):
-        name = code_to_name[rule.code]
+    for rule in sorted(definition.including_rules(), key=name_for_rule):
+        name = name_for_rule(rule)
         url = reverse(f"{coding_system.id}:concept", args=[rule.code])
         style = "color: blue"
 
@@ -238,8 +238,10 @@ def build_html_definition(coding_system, hierarchy, definition):
                 )
                 lines.append('<ul class="mb-0">')
 
-                for excluding_rule in sorted(matching_excluding_rules, key=sort_key):
-                    name = code_to_name[excluding_rule.code]
+                for excluding_rule in sorted(
+                    matching_excluding_rules, key=name_for_rule
+                ):
+                    name = name_for_rule(rule)
                     url = reverse(
                         f"{coding_system.id}:concept", args=[excluding_rule.code]
                     )

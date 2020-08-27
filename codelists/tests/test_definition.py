@@ -4,24 +4,21 @@ from hypothesis import given, settings
 from hypothesis import strategies as st
 
 from codelists.definition import Definition
-from codelists.tree_utils import edges_to_paths, paths_to_tree
+from codelists.hierarchy import Hierarchy
 
 
 @st.composite
-def dags(draw, size):
-    """Construct a directed acyclic graph with `size` nodes.
-
-    Returns dict mapping node to a set of its children.  Nodes are labelled 0
-    to `size`-1, with 0 as the root.
+def hierarchies(draw, size):
+    """Build a Hierarchy with `size` nodes.
 
     Based on an indea by @Zac-HD at https://github.com/HypothesisWorks/hypothesis/issues/2464.
     """
 
-    node_to_children = {i: set() for i in range(size)}
+    edges = []
     for child_id in range(1, size):
         for parent_id in draw(st.sets(st.sampled_from(range(child_id)), min_size=1)):
-            node_to_children[parent_id].add(child_id)
-    return node_to_children
+            edges.append((parent_id, child_id))
+    return Hierarchy("0", edges)
 
 
 class DefinitionTests(TestCase):
@@ -50,8 +47,7 @@ class DefinitionTests(TestCase):
             ("5", "10"),
             ("5", "11"),
         ]
-        paths = edges_to_paths("0", edges)
-        tree = paths_to_tree(paths)
+        hierarchy = Hierarchy("0", edges)
 
         for codes, query in [
             # the root element
@@ -77,25 +73,20 @@ class DefinitionTests(TestCase):
             ),
         ]:
             with self.subTest(codes=codes, query=query):
-                defn1 = Definition.from_codes(codes, tree)
-                self.assertEqual(sorted(str(e) for e in defn1.elements), sorted(query))
-                self.assertEqual(defn1.codes(tree), codes)
+                defn1 = Definition.from_codes(codes, hierarchy)
+                self.assertEqual(sorted(str(r) for r in defn1.rules), sorted(query))
+                self.assertEqual(defn1.codes(hierarchy), codes)
 
                 defn2 = Definition.from_query(query)
-                self.assertEqual(sorted(str(e) for e in defn2.elements), sorted(query))
-                self.assertEqual(defn2.codes(tree), codes)
+                self.assertEqual(sorted(str(r) for r in defn2.rules), sorted(query))
+                self.assertEqual(defn2.codes(hierarchy), codes)
 
     @settings(deadline=None)
-    @given(dags(24), st.sets(st.sampled_from(range(16))), st.floats(0.1, 0.5))
-    def test_roundtrip(self, dag, codes, r):
-        edges = [
-            (parent, child) for parent, children in dag.items() for child in children
-        ]
-        paths = edges_to_paths(0, edges)
-        tree = paths_to_tree(paths)
-        definition = Definition.from_codes(codes, tree, r)
-        self.assertEqual(definition.codes(tree), codes)
-        fragments = [e.fragment for e in definition.elements]
+    @given(hierarchies(24), st.sets(st.sampled_from(range(16))), st.floats(0.1, 0.5))
+    def test_roundtrip(self, hierarchy, codes, r):
+        definition = Definition.from_codes(codes, hierarchy, r)
+        self.assertEqual(definition.codes(hierarchy), codes)
+        fragments = [rule.fragment for rule in definition.rules]
         self.assertEqual(len(fragments), len(set(fragments)))
-        definition_codes = [e.code for e in definition.elements]
+        definition_codes = [rule.code for rule in definition.rules]
         self.assertEqual(len(definition_codes), len(set(definition_codes)))

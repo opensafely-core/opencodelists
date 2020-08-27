@@ -3,9 +3,9 @@ from collections import defaultdict, namedtuple
 from django.urls import reverse
 
 
-def build_html_tree_highlighting_codes(coding_system, subtree, definition):
-    codes = definition.codes(subtree)
-    codes_in_definition = {e.code for e in definition.unnegated_elements()}
+def build_html_tree_highlighting_codes(coding_system, hierarchy, subtree, definition):
+    codes = definition.codes(hierarchy)
+    codes_in_definition = {r.code for r in definition.including_rules()}
     codes_in_tree = set(walk_tree_depth_first(subtree))
     code_to_name = coding_system.lookup_names(codes_in_tree)
     sort_key = code_to_name.__getitem__

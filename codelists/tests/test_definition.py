@@ -78,11 +78,15 @@ class DefinitionTests(TestCase):
         ]:
             with self.subTest(codes=codes, query=query):
                 defn1 = Definition.from_codes(codes, tree)
-                self.assertEqual(sorted(str(e) for e in defn1.elements), sorted(query))
+                self.assertEqual(
+                    sorted(str(rule) for rule in defn1.rules), sorted(query)
+                )
                 self.assertEqual(defn1.codes(tree), codes)
 
                 defn2 = Definition.from_query(query)
-                self.assertEqual(sorted(str(e) for e in defn2.elements), sorted(query))
+                self.assertEqual(
+                    sorted(str(rule) for rule in defn2.rules), sorted(query)
+                )
                 self.assertEqual(defn2.codes(tree), codes)
 
     @settings(deadline=None)
@@ -95,7 +99,7 @@ class DefinitionTests(TestCase):
         tree = paths_to_tree(paths)
         definition = Definition.from_codes(codes, tree, r)
         self.assertEqual(definition.codes(tree), codes)
-        fragments = [e.fragment for e in definition.elements]
+        fragments = [rule.fragment for rule in definition.rules]
         self.assertEqual(len(fragments), len(set(fragments)))
-        definition_codes = [e.code for e in definition.elements]
+        definition_codes = [rule.code for rule in definition.rules]
         self.assertEqual(len(definition_codes), len(set(definition_codes)))

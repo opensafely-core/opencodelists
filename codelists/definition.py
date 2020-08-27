@@ -241,7 +241,7 @@ def build_html_definition(coding_system, hierarchy, definition):
                 for excluding_rule in sorted(
                     matching_excluding_rules, key=name_for_rule
                 ):
-                    name = name_for_rule(rule)
+                    name = name_for_rule(excluding_rule)
                     url = reverse(
                         f"{coding_system.id}:concept", args=[excluding_rule.code]
                     )

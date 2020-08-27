@@ -1,7 +1,5 @@
 from django.urls import reverse
 
-from . import tree_utils
-
 
 class Definition:
     """Represents a set of rules that define a list of codes.  Each rule indicates
@@ -29,18 +27,17 @@ class Definition:
             if not rule.code_is_excluded:
                 yield rule
 
-    def codes(self, tree):
+    def codes(self, hierarchy):
         """Return set of codes that is defined by the rules.
         """
 
         codes = set()
-        descendants_map = tree_utils.build_descendants_map(tree)
 
         for rule in self.including_rules():
             codes.add(rule.code)
 
             if rule.applies_to_descendants:
-                codes |= descendants_map[rule.code]
+                codes |= hierarchy.descendants(rule.code)
 
         for rule in self.excluding_rules():
             try:
@@ -50,7 +47,7 @@ class Definition:
                 pass
 
             if rule.applies_to_descendants:
-                codes -= descendants_map[rule.code]
+                codes -= hierarchy.descendants(rule.code)
 
         return codes
 
@@ -65,50 +62,61 @@ class Definition:
         return cls(rules)
 
     @classmethod
-    def from_codes(cls, codes, tree, r=0.25):
-        """Build definition from collection of codes.
+    def from_codes(cls, codes, hierarchy, r=0.25):
+        """Build definition from set of codes.
 
-        This code will change significantly in an upcoming commit, when it will have a
-        proper docstring.
+        We add a DefinitionRule for each code that is an ultimate ancestor of other
+        codes in the set.
+
+        For each code that is an ultimate ancester:
+
+        * If the node has no descendants,  we add a DefinitionRule that applies only to
+        the code.
+
+        * If all the node's descendants are included in the set, we add a DefinitionRule
+        that applies to that code and all its descendants.
+
+        * If the proporition of a code's descendants that are missing from the
+        set of codes is less than r, we add a DefinitionRule that applies to that code
+        and all its descendants, and add extra rules that exclude the descendants that
+        are missing.
+
+        * Otherwise, we add a DefinitionRule for that code that does not apply to its
+        descendants.  We then add further rules, by constructing a temporary definition
+        for just the descendants of this code.
         """
 
-        codes = set(codes)
-        descendants_map = tree_utils.build_descendants_map(tree)
+        rules = []
 
-        def helper(tree):
-            for code in sorted(tree):
-                if code in codes:
-                    descendants = descendants_map[code]
-                    descendants_not_in_codes = descendants - codes
-                    if descendants:
-                        ratio = len(descendants_not_in_codes) / len(descendants)
-                    else:
-                        ratio = 1
+        for ancestor in hierarchy.filter_to_ultimate_ancestors(codes):
+            descendants = hierarchy.descendants(ancestor)
 
-                    if ratio < r:
-                        yield DefinitionRule(code, applies_to_descendants=True)
-                        yield from negative_helper(tree[code])
-                    else:
-                        yield DefinitionRule(code)
-                        yield from helper(tree[code])
-                else:
-                    yield from helper(tree[code])
+            if len(descendants) == 0:
+                # This node has no descendants.
+                rules.append(DefinitionRule(ancestor))
+                continue
 
-        def negative_helper(tree):
-            for code in sorted(tree):
-                if code not in codes:
-                    descendants = descendants_map[code]
-                    if descendants and not descendants & codes:
-                        yield DefinitionRule(
-                            code, code_is_excluded=True, applies_to_descendants=True
-                        )
-                    else:
-                        yield DefinitionRule(code, code_is_excluded=True)
-                        yield from negative_helper(tree[code])
-                else:
-                    yield from negative_helper(tree[code])
+            descendants_not_in_codes = descendants - codes
 
-        rules = list(helper(tree))
+            if len(descendants_not_in_codes) == 0:
+                # All of this node's descendants are included.
+                rules.append(DefinitionRule(ancestor, applies_to_descendants=True))
+                continue
+
+            ratio = len(descendants_not_in_codes) / len(descendants)
+
+            if ratio < r:
+                # Most of this node's descendants are included...
+                rules.append(DefinitionRule(ancestor, applies_to_descendants=True))
+                for descendant in descendants_not_in_codes:
+                    # ...but a handful are excluded.
+                    rules.append(DefinitionRule(descendant, code_is_excluded=True))
+                continue
+
+            # Only some of this node's descendants are included.
+            rules.append(DefinitionRule(ancestor))
+            sub_definition = Definition.from_codes(descendants & codes, hierarchy, r)
+            rules.extend(sub_definition.rules)
 
         # Remove any rules that are included unnecessarily.
         #
@@ -128,7 +136,7 @@ class Definition:
         included_codes = {rule.code for rule in rules if not rule.code_is_excluded}
         for rule in rules:
             if rule.applies_to_descendants:
-                included_codes -= descendants_map[rule.code]
+                included_codes -= hierarchy.descendants(rule.code)
         rules = [
             rule
             for rule in rules
@@ -198,7 +206,7 @@ class DefinitionRule:
         )
 
 
-def build_html_definition(coding_system, subtree, definition):
+def build_html_definition(coding_system, hierarchy, definition):
     """Render a Definition as HTML.
 
     This code will change significantly in an upcoming commit, when it will have a
@@ -206,7 +214,6 @@ def build_html_definition(coding_system, subtree, definition):
     """
 
     code_to_name = coding_system.lookup_names([rule.code for rule in definition.rules])
-    descendants_map = tree_utils.build_descendants_map(subtree)
 
     def sort_key(rule):
         return code_to_name[rule.code]
@@ -222,7 +229,7 @@ def build_html_definition(coding_system, subtree, definition):
             matching_excluding_rules = [
                 excluding_rule
                 for excluding_rule in definition.excluding_rules()
-                if excluding_rule.code in descendants_map[rule.code]
+                if excluding_rule.code in hierarchy.descendants(rule.code)
             ]
 
             if matching_excluding_rules:

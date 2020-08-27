@@ -3,66 +3,6 @@ from django.urls import reverse
 from . import tree_utils
 
 
-class DefinitionRule:
-    """An element of a definition.  Indicates whether a given code is included or
-    excluded in a list of codes, and whether the inclusion/exclusion applies to the
-    code's descendants too.
-    """
-
-    def __init__(self, code, code_is_excluded=False, applies_to_descendants=False):
-        self.code = code
-        self.code_is_excluded = code_is_excluded
-        self.applies_to_descendants = applies_to_descendants
-
-        self.fragment = str(self.code)
-        if self.code_is_excluded:
-            self.fragment = "~" + self.fragment
-        if self.applies_to_descendants:
-            self.fragment = self.fragment + "<"
-
-    def __str__(self):
-        return self.fragment
-
-    def __repr__(self):
-        return f"[DefinitionRule {self.fragment}]"
-
-    def __eq__(self, other):
-        return type(self) == type(other) and self.fragment == other.fragment
-
-    def __hash__(self):
-        return hash(self.fragment)
-
-    @classmethod
-    def from_fragment(cls, fragment):
-        """Build DefinitionRule from string fragment.
-
-        The fragment will have one of the following formats:
-
-        * "XYZ" -- XYZ is included
-        * "XYZ<" -- XYZ is included with all its descendants
-        * "~XYZ" -- XYZ is excluded
-        * "~XYZ<" -- XYZ is excluded with all its descendants
-        """
-
-        if fragment[0] == "~":
-            code_is_excluded = True
-            fragment = fragment[1:]
-        else:
-            code_is_excluded = False
-
-        if fragment[-1] == "<":
-            applies_to_descendants = True
-            fragment = fragment[:-1]
-        else:
-            applies_to_descendants = False
-
-        return cls(
-            fragment,
-            code_is_excluded=code_is_excluded,
-            applies_to_descendants=applies_to_descendants,
-        )
-
-
 class Definition:
     """Represents a set of rules that define a list of codes.  Each rule indicates
     whether a given code is included (an "including rule") or excluded (an "excluding
@@ -74,7 +14,7 @@ class Definition:
         self.rules = set(rules)
 
     def excluding_rules(self):
-        """Yield rules that exclude a code (and possible that code's descendants).
+        """Yield rules that exclude a code (and possibly that code's descendants).
         """
 
         for rule in self.rules:
@@ -82,7 +22,7 @@ class Definition:
                 yield rule
 
     def including_rules(self):
-        """Yield rules that include a code (and possible that code's descendants).
+        """Yield rules that include a code (and possibly that code's descendants).
         """
 
         for rule in self.rules:
@@ -196,6 +136,66 @@ class Definition:
         ]
 
         return cls(rules)
+
+
+class DefinitionRule:
+    """An element of a definition.  Indicates whether a given code is included or
+    excluded in a list of codes, and whether the inclusion/exclusion applies to the
+    code's descendants too.
+    """
+
+    def __init__(self, code, code_is_excluded=False, applies_to_descendants=False):
+        self.code = code
+        self.code_is_excluded = code_is_excluded
+        self.applies_to_descendants = applies_to_descendants
+
+        self.fragment = str(self.code)
+        if self.code_is_excluded:
+            self.fragment = "~" + self.fragment
+        if self.applies_to_descendants:
+            self.fragment = self.fragment + "<"
+
+    def __str__(self):
+        return self.fragment
+
+    def __repr__(self):
+        return f"[DefinitionRule {self.fragment}]"
+
+    def __eq__(self, other):
+        return type(self) == type(other) and self.fragment == other.fragment
+
+    def __hash__(self):
+        return hash(self.fragment)
+
+    @classmethod
+    def from_fragment(cls, fragment):
+        """Build DefinitionRule from string fragment.
+
+        The fragment will have one of the following formats:
+
+        * "XYZ" -- XYZ is included
+        * "XYZ<" -- XYZ is included with all its descendants
+        * "~XYZ" -- XYZ is excluded
+        * "~XYZ<" -- XYZ is excluded with all its descendants
+        """
+
+        if fragment[0] == "~":
+            code_is_excluded = True
+            fragment = fragment[1:]
+        else:
+            code_is_excluded = False
+
+        if fragment[-1] == "<":
+            applies_to_descendants = True
+            fragment = fragment[:-1]
+        else:
+            applies_to_descendants = False
+
+        return cls(
+            fragment,
+            code_is_excluded=code_is_excluded,
+            applies_to_descendants=applies_to_descendants,
+        )
 
 
 def build_html_definition(coding_system, subtree, definition):

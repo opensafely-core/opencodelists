@@ -41,4 +41,4 @@ def test_do_search():
         "298163003",
     }
 
-    assert search_results["ancestor_codes"] == ["116309007"]  # Finding of elbow region
+    assert search_results["ancestor_codes"] == {"116309007"}  # Finding of elbow region

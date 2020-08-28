@@ -26,6 +26,7 @@ def search(term):
 
 
 def ancestor_relationships(codes):
+    codes = list(codes)
     placeholders = ", ".join(["%s"] * len(codes))
     sql = f"""
     WITH RECURSIVE tree(parent_id, child_id) AS (
@@ -56,6 +57,7 @@ def ancestor_relationships(codes):
 
 
 def descendant_relationships(codes):
+    codes = list(codes)
     placeholders = ", ".join(["%s"] * len(codes))
     sql = f"""
     WITH RECURSIVE tree(parent_id, child_id) AS (

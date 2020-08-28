@@ -21,7 +21,7 @@ class ProjectFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Project
 
-    name = "Test Project"
+    name = factory.Sequence(lambda n: f"Test Project {n}")
     url = "https://test.org"
     details = "This is a test"
 

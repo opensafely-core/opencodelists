@@ -31,7 +31,7 @@ def test_create_codelist():
 
 
 def test_create_version_on_same_day():
-    cl = factories.create_codelist()
+    cl = factories.CodelistFactory()
     clv = actions.create_version(
         codelist=cl,
         csv_data="code,description\n1068181000000106, Injury whilst synchronised swimming (disorder)",
@@ -42,7 +42,7 @@ def test_create_version_on_same_day():
 
 
 def test_create_version_on_next_day(freezer):
-    cl = factories.create_codelist()
+    cl = factories.CodelistFactory()
     freezer.move_to("2020-07-24")
     clv = actions.create_version(
         codelist=cl,

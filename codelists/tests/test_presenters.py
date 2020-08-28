@@ -8,7 +8,7 @@ from codelists import presenters
 from codelists.definition import Definition
 from codelists.hierarchy import Hierarchy
 
-from .factories import create_codelist
+from .factories import CodelistFactory
 
 pytestmark = [
     pytest.mark.filterwarnings(
@@ -23,7 +23,7 @@ def test_build_html_tree_highlighting_codes():
     call_command("loaddata", fixtures_path / "tennis-elbow.json")
 
     with open(fixtures_path / "disorder-of-elbow-excl-arthritis.csv") as f:
-        cl = create_codelist(csv_data=f.read())
+        cl = CodelistFactory(csv_data=f.read())
 
     coding_system = cl.coding_system
     clv = cl.versions.get()

@@ -7,7 +7,6 @@ from django.core.management import call_command
 from codelists import presenters
 from codelists.definition import Definition
 from codelists.hierarchy import Hierarchy
-from codelists.tree_utils import build_subtree
 
 from .factories import create_codelist
 
@@ -28,12 +27,11 @@ def test_build_html_tree_highlighting_codes():
 
     coding_system = cl.coding_system
     clv = cl.versions.get()
-    subtree = build_subtree(coding_system, clv.codes)
     hierarchy = Hierarchy.from_codes(coding_system, clv.codes)
     definition = Definition.from_codes(set(clv.codes), hierarchy)
 
     html = presenters.build_html_tree_highlighting_codes(
-        coding_system, hierarchy, subtree, definition
+        coding_system, hierarchy, definition
     )
 
     with open(

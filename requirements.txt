@@ -23,8 +23,10 @@ django-cors-headers==3.4.0  # via -r requirements.in
 django-crispy-forms==1.9.2  # via -r requirements.in
 django-debug-toolbar==2.2  # via -r requirements.in
 django-extensions==3.0.5  # via -r requirements.in
+django-ipware==3.0.1      # via django-structlog
 django-markdown-filter==0.0.1  # via -r requirements.in
-django==3.1               # via -r requirements.in, django-cors-headers, django-debug-toolbar, django-markdown-filter
+django-structlog==1.6.1   # via -r requirements.in
+django==3.1               # via -r requirements.in, django-cors-headers, django-debug-toolbar, django-markdown-filter, django-structlog
 fabric3==1.14.post1       # via -r requirements.in
 factory-boy==3.0.1        # via -r requirements.in
 faker==4.1.1              # via factory-boy
@@ -65,9 +67,10 @@ pytz==2020.1              # via django
 pyyaml==5.3.1             # via pre-commit
 regex==2020.4.4           # via black
 sentry-sdk==0.17.0        # via -r requirements.in
-six==1.14.0               # via bcrypt, bleach, configobj, cryptography, fabric3, freezegun, packaging, pip-tools, pynacl, python-dateutil, virtualenv
+six==1.14.0               # via bcrypt, bleach, configobj, cryptography, fabric3, freezegun, packaging, pip-tools, pynacl, python-dateutil, structlog, virtualenv
 sortedcontainers==2.1.0   # via hypothesis
 sqlparse==0.3.1           # via django, django-debug-toolbar, litecli
+structlog==20.1.0         # via -r requirements.in, django-structlog
 tabulate[widechars]==0.8.7  # via cli-helpers
 terminaltables==3.1.0     # via cli-helpers
 text-unidecode==1.3       # via faker

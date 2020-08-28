@@ -4,10 +4,12 @@ django-crispy-forms
 django-cors-headers
 django-debug-toolbar
 django-markdown-filter
+django-structlog
 gunicorn
 pysqlite3-binary
 whitenoise
 sentry-sdk
+structlog
 
 # test
 factory_boy

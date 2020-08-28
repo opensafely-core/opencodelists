@@ -1,9 +1,12 @@
 import string
 from datetime import date
 
+import structlog
 from django.db import transaction
 
 from opencodelists.models import User
+
+logger = structlog.get_logger()
 
 
 def create_codelist(
@@ -37,18 +40,28 @@ def create_codelist(
             for signoff in signoffs:
                 create_signoff(codelist=codelist, **signoff)
 
+    logger.info("Created Codelist", codelist_pk=codelist.pk)
+
     return codelist
 
 
 def create_reference(*, codelist, text, url):
     """Create a new Reference for the given Codelist."""
-    return codelist.references.create(text=text, url=url)
+    ref = codelist.references.create(text=text, url=url)
+
+    logger.info("Created Reference", reference_pk=ref.pk, codelist_pk=codelist.pk)
+
+    return ref
 
 
 def create_signoff(*, codelist, user, date):
     """Create a new SignOff for the given Codelist."""
     user = User.objects.get(username=user)
-    return codelist.signoffs.create(user=user, date=date)
+    signoff = codelist.signoffs.create(user=user, date=date)
+
+    logger.info("Created SignOff", signoff_pk=signoff.pk, codelist_pk=codelist.pk)
+
+    return signoff
 
 
 def create_version(*, codelist, csv_data):
@@ -63,7 +76,14 @@ def create_version(*, codelist, csv_data):
     version_strs = [base_version_str] + [f"{base_version_str}-{s}" for s in suffixes]
     for version_str in version_strs:
         if not codelist.versions.filter(version_str=version_str).exists():
-            return codelist.versions.create(version_str=version_str, csv_data=csv_data)
+            version = codelist.versions.create(
+                version_str=version_str, csv_data=csv_data
+            )
+
+            logger.info("Created Version", version_pk=version.pk)
+
+            return version
+
     raise ValueError("E_TOO_MANY_VERSIONS")
 
 
@@ -81,6 +101,8 @@ def update_codelist(
 
     codelist.save()
 
+    logger.info("Updated Codelist", codelist_pk=codelist.pk)
+
     return codelist
 
 
@@ -91,6 +113,8 @@ def update_version(*, version, csv_data):
     version.csv_data = csv_data
     version.save()
 
+    logger.info("Updated Version", version_pk=version.pk)
+
 
 def publish_version(*, version):
     """Publish a version."""
@@ -98,5 +122,7 @@ def publish_version(*, version):
     assert version.is_draft
     version.is_draft = False
     version.save()
+
+    logger.info("Published Version", version_pk=version.pk)
 
     return version

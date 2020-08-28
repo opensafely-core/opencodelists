@@ -10,7 +10,7 @@ from django.views.generic import FormView, TemplateView
 
 from opencodelists.models import Project
 
-from . import actions, tree_utils
+from . import actions
 from .coding_systems import CODING_SYSTEMS
 from .definition import Definition, build_html_definition
 from .forms import (
@@ -24,6 +24,7 @@ from .forms import (
 )
 from .hierarchy import Hierarchy
 from .models import Codelist, CodelistVersion
+from .presenters import build_html_tree_highlighting_codes
 
 
 def index(request):
@@ -276,9 +277,8 @@ def version(request, project_slug, codelist_slug, qualified_version_str):
         definition = Definition.from_codes(set(clv.codes), hierarchy)
         html_definition = build_html_definition(coding_system, hierarchy, definition)
         if clv.coding_system_id in ["ctv3", "ctv3tpp"]:
-            subtree = tree_utils.build_subtree(coding_system, clv.codes)
-            html_tree = tree_utils.build_html_tree_highlighting_codes(
-                coding_system, hierarchy, subtree, definition
+            html_tree = build_html_tree_highlighting_codes(
+                coding_system, hierarchy, definition
             )
         else:
             html_tree = None

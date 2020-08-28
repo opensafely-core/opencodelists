@@ -9,13 +9,13 @@ https://docs.djangoproject.com/en/3.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
-
-
 import os
 import sys
 
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
+
+from services.logging import logging_config_dict
 
 # Patch sqlite3 to ensure recent version
 __import__("pysqlite3")
@@ -80,6 +80,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
+    "django_structlog.middlewares.RequestMiddleware",
 ]
 
 ROOT_URLCONF = "opencodelists.urls"
@@ -156,34 +157,7 @@ WHITENOISE_USE_FINDERS = True
 
 
 # Logging
-
-# fmt: off
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "handlers": {
-        "console": {
-            "class": "logging.StreamHandler",
-        },
-    },
-    "root": {
-        "handlers": ["console"],
-        "level": "WARNING",
-    },
-    "loggers": {
-        "django": {
-            "handlers": ["console"],
-            "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
-            "propagate": False,
-        },
-        "django.db.backends": {
-            "handlers": ["console"],
-            "level": "DEBUG" if os.getenv("DJANGO_LOG_DB") else "INFO",
-            "propagate": False,
-        },
-    },
-}
-# fmt: on
+LOGGING = logging_config_dict
 
 
 # Tests

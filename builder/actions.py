@@ -1,16 +1,23 @@
 from collections import defaultdict
 
+import structlog
 from django.db import transaction
 from django.db.models import Count
 from django.utils.text import slugify
 
 from codelists.hierarchy import Hierarchy
 
+logger = structlog.get_logger()
+
 
 def create_codelist(*, owner, name, coding_system_id):
-    return owner.draft_codelists.create(
+    codelist = owner.draft_codelists.create(
         name=name, slug=slugify(name), coding_system_id=coding_system_id
     )
+
+    logger.info("Create Codelist", codelist_pk=codelist.pk)
+
+    return codelist
 
 
 @transaction.atomic
@@ -18,15 +25,23 @@ def create_search(*, codelist, term, codes):
     search = codelist.searches.create(term=term, slug=slugify(term))
     for code in codes:
         search.results.create(code=codelist.codes.get_or_create(code=code)[0])
+
+    logger.info("Created Search", search_pk=search.pk)
+
     return search
 
 
 @transaction.atomic
 def delete_search(*, search):
+    # Grab the PK before we delete the instance
+    search_pk = search.pk
+
     search.delete()
     search.codelist.codes.annotate(num_results=Count("results")).filter(
         num_results=0
     ).delete()
+
+    logger.info("Deleted Search", search_pk=search_pk)
 
 
 @transaction.atomic
@@ -41,3 +56,5 @@ def update_code_statuses(*, codelist, updates):
 
     for status, codes in status_to_new_code.items():
         codelist.codes.filter(code__in=codes).update(status=status)
+
+    logger.info("Updated Codelist Statuses", codelist_pk=codelist.pk)

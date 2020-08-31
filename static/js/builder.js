@@ -328,13 +328,13 @@ function TermAndCode(props) {
   };
 
   return (
-    <div style={{ "padding-left": "10px", "white-space": "nowrap" }}>
+    <div style={{ paddingLeft: "10px", whiteSpace: "nowrap" }}>
       {pipes.map((pipe, ix) => (
         <span
           key={ix}
           style={{
             display: "inline-block",
-            "text-align": "center",
+            textAlign: "center",
             width: "20px",
           }}
         >

@@ -47,7 +47,7 @@ def test_tree_tables():
     call_command("loaddata", fixtures_path / "tennis-elbow.json")
 
     with open(fixtures_path / "disorder-of-elbow.csv") as f:
-        cl = create_codelist(csv_data=f.read())
+        cl = CodelistFactory(csv_data=f.read())
 
     clv = cl.versions.get()
     code_to_term_and_type = {

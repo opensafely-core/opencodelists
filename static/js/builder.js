@@ -6,7 +6,7 @@ class CodelistBuilder extends React.Component {
 
     this.state = { updateQueue: [], updating: false };
 
-    this.codes = Object.keys(props.ancestorsMap);
+    this.codes = props.hierarchy.nodes;
     this.codes.forEach((code) => {
       this.state["status-" + code] = props.codeToStatus[code];
       this.state["expanded-" + code] = true;
@@ -22,87 +22,21 @@ class CodelistBuilder extends React.Component {
 
   updateStatus(code, status) {
     this.setState((state, props) => {
-      const ancestorsMap = this.props.ancestorsMap;
-      const descendantsMap = this.props.descendantsMap;
+      let codeToStatus = {};
+      this.codes.forEach((c) => (codeToStatus[c] = state["status-" + c]));
 
-      let included = this.codes.filter(
-        (c) => state["status-" + c] === "+" && c !== code
+      const updates = updateCodeToStatus(
+        props.hierarchy,
+        codeToStatus,
+        code,
+        status
       );
-      let excluded = this.codes.filter(
-        (c) => state["status-" + c] === "-" && c !== code
-      );
-
-      if (status === "+" && state["status-" + code] !== "+") {
-        included.push(code);
-      } else if (status === "-" && state["status-" + code] !== "-") {
-        excluded.push(code);
-      }
-
-      included = new Set(included);
-      excluded = new Set(excluded);
-
-      function newStatus(code) {
-        // This function duplicates the logic of codelists.tree_utils.render
-
-        if (included.has(code)) {
-          // this node is explicitly included
-          return "+";
-        }
-        if (excluded.has(code)) {
-          // this node is explicitly excluded
-          return "-";
-        }
-
-        // these are the ancestors of the node
-        const ancestors = ancestorsMap[code];
-
-        // these are the ancestors of the node that are directly included or excluded
-        const includedOrExcludedAncestors = ancestors.filter(
-          (a) => included.has(a) || excluded.has(a)
-        );
-
-        // these are the ancestors of the node that are directly included or excluded,
-        // and which are not overridden by any of their descendants
-        const significantIncludedOrExcludedAncestors = includedOrExcludedAncestors.filter(
-          (a) =>
-            !descendantsMap[a].some((d) =>
-              includedOrExcludedAncestors.includes(d)
-            )
-        );
-
-        // these are the significant included ancestors of the node
-        const includedAncestors = significantIncludedOrExcludedAncestors.filter(
-          (a) => included.has(a)
-        );
-
-        // these are the significant excluded ancestors of the node
-        const excludedAncestors = significantIncludedOrExcludedAncestors.filter(
-          (a) => excluded.has(a)
-        );
-
-        if (includedAncestors.length === 0 && excludedAncestors.length === 0) {
-          // no ancestors are included or excluded, so this node is neither excluded or
-          // excluded
-          return "?";
-        }
-
-        if (includedAncestors.length > 0 && excludedAncestors.length === 0) {
-          // some ancestors are included and none are excluded, so this node is included
-          return "(+)";
-        }
-
-        if (excludedAncestors.length > 0 && includedAncestors.length === 0) {
-          // some ancestors are excluded and none are included, so this node is excluded
-          return "(-)";
-        }
-
-        // some ancestors are included and some are excluded, and neither set of
-        // ancestors overrides the other
-        return "!";
-      }
 
       let newState = {};
-      this.codes.forEach((c) => (newState["status-" + c] = newStatus(c)));
+      Object.keys(updates).forEach(
+        (c) => (newState["status-" + c] = updates[c])
+      );
+
       newState.updateQueue = state.updateQueue.concat([
         [code, newState["status-" + code]],
       ]);
@@ -156,7 +90,7 @@ class CodelistBuilder extends React.Component {
   }
 
   getIsVisible(code) {
-    return this.props.ancestorsMap[code].every((ancestor) =>
+    return getAncestors(this.props.hierarchy, code).every((ancestor) =>
       this.getIsExpanded(ancestor)
     );
   }
@@ -166,7 +100,7 @@ class CodelistBuilder extends React.Component {
   }
 
   getHasDescendants(code) {
-    return this.props.descendantsMap[code].length > 0;
+    return getDescendants(this.props.hierarchy, code).length > 0;
   }
 
   counts() {
@@ -394,13 +328,13 @@ function TermAndCode(props) {
   };
 
   return (
-    <div style={{ "padding-left": "10px", "white-space": "nowrap" }}>
+    <div style={{ paddingLeft: "10px", whiteSpace: "nowrap" }}>
       {pipes.map((pipe, ix) => (
         <span
           key={ix}
           style={{
             display: "inline-block",
-            "text-align": "center",
+            textAlign: "center",
             width: "20px",
           }}
         >
@@ -477,17 +411,398 @@ function readValueFromPage(id) {
   return JSON.parse(document.getElementById(id).textContent);
 }
 
+function Hierarchy(parentMap, childMap) {
+  this.nodes = Object.keys(parentMap);
+  this.parentMap = parentMap;
+  this.childMap = childMap;
+  this.ancestorMap = {};
+  this.descendantMap = {};
+}
+
+function getAncestors(hierarchy, node) {
+  if (!hierarchy.ancestorMap.hasOwnProperty(node)) {
+    let ancestors = [];
+    for (let parent of hierarchy.parentMap[node]) {
+      ancestors.push(parent);
+      for (let ancestor of getAncestors(hierarchy, parent)) {
+        ancestors.push(ancestor);
+      }
+    }
+
+    hierarchy.ancestorMap[node] = ancestors;
+  }
+
+  return hierarchy.ancestorMap[node];
+}
+
+function getDescendants(hierarchy, node) {
+  if (!hierarchy.descendantMap.hasOwnProperty(node)) {
+    let descendants = [];
+    for (let child of hierarchy.childMap[node]) {
+      descendants.push(child);
+      for (let descendant of getDescendants(hierarchy, child)) {
+        descendants.push(descendant);
+      }
+    }
+
+    hierarchy.descendantMap[node] = descendants;
+  }
+
+  return hierarchy.descendantMap[node];
+}
+
+function updateCodeToStatus(hierarchy, codeToStatus, code, status) {
+  let included = Object.keys(codeToStatus).filter(
+    (c) => codeToStatus[c] === "+" && c !== code
+  );
+  let excluded = Object.keys(codeToStatus).filter(
+    (c) => codeToStatus[c] === "-" && c !== code
+  );
+
+  if (status === "+" && codeToStatus[code] !== "+") {
+    included.push(code);
+  } else if (status === "-" && codeToStatus[code] !== "-") {
+    excluded.push(code);
+  }
+
+  let updates = { [code]: codeStatus(hierarchy, code, included, excluded) };
+  for (let descendant of getDescendants(hierarchy, code)) {
+    updates[descendant] = codeStatus(hierarchy, descendant, included, excluded);
+  }
+
+  return updates;
+}
+
+function codeStatus(hierarchy, code, included, excluded) {
+  if (included.includes(code)) {
+    // this code is explicitly included
+    return "+";
+  }
+  if (excluded.includes(code)) {
+    // this code is explicitly excluded
+    return "-";
+  }
+
+  // these are the ancestors of the code
+  const ancestors = getAncestors(hierarchy, code);
+
+  // these are the ancestors of the code that are directly included or excluded
+  const includedOrExcludedAncestors = ancestors.filter(
+    (a) => included.includes(a) || excluded.includes(a)
+  );
+
+  if (includedOrExcludedAncestors.length === 0) {
+    // no ancestors are included or excluded, so this code is neither excluded or
+    // excluded
+    return "?";
+  }
+
+  // these are the ancestors of the code that are directly included or excluded,
+  // and which are not overridden by any of their descendants
+  const significantIncludedOrExcludedAncestors = includedOrExcludedAncestors.filter(
+    (a) =>
+      !getDescendants(hierarchy, a).some((d) =>
+        includedOrExcludedAncestors.includes(d)
+      )
+  );
+
+  // these are the significant included ancestors of the code
+  const includedAncestors = significantIncludedOrExcludedAncestors.filter((a) =>
+    included.includes(a)
+  );
+
+  // these are the significant excluded ancestors of the code
+  const excludedAncestors = significantIncludedOrExcludedAncestors.filter((a) =>
+    excluded.includes(a)
+  );
+
+  if (includedAncestors.length > 0 && excludedAncestors.length === 0) {
+    // some ancestors are included and none are excluded, so this code is included
+    return "(+)";
+  }
+
+  if (excludedAncestors.length > 0 && includedAncestors.length === 0) {
+    // some ancestors are excluded and none are included, so this code is excluded
+    return "(-)";
+  }
+
+  // some ancestors are included and some are excluded, and neither set of
+  // ancestors overrides the other
+  return "!";
+}
+
+// Next on my list is learning how to write tests properly!
+
+function testUpdateCodeToStatus() {
+  console.log("testUpdateCodeToStatus");
+  const hierarchy = buildTestHierarchy();
+  const codeToStatus = {
+    //        ?
+    //       / \
+    //      +   -
+    //     / \ / \
+    //   (+)  !  (-)
+    //   / \ / \ / \
+    // (+)  !   !  (-)
+    a: "?",
+    b: "+",
+    c: "-",
+    d: "(+)",
+    e: "!",
+    f: "(-)",
+    g: "(+)",
+    h: "!",
+    i: "!",
+    j: "(-)",
+  };
+
+  const updates = updateCodeToStatus(hierarchy, codeToStatus, "c", "-");
+  const expected = {
+    //        ?
+    //       / \
+    //      +   ?
+    //     / \ / \
+    //   (+) (+)  ?
+    //   / \ / \ / \
+    // (+) (+) (+)  ?
+    c: "?",
+    e: "(+)",
+    f: "?",
+    h: "(+)",
+    i: "(+)",
+    j: "?",
+  };
+
+  if (checkEqual(updates, expected)) {
+    console.log("passed");
+  } else {
+    console.log("failed");
+    alert("testUpdateCodeToStatus failed");
+  }
+}
+
+function testNodeToStatus() {
+  function subTest(ix, included, excluded, expected) {
+    console.log(`testNodeToStatus ${ix}`);
+    const hierarchy = buildTestHierarchy();
+
+    let codeToStatus = {};
+    hierarchy.nodes.forEach((node) => {
+      codeToStatus[node] = codeStatus(hierarchy, node, included, excluded);
+    });
+
+    if (checkEqual(codeToStatus, expected)) {
+      console.log("passed");
+    } else {
+      console.log("failed");
+      alert(`testNodeToStatus ${ix} failed`);
+    }
+  }
+
+  subTest(1, [], [], {
+    //        ?
+    //       / \
+    //      ?   ?
+    //     / \ / \
+    //    ?   ?   ?
+    //   / \ / \ / \
+    //  ?   ?   ?   ?
+    a: "?",
+    b: "?",
+    c: "?",
+    d: "?",
+    e: "?",
+    f: "?",
+    g: "?",
+    h: "?",
+    i: "?",
+    j: "?",
+  });
+
+  subTest(2, ["a"], [], {
+    //        +
+    //       / \
+    //     (+) (+)
+    //     / \ / \
+    //   (+) (+) (+)
+    //   / \ / \ / \
+    // (+) (+) (+) (+)
+    a: "+",
+    b: "(+)",
+    c: "(+)",
+    d: "(+)",
+    e: "(+)",
+    f: "(+)",
+    g: "(+)",
+    h: "(+)",
+    i: "(+)",
+    j: "(+)",
+  });
+
+  subTest(3, ["b"], ["c"], {
+    //        ?
+    //       / \
+    //      +   -
+    //     / \ / \
+    //   (+)  !  (-)
+    //   / \ / \ / \
+    // (+)  !   !  (-)
+    a: "?",
+    b: "+",
+    c: "-",
+    d: "(+)",
+    e: "!",
+    f: "(-)",
+    g: "(+)",
+    h: "!",
+    i: "!",
+    j: "(-)",
+  });
+
+  subTest(4, ["a", "b"], [], {
+    //        +
+    //       / \
+    //      +  (+)
+    //     / \ / \
+    //   (+) (+) (+)
+    //   / \ / \ / \
+    // (+) (+) (+) (+)
+    a: "+",
+    b: "+",
+    c: "(+)",
+    d: "(+)",
+    e: "(+)",
+    f: "(+)",
+    g: "(+)",
+    h: "(+)",
+    i: "(+)",
+    j: "(+)",
+  });
+
+  subTest(5, ["a"], ["b"], {
+    //        +
+    //       / \
+    //      -  (+)
+    //     / \ / \
+    //   (-) (-) (+)
+    //   / \ / \ / \
+    // (-) (-) (-) (+)
+    a: "+",
+    b: "-",
+    c: "(+)",
+    d: "(-)",
+    e: "(-)",
+    f: "(+)",
+    g: "(-)",
+    h: "(-)",
+    i: "(-)",
+    j: "(+)",
+  });
+
+  subTest(6, ["a"], ["b", "c"], {
+    //        +
+    //       / \
+    //      -   -
+    //     / \ / \
+    //   (-) (-) (-)
+    //   / \ / \ / \
+    // (-) (-) (-) (-)
+    a: "+",
+    b: "-",
+    c: "-",
+    d: "(-)",
+    e: "(-)",
+    f: "(-)",
+    g: "(-)",
+    h: "(-)",
+    i: "(-)",
+    j: "(-)",
+  });
+
+  subTest(7, ["a", "e"], ["b", "c"], {
+    //        +
+    //       / \
+    //      -   -
+    //     / \ / \
+    //   (-)  +  (-)
+    //   / \ / \ / \
+    // (-) (+) (+) (-)
+    a: "+",
+    b: "-",
+    c: "-",
+    d: "(-)",
+    e: "+",
+    f: "(-)",
+    g: "(-)",
+    h: "(+)",
+    i: "(+)",
+    j: "(-)",
+  });
+}
+
+function buildTestHierarchy() {
+  const parentMap = {
+    a: [],
+    b: ["a"],
+    c: ["a"],
+    d: ["b"],
+    e: ["b", "c"],
+    f: ["c"],
+    g: ["d"],
+    h: ["d", "e"],
+    i: ["e", "f"],
+    j: ["f"],
+  };
+  const childMap = {
+    a: ["b", "c"],
+    b: ["d", "e"],
+    c: ["e", "f"],
+    d: ["g", "h"],
+    e: ["h", "i"],
+    f: ["i", "j"],
+    g: [],
+    h: [],
+    i: [],
+    j: [],
+  };
+
+  return new Hierarchy(parentMap, childMap);
+}
+
+function checkEqual(actual, expected) {
+  const differences = ["a", "b", "c", "d", "e", "f", "g", "h", "i"].filter(
+    (c) => actual[c] != expected[c]
+  );
+
+  if (differences.length) {
+    differences.forEach((c) => {
+      console.log(c, actual[c], expected[c]);
+    });
+
+    return false;
+  } else {
+    return true;
+  }
+}
+
+testNodeToStatus();
+testUpdateCodeToStatus();
+
+const hierarchy = new Hierarchy(
+  readValueFromPage("parent-map"),
+  readValueFromPage("child-map")
+);
+
 ReactDOM.render(
   <CodelistBuilder
     searches={readValueFromPage("searches")}
     filter={readValueFromPage("filter")}
     codeToStatus={readValueFromPage("code-to-status")}
     tables={readValueFromPage("tables")}
-    ancestorsMap={readValueFromPage("ancestors-map")}
-    descendantsMap={readValueFromPage("descendants-map")}
     isEditable={readValueFromPage("isEditable")}
     updateURL={readValueFromPage("update-url")}
     searchURL={readValueFromPage("search-url")}
+    hierarchy={hierarchy}
   />,
   document.querySelector("#codelist-builder-container")
 );

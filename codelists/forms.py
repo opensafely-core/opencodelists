@@ -72,7 +72,7 @@ class CodelistUniquenessMixin:
         try:
             self.instance.validate_unique()
         except forms.ValidationError as e:
-            self._update_errors(e)
+            self.add_error(None, e)
 
 
 class CSVValidationMixin:

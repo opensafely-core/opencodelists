@@ -288,6 +288,8 @@ def version(request, project_slug, codelist_slug, qualified_version_str):
 
     headers, *rows = clv.table
 
+    html_definition = None
+    html_tree = None
     if clv.coding_system_id in ["ctv3", "ctv3tpp", "snomedct"]:
         if clv.coding_system_id in ["ctv3", "ctv3tpp"]:
             coding_system = CODING_SYSTEMS["ctv3"]
@@ -296,15 +298,11 @@ def version(request, project_slug, codelist_slug, qualified_version_str):
         hierarchy = Hierarchy.from_codes(coding_system, clv.codes)
         definition = Definition.from_codes(set(clv.codes), hierarchy)
         html_definition = build_html_definition(coding_system, hierarchy, definition)
+
         if clv.coding_system_id in ["ctv3", "ctv3tpp"]:
             html_tree = build_html_tree_highlighting_codes(
                 coding_system, hierarchy, definition
             )
-        else:
-            html_tree = None
-    else:
-        html_definition = None
-        html_tree = None
 
     ctx = {
         "clv": clv,

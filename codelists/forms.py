@@ -63,6 +63,12 @@ class CodelistUniquenessMixin:
 
         # Validate uniqueness of the instance now it's been populated with
         # values from the form and the Project instance.
+        #
+        # We call this manually, rather than using BaseModelForm's
+        # validate_unique() because that makes a call to
+        # _get_validation_exclusions() to build up a list of a excluded fields.
+        # This removes fields not defined on the form (among other things)
+        # which drops our slug field.
         try:
             self.instance.validate_unique()
         except forms.ValidationError as e:

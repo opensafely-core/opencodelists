@@ -7,7 +7,6 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 
-from codelists import tree_utils
 from codelists.hierarchy import Hierarchy
 from codelists.presenters import tree_tables
 from codelists.search import do_search
@@ -83,24 +82,11 @@ def codelist(request, username, codelist_slug, search_slug=None):
     code_to_type = {code: type for code, (_, type) in code_to_term_and_type.items()}
 
     hierarchy = Hierarchy.from_codes(coding_system, all_codes)
-    ancestor_codes = hierarchy.filter_to_ultimate_ancestors(codes_for_display)
 
+    ancestor_codes = hierarchy.filter_to_ultimate_ancestors(codes_for_display)
     tables = tree_tables(
         ancestor_codes, hierarchy, code_to_term, code_to_type, code_to_status
     )
-
-    full_subtree = tree_utils.build_subtree(coding_system, all_codes)
-    relationship_maps = tree_utils.build_relationship_maps(full_subtree)
-    ancestors_map = {
-        descendant: [ancestor for ancestor in ancestors if ancestor in all_codes]
-        for descendant, ancestors in relationship_maps["ancestors"].items()
-        if descendant in all_codes
-    }
-    descendants_map = {
-        ancestor: [descendant for descendant in descendants if descendant in all_codes]
-        for ancestor, descendants in relationship_maps["descendants"].items()
-        if ancestor in all_codes
-    }
 
     searches = [
         {"term": s.term, "url": s.get_absolute_url(), "active": s == search}
@@ -121,8 +107,8 @@ def codelist(request, username, codelist_slug, search_slug=None):
         "filter": filter,
         "code_to_status": code_to_status,
         "tables": tables,
-        "ancestors_map": ancestors_map,
-        "descendants_map": descendants_map,
+        "parent_map": {p: list(cc) for p, cc in hierarchy.parent_map.items()},
+        "child_map": {c: list(pp) for c, pp in hierarchy.child_map.items()},
         "is_editable": request.user == codelist.owner,
         "update_url": update_url,
         "search_url": search_url,

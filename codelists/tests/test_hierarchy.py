@@ -167,6 +167,44 @@ def test_walk_depth_first_as_tree_with_sort_key():
     ]
 
 
+def test_walk_depth_first_as_tree_with_pipes():
+    hierarchy = build_hierarchy()
+
+    # a
+    # ├ b
+    # │ ├ d
+    # │ │ ├ g
+    # │ │ └ h
+    # │ └ e
+    # │   ├ h
+    # │   └ i
+    # └ c
+    #   ├ e
+    #   │ ├ h
+    #   │ └ i
+    #   └ f
+    #     ├ i
+    #     └ j
+
+    assert list(hierarchy.walk_depth_first_as_tree_with_pipes()) == [
+        ("a", []),
+        ("b", ["├"]),
+        ("d", ["│", "├"]),
+        ("g", ["│", "│", "├"]),
+        ("h", ["│", "│", "└"]),
+        ("e", ["│", "└"]),
+        ("h", ["│", " ", "├"]),
+        ("i", ["│", " ", "└"]),
+        ("c", ["└"]),
+        ("e", [" ", "├"]),
+        ("h", [" ", "│", "├"]),
+        ("i", [" ", "│", "└"]),
+        ("f", [" ", "└"]),
+        ("i", [" ", " ", "├"]),
+        ("j", [" ", " ", "└"]),
+    ]
+
+
 def test_filter_to_ultimate_ancestors():
     hierarchy = build_small_hierarchy()
 

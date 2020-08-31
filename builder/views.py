@@ -1,6 +1,5 @@
 import json
 import re
-from collections import defaultdict
 
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
@@ -9,6 +8,8 @@ from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 
 from codelists import tree_utils
+from codelists.hierarchy import Hierarchy
+from codelists.presenters import tree_tables
 from codelists.search import do_search
 from opencodelists.models import User
 
@@ -81,40 +82,14 @@ def codelist(request, username, codelist_slug, search_slug=None):
     code_to_term = {code: term for code, (term, _) in code_to_term_and_type.items()}
     code_to_type = {code: type for code, (_, type) in code_to_term_and_type.items()}
 
+    hierarchy = Hierarchy.from_codes(coding_system, all_codes)
+    ancestor_codes = hierarchy.filter_to_ultimate_ancestors(codes_for_display)
+
+    tables = tree_tables(
+        ancestor_codes, hierarchy, code_to_term, code_to_type, code_to_status
+    )
+
     full_subtree = tree_utils.build_subtree(coding_system, all_codes)
-    ancestor_codes = tree_utils.find_ancestors(full_subtree, codes_for_display)
-
-    # Calling build_subtree multiple times is going to be inefficient, especially as we
-    # already have all the information we need in full_subtree.
-    subtrees_by_type = defaultdict(list)
-    for code in ancestor_codes:
-        type = code_to_type[code]
-        subtree = tree_utils.build_descendant_subtree(coding_system, code)
-        subtrees_by_type[type].append(subtree)
-
-    sort_key = code_to_term.__getitem__
-    tables = []
-
-    for type, subtrees in sorted(subtrees_by_type.items()):
-        rows = []
-
-        for subtree in sorted(subtrees, key=lambda st: code_to_term[list(st)[0]]):
-            for code, pipes in tree_utils.walk_with_pipes(subtree, sort_key):
-                rows.append(
-                    {
-                        "code": code,
-                        "status": code_to_status[code],
-                        "term": code_to_term[code],
-                        "pipes": pipes,
-                    }
-                )
-
-        table = {
-            "heading": type.title(),
-            "rows": rows,
-        }
-        tables.append(table)
-
     relationship_maps = tree_utils.build_relationship_maps(full_subtree)
     ancestors_map = {
         descendant: [ancestor for ancestor in ancestors if ancestor in all_codes]

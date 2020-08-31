@@ -121,6 +121,64 @@ class Hierarchy:
             label=starting_node, depth=0, left_ix=0, right_ix=0, direction=-1
         )
 
+    def walk_depth_first_as_tree_with_pipes(self, starting_node=None, sort_key=None):
+        r"""Walk tree depth-first from root, yielding (label, pipes) on entering each
+        node.
+
+        pipes is a list of:
+
+        * " "
+        * "│"
+        * "└"
+        * "├"
+
+        This lets us render a hierarchy like:
+
+            a
+           / \
+          b   c
+         / \ / \
+        d   e   f
+
+        as:
+
+        a
+        ├ b
+        │ ├ d
+        │ └ e
+        └ c
+          ├ e
+          └ f
+
+        (┛ಠ_ಠ)┛彡┻━┻
+        """
+
+        stack = []
+
+        for node in self.walk_depth_first_as_tree(starting_node, sort_key):
+            if node.direction == 1:
+                if node.depth == 0:
+                    yield (node.label, stack[::])
+                    continue
+
+                if stack and stack[-1] != " ":
+                    stack[-1] = "│"
+
+                if node.right_ix == 0:
+                    stack.append("└")
+                else:
+                    stack.append("├")
+
+                yield (node.label, stack[::])
+
+                if node.right_ix == 0:
+                    stack[node.depth - 1] = " "
+
+            else:
+                if node.depth == 0:
+                    continue
+                stack.pop()
+
     def filter_to_ultimate_ancestors(self, nodes):
         """Given a set of nodes, return subset which have no ancestors in the set.
         """

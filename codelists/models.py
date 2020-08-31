@@ -26,7 +26,7 @@ class Codelist(models.Model):
     methodology = models.TextField()
 
     class Meta:
-        unique_together = ("project", "slug")
+        unique_together = ("project", "name", "slug")
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)

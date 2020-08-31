@@ -108,7 +108,27 @@ class CodelistCreate(TemplateView):
         return context
 
     def get_form(self, data=None, files=None):
-        return CodelistCreateForm(data, files)
+        """
+        Construct a Codelist ModelForm
+
+        Users arrive at this view via a URL containing a Project slug.  From
+        that we retrieve a Project (and save it to self.project) so the User
+        doesn't have to pick a Project on the form.
+
+        However Codelists both require a Project _and_ need to do validation on
+        them to check their name is unique within that Project.  ModelForms can
+        do this for us but they need to be told about the fields involved in
+        the unique_together.
+
+        Since the `project` field isn't included in the CodelistCreateForm
+        fields we pass our passed-in Project to the form using the instance
+        keyword argument so it can be used at validation time.
+        """
+        kwargs = {}
+        if data:  # we came via POST
+            kwargs["instance"] = Codelist(project=self.project)
+
+        return CodelistCreateForm(data, files, **kwargs)
 
     def get_reference_formset(self, data=None, files=None):
         return self.ReferenceFormSet(data, files, prefix="reference")

@@ -7,6 +7,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.http import Http404
 from pytest_django.asserts import assertContains, assertRedirects
 
+from codelists.actions import create_codelist
 from codelists.views import (
     CodelistCreate,
     CodelistUpdate,
@@ -16,7 +17,13 @@ from codelists.views import (
 )
 from opencodelists.tests.factories import ProjectFactory, UserFactory
 
-from . import factories
+from .factories import (
+    CodelistFactory,
+    ReferenceFactory,
+    SignOffFactory,
+    create_draft_version,
+    create_published_version,
+)
 from .helpers import csv_builder
 
 pytestmark = [
@@ -131,10 +138,55 @@ def test_codelistcreate_when_not_logged_in(client):
     assertRedirects(rsp, f"/accounts/login/?next=%2Fcodelist%2F{p.slug}%2F")
 
 
+def test_codelistcreate_with_duplicate_name(rf):
+    project = ProjectFactory()
+
+    create_codelist(
+        project=project,
+        name="Test",
+        coding_system_id="snomedct",
+        description="This is a test",
+        methodology="This is how we did it",
+        csv_data="code,description\n1067731000000107,Injury whilst swimming (disorder)",
+    )
+
+    assert project.codelists.count() == 1
+
+    csv_data = "code,description\n1067731000000107,Injury whilst swimming (disorder)"
+    data = {
+        "name": "Test",
+        "coding_system_id": "snomedct",
+        "description": "This is a test",
+        "methodology": "This is how we did it",
+        "csv_data": csv_builder(csv_data),
+        "reference-TOTAL_FORMS": "0",
+        "reference-INITIAL_FORMS": "0",
+        "reference-MIN_NUM_FORMS": "0",
+        "reference-MAX_NUM_FORMS": "1000",
+        "signoff-TOTAL_FORMS": "0",
+        "signoff-INITIAL_FORMS": "0",
+        "signoff-MIN_NUM_FORMS": "0",
+        "signoff-MAX_NUM_FORMS": "1000",
+    }
+
+    request = rf.post("/", data=data)
+    request.user = UserFactory()
+    response = CodelistCreate.as_view()(request, project_slug=project.slug)
+
+    assert project.codelists.count() == 1
+
+    # we're returning an HTML response when there are errors so check we don't
+    # receive a redirect code
+    assert response.status_code == 200
+
+    # confirm we have errors from the codelist form
+    assert response.context_data["codelist_form"].errors
+
+
 def test_codelistupdate_invalid_post(rf):
-    codelist = factories.create_codelist()
-    signoff_1 = factories.SignOffFactory(codelist=codelist)
-    reference_1 = factories.ReferenceFactory(codelist=codelist)
+    codelist = CodelistFactory()
+    signoff_1 = SignOffFactory(codelist=codelist)
+    reference_1 = ReferenceFactory(codelist=codelist)
 
     # missing signoff-0-date
     data = {
@@ -171,11 +223,11 @@ def test_codelistupdate_invalid_post(rf):
 
 
 def test_codelistupdate_success(rf):
-    codelist = factories.create_codelist()
-    signoff_1 = factories.SignOffFactory(codelist=codelist)
-    signoff_2 = factories.SignOffFactory(codelist=codelist)
-    reference_1 = factories.ReferenceFactory(codelist=codelist)
-    reference_2 = factories.ReferenceFactory(codelist=codelist)
+    codelist = CodelistFactory()
+    signoff_1 = SignOffFactory(codelist=codelist)
+    signoff_2 = SignOffFactory(codelist=codelist)
+    reference_1 = ReferenceFactory(codelist=codelist)
+    reference_2 = ReferenceFactory(codelist=codelist)
 
     assert codelist.references.count() == 2
     assert codelist.signoffs.count() == 2
@@ -239,7 +291,7 @@ def test_codelistupdate_success(rf):
 
 
 def test_codelistupdate_when_not_logged_in(rf):
-    codelist = factories.create_codelist()
+    codelist = CodelistFactory()
 
     request = rf.post("/the/current/url/")
     request.user = AnonymousUser()
@@ -251,8 +303,42 @@ def test_codelistupdate_when_not_logged_in(rf):
     assert response.url == "/accounts/login/?next=/the/current/url/"
 
 
+def test_codelistupdate_with_duplicate_name(rf):
+    project = ProjectFactory()
+
+    CodelistFactory(name="Existing Codelist", project=project)
+    codelist = CodelistFactory(project=project)
+
+    data = {
+        "project": codelist.project.slug,
+        "name": "Existing Codelist",
+        "coding_system_id": "snomedct",
+        "description": "This is a test CHANGED",
+        "methodology": "This is how we did it",
+        "reference-TOTAL_FORMS": "0",
+        "reference-INITIAL_FORMS": "0",
+        "reference-MIN_NUM_FORMS": "0",
+        "reference-MAX_NUM_FORMS": "1000",
+        "signoff-TOTAL_FORMS": "0",
+        "signoff-INITIAL_FORMS": "0",
+        "signoff-MIN_NUM_FORMS": "0",
+        "signoff-MAX_NUM_FORMS": "1000",
+    }
+
+    request = rf.post("/", data=data)
+    request.user = UserFactory()
+    response = CodelistUpdate.as_view()(
+        request, project_slug=codelist.project.slug, codelist_slug=codelist.slug
+    )
+
+    assert response.status_code == 200
+
+    # confirm we have errors from the codelist form
+    assert response.context_data["codelist_form"].errors
+
+
 def test_codelist(client):
-    clv = factories.create_published_version()
+    clv = create_published_version()
     cl = clv.codelist
     rsp = client.get(f"/codelist/{cl.project.slug}/{cl.slug}/", follow=True)
     assertRedirects(rsp, f"/codelist/{cl.project.slug}/{cl.slug}/{clv.version_str}/")
@@ -260,7 +346,7 @@ def test_codelist(client):
 
 
 def test_version(client):
-    clv = factories.create_published_version()
+    clv = create_published_version()
     cl = clv.codelist
     rsp = client.get(f"/codelist/{cl.project.slug}/{cl.slug}/{clv.version_str}/")
     assertContains(rsp, cl.name)
@@ -269,7 +355,7 @@ def test_version(client):
 
 
 def test_version_redirects(client):
-    clv = factories.create_published_version()
+    clv = create_published_version()
     cl = clv.codelist
     rsp = client.get(
         f"/codelist/{cl.project.slug}/{cl.slug}/{clv.version_str}-draft/", follow=True
@@ -281,7 +367,7 @@ def test_version_redirects(client):
 
 
 def test_draft_version(client):
-    clv = factories.create_draft_version()
+    clv = create_draft_version()
     cl = clv.codelist
     rsp = client.get(f"/codelist/{cl.project.slug}/{cl.slug}/{clv.version_str}-draft/")
     assertContains(rsp, cl.name)
@@ -290,7 +376,7 @@ def test_draft_version(client):
 
 
 def test_draft_version_redirects(client):
-    clv = factories.create_draft_version()
+    clv = create_draft_version()
     cl = clv.codelist
     rsp = client.get(
         f"/codelist/{cl.project.slug}/{cl.slug}/{clv.version_str}/", follow=True
@@ -304,7 +390,7 @@ def test_draft_version_redirects(client):
 
 
 def test_download(client):
-    clv = factories.create_published_version()
+    clv = create_published_version()
     cl = clv.codelist
     rsp = client.get(
         f"/codelist/{cl.project.slug}/{cl.slug}/{clv.version_str}/download.csv"
@@ -316,7 +402,7 @@ def test_download(client):
 
 
 def test_download_does_not_redirect(client):
-    clv = factories.create_published_version()
+    clv = create_published_version()
     cl = clv.codelist
     rsp = client.get(
         f"/codelist/{cl.project.slug}/{cl.slug}/{clv.version_str}-draft/download.csv"
@@ -325,7 +411,7 @@ def test_download_does_not_redirect(client):
 
 
 def test_draft_download(client):
-    clv = factories.create_draft_version()
+    clv = create_draft_version()
     cl = clv.codelist
     rsp = client.get(
         f"/codelist/{cl.project.slug}/{cl.slug}/{clv.version_str}-draft/download.csv"
@@ -337,7 +423,7 @@ def test_draft_download(client):
 
 
 def test_draft_download_does_not_redirect(client):
-    clv = factories.create_draft_version()
+    clv = create_draft_version()
     cl = clv.codelist
     rsp = client.get(
         f"/codelist/{cl.project.slug}/{cl.slug}/{clv.version_str}/download.csv"
@@ -346,7 +432,7 @@ def test_draft_download_does_not_redirect(client):
 
 
 def test_versioncreate_missing_field(rf):
-    codelist = factories.create_published_version().codelist
+    codelist = create_published_version().codelist
 
     request = rf.post("/", data={})
     request.user = UserFactory()
@@ -361,7 +447,7 @@ def test_versioncreate_missing_field(rf):
 
 
 def test_versioncreate_success(rf):
-    codelist = factories.create_published_version().codelist
+    codelist = create_published_version().codelist
 
     assert codelist.versions.count() == 1
 
@@ -386,7 +472,7 @@ def test_versioncreate_success(rf):
 
 
 def test_versioncreate_unknown_codelist(rf):
-    codelist = factories.create_codelist()
+    codelist = CodelistFactory()
 
     request = rf.get("/")
     request.user = UserFactory()
@@ -398,7 +484,7 @@ def test_versioncreate_unknown_codelist(rf):
 
 
 def test_versionpublish_success(rf):
-    version = factories.create_draft_version()
+    version = create_draft_version()
 
     request = rf.post("/")
     request.user = UserFactory()
@@ -418,7 +504,7 @@ def test_versionpublish_success(rf):
 
 
 def test_versionpublish_unknown_version(rf):
-    codelist = factories.create_codelist()
+    codelist = CodelistFactory()
 
     request = rf.post("/")
     request.user = UserFactory()
@@ -432,7 +518,7 @@ def test_versionpublish_unknown_version(rf):
 
 
 def test_versionpublish_draft_mismatch(rf):
-    version = factories.create_published_version()
+    version = create_published_version()
 
     # set the version string to that of a draft
     qualified_version_str = f"{version.qualified_version_str}-draft"
@@ -452,7 +538,7 @@ def test_versionpublish_draft_mismatch(rf):
 
 
 def test_versionupdate_unknown_version(rf):
-    codelist = factories.create_codelist()
+    codelist = CodelistFactory()
 
     request = rf.get("/")
     request.user = UserFactory()
@@ -466,7 +552,7 @@ def test_versionupdate_unknown_version(rf):
 
 
 def test_versionupdate_draft_mismatch(rf):
-    version = factories.create_published_version()
+    version = create_published_version()
 
     # set the version string to that of a draft
     qualified_version_str = f"{version.qualified_version_str}-draft"
@@ -486,7 +572,7 @@ def test_versionupdate_draft_mismatch(rf):
 
 
 def test_versionupdate_form_error(rf):
-    version = factories.create_published_version()
+    version = create_published_version()
 
     request = rf.post("/", data={})
     request.user = UserFactory()
@@ -503,7 +589,7 @@ def test_versionupdate_form_error(rf):
 
 
 def test_versionupdate_success(rf):
-    version = factories.create_draft_version()
+    version = create_draft_version()
 
     assert version.codelist.versions.count() == 1
 
@@ -531,7 +617,7 @@ def test_versionupdate_success(rf):
 
 
 def test_versionupdate_not_logged_in(rf):
-    version = factories.create_published_version()
+    version = create_published_version()
     codelist = version.codelist
 
     assert version.codelist.versions.count() == 1

@@ -4,8 +4,25 @@ import factory
 import factory.fuzzy
 
 from codelists import actions
-from codelists.models import Reference, SignOff
-from opencodelists.tests.factories import ProjectFactory
+from codelists.models import Codelist, Reference, SignOff
+
+
+class CodelistFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Codelist
+
+    project = factory.SubFactory("opencodelists.tests.factories.ProjectFactory")
+
+    name = "Test Codelist"
+    coding_system_id = "snomedct"
+    description = "This is a test"
+    methodology = "This is how we did it"
+    csv_data = "code,description\n1067731000000107,Injury whilst swimming (disorder)"
+
+    @classmethod
+    def _create(cls, model_class, *args, **kwargs):
+        """Override the default ``_create`` with our actions."""
+        return actions.create_codelist(*args, **kwargs)
 
 
 class ReferenceFactory(factory.django.DjangoModelFactory):
@@ -24,26 +41,9 @@ class SignOffFactory(factory.django.DjangoModelFactory):
     date = factory.fuzzy.FuzzyDate(datetime.date(2020, 1, 1))
 
 
-def create_codelist(csv_data=None):
-    p = ProjectFactory()
-    if csv_data is None:
-        csv_data = (
-            "code,description\n1067731000000107,Injury whilst swimming (disorder)"
-        )
-
-    return actions.create_codelist(
-        project=p,
-        name="Test Codelist",
-        coding_system_id="snomedct",
-        description="This is a test",
-        methodology="This is how we did it",
-        csv_data=csv_data,
-    )
-
-
 def create_draft_version():
-    cl = create_codelist()
-    return cl.versions.get()
+    codelist = CodelistFactory()
+    return codelist.versions.get()
 
 
 def create_published_version():

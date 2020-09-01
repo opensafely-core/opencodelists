@@ -17,6 +17,7 @@ hypothesis
 pytest-cov
 pytest-django
 pytest-freezegun
+pytest-subtests
 
 # dev
 black

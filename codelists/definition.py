@@ -1,6 +1,3 @@
-from django.urls import reverse
-
-
 class Definition:
     """Represents a set of rules that define a list of codes.  Each rule indicates
     whether a given code is included (an "including rule") or excluded (an "excluding
@@ -201,70 +198,3 @@ class DefinitionRule:
             code_is_excluded=code_is_excluded,
             applies_to_descendants=applies_to_descendants,
         )
-
-
-def build_html_definition(coding_system, hierarchy, definition):
-    """Render a Definition as HTML.
-
-    This code will change significantly in an upcoming commit, when it will have a
-    proper docstring.
-    """
-
-    code_to_name = coding_system.lookup_names([rule.code for rule in definition.rules])
-
-    def name_for_rule(rule):
-        return code_to_name.get(rule.code, "Unknown code (a TPP Y-code?)")
-
-    lines = ["<ul>"]
-
-    for rule in sorted(definition.including_rules(), key=name_for_rule):
-        name = name_for_rule(rule)
-        url = reverse(f"{coding_system.id}:concept", args=[rule.code])
-        style = "color: blue"
-
-        if rule.applies_to_descendants:
-            matching_excluding_rules = [
-                excluding_rule
-                for excluding_rule in definition.excluding_rules()
-                if excluding_rule.code in hierarchy.descendants(rule.code)
-            ]
-
-            if matching_excluding_rules:
-                lines.append(
-                    f'<li><a href="{url}" style="{style}">{name}</a> (<code>{rule.code}</code>) and all descendants except:</li>'
-                )
-                lines.append('<ul class="mb-0">')
-
-                for excluding_rule in sorted(
-                    matching_excluding_rules, key=name_for_rule
-                ):
-                    name = name_for_rule(excluding_rule)
-                    url = reverse(
-                        f"{coding_system.id}:concept", args=[excluding_rule.code]
-                    )
-                    style = "color: black"
-
-                    if excluding_rule.applies_to_descendants:
-                        lines.append(
-                            f'<li><a href="{url}" style="{style}">{name}</a> (<code>{excluding_rule.code}</code>) and all descendants</li>'
-                        )
-                    else:
-                        lines.append(
-                            f'<li><a href="{url}" style="{style}">{name}</a> (<code>{excluding_rule.code}</code>)</li>'
-                        )
-
-                lines.append("</ul>")
-
-            else:
-                lines.append(
-                    f'<li><a href="{url}" style="{style}">{name}</a> (<code>{rule.code}</code>) and all descendants</li>'
-                )
-
-        else:
-            lines.append(
-                f'<li><a href="{url}" style="{style}">{name}</a> (<code>{rule.code}</code>)</li>'
-            )
-
-    lines.append("</ul>")
-
-    return "\n".join(lines)

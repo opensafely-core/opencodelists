@@ -12,24 +12,21 @@ class Definition:
         self.rules = set(rules)
 
     def excluding_rules(self):
-        """Yield rules that exclude a code (and possibly that code's descendants).
-        """
+        """Yield rules that exclude a code (and possibly that code's descendants)."""
 
         for rule in self.rules:
             if rule.code_is_excluded:
                 yield rule
 
     def including_rules(self):
-        """Yield rules that include a code (and possibly that code's descendants).
-        """
+        """Yield rules that include a code (and possibly that code's descendants)."""
 
         for rule in self.rules:
             if not rule.code_is_excluded:
                 yield rule
 
     def codes(self, hierarchy):
-        """Return set of codes that is defined by the rules.
-        """
+        """Return set of codes that is defined by the rules."""
 
         codes = set()
 

@@ -45,9 +45,7 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser):
     username = models.SlugField(primary_key=True)
     name = models.CharField(max_length=255)
-    email = models.EmailField(
-        verbose_name="email address", max_length=255, unique=True,
-    )
+    email = models.EmailField(verbose_name="email address", max_length=255, unique=True)
     organisation = models.ForeignKey(
         "Organisation", on_delete=models.CASCADE, related_name="users"
     )

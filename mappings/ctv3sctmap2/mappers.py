@@ -75,7 +75,7 @@ def ctv3_to_snomedct(ctv3_ids):
 
     snomedct_id_to_ctv3_id = defaultdict(list)
     for mapping in Mapping.objects.filter(
-        sct_concept_id__in=all_ids, map_status=True, is_assured=True,
+        sct_concept_id__in=all_ids, map_status=True, is_assured=True
     ):
         snomedct_id_to_ctv3_id[mapping.sct_concept_id].append(mapping.ctv3_concept_id)
 

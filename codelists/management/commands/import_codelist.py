@@ -16,8 +16,6 @@ class Command(BaseCommand):
         self, publisher, codelist, coding_system, version_str, csv_path, **kwargs
     ):
         try:
-            import_codelist(
-                publisher, codelist, coding_system, version_str, csv_path,
-            )
+            import_codelist(publisher, codelist, coding_system, version_str, csv_path)
         except ImportCodelistError as e:
             raise CommandError(str(e))

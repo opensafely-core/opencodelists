@@ -15,7 +15,7 @@ class DraftCodelist(models.Model):
     name = models.CharField(max_length=255)
     slug = models.SlugField()
     coding_system_id = models.CharField(
-        choices=CODING_SYSTEMS_CHOICES, max_length=32, verbose_name="Coding system",
+        choices=CODING_SYSTEMS_CHOICES, max_length=32, verbose_name="Coding system"
     )
 
     class Meta:

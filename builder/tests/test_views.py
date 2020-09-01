@@ -25,9 +25,7 @@ def test_codelist(client):
         owner=owner, name="Elbows", coding_system_id="snomedct"
     )
     search_results = do_search(cl.coding_system, "elbow")
-    actions.create_search(
-        codelist=cl, term="elbow", codes=search_results["all_codes"],
-    )
+    actions.create_search(codelist=cl, term="elbow", codes=search_results["all_codes"])
 
     client.force_login(owner)
 

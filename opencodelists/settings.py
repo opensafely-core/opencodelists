@@ -173,7 +173,9 @@ CRISPY_TEMPLATE_PACK = "bootstrap4"
 SENTRY_DSN = os.environ.get("SENTRY_DSN")
 if SENTRY_DSN:
     sentry_sdk.init(
-        dsn=SENTRY_DSN, integrations=[DjangoIntegration()], send_default_pii=True,
+        dsn=SENTRY_DSN,
+        integrations=[DjangoIntegration()],
+        send_default_pii=True,
     )
 
 # CORS

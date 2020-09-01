@@ -11,7 +11,7 @@ from .models import HistorySubstitution, QueryTableRecord
 def import_data(release_dir):
     def load_query_table_records():
         paths = glob.glob(
-            os.path.join(release_dir, "Resources", "QueryTable", "xres2_*.txt",)
+            os.path.join(release_dir, "Resources", "QueryTable", "xres2_*.txt")
         )
         assert len(paths) == 1, paths
 
@@ -42,7 +42,7 @@ def import_data(release_dir):
     connection = sqlite3.connect(**connection_params)
     connection.executemany(build_sql(QueryTableRecord), load_query_table_records())
     connection.executemany(
-        build_sql(HistorySubstitution), load_history_substitution_table_recods(),
+        build_sql(HistorySubstitution), load_history_substitution_table_recods()
     )
     connection.commit()
     connection.close()

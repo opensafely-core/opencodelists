@@ -133,7 +133,14 @@ def walk_tree_depth_first(tree, sort_key=None):
 
 
 NodeWithMetadata = namedtuple(
-    "NodeWithMetadata", ["label", "depth", "left_ix", "right_ix", "direction"],
+    "NodeWithMetadata",
+    [
+        "label",
+        "depth",
+        "left_ix",
+        "right_ix",
+        "direction",
+    ],
 )
 
 

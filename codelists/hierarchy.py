@@ -31,14 +31,12 @@ class Hierarchy:
 
     @cached_property
     def nodes(self):
-        """Set of nodes in graph.
-        """
+        """Set of nodes in graph."""
         return set(chain.from_iterable(self.edges))
 
     @cached_property
     def child_map(self):
-        """Dict mapping each node to the set of its immediate children.
-        """
+        """Dict mapping each node to the set of its immediate children."""
 
         m = defaultdict(set)
         for parent, child in self.edges:
@@ -47,8 +45,7 @@ class Hierarchy:
 
     @cached_property
     def parent_map(self):
-        """Dict mapping each node to the set of its immediate parents.
-        """
+        """Dict mapping each node to the set of its immediate parents."""
 
         m = defaultdict(set)
         for parent, child in self.edges:
@@ -180,8 +177,7 @@ class Hierarchy:
                 stack.pop()
 
     def filter_to_ultimate_ancestors(self, nodes):
-        """Given a set of nodes, return subset which have no ancestors in the set.
-        """
+        """Given a set of nodes, return subset which have no ancestors in the set."""
 
         return {node for node in nodes if not self.ancestors(node) & nodes}
 

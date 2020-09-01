@@ -437,7 +437,7 @@ def test_versioncreate_missing_field(rf):
     request = rf.post("/", data={})
     request.user = UserFactory()
     response = VersionCreate.as_view()(
-        request, project_slug=codelist.project.slug, codelist_slug=codelist.slug,
+        request, project_slug=codelist.project.slug, codelist_slug=codelist.slug
     )
 
     assert response.status_code == 200
@@ -459,7 +459,7 @@ def test_versioncreate_success(rf):
     request = rf.post("/", data=data)
     request.user = UserFactory()
     response = VersionCreate.as_view()(
-        request, project_slug=codelist.project.slug, codelist_slug=codelist.slug,
+        request, project_slug=codelist.project.slug, codelist_slug=codelist.slug
     )
 
     assert response.status_code == 302
@@ -479,7 +479,7 @@ def test_versioncreate_unknown_codelist(rf):
 
     with pytest.raises(Http404):
         VersionCreate.as_view()(
-            request, project_slug=codelist.project.slug, codelist_slug="test",
+            request, project_slug=codelist.project.slug, codelist_slug="test"
         )
 
 

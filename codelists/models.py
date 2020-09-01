@@ -20,7 +20,7 @@ class Codelist(models.Model):
         "opencodelists.Project", related_name="codelists", on_delete=models.CASCADE
     )
     coding_system_id = models.CharField(
-        choices=CODING_SYSTEMS_CHOICES, max_length=32, verbose_name="Coding system",
+        choices=CODING_SYSTEMS_CHOICES, max_length=32, verbose_name="Coding system"
     )
     description = models.TextField()
     methodology = models.TextField()

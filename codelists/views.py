@@ -263,7 +263,7 @@ class VersionCreate(FormView):
 
     def form_valid(self, form):
         version = actions.create_version(
-            codelist=self.codelist, csv_data=form.cleaned_data["csv_data"],
+            codelist=self.codelist, csv_data=form.cleaned_data["csv_data"]
         )
         return redirect(version)
 

@@ -32,7 +32,7 @@ class Concept(models.Model):
         related_name="parents",
     )
     terms = models.ManyToManyField(
-        "Term", through="ConceptTermMapping", related_name="concepts",
+        "Term", through="ConceptTermMapping", related_name="concepts"
     )
 
     def all_terms(self):

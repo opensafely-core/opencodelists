@@ -49,9 +49,7 @@ class TestMigration0006(TransactionTestCase):
         project = Project.objects.create(name="Test")
 
         new_cl = NewCodelist.objects.create(project=project, name="Test")
-        new_cl.versions.create(
-            version_str="2020-07-19", csv_data="code,description",
-        )
+        new_cl.versions.create(version_str="2020-07-19", csv_data="code,description")
 
         executor = MigrationExecutor(connection)
         executor.migrate(self.migrate_from)

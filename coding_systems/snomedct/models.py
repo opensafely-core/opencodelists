@@ -113,7 +113,7 @@ class Concept(models.Model):
                 )
             )
             .annotate(
-                fully_specified_name=Subquery(descriptions), in_ctv3=Subquery(mappings),
+                fully_specified_name=Subquery(descriptions), in_ctv3=Subquery(mappings)
             )
             .distinct()
         )
@@ -136,7 +136,7 @@ class Concept(models.Model):
                 destination_relationships__type_id=IS_A,
             )
             .annotate(
-                fully_specified_name=Subquery(descriptions), in_ctv3=Subquery(mappings),
+                fully_specified_name=Subquery(descriptions), in_ctv3=Subquery(mappings)
             )
             .distinct()
         )

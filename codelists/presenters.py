@@ -29,7 +29,7 @@ class DefinitionRow:
     all_descendants: bool = attr.ib(default=True)
 
 
-def _iter_rules(hierarchy, rules, name_for_rule, excluded=None):
+def _iter_rules(hierarchy, rules, name_for_rule, excluded):
     for rule in rules:
         row = DefinitionRow(
             name=name_for_rule(rule),
@@ -48,9 +48,14 @@ def _iter_rules(hierarchy, rules, name_for_rule, excluded=None):
         ]
 
         # generate excluded children by recursing into this function
-        row.excluded_descendants = list(
-            _iter_rules(hierarchy, excluding_rules, name_for_rule)
-        )
+        row.excluded_descendants = [
+            DefinitionRow(
+                name=name_for_rule(rule),
+                code=rule.code,
+                all_descendants=rule.applies_to_descendants,
+            )
+            for rule in excluding_rules
+        ]
 
         yield attr.asdict(row)
 

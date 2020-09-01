@@ -45,11 +45,16 @@ A place to put scripts to be run via [runscript](https://django-extensions.readt
 To install dependencies:
 
 * Run `pip install -r requirements.txt`
+* Run `npm install`
 
 To update dependencies:
 
-* Edit `requirements.in`
-* Run `pip-compile`
+* Edit `requirements.in` and run `pip-compile`
+* Run `npm --save[-dev] ...`
+
+To build JS:
+
+* Run `npm run watch`
 
 To run tests:
 

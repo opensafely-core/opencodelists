@@ -6,3 +6,5 @@ __pycache__/
 .coverage
 .hypothesis
 htmlcov
+node_modules
+static/dist

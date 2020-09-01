@@ -1,7 +1,8 @@
+import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from codelists.definition import Definition
+from codelists.definition import Definition, DefinitionRule
 from codelists.hierarchy import Hierarchy
 
 
@@ -87,3 +88,8 @@ def test_roundtrip(hierarchy, codes, r):
 
     definition_codes = [rule.code for rule in definition.rules]
     assert len(definition_codes) == len(set(definition_codes))
+
+
+def test_definition_rule():
+    with pytest.raises(TypeError):
+        DefinitionRule("test", code_is_excluded=True, applies_to_descendants=True)

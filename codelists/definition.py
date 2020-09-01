@@ -147,6 +147,18 @@ class DefinitionRule:
     """
 
     def __init__(self, code, code_is_excluded=False, applies_to_descendants=False):
+        # Shout loudly if assumptions in Definition.from_codes changes.  Other
+        # parts of the system (DefinitionRow as of writing this) rely on the
+        # following behaviour.  While this behaviour could change, and this
+        # check shouldn't stop that, we want to know (loudly!) if it changes
+        # implicitly.
+        if code_is_excluded and applies_to_descendants:
+            msg = (
+                "Tried to set both code_is_excluded and applies_to_descendants for "
+                f"code={code}.  A DefinitionRule cannot have both of these set."
+            )
+            raise TypeError(msg)
+
         self.code = code
         self.code_is_excluded = code_is_excluded
         self.applies_to_descendants = applies_to_descendants

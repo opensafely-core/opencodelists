@@ -125,7 +125,7 @@
           >About</a
         >
       </li>
-      {% if definition %}
+      {% if definition_rows %}
       <li class="nav-item">
         <a
           class="nav-link"
@@ -205,7 +205,7 @@
         </ul>
       </div>
 
-      {% if definition %}
+      {% if definition_rows %}
       <div
         class="tab-pane fade p-4"
         id="definition"
@@ -219,7 +219,7 @@
         rules that define the codelist.
       </p>
       <ul>
-        {% for row in definition %}
+        {% for row in definition_rows %}
         <li>
           <a href="{% concept_url codelist.coding_system_id row.code %}" style="color: blue">
             {{ row.name }}

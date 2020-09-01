@@ -5,33 +5,33 @@ from django.urls import reverse
 
 
 @attr.s
-class Row:
+class DefinitionRow:
     """
     Data structure for a Definition to prepare for display
 
     name: name of the definition
     code: code of the definition
-    excluded_children: list of excluded children (created with this class too)
+    excluded_descendants: list of excluded children (created with this class too)
     all_descendants: are all of this Definitions descendants included?
 
-    Between all_descendants and excluded_children we can cover the three state
-    situation a Definition can be in:
+    Between all_descendants and excluded_descendants we can cover the three state
+    situation a DefinitionRow can be in:
 
-        * all descendants are included (all_descendants = True, excluded_children = [])
-        * all descendants except N (all_descendants = True, excluded_children = [...])
-        * no descendants (all_descendants = False, excluded_children ignored)
+        * all descendants are included (all_descendants = True, excluded_descendants = [])
+        * all descendants except N (all_descendants = True, excluded_descendants = [...])
+        * no descendants (all_descendants = False, excluded_descendants ignored)
 
     """
 
     name: str = attr.ib()
     code: str = attr.ib()
-    excluded_children: list = attr.ib(default=list())
+    excluded_descendants: list = attr.ib(default=list())
     all_descendants: bool = attr.ib(default=True)
 
 
 def _iter_rules(hierarchy, rules, name_for_rule, excluded=None):
     for rule in rules:
-        row = Row(
+        row = DefinitionRow(
             name=name_for_rule(rule),
             code=rule.code,
             all_descendants=rule.applies_to_descendants,
@@ -48,7 +48,7 @@ def _iter_rules(hierarchy, rules, name_for_rule, excluded=None):
         ]
 
         # generate excluded children by recursing into this function
-        row.excluded_children = list(
+        row.excluded_descendants = list(
             _iter_rules(hierarchy, excluding_rules, name_for_rule)
         )
 

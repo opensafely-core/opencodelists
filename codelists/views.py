@@ -311,7 +311,7 @@ def version(request, project_slug, codelist_slug, qualified_version_str):
         "headers": headers,
         "rows": rows,
         "html_tree": html_tree,
-        "definition": definition_rows,
+        "definition_rows": definition_rows,
     }
     return render(request, "codelists/version.html", ctx)
 

@@ -66,8 +66,8 @@ def test_build_definition_rows():
     assert row["all_descendants"]
 
     # the only excluded code should be 8
-    assert len(row["excluded_children"]) == 1
-    excluded = row["excluded_children"][0]
+    assert len(row["excluded_descendants"]) == 1
+    excluded = row["excluded_descendants"][0]
     assert excluded["code"] == "8"
 
 

@@ -67,6 +67,24 @@ def restart_service():
     run("systemctl restart app.opencodelists.web.service")
 
 
+def notify_sentry():
+    # get current sha
+    sha = run("git rev-parse --short HEAD")
+
+    # get Sentry deploy URL from the environment file
+    release_url = run(
+        "grep SENTRY_DEPLOY_URL environment | awk -F\"'\" '{ print $2}'", shell=True
+    )
+
+    # post the new version name to Sentry
+    # this command was taken from the releases page:
+    # https://sentry.io/settings/ebm-datalab/projects/opencodelists/release-tracking/
+    payload = f'{{"version": "{sha}"}}'
+    run(
+        f"curl {release_url} -X POST -H 'Content-Type: application/json' -d '{payload}'"
+    )
+
+
 @task
 def deploy():
     initalise_directory()
@@ -82,3 +100,4 @@ def deploy():
             set_up_nginx()
             set_up_systemd()
             restart_service()
+            notify_sentry()

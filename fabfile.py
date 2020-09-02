@@ -33,7 +33,7 @@ def update_from_git():
     run("git checkout --force origin/master")
 
 
-def install_requirements():
+def install_python_requirements():
     with prefix("source venv/bin/activate"):
         run("pip install --quiet --requirement requirements.txt")
 
@@ -45,6 +45,14 @@ def chown_everything():
 def run_migrations():
     with prefix("source venv/bin/activate"):
         run("python manage.py migrate")
+
+
+def install_js_requirements():
+    run("npm install")
+
+
+def build_static_assets():
+    run("npm run build")
 
 
 def set_up_nginx():
@@ -94,8 +102,10 @@ def deploy():
         with shell_env(DJANGO_SETTINGS_MODULE="opencodelists.settings"):
             create_venv()
             update_from_git()
-            install_requirements()
+            install_python_requirements()
             run_migrations()
+            install_js_requirements()
+            build_static_assets()
             chown_everything()
             set_up_nginx()
             set_up_systemd()

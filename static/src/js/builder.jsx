@@ -1,5 +1,8 @@
 "use strict";
 
+import React from "react";
+import ReactDOM from "react-dom";
+
 class CodelistBuilder extends React.Component {
   constructor(props) {
     super(props);

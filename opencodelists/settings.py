@@ -14,6 +14,7 @@ import sys
 
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
+from sentry_sdk.integrations.logging import ignore_logger
 
 from services.logging import logging_config_dict
 
@@ -169,6 +170,9 @@ CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 
 # Sentry
+# ignore the request logging middleware, it creates ungrouped events by default
+# https://docs.sentry.io/platforms/python/guides/logging/#ignoring-a-logger
+ignore_logger("django_structlog.middlewares.request")
 
 SENTRY_DSN = os.environ.get("SENTRY_DSN")
 if SENTRY_DSN:

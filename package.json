@@ -20,5 +20,5 @@
     "type": "git",
     "url": "git+https://github.com/ebmdatalab/opencodelists.git"
   },
-  "license": "GPL-3.0-only"
+  "license": "GPL-3.0-or-later"
 }

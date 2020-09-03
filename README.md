@@ -59,6 +59,7 @@ To build JS:
 To run tests:
 
 * `pytest` (or `./manage.py test`)
+* `npm run test`
 
 To check formatting:
 

@@ -1,6 +1,16 @@
 from opencodelists import actions
 
-from .factories import OrganisationFactory
+from .factories import OrganisationFactory, UserFactory
+
+
+def test_activate_user():
+    user = UserFactory(is_active=False)
+
+    user = actions.activate_user(user=user, password="test")
+
+    # user has been activated and has a password set
+    assert user.is_active
+    assert user.has_usable_password()
 
 
 def test_create_organisation():

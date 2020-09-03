@@ -4,8 +4,13 @@ from django.urls import include, path
 
 from . import views
 
+users_patterns = [
+    path("add/", views.UserCreate.as_view(), name="user-create"),
+]
+
 urlpatterns = [
     path("", include("codelists.urls")),
+    path("users/", include(users_patterns)),
     path("admin/", admin.site.urls),
     path("accounts/", include("django.contrib.auth.urls")),
     path("builder/", include("builder.urls")),

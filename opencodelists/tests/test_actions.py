@@ -23,3 +23,19 @@ def test_create_project():
     assert p.url == "https://test.org"
     assert p.details == "This is a test"
     assert list(p.organisations.all()) == [o]
+
+
+def test_create_user():
+    org = OrganisationFactory()
+
+    user = actions.create_user(
+        username="testym",
+        name="Testy McTesterson",
+        email="test@example.com",
+        organisation=org,
+    )
+
+    assert user.username == "testym"
+    assert user.name == "Testy McTesterson"
+    assert user.email == "test@example.com"
+    assert user.organisation == org

@@ -3,7 +3,7 @@ from collections import defaultdict
 from coding_systems.ctv3.models import Concept as CTV3Concept
 from coding_systems.snomedct.coding_system import descendant_relationships, lookup_names
 from coding_systems.snomedct.models import Concept as SCTConcept
-from coding_systems.snomedct.models import HistorySubstitution, QueryTableRecord
+from coding_systems.snomedct.models import QueryTableRecord
 
 from .models import Mapping
 
@@ -55,23 +55,8 @@ def ctv3_to_snomedct(ctv3_ids):
     )
     inactive_ids = query_table_subtype_ids - active_ids
 
-    # Find all extra SNOMED CT concepts that are mapped to from these inactive
-    # concepts via the History Substitution Table.
-    history_substitution_new_ids = set(
-        HistorySubstitution.objects.filter(old_concept_id__in=inactive_ids)
-        .values_list("new_concept_id", flat=True)
-        .distinct()
-    )
-    extra_ids = history_substitution_new_ids - active_ids
-
     # Build mapping from SNOMED CT ID to CTV3 ID.
-    all_ids = (
-        snomedct_ids
-        | ctv3_leaf_snomedct_ids
-        | descendant_ids
-        | inactive_ids
-        | extra_ids
-    )
+    all_ids = snomedct_ids | ctv3_leaf_snomedct_ids | descendant_ids | inactive_ids
 
     snomedct_id_to_ctv3_id = defaultdict(list)
     for mapping in Mapping.objects.filter(
@@ -90,7 +75,6 @@ def ctv3_to_snomedct(ctv3_ids):
         (snomedct_ids, "direct mapping"),
         (descendant_ids, "descendant of concept mapped from leaf"),
         (inactive_ids, "via Query Table"),
-        (extra_ids, "via History Substitution Table"),
     ]:
         for snomedct_id in ids:
             records.append(

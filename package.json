@@ -2,13 +2,15 @@
   "name": "opencodelists",
   "scripts": {
     "build": "webpack --mode production",
-    "watch": "webpack --watch --mode development"
+    "watch": "webpack --watch --mode development",
+    "test": "jest"
   },
   "devDependencies": {
     "@babel/core": "^7.11.4",
     "@babel/preset-env": "^7.11.0",
     "@babel/preset-react": "^7.10.4",
     "babel-loader": "^8.1.0",
+    "jest": "^26.4.2",
     "webpack": "^4.44.1",
     "webpack-cli": "^3.3.12"
   },

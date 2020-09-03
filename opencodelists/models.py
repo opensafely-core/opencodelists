@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.core.signing import Signer
 from django.db import models
+from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.text import slugify
 
@@ -83,6 +84,9 @@ class User(AbstractBaseUser):
     @cached_property
     def signed_username(self):
         return Signer(salt=SET_PASSWORD_SALT).sign(self.username)
+
+    def get_set_password_url(self):
+        return reverse("user-set-password", kwargs={"token": self.signed_username})
 
     @staticmethod
     def unsign_username(token):

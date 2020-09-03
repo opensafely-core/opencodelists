@@ -11,6 +11,11 @@ users_patterns = [
         name="user-set-password",
     ),
     path("add/", views.UserCreate.as_view(), name="user-create"),
+    path(
+        "added/<username>/",
+        views.user_activation_url,
+        name="user-activation-url",
+    ),
 ]
 
 urlpatterns = [

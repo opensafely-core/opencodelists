@@ -14,6 +14,42 @@ pytestmark = [
 ]
 
 
+def test_useractivationurl_already_active(client):
+    user = UserFactory(is_active=True)
+
+    client.force_login(UserFactory())
+    response = client.get(f"/users/added/{user.username}/", follow=True)
+
+    assert response.status_code == 200
+
+    messages = list(response.context["messages"])
+    assert len(messages) == 1
+    assert str(messages[0]) == f"User '{user.username}' has already been activated."
+
+
+def test_useractivationurl_success(client):
+    user = UserFactory(is_active=False)
+
+    client.force_login(UserFactory())
+    response = client.get(f"/users/added/{user.username}/")
+
+    assert response.status_code == 200
+
+    messages = list(response.context["messages"])
+    assert len(messages) == 0
+
+
+def test_useractivationurl_unknown_user(client):
+    client.force_login(UserFactory())
+    response = client.get("/users/added/foo/", follow=True)
+
+    assert response.status_code == 200
+
+    messages = list(response.context["messages"])
+    assert len(messages) == 1
+    assert str(messages[0]) == "Unknown user 'foo'"
+
+
 def test_usercreate_renders_form(rf):
     request = rf.get("/")
     request.user = UserFactory()

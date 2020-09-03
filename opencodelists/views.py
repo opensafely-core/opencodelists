@@ -18,6 +18,24 @@ def project(request, project_slug):
     return render(request, "opencodelists/project.html", ctx)
 
 
+@login_required
+def user_activation_url(request, username):
+    try:
+        user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        messages.error(request, f"Unknown user '{username}'")
+        return redirect("/")
+
+    if user.is_active:
+        messages.error(request, f"User '{username}' has already been activated.")
+        return redirect("/")
+
+    template_name = "opencodelists/user_activation_url.html"
+    url = request.build_absolute_uri(user.get_set_password_url())
+    context = {"user": user, "url": url}
+    return TemplateResponse(request, template_name, context)
+
+
 @method_decorator(login_required, name="dispatch")
 class UserCreate(CreateView):
     form_class = UserForm
@@ -34,7 +52,7 @@ class UserCreate(CreateView):
 
         messages.success(self.request, f"Created user '{user.username}'")
 
-        return redirect("/")
+        return redirect("user-activation-url", username=user.username)
 
 
 def user_set_password(request, token):

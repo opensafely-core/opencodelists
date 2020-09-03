@@ -120,4 +120,4 @@ class Hierarchy {
   }
 }
 
-export { Hierarchy as default }
+export { Hierarchy as default };

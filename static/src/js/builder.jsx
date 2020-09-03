@@ -414,7 +414,6 @@ function readValueFromPage(id) {
   return JSON.parse(document.getElementById(id).textContent);
 }
 
-
 const hierarchy = new Hierarchy(
   readValueFromPage("parent-map"),
   readValueFromPage("child-map")

@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<br />
+<h3>SNOMED CT History Substitutions</h3>
+<br />
+
+{% if substitutions %}
+<p>There are {{ substitutions|length }} matching substitutions.</p>
+
+<table class="table">
+	<thead>
+		<tr>
+			<th colspan="4">Old concept</th>
+			<th colspan="4">New concept</th>
+			<th rowspan="2">Ambiguous</th>
+			<th rowspan="2">Path</th>
+			<th rowspan="2">Iterations</th>
+			<th rowspan="2">TLH identical</th>
+			<th rowspan="2">FSN tagless identical</th>
+			<th rowspan="2">FSN tag identical</th>
+		</tr>
+		<tr>
+			<th>Code</th>
+			<th>Status</th>
+			<th>FSN</th>
+			<th>FSN tag count</th>
+			<th>Code</th>
+			<th>Status</th>
+			<th>FSN</th>
+			<th>FSN tag count</th>
+		</tr>
+	</thead>
+	<tbody>
+	{% for s in substitutions %}
+	<tr>
+		<td>{{ s.old_concept_id }}</td>
+		<td>{{ s.old_concept_status }}</td>
+		<td>{{ s.old_concept_fsn }}</td>
+		<td>{{ s.old_concept_fsn_tagcount }}</td>
+		<td>{{ s.new_concept_id }}</td>
+		<td>{{ s.new_concept_status }}</td>
+		<td>{{ s.new_concept_fsn }}</td>
+		<td>{{ s.new_concept_fsn_tagcount }}</td>
+		<td>{{ s.is_ambiguous }}</td>
+		<td>{{ s.path }}</td>
+		<td>{{ s.iterations }}</td>
+		<td>{{ s.tlh_identical_flag|yesno }}</td>
+		<td>{{ s.fsn_tagless_identical_flag|yesno }}</td>
+		<td>{{ s.fsn_tag_identical_flag|yesno }}</td>
+	</tr>
+	{% endfor %}
+	</tbody>
+</table>
+{% endif %}
+{% endblock %}

@@ -21,10 +21,12 @@ def convert_codelist(project, slug):
     codelist = Codelist.objects.get(project_id=project, slug=slug)
     assert codelist.coding_system_id in ["ctv3", "ctv3tpp"]
 
+    version = codelist.versions.first()
+
     buf = StringIO()
     writer = csv.writer(buf)
     writer.writerow(["id", "name", "active", "notes"])
-    for record in ctv3_to_snomedct(codelist.codes):
+    for record in ctv3_to_snomedct(version.codes):
         writer.writerow(
             [
                 record["id"],

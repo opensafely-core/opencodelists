@@ -2,6 +2,7 @@ import csv
 from io import StringIO
 
 from django.core.management import BaseCommand
+from django.db import transaction
 
 from mappings.ctv3sctmap2.mappers import ctv3_to_snomedct
 
@@ -36,12 +37,16 @@ def convert_codelist(project, slug):
             ]
         )
 
-    return Codelist.objects.create(
-        name=codelist.name + " (SNOMED)",
-        project=codelist.project,
-        coding_system_id="snomedct",
-        version_str=codelist.version_str,
-        description=f"Automatically-generated equivalent of [{codelist.name}]({codelist.get_absolute_url()})",
-        methodology="See [code on GitHub](https://github.com/opensafely/opencodelists/blob/master/codelists/management/commands/convert_codelist.py)",
-        csv_data=buf.getvalue(),
-    )
+    with transaction.atomic():
+        codelist = Codelist.objects.create(
+            name=codelist.name + " (SNOMED)",
+            project=codelist.project,
+            coding_system_id="snomedct",
+            description=f"Automatically-generated equivalent of [{codelist.name}]({codelist.get_absolute_url()})",
+            methodology="See [code on GitHub](https://github.com/opensafely/opencodelists/blob/master/codelists/management/commands/convert_codelist.py)",
+        )
+
+        codelist.versions.create(
+            version_str=version.version_str,
+            csv_data=buf.getvalue(),
+        )

@@ -8,7 +8,9 @@ help:
 	@echo "    make run              run the dev server."
 	@echo "    make setup            set up/update the local dev env."
 	@echo "    make sort             run the sort checker (isort)."
-	@echo "    make test             run the test suite."
+	@echo "    make test-js          run the JavaScript test suite."
+	@echo "    make test-py          run the Python test suite."
+	@echo "    make test             run all test suites."
 
 .PHONY: deploy
 deploy:
@@ -46,11 +48,18 @@ sort:
 		isort --check-only --diff . \
 		|| exit 1
 
-.PHONY: test
-test:
+.PHONY: test-js
+test-js:
+	npm run test
+
+.PHONY: test-py
+test-py:
 	pytest \
 		--cov=builder \
 		--cov=codelists \
 		--cov=coding_systems \
 		--cov=mappings \
-		--cov=opencodelists \
+		--cov=opencodelists
+
+.PHONY: test
+test: test-js test-py

@@ -5,7 +5,7 @@ on:
   push:
 
 jobs:
-  build:
+  build-py:
     runs-on: ubuntu-latest
 
     steps:
@@ -26,7 +26,7 @@ jobs:
           key: venv-${{ github.ref }}-${{ hashFiles('requirements.txt') }}
 
   format:
-    needs: build
+    needs: build-py
     runs-on: ubuntu-latest
 
     steps:
@@ -46,7 +46,7 @@ jobs:
           make format
 
   lint:
-    needs: build
+    needs: build-py
     runs-on: ubuntu-latest
 
     steps:
@@ -65,7 +65,7 @@ jobs:
           make lint
 
   sort:
-    needs: build
+    needs: build-py
     runs-on: ubuntu-latest
 
     steps:
@@ -83,7 +83,7 @@ jobs:
           source ${{ github.workspace }}/venv/bin/activate
           make sort
 
-  test:
+  test-py:
     needs: [format, lint, sort]
     runs-on: ubuntu-latest
 
@@ -100,4 +100,41 @@ jobs:
       - name: Run tests
         run: |
           source ${{ github.workspace }}/venv/bin/activate
-          make test
+          make test-py
+
+  build-js:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache node modules
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ./node_modules
+          key: build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            build-${{ env.cache-name }}-
+            build-
+      - name: Install dependencies
+        run: npm install
+
+  test-js:
+    needs: [build-js]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup node
+        uses: actions/setup-node@v1
+        with:
+          node-version: '12'
+      - name: Cache node modules
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ./node_modules
+          key: build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+      - run: make test-js

@@ -253,11 +253,12 @@ function Row(props) {
     toggleVisibility,
   } = props;
 
-  const style = { display: isVisible ? "flex" : "none" };
-  const className = row.pipes.length === 0 ? "mt-2" : "mt-0";
+  const visibility = isVisible ? "d-flex" : "d-none";
+  const rowSpacing = row.pipes.length === 0 ? "mt-2" : "mt-0";
+  const className = `row ${rowSpacing} ${visibility}`;
 
   return (
-    <div className="row" style={style} className={className}>
+    <div className={className}>
       <div className="btn-group btn-group-sm" role="group">
         <Button
           code={row.code}

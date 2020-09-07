@@ -75,7 +75,7 @@ class CodelistBuilder extends React.Component {
         const lastUpdates = data.updates;
 
         this.setState(
-          (state, props) => {
+          (state) => {
             const newUpdateQueue = state.updateQueue.slice(lastUpdates.length);
             return { updating: false, updateQueue: newUpdateQueue };
           },
@@ -86,7 +86,7 @@ class CodelistBuilder extends React.Component {
   }
 
   toggleVisibility(code) {
-    this.setState((state, props) => ({
+    this.setState((state) => ({
       ["expanded-" + code]: !state["expanded-" + code],
     }));
   }
@@ -244,7 +244,6 @@ function Table(props) {
 function Row(props) {
   const {
     row,
-    ix,
     status,
     hasDescendants,
     isVisible,

@@ -18,6 +18,7 @@
         "react"
     ],
     "rules": {
+        "no-prototype-builtins": "off",
         "react/prop-types": "off"
     },
     "settings": {

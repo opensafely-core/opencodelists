@@ -8,13 +8,16 @@ class CodelistBuilder extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = { updateQueue: [], updating: false };
-
     this.codes = props.hierarchy.nodes;
+
+    let state = { updateQueue: [], updating: false };
+
     this.codes.forEach((code) => {
-      this.state["status-" + code] = props.codeToStatus[code];
-      this.state["expanded-" + code] = true;
+      state["status-" + code] = props.codeToStatus[code];
+      state["expanded-" + code] = true;
     });
+
+    this.state = state;
 
     this.updateStatus = this.updateStatus.bind(this);
     this.toggleVisibility = this.toggleVisibility.bind(this);

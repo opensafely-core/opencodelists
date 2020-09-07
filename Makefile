@@ -3,7 +3,8 @@ help:
 	@echo "    make help             prints this help."
 	@echo "    make deploy           deploy the project."
 	@echo "    make fix              fix formatting and import sort ordering."
-	@echo "    make format           run the format checker (black)."
+	@echo "    make format-js        run the JavaScript format checker (prettier)."
+	@echo "    make format-py        run the Python format checker (black)."
 	@echo "    make lint-js          run the JavaScript linter (eslint)."
 	@echo "    make lint-py          run the Python linter (flake8)."
 	@echo "    make run              run the dev server."
@@ -24,7 +25,7 @@ fix:
 
 .PHONY: format-js
 format-js:
-	npx prettier .
+	npx prettier . --check || exit 1
 
 .PHONY: format-py
 format-py:

@@ -1,0 +1,14 @@
+.babelrc
+.direnv
+.eslintrc.json
+.github/workflows/*
+.pre-commit-config.yaml
+.pytest_cache/*
+.venv
+README.md
+codelists/tests/expected_html_tree.html
+coding_systems/snomedct/fixtures/*
+htmlcov
+static/dist/*
+templates
+venv

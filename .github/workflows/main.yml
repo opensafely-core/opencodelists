@@ -25,7 +25,7 @@ jobs:
           path: ${{ github.workspace }}/venv
           key: venv-${{ github.ref }}-${{ hashFiles('requirements.txt') }}
 
-  format:
+  format-py:
     needs: build-py
     runs-on: ubuntu-latest
 
@@ -43,7 +43,7 @@ jobs:
       - name: Check formatting
         run: |
           source ${{ github.workspace }}/venv/bin/activate
-          make format
+          make format-py
 
   lint-py:
     needs: build-py
@@ -84,7 +84,7 @@ jobs:
           make sort
 
   test-py:
-    needs: [format, lint-py, sort]
+    needs: [format-py, lint-py, sort]
     runs-on: ubuntu-latest
 
     steps:
@@ -120,6 +120,25 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+  format-js:
+    needs: [build-js]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup node
+        uses: actions/setup-node@v1
+        with:
+          node-version: '12'
+      - name: Cache node modules
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ./node_modules
+          key: build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+      - run: make format-js
+
   lint-js:
     needs: [build-js]
     runs-on: ubuntu-latest
@@ -140,7 +159,7 @@ jobs:
       - run: make lint-js
 
   test-js:
-    needs: [lint-js]
+    needs: [format-js, lint-js]
     runs-on: ubuntu-latest
 
     steps:

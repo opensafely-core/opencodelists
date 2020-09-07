@@ -4,7 +4,8 @@ help:
 	@echo "    make deploy           deploy the project."
 	@echo "    make fix              fix formatting and import sort ordering."
 	@echo "    make format           run the format checker (black)."
-	@echo "    make lint             run the linter (flake8)."
+	@echo "    make lint-js          run the JavaScript linter (eslint)."
+	@echo "    make lint-py          run the Python linter (flake8)."
 	@echo "    make run              run the dev server."
 	@echo "    make setup            set up/update the local dev env."
 	@echo "    make sort             run the sort checker (isort)."
@@ -21,14 +22,22 @@ fix:
 	black .
 	isort .
 
-.PHONY: format
-format:
+.PHONY: format-js
+format-js:
+	npx prettier .
+
+.PHONY: format-py
+format-py:
 	@echo "Running black" && \
 		black --check . \
 		|| exit 1
 
-.PHONY: lint
-lint:
+.PHONY: lint-js
+lint-js:
+	npx eslint static/src/js/builder.jsx static/src/js/hierarchy.js
+
+.PHONY: lint-py
+lint-py:
 	@echo "Running flake8" && \
 		flake8 \
 		|| exit 1

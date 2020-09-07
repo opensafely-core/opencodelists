@@ -45,7 +45,7 @@ jobs:
           source ${{ github.workspace }}/venv/bin/activate
           make format
 
-  lint:
+  lint-py:
     needs: build-py
     runs-on: ubuntu-latest
 
@@ -62,7 +62,7 @@ jobs:
       - name: Check linting
         run: |
           source ${{ github.workspace }}/venv/bin/activate
-          make lint
+          make lint-py
 
   sort:
     needs: build-py
@@ -84,7 +84,7 @@ jobs:
           make sort
 
   test-py:
-    needs: [format, lint, sort]
+    needs: [format, lint-py, sort]
     runs-on: ubuntu-latest
 
     steps:
@@ -120,8 +120,27 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-  test-js:
+  lint-js:
     needs: [build-js]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup node
+        uses: actions/setup-node@v1
+        with:
+          node-version: '12'
+      - name: Cache node modules
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ./node_modules
+          key: build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+      - run: make lint-js
+
+  test-js:
+    needs: [lint-js]
     runs-on: ubuntu-latest
 
     steps:

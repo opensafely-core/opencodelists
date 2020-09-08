@@ -34,7 +34,7 @@ filelock==3.0.12          # via virtualenv
 flake8==3.8.3             # via -r requirements.in
 freezegun==0.3.15         # via pytest-freezegun
 gunicorn==20.0.4          # via -r requirements.in
-hypothesis==5.30.0        # via -r requirements.in
+hypothesis==5.33.1        # via -r requirements.in
 identify==1.4.25          # via pre-commit
 iniconfig==1.0.1          # via pytest
 isort==5.5.1              # via -r requirements.in

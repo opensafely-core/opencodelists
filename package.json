@@ -10,7 +10,11 @@
     "@babel/preset-env": "^7.11.0",
     "@babel/preset-react": "^7.10.4",
     "babel-loader": "^8.1.0",
+    "eslint": "^7.8.1",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-react": "^7.20.6",
     "jest": "^26.4.2",
+    "prettier": "2.1.1",
     "webpack": "^4.44.1",
     "webpack-cli": "^3.3.12"
   },

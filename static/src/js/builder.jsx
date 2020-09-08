@@ -8,13 +8,16 @@ class CodelistBuilder extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = { updateQueue: [], updating: false };
-
     this.codes = props.hierarchy.nodes;
+
+    let state = { updateQueue: [], updating: false };
+
     this.codes.forEach((code) => {
-      this.state["status-" + code] = props.codeToStatus[code];
-      this.state["expanded-" + code] = true;
+      state["status-" + code] = props.codeToStatus[code];
+      state["expanded-" + code] = true;
     });
+
+    this.state = state;
 
     this.updateStatus = this.updateStatus.bind(this);
     this.toggleVisibility = this.toggleVisibility.bind(this);
@@ -72,7 +75,7 @@ class CodelistBuilder extends React.Component {
         const lastUpdates = data.updates;
 
         this.setState(
-          (state, props) => {
+          (state) => {
             const newUpdateQueue = state.updateQueue.slice(lastUpdates.length);
             return { updating: false, updateQueue: newUpdateQueue };
           },
@@ -83,7 +86,7 @@ class CodelistBuilder extends React.Component {
   }
 
   toggleVisibility(code) {
-    this.setState((state, props) => ({
+    this.setState((state) => ({
       ["expanded-" + code]: !state["expanded-" + code],
     }));
   }
@@ -241,7 +244,6 @@ function Table(props) {
 function Row(props) {
   const {
     row,
-    ix,
     status,
     hasDescendants,
     isVisible,
@@ -251,11 +253,12 @@ function Row(props) {
     toggleVisibility,
   } = props;
 
-  const style = { display: isVisible ? "flex" : "none" };
-  const className = row.pipes.length === 0 ? "mt-2" : "mt-0";
+  const visibility = isVisible ? "d-flex" : "d-none";
+  const rowSpacing = row.pipes.length === 0 ? "mt-2" : "mt-0";
+  const className = `row ${rowSpacing} ${visibility}`;
 
   return (
-    <div className="row" style={style} className={className}>
+    <div className={className}>
       <div className="btn-group btn-group-sm" role="group">
         <Button
           code={row.code}

@@ -8,6 +8,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_POST
 from django.views.generic import FormView, TemplateView
 
+from coding_systems.snomedct.models import Concept as SnomedConcept
 from opencodelists.models import Project
 
 from . import actions
@@ -286,23 +287,35 @@ def version(request, project_slug, codelist_slug, qualified_version_str):
     if expect_draft != clv.is_draft:
         return redirect(clv)
 
-    headers, *rows = clv.table
-
-    definition_rows = []
+    definition_rows = {}
     html_tree = None
     if clv.coding_system_id in ["ctv3", "ctv3tpp", "snomedct"]:
         if clv.coding_system_id in ["ctv3", "ctv3tpp"]:
             coding_system = CODING_SYSTEMS["ctv3"]
         else:
             coding_system = CODING_SYSTEMS["snomedct"]
+
         hierarchy = Hierarchy.from_codes(coding_system, clv.codes)
         definition = Definition.from_codes(set(clv.codes), hierarchy)
-        definition_rows = build_definition_rows(coding_system, hierarchy, definition)
+        rows = build_definition_rows(coding_system, hierarchy, definition)
+
+        if clv.coding_system_id == "snomedct":
+            inactive_codes = SnomedConcept.objects.filter(
+                id__in=clv.codes, active=False
+            ).values_list("id", flat=True)
+            definition_rows = {
+                "active": [r for r in rows if r["code"] not in inactive_codes],
+                "inactive": [r for r in rows if r["code"] in inactive_codes],
+            }
+        else:
+            definition_rows = {"active": rows, "inactive": []}
 
         if clv.coding_system_id in ["ctv3", "ctv3tpp"]:
             html_tree = build_html_tree_highlighting_codes(
                 coding_system, hierarchy, definition
             )
+
+    headers, *rows = clv.table
 
     ctx = {
         "clv": clv,

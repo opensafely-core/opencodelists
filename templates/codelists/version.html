@@ -1,6 +1,5 @@
 {% extends 'base.html' %}
 
-{% load definitions %}
 {% load markdown_filter %}
 
 {% block title_extra %}: {{ codelist.name }}{% endblock %}
@@ -213,42 +212,29 @@
         aria-labelledby="definition-tab"
       >
 
-      <p>
-        This definition has been computed by taking the manually created
-        <a href="#full-list">full codelist</a> and converting it to a list of
-        rules that define the codelist.
-      </p>
-      <ul>
-        {% for row in definition_rows %}
-        <li>
-          <a href="{% concept_url codelist.coding_system_id row.code %}" style="color: blue">
-            {{ row.name }}
-          </a>
-          (<code>{{ row.code }}</code>)
+        <p>
+          This definition has been computed by taking the manually created
+          <a href="#full-list">full codelist</a> and converting it to a list of
+          rules that define the codelist.
+        </p>
 
-          {% if row.all_descendants %}
-          and all descendants {% if row.excluded_children %} except:{% endif %}
-          {% endif %}
+        {% if codelist.coding_system_id == "snomedct" %}
+        {% if definition_rows.active %}
+        <strong>Active Concepts</strong>
+        {% include "codelists/_definition_rows.html" with rows=definition_rows.active %}
 
-          {% if row.excluded_children %}
-          <ul class="mb-0">
+        <hr />
+        {% endif %}
 
-            {% for child in row.excluded_children %}
-            <li>
-              <a href="{% concept_url codelist.coding_system_id child.code %}" style="color: black">
-                {{ child.name }}
-              </a>
-              (<code>{{ child.code }}</code>)
-            </li>
-            {% endfor %}
+        {% if definition_rows.inactive %}
+        <strong>Inactive Concepts</strong>
+        {% include "codelists/_definition_rows.html" with rows=definition_rows.inactive %}
+        {% endif %}
 
-          </ul>
+        {% else %}
+        {% include "codelists/_definition_rows.html" with rows=definition_rows.active %}
+        {% endif %}
 
-          {% endif %}
-        </li>
-
-        {% endfor %}
-      </ul>
       </div>
       {% endif %}
 

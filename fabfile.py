@@ -8,7 +8,6 @@ env.colorize_errors = True
 env.hosts = ["smallweb1.ebmdatalab.net"]
 env.user = "root"
 env.path = "/var/www/opencodelists"
-env.use_ssh_config = True
 
 
 def initalise_directory():

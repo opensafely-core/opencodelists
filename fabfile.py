@@ -48,7 +48,7 @@ def run_migrations():
 
 
 def install_js_requirements():
-    run("npm install")
+    run("npm install --no-progress")
 
 
 def build_static_assets():

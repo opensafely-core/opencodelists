@@ -1,4 +1,10 @@
 class Hierarchy {
+  nodes: Set<string>;
+  parentMap: { [key: string]: Array<string> };
+  childMap: { [key: string]: Array<string> };
+  ancestorMap: { [key: string]: Array<string> };
+  descendantMap: { [key: string]: Array<string> };
+
   constructor(parentMap, childMap) {
     this.nodes = new Set([...Object.keys(parentMap), ...Object.keys(childMap)]);
     this.parentMap = parentMap;
@@ -9,7 +15,7 @@ class Hierarchy {
 
   getAncestors(node) {
     if (!(node in this.ancestorMap)) {
-      let ancestors = [];
+      let ancestors: Array<string> = [];
       if (node in this.parentMap) {
         for (let parent of this.parentMap[node]) {
           ancestors.push(parent);
@@ -27,7 +33,7 @@ class Hierarchy {
 
   getDescendants(node) {
     if (!(node in this.descendantMap)) {
-      let descendants = [];
+      let descendants: Array<string> = [];
       if (node in this.childMap) {
         for (let child of this.childMap[node]) {
           descendants.push(child);

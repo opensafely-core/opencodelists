@@ -12,9 +12,17 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.jsx$/,
-        loader: "babel-loader",
+        test: /\.(t|j)sx?$/,
+        use: { loader: "ts-loader" },
+      },
+
+      {
+        enforce: "pre",
+        test: /\.js$/,
+        exclude: /node_modules/,
+        loader: "source-map-loader",
       },
     ],
   },
+  devtool: "source-map",
 };

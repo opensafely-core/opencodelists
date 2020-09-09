@@ -62,8 +62,8 @@ def test_nodes():
 def test_parent_map():
     hierarchy = build_small_hierarchy()
 
+    assert len(hierarchy.parent_map) == 5
     for node, children in {
-        "a": set(),
         "b": {"a"},
         "c": {"a"},
         "d": {"b"},
@@ -76,13 +76,11 @@ def test_parent_map():
 def test_child_map():
     hierarchy = build_small_hierarchy()
 
+    assert len(hierarchy.child_map) == 3
     for node, parents in {
         "a": {"b", "c"},
         "b": {"d", "e"},
         "c": {"e", "f"},
-        "d": set(),
-        "e": set(),
-        "f": set(),
     }.items():
         assert hierarchy.child_map[node] == parents
 

@@ -1,6 +1,6 @@
 class Hierarchy {
   constructor(parentMap, childMap) {
-    this.nodes = Object.keys(parentMap);
+    this.nodes = new Set([...Object.keys(parentMap), ...Object.keys(childMap)]);
     this.parentMap = parentMap;
     this.childMap = childMap;
     this.ancestorMap = {};

@@ -195,7 +195,6 @@ test("codeStatus", () => {
 
 function buildTestHierarchy() {
   const parentMap = {
-    a: [],
     b: ["a"],
     c: ["a"],
     d: ["b"],
@@ -213,10 +212,6 @@ function buildTestHierarchy() {
     d: ["g", "h"],
     e: ["h", "i"],
     f: ["i", "j"],
-    g: [],
-    h: [],
-    i: [],
-    j: [],
   };
 
   return new Hierarchy(parentMap, childMap);

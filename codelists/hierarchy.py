@@ -41,7 +41,7 @@ class Hierarchy:
         m = defaultdict(set)
         for parent, child in self.edges:
             m[parent].add(child)
-        return m
+        return dict(m)
 
     @cached_property
     def parent_map(self):
@@ -50,7 +50,7 @@ class Hierarchy:
         m = defaultdict(set)
         for parent, child in self.edges:
             m[child].add(parent)
-        return m
+        return dict(m)
 
     @lru_cache(maxsize=None)
     def descendants(self, node):
@@ -61,7 +61,7 @@ class Hierarchy:
         """
 
         descendants = set()
-        for child in self.child_map[node]:
+        for child in self.child_map.get(node, []):
             descendants.add(child)
             descendants |= self.descendants(child)
         return descendants
@@ -74,7 +74,7 @@ class Hierarchy:
         """
 
         ancestors = set()
-        for parent in self.parent_map[node]:
+        for parent in self.parent_map.get(node, []):
             ancestors.add(parent)
             ancestors |= self.ancestors(parent)
         return ancestors
@@ -88,7 +88,7 @@ class Hierarchy:
         """
 
         def helper(node, depth):
-            children = self.child_map[node]
+            children = self.child_map.get(node, [])
             size = len(children)
             for ix, child in enumerate(sorted(children, key=sort_key)):
                 yield NodeWithMetadata(

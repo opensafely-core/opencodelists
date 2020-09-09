@@ -10,10 +10,12 @@ class Hierarchy {
   getAncestors(node) {
     if (!this.ancestorMap.hasOwnProperty(node)) {
       let ancestors = [];
-      for (let parent of this.parentMap[node]) {
-        ancestors.push(parent);
-        for (let ancestor of this.getAncestors(parent)) {
-          ancestors.push(ancestor);
+      if (node in this.parentMap) {
+        for (let parent of this.parentMap[node]) {
+          ancestors.push(parent);
+          for (let ancestor of this.getAncestors(parent)) {
+            ancestors.push(ancestor);
+          }
         }
       }
 
@@ -26,10 +28,12 @@ class Hierarchy {
   getDescendants(node) {
     if (!this.descendantMap.hasOwnProperty(node)) {
       let descendants = [];
-      for (let child of this.childMap[node]) {
-        descendants.push(child);
-        for (let descendant of this.getDescendants(child)) {
-          descendants.push(descendant);
+      if (node in this.childMap) {
+        for (let child of this.childMap[node]) {
+          descendants.push(child);
+          for (let descendant of this.getDescendants(child)) {
+            descendants.push(descendant);
+          }
         }
       }
 

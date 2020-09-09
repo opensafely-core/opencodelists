@@ -29,7 +29,7 @@ def create_venv():
 
 
 def update_from_git():
-    run("git fetch --all")
+    run("git fetch --all --quiet")
     run("git checkout --force origin/master")
 
 
@@ -48,7 +48,7 @@ def run_migrations():
 
 
 def install_js_requirements():
-    run("npm install")
+    run("npm install --no-progress")
 
 
 def build_static_assets():

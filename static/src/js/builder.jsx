@@ -255,7 +255,7 @@ function Row(props) {
 
   const visibility = isVisible ? "d-flex" : "d-none";
   const rowSpacing = row.pipes.length === 0 ? "mt-2" : "mt-0";
-  const className = `row ${rowSpacing} ${visibility}`;
+  const className = `${rowSpacing} ${visibility}`;
 
   return (
     <div className={className}>

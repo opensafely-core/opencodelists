@@ -8,7 +8,7 @@ class Hierarchy {
   }
 
   getAncestors(node) {
-    if (!this.ancestorMap.hasOwnProperty(node)) {
+    if (!(node in this.ancestorMap)) {
       let ancestors = [];
       if (node in this.parentMap) {
         for (let parent of this.parentMap[node]) {
@@ -26,7 +26,7 @@ class Hierarchy {
   }
 
   getDescendants(node) {
-    if (!this.descendantMap.hasOwnProperty(node)) {
+    if (!(node in this.descendantMap)) {
       let descendants = [];
       if (node in this.childMap) {
         for (let child of this.childMap[node]) {

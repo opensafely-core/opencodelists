@@ -1,8 +1,8 @@
 "use strict";
 
 import React from "react";
-import ReactDOM from "react-dom";
-import Hierarchy from "./hierarchy";
+
+import { getCookie } from "../utils";
 
 class CodelistBuilder extends React.Component {
   constructor(props) {
@@ -110,7 +110,14 @@ class CodelistBuilder extends React.Component {
   }
 
   counts() {
-    let counts = { "?": 0, "!": 0, "+": 0, "(+)": 0, "-": 0, "(-)": 0 };
+    let counts = {
+      "?": 0,
+      "!": 0,
+      "+": 0,
+      "(+)": 0,
+      "-": 0,
+      "(-)": 0,
+    };
     this.codes.forEach((code) => {
       counts[this.getStatus(code)] += 1;
     });
@@ -396,42 +403,4 @@ function Summary(props) {
   );
 }
 
-// From https://docs.djangoproject.com/en/3.0/ref/csrf/
-function getCookie(name) {
-  let cookieValue = null;
-  if (document.cookie && document.cookie !== "") {
-    const cookies = document.cookie.split(";");
-    for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i].trim();
-      // Does this cookie string begin with the name we want?
-      if (cookie.substring(0, name.length + 1) === name + "=") {
-        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-        break;
-      }
-    }
-  }
-  return cookieValue;
-}
-
-function readValueFromPage(id) {
-  return JSON.parse(document.getElementById(id).textContent);
-}
-
-const hierarchy = new Hierarchy(
-  readValueFromPage("parent-map"),
-  readValueFromPage("child-map")
-);
-
-ReactDOM.render(
-  <CodelistBuilder
-    searches={readValueFromPage("searches")}
-    filter={readValueFromPage("filter")}
-    codeToStatus={readValueFromPage("code-to-status")}
-    tables={readValueFromPage("tables")}
-    isEditable={readValueFromPage("isEditable")}
-    updateURL={readValueFromPage("update-url")}
-    searchURL={readValueFromPage("search-url")}
-    hierarchy={hierarchy}
-  />,
-  document.querySelector("#codelist-builder-container")
-);
+export { CodelistBuilder as default };

@@ -19,7 +19,7 @@ afterEach(() => {
   container = null;
 });
 
-it("renders", () => {
+it("renders total count correctly", () => {
   const searches = [
     {
       term: "ketoacidosis",
@@ -310,5 +310,7 @@ it("renders", () => {
       />,
       container
     );
+
+    expect(container.querySelector("#summary-total").textContent).toBe("67");
   });
 });

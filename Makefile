@@ -35,7 +35,7 @@ format-py:
 
 .PHONY: lint-js
 lint-js:
-	npx eslint static/src/js/builder.jsx static/src/js/hierarchy.js
+	npx eslint static/src/js/builder/* static/src/js/hierarchy.js
 
 .PHONY: lint-py
 lint-py:

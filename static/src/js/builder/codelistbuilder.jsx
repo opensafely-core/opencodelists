@@ -117,11 +117,12 @@ class CodelistBuilder extends React.Component {
       "(+)": 0,
       "-": 0,
       "(-)": 0,
+      total: 0,
     };
     this.codes.forEach((code) => {
       counts[this.getStatus(code)] += 1;
+      counts["total"] += 1;
     });
-    counts["total"] = Object.values(counts).reduce((a, b) => a + b);
     return counts;
   }
 
@@ -374,29 +375,35 @@ function Summary(props) {
   return (
     <ul>
       <li>
-        Found {props.counts.total} active matching concepts (including
-        descendants).
+        Found <span id="summary-total">{props.counts.total}</span> active
+        matching concepts (including descendants).
       </li>
       {props.counts["+"] > 0 && (
         <li>
-          {props.counts["+"] + props.counts["(+)"]} have been{" "}
-          <a href="?filter=included">included</a> in the codelist.
+          <span id="summary-included">
+            {props.counts["+"] + props.counts["(+)"]}
+          </span>{" "}
+          have been <a href="?filter=included">included</a> in the codelist.
         </li>
       )}
       {props.counts["-"] > 0 && (
         <li>
-          {props.counts["-"] + props.counts["(-)"]} have been{" "}
-          <a href="?filter=excluded">excluded</a> from the codelist.
+          <span id="summary-excluded">
+            {props.counts["-"] + props.counts["(-)"]}
+          </span>{" "}
+          have been <a href="?filter=excluded">excluded</a> from the codelist.
         </li>
       )}
       {props.counts["?"] > 0 && (
         <li>
-          {props.counts["?"]} are <a href="?filter=unresolved">unresolved</a>.
+          <span id="summary-unresolved">{props.counts["?"]}</span> are{" "}
+          <a href="?filter=unresolved">unresolved</a>.
         </li>
       )}
       {props.counts["!"] > 0 && (
         <li>
-          {props.counts["!"]} are <a href="?filter=in-conflict">in conflict</a>.
+          <span id="summary-in-conflict">{props.counts["!"]}</span> are{" "}
+          <a href="?filter=in-conflict">in conflict</a>.
         </li>
       )}
     </ul>

@@ -103,6 +103,10 @@ def codelist(request, username, codelist_slug, search_slug=None):
         "user": codelist.owner,
         "codelist": codelist,
         "search": search,
+        # The following values are passed to the CodelistBuilder component.
+        # When any of these chage, use generate_builder_fixture to update
+        # static/test/js/fixtures/elbow.json.
+        # {
         "searches": searches,
         "filter": filter,
         "code_to_status": code_to_status,
@@ -112,6 +116,7 @@ def codelist(request, username, codelist_slug, search_slug=None):
         "is_editable": request.user == codelist.owner,
         "update_url": update_url,
         "search_url": search_url,
+        # }
     }
 
     return render(request, "builder/codelist.html", ctx)

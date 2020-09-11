@@ -270,7 +270,7 @@ function Row(props) {
   const className = `${rowSpacing} ${visibility}`;
 
   return (
-    <div className={className}>
+    <div className={className} data-code={row.code}>
       <div className="btn-group btn-group-sm" role="group">
         <Button
           code={row.code}
@@ -322,6 +322,7 @@ function Button(props) {
       type="button"
       onClick={isEditable && updateStatus.bind(null, code, symbol)}
       className={buttonClasses.join(" ")}
+      data-symbol={symbol}
     >
       {symbol}
     </button>

@@ -288,6 +288,8 @@ function Row(props) {
         />
       </div>
 
+      <MoreInfo status={status} />
+
       <TermAndCode
         term={row.term}
         code={row.code}
@@ -323,6 +325,46 @@ function Button(props) {
     >
       {symbol}
     </button>
+  );
+}
+
+function MoreInfo(props) {
+  const { status } = props;
+  let text = null;
+
+  switch (status) {
+    case "+":
+      text = "Included";
+      break;
+    case "(+)":
+      text = "Included by ancestor";
+      break;
+    case "-":
+      text = "Excluded";
+      break;
+    case "(-)":
+      text = "Excluded by ancestor";
+      break;
+    case "?":
+      text = "Unresolved";
+      break;
+    case "!":
+      text = "In conflict";
+      break;
+  }
+
+  return (
+    <div className="btn-group btn-group-sm mx-2" role="group">
+      <button
+        type="button"
+        data-toggle="tooltip"
+        data-placement="top"
+        title={text}
+        className="btn btn-outline-secondary py-0"
+      >
+        ?
+      </button>
+    </div>
   );
 }
 

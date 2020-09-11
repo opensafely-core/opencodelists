@@ -120,8 +120,11 @@ class CodelistBuilder extends React.Component {
       total: 0,
     };
     this.codes.forEach((code) => {
-      counts[this.getStatus(code)] += 1;
-      counts["total"] += 1;
+      const status = this.getStatus(code);
+      if (["?", "!", "+", "(+)", "-", "(-)"].includes(status)) {
+        counts[status] += 1;
+        counts["total"] += 1;
+      }
     });
     return counts;
   }

@@ -149,8 +149,10 @@ it("does the right thing when clicking around", () => {
       <CodelistBuilder
         searches={data.searches}
         filter={data.filter}
-        codeToStatus={data.code_to_status}
         tables={data.tables}
+        includedCodes={data.included_codes}
+        excludedCodes={data.excluded_codes}
+        displayedCodes={data.displayed_codes}
         isEditable={data.is_editable}
         updateURL={data.update_url}
         searchURL={data.search_url}

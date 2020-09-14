@@ -115,7 +115,7 @@ def build_html_tree_highlighting_codes(coding_system, hierarchy, definition):
     return "\n".join(lines)
 
 
-def tree_tables(ancestor_codes, hierarchy, code_to_term, code_to_type, code_to_status):
+def tree_tables(ancestor_codes, hierarchy, code_to_term, code_to_type):
     """Return list of tables of codes arranged in trees, grouped by type of code.
 
     Each table is a dict, with a heading and a list of rows.
@@ -143,7 +143,6 @@ def tree_tables(ancestor_codes, hierarchy, code_to_term, code_to_type, code_to_s
                 rows.append(
                     {
                         "code": code,
-                        "status": code_to_status[code],
                         "term": code_to_term[code],
                         "pipes": pipes,
                     }

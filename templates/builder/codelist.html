@@ -16,8 +16,10 @@
 {% block extra_js %}
 {{ searches|json_script:"searches" }}
 {{ filter|json_script:"filter" }}
-{{ code_to_status|json_script:"code-to-status" }}
 {{ tables|json_script:"tables" }}
+{{ included_codes|json_script:"included-codes" }}
+{{ excluded_codes|json_script:"excluded-codes" }}
+{{ displayed_codes|json_script:"displayed-codes" }}
 {{ parent_map|json_script:"parent-map" }}
 {{ child_map|json_script:"child-map" }}
 {{ is_editable|json_script:"isEditable" }}

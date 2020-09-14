@@ -54,25 +54,26 @@ def codelist(request, username, codelist_slug, search_slug=None):
     code_to_status = dict(codelist.codes.values_list("code", "status"))
     all_codes = list(code_to_status)
 
+    included_codes = [c for c in all_codes if code_to_status[c] == "+"]
+    excluded_codes = [c for c in all_codes if code_to_status[c] == "-"]
+
     if search_slug is None:
         search = None
-        codes_for_display = code_to_status
+        displayed_codes = list(code_to_status)
     else:
         search = get_object_or_404(codelist.searches, slug=search_slug)
-        codes_for_display = search.results.values_list("code__code", flat=True)
+        displayed_codes = list(search.results.values_list("code__code", flat=True))
 
     filter = request.GET.get("filter")
     if filter == "included":
-        codes_for_display = {c for c in codes_for_display if "+" in code_to_status[c]}
+        displayed_codes = [c for c in displayed_codes if "+" in code_to_status[c]]
     elif filter == "excluded":
-        codes_for_display = {c for c in codes_for_display if "-" in code_to_status[c]}
+        displayed_codes = [c for c in displayed_codes if "-" in code_to_status[c]]
     elif filter == "unresolved":
-        codes_for_display = {c for c in codes_for_display if code_to_status[c] == "?"}
+        displayed_codes = [c for c in displayed_codes if code_to_status[c] == "?"]
     elif filter == "in-conflict":
-        codes_for_display = {c for c in codes_for_display if code_to_status[c] == "!"}
+        displayed_codes = [c for c in displayed_codes if code_to_status[c] == "!"]
         filter = "in conflict"
-    else:
-        codes_for_display = set(codes_for_display)
 
     code_to_term_and_type = {
         code: re.match(r"(^.*) \(([\w/ ]+)\)$", term).groups()
@@ -83,10 +84,8 @@ def codelist(request, username, codelist_slug, search_slug=None):
 
     hierarchy = Hierarchy.from_codes(coding_system, all_codes)
 
-    ancestor_codes = hierarchy.filter_to_ultimate_ancestors(codes_for_display)
-    tables = tree_tables(
-        ancestor_codes, hierarchy, code_to_term, code_to_type, code_to_status
-    )
+    ancestor_codes = hierarchy.filter_to_ultimate_ancestors(set(displayed_codes))
+    tables = tree_tables(ancestor_codes, hierarchy, code_to_term, code_to_type)
 
     searches = [
         {"term": s.term, "url": s.get_absolute_url(), "active": s == search}
@@ -109,8 +108,10 @@ def codelist(request, username, codelist_slug, search_slug=None):
         # {
         "searches": searches,
         "filter": filter,
-        "code_to_status": code_to_status,
         "tables": tables,
+        "included_codes": included_codes,
+        "excluded_codes": excluded_codes,
+        "displayed_codes": displayed_codes,
         "parent_map": {p: list(cc) for p, cc in hierarchy.parent_map.items()},
         "child_map": {c: list(pp) for c, pp in hierarchy.child_map.items()},
         "is_editable": request.user == codelist.owner,

@@ -18,8 +18,10 @@ ReactDOM.render(
   <CodelistBuilder
     searches={readValueFromPage("searches")}
     filter={readValueFromPage("filter")}
-    codeToStatus={readValueFromPage("code-to-status")}
     tables={readValueFromPage("tables")}
+    includedCodes={readValueFromPage("included-codes")}
+    excludedCodes={readValueFromPage("excluded-codes")}
+    displayedCodes={readValueFromPage("displayed-codes")}
     isEditable={readValueFromPage("isEditable")}
     updateURL={readValueFromPage("update-url")}
     searchURL={readValueFromPage("search-url")}

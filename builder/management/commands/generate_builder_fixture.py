@@ -50,8 +50,10 @@ class Command(BaseCommand):
             for k in [
                 "searches",
                 "filter",
-                "code_to_status",
                 "tables",
+                "included_codes",
+                "excluded_codes",
+                "displayed_codes",
                 "parent_map",
                 "child_map",
                 "is_editable",

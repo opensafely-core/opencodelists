@@ -9,12 +9,15 @@ class CodelistBuilder extends React.Component {
   constructor(props) {
     super(props);
 
-    this.codes = props.hierarchy.nodes;
-
     let state = { updateQueue: [], updating: false };
 
-    this.codes.forEach((code) => {
-      state["status-" + code] = props.codeToStatus[code];
+    const codes = props.hierarchy.nodes;
+    codes.forEach((code) => {
+      state["status-" + code] = props.hierarchy.codeStatus(
+        code,
+        props.includedCodes,
+        props.excludedCodes
+      );
       state["expanded-" + code] = true;
     });
 
@@ -31,7 +34,9 @@ class CodelistBuilder extends React.Component {
   updateStatus(code, status) {
     this.setState((state, props) => {
       let codeToStatus = {};
-      this.codes.forEach((c) => (codeToStatus[c] = state["status-" + c]));
+      props.displayedCodes.forEach(
+        (c) => (codeToStatus[c] = state["status-" + c])
+      );
 
       const updates = props.hierarchy.updateCodeToStatus(
         codeToStatus,
@@ -120,7 +125,7 @@ class CodelistBuilder extends React.Component {
       "(-)": 0,
       total: 0,
     };
-    this.codes.forEach((code) => {
+    this.props.displayedCodes.forEach((code) => {
       const status = this.getStatus(code);
       if (["?", "!", "+", "(+)", "-", "(-)"].includes(status)) {
         counts[status] += 1;

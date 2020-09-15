@@ -8,6 +8,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_POST
 from django.views.generic import FormView, TemplateView
 
+from codelists.presenters import tree_tables
 from coding_systems.snomedct.models import Concept as SnomedConcept
 from opencodelists.models import Project
 
@@ -25,7 +26,7 @@ from .forms import (
 )
 from .hierarchy import Hierarchy
 from .models import Codelist, CodelistVersion
-from .presenters import build_definition_rows, build_html_tree_highlighting_codes
+from .presenters import build_definition_rows
 
 
 def index(request):
@@ -288,7 +289,9 @@ def version(request, project_slug, codelist_slug, qualified_version_str):
         return redirect(clv)
 
     definition_rows = {}
-    html_tree = None
+    child_map = None
+    parent_map = None
+    trees = None
     if clv.coding_system_id in ["ctv3", "ctv3tpp", "snomedct"]:
         if clv.coding_system_id in ["ctv3", "ctv3tpp"]:
             coding_system = CODING_SYSTEMS["ctv3"]
@@ -296,6 +299,19 @@ def version(request, project_slug, codelist_slug, qualified_version_str):
             coding_system = CODING_SYSTEMS["snomedct"]
 
         hierarchy = Hierarchy.from_codes(coding_system, clv.codes)
+        parent_map = {p: list(cc) for p, cc in hierarchy.parent_map.items()}
+        child_map = {c: list(pp) for c, pp in hierarchy.child_map.items()}
+
+        ancestor_codes = hierarchy.filter_to_ultimate_ancestors(set(clv.codes))
+        code_to_type = dict(coding_system.code_to_type(clv.codes, hierarchy))
+        code_to_term = coding_system.code_to_term(clv.codes, hierarchy)
+        trees = tree_tables(
+            ancestor_codes,
+            hierarchy,
+            code_to_term,
+            code_to_type,
+        )
+
         definition = Definition.from_codes(set(clv.codes), hierarchy)
         rows = build_definition_rows(coding_system, hierarchy, definition)
 
@@ -310,11 +326,6 @@ def version(request, project_slug, codelist_slug, qualified_version_str):
         else:
             definition_rows = {"active": rows, "inactive": []}
 
-        if clv.coding_system_id in ["ctv3", "ctv3tpp"]:
-            html_tree = build_html_tree_highlighting_codes(
-                coding_system, hierarchy, definition
-            )
-
     headers, *rows = clv.table
 
     ctx = {
@@ -323,7 +334,9 @@ def version(request, project_slug, codelist_slug, qualified_version_str):
         "versions": clv.codelist.versions.order_by("-version_str"),
         "headers": headers,
         "rows": rows,
-        "html_tree": html_tree,
+        "trees": trees,
+        "parent_map": parent_map,
+        "child_map": child_map,
         "definition_rows": definition_rows,
     }
     return render(request, "codelists/version.html", ctx)

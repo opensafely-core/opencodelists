@@ -71,29 +71,6 @@ def test_build_definition_rows():
     assert excluded["code"] == "8"
 
 
-def test_build_html_tree_highlighting_codes():
-    fixtures_path = Path(settings.BASE_DIR, "coding_systems", "snomedct", "fixtures")
-    call_command("loaddata", fixtures_path / "core-model-components.json")
-    call_command("loaddata", fixtures_path / "tennis-elbow.json")
-
-    with open(fixtures_path / "disorder-of-elbow-excl-arthritis.csv") as f:
-        cl = CodelistFactory(csv_data=f.read())
-
-    coding_system = cl.coding_system
-    clv = cl.versions.get()
-    hierarchy = Hierarchy.from_codes(coding_system, clv.codes)
-    definition = Definition.from_codes(set(clv.codes), hierarchy)
-
-    html = presenters.build_html_tree_highlighting_codes(
-        coding_system, hierarchy, definition
-    )
-
-    with open(
-        Path(settings.BASE_DIR, "codelists", "tests", "expected_html_tree.html")
-    ) as f:
-        assert html.strip() == f.read().strip()
-
-
 def test_tree_tables():
     fixtures_path = Path(settings.BASE_DIR, "coding_systems", "snomedct", "fixtures")
     call_command("loaddata", fixtures_path / "core-model-components.json")

@@ -1,3 +1,5 @@
+import re
+
 from opencodelists.db_utils import query
 
 from .models import FULLY_SPECIFIED_NAME, IS_A, Concept, Description
@@ -6,6 +8,9 @@ name = "SNOMED CT"
 short_name = "SNOMED CT"
 
 root = "138875005"
+
+
+term_and_type_pat = re.compile(r"(^.*) \(([\w/ ]+)\)$")
 
 
 def lookup_names(codes):
@@ -85,3 +90,24 @@ def descendant_relationships(codes):
     """
 
     return query(sql, codes)
+
+
+def _iter_code_to_term_and_type(codes: set):
+    for code, term in lookup_names(codes).items():
+        match = term_and_type_pat.match(term)
+        term_and_type = match.groups() if match else (term, "unknown")
+
+        yield code, term_and_type
+
+
+def code_to_term_and_type(codes):
+    codes = set(codes)
+    return dict(_iter_code_to_term_and_type(codes))
+
+
+def code_to_term(codes, hierarchy):
+    return {code: term for code, (term, _) in code_to_term_and_type(codes).items()}
+
+
+def code_to_type(codes, hierarchy):
+    return {code: type for code, (_, type) in code_to_term_and_type(codes).items()}

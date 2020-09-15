@@ -1,5 +1,4 @@
 import json
-import re
 
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
@@ -75,14 +74,10 @@ def codelist(request, username, codelist_slug, search_slug=None):
         displayed_codes = [c for c in displayed_codes if code_to_status[c] == "!"]
         filter = "in conflict"
 
-    code_to_term_and_type = {
-        code: re.match(r"(^.*) \(([\w/ ]+)\)$", term).groups()
-        for code, term in coding_system.lookup_names(all_codes).items()
-    }
-    code_to_term = {code: term for code, (term, _) in code_to_term_and_type.items()}
-    code_to_type = {code: type for code, (_, type) in code_to_term_and_type.items()}
-
     hierarchy = Hierarchy.from_codes(coding_system, all_codes)
+
+    code_to_term = coding_system.code_to_term(all_codes, hierarchy)
+    code_to_type = coding_system.code_to_type(all_codes, hierarchy)
 
     ancestor_codes = hierarchy.filter_to_ultimate_ancestors(set(displayed_codes))
     tables = tree_tables(ancestor_codes, hierarchy, code_to_term, code_to_type)

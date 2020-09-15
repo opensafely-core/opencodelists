@@ -1,6 +1,6 @@
 from opencodelists.db_utils import query
 
-from .models import ConceptTermMapping
+from .models import Concept, ConceptTermMapping
 
 name = "CTV3 (Read V3)"
 short_name = "CTV3"
@@ -63,3 +63,32 @@ def descendant_relationships(codes):
     """
 
     return query(sql, codes)
+
+
+def code_to_term(codes, hierarchy):
+    concepts = Concept.objects.filter(read_code__in=hierarchy.nodes).prefetch_related(
+        "terms"
+    )
+    return {c.read_code: c.preferred_term() for c in concepts}
+
+
+def code_to_type(codes, hierarchy):
+    """
+    Create a mapping between a code and its Concept types
+
+    We treat the children of CTV3's root Concept as types.  However, CTV3
+    Concepts can be descended from more than one of these "types", so we use
+    the first type.
+    """
+    types = hierarchy.child_map[root]
+    concepts = Concept.objects.filter(read_code__in=types).prefetch_related("terms")
+    terms_by_type = {c.read_code: c.preferred_term() for c in concepts}
+
+    for code in codes:
+        type_nodes = hierarchy.ancestors(code) & types
+
+        # TODO: can we pass in codes bucketed by type to tree_tables?
+        first = list(type_nodes)[0]
+        term = terms_by_type[first]
+
+        yield code, term

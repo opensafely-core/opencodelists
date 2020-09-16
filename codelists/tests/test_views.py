@@ -13,6 +13,8 @@ from codelists.views import (
     CodelistUpdate,
     VersionCreate,
     VersionUpdate,
+    codelist,
+    version,
     version_publish,
 )
 from opencodelists.tests.factories import ProjectFactory, UserFactory
@@ -337,12 +339,16 @@ def test_codelistupdate_with_duplicate_name(rf):
     assert response.context_data["codelist_form"].errors
 
 
-def test_codelist(client):
+def test_codelist(rf):
     clv = create_published_version()
     cl = clv.codelist
-    rsp = client.get(f"/codelist/{cl.project.slug}/{cl.slug}/", follow=True)
-    assertRedirects(rsp, f"/codelist/{cl.project.slug}/{cl.slug}/{clv.version_str}/")
-    assertContains(rsp, cl.name)
+
+    request = rf.get("/")
+    response = codelist(request, cl.project.slug, cl.slug)
+
+    # check codelist() redirects to the correct version page
+    assert response.status_code == 302
+    assert response.url == f"/codelist/{cl.project.slug}/{cl.slug}/{clv.version_str}/"
 
 
 def test_version(client):
@@ -354,16 +360,15 @@ def test_version(client):
     assertContains(rsp, cl.methodology)
 
 
-def test_version_redirects(client):
+def test_version_redirects(rf):
     clv = create_published_version()
     cl = clv.codelist
-    rsp = client.get(
-        f"/codelist/{cl.project.slug}/{cl.slug}/{clv.version_str}-draft/", follow=True
-    )
-    assertRedirects(rsp, f"/codelist/{cl.project.slug}/{cl.slug}/{clv.version_str}/")
-    assertContains(rsp, cl.name)
-    assertContains(rsp, cl.description)
-    assertContains(rsp, cl.methodology)
+    request = rf.get("/")
+    response = version(request, cl.project.slug, cl.slug, f"{clv.version_str}-draft")
+
+    # check version() redirects to the non-draft page for a published version
+    assert response.status_code == 302
+    assert response.url == f"/codelist/{cl.project.slug}/{cl.slug}/{clv.version_str}/"
 
 
 def test_draft_version(client):
@@ -375,18 +380,17 @@ def test_draft_version(client):
     assertContains(rsp, cl.methodology)
 
 
-def test_draft_version_redirects(client):
+def test_draft_version_redirects(rf):
     clv = create_draft_version()
     cl = clv.codelist
-    rsp = client.get(
-        f"/codelist/{cl.project.slug}/{cl.slug}/{clv.version_str}/", follow=True
-    )
-    assertRedirects(
-        rsp, f"/codelist/{cl.project.slug}/{cl.slug}/{clv.version_str}-draft/"
-    )
-    assertContains(rsp, cl.name)
-    assertContains(rsp, cl.description)
-    assertContains(rsp, cl.methodology)
+    request = rf.get("/")
+    response = version(request, cl.project.slug, cl.slug, clv.version_str)
+
+    # check version() redirects to the draft page for a draft version
+    assert response.status_code == 302
+
+    expected = f"/codelist/{cl.project.slug}/{cl.slug}/{clv.version_str}-draft/"
+    assert response.url == expected
 
 
 def test_download(client):

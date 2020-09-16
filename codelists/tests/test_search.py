@@ -1,16 +1,8 @@
-from pathlib import Path
-
-from django.conf import settings
-from django.core.management import call_command
-
 from codelists.coding_systems import CODING_SYSTEMS
 from codelists.search import do_search
 
 
-def test_do_search():
-    fixtures_path = Path(settings.BASE_DIR, "coding_systems", "snomedct", "fixtures")
-    call_command("loaddata", fixtures_path / "core-model-components.json")
-    call_command("loaddata", fixtures_path / "tennis-elbow.json")
+def test_do_search(tennis_elbow):
     coding_system = CODING_SYSTEMS["snomedct"]
 
     search_results = do_search(coding_system, "elbow")

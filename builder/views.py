@@ -76,11 +76,11 @@ def codelist(request, username, codelist_slug, search_slug=None):
 
     hierarchy = Hierarchy.from_codes(coding_system, all_codes)
 
-    code_to_term = coding_system.code_to_term(all_codes, hierarchy)
-    code_to_type = coding_system.code_to_type(all_codes, hierarchy)
-
     ancestor_codes = hierarchy.filter_to_ultimate_ancestors(set(displayed_codes))
-    tables = tree_tables(ancestor_codes, hierarchy, code_to_term, code_to_type)
+    codes_by_type = coding_system.codes_by_type(ancestor_codes, hierarchy)
+    code_to_term = coding_system.code_to_term(all_codes, hierarchy)
+
+    tables = tree_tables(codes_by_type, hierarchy, code_to_term)
 
     searches = [
         {"term": s.term, "url": s.get_absolute_url(), "active": s == search}

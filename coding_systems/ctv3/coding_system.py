@@ -1,3 +1,5 @@
+import collections
+
 from opencodelists.db_utils import query
 
 from .models import Concept, ConceptTermMapping
@@ -72,23 +74,32 @@ def code_to_term(codes, hierarchy):
     return {c.read_code: c.preferred_term() for c in concepts}
 
 
-def code_to_type(codes, hierarchy):
+def codes_by_type(codes, hierarchy):
     """
-    Create a mapping between a code and its Concept types
+    Group codes by their Concept "types"
 
     We treat the children of CTV3's root Concept as types.  However, CTV3
-    Concepts can be descended from more than one of these "types", so we use
-    the first type.
+    Concepts can be descended from more than one of these "types", so each
+    grouping of codes can have an overlap with other groupings.
     """
+
+    # Treat children of CTV3 root as types
     types = hierarchy.child_map[root]
     concepts = Concept.objects.filter(read_code__in=types).prefetch_related("terms")
     terms_by_type = {c.read_code: c.preferred_term() for c in concepts}
 
+    lookup = collections.defaultdict(list)
     for code in codes:
-        type_nodes = hierarchy.ancestors(code) & types
+        # get groups for this
+        groups = hierarchy.ancestors(code) & types
 
-        # TODO: can we pass in codes bucketed by type to tree_tables?
-        first = list(type_nodes)[0]
-        term = terms_by_type[first]
+        # Remove Concept "Additional values" when there is at least one other
+        # type to use.
+        if len(groups) > 1 and "X78tJ" in groups:
+            groups.remove("X78tJ")
 
-        yield code, term
+        for group_code in groups:
+            group_term = terms_by_type[group_code]
+            lookup[group_term].append(code)
+
+    return dict(lookup)

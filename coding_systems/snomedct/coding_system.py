@@ -1,3 +1,4 @@
+import collections
 import re
 
 from opencodelists.db_utils import query
@@ -109,5 +110,17 @@ def code_to_term(codes, hierarchy):
     return {code: term for code, (term, _) in code_to_term_and_type(codes).items()}
 
 
-def code_to_type(codes, hierarchy):
-    return {code: type for code, (_, type) in code_to_term_and_type(codes).items()}
+def codes_by_type(codes, hierarchy):
+    """Group codes by their Type"""
+    # create a lookup of code -> type
+    code_to_type = {
+        code: type for code, (_, type) in code_to_term_and_type(codes).items()
+    }
+
+    lookup = collections.defaultdict(list)
+
+    for code in codes:
+        type = code_to_type[code]
+        lookup[type].append(code)
+
+    return dict(lookup)

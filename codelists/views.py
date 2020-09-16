@@ -303,14 +303,9 @@ def version(request, project_slug, codelist_slug, qualified_version_str):
         child_map = {c: list(pp) for c, pp in hierarchy.child_map.items()}
 
         ancestor_codes = hierarchy.filter_to_ultimate_ancestors(set(clv.codes))
-        code_to_type = dict(coding_system.code_to_type(clv.codes, hierarchy))
+        codes_by_type = coding_system.codes_by_type(ancestor_codes, hierarchy)
         code_to_term = coding_system.code_to_term(clv.codes, hierarchy)
-        trees = tree_tables(
-            ancestor_codes,
-            hierarchy,
-            code_to_term,
-            code_to_type,
-        )
+        trees = tree_tables(codes_by_type, hierarchy, code_to_term)
 
         definition = Definition.from_codes(set(clv.codes), hierarchy)
         rows = build_definition_rows(coding_system, hierarchy, definition)

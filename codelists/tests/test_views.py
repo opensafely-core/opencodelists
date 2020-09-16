@@ -1,13 +1,16 @@
 import csv
 import datetime
 from io import StringIO
+from pathlib import Path
 
 import pytest
+from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
+from django.core.management import call_command
 from django.http import Http404
 from pytest_django.asserts import assertContains, assertRedirects
 
-from codelists.actions import create_codelist
+from codelists.actions import create_codelist, publish_version
 from codelists.views import (
     CodelistCreate,
     CodelistUpdate,
@@ -352,8 +355,13 @@ def test_codelist(rf):
 
 
 def test_version(client):
-    clv = create_published_version()
-    cl = clv.codelist
+    fixtures_path = Path(settings.BASE_DIR, "coding_systems", "snomedct", "fixtures")
+    call_command("loaddata", fixtures_path / "core-model-components.json")
+    call_command("loaddata", fixtures_path / "tennis-elbow.json")
+
+    with open(fixtures_path / "disorder-of-elbow.csv") as f:
+        cl = CodelistFactory(csv_data=f.read())
+    clv = publish_version(version=cl.versions.first())
     rsp = client.get(f"/codelist/{cl.project.slug}/{cl.slug}/{clv.version_str}/")
     assertContains(rsp, cl.name)
     assertContains(rsp, cl.description)
@@ -372,8 +380,14 @@ def test_version_redirects(rf):
 
 
 def test_draft_version(client):
-    clv = create_draft_version()
-    cl = clv.codelist
+    fixtures_path = Path(settings.BASE_DIR, "coding_systems", "snomedct", "fixtures")
+    call_command("loaddata", fixtures_path / "core-model-components.json")
+    call_command("loaddata", fixtures_path / "tennis-elbow.json")
+
+    with open(fixtures_path / "disorder-of-elbow.csv") as f:
+        cl = CodelistFactory(csv_data=f.read())
+
+    clv = cl.versions.first()
     rsp = client.get(f"/codelist/{cl.project.slug}/{cl.slug}/{clv.version_str}-draft/")
     assertContains(rsp, cl.name)
     assertContains(rsp, cl.description)

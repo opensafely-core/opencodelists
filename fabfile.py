@@ -6,7 +6,7 @@ env.forward_agent = True
 env.colorize_errors = True
 
 env.hosts = ["smallweb1.ebmdatalab.net"]
-env.user = "root"
+env.user = "ebmbot"
 env.path = "/var/www/opencodelists"
 
 

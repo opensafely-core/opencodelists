@@ -98,7 +98,6 @@ def test_tree_tables():
     assert presenters.tree_tables(codes_by_type, hierarchy, code_to_term) == [
         {
             "heading": "Disorder",
-            # fmt: off
             "rows": [
                 {
                     "code": "128133004",
@@ -141,6 +140,5 @@ def test_tree_tables():
                     "pipes": ["└"],
                 },
             ],
-            # fmt: on
         }
     ]

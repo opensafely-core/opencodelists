@@ -1,4 +1,4 @@
-from fabric.api import abort, env, prefix, run, task
+from fabric.api import abort, env, prefix, run, sudo, task
 from fabric.context_managers import cd, shell_env
 from fabric.contrib.files import exists
 
@@ -20,6 +20,31 @@ def check_environment():
 
     if not exists(environment_path):
         abort("Create {} before proceeding".format(environment_path))
+
+
+def setup_sudo():
+    """
+    Configure password-less sudo access
+
+    Ensure members of `fabric` group can execute deployment scripts as root
+    without passwords.
+    """
+    sudoer_file_test = "/tmp/opencodelists_fabric_{}".format(env.app)
+    sudoer_file_real = "/etc/sudoers.d/opencodelists_fabric_{}".format(env.app)
+    # Raise an exception if not set up
+    check_setup = run(
+        "/usr/bin/sudo -n {}/deploy/fab_scripts/test.sh".format(env.path),
+        warn_only=True,
+    )
+    if check_setup.failed:
+        # Test the format of the file, to prevent locked-out-disasters
+        run(
+            'echo "%fabric ALL = (root) '
+            'NOPASSWD: {}/deploy/fab_scripts/" > {}'.format(env.path, sudoer_file_test)
+        )
+        run("/usr/sbin/visudo -cf {}".format(sudoer_file_test))
+        # Copy it to the right place
+        sudo("cp {} {}".format(sudoer_file_test, sudoer_file_real))
 
 
 def create_venv():
@@ -96,6 +121,7 @@ def notify_sentry():
 def deploy():
     initalise_directory()
     check_environment()
+    setup_sudo()
 
     with cd(env.path):
         with shell_env(DJANGO_SETTINGS_MODULE="opencodelists.settings"):

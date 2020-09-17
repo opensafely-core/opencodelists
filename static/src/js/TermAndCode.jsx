@@ -1,50 +1,26 @@
 import React from "react";
 
+import Code from "./Code";
+import DescendantToggle from "./DescendantToggle";
+import Pipes from "./Pipes";
+import Term from "./Term";
+
 export default function TermAndCode(props) {
-  const {
-    term,
-    code,
-    pipes,
-    status,
-    hasDescendants,
-    isExpanded,
-    toggleVisibility,
-  } = props;
-
-  const termStyle = {
-    color: {
-      "!": "red",
-      "-": "gray",
-      "(-)": "gray",
-    }[status],
-  };
-
   return (
     <div style={{ paddingLeft: "10px", whiteSpace: "nowrap" }}>
-      {pipes.map((pipe, ix) => (
-        <span
-          key={ix}
-          style={{
-            display: "inline-block",
-            textAlign: "center",
-            width: "20px",
-          }}
-        >
-          {pipe}
-        </span>
-      ))}
-      {hasDescendants ? (
-        <span
-          onClick={toggleVisibility.bind(null, code)}
-          style={{ cursor: "pointer", margin: "0 4px" }}
-        >
-          {isExpanded ? "⊟" : "⊞"}
-        </span>
+      <Pipes pipes={props.pipes} />
+
+      {props.hasDescendants ? (
+        <DescendantToggle
+          code={props.code}
+          isExpanded={props.isExpanded}
+          toggleVisibility={props.toggleVisibility}
+        />
       ) : null}
-      <span style={termStyle}>{term}</span>{" "}
-      <span>
-        (<code>{code}</code>)
-      </span>
+
+      <Term status={props.status} term={props.term} />
+
+      <Code code={props.code} />
     </div>
   );
 }

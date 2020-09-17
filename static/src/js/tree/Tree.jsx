@@ -1,5 +1,9 @@
 import React from "react";
-import TermAndCode from "../TermAndCode";
+
+import Code from "../Code";
+import DescendantToggle from "../DescendantToggle";
+import Pipes from "../Pipes";
+import Term from "../Term";
 
 class Tree extends React.Component {
   constructor(props) {
@@ -37,15 +41,17 @@ class Tree extends React.Component {
               <div
                 className={this.isVisible(row.code) ? "d-flex" : "d-none"}
                 key={i}
+                style={{ whiteSpace: "nowrap" }}
               >
-                <TermAndCode
-                  term={row.term}
-                  code={row.code}
-                  pipes={row.pipes}
-                  hasDescendants={this.hasDescendants(row.code)}
-                  isExpanded={this.state[row.code]}
-                  toggleVisibility={this.toggleVisibility}
-                />
+                <Pipes pipes={row.pipes} />
+                {this.hasDescendants(row.code) ? (
+                  <DescendantToggle
+                    code={row.code}
+                    isExpanded={this.state[row.code]}
+                    toggleVisibility={this.toggleVisibility}
+                  />
+                ) : null}
+                <Term term={row.term} /> <Code code={row.code} />
               </div>
             ))}
           </div>

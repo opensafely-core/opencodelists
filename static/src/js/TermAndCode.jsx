@@ -36,7 +36,7 @@ export default function TermAndCode(props) {
       {hasDescendants ? (
         <span
           onClick={toggleVisibility.bind(null, code)}
-          style={{ cursor: "pointer" }}
+          style={{ cursor: "pointer", margin: "0 4px" }}
         >
           {isExpanded ? "⊟" : "⊞"}
         </span>

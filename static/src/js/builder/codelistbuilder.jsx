@@ -152,6 +152,10 @@ class CodelistBuilder extends React.Component {
   }
 
   render() {
+    const moreInfoModal =
+      this.state.moreInfoModalCode &&
+      this.renderMoreInfoModal(this.state.moreInfoModalCode);
+
     return (
       <>
         <div className="row">
@@ -191,12 +195,33 @@ class CodelistBuilder extends React.Component {
             ))}
           </div>
         </div>
-        <MoreInfoModal
-          code={this.state.moreInfoModalCode}
-          getStatus={this.getStatus}
-          hideModal={this.hideMoreInfoModal}
-        />
+
+        {moreInfoModal}
       </>
+    );
+  }
+
+  renderMoreInfoModal(code) {
+    const included = this.props.displayedCodes.filter(
+      (c) => this.getStatus(c) === "+"
+    );
+    const excluded = this.props.displayedCodes.filter(
+      (c) => this.getStatus(c) === "-"
+    );
+    const significantAncestors = this.props.hierarchy.significantAncestors(
+      code,
+      included,
+      excluded
+    );
+
+    return (
+      <MoreInfoModal
+        code={code}
+        status={this.getStatus(code)}
+        includedAncestors={significantAncestors.includedAncestors}
+        excludedAncestors={significantAncestors.excludedAncestors}
+        hideModal={this.hideMoreInfoModal}
+      />
     );
   }
 }
@@ -378,27 +403,36 @@ function MoreInfoButton(props) {
 }
 
 function MoreInfoModal(props) {
-  const { code, getStatus, hideModal } = props;
+  const {
+    code,
+    status,
+    includedAncestors,
+    excludedAncestors,
+    hideModal,
+  } = props;
+
   let text = null;
 
-  switch (getStatus(code)) {
+  switch (status) {
     case "+":
       text = "Included";
       break;
     case "(+)":
-      text = "Included by ancestor";
+      text = `Included by ${includedAncestors.join(", ")}`;
       break;
     case "-":
       text = "Excluded";
       break;
     case "(-)":
-      text = "Excluded by ancestor";
+      text = `Excluded by ${excludedAncestors.join(", ")}`;
       break;
     case "?":
       text = "Unresolved";
       break;
     case "!":
-      text = "In conflict";
+      text = `In conflict!  Included by ${includedAncestors.join(
+        ", "
+      )} by and excluded by ${excludedAncestors.join(", ")}`;
       break;
   }
 

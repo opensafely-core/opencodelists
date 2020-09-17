@@ -1,4 +1,4 @@
-from fabric.api import abort, env, prefix, run, sudo, task
+from fabric.api import abort, env, prefix, run, task
 from fabric.context_managers import cd, shell_env
 from fabric.contrib.files import exists
 
@@ -22,31 +22,6 @@ def check_environment():
         abort("Create {} before proceeding".format(environment_path))
 
 
-def setup_sudo():
-    """
-    Configure password-less sudo access
-
-    Ensure members of `fabric` group can execute deployment scripts as root
-    without passwords.
-    """
-    sudoer_file_test = "/tmp/opencodelists_fabric_opencodelists"
-    sudoer_file_real = "/etc/sudoers.d/opencodelists_fabric_opencodelists"
-    # Raise an exception if not set up
-    check_setup = run(
-        "/usr/bin/sudo -n {}/deploy/fab_scripts/test.sh".format(env.path),
-        warn_only=True,
-    )
-    if check_setup.failed:
-        # Test the format of the file, to prevent locked-out-disasters
-        run(
-            'echo "%fabric ALL = (root) '
-            'NOPASSWD: {}/deploy/fab_scripts/" > {}'.format(env.path, sudoer_file_test)
-        )
-        run("/usr/sbin/visudo -cf {}".format(sudoer_file_test))
-        # Copy it to the right place
-        sudo("cp {} {}".format(sudoer_file_test, sudoer_file_real))
-
-
 def create_venv():
     if not exists("venv"):
         run("python3.6 -m venv venv")
@@ -63,7 +38,7 @@ def install_python_requirements():
 
 
 def chown_everything():
-    run(f"chown -R www-data:www-data {env.path}")
+    run(f"chown -R {env.user}:www-data {env.path}")
 
 
 def run_migrations():
@@ -81,22 +56,22 @@ def build_static_assets():
 
 def set_up_nginx():
     run(
-        f"ln -sf {env.path}/deploy/nginx/opencodelists /etc/nginx/sites-enabled/opencodelists"
+        f"sudo ln -sf {env.path}/deploy/nginx/opencodelists /etc/nginx/sites-enabled/opencodelists"
     )
 
-    run("/etc/init.d/nginx reload")
+    run("sudo systemctl reload nginx")
 
 
 def set_up_systemd():
     run(
-        f"ln -sf {env.path}/deploy/systemd/app.opencodelists.web.service /etc/systemd/system"
+        f"sudo ln -sf {env.path}/deploy/systemd/app.opencodelists.web.service /etc/systemd/system"
     )
 
-    run("systemctl daemon-reload")
+    run("sudo systemctl daemon-reload")
 
 
 def restart_service():
-    run("systemctl restart app.opencodelists.web.service")
+    run("sudo systemctl restart app.opencodelists.web.service")
 
 
 def notify_sentry():
@@ -121,7 +96,6 @@ def notify_sentry():
 def deploy():
     initalise_directory()
     check_environment()
-    setup_sudo()
 
     with cd(env.path):
         with shell_env(DJANGO_SETTINGS_MODULE="opencodelists.settings"):

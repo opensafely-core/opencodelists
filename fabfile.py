@@ -38,7 +38,7 @@ def install_python_requirements():
 
 
 def chown_everything():
-    run(f"chown -R www-data:www-data {env.path}")
+    run(f"chown -R {env.user}:www-data {env.path}")
 
 
 def run_migrations():

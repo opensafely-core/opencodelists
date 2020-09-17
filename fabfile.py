@@ -29,8 +29,8 @@ def setup_sudo():
     Ensure members of `fabric` group can execute deployment scripts as root
     without passwords.
     """
-    sudoer_file_test = "/tmp/opencodelists_fabric_{}".format(env.app)
-    sudoer_file_real = "/etc/sudoers.d/opencodelists_fabric_{}".format(env.app)
+    sudoer_file_test = "/tmp/opencodelists_fabric_opencodelists"
+    sudoer_file_real = "/etc/sudoers.d/opencodelists_fabric_opencodelists"
     # Raise an exception if not set up
     check_setup = run(
         "/usr/bin/sudo -n {}/deploy/fab_scripts/test.sh".format(env.path),

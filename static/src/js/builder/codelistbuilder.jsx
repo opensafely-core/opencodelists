@@ -1,6 +1,8 @@
 "use strict";
 
 import React from "react";
+import Button from "react-bootstrap/Button";
+import Modal from "react-bootstrap/Modal";
 
 import TermAndCode from "../TermAndCode";
 import { getCookie } from "../utils";
@@ -9,7 +11,11 @@ class CodelistBuilder extends React.Component {
   constructor(props) {
     super(props);
 
-    let state = { updateQueue: [], updating: false };
+    let state = {
+      updateQueue: [],
+      updating: false,
+      moreInfoModalCode: null,
+    };
 
     const codes = props.hierarchy.nodes;
     codes.forEach((code) => {
@@ -25,6 +31,8 @@ class CodelistBuilder extends React.Component {
 
     this.updateStatus = this.updateStatus.bind(this);
     this.toggleVisibility = this.toggleVisibility.bind(this);
+    this.showMoreInfoModal = this.showMoreInfoModal.bind(this);
+    this.hideMoreInfoModal = this.hideMoreInfoModal.bind(this);
     this.getStatus = this.getStatus.bind(this);
     this.getHasDescendants = this.getHasDescendants.bind(this);
     this.getIsExpanded = this.getIsExpanded.bind(this);
@@ -97,6 +105,14 @@ class CodelistBuilder extends React.Component {
     }));
   }
 
+  showMoreInfoModal(code) {
+    this.setState({ moreInfoModalCode: code });
+  }
+
+  hideMoreInfoModal() {
+    this.setState({ moreInfoModalCode: null });
+  }
+
   getStatus(code) {
     return this.state["status-" + code];
   }
@@ -137,42 +153,50 @@ class CodelistBuilder extends React.Component {
 
   render() {
     return (
-      <div className="row">
-        <div className="col-3">
-          <h3 className="mb-4">Summary</h3>
-          <Filter filter={this.props.filter} />
-          <Summary counts={this.counts()} />
-          <hr />
+      <>
+        <div className="row">
+          <div className="col-3">
+            <h3 className="mb-4">Summary</h3>
+            <Filter filter={this.props.filter} />
+            <Summary counts={this.counts()} />
+            <hr />
 
-          <h3 className="mb-4">Term searches</h3>
-          <ul className="list-group">
-            {this.props.searches.map((search) => (
-              <TermSearch key={search.url} search={search} />
+            <h3 className="mb-4">Term searches</h3>
+            <ul className="list-group">
+              {this.props.searches.map((search) => (
+                <TermSearch key={search.url} search={search} />
+              ))}
+            </ul>
+            <hr />
+
+            <h3 className="mb-4">New term search</h3>
+            <SearchForm searchURL={this.props.searchURL} />
+          </div>
+
+          <div className="col-9 pl-5">
+            <h3 className="mb-4">Results</h3>
+            {this.props.tables.map((table) => (
+              <Table
+                key={table.heading}
+                table={table}
+                getStatus={this.getStatus}
+                getHasDescendants={this.getHasDescendants}
+                getIsVisible={this.getIsVisible}
+                getIsExpanded={this.getIsExpanded}
+                isEditable={this.props.isEditable}
+                updateStatus={this.updateStatus}
+                toggleVisibility={this.toggleVisibility}
+                showMoreInfoModal={this.showMoreInfoModal}
+              />
             ))}
-          </ul>
-          <hr />
-
-          <h3 className="mb-4">New term search</h3>
-          <SearchForm searchURL={this.props.searchURL} />
+          </div>
         </div>
-
-        <div className="col-9 pl-5">
-          <h3 className="mb-4">Results</h3>
-          {this.props.tables.map((table) => (
-            <Table
-              key={table.heading}
-              table={table}
-              getStatus={this.getStatus}
-              getHasDescendants={this.getHasDescendants}
-              getIsVisible={this.getIsVisible}
-              getIsExpanded={this.getIsExpanded}
-              isEditable={this.props.isEditable}
-              updateStatus={this.updateStatus}
-              toggleVisibility={this.toggleVisibility}
-            />
-          ))}
-        </div>
-      </div>
+        <MoreInfoModal
+          code={this.state.moreInfoModalCode}
+          getStatus={this.getStatus}
+          hideModal={this.hideMoreInfoModal}
+        />
+      </>
     );
   }
 }
@@ -236,6 +260,7 @@ function Table(props) {
     isEditable,
     updateStatus,
     toggleVisibility,
+    showMoreInfoModal,
   } = props;
 
   return (
@@ -252,6 +277,7 @@ function Table(props) {
           isEditable={isEditable}
           updateStatus={updateStatus}
           toggleVisibility={toggleVisibility}
+          showMoreInfoModal={showMoreInfoModal}
         />
       ))}
     </div>
@@ -268,6 +294,7 @@ function Row(props) {
     isEditable,
     updateStatus,
     toggleVisibility,
+    showMoreInfoModal,
   } = props;
 
   const visibility = isVisible ? "d-flex" : "d-none";
@@ -293,7 +320,7 @@ function Row(props) {
         />
       </div>
 
-      <MoreInfo status={status} />
+      <MoreInfoButton code={row.code} showMoreInfoModal={showMoreInfoModal} />
 
       <TermAndCode
         term={row.term}
@@ -334,11 +361,27 @@ function StatusToggle(props) {
   );
 }
 
-function MoreInfo(props) {
-  const { status } = props;
+function MoreInfoButton(props) {
+  const { code, showMoreInfoModal } = props;
+
+  return (
+    <div className="btn-group btn-group-sm mx-2" role="group">
+      <Button
+        variant="outline-secondary"
+        onClick={showMoreInfoModal.bind(null, code)}
+        className="py-0"
+      >
+        ?
+      </Button>
+    </div>
+  );
+}
+
+function MoreInfoModal(props) {
+  const { code, getStatus, hideModal } = props;
   let text = null;
 
-  switch (status) {
+  switch (getStatus(code)) {
     case "+":
       text = "Included";
       break;
@@ -360,17 +403,10 @@ function MoreInfo(props) {
   }
 
   return (
-    <div className="btn-group btn-group-sm mx-2" role="group">
-      <button
-        type="button"
-        data-toggle="tooltip"
-        data-placement="top"
-        title={text}
-        className="btn btn-outline-secondary py-0"
-      >
-        ?
-      </button>
-    </div>
+    <Modal show={code !== null} onHide={hideModal} centered>
+      <Modal.Header closeButton>{code}</Modal.Header>
+      <Modal.Body>{text}</Modal.Body>
+    </Modal>
   );
 }
 

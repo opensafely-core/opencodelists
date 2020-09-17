@@ -277,14 +277,14 @@ function Row(props) {
   return (
     <div className={className} data-code={row.code}>
       <div className="btn-group btn-group-sm" role="group">
-        <Button
+        <StatusToggle
           code={row.code}
           symbol="+"
           status={status}
           isEditable={isEditable}
           updateStatus={updateStatus}
         />
-        <Button
+        <StatusToggle
           code={row.code}
           symbol="-"
           status={status}
@@ -308,7 +308,7 @@ function Row(props) {
   );
 }
 
-function Button(props) {
+function StatusToggle(props) {
   const { code, symbol, status, isEditable, updateStatus } = props;
 
   let buttonClasses = ["btn"];

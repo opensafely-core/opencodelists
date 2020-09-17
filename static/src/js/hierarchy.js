@@ -70,43 +70,23 @@ class Hierarchy {
       // this code is explicitly included
       return "+";
     }
+
     if (excluded.includes(code)) {
       // this code is explicitly excluded
       return "-";
     }
 
-    // these are the ancestors of the code
-    const ancestors = this.getAncestors(code);
-
-    // these are the ancestors of the code that are directly included or excluded
-    const includedOrExcludedAncestors = ancestors.filter(
-      (a) => included.includes(a) || excluded.includes(a)
+    const { includedAncestors, excludedAncestors } = this.significantAncestors(
+      code,
+      included,
+      excluded
     );
 
-    if (includedOrExcludedAncestors.length === 0) {
+    if (includedAncestors.length === 0 && excludedAncestors.length === 0) {
       // no ancestors are included or excluded, so this code is neither excluded or
       // excluded
       return "?";
     }
-
-    // these are the ancestors of the code that are directly included or excluded,
-    // and which are not overridden by any of their descendants
-    const significantIncludedOrExcludedAncestors = includedOrExcludedAncestors.filter(
-      (a) =>
-        !this.getDescendants(a).some((d) =>
-          includedOrExcludedAncestors.includes(d)
-        )
-    );
-
-    // these are the significant included ancestors of the code
-    const includedAncestors = significantIncludedOrExcludedAncestors.filter(
-      (a) => included.includes(a)
-    );
-
-    // these are the significant excluded ancestors of the code
-    const excludedAncestors = significantIncludedOrExcludedAncestors.filter(
-      (a) => excluded.includes(a)
-    );
 
     if (includedAncestors.length > 0 && excludedAncestors.length === 0) {
       // some ancestors are included and none are excluded, so this code is included
@@ -121,6 +101,40 @@ class Hierarchy {
     // some ancestors are included and some are excluded, and neither set of
     // ancestors overrides the other
     return "!";
+  }
+
+  significantAncestors(code, included, excluded) {
+    // Find ancestors of code which are both:
+    //   * members of included or excluded, and
+    //   * not overridden by any of their descendants
+    //
+    // If A is an ancestor of B and B is an ancestor of C, then we say that B overrides
+    // A because B is closer to C than A.
+
+    const ancestors = this.getAncestors(code);
+
+    // these are the ancestors of the code that are directly included or excluded
+    const includedOrExcludedAncestors = ancestors.filter(
+      (a) => included.includes(a) || excluded.includes(a)
+    );
+
+    // these are the ancestors of the code that are directly included or excluded,
+    // and which are not overridden by any of their descendants
+    const significantAncestors = includedOrExcludedAncestors.filter(
+      (a) =>
+        !this.getDescendants(a).some((d) =>
+          includedOrExcludedAncestors.includes(d)
+        )
+    );
+
+    return {
+      includedAncestors: significantAncestors.filter((a) =>
+        included.includes(a)
+      ),
+      excludedAncestors: significantAncestors.filter((a) =>
+        excluded.includes(a)
+      ),
+    };
   }
 }
 

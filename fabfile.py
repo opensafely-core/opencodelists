@@ -56,22 +56,22 @@ def build_static_assets():
 
 def set_up_nginx():
     run(
-        f"ln -sf {env.path}/deploy/nginx/opencodelists /etc/nginx/sites-enabled/opencodelists"
+        f"sudo ln -sf {env.path}/deploy/nginx/opencodelists /etc/nginx/sites-enabled/opencodelists"
     )
 
-    run("/etc/init.d/nginx reload")
+    run("sudo /etc/init.d/nginx reload")
 
 
 def set_up_systemd():
     run(
-        f"ln -sf {env.path}/deploy/systemd/app.opencodelists.web.service /etc/systemd/system"
+        f"sudo ln -sf {env.path}/deploy/systemd/app.opencodelists.web.service /etc/systemd/system"
     )
 
-    run("systemctl daemon-reload")
+    run("sudo systemctl daemon-reload")
 
 
 def restart_service():
-    run("systemctl restart app.opencodelists.web.service")
+    run("sudo systemctl restart app.opencodelists.web.service")
 
 
 def notify_sentry():

@@ -59,7 +59,7 @@ def set_up_nginx():
         f"sudo ln -sf {env.path}/deploy/nginx/opencodelists /etc/nginx/sites-enabled/opencodelists"
     )
 
-    run("sudo /etc/init.d/nginx reload")
+    run("sudo systemctl reload nginx")
 
 
 def set_up_systemd():

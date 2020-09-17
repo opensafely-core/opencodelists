@@ -9,17 +9,17 @@ class Hierarchy {
 
   getAncestors(node) {
     if (!(node in this.ancestorMap)) {
-      let ancestors = [];
+      let ancestors = new Set();
       if (node in this.parentMap) {
         for (let parent of this.parentMap[node]) {
-          ancestors.push(parent);
+          ancestors.add(parent);
           for (let ancestor of this.getAncestors(parent)) {
-            ancestors.push(ancestor);
+            ancestors.add(ancestor);
           }
         }
       }
 
-      this.ancestorMap[node] = ancestors;
+      this.ancestorMap[node] = [...ancestors];
     }
 
     return this.ancestorMap[node];
@@ -27,17 +27,17 @@ class Hierarchy {
 
   getDescendants(node) {
     if (!(node in this.descendantMap)) {
-      let descendants = [];
+      let descendants = new Set();
       if (node in this.childMap) {
         for (let child of this.childMap[node]) {
-          descendants.push(child);
+          descendants.add(child);
           for (let descendant of this.getDescendants(child)) {
-            descendants.push(descendant);
+            descendants.add(descendant);
           }
         }
       }
 
-      this.descendantMap[node] = descendants;
+      this.descendantMap[node] = [...descendants];
     }
 
     return this.descendantMap[node];

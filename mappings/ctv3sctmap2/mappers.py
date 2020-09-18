@@ -88,3 +88,14 @@ def ctv3_to_snomedct(ctv3_ids):
             )
 
     return records
+
+
+def snomedct_to_ctv3(snomedct_ids):
+    """Convert SNOMED CT Concept codes to CTV3 Concepts IDs."""
+    return set(
+        CTV3Concept.objects.filter(
+            snomedct_mappings__sct_concept_id__in=snomedct_ids,
+            snomedct_mappings__map_status=True,
+            snomedct_mappings__is_assured=True,
+        ).values_list("pk", flat=True)
+    )

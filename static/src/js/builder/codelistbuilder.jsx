@@ -177,9 +177,12 @@ class CodelistBuilder extends React.Component {
             <SearchForm searchURL={this.props.searchURL} />
             <hr />
 
-            <a className="btn btn-primary" href={this.props.downloadURL}>
+            <DownloadButton
+              enabled={this.counts()["!"] === 0 && this.counts()["?"] === 0}
+              url={this.props.downloadURL}
+            >
               Download codelist
-            </a>
+            </DownloadButton>
           </div>
 
           <div className="col-9 pl-5">
@@ -485,6 +488,27 @@ function Summary(props) {
         </li>
       )}
     </ul>
+  );
+}
+
+function DownloadButton(props) {
+  if (props.enabled) {
+    return (
+      <a className="btn btn-primary" href={props.url}>
+        {props.children}
+      </a>
+    );
+  }
+
+  // Button is disabled, tell the user why
+  return (
+    <>
+      <p>
+        Downloads are disabled until all conflicted or unresolved concepts are
+        resolved.
+      </p>
+      <a className="disabled btn btn-secondary text-white">{props.children}</a>
+    </>
   );
 }
 

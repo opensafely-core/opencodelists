@@ -15,6 +15,11 @@ const hierarchy = new Hierarchy(
 );
 
 ReactDOM.render(
-  <Tree hierarchy={hierarchy} trees={readValueFromPage("trees")} />,
+  <Tree
+    codeToURL={readValueFromPage("codeToURL")}
+    definitionCodes={readValueFromPage("definitionCodes")}
+    hierarchy={hierarchy}
+    trees={readValueFromPage("trees")}
+  />,
   document.querySelector("#codelist-tree")
 );

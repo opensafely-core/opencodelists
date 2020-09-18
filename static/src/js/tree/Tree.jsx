@@ -30,6 +30,28 @@ class Tree extends React.Component {
       .every((ancestor) => this.state[ancestor]);
   }
 
+  renderTerm(code, term) {
+    const element = <Term term={term} />;
+
+    const inDefinition = this.props.definitionCodes.includes(code);
+
+    // conditionally wrap Term in an <href> element if there's a URL for it. We
+    // only want to link to codes included in the codelist so some codes will
+    // stay unlinked.
+    if (code in this.props.codeToURL) {
+      return (
+        <a
+          style={inDefinition ? { textDecoration: "underline" } : null}
+          href={this.props.codeToURL[code]}
+        >
+          {element}
+        </a>
+      );
+    } else {
+      return element;
+    }
+  }
+
   render() {
     return (
       <div>
@@ -51,7 +73,7 @@ class Tree extends React.Component {
                     toggleVisibility={this.toggleVisibility}
                   />
                 ) : null}
-                <Term term={row.term} /> <Code code={row.code} />
+                {this.renderTerm(row.code, row.term)} <Code code={row.code} />
               </div>
             ))}
           </div>

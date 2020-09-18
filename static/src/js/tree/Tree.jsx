@@ -73,7 +73,8 @@ class Tree extends React.Component {
                     toggleVisibility={this.toggleVisibility}
                   />
                 ) : null}
-                {this.renderTerm(row.code, row.term)} <Code code={row.code} />
+                {this.renderTerm(row.code, row.term)}
+                <Code code={row.code} />
               </div>
             ))}
           </div>

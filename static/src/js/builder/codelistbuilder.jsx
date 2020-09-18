@@ -307,7 +307,8 @@ function Row(props) {
             toggleVisibility={toggleVisibility}
           />
         ) : null}
-        <Term status={status} term={row.term} /> <Code code={row.code} />
+        <Term status={status} term={row.term} />
+        <Code code={row.code} />
       </div>
     </div>
   );

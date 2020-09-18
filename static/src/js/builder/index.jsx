@@ -26,6 +26,7 @@ ReactDOM.render(
     updateURL={readValueFromPage("update-url")}
     searchURL={readValueFromPage("search-url")}
     hierarchy={hierarchy}
+    downloadURL={readValueFromPage("download-url")}
   />,
   document.querySelector("#codelist-builder-container")
 );

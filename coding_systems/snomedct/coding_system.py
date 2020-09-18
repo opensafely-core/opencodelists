@@ -85,3 +85,11 @@ def descendant_relationships(codes):
     """
 
     return query(sql, codes)
+
+
+def get_code_to_term(codes):
+    """Look up terms for the given codes."""
+
+    concepts = Concept.objects.filter(pk__in=codes).prefetch_related("descriptions")
+
+    return {concept.pk: concept.fully_specified_name for concept in concepts}

@@ -175,6 +175,11 @@ class CodelistBuilder extends React.Component {
 
             <h3 className="mb-4">New term search</h3>
             <SearchForm searchURL={this.props.searchURL} />
+            <hr />
+
+            <a className="btn btn-primary" href={this.props.downloadURL}>
+              Download codelist
+            </a>
           </div>
 
           <div className="col-9 pl-5">

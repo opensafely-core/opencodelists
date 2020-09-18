@@ -15,4 +15,5 @@ urlpatterns = [
     ),
     path("<username>/<codelist_slug>/update/", views.update, name="update"),
     path("<username>/<codelist_slug>/search/", views.new_search, name="new_search"),
+    path("<username>/<codelist_slug>/download.csv", views.download, name="download"),
 ]

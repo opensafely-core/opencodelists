@@ -7,6 +7,8 @@ const Pipes = (props) =>
       style={{
         display: "inline-block",
         textAlign: "center",
+        paddingLeft: "3px",
+        paddingRight: "6px",
         width: "20px",
       }}
     >

@@ -18,6 +18,7 @@ ReactDOM.render(
   <Tree
     codeToURL={readValueFromPage("codeToURL")}
     codesInDefinition={readValueFromPage("codesInDefinition")}
+    codesInList={readValueFromPage("codesInList")}
     hierarchy={hierarchy}
     trees={readValueFromPage("trees")}
   />,

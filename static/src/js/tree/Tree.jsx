@@ -32,12 +32,19 @@ class Tree extends React.Component {
 
   renderTerm(code, term) {
     const inDefinition = this.props.codesInDefinition.includes(code);
+    const inList = this.props.codesInList.includes(code);
+
+    let style;
+    if (inDefinition) {
+      style = { color: "blue" };
+    } else if (inList) {
+      style = { color: "blue", textDecoration: "underline" };
+    } else {
+      style = { color: "black" };
+    }
 
     return (
-      <a
-        style={inDefinition ? { textDecoration: "underline" } : null}
-        href={this.props.codeToURL[code]}
-      >
+      <a style={style} href={this.props.codeToURL[code]}>
         <Term term={term} />;
       </a>
     );

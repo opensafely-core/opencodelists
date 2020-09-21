@@ -31,25 +31,16 @@ class Tree extends React.Component {
   }
 
   renderTerm(code, term) {
-    const element = <Term term={term} />;
-
     const inDefinition = this.props.codesInDefinition.includes(code);
 
-    // conditionally wrap Term in an <href> element if there's a URL for it. We
-    // only want to link to codes included in the codelist so some codes will
-    // stay unlinked.
-    if (code in this.props.codeToURL) {
-      return (
-        <a
-          style={inDefinition ? { textDecoration: "underline" } : null}
-          href={this.props.codeToURL[code]}
-        >
-          {element}
-        </a>
-      );
-    } else {
-      return element;
-    }
+    return (
+      <a
+        style={inDefinition ? { textDecoration: "underline" } : null}
+        href={this.props.codeToURL[code]}
+      >
+        <Term term={term} />;
+      </a>
+    );
   }
 
   render() {

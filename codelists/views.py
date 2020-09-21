@@ -311,7 +311,7 @@ def version(request, project_slug, codelist_slug, qualified_version_str):
         trees = tree_tables(codes_by_type, hierarchy, code_to_term)
 
         r = functools.partial(reverse, f"{coding_system.id}:concept")
-        code_to_url = {code: r(args=[code]) for code in clv.codes}
+        code_to_url = {code: r(args=[code]) for code in hierarchy.nodes}
 
         definition = Definition.from_codes(set(clv.codes), hierarchy)
         rows = build_definition_rows(coding_system, hierarchy, definition)

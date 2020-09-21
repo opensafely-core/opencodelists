@@ -17,7 +17,7 @@ const hierarchy = new Hierarchy(
 ReactDOM.render(
   <Tree
     codeToURL={readValueFromPage("codeToURL")}
-    definitionCodes={readValueFromPage("definitionCodes")}
+    codesInDefinition={readValueFromPage("codesInDefinition")}
     hierarchy={hierarchy}
     trees={readValueFromPage("trees")}
   />,

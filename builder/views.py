@@ -33,7 +33,7 @@ def download(request, username, codelist_slug):
         coding_system = CODING_SYSTEMS["snomedct"]
 
     # get terms for codes
-    code_to_term = coding_system.get_code_to_term(codes)
+    code_to_term = coding_system.lookup_names(codes)
 
     timestamp = timezone.now().strftime("%Y-%m-%dT%H-%M-%S")
     filename = f"{username}-{codelist_slug}-{timestamp}.csv"

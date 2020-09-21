@@ -24,7 +24,9 @@ def download(request, username, codelist_slug):
     codelist = get_object_or_404(DraftCodelist, owner=username, slug=codelist_slug)
 
     # get codes
-    codes = list(codelist.codes.values_list("code", flat=True))
+    codes = list(
+        codelist.codes.filter(status__contains="+").values_list("code", flat=True)
+    )
 
     # get coding_system module (and prepare for CTV3 integration)
     if codelist.coding_system_id in ["ctv3", "ctv3tpp"]:

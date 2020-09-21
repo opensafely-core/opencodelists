@@ -1,6 +1,8 @@
 "use strict";
 
 import React from "react";
+import Button from "react-bootstrap/Button";
+import Modal from "react-bootstrap/Modal";
 
 import TermAndCode from "../TermAndCode";
 import { getCookie } from "../utils";
@@ -9,7 +11,11 @@ class CodelistBuilder extends React.Component {
   constructor(props) {
     super(props);
 
-    let state = { updateQueue: [], updating: false };
+    let state = {
+      updateQueue: [],
+      updating: false,
+      moreInfoModalCode: null,
+    };
 
     const codes = props.hierarchy.nodes;
     codes.forEach((code) => {
@@ -25,6 +31,8 @@ class CodelistBuilder extends React.Component {
 
     this.updateStatus = this.updateStatus.bind(this);
     this.toggleVisibility = this.toggleVisibility.bind(this);
+    this.showMoreInfoModal = this.showMoreInfoModal.bind(this);
+    this.hideMoreInfoModal = this.hideMoreInfoModal.bind(this);
     this.getStatus = this.getStatus.bind(this);
     this.getHasDescendants = this.getHasDescendants.bind(this);
     this.getIsExpanded = this.getIsExpanded.bind(this);
@@ -97,6 +105,14 @@ class CodelistBuilder extends React.Component {
     }));
   }
 
+  showMoreInfoModal(code) {
+    this.setState({ moreInfoModalCode: code });
+  }
+
+  hideMoreInfoModal() {
+    this.setState({ moreInfoModalCode: null });
+  }
+
   getStatus(code) {
     return this.state["status-" + code];
   }
@@ -136,43 +152,76 @@ class CodelistBuilder extends React.Component {
   }
 
   render() {
+    const moreInfoModal =
+      this.state.moreInfoModalCode &&
+      this.renderMoreInfoModal(this.state.moreInfoModalCode);
+
     return (
-      <div className="row">
-        <div className="col-3">
-          <h3 className="mb-4">Summary</h3>
-          <Filter filter={this.props.filter} />
-          <Summary counts={this.counts()} />
-          <hr />
+      <>
+        <div className="row">
+          <div className="col-3">
+            <h3 className="mb-4">Summary</h3>
+            <Filter filter={this.props.filter} />
+            <Summary counts={this.counts()} />
+            <hr />
 
-          <h3 className="mb-4">Term searches</h3>
-          <ul className="list-group">
-            {this.props.searches.map((search) => (
-              <TermSearch key={search.url} search={search} />
+            <h3 className="mb-4">Term searches</h3>
+            <ul className="list-group">
+              {this.props.searches.map((search) => (
+                <TermSearch key={search.url} search={search} />
+              ))}
+            </ul>
+            <hr />
+
+            <h3 className="mb-4">New term search</h3>
+            <SearchForm searchURL={this.props.searchURL} />
+          </div>
+
+          <div className="col-9 pl-5">
+            <h3 className="mb-4">Results</h3>
+            {this.props.tables.map((table) => (
+              <Table
+                key={table.heading}
+                table={table}
+                getStatus={this.getStatus}
+                getHasDescendants={this.getHasDescendants}
+                getIsVisible={this.getIsVisible}
+                getIsExpanded={this.getIsExpanded}
+                isEditable={this.props.isEditable}
+                updateStatus={this.updateStatus}
+                toggleVisibility={this.toggleVisibility}
+                showMoreInfoModal={this.showMoreInfoModal}
+              />
             ))}
-          </ul>
-          <hr />
-
-          <h3 className="mb-4">New term search</h3>
-          <SearchForm searchURL={this.props.searchURL} />
+          </div>
         </div>
 
-        <div className="col-9 pl-5">
-          <h3 className="mb-4">Results</h3>
-          {this.props.tables.map((table) => (
-            <Table
-              key={table.heading}
-              table={table}
-              getStatus={this.getStatus}
-              getHasDescendants={this.getHasDescendants}
-              getIsVisible={this.getIsVisible}
-              getIsExpanded={this.getIsExpanded}
-              isEditable={this.props.isEditable}
-              updateStatus={this.updateStatus}
-              toggleVisibility={this.toggleVisibility}
-            />
-          ))}
-        </div>
-      </div>
+        {moreInfoModal}
+      </>
+    );
+  }
+
+  renderMoreInfoModal(code) {
+    const included = this.props.displayedCodes.filter(
+      (c) => this.getStatus(c) === "+"
+    );
+    const excluded = this.props.displayedCodes.filter(
+      (c) => this.getStatus(c) === "-"
+    );
+    const significantAncestors = this.props.hierarchy.significantAncestors(
+      code,
+      included,
+      excluded
+    );
+
+    return (
+      <MoreInfoModal
+        code={code}
+        status={this.getStatus(code)}
+        includedAncestors={significantAncestors.includedAncestors}
+        excludedAncestors={significantAncestors.excludedAncestors}
+        hideModal={this.hideMoreInfoModal}
+      />
     );
   }
 }
@@ -236,6 +285,7 @@ function Table(props) {
     isEditable,
     updateStatus,
     toggleVisibility,
+    showMoreInfoModal,
   } = props;
 
   return (
@@ -252,6 +302,7 @@ function Table(props) {
           isEditable={isEditable}
           updateStatus={updateStatus}
           toggleVisibility={toggleVisibility}
+          showMoreInfoModal={showMoreInfoModal}
         />
       ))}
     </div>
@@ -268,6 +319,7 @@ function Row(props) {
     isEditable,
     updateStatus,
     toggleVisibility,
+    showMoreInfoModal,
   } = props;
 
   const visibility = isVisible ? "d-flex" : "d-none";
@@ -277,14 +329,14 @@ function Row(props) {
   return (
     <div className={className} data-code={row.code}>
       <div className="btn-group btn-group-sm" role="group">
-        <Button
+        <StatusToggle
           code={row.code}
           symbol="+"
           status={status}
           isEditable={isEditable}
           updateStatus={updateStatus}
         />
-        <Button
+        <StatusToggle
           code={row.code}
           symbol="-"
           status={status}
@@ -293,7 +345,7 @@ function Row(props) {
         />
       </div>
 
-      <MoreInfo status={status} />
+      <MoreInfoButton code={row.code} showMoreInfoModal={showMoreInfoModal} />
 
       <TermAndCode
         term={row.term}
@@ -308,7 +360,7 @@ function Row(props) {
   );
 }
 
-function Button(props) {
+function StatusToggle(props) {
   const { code, symbol, status, isEditable, updateStatus } = props;
 
   let buttonClasses = ["btn"];
@@ -334,8 +386,31 @@ function Button(props) {
   );
 }
 
-function MoreInfo(props) {
-  const { status } = props;
+function MoreInfoButton(props) {
+  const { code, showMoreInfoModal } = props;
+
+  return (
+    <div className="btn-group btn-group-sm mx-2" role="group">
+      <Button
+        variant="outline-secondary"
+        onClick={showMoreInfoModal.bind(null, code)}
+        className="py-0"
+      >
+        ?
+      </Button>
+    </div>
+  );
+}
+
+function MoreInfoModal(props) {
+  const {
+    code,
+    status,
+    includedAncestors,
+    excludedAncestors,
+    hideModal,
+  } = props;
+
   let text = null;
 
   switch (status) {
@@ -343,34 +418,29 @@ function MoreInfo(props) {
       text = "Included";
       break;
     case "(+)":
-      text = "Included by ancestor";
+      text = `Included by ${includedAncestors.join(", ")}`;
       break;
     case "-":
       text = "Excluded";
       break;
     case "(-)":
-      text = "Excluded by ancestor";
+      text = `Excluded by ${excludedAncestors.join(", ")}`;
       break;
     case "?":
       text = "Unresolved";
       break;
     case "!":
-      text = "In conflict";
+      text = `In conflict!  Included by ${includedAncestors.join(
+        ", "
+      )} by and excluded by ${excludedAncestors.join(", ")}`;
       break;
   }
 
   return (
-    <div className="btn-group btn-group-sm mx-2" role="group">
-      <button
-        type="button"
-        data-toggle="tooltip"
-        data-placement="top"
-        title={text}
-        className="btn btn-outline-secondary py-0"
-      >
-        ?
-      </button>
-    </div>
+    <Modal show={code !== null} onHide={hideModal} centered>
+      <Modal.Header closeButton>{code}</Modal.Header>
+      <Modal.Body>{text}</Modal.Body>
+    </Modal>
   );
 }
 

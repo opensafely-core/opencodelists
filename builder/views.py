@@ -1,12 +1,15 @@
+import csv
 import json
 import re
 
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils import timezone
 from django.views.decorators.http import require_http_methods
 
+from codelists.coding_systems import CODING_SYSTEMS
 from codelists.hierarchy import Hierarchy
 from codelists.presenters import tree_tables
 from codelists.search import do_search
@@ -15,6 +18,37 @@ from opencodelists.models import User
 from . import actions
 from .forms import DraftCodelistForm
 from .models import DraftCodelist
+
+
+def download(request, username, codelist_slug):
+    codelist = get_object_or_404(DraftCodelist, owner=username, slug=codelist_slug)
+
+    # get codes
+    codes = list(
+        codelist.codes.filter(status__contains="+").values_list("code", flat=True)
+    )
+
+    # get coding_system module (and prepare for CTV3 integration)
+    if codelist.coding_system_id in ["ctv3", "ctv3tpp"]:
+        coding_system = CODING_SYSTEMS["ctv3"]
+    else:
+        coding_system = CODING_SYSTEMS["snomedct"]
+
+    # get terms for codes
+    code_to_term = coding_system.lookup_names(codes)
+
+    timestamp = timezone.now().strftime("%Y-%m-%dT%H-%M-%S")
+    filename = f"{username}-{codelist_slug}-{timestamp}.csv"
+
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
+
+    # render to csv
+    writer = csv.writer(response)
+    writer.writerow(["id", "term"])
+    writer.writerows([(k, v) for k, v in code_to_term.items()])
+
+    return response
 
 
 @login_required
@@ -97,6 +131,9 @@ def codelist(request, username, codelist_slug, search_slug=None):
     search_url = reverse(
         "builder:new_search", args=[codelist.owner.username, codelist.slug]
     )
+    download_url = reverse(
+        "builder:download", args=[codelist.owner.username, codelist.slug]
+    )
 
     ctx = {
         "user": codelist.owner,
@@ -117,6 +154,7 @@ def codelist(request, username, codelist_slug, search_slug=None):
         "is_editable": request.user == codelist.owner,
         "update_url": update_url,
         "search_url": search_url,
+        "download_url": download_url,
         # }
     }
 

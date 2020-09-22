@@ -24,6 +24,10 @@ class Hierarchy:
         in the coding system.
         """
 
+        if isinstance(codes, str):
+            msg = "Hierarchy was expecting codes to be a non-string iterable, you passed a string."
+            raise TypeError(msg)
+
         ancestor_relationships = set(coding_system.ancestor_relationships(codes))
         descendant_relationships = set(coding_system.descendant_relationships(codes))
         edges = ancestor_relationships | descendant_relationships

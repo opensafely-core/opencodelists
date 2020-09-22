@@ -68,7 +68,7 @@ python-dateutil==2.8.1    # via faker, freezegun
 pytz==2020.1              # via django
 pyyaml==5.3.1             # via pre-commit
 regex==2020.4.4           # via black
-sentry-sdk==0.17.5        # via -r requirements.in
+sentry-sdk==0.17.6        # via -r requirements.in
 six==1.14.0               # via bcrypt, bleach, configobj, cryptography, fabric3, freezegun, packaging, pip-tools, pynacl, python-dateutil, structlog, virtualenv
 sortedcontainers==2.1.0   # via hypothesis
 sqlparse==0.3.1           # via django, django-debug-toolbar, litecli

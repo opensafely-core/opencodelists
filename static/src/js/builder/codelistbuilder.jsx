@@ -4,7 +4,10 @@ import React from "react";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 
-import TermAndCode from "../TermAndCode";
+import Code from "../Code";
+import DescendantToggle from "../DescendantToggle";
+import Pipes from "../Pipes";
+import Term from "../Term";
 import { getCookie } from "../utils";
 
 class CodelistBuilder extends React.Component {
@@ -355,15 +358,18 @@ function Row(props) {
 
       <MoreInfoButton code={row.code} showMoreInfoModal={showMoreInfoModal} />
 
-      <TermAndCode
-        term={row.term}
-        code={row.code}
-        pipes={row.pipes}
-        status={status}
-        hasDescendants={hasDescendants}
-        isExpanded={isExpanded}
-        toggleVisibility={toggleVisibility}
-      />
+      <div style={{ paddingLeft: "10px", whiteSpace: "nowrap" }}>
+        <Pipes pipes={row.pipes} />
+        {hasDescendants ? (
+          <DescendantToggle
+            code={row.code}
+            isExpanded={isExpanded}
+            toggleVisibility={toggleVisibility}
+          />
+        ) : null}
+        <Term status={status} term={row.term} />
+        <Code code={row.code} />
+      </div>
     </div>
   );
 }

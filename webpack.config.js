@@ -4,6 +4,7 @@ module.exports = {
   entry: {
     builder: "./static/src/js/builder/index.jsx",
     codelist: "./static/src/js/codelist.js",
+    tree: "./static/src/js/tree/index.jsx",
   },
   output: {
     path: path.resolve(__dirname, "static", "dist", "js"),

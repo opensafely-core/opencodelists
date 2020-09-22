@@ -1,18 +1,23 @@
 import csv
 import datetime
 from io import StringIO
+from pathlib import Path
 
 import pytest
+from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
+from django.core.management import call_command
 from django.http import Http404
 from pytest_django.asserts import assertContains, assertRedirects
 
-from codelists.actions import create_codelist
+from codelists.actions import create_codelist, publish_version
 from codelists.views import (
     CodelistCreate,
     CodelistUpdate,
     VersionCreate,
     VersionUpdate,
+    codelist,
+    version,
     version_publish,
 )
 from opencodelists.tests.factories import ProjectFactory, UserFactory
@@ -337,56 +342,69 @@ def test_codelistupdate_with_duplicate_name(rf):
     assert response.context_data["codelist_form"].errors
 
 
-def test_codelist(client):
+def test_codelist(rf):
     clv = create_published_version()
     cl = clv.codelist
-    rsp = client.get(f"/codelist/{cl.project.slug}/{cl.slug}/", follow=True)
-    assertRedirects(rsp, f"/codelist/{cl.project.slug}/{cl.slug}/{clv.version_str}/")
-    assertContains(rsp, cl.name)
+
+    request = rf.get("/")
+    response = codelist(request, cl.project.slug, cl.slug)
+
+    # check codelist() redirects to the correct version page
+    assert response.status_code == 302
+    assert response.url == f"/codelist/{cl.project.slug}/{cl.slug}/{clv.version_str}/"
 
 
 def test_version(client):
-    clv = create_published_version()
-    cl = clv.codelist
+    fixtures_path = Path(settings.BASE_DIR, "coding_systems", "snomedct", "fixtures")
+    call_command("loaddata", fixtures_path / "core-model-components.json")
+    call_command("loaddata", fixtures_path / "tennis-elbow.json")
+
+    with open(fixtures_path / "disorder-of-elbow.csv") as f:
+        cl = CodelistFactory(csv_data=f.read())
+    clv = publish_version(version=cl.versions.first())
     rsp = client.get(f"/codelist/{cl.project.slug}/{cl.slug}/{clv.version_str}/")
     assertContains(rsp, cl.name)
     assertContains(rsp, cl.description)
     assertContains(rsp, cl.methodology)
 
 
-def test_version_redirects(client):
+def test_version_redirects(rf):
     clv = create_published_version()
     cl = clv.codelist
-    rsp = client.get(
-        f"/codelist/{cl.project.slug}/{cl.slug}/{clv.version_str}-draft/", follow=True
-    )
-    assertRedirects(rsp, f"/codelist/{cl.project.slug}/{cl.slug}/{clv.version_str}/")
-    assertContains(rsp, cl.name)
-    assertContains(rsp, cl.description)
-    assertContains(rsp, cl.methodology)
+    request = rf.get("/")
+    response = version(request, cl.project.slug, cl.slug, f"{clv.version_str}-draft")
+
+    # check version() redirects to the non-draft page for a published version
+    assert response.status_code == 302
+    assert response.url == f"/codelist/{cl.project.slug}/{cl.slug}/{clv.version_str}/"
 
 
 def test_draft_version(client):
-    clv = create_draft_version()
-    cl = clv.codelist
+    fixtures_path = Path(settings.BASE_DIR, "coding_systems", "snomedct", "fixtures")
+    call_command("loaddata", fixtures_path / "core-model-components.json")
+    call_command("loaddata", fixtures_path / "tennis-elbow.json")
+
+    with open(fixtures_path / "disorder-of-elbow.csv") as f:
+        cl = CodelistFactory(csv_data=f.read())
+
+    clv = cl.versions.first()
     rsp = client.get(f"/codelist/{cl.project.slug}/{cl.slug}/{clv.version_str}-draft/")
     assertContains(rsp, cl.name)
     assertContains(rsp, cl.description)
     assertContains(rsp, cl.methodology)
 
 
-def test_draft_version_redirects(client):
+def test_draft_version_redirects(rf):
     clv = create_draft_version()
     cl = clv.codelist
-    rsp = client.get(
-        f"/codelist/{cl.project.slug}/{cl.slug}/{clv.version_str}/", follow=True
-    )
-    assertRedirects(
-        rsp, f"/codelist/{cl.project.slug}/{cl.slug}/{clv.version_str}-draft/"
-    )
-    assertContains(rsp, cl.name)
-    assertContains(rsp, cl.description)
-    assertContains(rsp, cl.methodology)
+    request = rf.get("/")
+    response = version(request, cl.project.slug, cl.slug, clv.version_str)
+
+    # check version() redirects to the draft page for a draft version
+    assert response.status_code == 302
+
+    expected = f"/codelist/{cl.project.slug}/{cl.slug}/{clv.version_str}-draft/"
+    assert response.url == expected
 
 
 def test_download(client):

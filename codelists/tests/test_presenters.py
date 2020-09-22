@@ -1,4 +1,3 @@
-import re
 from pathlib import Path
 
 import pytest
@@ -8,6 +7,7 @@ from django.core.management import call_command
 from codelists import presenters
 from codelists.definition import Definition
 from codelists.hierarchy import Hierarchy
+from coding_systems.snomedct import coding_system as snomed
 
 from .factories import CodelistFactory
 
@@ -71,29 +71,6 @@ def test_build_definition_rows():
     assert excluded["code"] == "8"
 
 
-def test_build_html_tree_highlighting_codes():
-    fixtures_path = Path(settings.BASE_DIR, "coding_systems", "snomedct", "fixtures")
-    call_command("loaddata", fixtures_path / "core-model-components.json")
-    call_command("loaddata", fixtures_path / "tennis-elbow.json")
-
-    with open(fixtures_path / "disorder-of-elbow-excl-arthritis.csv") as f:
-        cl = CodelistFactory(csv_data=f.read())
-
-    coding_system = cl.coding_system
-    clv = cl.versions.get()
-    hierarchy = Hierarchy.from_codes(coding_system, clv.codes)
-    definition = Definition.from_codes(set(clv.codes), hierarchy)
-
-    html = presenters.build_html_tree_highlighting_codes(
-        coding_system, hierarchy, definition
-    )
-
-    with open(
-        Path(settings.BASE_DIR, "codelists", "tests", "expected_html_tree.html")
-    ) as f:
-        assert html.strip() == f.read().strip()
-
-
 def test_tree_tables():
     fixtures_path = Path(settings.BASE_DIR, "coding_systems", "snomedct", "fixtures")
     call_command("loaddata", fixtures_path / "core-model-components.json")
@@ -103,15 +80,11 @@ def test_tree_tables():
         cl = CodelistFactory(csv_data=f.read())
 
     clv = cl.versions.get()
-    code_to_term_and_type = {
-        code: re.match(r"(^.*) \(([\w/ ]+)\)$", term).groups()
-        for code, term in cl.coding_system.lookup_names(clv.codes).items()
-    }
-    code_to_term = {code: term for code, (term, _) in code_to_term_and_type.items()}
-    code_to_type = {code: type for code, (_, type) in code_to_term_and_type.items()}
 
     hierarchy = Hierarchy.from_codes(cl.coding_system, clv.codes)
     ancestor_codes = hierarchy.filter_to_ultimate_ancestors(set(clv.codes))
+    codes_by_type = snomed.codes_by_type(ancestor_codes, hierarchy)
+    code_to_term = snomed.code_to_term(clv.codes, hierarchy)
 
     # 128133004 (Disorder of elbow)
     #   ├  429554009 (Arthropathy of elbow)
@@ -122,12 +95,9 @@ def test_tree_tables():
     #   │           └  202855006 (Lateral epicondylitis)
     #   └  239964003 (Soft tissue lesion of elbow region)
 
-    assert presenters.tree_tables(
-        ancestor_codes, hierarchy, code_to_term, code_to_type
-    ) == [
+    assert presenters.tree_tables(codes_by_type, hierarchy, code_to_term) == [
         {
             "heading": "Disorder",
-            # fmt: off
             "rows": [
                 {
                     "code": "128133004",
@@ -170,6 +140,5 @@ def test_tree_tables():
                     "pipes": ["└"],
                 },
             ],
-            # fmt: on
         }
     ]

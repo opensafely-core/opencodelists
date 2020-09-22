@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% load markdown_filter %}
+{% load static %}
 
 {% block title_extra %}: {{ codelist.name }}{% endblock %}
 
@@ -150,7 +151,7 @@
           >Full list</a
         >
       </li>
-      {% if html_tree %}
+      {% if trees %}
       <li class="nav-item">
         <a
           class="nav-link"
@@ -262,7 +263,7 @@
         </table>
       </div>
 
-      {% if html_tree %}
+      {% if trees %}
       <div
         class="tab-pane fade p-4"
         id="tree"
@@ -275,7 +276,7 @@
         Codes in the <a href="#full-list">full codelist</a> are in blue.
         Related codes not in the codelist are in black.
       </p>
-      {{ html_tree|safe }}
+        <div id="codelist-tree"></div>
       </div>
       {% endif %}
     </div>
@@ -341,4 +342,13 @@
     $('#tab-list a[href="' + hash + '"]').tab("show");
   }
 </script>
+
+{{ child_map|json_script:"child-map" }}
+{{ code_to_url|json_script:"codeToURL" }}
+{{ codes_in_definition|json_script:"codesInDefinition" }}
+{{ clv.codes|json_script:"codesInList" }}
+{{ parent_map|json_script:"parent-map" }}
+{{ trees|json_script:"trees" }}
+
+<script src="{% static 'js/tree.bundle.js' %}"></script>
 {% endblock %}

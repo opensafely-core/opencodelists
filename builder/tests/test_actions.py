@@ -1,8 +1,3 @@
-from pathlib import Path
-
-from django.conf import settings
-from django.core.management import call_command
-
 from builder import actions
 from opencodelists.tests.factories import UserFactory
 
@@ -100,12 +95,8 @@ def test_delete_search():
     assert cl.codes.count() == 2
 
 
-def test_update_code_statuses():
+def test_update_code_statuses(tennis_elbow):
     # Arrange: load fixtures and create a codelist with a search
-    fixtures_path = Path(settings.BASE_DIR, "coding_systems", "snomedct", "fixtures")
-    call_command("loaddata", fixtures_path / "core-model-components.json")
-    call_command("loaddata", fixtures_path / "tennis-elbow.json")
-
     owner = UserFactory()
     cl = actions.create_codelist(
         owner=owner, name="Test Codelist", coding_system_id="snomedct"

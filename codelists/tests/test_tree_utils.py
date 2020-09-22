@@ -1,18 +1,10 @@
-from pathlib import Path
-
-from django.conf import settings
-from django.core.management import call_command
-
 from codelists import tree_utils
 from codelists.coding_systems import CODING_SYSTEMS
 
 from .helpers import build_small_tree, build_tree
 
 
-def test_build_subtrees():
-    fixtures_path = Path(settings.BASE_DIR, "coding_systems", "snomedct", "fixtures")
-    call_command("loaddata", fixtures_path / "core-model-components.json")
-    call_command("loaddata", fixtures_path / "tennis-elbow.json")
+def test_build_subtrees(tennis_elbow):
     coding_system = CODING_SYSTEMS["snomedct"]
 
     assert tree_utils.build_subtree(coding_system, ["128133004"]) == {
@@ -78,10 +70,7 @@ def test_build_subtrees():
     }
 
 
-def test_build_descendant_subtree():
-    fixtures_path = Path(settings.BASE_DIR, "coding_systems", "snomedct", "fixtures")
-    call_command("loaddata", fixtures_path / "core-model-components.json")
-    call_command("loaddata", fixtures_path / "tennis-elbow.json")
+def test_build_descendant_subtree(tennis_elbow):
     coding_system = CODING_SYSTEMS["snomedct"]
 
     assert tree_utils.build_descendant_subtree(coding_system, "128133004") == {

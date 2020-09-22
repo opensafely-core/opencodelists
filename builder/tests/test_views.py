@@ -1,8 +1,4 @@
-from pathlib import Path
-
 import pytest
-from django.conf import settings
-from django.core.management import call_command
 
 from builder import actions
 from codelists.search import do_search
@@ -15,11 +11,7 @@ pytestmark = [
 ]
 
 
-def test_codelist(client):
-    fixtures_path = Path(settings.BASE_DIR, "coding_systems", "snomedct", "fixtures")
-    call_command("loaddata", fixtures_path / "core-model-components.json")
-    call_command("loaddata", fixtures_path / "tennis-elbow.json")
-
+def test_codelist(client, tennis_elbow_codelist):
     owner = UserFactory()
     cl = actions.create_codelist(
         owner=owner, name="Elbows", coding_system_id="snomedct"

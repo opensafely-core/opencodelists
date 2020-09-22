@@ -1,15 +1,9 @@
-from pathlib import Path
-
 import pytest
-from django.conf import settings
-from django.core.management import call_command
 
 from codelists import presenters
 from codelists.definition import Definition
 from codelists.hierarchy import Hierarchy
 from coding_systems.snomedct import coding_system as snomed
-
-from .factories import CodelistFactory
 
 pytestmark = [
     pytest.mark.filterwarnings(
@@ -71,14 +65,8 @@ def test_build_definition_rows():
     assert excluded["code"] == "8"
 
 
-def test_tree_tables():
-    fixtures_path = Path(settings.BASE_DIR, "coding_systems", "snomedct", "fixtures")
-    call_command("loaddata", fixtures_path / "core-model-components.json")
-    call_command("loaddata", fixtures_path / "tennis-elbow.json")
-
-    with open(fixtures_path / "disorder-of-elbow.csv") as f:
-        cl = CodelistFactory(csv_data=f.read())
-
+def test_tree_tables(tennis_elbow_codelist):
+    cl = tennis_elbow_codelist
     clv = cl.versions.get()
 
     hierarchy = Hierarchy.from_codes(cl.coding_system, clv.codes)

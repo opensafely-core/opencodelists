@@ -24,6 +24,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("accounts/", include("django.contrib.auth.urls")),
     path("builder/", include("builder.urls")),
+    path("conversions/", include("conversions.urls")),
     path("ctv3/", include("coding_systems.ctv3.urls")),
     path("snomedct/", include("coding_systems.snomedct.urls")),
     path("project/<project_slug>/", views.project, name="project"),

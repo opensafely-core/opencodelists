@@ -105,14 +105,15 @@ class CodelistVersion(models.Model):
         if self.coding_system_id in ["ctv3", "ctv3tpp", "snomedct"]:
             headers, *rows = self.table
 
-            if self.coding_system_id == "snomedct":
-                ix = 0
-            elif self.codelist.slug == "ethnicity":
-                ix = 1
-            elif "CTV3ID" in headers:
-                ix = headers.index("CTV3ID")
+            for header in ["CTV3ID", "CTV3Code", "ctv3_id", "snomedct_id", "id"]:
+                if header in headers:
+                    ix = headers.index(header)
+                    break
             else:
-                ix = headers.index("CTV3Code")
+                if self.codelist.slug == "ethnicity":
+                    ix = 1
+                else:
+                    ix = 0
 
             return tuple(sorted({row[ix] for row in rows}))
 

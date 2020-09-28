@@ -26,58 +26,85 @@ def convert(request):
             csv_data = form.cleaned_data["csv_data"].read().decode("utf-8-sig")
             rows = list(csv.reader(StringIO(csv_data)))
             snomedct_ids = [row[0] for row in rows[1:]]
-
             mappings = get_mappings(snomedct_ids=snomedct_ids)
-            from_codes = {m[from_coding_system_id] for m in mappings}
-            to_codes = {m[to_coding_system_id] for m in mappings}
-
-            from_coding_system_lookup_names = from_coding_system.lookup_names(
-                from_codes
-            )
-            to_coding_system_lookup_names = to_coding_system.lookup_names(to_codes)
 
             if form.cleaned_data["type"] == "full":
-                filename = f"{base_filename}-mapping.csv"
-                headers = [
-                    f"{from_coding_system_id}_id",
-                    f"{from_coding_system_id}_name",
-                    f"{to_coding_system_id}_id",
-                    f"{to_coding_system_id}_name",
-                ]
-                data = [
-                    [
-                        mapping[from_coding_system_id],
-                        from_coding_system_lookup_names.get(
-                            mapping[from_coding_system_id], "Unknown"
-                        ),
-                        mapping[to_coding_system_id],
-                        to_coding_system_lookup_names.get(
-                            mapping[to_coding_system_id], "Unknown"
-                        ),
-                    ]
-                    for mapping in mappings
-                ]
+                return _build_csv_response_for_full_mapping(
+                    base_filename,
+                    mappings,
+                    from_coding_system,
+                    to_coding_system,
+                )
             else:
-                filename = f"{base_filename}-{to_coding_system_id}.csv"
-                headers = [
-                    f"{to_coding_system_id}_id",
-                    f"{to_coding_system_id}_name",
-                ]
-                data = [
-                    [to_code, to_coding_system_lookup_names.get(to_code, "Unknown")]
-                    for to_code in to_codes
-                ]
-
-            response = HttpResponse(content_type="text/csv")
-            response["Content-Disposition"] = f'attachment; filename="{filename}"'
-            writer = csv.writer(response)
-            writer.writerow(headers)
-            writer.writerows(sorted(data))
-
-            return response
+                return _build_csv_response_for_converted_codes_only(
+                    base_filename,
+                    mappings,
+                    to_coding_system,
+                )
 
     else:
         form = ConvertForm()
 
     ctx = {"form": form}
     return render(request, "conversions/convert.html", ctx)
+
+
+def _build_csv_response_for_full_mapping(
+    base_filename,
+    mappings,
+    from_coding_system,
+    to_coding_system,
+):
+    from_codes = {m[from_coding_system.id] for m in mappings}
+    to_codes = {m[to_coding_system.id] for m in mappings}
+    from_coding_system_lookup_names = from_coding_system.lookup_names(from_codes)
+    to_coding_system_lookup_names = to_coding_system.lookup_names(to_codes)
+
+    filename = f"{base_filename}-mapping.csv"
+    headers = [
+        f"{from_coding_system.id}_id",
+        f"{from_coding_system.id}_name",
+        f"{to_coding_system.id}_id",
+        f"{to_coding_system.id}_name",
+    ]
+    data = [
+        [
+            mapping[from_coding_system.id],
+            from_coding_system_lookup_names.get(
+                mapping[from_coding_system.id], "Unknown"
+            ),
+            mapping[to_coding_system.id],
+            to_coding_system_lookup_names.get(mapping[to_coding_system.id], "Unknown"),
+        ]
+        for mapping in mappings
+    ]
+
+    return _build_csv_response(filename, headers, data)
+
+
+def _build_csv_response_for_converted_codes_only(
+    base_filename, mappings, to_coding_system
+):
+    to_codes = {m[to_coding_system.id] for m in mappings}
+    to_coding_system_lookup_names = to_coding_system.lookup_names(to_codes)
+
+    filename = f"{base_filename}-{to_coding_system.id}.csv"
+    headers = [
+        f"{to_coding_system.id}_id",
+        f"{to_coding_system.id}_name",
+    ]
+    data = [
+        [to_code, to_coding_system_lookup_names.get(to_code, "Unknown")]
+        for to_code in to_codes
+    ]
+
+    return _build_csv_response(filename, headers, data)
+
+
+def _build_csv_response(filename, headers, data):
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
+    writer = csv.writer(response)
+    writer.writerow(headers)
+    writer.writerows(sorted(data))
+    return response

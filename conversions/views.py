@@ -3,7 +3,7 @@ import os
 from io import StringIO
 
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.views.generic.edit import FormView
 
 from codelists.coding_systems import CODING_SYSTEMS
 from mappings.ctv3sctmap2.mappers import get_mappings
@@ -11,42 +11,37 @@ from mappings.ctv3sctmap2.mappers import get_mappings
 from .forms import ConvertForm
 
 
-def convert(request):
-    if request.POST:
-        form = ConvertForm(request.POST, request.FILES)
-        if form.is_valid():
-            from_coding_system_id = form.cleaned_data["from_coding_system_id"]
-            to_coding_system_id = form.cleaned_data["to_coding_system_id"]
-            assert from_coding_system_id == "snomedct"
-            assert to_coding_system_id == "ctv3"
-            from_coding_system = CODING_SYSTEMS[from_coding_system_id]
-            to_coding_system = CODING_SYSTEMS[to_coding_system_id]
+class ConvertView(FormView):
+    template_name = "conversions/convert.html"
+    form_class = ConvertForm
 
-            base_filename, _ = os.path.splitext(form.cleaned_data["csv_data"].name)
-            csv_data = form.cleaned_data["csv_data"].read().decode("utf-8-sig")
-            rows = list(csv.reader(StringIO(csv_data)))
-            snomedct_ids = [row[0] for row in rows[1:]]
-            mappings = get_mappings(snomedct_ids=snomedct_ids)
+    def form_valid(self, form):
+        from_coding_system_id = form.cleaned_data["from_coding_system_id"]
+        to_coding_system_id = form.cleaned_data["to_coding_system_id"]
+        assert from_coding_system_id == "snomedct"
+        assert to_coding_system_id == "ctv3"
+        from_coding_system = CODING_SYSTEMS[from_coding_system_id]
+        to_coding_system = CODING_SYSTEMS[to_coding_system_id]
 
-            if form.cleaned_data["type"] == "full":
-                return _build_csv_response_for_full_mapping(
-                    base_filename,
-                    mappings,
-                    from_coding_system,
-                    to_coding_system,
-                )
-            else:
-                return _build_csv_response_for_converted_codes_only(
-                    base_filename,
-                    mappings,
-                    to_coding_system,
-                )
+        base_filename, _ = os.path.splitext(form.cleaned_data["csv_data"].name)
+        csv_data = form.cleaned_data["csv_data"].read().decode("utf-8-sig")
+        rows = list(csv.reader(StringIO(csv_data)))
+        snomedct_ids = [row[0] for row in rows[1:]]
+        mappings = get_mappings(snomedct_ids=snomedct_ids)
 
-    else:
-        form = ConvertForm()
-
-    ctx = {"form": form}
-    return render(request, "conversions/convert.html", ctx)
+        if form.cleaned_data["type"] == "full":
+            return _build_csv_response_for_full_mapping(
+                base_filename,
+                mappings,
+                from_coding_system,
+                to_coding_system,
+            )
+        else:
+            return _build_csv_response_for_converted_codes_only(
+                base_filename,
+                mappings,
+                to_coding_system,
+            )
 
 
 def _build_csv_response_for_full_mapping(

@@ -2,7 +2,7 @@ import collections
 
 from opencodelists.db_utils import query
 
-from .models import Concept, ConceptTermMapping
+from .models import RawConcept, RawConceptTermMapping
 
 name = "CTV3 (Read V3)"
 short_name = "CTV3"
@@ -11,8 +11,8 @@ root = "....."
 
 
 def lookup_names(codes):
-    qs = ConceptTermMapping.objects.filter(
-        concept_id__in=codes, term_type=ConceptTermMapping.PREFERRED
+    qs = RawConceptTermMapping.objects.filter(
+        concept_id__in=codes, term_type=RawConceptTermMapping.PREFERRED
     ).values("concept_id", "term__name_1", "term__name_2", "term__name_3")
 
     return {
@@ -68,9 +68,9 @@ def descendant_relationships(codes):
 
 
 def code_to_term(codes, hierarchy):
-    concepts = Concept.objects.filter(read_code__in=hierarchy.nodes).prefetch_related(
-        "terms"
-    )
+    concepts = RawConcept.objects.filter(
+        read_code__in=hierarchy.nodes
+    ).prefetch_related("terms")
     return {c.read_code: c.preferred_term() for c in concepts}
 
 
@@ -85,7 +85,7 @@ def codes_by_type(codes, hierarchy):
 
     # Treat children of CTV3 root as types
     types = hierarchy.child_map[root]
-    concepts = Concept.objects.filter(read_code__in=types).prefetch_related("terms")
+    concepts = RawConcept.objects.filter(read_code__in=types).prefetch_related("terms")
     terms_by_type = {c.read_code: c.preferred_term() for c in concepts}
 
     lookup = collections.defaultdict(list)

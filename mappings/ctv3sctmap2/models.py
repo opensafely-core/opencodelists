@@ -14,13 +14,13 @@ class Mapping(models.Model):
 
     id = models.UUIDField(primary_key=True)
     ctv3_concept = models.ForeignKey(
-        "ctv3.Concept",
+        "ctv3.RawConcept",
         db_constraint=False,
         on_delete=models.PROTECT,
         related_name="snomedct_mappings",
     )
     ctv3_term = models.ForeignKey(
-        "ctv3.Term",
+        "ctv3.RawTerm",
         db_constraint=False,
         on_delete=models.PROTECT,
         related_name="snomedct_mappings",

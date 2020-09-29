@@ -1,7 +1,7 @@
 from collections import defaultdict
 
 from coding_systems.ctv3 import coding_system as ctv3
-from coding_systems.ctv3.models import Concept as CTV3Concept
+from coding_systems.ctv3.models import RawConcept as CTV3Concept
 from coding_systems.snomedct import coding_system as snomedct
 from coding_systems.snomedct.models import Concept as SCTConcept
 from coding_systems.snomedct.models import QueryTableRecord

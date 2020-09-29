@@ -72,7 +72,7 @@ def test_tree_tables(tennis_elbow_codelist):
     hierarchy = Hierarchy.from_codes(cl.coding_system, clv.codes)
     ancestor_codes = hierarchy.filter_to_ultimate_ancestors(set(clv.codes))
     codes_by_type = snomed.codes_by_type(ancestor_codes, hierarchy)
-    code_to_term = snomed.code_to_term(clv.codes, hierarchy)
+    code_to_term = snomed.code_to_term(hierarchy.nodes)
 
     # 128133004 (Disorder of elbow)
     #   ├  429554009 (Arthropathy of elbow)

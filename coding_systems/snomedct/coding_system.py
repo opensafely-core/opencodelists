@@ -106,7 +106,7 @@ def code_to_term_and_type(codes):
     return dict(_iter_code_to_term_and_type(codes))
 
 
-def code_to_term(codes, hierarchy):
+def code_to_term(codes):
     return {code: term for code, (term, _) in code_to_term_and_type(codes).items()}
 
 

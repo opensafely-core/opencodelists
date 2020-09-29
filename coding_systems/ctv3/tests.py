@@ -1,8 +1,19 @@
 from coding_systems.ctv3.coding_system import (
     ancestor_relationships,
     descendant_relationships,
+    lookup_names,
 )
 from coding_systems.ctv3.models import TPPConcept, TPPRelationship
+
+
+def test_lookup_names():
+    for code in [".....", "11111", "22222"]:
+        TPPConcept.objects.create(read_code=code, description=f"Concept {code}")
+
+    assert lookup_names(["11111", "22222"]) == {
+        "11111": "Concept 11111",
+        "22222": "Concept 22222",
+    }
 
 
 def test_relationships():

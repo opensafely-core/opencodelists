@@ -2,7 +2,7 @@ import collections
 
 from opencodelists.db_utils import query
 
-from .models import RawConcept, RawConceptTermMapping, TPPRelationship
+from .models import RawConcept, TPPConcept, TPPRelationship
 
 name = "CTV3 (Read V3)"
 short_name = "CTV3"
@@ -11,16 +11,11 @@ root = "....."
 
 
 def lookup_names(codes):
-    qs = RawConceptTermMapping.objects.filter(
-        concept_id__in=codes, term_type=RawConceptTermMapping.PREFERRED
-    ).values("concept_id", "term__name_1", "term__name_2", "term__name_3")
-
-    return {
-        record["concept_id"]: (
-            record["term__name_3"] or record["term__name_2"] or record["term__name_1"]
+    return dict(
+        TPPConcept.objects.filter(read_code__in=codes).values_list(
+            "read_code", "description"
         )
-        for record in qs
-    }
+    )
 
 
 def ancestor_relationships(codes):

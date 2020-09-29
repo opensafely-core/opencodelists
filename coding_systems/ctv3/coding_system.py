@@ -1,8 +1,10 @@
 import collections
 
+from django.db.models import Q
+
 from opencodelists.db_utils import query
 
-from .models import TPPConcept, TPPRelationship
+from .models import RawConceptTermMapping, TPPConcept, TPPRelationship
 
 name = "CTV3 (Read V3)"
 short_name = "CTV3"
@@ -19,12 +21,21 @@ def lookup_names(codes):
 
 
 def search(term):
-    # TODO: search synomyms as well.
-    return set(
-        TPPConcept.objects.filter(description__contains=term).values_list(
-            "read_code", flat=True
-        )
+    tpp_read_codes = set(
+        TPPConcept.objects.filter(description__contains=term)
+        .values_list("read_code", flat=True)
+        .distinct()
     )
+    raw_read_codes = set(
+        RawConceptTermMapping.objects.filter(
+            Q(term__name_1__contains=term)
+            | Q(term__name_2__contains=term)
+            | Q(term__name_3__contains=term)
+        )
+        .values_list("concept_id", flat=True)
+        .distinct()
+    )
+    return tpp_read_codes | raw_read_codes
 
 
 def ancestor_relationships(codes):

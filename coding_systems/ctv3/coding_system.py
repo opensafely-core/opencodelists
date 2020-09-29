@@ -2,7 +2,7 @@ import collections
 
 from opencodelists.db_utils import query
 
-from .models import RawConcept, RawConceptTermMapping
+from .models import RawConcept, RawConceptTermMapping, TPPRelationship
 
 name = "CTV3 (Read V3)"
 short_name = "CTV3"
@@ -24,44 +24,48 @@ def lookup_names(codes):
 
 
 def ancestor_relationships(codes):
+    relationship_table = TPPRelationship._meta.db_table
     placeholders = ", ".join(["%s"] * len(codes))
     sql = f"""
-    WITH RECURSIVE tree(parent_id, child_id) AS (
-      SELECT parent_id, child_id
-      FROM ctv3_concepthierarchy
-      WHERE child_id IN ({placeholders})
+    WITH RECURSIVE tree(ancestor_id, descendant_id) AS (
+      SELECT ancestor_id, descendant_id
+      FROM {relationship_table}
+      WHERE descendant_id IN ({placeholders}) AND distance = 1
 
       UNION
 
-      SELECT h.parent_id, h.child_id
-      FROM ctv3_concepthierarchy h
+      SELECT r.ancestor_id, r.descendant_id
+      FROM {relationship_table} r
       INNER JOIN tree t
-        ON h.child_id = t.parent_id
+        ON r.descendant_id = t.ancestor_id
+      WHERE distance = 1
     )
 
-    SELECT parent_id, child_id FROM tree
+    SELECT ancestor_id, descendant_id FROM tree
     """
 
     return query(sql, codes)
 
 
 def descendant_relationships(codes):
+    relationship_table = TPPRelationship._meta.db_table
     placeholders = ", ".join(["%s"] * len(codes))
     sql = f"""
-    WITH RECURSIVE tree(parent_id, child_id) AS (
-      SELECT parent_id, child_id
-      FROM ctv3_concepthierarchy
-      WHERE parent_id IN ({placeholders})
+    WITH RECURSIVE tree(ancestor_id, descendant_id) AS (
+      SELECT ancestor_id, descendant_id
+      FROM {relationship_table}
+      WHERE ancestor_id IN ({placeholders}) AND distance = 1
 
       UNION
 
-      SELECT h.parent_id, h.child_id
-      FROM ctv3_concepthierarchy h
+      SELECT r.ancestor_id, r.descendant_id
+      FROM {relationship_table} r
       INNER JOIN tree t
-        ON h.parent_id = t.child_id
+        ON r.ancestor_id = t.descendant_id
+      WHERE distance = 1
     )
 
-    SELECT parent_id, child_id FROM tree
+    SELECT ancestor_id, descendant_id FROM tree
     """
 
     return query(sql, codes)

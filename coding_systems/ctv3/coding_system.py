@@ -2,7 +2,7 @@ import collections
 
 from opencodelists.db_utils import query
 
-from .models import RawConcept, TPPConcept, TPPRelationship
+from .models import TPPConcept, TPPRelationship
 
 name = "CTV3 (Read V3)"
 short_name = "CTV3"
@@ -81,8 +81,8 @@ def codes_by_type(codes, hierarchy):
 
     # Treat children of CTV3 root as types
     types = hierarchy.child_map[root]
-    concepts = RawConcept.objects.filter(read_code__in=types).prefetch_related("terms")
-    terms_by_type = {c.read_code: c.preferred_term() for c in concepts}
+    concepts = TPPConcept.objects.filter(read_code__in=types)
+    terms_by_type = {c.read_code: c.description for c in concepts}
 
     lookup = collections.defaultdict(list)
     for code in codes:

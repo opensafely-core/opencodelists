@@ -18,7 +18,17 @@ def lookup_names(codes):
     )
 
 
+def search(term):
+    # TODO: search synomyms as well.
+    return set(
+        TPPConcept.objects.filter(description__contains=term).values_list(
+            "read_code", flat=True
+        )
+    )
+
+
 def ancestor_relationships(codes):
+    codes = list(codes)
     relationship_table = TPPRelationship._meta.db_table
     placeholders = ", ".join(["%s"] * len(codes))
     sql = f"""
@@ -43,6 +53,7 @@ def ancestor_relationships(codes):
 
 
 def descendant_relationships(codes):
+    codes = list(codes)
     relationship_table = TPPRelationship._meta.db_table
     placeholders = ", ".join(["%s"] * len(codes))
     sql = f"""
@@ -78,6 +89,11 @@ def codes_by_type(codes, hierarchy):
     Concepts can be descended from more than one of these "types", so each
     grouping of codes can have an overlap with other groupings.
     """
+
+    if not codes:
+        # The hierarchy will be empty, and so looking up the children of the
+        # root will fail.
+        return {}
 
     # Treat children of CTV3 root as types
     types = hierarchy.child_map[root]

@@ -96,3 +96,18 @@ class RawConceptTermMapping(models.Model):
     concept = models.ForeignKey("RawConcept", on_delete=models.CASCADE)
     term = models.ForeignKey("RawTerm", on_delete=models.CASCADE)
     term_type = models.CharField(max_length=1, choices=TERM_TYPE_CHOICES)
+
+
+class TPPConcept(models.Model):
+    read_code = models.CharField(primary_key=True, max_length=5)
+    description = models.CharField(max_length=255)
+
+
+class TPPRelationship(models.Model):
+    ancestor = models.ForeignKey(
+        "TPPConcept", on_delete=models.CASCADE, related_name="descendant_relationships"
+    )
+    descendant = models.ForeignKey(
+        "TPPConcept", on_delete=models.CASCADE, related_name="ancestor_relationships"
+    )
+    distance = models.IntegerField()

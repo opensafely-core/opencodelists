@@ -67,10 +67,7 @@ def descendant_relationships(codes):
 
 
 def code_to_term(codes, hierarchy):
-    concepts = RawConcept.objects.filter(
-        read_code__in=hierarchy.nodes
-    ).prefetch_related("terms")
-    return {c.read_code: c.preferred_term() for c in concepts}
+    return lookup_names(codes)
 
 
 def codes_by_type(codes, hierarchy):

@@ -112,7 +112,7 @@ def codelist(request, username, codelist_slug, search_slug=None):
 
     ancestor_codes = hierarchy.filter_to_ultimate_ancestors(set(displayed_codes))
     codes_by_type = coding_system.codes_by_type(ancestor_codes, hierarchy)
-    code_to_term = coding_system.code_to_term(all_codes, hierarchy)
+    code_to_term = coding_system.code_to_term(hierarchy.nodes | set(all_codes))
 
     tables = tree_tables(codes_by_type, hierarchy, code_to_term)
 

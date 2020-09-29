@@ -88,7 +88,7 @@ def descendant_relationships(codes):
     return query(sql, codes)
 
 
-def code_to_term(codes, hierarchy):
+def code_to_term(codes):
     return lookup_names(codes)
 
 

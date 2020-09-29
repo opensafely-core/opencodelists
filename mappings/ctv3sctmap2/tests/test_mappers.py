@@ -2,8 +2,8 @@ import datetime
 import uuid
 from unittest.mock import patch
 
-from coding_systems.ctv3.models import Concept as CTV3Concept
-from coding_systems.ctv3.models import Term
+from coding_systems.ctv3.models import RawConcept as CTV3Concept
+from coding_systems.ctv3.models import RawTerm
 from coding_systems.snomedct.models import Concept as SCTConcept
 from coding_systems.snomedct.models import Description
 from mappings.ctv3sctmap2.mappers import snomedct_to_ctv3
@@ -44,7 +44,7 @@ def test_snomedct_to_ctv3():
     ctv3_concept.another_concept = ctv3_concept
     ctv3_concept.save()
 
-    term = Term.objects.create()
+    term = RawTerm.objects.create()
     ctv3_concept.terms.add(term)
 
     Mapping.objects.create(

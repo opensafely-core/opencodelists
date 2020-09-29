@@ -1,7 +1,7 @@
 from django.db import models
 
 
-class Concept(models.Model):
+class RawConcept(models.Model):
     STATUS_C = "C"
     STATUS_E = "E"
     STATUS_O = "O"
@@ -23,16 +23,16 @@ class Concept(models.Model):
     read_code = models.CharField(primary_key=True, max_length=5)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES)
     unknown_field_2 = models.CharField(max_length=1, choices=UNKNOWN_FIELD_2_CHOICES)
-    another_concept = models.ForeignKey("Concept", on_delete=models.CASCADE)
+    another_concept = models.ForeignKey("RawConcept", on_delete=models.CASCADE)
     children = models.ManyToManyField(
         "self",
-        through="ConceptHierarchy",
+        through="RawConceptHierarchy",
         through_fields=("parent", "child"),
         symmetrical=False,
         related_name="parents",
     )
     terms = models.ManyToManyField(
-        "Term", through="ConceptTermMapping", related_name="concepts"
+        "RawTerm", through="RawConceptTermMapping", related_name="concepts"
     )
 
     def all_terms(self):
@@ -42,7 +42,7 @@ class Concept(models.Model):
     def preferred_term(self):
         return (
             self.terms.filter(
-                concepttermmapping__term_type=ConceptTermMapping.PREFERRED
+                concepttermmapping__term_type=RawConceptTermMapping.PREFERRED
             )
             .get()
             .name()
@@ -52,22 +52,22 @@ class Concept(models.Model):
         return sorted(
             term.name()
             for term in self.terms.exclude(
-                concepttermmapping__term_type=ConceptTermMapping.PREFERRED
+                concepttermmapping__term_type=RawConceptTermMapping.PREFERRED
             )
         )
 
 
-class ConceptHierarchy(models.Model):
+class RawConceptHierarchy(models.Model):
     parent = models.ForeignKey(
-        "Concept", on_delete=models.CASCADE, related_name="child_links"
+        "RawConcept", on_delete=models.CASCADE, related_name="child_links"
     )
     child = models.ForeignKey(
-        "Concept", on_delete=models.CASCADE, related_name="parent_links"
+        "RawConcept", on_delete=models.CASCADE, related_name="parent_links"
     )
     list_order = models.CharField(max_length=2)
 
 
-class Term(models.Model):
+class RawTerm(models.Model):
     STATUS_C = "C"
     STATUS_O = "O"
     STATUS_CHOICES = [
@@ -85,7 +85,7 @@ class Term(models.Model):
         return self.name_3 or self.name_2 or self.name_1
 
 
-class ConceptTermMapping(models.Model):
+class RawConceptTermMapping(models.Model):
     PREFERRED = "P"
     SYNONYM = "S"
     TERM_TYPE_CHOICES = [
@@ -93,6 +93,21 @@ class ConceptTermMapping(models.Model):
         (SYNONYM, "Synonym"),
     ]
 
-    concept = models.ForeignKey("Concept", on_delete=models.CASCADE)
-    term = models.ForeignKey("Term", on_delete=models.CASCADE)
+    concept = models.ForeignKey("RawConcept", on_delete=models.CASCADE)
+    term = models.ForeignKey("RawTerm", on_delete=models.CASCADE)
     term_type = models.CharField(max_length=1, choices=TERM_TYPE_CHOICES)
+
+
+class TPPConcept(models.Model):
+    read_code = models.CharField(primary_key=True, max_length=5)
+    description = models.CharField(max_length=255)
+
+
+class TPPRelationship(models.Model):
+    ancestor = models.ForeignKey(
+        "TPPConcept", on_delete=models.CASCADE, related_name="descendant_relationships"
+    )
+    descendant = models.ForeignKey(
+        "TPPConcept", on_delete=models.CASCADE, related_name="ancestor_relationships"
+    )
+    distance = models.IntegerField()

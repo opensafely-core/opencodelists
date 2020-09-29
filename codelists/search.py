@@ -2,8 +2,6 @@ from .hierarchy import Hierarchy
 
 
 def do_search(coding_system, term):
-    assert coding_system.id == "snomedct"
-
     matching_codes = coding_system.search(term)
     hierarchy = Hierarchy.from_codes(coding_system, matching_codes)
     ancestor_codes = hierarchy.filter_to_ultimate_ancestors(matching_codes)

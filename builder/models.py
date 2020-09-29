@@ -7,7 +7,10 @@ from opencodelists.models import User
 
 
 class DraftCodelist(models.Model):
-    CODING_SYSTEMS_CHOICES = [("snomedct", CODING_SYSTEMS["snomedct"].name)]
+    CODING_SYSTEMS_CHOICES = [
+        ("snomedct", CODING_SYSTEMS["snomedct"].name),
+        ("ctv3", CODING_SYSTEMS["ctv3"].name),
+    ]
 
     owner = models.ForeignKey(
         User, related_name="draft_codelists", on_delete=models.CASCADE

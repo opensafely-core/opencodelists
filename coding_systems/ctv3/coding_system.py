@@ -1,8 +1,10 @@
 import collections
 
+from django.db.models import Q
+
 from opencodelists.db_utils import query
 
-from .models import Concept, ConceptTermMapping
+from .models import RawConceptTermMapping, TPPConcept, TPPRelationship
 
 name = "CTV3 (Read V3)"
 short_name = "CTV3"
@@ -11,67 +13,83 @@ root = "....."
 
 
 def lookup_names(codes):
-    qs = ConceptTermMapping.objects.filter(
-        concept_id__in=codes, term_type=ConceptTermMapping.PREFERRED
-    ).values("concept_id", "term__name_1", "term__name_2", "term__name_3")
-
-    return {
-        record["concept_id"]: (
-            record["term__name_3"] or record["term__name_2"] or record["term__name_1"]
+    return dict(
+        TPPConcept.objects.filter(read_code__in=codes).values_list(
+            "read_code", "description"
         )
-        for record in qs
-    }
+    )
+
+
+def search(term):
+    tpp_read_codes = set(
+        TPPConcept.objects.filter(description__contains=term)
+        .values_list("read_code", flat=True)
+        .distinct()
+    )
+    raw_read_codes = set(
+        RawConceptTermMapping.objects.filter(
+            Q(term__name_1__contains=term)
+            | Q(term__name_2__contains=term)
+            | Q(term__name_3__contains=term)
+        )
+        .values_list("concept_id", flat=True)
+        .distinct()
+    )
+    return tpp_read_codes | raw_read_codes
 
 
 def ancestor_relationships(codes):
+    codes = list(codes)
+    relationship_table = TPPRelationship._meta.db_table
     placeholders = ", ".join(["%s"] * len(codes))
     sql = f"""
-    WITH RECURSIVE tree(parent_id, child_id) AS (
-      SELECT parent_id, child_id
-      FROM ctv3_concepthierarchy
-      WHERE child_id IN ({placeholders})
+    WITH RECURSIVE tree(ancestor_id, descendant_id) AS (
+      SELECT ancestor_id, descendant_id
+      FROM {relationship_table}
+      WHERE descendant_id IN ({placeholders}) AND distance = 1
 
       UNION
 
-      SELECT h.parent_id, h.child_id
-      FROM ctv3_concepthierarchy h
+      SELECT r.ancestor_id, r.descendant_id
+      FROM {relationship_table} r
       INNER JOIN tree t
-        ON h.child_id = t.parent_id
+        ON r.descendant_id = t.ancestor_id
+      WHERE distance = 1
     )
 
-    SELECT parent_id, child_id FROM tree
+    SELECT ancestor_id, descendant_id FROM tree
     """
 
     return query(sql, codes)
 
 
 def descendant_relationships(codes):
+    codes = list(codes)
+    relationship_table = TPPRelationship._meta.db_table
     placeholders = ", ".join(["%s"] * len(codes))
     sql = f"""
-    WITH RECURSIVE tree(parent_id, child_id) AS (
-      SELECT parent_id, child_id
-      FROM ctv3_concepthierarchy
-      WHERE parent_id IN ({placeholders})
+    WITH RECURSIVE tree(ancestor_id, descendant_id) AS (
+      SELECT ancestor_id, descendant_id
+      FROM {relationship_table}
+      WHERE ancestor_id IN ({placeholders}) AND distance = 1
 
       UNION
 
-      SELECT h.parent_id, h.child_id
-      FROM ctv3_concepthierarchy h
+      SELECT r.ancestor_id, r.descendant_id
+      FROM {relationship_table} r
       INNER JOIN tree t
-        ON h.parent_id = t.child_id
+        ON r.ancestor_id = t.descendant_id
+      WHERE distance = 1
     )
 
-    SELECT parent_id, child_id FROM tree
+    SELECT ancestor_id, descendant_id FROM tree
     """
 
     return query(sql, codes)
 
 
 def code_to_term(codes, hierarchy):
-    concepts = Concept.objects.filter(read_code__in=hierarchy.nodes).prefetch_related(
-        "terms"
-    )
-    return {c.read_code: c.preferred_term() for c in concepts}
+    return lookup_names(codes)
 
 
 def codes_by_type(codes, hierarchy):
@@ -83,10 +101,15 @@ def codes_by_type(codes, hierarchy):
     grouping of codes can have an overlap with other groupings.
     """
 
+    if not codes:
+        # The hierarchy will be empty, and so looking up the children of the
+        # root will fail.
+        return {}
+
     # Treat children of CTV3 root as types
     types = hierarchy.child_map[root]
-    concepts = Concept.objects.filter(read_code__in=types).prefetch_related("terms")
-    terms_by_type = {c.read_code: c.preferred_term() for c in concepts}
+    concepts = TPPConcept.objects.filter(read_code__in=types)
+    terms_by_type = {c.read_code: c.description for c in concepts}
 
     lookup = collections.defaultdict(list)
     for code in codes:

@@ -2,7 +2,7 @@
 
 // From https://docs.djangoproject.com/en/3.0/ref/csrf/
 function getCookie(name) {
-  let cookieValue = null;
+  let cookieValue = undefined;
   if (document.cookie && document.cookie !== "") {
     const cookies = document.cookie.split(";");
     for (let i = 0; i < cookies.length; i++) {

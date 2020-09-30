@@ -42,7 +42,7 @@ class RawConcept(models.Model):
     def preferred_term(self):
         return (
             self.terms.filter(
-                concepttermmapping__term_type=RawConceptTermMapping.PREFERRED
+                rawconcepttermmapping__term_type=RawConceptTermMapping.PREFERRED
             )
             .get()
             .name()
@@ -52,7 +52,7 @@ class RawConcept(models.Model):
         return sorted(
             term.name()
             for term in self.terms.exclude(
-                concepttermmapping__term_type=RawConceptTermMapping.PREFERRED
+                rawconcepttermmapping__term_type=RawConceptTermMapping.PREFERRED
             )
         )
 

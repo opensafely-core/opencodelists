@@ -8,7 +8,6 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods
 
-from codelists.coding_systems import CODING_SYSTEMS
 from codelists.hierarchy import Hierarchy
 from codelists.presenters import tree_tables
 from codelists.search import do_search
@@ -27,14 +26,8 @@ def download(request, username, codelist_slug):
         codelist.codes.filter(status__contains="+").values_list("code", flat=True)
     )
 
-    # get coding_system module (and prepare for CTV3 integration)
-    if codelist.coding_system_id in ["ctv3", "ctv3tpp"]:
-        coding_system = CODING_SYSTEMS["ctv3"]
-    else:
-        coding_system = CODING_SYSTEMS["snomedct"]
-
     # get terms for codes
-    code_to_term = coding_system.lookup_names(codes)
+    code_to_term = codelist.coding_system.lookup_names(codes)
 
     timestamp = timezone.now().strftime("%Y-%m-%dT%H-%M-%S")
     filename = f"{username}-{codelist_slug}-{timestamp}.csv"

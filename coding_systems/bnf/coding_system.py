@@ -72,6 +72,9 @@ def code_to_term(codes):
     return dict(Concept.objects.filter(code__in=codes).values_list("code", "name"))
 
 
+lookup_names = code_to_term
+
+
 def codes_by_type(codes, hierarchy):
     codes_by_chapter = defaultdict(list)
     for code in codes:

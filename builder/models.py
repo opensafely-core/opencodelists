@@ -10,6 +10,7 @@ class DraftCodelist(models.Model):
     CODING_SYSTEMS_CHOICES = [
         ("snomedct", CODING_SYSTEMS["snomedct"].name),
         ("ctv3", CODING_SYSTEMS["ctv3"].name),
+        ("bnf", CODING_SYSTEMS["bnf"].name),
     ]
 
     owner = models.ForeignKey(

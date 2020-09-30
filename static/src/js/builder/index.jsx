@@ -22,7 +22,7 @@ ReactDOM.render(
     includedCodes={readValueFromPage("included-codes")}
     excludedCodes={readValueFromPage("excluded-codes")}
     displayedCodes={readValueFromPage("displayed-codes")}
-    isEditable={readValueFromPage("isEditable")}
+    isEditable={readValueFromPage("is-editable")}
     updateURL={readValueFromPage("update-url")}
     searchURL={readValueFromPage("search-url")}
     hierarchy={hierarchy}

@@ -26,7 +26,7 @@ django-extensions==3.0.9  # via -r requirements.in
 django-ipware==3.0.1      # via django-structlog
 django-markdown-filter==0.0.1  # via -r requirements.in
 django-structlog==1.6.1   # via -r requirements.in
-django==3.1.1             # via -r requirements.in, django-cors-headers, django-debug-toolbar, django-markdown-filter, django-structlog
+django==3.1.2             # via -r requirements.in, django-cors-headers, django-debug-toolbar, django-markdown-filter, django-structlog
 fabric3==1.14.post1       # via -r requirements.in
 factory-boy==3.0.1        # via -r requirements.in
 faker==4.1.1              # via factory-boy

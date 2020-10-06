@@ -14,7 +14,7 @@
     "eslint": "^7.8.1",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-react": "^7.20.6",
-    "jest": "^26.4.2",
+    "jest": "^26.5.0",
     "prettier": "2.1.1",
     "webpack": "^4.44.1",
     "webpack-cli": "^3.3.12"

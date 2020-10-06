@@ -5,10 +5,16 @@ updates:
   directory: "/"
   schedule:
     interval: daily
+  reviewers:
+    - "ghickman"
+    - "inglesp"
   open-pull-requests-limit: 10
 
 - package-ecosystem: npm
   directory: "/"
   schedule:
     interval: daily
+  reviewers:
+    - "ghickman"
+    - "inglesp"
   open-pull-requests-limit: 10

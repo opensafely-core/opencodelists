@@ -1,7 +1,7 @@
 .babelrc
 .direnv
 .eslintrc.json
-.github/workflows/*
+.github/*
 .pre-commit-config.yaml
 .pytest_cache/*
 .venv

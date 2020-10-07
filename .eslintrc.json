@@ -9,6 +9,9 @@
         "prettier",
         "prettier/react"
     ],
+    "ignorePatterns": [
+        "static/src/js/codelist.js"
+    ],
     "parserOptions": {
         "ecmaFeatures": {
             "jsx": true

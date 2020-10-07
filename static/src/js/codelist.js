@@ -42,8 +42,10 @@ $(document).ready(() => {
   $("#add-reference").click((event) => addForm("reference", event));
   $("#add-signoff").click((event) => addForm("signoff", event));
 
-  $(".remove-reference").bind("click", (event) =>
+  $(document).on("click", ".remove-reference", (event) =>
     removeRow("reference", event)
   );
-  $(".remove-signoff").bind("click", (event) => removeRow("signoff", event));
+  $(document).on("click", ".remove-signoff", (event) =>
+    removeRow("signoff", event)
+  );
 });

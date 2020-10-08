@@ -182,7 +182,9 @@ def test_codelistcreate_with_duplicate_name(rf):
     assert response.status_code == 200
 
     # confirm we have errors from the codelist form
-    assert response.context_data["codelist_form"].errors
+    assert response.context_data["codelist_form"].errors == {
+        "__all__": ["There is already a codelist in this project called Test"]
+    }
 
 
 def test_codelistupdate_invalid_post(rf):
@@ -336,7 +338,11 @@ def test_codelistupdate_with_duplicate_name(rf):
     assert response.status_code == 200
 
     # confirm we have errors from the codelist form
-    assert response.context_data["codelist_form"].errors
+    assert response.context_data["codelist_form"].errors == {
+        "__all__": [
+            "There is already a codelist in this project called Existing Codelist"
+        ]
+    }
 
 
 def test_codelist(rf):

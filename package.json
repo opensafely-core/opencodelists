@@ -16,7 +16,7 @@
     "eslint-plugin-react": "^7.20.6",
     "jest": "^26.5.2",
     "prettier": "2.1.1",
-    "webpack": "^4.44.1",
+    "webpack": "^4.44.2",
     "webpack-cli": "^3.3.12"
   },
   "dependencies": {

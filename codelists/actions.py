@@ -3,8 +3,11 @@ from datetime import date
 
 import structlog
 from django.db import transaction
+from django.utils.text import slugify
 
 from opencodelists.models import User
+
+from .models import Codelist
 
 logger = structlog.get_logger()
 
@@ -23,11 +26,13 @@ def create_codelist(
     """Create a new codelist with a version."""
 
     with transaction.atomic():
-        codelist = project.codelists.create(
-            name=name,
+        codelist = Codelist.objects.create(
             coding_system_id=coding_system_id,
             description=description,
             methodology=methodology,
+        )
+        codelist.labels.create(
+            project=project, name=name, slug=slugify(name), is_current=True
         )
 
         create_version(codelist=codelist, csv_data=csv_data)
@@ -93,12 +98,15 @@ def update_codelist(
 ):
     """Update a Codelist."""
 
-    codelist.project = project
-    codelist.name = name
+    label = codelist.current_label
+    label.project = project
+    label.name = name
+    label.slug = slugify(name)
+    label.save()
+
     codelist.coding_system_id = coding_system_id
     codelist.description = description
     codelist.methodology = methodology
-
     codelist.save()
 
     logger.info("Updated Codelist", codelist_pk=codelist.pk)

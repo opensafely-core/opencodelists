@@ -4,7 +4,6 @@ from io import StringIO
 from django.db import models
 from django.urls import reverse
 from django.utils.functional import cached_property
-from django.utils.text import slugify
 
 from .coding_systems import CODING_SYSTEMS
 
@@ -14,23 +13,11 @@ class Codelist(models.Model):
         (id, system.name) for id, system in CODING_SYSTEMS.items()
     )
 
-    name = models.CharField(max_length=255)
-    slug = models.SlugField()
-    project = models.ForeignKey(
-        "opencodelists.Project", related_name="codelists", on_delete=models.CASCADE
-    )
     coding_system_id = models.CharField(
         choices=CODING_SYSTEMS_CHOICES, max_length=32, verbose_name="Coding system"
     )
     description = models.TextField()
     methodology = models.TextField()
-
-    class Meta:
-        unique_together = ("project", "name", "slug")
-
-    def save(self, *args, **kwargs):
-        self.slug = slugify(self.name)
-        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
@@ -39,11 +26,48 @@ class Codelist(models.Model):
     def coding_system(self):
         return CODING_SYSTEMS[self.coding_system_id]
 
+    @cached_property
+    def current_label(self):
+        return self.labels.get(is_current=True)
+
+    @property
+    def project(self):
+        return self.current_label.project
+
+    @property
+    def project_id(self):
+        return self.current_label.project_id
+
+    @property
+    def name(self):
+        return self.current_label.name
+
+    @property
+    def slug(self):
+        return self.current_label.slug
+
     def get_absolute_url(self):
         return reverse("codelists:codelist", args=(self.project_id, self.slug))
 
     def full_slug(self):
         return "{}/{}".format(self.project_id, self.slug)
+
+
+class CodelistLabel(models.Model):
+    codelist = models.ForeignKey(
+        "Codelist", on_delete=models.CASCADE, related_name="labels"
+    )
+    name = models.CharField(max_length=255)
+    slug = models.SlugField()
+    project = models.ForeignKey(
+        "opencodelists.Project",
+        related_name="codelist_labels",
+        on_delete=models.CASCADE,
+    )
+    is_current = models.BooleanField()
+
+    class Meta:
+        unique_together = ("project", "slug")
 
 
 class CodelistVersion(models.Model):

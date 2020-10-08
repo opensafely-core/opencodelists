@@ -121,3 +121,9 @@ class Project(models.Model):
 
     def __str__(self):
         return self.name
+
+    @cached_property
+    def codelists(self):
+        from codelists.models import Codelist
+
+        return Codelist.objects.filter(labels__project=self).distinct()

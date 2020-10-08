@@ -30,19 +30,38 @@ from .forms import (
     SignOffFormSet,
 )
 from .hierarchy import Hierarchy
-from .models import Codelist, CodelistVersion
+from .models import Codelist, CodelistLabel, CodelistVersion
 from .presenters import build_definition_rows
+
+
+def get_codelist_or_404(project_slug, slug):
+    return get_object_or_404(
+        Codelist.objects.prefetch_related("versions", "labels"),
+        labels__project__slug=project_slug,
+        labels__slug=slug,
+    )
+
+
+def get_codelist_version_or_404(project_slug, codelist_slug, version_str):
+    return get_object_or_404(
+        CodelistVersion.objects.select_related("codelist"),
+        codelist__labels__project_id=project_slug,
+        codelist__labels__slug=codelist_slug,
+        version_str=version_str,
+    )
 
 
 def index(request):
     q = request.GET.get("q")
+    labels = (
+        CodelistLabel.objects.filter(is_current=True)
+        .order_by("name")
+        .select_related("codelist")
+    )
     if q:
-        codelists = Codelist.objects.filter(
-            Q(name__contains=q) | Q(description__contains=q)
-        )
-    else:
-        codelists = Codelist.objects.all()
-    codelists = codelists.order_by("name")
+        labels = labels.filter(Q(name__contains=q) | Q(description__contains=q))
+
+    codelists = [label.codelist for label in labels]
     ctx = {"codelists": codelists, "q": q}
     return render(request, "codelists/index.html", ctx)
 
@@ -139,10 +158,8 @@ class CodelistUpdate(TemplateView):
     template_name = "codelists/codelist.html"
 
     def dispatch(self, request, *args, **kwargs):
-        self.codelist = get_object_or_404(
-            Codelist,
-            project__slug=self.kwargs["project_slug"],
-            slug=self.kwargs["codelist_slug"],
+        self.codelist = get_codelist_or_404(
+            self.kwargs["project_slug"], self.kwargs["codelist_slug"]
         )
 
         return super().dispatch(request, *args, **kwargs)
@@ -244,11 +261,7 @@ class CodelistUpdate(TemplateView):
 
 
 def codelist(request, project_slug, codelist_slug):
-    codelist = get_object_or_404(
-        Codelist.objects.prefetch_related("versions"),
-        project=project_slug,
-        slug=codelist_slug,
-    )
+    codelist = get_codelist_or_404(project_slug, codelist_slug)
 
     clv = codelist.versions.order_by("version_str").last()
     return redirect(clv)
@@ -260,10 +273,8 @@ class VersionCreate(FormView):
     template_name = "codelists/version_create.html"
 
     def dispatch(self, request, *args, **kwargs):
-        self.codelist = get_object_or_404(
-            Codelist.objects.prefetch_related("versions"),
-            project=self.kwargs["project_slug"],
-            slug=self.kwargs["codelist_slug"],
+        self.codelist = get_codelist_or_404(
+            self.kwargs["project_slug"], self.kwargs["codelist_slug"]
         )
 
         return super().dispatch(request, *args, **kwargs)
@@ -283,12 +294,7 @@ def version(request, project_slug, codelist_slug, qualified_version_str):
         expect_draft = False
         version_str = qualified_version_str
 
-    clv = get_object_or_404(
-        CodelistVersion.objects.select_related("codelist"),
-        codelist__project_id=project_slug,
-        codelist__slug=codelist_slug,
-        version_str=version_str,
-    )
+    clv = get_codelist_version_or_404(project_slug, codelist_slug, version_str)
 
     if expect_draft != clv.is_draft:
         return redirect(clv)
@@ -361,12 +367,7 @@ def version_publish(request, project_slug, codelist_slug, qualified_version_str)
         expect_draft = False
         version_str = qualified_version_str
 
-    version = get_object_or_404(
-        CodelistVersion.objects.select_related("codelist"),
-        codelist__project_id=project_slug,
-        codelist__slug=codelist_slug,
-        version_str=version_str,
-    )
+    version = get_codelist_version_or_404(project_slug, codelist_slug, version_str)
 
     if expect_draft != version.is_draft:
         return redirect(version)
@@ -402,11 +403,10 @@ class VersionUpdate(TemplateView):
             expect_draft = False
             version_str = version_string
 
-        self.version = get_object_or_404(
-            CodelistVersion.objects.select_related("codelist"),
-            codelist__project_id=self.kwargs["project_slug"],
-            codelist__slug=self.kwargs["codelist_slug"],
-            version_str=version_str,
+        self.version = get_codelist_version_or_404(
+            self.kwargs["project_slug"],
+            self.kwargs["codelist_slug"],
+            version_str,
         )
 
         if expect_draft != self.version.is_draft:
@@ -443,12 +443,7 @@ def download(request, project_slug, codelist_slug, qualified_version_str):
         expect_draft = False
         version_str = qualified_version_str
 
-    clv = get_object_or_404(
-        CodelistVersion.objects.select_related("codelist"),
-        codelist__project_id=project_slug,
-        codelist__slug=codelist_slug,
-        version_str=version_str,
-    )
+    clv = get_codelist_version_or_404(project_slug, codelist_slug, version_str)
 
     if expect_draft != clv.is_draft:
         raise Http404

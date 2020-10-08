@@ -6,7 +6,7 @@ from crispy_forms.layout import Submit
 from django import forms
 from django.forms.models import fields_for_model
 
-from .models import Codelist, CodelistVersion, Reference, SignOff
+from .models import Codelist, CodelistLabel, CodelistVersion, Reference, SignOff
 
 
 def model_field(model, fieldname):
@@ -64,7 +64,7 @@ class CSVValidationMixin:
 
 
 class CodelistCreateForm(forms.Form, CSVValidationMixin):
-    name = model_field(Codelist, "name")
+    name = model_field(CodelistLabel, "name")
     coding_system_id = model_field(Codelist, "coding_system_id")
     description = model_field(Codelist, "description")
     methodology = model_field(Codelist, "methodology")
@@ -77,8 +77,8 @@ class CodelistCreateForm(forms.Form, CSVValidationMixin):
 
 
 class CodelistUpdateForm(forms.Form):
-    name = model_field(Codelist, "name")
-    project = model_field(Codelist, "project")
+    name = model_field(CodelistLabel, "name")
+    project = model_field(CodelistLabel, "project")
     coding_system_id = model_field(Codelist, "coding_system_id")
     description = model_field(Codelist, "description")
     methodology = model_field(Codelist, "methodology")

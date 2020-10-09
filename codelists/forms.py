@@ -4,9 +4,15 @@ from io import StringIO
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 from django import forms
-from django.utils.text import slugify
+from django.forms.models import fields_for_model
 
 from .models import Codelist, CodelistVersion, Reference, SignOff
+
+
+def model_field(model, fieldname):
+    """Return a Field instance with arguments from the model definition."""
+
+    return fields_for_model(model)[fieldname]
 
 
 class ReferenceForm(forms.ModelForm):
@@ -37,44 +43,6 @@ class SignOffForm(forms.ModelForm):
 SignOffFormSet = forms.modelformset_factory(SignOff, form=SignOffForm, can_delete=True)
 
 
-class CodelistUniquenessMixin:
-    def full_clean(self):
-        """
-        Override full_clean() to validate Name and Slug are unique to a Project.
-
-        The Codelist forms don't include `project` or `slug` fields.  However,
-        Codelists are unique based on the Project, Name, and Slug, and we still
-        want to take advantage of Django's ModelForm validation handling so we
-        can report non-unique errors to the user.
-
-        This method calls ModelForm's full_clean() to copy values from the form
-        to the instance.  Both the Create and Update views pass in an instance
-        (either with just a Project or with the existing Codelist which also
-        has it's Project).  It then generates a Slug before validating
-        uniqueness of the instance and adding errors if appropriate.
-        """
-        # Call super()'s full_clean to populate the Codelist instance with
-        # values from the form.
-        super().full_clean()
-
-        # populate the instance's slug so the validate_unique() check below can
-        # use it to check uniqueness
-        self.instance.slug = slugify(self.instance.name)
-
-        # Validate uniqueness of the instance now it's been populated with
-        # values from the form and the Project instance.
-        #
-        # We call this manually, rather than using BaseModelForm's
-        # validate_unique() because that makes a call to
-        # _get_validation_exclusions() to build up a list of a excluded fields.
-        # This removes fields not defined on the form (among other things)
-        # which drops our slug field.
-        try:
-            self.instance.validate_unique()
-        except forms.ValidationError as e:
-            self.add_error(None, e)
-
-
 class CSVValidationMixin:
     def clean_csv_data(self):
         data = self.cleaned_data["csv_data"].read().decode("utf-8-sig")
@@ -95,12 +63,12 @@ class CSVValidationMixin:
         return data
 
 
-class CodelistCreateForm(CodelistUniquenessMixin, forms.ModelForm, CSVValidationMixin):
+class CodelistCreateForm(forms.Form, CSVValidationMixin):
+    name = model_field(Codelist, "name")
+    coding_system_id = model_field(Codelist, "coding_system_id")
+    description = model_field(Codelist, "description")
+    methodology = model_field(Codelist, "methodology")
     csv_data = forms.FileField(label="CSV data")
-
-    class Meta:
-        model = Codelist
-        fields = ["name", "coding_system_id", "description", "methodology", "csv_data"]
 
     def __init__(self, *args, **kwargs):
         self.helper = FormHelper()
@@ -108,16 +76,12 @@ class CodelistCreateForm(CodelistUniquenessMixin, forms.ModelForm, CSVValidation
         super().__init__(*args, **kwargs)
 
 
-class CodelistUpdateForm(CodelistUniquenessMixin, forms.ModelForm):
-    class Meta:
-        fields = [
-            "name",
-            "project",
-            "coding_system_id",
-            "description",
-            "methodology",
-        ]
-        model = Codelist
+class CodelistUpdateForm(forms.Form):
+    name = model_field(Codelist, "name")
+    project = model_field(Codelist, "project")
+    coding_system_id = model_field(Codelist, "coding_system_id")
+    description = model_field(Codelist, "description")
+    methodology = model_field(Codelist, "methodology")
 
     def __init__(self, *args, **kwargs):
         self.helper = FormHelper()

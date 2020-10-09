@@ -1,8 +1,10 @@
 import functools
 
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import NON_FIELD_ERRORS
 from django.db import transaction
 from django.db.models import Q
+from django.db.utils import IntegrityError
 from django.forms import formset_factory
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -72,27 +74,37 @@ class CodelistCreate(TemplateView):
         else:
             return self.some_invalid(codelist_form, reference_formset, signoff_formset)
 
-    def all_valid(self, form, reference_formset, signoff_formset):
+    def all_valid(self, codelist_form, reference_formset, signoff_formset):
         # get changed forms so we ignore empty form instances
         references = (f.cleaned_data for f in reference_formset if f.has_changed())
         signoffs = (f.cleaned_data for f in signoff_formset if f.has_changed())
 
-        codelist = actions.create_codelist(
-            project=self.project,
-            name=form.cleaned_data["name"],
-            coding_system_id=form.cleaned_data["coding_system_id"],
-            description=form.cleaned_data["description"],
-            methodology=form.cleaned_data["methodology"],
-            csv_data=form.cleaned_data["csv_data"],
-            references=references,
-            signoffs=signoffs,
-        )
+        name = codelist_form.cleaned_data["name"]
+
+        try:
+            codelist = actions.create_codelist(
+                project=self.project,
+                name=name,
+                coding_system_id=codelist_form.cleaned_data["coding_system_id"],
+                description=codelist_form.cleaned_data["description"],
+                methodology=codelist_form.cleaned_data["methodology"],
+                csv_data=codelist_form.cleaned_data["csv_data"],
+                references=references,
+                signoffs=signoffs,
+            )
+        except IntegrityError as e:
+            assert "UNIQUE constraint failed" in str(e)
+            codelist_form.add_error(
+                NON_FIELD_ERRORS,
+                f"There is already a codelist in this project called {name}",
+            )
+            return self.some_invalid(codelist_form, reference_formset, signoff_formset)
 
         return redirect(codelist)
 
-    def some_invalid(self, form, reference_formset, signoff_formset):
+    def some_invalid(self, codelist_form, reference_formset, signoff_formset):
         context = self.get_context_data(
-            codelist_form=form,
+            codelist_form=codelist_form,
             reference_formset=reference_formset,
             signoff_formset=signoff_formset,
         )
@@ -113,27 +125,7 @@ class CodelistCreate(TemplateView):
         return context
 
     def get_form(self, data=None, files=None):
-        """
-        Construct a Codelist ModelForm
-
-        Users arrive at this view via a URL containing a Project slug.  From
-        that we retrieve a Project (and save it to self.project) so the User
-        doesn't have to pick a Project on the form.
-
-        However Codelists both require a Project _and_ need to do validation on
-        them to check their name is unique within that Project.  ModelForms can
-        do this for us but they need to be told about the fields involved in
-        the unique_together.
-
-        Since the `project` field isn't included in the CodelistCreateForm
-        fields we pass our passed-in Project to the form using the instance
-        keyword argument so it can be used at validation time.
-        """
-        kwargs = {}
-        if data:  # we came via POST
-            kwargs["instance"] = Codelist(project=self.project)
-
-        return CodelistCreateForm(data, files, **kwargs)
+        return CodelistCreateForm(data, files)
 
     def get_reference_formset(self, data=None, files=None):
         return self.ReferenceFormSet(data, files, prefix="reference")
@@ -172,24 +164,34 @@ class CodelistUpdate(TemplateView):
             return self.some_invalid(codelist_form, reference_formset, signoff_formset)
 
     @transaction.atomic
-    def all_valid(self, form, reference_formset, signoff_formset):
+    def all_valid(self, codelist_form, reference_formset, signoff_formset):
         self.save_formset(reference_formset, self.codelist)
         self.save_formset(signoff_formset, self.codelist)
 
-        codelist = actions.update_codelist(
-            codelist=self.codelist,
-            project=form.cleaned_data["project"],
-            name=form.cleaned_data["name"],
-            coding_system_id=form.cleaned_data["coding_system_id"],
-            description=form.cleaned_data["description"],
-            methodology=form.cleaned_data["methodology"],
-        )
+        name = codelist_form.cleaned_data["name"]
+
+        try:
+            codelist = actions.update_codelist(
+                codelist=self.codelist,
+                project=codelist_form.cleaned_data["project"],
+                name=codelist_form.cleaned_data["name"],
+                coding_system_id=codelist_form.cleaned_data["coding_system_id"],
+                description=codelist_form.cleaned_data["description"],
+                methodology=codelist_form.cleaned_data["methodology"],
+            )
+        except IntegrityError as e:
+            assert "UNIQUE constraint failed" in str(e)
+            codelist_form.add_error(
+                NON_FIELD_ERRORS,
+                f"There is already a codelist in this project called {name}",
+            )
+            return self.some_invalid(codelist_form, reference_formset, signoff_formset)
 
         return redirect(codelist)
 
-    def some_invalid(self, form, reference_formset, signoff_formset):
+    def some_invalid(self, codelist_form, reference_formset, signoff_formset):
         context = self.get_context_data(
-            codelist_form=form,
+            codelist_form=codelist_form,
             reference_formset=reference_formset,
             signoff_formset=signoff_formset,
         )
@@ -228,7 +230,7 @@ class CodelistUpdate(TemplateView):
             obj.delete()
 
     def get_form(self, data=None, files=None):
-        return CodelistUpdateForm(data, files, instance=self.codelist)
+        return CodelistUpdateForm(data, files)
 
     def get_reference_formset(self, data=None, files=None):
         return ReferenceFormSet(

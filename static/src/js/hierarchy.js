@@ -136,6 +136,112 @@ class Hierarchy {
       ),
     };
   }
+
+  treeRows(ancestorCode, codeToStatus, codeToTerm, visiblePaths) {
+    // Return array of objects representing rows in a "tree table" whose root
+    // is at ancestorCode.  Rows are only included if they are reached by a
+    // path which is in visiblePaths.  The returned objects are passed as props
+    // to TreeRow components.
+
+    const rows = [];
+
+    const helper = (code, path, prevPipes, isLastSibling) => {
+      const childCodes = this.childMap[code] || [];
+      childCodes.sort((code1, code2) => {
+        const term1 = codeToTerm[code1];
+        const term2 = codeToTerm[code2];
+        if (term1 < term2) {
+          return -1;
+        } else if (term2 < term1) {
+          return 1;
+        } else {
+          return 0;
+        }
+      });
+
+      // A row is expanded if any of its children are visible.
+      const isExpanded = childCodes.some((childCode) => {
+        const childPath = path + ":" + childCode;
+        return visiblePaths.has(childPath);
+      });
+
+      rows.push({
+        code: code,
+        status: codeToStatus[code],
+        term: codeToTerm[code],
+        path: path,
+        pipes: prevPipes.concat(isLastSibling ? "└" : "├").slice(1),
+        hasDescendants: childCodes.length > 0,
+        isExpanded: isExpanded,
+      });
+
+      childCodes.forEach((childCode, ix) => {
+        const childPath = path + ":" + childCode;
+        if (visiblePaths.has(childPath)) {
+          helper(
+            childCode,
+            childPath,
+            prevPipes.concat(isLastSibling ? " " : "│"),
+            ix === childCodes.length - 1
+          );
+        }
+      });
+    };
+
+    helper(ancestorCode, ancestorCode, [], true);
+
+    return rows;
+  }
+
+  initiallyVisiblePaths(ancestorCodes, codeToStatus) {
+    // Return set of paths which start at one of ancestorCodes, and end at the
+    // first code where all descendants of that code have the same status as
+    // that code.  These are the paths that should initially be visible in a
+    // tree.
+    //
+    // Paths are strings of codes, separated by colons.
+
+    const paths = new Set();
+
+    const helper = (code, path) => {
+      paths.add(path);
+
+      if (
+        this.getDescendants(code).every((d) =>
+          codeToStatus[d].includes(codeToStatus[code])
+        )
+      ) {
+        // All descendants of code have the same status as code.
+        return;
+      }
+
+      const childCodes = this.childMap[code] || [];
+      childCodes.forEach((childCode) => {
+        helper(childCode, path + ":" + childCode);
+      });
+    };
+
+    ancestorCodes.forEach((ancestorCode) => {
+      helper(ancestorCode, ancestorCode);
+    });
+
+    return paths;
+  }
+
+  toggleVisibility(visiblePaths, path) {
+    // Toggle the visibility of all children of the node at the given path.
+
+    const code = path.split(":").slice(-1)[0];
+    const childCodes = this.childMap[code] || [];
+    childCodes.forEach((childCode) => {
+      const childPath = path + ":" + childCode;
+      if (visiblePaths.has(childPath)) {
+        visiblePaths.delete(childPath);
+      } else {
+        visiblePaths.add(childPath);
+      }
+    });
+  }
 }
 
 export { Hierarchy as default };

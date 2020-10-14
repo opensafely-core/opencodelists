@@ -143,7 +143,7 @@
           >Full list</a
         >
       </li>
-      {% if trees %}
+      {% if tree_tables %}
       <li class="nav-item">
         <a
           class="nav-link"
@@ -255,7 +255,7 @@
         </table>
       </div>
 
-      {% if trees %}
+      {% if tree_tables %}
       <div
         class="tab-pane fade p-4"
         id="tree"
@@ -264,9 +264,7 @@
       >
 
       <p>
-        Codes in the <a href="#definition">definition</a> are underlined.
-        Codes in the <a href="#full-list">full codelist</a> are in blue.
-        Related codes not in the codelist are in black.
+        Codes not in the <a href="#full-list">full codelist</a> are in faint grey.
       </p>
         <div id="codelist-tree"></div>
       </div>
@@ -336,11 +334,10 @@
 </script>
 
 {{ child_map|json_script:"child-map" }}
-{{ code_to_url|json_script:"codeToURL" }}
-{{ codes_in_definition|json_script:"codesInDefinition" }}
-{{ clv.codes|json_script:"codesInList" }}
 {{ parent_map|json_script:"parent-map" }}
-{{ trees|json_script:"trees" }}
+{{ tree_tables|json_script:"tree-tables" }}
+{{ code_to_term|json_script:"code-to-term" }}
+{{ code_to_status|json_script:"code-to-status" }}
 
-<script src="{% static 'js/tree.bundle.js' %}"></script>
+<script src="{% static 'js/tree-tables.bundle.js' %}"></script>
 {% endblock %}

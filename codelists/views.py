@@ -1,5 +1,3 @@
-import functools
-
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.db import transaction
@@ -8,12 +6,10 @@ from django.db.utils import IntegrityError
 from django.forms import formset_factory
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_POST
 from django.views.generic import FormView, TemplateView
 
-from codelists.presenters import tree_tables
 from coding_systems.snomedct.models import Concept as SnomedConcept
 from opencodelists.models import Project
 
@@ -296,9 +292,7 @@ def version(request, project_slug, codelist_slug, qualified_version_str):
     definition_rows = {}
     child_map = None
     parent_map = None
-    code_to_url = None
-    codes_in_definition = None
-    trees = None
+    tree_tables = None
     if clv.coding_system_id in ["ctv3", "ctv3tpp", "snomedct"]:
         if clv.coding_system_id in ["ctv3", "ctv3tpp"]:
             coding_system = CODING_SYSTEMS["ctv3"]
@@ -308,19 +302,22 @@ def version(request, project_slug, codelist_slug, qualified_version_str):
         hierarchy = Hierarchy.from_codes(coding_system, clv.codes)
         parent_map = {p: list(cc) for p, cc in hierarchy.parent_map.items()}
         child_map = {c: list(pp) for c, pp in hierarchy.child_map.items()}
-
-        ancestor_codes = hierarchy.filter_to_ultimate_ancestors(set(clv.codes))
-        codes_by_type = coding_system.codes_by_type(ancestor_codes, hierarchy)
-        code_to_term = coding_system.code_to_term(hierarchy.nodes | set(clv.codes))
-        trees = tree_tables(codes_by_type, hierarchy, code_to_term)
-
-        r = functools.partial(reverse, f"{coding_system.id}:concept")
-        code_to_url = {code: r(args=[code]) for code in hierarchy.nodes}
+        code_to_term = coding_system.code_to_term(hierarchy.nodes)
+        code_to_status = {
+            code: "+" if code in clv.codes else "-" for code in hierarchy.nodes
+        }
+        ancestor_codes = hierarchy.filter_to_ultimate_ancestors(
+            set(clv.codes) & hierarchy.nodes
+        )
+        tree_tables = sorted(
+            (type.title(), sorted(codes, key=code_to_term.__getitem__))
+            for type, codes in coding_system.codes_by_type(
+                ancestor_codes, hierarchy
+            ).items()
+        )
 
         definition = Definition.from_codes(set(clv.codes), hierarchy)
         rows = build_definition_rows(coding_system, hierarchy, definition)
-
-        codes_in_definition = [r.code for r in definition.including_rules()]
 
         if clv.coding_system_id == "snomedct":
             inactive_codes = SnomedConcept.objects.filter(
@@ -341,11 +338,11 @@ def version(request, project_slug, codelist_slug, qualified_version_str):
         "versions": clv.codelist.versions.order_by("-version_str"),
         "headers": headers,
         "rows": rows,
-        "trees": trees,
+        "tree_tables": tree_tables,
         "parent_map": parent_map,
         "child_map": child_map,
-        "code_to_url": code_to_url,
-        "codes_in_definition": codes_in_definition,
+        "code_to_term": code_to_term,
+        "code_to_status": code_to_status,
         "definition_rows": definition_rows,
     }
     return render(request, "codelists/version.html", ctx)

@@ -73,6 +73,9 @@ To set up tooling via a pre-commit hook:
 
 * `pre-commit install`
 
+To use Django Debug Toolbar in development, set `DDT_ENABLED`.
+It is not enabled by default because it adds tens of seconds to the load time of some pages.
+
 ## Deployment
 
 OpenCodelists is currently deployed to smallweb1.  Deployment is with fabric:

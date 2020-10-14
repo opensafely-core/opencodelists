@@ -85,6 +85,11 @@ MIDDLEWARE = [
     "django_structlog.middlewares.RequestMiddleware",
 ]
 
+if not os.environ.get("DDT_ENABLED"):
+    # Django Debug Toolbar adds 77s to the load time of a large codelist!
+    INSTALLED_APPS.remove("debug_toolbar")
+    MIDDLEWARE.remove("debug_toolbar.middleware.DebugToolbarMiddleware")
+
 ROOT_URLCONF = "opencodelists.urls"
 
 TEMPLATES = [

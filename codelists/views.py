@@ -291,6 +291,8 @@ def version(request, project_slug, codelist_slug, qualified_version_str):
 
     definition_rows = {}
     child_map = None
+    code_to_status = None
+    code_to_term = None
     parent_map = None
     tree_tables = None
     if clv.coding_system_id in ["ctv3", "ctv3tpp", "snomedct"]:

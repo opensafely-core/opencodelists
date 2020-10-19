@@ -143,8 +143,29 @@ class CodelistUpdate(TemplateView):
 
         return super().dispatch(request, *args, **kwargs)
 
+    def get(self, request, *args, **kwargs):
+        codelist_form = CodelistUpdateForm(
+            {
+                "name": self.codelist.name,
+                "project": self.codelist.project,
+                "coding_system_id": self.codelist.coding_system_id,
+                "description": self.codelist.description,
+                "methodology": self.codelist.methodology,
+            }
+        )
+
+        reference_formset = self.get_reference_formset()
+        signoff_formset = self.get_signoff_formset()
+
+        context = self.get_context_data(
+            codelist_form=codelist_form,
+            reference_formset=reference_formset,
+            signoff_formset=signoff_formset,
+        )
+        return self.render_to_response(context)
+
     def post(self, request, *args, **kwargs):
-        codelist_form = self.get_form(request.POST, request.FILES)
+        codelist_form = CodelistUpdateForm(request.POST, request.FILES)
         reference_formset = self.get_reference_formset(request.POST, request.FILES)
         signoff_formset = self.get_signoff_formset(request.POST, request.FILES)
 
@@ -193,20 +214,6 @@ class CodelistUpdate(TemplateView):
         )
         return self.render_to_response(context)
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        if "codelist_form" not in kwargs:
-            context["codelist_form"] = self.get_form()
-
-        if "reference_formset" not in kwargs:
-            context["reference_formset"] = self.get_reference_formset()
-
-        if "signoff_formset" not in kwargs:
-            context["signoff_formset"] = self.get_signoff_formset()
-
-        return context
-
     def save_formset(self, formset, codelist):
         """
         Save the the given FormSet
@@ -224,9 +231,6 @@ class CodelistUpdate(TemplateView):
         # https://docs.djangoproject.com/en/3.0/topics/forms/formsets/#can-delete
         for obj in formset.deleted_objects:
             obj.delete()
-
-    def get_form(self, data=None, files=None):
-        return CodelistUpdateForm(data, files)
 
     def get_reference_formset(self, data=None, files=None):
         return ReferenceFormSet(

@@ -226,7 +226,30 @@ def test_codelistupdate_invalid_post(rf):
     assert response.context_data["signoff_formset"].errors
 
 
-def test_codelistupdate_success(rf):
+def test_codelistupdate_success_get(rf):
+    codelist = CodelistFactory()
+    SignOffFactory(codelist=codelist)
+    SignOffFactory(codelist=codelist)
+    ReferenceFactory(codelist=codelist)
+    ReferenceFactory(codelist=codelist)
+
+    request = rf.get("/")
+    request.user = UserFactory()
+    response = CodelistUpdate.as_view()(
+        request, project_slug=codelist.project.slug, codelist_slug=codelist.slug
+    )
+
+    assert response.status_code == 200
+
+    form = response.context_data["codelist_form"]
+    assert form.data["name"] == codelist.name
+    assert form.data["project"] == codelist.project
+    assert form.data["coding_system_id"] == codelist.coding_system_id
+    assert form.data["description"] == codelist.description
+    assert form.data["methodology"] == codelist.methodology
+
+
+def test_codelistupdate_success_post(rf):
     codelist = CodelistFactory()
     signoff_1 = SignOffFactory(codelist=codelist)
     signoff_2 = SignOffFactory(codelist=codelist)

@@ -38,6 +38,11 @@ def index(request):
         )
     else:
         codelists = Codelist.objects.all()
+
+    # For now, we only want to show codelists that were created as part of the
+    # OpenSAFELY project.
+    codelists = codelists.filter(project_id="opensafely")
+
     codelists = codelists.order_by("name")
     ctx = {"codelists": codelists, "q": q}
     return render(request, "codelists/index.html", ctx)

@@ -9,13 +9,13 @@
     (<code>{{ row.code }}</code>)
 
     {% if row.all_descendants %}
-    and all descendants {% if row.excluded_children %} except:{% endif %}
+    and all descendants {% if row.excluded_descendants %} except:{% endif %}
     {% endif %}
 
-    {% if row.excluded_children %}
+    {% if row.excluded_descendants %}
     <ul class="mb-0">
 
-      {% for child in row.excluded_children %}
+      {% for child in row.excluded_descendants %}
       <li>
         <a href="{% concept_url codelist.coding_system_id child.code %}" style="color: black">
           {{ child.name }}

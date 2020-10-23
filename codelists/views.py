@@ -24,6 +24,7 @@ from .forms import (
     ReferenceFormSet,
     SignOffForm,
     SignOffFormSet,
+    data_without_delete,
 )
 from .hierarchy import Hierarchy
 from .models import Codelist, CodelistVersion
@@ -50,8 +51,8 @@ def index(request):
 
 @method_decorator(login_required, name="dispatch")
 class CodelistCreate(TemplateView):
-    ReferenceFormSet = formset_factory(ReferenceForm)
-    SignOffFormSet = formset_factory(SignOffForm)
+    ReferenceFormSet = formset_factory(ReferenceForm, can_delete=True)
+    SignOffFormSet = formset_factory(SignOffForm, can_delete=True)
     template_name = "codelists/codelist.html"
 
     def dispatch(self, request, *args, **kwargs):
@@ -77,8 +78,16 @@ class CodelistCreate(TemplateView):
 
     def all_valid(self, codelist_form, reference_formset, signoff_formset):
         # get changed forms so we ignore empty form instances
-        references = (f.cleaned_data for f in reference_formset if f.has_changed())
-        signoffs = (f.cleaned_data for f in signoff_formset if f.has_changed())
+        references = (
+            data_without_delete(f.cleaned_data)
+            for f in reference_formset
+            if f.has_changed()
+        )
+        signoffs = (
+            data_without_delete(f.cleaned_data)
+            for f in signoff_formset
+            if f.has_changed()
+        )
 
         name = codelist_form.cleaned_data["name"]
 

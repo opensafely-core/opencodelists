@@ -9,6 +9,20 @@ from django.forms.models import fields_for_model
 from .models import Codelist, CodelistVersion, Reference, SignOff
 
 
+def data_without_delete(cleaned_data):
+    """
+    Return data from this form without the DELETE key.
+
+    When used with a formset_factory()'s can_delete kwarg a Form will gain
+    a DELETE checkbox in the rendered <form>.  A FormSet uses this to know
+    which submitted Forms have been deleted in the UI.
+
+    However, we don't want that key when passing it to an action/the ORM.
+    This function strips that key for us.
+    """
+    return {k: v for k, v in cleaned_data.items() if k != "DELETE"}
+
+
 def model_field(model, fieldname):
     """Return a Field instance with arguments from the model definition."""
 

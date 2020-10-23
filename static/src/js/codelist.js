@@ -24,13 +24,10 @@ const removeRow = (name, event) => {
   const formId = classes[0];
   const form = document.getElementById(formId);
 
-  // add an <name>-DELETE element to tell the formset we're deleting this
+  // flip the <name>-DELETE checkbox to tell the formset we're deleting this
   // form from the formset
-  const deleted = document.createElement("input");
-  deleted.setAttribute("type", "hidden");
-  deleted.setAttribute("name", `${formId}-DELETE`);
+  const deleted = document.getElementById(`${formId}-DELETE`);
   deleted.setAttribute("value", "on");
-  form.appendChild(deleted);
 
   // hide the deleted form
   form.classList.add("d-none");

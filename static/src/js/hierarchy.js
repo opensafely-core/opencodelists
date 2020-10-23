@@ -44,6 +44,9 @@ class Hierarchy {
   }
 
   updateCodeToStatus(codeToStatus, code, status) {
+    // Given mapping from codes to statuses, a code, and that code's new
+    // status, return an updated mapping.
+
     let included = Object.keys(codeToStatus).filter(
       (c) => codeToStatus[c] === "+" && c !== code
     );
@@ -57,15 +60,17 @@ class Hierarchy {
       excluded.push(code);
     }
 
-    let updates = { [code]: this.codeStatus(code, included, excluded) };
-    for (let descendant of this.getDescendants(code)) {
-      updates[descendant] = this.codeStatus(descendant, included, excluded);
-    }
-
-    return updates;
+    return Object.fromEntries(
+      [...this.nodes].map((code) => [
+        code,
+        this.codeStatus(code, included, excluded),
+      ])
+    );
   }
 
   codeStatus(code, included, excluded) {
+    // Return status of code, given lists of codes that are included and excluded.
+
     if (included.includes(code)) {
       // this code is explicitly included
       return "+";
@@ -193,36 +198,79 @@ class Hierarchy {
     return rows;
   }
 
-  initiallyVisiblePaths(ancestorCodes, codeToStatus) {
-    // Return set of paths which start at one of ancestorCodes, and end at the
-    // first code where all descendants of that code have the same status as
-    // that code.  These are the paths that should initially be visible in a
-    // tree.
+  initiallyVisiblePaths(ancestorCodes, codeToStatus, maxDepth) {
+    // Return set of paths which start at one of ancestorCodes, and end at
+    // maxDepth codes below the first code where all descendants of that code
+    // have the same status as that code.  These are the paths that should
+    // initially be visible in a tree.
     //
     // Paths are strings of codes, separated by colons.
+    //
+    // So with this tree:
+    //
+    //        a
+    //       / \
+    //      b   c
+    //     / \ / \
+    //    d   e   f
+    //   / \ / \ / \
+    //  g   h   i   j
+    //
+    // and these statuses:
+    //
+    //        +
+    //       / \
+    //      -  (+)
+    //     / \ / \
+    //   (-) (-) (+)
+    //   / \ / \ / \
+    // (-) (-) (-) (+)
+    //
+    // the following paths would be initially visible if maxDepth = 0:
+    //
+    // {a, a:b, a:c, a:c:e, a:c:f, a:c:f:i, a:c:f:j}
+    //
+    // and following paths would be initially visible if maxDepth = 1:
+    //
+    // {a, a:b, a:b:d, a:b:e, a:c, a:c:e, a:c:e:h, a:c:e:i, a:c:f, a:c:f:i, a:c:f:j}
 
     const paths = new Set();
 
-    const helper = (code, path) => {
+    const helper = (code, path, depth) => {
+      // Walk the tree depth-first, collecting paths which should be visible.
+
+      if (depth === maxDepth + 1) {
+        // We have reached the maximum depth so need go no further.
+        return;
+      }
+
       paths.add(path);
 
-      if (
+      let newDepth;
+
+      if (depth > 0) {
+        // This code is a descendant of a code all of whose descendants have
+        // the same status as it.
+        newDepth = depth + 1;
+      } else if (
         this.getDescendants(code).every((d) =>
           codeToStatus[d].includes(codeToStatus[code])
         )
       ) {
         // All descendants of code have the same status as code.
-        return;
+        newDepth = 1;
+      } else {
+        newDepth = 0;
       }
 
       const childCodes = this.childMap[code] || [];
       childCodes.forEach((childCode) => {
-        helper(childCode, path + ":" + childCode);
+        helper(childCode, path + ":" + childCode, newDepth);
       });
     };
 
     ancestorCodes.forEach((ancestorCode) => {
-      helper(ancestorCode, ancestorCode);
+      helper(ancestorCode, ancestorCode, 0);
     });
 
     return paths;

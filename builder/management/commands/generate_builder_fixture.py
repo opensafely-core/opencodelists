@@ -50,15 +50,18 @@ class Command(BaseCommand):
             for k in [
                 "searches",
                 "filter",
-                "tables",
+                "tree_tables",
+                "all_codes",
                 "included_codes",
                 "excluded_codes",
-                "displayed_codes",
                 "parent_map",
                 "child_map",
+                "code_to_term",
+                "code_to_status",
                 "is_editable",
                 "update_url",
                 "search_url",
+                "download_url",
             ]
         }
 

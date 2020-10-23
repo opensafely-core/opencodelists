@@ -32,9 +32,13 @@ test("updateCodeToStatus", () => {
     //   (+) (+)  ?
     //   / \ / \ / \
     // (+) (+) (+)  ?
+    a: "?",
+    b: "+",
     c: "?",
+    d: "(+)",
     e: "(+)",
     f: "?",
+    g: "(+)",
     h: "(+)",
     i: "(+)",
     j: "?",
@@ -247,28 +251,15 @@ test("treeRows", () => {
 });
 
 test("initiallyVisiblePaths", () => {
-  // With this hierarchy:
-  //
-  //        +
-  //       / \
-  //      -  (+)
-  //     / \ / \
-  //   (-) (-) (+)
-  //   / \ / \ / \
-  // (-) (-) (-) (+)
-  //
-  // Starting at a, the following paths are initially visible:
-  //
-  // a
-  // ├ b (children not visible, because they are all (-))
-  // └ c
-  //   ├ e (children not visible, because they are all (-))
-  //   └ f
-  //     ├ i
-  //     └ j
-
   const hierarchy = buildTestHierarchy();
   const codeToStatus = {
+    //        +
+    //       / \
+    //      -  (+)
+    //     / \ / \
+    //   (-) (-) (+)
+    //   / \ / \ / \
+    // (-) (-) (-) (+)
     a: "+",
     b: "-",
     c: "(+)",
@@ -281,8 +272,48 @@ test("initiallyVisiblePaths", () => {
     j: "(+)",
   };
 
-  expect(hierarchy.initiallyVisiblePaths(["a"], codeToStatus)).toEqual(
+  // Starting at a, the following paths are initially visible with maxDepth = 0:
+  //
+  // a
+  // ├ b (children not visible, because they are all (-))
+  // └ c
+  //   ├ e (children not visible, because they are all (-))
+  //   └ f
+  //     ├ i
+  //     └ j
+
+  expect(hierarchy.initiallyVisiblePaths(["a"], codeToStatus, 0)).toEqual(
     new Set(["a", "a:b", "a:c", "a:c:e", "a:c:f", "a:c:f:i", "a:c:f:j"])
+  );
+
+  // Starting at a, the following paths are initially visible with maxDepth = 1:
+  //
+  // a
+  // ├ b (immediate children visible, because maxDepth = 1)
+  // │ ├ d
+  // │ └ e
+  // └ c
+  //   ├ e (immediate children visible, because maxDepth = 1)
+  //   │ ├ h
+  //   │ └ i
+  //   └ f
+  //     ├ i
+  //     └ j
+
+  expect(hierarchy.initiallyVisiblePaths(["a"], codeToStatus, 1)).toEqual(
+    new Set([
+      "a",
+      "a:b",
+      "a:b:d",
+      "a:b:e",
+      "a:c",
+      "a:c:e",
+      "a:c:e:h",
+      "a:c:e:i",
+      "a:c:f",
+      "a:c:f:i",
+      "a:c:f:j",
+    ])
   );
 });
 

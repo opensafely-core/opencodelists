@@ -1,8 +1,6 @@
 "use strict";
 
 import ReactDOM from "react-dom";
-// Although React is not used in this module, if this line is removed, there is
-// a runtime error in codelistbuilder.jsx.
 import React from "react";
 
 import CodelistBuilder from "./codelistbuilder";
@@ -14,18 +12,34 @@ const hierarchy = new Hierarchy(
   readValueFromPage("child-map")
 );
 
+const treeTables = readValueFromPage("tree-tables");
+const codeToStatus = readValueFromPage("code-to-status");
+const codeToTerm = readValueFromPage("code-to-term");
+
+const ancestorCodes = treeTables
+  .map(([_, ancestorCodes]) => ancestorCodes) // eslint-disable-line no-unused-vars
+  .flat();
+const visiblePaths = hierarchy.initiallyVisiblePaths(
+  ancestorCodes,
+  codeToStatus,
+  1
+);
+
 ReactDOM.render(
   <CodelistBuilder
     searches={readValueFromPage("searches")}
     filter={readValueFromPage("filter")}
-    tables={readValueFromPage("tables")}
+    hierarchy={hierarchy}
+    treeTables={treeTables}
+    codeToStatus={codeToStatus}
+    codeToTerm={codeToTerm}
+    visiblePaths={visiblePaths}
+    allCodes={readValueFromPage("all-codes")}
     includedCodes={readValueFromPage("included-codes")}
     excludedCodes={readValueFromPage("excluded-codes")}
-    displayedCodes={readValueFromPage("displayed-codes")}
     isEditable={readValueFromPage("is-editable")}
     updateURL={readValueFromPage("update-url")}
     searchURL={readValueFromPage("search-url")}
-    hierarchy={hierarchy}
     downloadURL={readValueFromPage("download-url")}
   />,
   document.querySelector("#codelist-builder-container")

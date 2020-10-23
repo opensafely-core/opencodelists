@@ -126,7 +126,10 @@ function TreeRow(props) {
 
   const statusToColour = {
     "+": "black",
+    "(+)": "black",
     "-": "gray",
+    "(-)": "gray",
+    "!": "red",
   };
 
   const rowSpacing = pipes.length === 0 ? "mt-2" : "mt-0";

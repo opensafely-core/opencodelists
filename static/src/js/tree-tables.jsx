@@ -1,10 +1,6 @@
 "use strict";
 
-import ReactDOM from "react-dom";
 import React from "react";
-
-import Hierarchy from "./hierarchy";
-import { readValueFromPage } from "./utils";
 
 class TreeTables extends React.Component {
   constructor(props) {
@@ -163,34 +159,4 @@ function DescendantToggle(props) {
   );
 }
 
-function setUpAndRender() {
-  const hierarchy = new Hierarchy(
-    readValueFromPage("parent-map"),
-    readValueFromPage("child-map")
-  );
-
-  const treeTables = readValueFromPage("tree-tables");
-  const codeToStatus = readValueFromPage("code-to-status");
-  const codeToTerm = readValueFromPage("code-to-term");
-
-  const ancestorCodes = treeTables
-    .map(([_, ancestorCodes]) => ancestorCodes) // eslint-disable-line no-unused-vars
-    .flat();
-  const visiblePaths = hierarchy.initiallyVisiblePaths(
-    ancestorCodes,
-    codeToStatus
-  );
-
-  ReactDOM.render(
-    <TreeTables
-      hierarchy={hierarchy}
-      treeTables={treeTables}
-      codeToStatus={codeToStatus}
-      codeToTerm={codeToTerm}
-      visiblePaths={visiblePaths}
-    />,
-    document.querySelector("#codelist-tree")
-  );
-}
-
-setUpAndRender();
+export default TreeTables;

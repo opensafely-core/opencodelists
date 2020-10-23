@@ -1,26 +1,37 @@
 "use strict";
 
 import ReactDOM from "react-dom";
-// Although React is not used in this module, if this line is removed, there is
-// a runtime error in codelistbuilder.jsx.
 import React from "react";
 
 import Hierarchy from "../hierarchy";
-import Tree from "./Tree";
+import TreeTables from "../tree-tables";
 import { readValueFromPage } from "../utils";
+
 
 const hierarchy = new Hierarchy(
   readValueFromPage("parent-map"),
   readValueFromPage("child-map")
 );
 
+const treeTables = readValueFromPage("tree-tables");
+const codeToStatus = readValueFromPage("code-to-status");
+const codeToTerm = readValueFromPage("code-to-term");
+
+const ancestorCodes = treeTables
+  .map(([_, ancestorCodes]) => ancestorCodes) // eslint-disable-line no-unused-vars
+  .flat();
+const visiblePaths = hierarchy.initiallyVisiblePaths(
+  ancestorCodes,
+  codeToStatus
+);
+
 ReactDOM.render(
-  <Tree
-    codeToURL={readValueFromPage("codeToURL")}
-    codesInDefinition={readValueFromPage("codesInDefinition")}
-    codesInList={readValueFromPage("codesInList")}
+  <TreeTables
     hierarchy={hierarchy}
-    trees={readValueFromPage("trees")}
+    treeTables={treeTables}
+    codeToStatus={codeToStatus}
+    codeToTerm={codeToTerm}
+    visiblePaths={visiblePaths}
   />,
   document.querySelector("#codelist-tree")
 );

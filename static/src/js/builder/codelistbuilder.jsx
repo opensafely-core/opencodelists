@@ -18,13 +18,8 @@ class CodelistBuilder extends React.Component {
     };
 
     this.updateStatus = this.updateStatus.bind(this);
-    this.toggleVisibility = this.toggleVisibility.bind(this);
     this.showMoreInfoModal = this.showMoreInfoModal.bind(this);
     this.hideMoreInfoModal = this.hideMoreInfoModal.bind(this);
-    this.getStatus = this.getStatus.bind(this);
-    this.getHasDescendants = this.getHasDescendants.bind(this);
-    this.getIsExpanded = this.getIsExpanded.bind(this);
-    this.getIsVisible = this.getIsVisible.bind(this);
   }
 
   componentDidMount() {
@@ -93,36 +88,12 @@ class CodelistBuilder extends React.Component {
       });
   }
 
-  toggleVisibility(code) {
-    this.setState((state) => ({
-      ["expanded-" + code]: !state["expanded-" + code],
-    }));
-  }
-
   showMoreInfoModal(code) {
     this.setState({ moreInfoModalCode: code });
   }
 
   hideMoreInfoModal() {
     this.setState({ moreInfoModalCode: null });
-  }
-
-  getStatus(code) {
-    return this.state["status-" + code];
-  }
-
-  getIsVisible(code) {
-    return this.props.hierarchy
-      .getAncestors(code)
-      .every((ancestor) => this.getIsExpanded(ancestor));
-  }
-
-  getIsExpanded(code) {
-    return this.state["expanded-" + code];
-  }
-
-  getHasDescendants(code) {
-    return this.props.hierarchy.getDescendants(code).length > 0;
   }
 
   counts() {

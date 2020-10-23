@@ -201,10 +201,10 @@ class CodelistBuilder extends React.Component {
 
   renderMoreInfoModal(code) {
     const included = this.props.displayedCodes.filter(
-      (c) => this.getStatus(c) === "+"
+      (c) => this.state.codeToStatus[c] === "+"
     );
     const excluded = this.props.displayedCodes.filter(
-      (c) => this.getStatus(c) === "-"
+      (c) => this.state.codeToStatus[c] === "-"
     );
     const significantAncestors = this.props.hierarchy.significantAncestors(
       code,
@@ -215,7 +215,7 @@ class CodelistBuilder extends React.Component {
     return (
       <MoreInfoModal
         code={code}
-        status={this.getStatus(code)}
+        status={this.state.codeToStatus[code]}
         includedAncestors={significantAncestors.includedAncestors}
         excludedAncestors={significantAncestors.excludedAncestors}
         hideModal={this.hideMoreInfoModal}

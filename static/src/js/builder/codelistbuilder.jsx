@@ -183,12 +183,21 @@ class CodelistBuilder extends React.Component {
       excluded
     );
 
+    const includedAncestorsText = significantAncestors.includedAncestors
+      .map((code) => `${this.props.codeToTerm[code]} (${code})`)
+      .join(", ");
+
+    const excludedAncestorsText = significantAncestors.excludedAncestors
+      .map((code) => `${this.props.codeToTerm[code]} (${code})`)
+      .join(", ");
+
     return (
       <MoreInfoModal
         code={code}
+        term={this.props.codeToTerm[code]}
         status={this.state.codeToStatus[code]}
-        includedAncestors={significantAncestors.includedAncestors}
-        excludedAncestors={significantAncestors.excludedAncestors}
+        includedAncestorsText={includedAncestorsText}
+        excludedAncestorsText={excludedAncestorsText}
         hideModal={this.hideMoreInfoModal}
       />
     );
@@ -247,9 +256,10 @@ function SearchForm(props) {
 function MoreInfoModal(props) {
   const {
     code,
+    term,
     status,
-    includedAncestors,
-    excludedAncestors,
+    includedAncestorsText,
+    excludedAncestorsText,
     hideModal,
   } = props;
 
@@ -260,27 +270,25 @@ function MoreInfoModal(props) {
       text = "Included";
       break;
     case "(+)":
-      text = `Included by ${includedAncestors.join(", ")}`;
+      text = `Included by ${includedAncestorsText}`;
       break;
     case "-":
       text = "Excluded";
       break;
     case "(-)":
-      text = `Excluded by ${excludedAncestors.join(", ")}`;
+      text = `Excluded by ${includedAncestorsText}`;
       break;
     case "?":
       text = "Unresolved";
       break;
     case "!":
-      text = `In conflict!  Included by ${includedAncestors.join(
-        ", "
-      )} by and excluded by ${excludedAncestors.join(", ")}`;
+      text = `In conflict!  Included by ${includedAncestorsText}, and excluded by ${excludedAncestorsText}`;
       break;
   }
 
   return (
     <Modal show={code !== null} onHide={hideModal} centered>
-      <Modal.Header closeButton>{code}</Modal.Header>
+      <Modal.Header closeButton>{term} ({code})</Modal.Header>
       <Modal.Body>{text}</Modal.Body>
     </Modal>
   );

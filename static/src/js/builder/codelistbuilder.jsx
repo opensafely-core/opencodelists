@@ -288,7 +288,9 @@ function MoreInfoModal(props) {
 
   return (
     <Modal show={code !== null} onHide={hideModal} centered>
-      <Modal.Header closeButton>{term} ({code})</Modal.Header>
+      <Modal.Header closeButton>
+        {term} ({code})
+      </Modal.Header>
       <Modal.Body>{text}</Modal.Body>
     </Modal>
   );

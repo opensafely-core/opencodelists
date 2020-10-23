@@ -7,7 +7,6 @@ import Hierarchy from "../hierarchy";
 import TreeTables from "../tree-tables";
 import { readValueFromPage } from "../utils";
 
-
 const hierarchy = new Hierarchy(
   readValueFromPage("parent-map"),
   readValueFromPage("child-map")
@@ -23,7 +22,7 @@ const ancestorCodes = treeTables
 const visiblePaths = hierarchy.initiallyVisiblePaths(
   ancestorCodes,
   codeToStatus,
-  0,
+  0
 );
 
 ReactDOM.render(

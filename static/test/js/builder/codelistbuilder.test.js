@@ -61,7 +61,7 @@ it("does the right thing when clicking around", () => {
   const visiblePaths = hierarchy.initiallyVisiblePaths(
     ancestorCodes,
     data.code_to_status,
-    100  // we want all codes to be visible so that we can check statuses
+    100 // we want all codes to be visible so that we can check statuses
   );
 
   // Keep track of which concept has which status

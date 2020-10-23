@@ -10,23 +10,12 @@ class CodelistBuilder extends React.Component {
   constructor(props) {
     super(props);
 
-    let state = {
+    this.state = {
+      codeToStatus: props.codeToStatus,
       updateQueue: [],
       updating: false,
       moreInfoModalCode: null,
     };
-
-    const codes = props.hierarchy.nodes;
-    codes.forEach((code) => {
-      state["status-" + code] = props.hierarchy.codeStatus(
-        code,
-        props.includedCodes,
-        props.excludedCodes
-      );
-      state["expanded-" + code] = true;
-    });
-
-    this.state = state;
 
     this.updateStatus = this.updateStatus.bind(this);
     this.toggleVisibility = this.toggleVisibility.bind(this);
@@ -48,28 +37,17 @@ class CodelistBuilder extends React.Component {
   }
 
   updateStatus(code, status) {
-    this.setState((state, props) => {
-      let codeToStatus = {};
-      props.displayedCodes.forEach(
-        (c) => (codeToStatus[c] = state["status-" + c])
-      );
-
-      const updates = props.hierarchy.updateCodeToStatus(
+    this.setState(({ codeToStatus, updateQueue }, { hierarchy }) => {
+      const newCodeToStatus = hierarchy.updateCodeToStatus(
         codeToStatus,
         code,
         status
       );
 
-      let newState = {};
-      Object.keys(updates).forEach(
-        (c) => (newState["status-" + c] = updates[c])
-      );
-
-      newState.updateQueue = state.updateQueue.concat([
-        [code, newState["status-" + code]],
-      ]);
-
-      return newState;
+      return {
+        codeToStatus: newCodeToStatus,
+        updateQueue: updateQueue.concat([[code, newCodeToStatus[code]]]),
+      };
     }, this.maybePostUpdates);
   }
 
@@ -158,7 +136,7 @@ class CodelistBuilder extends React.Component {
       total: 0,
     };
     this.props.displayedCodes.forEach((code) => {
-      const status = this.getStatus(code);
+      const status = this.state.codeToStatus[code];
       if (["?", "!", "+", "(+)", "-", "(-)"].includes(status)) {
         counts[status] += 1;
         counts["total"] += 1;
@@ -204,11 +182,13 @@ class CodelistBuilder extends React.Component {
           <div className="col-9 pl-5">
             <h3 className="mb-4">Results</h3>
             <TreeTables
+              codeToStatus={this.state.codeToStatus}
               hierarchy={this.props.hierarchy}
               treeTables={this.props.treeTables}
-              codeToStatus={this.props.codeToStatus}
               codeToTerm={this.props.codeToTerm}
               visiblePaths={this.props.visiblePaths}
+              updateStatus={this.updateStatus}
+              showMoreInfoModal={this.showMoreInfoModal}
             />
             ,
           </div>
@@ -292,7 +272,6 @@ function SearchForm(props) {
     </form>
   );
 }
-
 
 function MoreInfoModal(props) {
   const {

@@ -55,6 +55,14 @@ global.fetch = jest.fn().mockImplementation((url, config) =>
 
 it("does the right thing when clicking around", () => {
   const hierarchy = new Hierarchy(data.parent_map, data.child_map);
+  const ancestorCodes = data.tree_tables
+    .map(([_, ancestorCodes]) => ancestorCodes) // eslint-disable-line no-unused-vars
+    .flat();
+  const visiblePaths = hierarchy.initiallyVisiblePaths(
+    ancestorCodes,
+    data.code_to_status,
+    100  // we want all codes to be visible so that we can check statuses
+  );
 
   // Keep track of which concept has which status
   const statuses = {
@@ -149,13 +157,17 @@ it("does the right thing when clicking around", () => {
       <CodelistBuilder
         searches={data.searches}
         filter={data.filter}
-        tables={data.tables}
+        treeTables={data.tree_tables}
+        codeToStatus={data.code_to_status}
+        codeToTerm={data.code_to_term}
+        visiblePaths={visiblePaths}
         includedCodes={data.included_codes}
         excludedCodes={data.excluded_codes}
         displayedCodes={data.displayed_codes}
         isEditable={data.is_editable}
         updateURL={data.update_url}
         searchURL={data.search_url}
+        downloadURL={data.download_url}
         hierarchy={hierarchy}
       />,
       container

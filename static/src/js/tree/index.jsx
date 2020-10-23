@@ -33,6 +33,8 @@ ReactDOM.render(
     codeToStatus={codeToStatus}
     codeToTerm={codeToTerm}
     visiblePaths={visiblePaths}
+    updateStatus={null}
+    showMoreInfoModal={null}
   />,
   document.querySelector("#codelist-tree")
 );

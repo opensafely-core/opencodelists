@@ -1,5 +1,6 @@
 "use strict";
 
+import Button from "react-bootstrap/Button";
 import React from "react";
 
 class TreeTables extends React.Component {
@@ -18,7 +19,14 @@ class TreeTables extends React.Component {
   }
 
   render() {
-    const { hierarchy, treeTables, codeToStatus, codeToTerm } = this.props;
+    const {
+      hierarchy,
+      treeTables,
+      codeToStatus,
+      codeToTerm,
+      updateStatus,
+      showMoreInfoModal,
+    } = this.props;
 
     return treeTables.map(([heading, ancestorCodes]) => (
       <TreeTable
@@ -30,6 +38,8 @@ class TreeTables extends React.Component {
         codeToTerm={codeToTerm}
         visiblePaths={this.state.visiblePaths}
         toggleVisibility={this.toggleVisibility}
+        updateStatus={updateStatus}
+        showMoreInfoModal={showMoreInfoModal}
       />
     ));
   }
@@ -44,6 +54,8 @@ function TreeTable(props) {
     codeToTerm,
     visiblePaths,
     toggleVisibility,
+    updateStatus,
+    showMoreInfoModal,
   } = props;
 
   return (
@@ -59,6 +71,8 @@ function TreeTable(props) {
           codeToTerm={codeToTerm}
           visiblePaths={visiblePaths}
           toggleVisibility={toggleVisibility}
+          updateStatus={updateStatus}
+          showMoreInfoModal={showMoreInfoModal}
         />
       ))}
     </div>
@@ -73,6 +87,8 @@ function Tree(props) {
     codeToTerm,
     visiblePaths,
     toggleVisibility,
+    updateStatus,
+    showMoreInfoModal,
   } = props;
 
   return hierarchy
@@ -88,6 +104,8 @@ function Tree(props) {
         hasDescendants={row.hasDescendants}
         isExpanded={row.isExpanded}
         toggleVisibility={toggleVisibility}
+        updateStatus={updateStatus}
+        showMoreInfoModal={showMoreInfoModal}
       />
     ));
 }
@@ -102,6 +120,8 @@ function TreeRow(props) {
     hasDescendants,
     isExpanded,
     toggleVisibility,
+    updateStatus,
+    showMoreInfoModal,
   } = props;
 
   const statusToColour = {
@@ -109,20 +129,85 @@ function TreeRow(props) {
     "-": "gray",
   };
 
+  const rowSpacing = pipes.length === 0 ? "mt-2" : "mt-0";
+  const className = `${rowSpacing} d-flex`;
+
   return (
-    <div className="d-flex" style={{ whiteSpace: "nowrap" }}>
-      <Pipes pipes={pipes} />
-      {hasDescendants ? (
-        <DescendantToggle
-          path={path}
-          isExpanded={isExpanded}
-          toggleVisibility={toggleVisibility}
-        />
-      ) : null}
-      <span style={{ color: statusToColour[status] }}>{term}</span>
-      <span className="ml-1">
-        (<code>{code}</code>)
-      </span>
+    <div className={className} data-code={code} data-path={path}>
+      {updateStatus && (
+        <div className="btn-group btn-group-sm" role="group">
+          <StatusToggle
+            code={code}
+            symbol="+"
+            status={status}
+            updateStatus={updateStatus}
+          />
+          <StatusToggle
+            code={code}
+            symbol="-"
+            status={status}
+            updateStatus={updateStatus}
+          />
+        </div>
+      )}
+
+      {showMoreInfoModal && (
+        <MoreInfoButton code={code} showMoreInfoModal={showMoreInfoModal} />
+      )}
+
+      <div className="pl-2" style={{ whiteSpace: "nowrap" }}>
+        <Pipes pipes={pipes} />
+        {hasDescendants ? (
+          <DescendantToggle
+            path={path}
+            isExpanded={isExpanded}
+            toggleVisibility={toggleVisibility}
+          />
+        ) : null}
+        <span style={{ color: statusToColour[status] }}>{term}</span>
+        <span className="ml-1">
+          (<code>{code}</code>)
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function StatusToggle(props) {
+  const { code, symbol, status, updateStatus } = props;
+
+  let buttonClasses = ["btn"];
+  if (status === symbol) {
+    buttonClasses.push("btn-primary");
+  } else if (status === `(${symbol})`) {
+    buttonClasses.push("btn-secondary");
+  } else {
+    buttonClasses.push("btn-outline-secondary");
+  }
+  buttonClasses.push("py-0");
+  return (
+    <button
+      type="button"
+      onClick={updateStatus.bind(null, code, symbol)}
+      className={buttonClasses.join(" ")}
+      data-symbol={symbol}
+    >
+      {symbol}
+    </button>
+  );
+}
+
+function MoreInfoButton(props) {
+  const { code, showMoreInfoModal } = props;
+  return (
+    <div className="btn-group btn-group-sm mx-2" role="group">
+      <Button
+        variant="outline-secondary"
+        onClick={showMoreInfoModal.bind(null, code)}
+        className="py-0"
+      >
+        ?
+      </Button>
     </div>
   );
 }

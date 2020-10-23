@@ -22,7 +22,8 @@ const ancestorCodes = treeTables
   .flat();
 const visiblePaths = hierarchy.initiallyVisiblePaths(
   ancestorCodes,
-  codeToStatus
+  codeToStatus,
+  0,
 );
 
 ReactDOM.render(

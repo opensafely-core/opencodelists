@@ -9,7 +9,6 @@ from django.utils import timezone
 from django.views.decorators.http import require_http_methods
 
 from codelists.hierarchy import Hierarchy
-from codelists.presenters import tree_tables
 from codelists.search import do_search
 from opencodelists.models import User
 
@@ -104,10 +103,13 @@ def codelist(request, username, codelist_slug, search_slug=None):
     hierarchy = Hierarchy.from_codes(coding_system, all_codes)
 
     ancestor_codes = hierarchy.filter_to_ultimate_ancestors(set(displayed_codes))
-    codes_by_type = coding_system.codes_by_type(ancestor_codes, hierarchy)
     code_to_term = coding_system.code_to_term(hierarchy.nodes | set(all_codes))
-
-    tables = tree_tables(codes_by_type, hierarchy, code_to_term)
+    tree_tables = sorted(
+        (type.title(), sorted(codes, key=code_to_term.__getitem__))
+        for type, codes in coding_system.codes_by_type(
+            ancestor_codes, hierarchy
+        ).items()
+    )
 
     searches = [
         {"term": s.term, "url": s.get_absolute_url(), "active": s == search}
@@ -133,12 +135,14 @@ def codelist(request, username, codelist_slug, search_slug=None):
         # {
         "searches": searches,
         "filter": filter,
-        "tables": tables,
+        "tree_tables": tree_tables,
         "included_codes": included_codes,
         "excluded_codes": excluded_codes,
         "displayed_codes": displayed_codes,
         "parent_map": {p: list(cc) for p, cc in hierarchy.parent_map.items()},
         "child_map": {c: list(pp) for c, pp in hierarchy.child_map.items()},
+        "code_to_term": code_to_term,
+        "code_to_status": code_to_status,
         "is_editable": request.user == codelist.owner,
         "update_url": update_url,
         "search_url": search_url,

@@ -16,7 +16,9 @@
 {% block extra_js %}
 {{ searches|json_script:"searches" }}
 {{ filter|json_script:"filter" }}
-{{ tables|json_script:"tables" }}
+{{ tree_tables|json_script:"tree-tables" }}
+{{ code_to_term|json_script:"code-to-term" }}
+{{ code_to_status|json_script:"code-to-status" }}
 {{ included_codes|json_script:"included-codes" }}
 {{ excluded_codes|json_script:"excluded-codes" }}
 {{ displayed_codes|json_script:"displayed-codes" }}

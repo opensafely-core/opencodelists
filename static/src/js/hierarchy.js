@@ -44,6 +44,9 @@ class Hierarchy {
   }
 
   updateCodeToStatus(codeToStatus, code, status) {
+    // Given mapping from codes to statuses, a code, and that code's new
+    // status, return an updated mapping.
+
     let included = Object.keys(codeToStatus).filter(
       (c) => codeToStatus[c] === "+" && c !== code
     );
@@ -57,15 +60,17 @@ class Hierarchy {
       excluded.push(code);
     }
 
-    let updates = { [code]: this.codeStatus(code, included, excluded) };
-    for (let descendant of this.getDescendants(code)) {
-      updates[descendant] = this.codeStatus(descendant, included, excluded);
-    }
-
-    return updates;
+    return Object.fromEntries(
+      [...this.nodes].map((code) => [
+        code,
+        this.codeStatus(code, included, excluded),
+      ])
+    );
   }
 
   codeStatus(code, included, excluded) {
+    // Return status of code, given lists of codes that are included and excluded.
+
     if (included.includes(code)) {
       // this code is explicitly included
       return "+";

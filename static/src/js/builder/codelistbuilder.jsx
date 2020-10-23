@@ -106,7 +106,7 @@ class CodelistBuilder extends React.Component {
       "(-)": 0,
       total: 0,
     };
-    this.props.displayedCodes.forEach((code) => {
+    this.props.allCodes.forEach((code) => {
       const status = this.state.codeToStatus[code];
       if (["?", "!", "+", "(+)", "-", "(-)"].includes(status)) {
         counts[status] += 1;
@@ -171,10 +171,10 @@ class CodelistBuilder extends React.Component {
   }
 
   renderMoreInfoModal(code) {
-    const included = this.props.displayedCodes.filter(
+    const included = this.props.allCodes.filter(
       (c) => this.state.codeToStatus[c] === "+"
     );
-    const excluded = this.props.displayedCodes.filter(
+    const excluded = this.props.allCodes.filter(
       (c) => this.state.codeToStatus[c] === "-"
     );
     const significantAncestors = this.props.hierarchy.significantAncestors(

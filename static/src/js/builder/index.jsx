@@ -34,9 +34,9 @@ ReactDOM.render(
     codeToStatus={codeToStatus}
     codeToTerm={codeToTerm}
     visiblePaths={visiblePaths}
+    allCodes={readValueFromPage("all-codes")}
     includedCodes={readValueFromPage("included-codes")}
     excludedCodes={readValueFromPage("excluded-codes")}
-    displayedCodes={readValueFromPage("displayed-codes")}
     isEditable={readValueFromPage("is-editable")}
     updateURL={readValueFromPage("update-url")}
     searchURL={readValueFromPage("search-url")}

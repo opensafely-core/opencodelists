@@ -13,6 +13,8 @@ help:
 	@echo "    make test-js          run the JavaScript test suite."
 	@echo "    make test-py          run the Python test suite."
 	@echo "    make test             run all test suites."
+	@echo "    make build-js         build production JavaScript assets."
+	@echo "    make build-js-dev     build development JavaScript assets."
 
 .PHONY: deploy
 deploy:
@@ -73,3 +75,13 @@ test-py:
 
 .PHONY: test
 test: test-js test-py
+
+
+.PHONY: build-js
+build-js:
+	npm run build
+
+
+.PHONY: build-dev-js
+build-dev-js:
+	npm run build-dev

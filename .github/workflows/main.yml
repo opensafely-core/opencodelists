@@ -176,3 +176,41 @@ jobs:
           path: ./node_modules
           key: install-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
       - run: make test-js
+
+  build-js:
+    needs: [format-js, lint-js]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup node
+        uses: actions/setup-node@v1
+        with:
+          node-version: '12'
+      - name: Cache node modules
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ./node_modules
+          key: install-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+      - run: make build-js
+
+  build-dev-js:
+    needs: [format-js, lint-js]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup node
+        uses: actions/setup-node@v1
+        with:
+          node-version: '12'
+      - name: Cache node modules
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ./node_modules
+          key: install-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+      - run: make build-dev-js

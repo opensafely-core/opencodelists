@@ -5,7 +5,7 @@ on:
   push:
 
 jobs:
-  build-py:
+  install-py:
     runs-on: ubuntu-latest
 
     steps:
@@ -26,7 +26,7 @@ jobs:
           key: venv-${{ github.ref }}-${{ hashFiles('requirements.txt') }}
 
   format-py:
-    needs: build-py
+    needs: install-py
     runs-on: ubuntu-latest
 
     steps:
@@ -46,7 +46,7 @@ jobs:
           make format-py
 
   lint-py:
-    needs: build-py
+    needs: install-py
     runs-on: ubuntu-latest
 
     steps:
@@ -65,7 +65,7 @@ jobs:
           make lint-py
 
   sort:
-    needs: build-py
+    needs: install-py
     runs-on: ubuntu-latest
 
     steps:
@@ -102,7 +102,7 @@ jobs:
           source ${{ github.workspace }}/venv/bin/activate
           make test-py
 
-  build-js:
+  install-js:
     runs-on: ubuntu-latest
 
     steps:
@@ -113,15 +113,15 @@ jobs:
           cache-name: cache-node-modules
         with:
           path: ./node_modules
-          key: build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          key: install-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
-            build-${{ env.cache-name }}-
-            build-
+            install-${{ env.cache-name }}-
+            install-
       - name: Install dependencies
         run: npm install
 
   format-js:
-    needs: [build-js]
+    needs: [install-js]
     runs-on: ubuntu-latest
 
     steps:
@@ -136,11 +136,11 @@ jobs:
           cache-name: cache-node-modules
         with:
           path: ./node_modules
-          key: build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          key: install-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
       - run: make format-js
 
   lint-js:
-    needs: [build-js]
+    needs: [install-js]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -155,7 +155,7 @@ jobs:
           cache-name: cache-node-modules
         with:
           path: ./node_modules
-          key: build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          key: install-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
       - run: make lint-js
 
   test-js:
@@ -174,5 +174,43 @@ jobs:
           cache-name: cache-node-modules
         with:
           path: ./node_modules
-          key: build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          key: install-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
       - run: make test-js
+
+  build-js:
+    needs: [format-js, lint-js]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup node
+        uses: actions/setup-node@v1
+        with:
+          node-version: '12'
+      - name: Cache node modules
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ./node_modules
+          key: install-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+      - run: make build-js
+
+  build-dev-js:
+    needs: [format-js, lint-js]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup node
+        uses: actions/setup-node@v1
+        with:
+          node-version: '12'
+      - name: Cache node modules
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ./node_modules
+          key: install-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+      - run: make build-dev-js

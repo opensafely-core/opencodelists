@@ -1,4 +1,4 @@
-<div id="reference-{{ id }}" class="row mb-4">
+<div id="reference-{{ id }}" class="row mb-4{% if form.DELETE.value %} d-none{% endif %}">
 
   <input
     type="hidden"
@@ -83,5 +83,14 @@
       &times;
     </button>
   </div>
+
+  <input
+    type="hidden"
+    id="reference-{{ id }}-DELETE"
+    name="reference-{{ id }}-DELETE"
+    {% if form.DELETE.value %}
+    value="on"
+    {% endif %}
+    />
 
 </div>

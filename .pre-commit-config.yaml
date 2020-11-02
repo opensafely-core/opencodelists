@@ -33,3 +33,8 @@ repos:
     - id: check-toml
     - id: check-yaml
     - id: detect-private-key
+
+  - repo: https://github.com/jumanjihouse/pre-commit-hooks
+    rev: 2.1.4
+    hooks:
+    - id: shellcheck

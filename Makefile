@@ -7,6 +7,7 @@ help:
 	@echo "    make format-py        run the Python format checker (black)."
 	@echo "    make lint-js          run the JavaScript linter (eslint)."
 	@echo "    make lint-py          run the Python linter (flake8)."
+	@echo "    make lint-sh          run the shell linter (shellcheck)."
 	@echo "    make run              run the dev server."
 	@echo "    make setup            set up/update the local dev env."
 	@echo "    make sort             run the sort checker (isort)."
@@ -44,6 +45,11 @@ lint-py:
 	@echo "Running flake8" && \
 		flake8 \
 		|| exit 1
+
+.PHONY: lint-sh
+lint-sh:
+	@echo "Running shellcheck" && \
+		shellcheck deploy/**/*.sh
 
 .PHONY: run
 run:

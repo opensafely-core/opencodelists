@@ -70,6 +70,10 @@ def set_up_systemd():
     run("sudo systemctl daemon-reload")
 
 
+def set_up_cron():
+    run(f"sudo ln -sf {env.path}/deploy/cron/opencodelists /etc/cron.d/opencodelists")
+
+
 def restart_service():
     run("sudo systemctl restart app.opencodelists.web.service")
 
@@ -108,5 +112,6 @@ def deploy():
             chown_everything()
             set_up_nginx()
             set_up_systemd()
+            set_up_cron()
             restart_service()
             notify_sentry()

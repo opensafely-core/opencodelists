@@ -214,3 +214,12 @@ jobs:
           path: ./node_modules
           key: install-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
       - run: make build-dev-js
+
+  lint-sh:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run ShellCheck
+      uses: ludeeus/action-shellcheck@master
+      with:
+        scandir: './scripts'

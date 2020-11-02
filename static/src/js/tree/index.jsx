@@ -4,7 +4,7 @@ import ReactDOM from "react-dom";
 import React from "react";
 
 import Hierarchy from "../hierarchy";
-import TreeTables from "../tree-tables";
+import TreeTables from "../common/tree-tables";
 import { readValueFromPage } from "../utils";
 
 const hierarchy = new Hierarchy(

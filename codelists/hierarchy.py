@@ -1,4 +1,4 @@
-from collections import defaultdict, namedtuple
+from collections import defaultdict
 from functools import lru_cache
 from itertools import chain
 
@@ -82,103 +82,6 @@ class Hierarchy:
             ancestors.add(parent)
             ancestors |= self.ancestors(parent)
         return ancestors
-
-    def walk_depth_first_as_tree(self, starting_node=None, sort_key=None):
-        """Walk graph depth-first from root, yielding NodeWithMetadata tuples on
-        entering and exiting each node.  Each node may be visited more than once if
-        there is more than one path to the node from the starting node.
-
-        See tests for an example.
-        """
-
-        def helper(node, depth):
-            children = self.child_map.get(node, [])
-            size = len(children)
-            for ix, child in enumerate(sorted(children, key=sort_key)):
-                yield NodeWithMetadata(
-                    label=child,
-                    depth=depth,
-                    left_ix=ix,
-                    right_ix=(size - 1) - ix,
-                    direction=1,
-                )
-                yield from (helper(child, depth + 1))
-                yield NodeWithMetadata(
-                    label=child,
-                    depth=depth,
-                    left_ix=ix,
-                    right_ix=(size - 1) - ix,
-                    direction=-1,
-                )
-
-        if starting_node is None:
-            starting_node = self.root
-
-        yield NodeWithMetadata(
-            label=starting_node, depth=0, left_ix=0, right_ix=0, direction=1
-        )
-        yield from helper(starting_node, 1)
-        yield NodeWithMetadata(
-            label=starting_node, depth=0, left_ix=0, right_ix=0, direction=-1
-        )
-
-    def walk_depth_first_as_tree_with_pipes(self, starting_node=None, sort_key=None):
-        r"""Walk tree depth-first from root, yielding (label, pipes) on entering each
-        node.
-
-        pipes is a list of:
-
-        * " "
-        * "│"
-        * "└"
-        * "├"
-
-        This lets us render a hierarchy like:
-
-            a
-           / \
-          b   c
-         / \ / \
-        d   e   f
-
-        as:
-
-        a
-        ├ b
-        │ ├ d
-        │ └ e
-        └ c
-          ├ e
-          └ f
-
-        (┛ಠ_ಠ)┛彡┻━┻
-        """
-
-        stack = []
-
-        for node in self.walk_depth_first_as_tree(starting_node, sort_key):
-            if node.direction == 1:
-                if node.depth == 0:
-                    yield (node.label, stack[::])
-                    continue
-
-                if stack and stack[-1] != " ":
-                    stack[-1] = "│"
-
-                if node.right_ix == 0:
-                    stack.append("└")
-                else:
-                    stack.append("├")
-
-                yield (node.label, stack[::])
-
-                if node.right_ix == 0:
-                    stack[node.depth - 1] = " "
-
-            else:
-                if node.depth == 0:
-                    continue
-                stack.pop()
 
     def filter_to_ultimate_ancestors(self, nodes):
         """Given a set of nodes, return subset which have no ancestors in the set."""
@@ -320,16 +223,3 @@ class Hierarchy:
         # some ancestors are included and some are excluded, and neither set of
         # ancestors overrides the other
         return "!"
-
-
-# Represents visiting a node in a hierarchy.
-NodeWithMetadata = namedtuple(
-    "NodeWithMetadata",
-    [
-        "label",  # the node's label
-        "depth",  # the length of the shorted path from the root to the node
-        "left_ix",  # the index of the node in the sorted list of its siblings
-        "right_ix",  # the right-index of the node in the sorted list of its siblings
-        "direction",  # 1 when entering a node; -1 when exiting it
-    ],
-)

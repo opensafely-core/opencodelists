@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -euo pipefail
+
 REPO_ROOT=$(dirname "$(dirname "$(dirname "$0")")")
 VIRTUALENV_PATH=$REPO_ROOT/venv/bin
 

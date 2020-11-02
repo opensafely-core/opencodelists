@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -euo pipefail
+
 REPO_ROOT=$(dirname "$(dirname "$(dirname "$0")")")
 BACKUP_PATH="/mnt/volume-lon1-01/opencodelists-backups/core-data-$(date +%F).json"
 

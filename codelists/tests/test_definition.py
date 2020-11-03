@@ -5,19 +5,7 @@ from hypothesis import strategies as st
 from codelists.definition import Definition, DefinitionRule
 from codelists.hierarchy import Hierarchy
 
-
-@st.composite
-def hierarchies(draw, size):
-    """Build a Hierarchy with `size` nodes.
-
-    Based on an indea by @Zac-HD at https://github.com/HypothesisWorks/hypothesis/issues/2464.
-    """
-
-    edges = []
-    for child_id in range(1, size):
-        for parent_id in draw(st.sets(st.sampled_from(range(child_id)), min_size=1)):
-            edges.append((parent_id, child_id))
-    return Hierarchy("0", edges)
+from .helpers import hierarchies
 
 
 def test_roundtrip_examples(subtests):

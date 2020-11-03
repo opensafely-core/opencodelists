@@ -52,7 +52,7 @@ paramiko==2.7.1           # via fabric3
 pathspec==0.8.0           # via black
 pip-tools==5.3.1          # via -r requirements.in
 pluggy==0.13.1            # via pytest
-pre-commit==2.7.1         # via -r requirements.in
+pre-commit==2.8.2         # via -r requirements.in
 prompt-toolkit==3.0.5     # via litecli
 py==1.9.0                 # via pytest
 pycodestyle==2.6.0        # via flake8

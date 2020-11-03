@@ -71,7 +71,7 @@ def set_up_systemd():
 
 
 def set_up_cron():
-    run(f"sudo ln -sf {env.path}/deploy/cron/opencodelists /etc/cron.d/opencodelists")
+    run(f"crontab {env.path}/deploy/cron/opencodelists")
 
 
 def restart_service():

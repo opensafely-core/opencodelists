@@ -18,6 +18,7 @@ click==7.1.2              # via black, litecli, pip-tools
 configobj==5.0.6          # via cli-helpers, litecli
 coverage==5.2.1           # via pytest-cov
 cryptography==2.9.2       # via paramiko
+dataclasses==0.7          # via black
 distlib==0.3.1            # via virtualenv
 django-cors-headers==3.5.0  # via -r requirements.in
 django-crispy-forms==1.9.2  # via -r requirements.in
@@ -34,8 +35,10 @@ filelock==3.0.12          # via virtualenv
 flake8==3.8.4             # via -r requirements.in
 freezegun==0.3.15         # via pytest-freezegun
 gunicorn==20.0.4          # via -r requirements.in
-hypothesis==5.37.3        # via -r requirements.in
+hypothesis==5.41.1        # via -r requirements.in
 identify==1.4.25          # via pre-commit
+importlib-metadata==1.7.0  # via flake8, pluggy, pre-commit, pytest, virtualenv
+importlib-resources==3.3.0  # via pre-commit, virtualenv
 iniconfig==1.0.1          # via pytest
 isort==5.6.4              # via -r requirements.in
 litecli==1.4.1            # via -r requirements.in
@@ -84,6 +87,7 @@ virtualenv==20.0.30       # via pre-commit
 wcwidth==0.1.9            # via prompt-toolkit, tabulate
 webencodings==0.5.1       # via bleach
 whitenoise==5.2.0         # via -r requirements.in
+zipp==3.4.0               # via importlib-metadata, importlib-resources
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip

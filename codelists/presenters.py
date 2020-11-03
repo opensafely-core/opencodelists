@@ -67,38 +67,3 @@ def build_definition_rows(coding_system, hierarchy, definition):
     excluded_rules = sorted(definition.excluding_rules(), key=name_for_rule)
 
     return list(_iter_rules(hierarchy, included_rules, name_for_rule, excluded_rules))
-
-
-def tree_tables(codes_by_type, hierarchy, code_to_term):
-    """
-    Return list of tables of codes arranged in trees, grouped by type of code.
-
-    Each table is a dict, with a heading and a list of rows.
-    """
-
-    sort_by_term_key = code_to_term.__getitem__
-
-    tables = []
-
-    for type, codes_for_type in sorted(codes_by_type.items()):
-        rows = []
-
-        for ancestor_code in sorted(codes_for_type, key=sort_by_term_key):
-            for code, pipes in hierarchy.walk_depth_first_as_tree_with_pipes(
-                starting_node=ancestor_code, sort_key=sort_by_term_key
-            ):
-                rows.append(
-                    {
-                        "code": code,
-                        "term": code_to_term[code],
-                        "pipes": pipes,
-                    }
-                )
-
-        table = {
-            "heading": type.title(),
-            "rows": rows,
-        }
-        tables.append(table)
-
-    return tables

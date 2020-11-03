@@ -3,7 +3,6 @@ import pytest
 from codelists import presenters
 from codelists.definition import Definition
 from codelists.hierarchy import Hierarchy
-from coding_systems.snomedct import coding_system as snomed
 
 pytestmark = [
     pytest.mark.filterwarnings(
@@ -63,70 +62,3 @@ def test_build_definition_rows():
     assert len(row["excluded_descendants"]) == 1
     excluded = row["excluded_descendants"][0]
     assert excluded["code"] == "8"
-
-
-def test_tree_tables(tennis_elbow_codelist):
-    cl = tennis_elbow_codelist
-    clv = cl.versions.get()
-
-    hierarchy = Hierarchy.from_codes(cl.coding_system, clv.codes)
-    ancestor_codes = hierarchy.filter_to_ultimate_ancestors(set(clv.codes))
-    codes_by_type = snomed.codes_by_type(ancestor_codes, hierarchy)
-    code_to_term = snomed.code_to_term(hierarchy.nodes)
-
-    # 128133004 (Disorder of elbow)
-    #   ├  429554009 (Arthropathy of elbow)
-    #   │     └  439656005 (Arthritis of elbow)
-    #   │           └  202855006 (Lateral epicondylitis)
-    #   ├  35185008 (Enthesopathy of elbow region)
-    #   │     └  73583000 (Epicondylitis)
-    #   │           └  202855006 (Lateral epicondylitis)
-    #   └  239964003 (Soft tissue lesion of elbow region)
-
-    assert presenters.tree_tables(codes_by_type, hierarchy, code_to_term) == [
-        {
-            "heading": "Disorder",
-            "rows": [
-                {
-                    "code": "128133004",
-                    "term": "Disorder of elbow",
-                    "pipes": [],
-                },
-                {
-                    "code": "429554009",
-                    "term": "Arthropathy of elbow",
-                    "pipes": ["├"],
-                },
-                {
-                    "code": "439656005",
-                    "term": "Arthritis of elbow",
-                    "pipes": ["│", "└"],
-                },
-                {
-                    "code": "202855006",
-                    "term": "Lateral epicondylitis",
-                    "pipes": ["│", " ", "└"],
-                },
-                {
-                    "code": "35185008",
-                    "term": "Enthesopathy of elbow region",
-                    "pipes": ["├"],
-                },
-                {
-                    "code": "73583000",
-                    "term": "Epicondylitis",
-                    "pipes": ["│", "└"],
-                },
-                {
-                    "code": "202855006",
-                    "term": "Lateral epicondylitis",
-                    "pipes": ["│", " ", "└"],
-                },
-                {
-                    "code": "239964003",
-                    "term": "Soft tissue lesion of elbow region",
-                    "pipes": ["└"],
-                },
-            ],
-        }
-    ]

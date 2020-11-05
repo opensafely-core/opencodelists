@@ -1,1 +1,1 @@
-00 01 * * * ebmbot /var/www/opencodelists/deploy/bin/backup.sh
+00 01 * * * /var/www/opencodelists/deploy/bin/backup.sh

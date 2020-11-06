@@ -31,21 +31,24 @@ from .models import Codelist, CodelistVersion
 from .presenters import build_definition_rows
 
 
-def index(request):
+def index(request, project_slug=None):
+    codelists = Codelist.objects.all()
+
     q = request.GET.get("q")
     if q:
-        codelists = Codelist.objects.filter(
-            Q(name__contains=q) | Q(description__contains=q)
-        )
-    else:
-        codelists = Codelist.objects.all()
+        codelists = codelists.filter(Q(name__contains=q) | Q(description__contains=q))
 
-    # For now, we only want to show codelists that were created as part of the
-    # OpenSAFELY project.
-    codelists = codelists.filter(project_id="opensafely")
+    if project_slug:
+        project = get_object_or_404(Project, slug=project_slug)
+        codelists = codelists.filter(project=project)
+    else:
+        project = None
+        # For now, we only want to show codelists that were created as part of the
+        # OpenSAFELY project.
+        codelists = codelists.filter(project_id="opensafely")
 
     codelists = codelists.order_by("name")
-    ctx = {"codelists": codelists, "q": q}
+    ctx = {"codelists": codelists, "project": project, "q": q}
     return render(request, "codelists/index.html", ctx)
 
 

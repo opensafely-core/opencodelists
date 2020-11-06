@@ -136,8 +136,8 @@ def test_codelistcreate_when_not_logged_in(client):
         "methodology": "This is how we did it",
         "csv_data": csv_builder(csv_data),
     }
-    rsp = client.post(f"/codelist/{p.slug}/", data, follow=True)
-    assertRedirects(rsp, f"/accounts/login/?next=%2Fcodelist%2F{p.slug}%2F")
+    rsp = client.post(f"/codelist/{p.slug}/add/", data, follow=True)
+    assertRedirects(rsp, f"/accounts/login/?next=%2Fcodelist%2F{p.slug}%2Fadd%2F")
 
 
 def test_codelistcreate_with_duplicate_name(rf):

@@ -36,8 +36,9 @@ urlpatterns = [
     ),
     # ~~~
     path("", views.index, name="index"),
+    path("codelist/<project_slug>/", views.index, name="project_index"),
     path(
-        "codelist/<project_slug>/",
+        "codelist/<project_slug>/add/",
         views.CodelistCreate.as_view(),
         name="create_codelist",
     ),
@@ -48,7 +49,7 @@ urlpatterns = [
         name="codelist-edit",
     ),
     path(
-        "codelist/<project_slug>/<codelist_slug>/add",
+        "codelist/<project_slug>/<codelist_slug>/add/",
         views.VersionCreate.as_view(),
         name="version-create",
     ),

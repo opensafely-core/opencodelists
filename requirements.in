@@ -7,6 +7,7 @@ django-markdown-filter
 django-structlog
 gunicorn
 lxml
+openpyxl
 pysqlite3-binary
 whitenoise
 sentry-sdk

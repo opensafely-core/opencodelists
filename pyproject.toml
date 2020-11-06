@@ -31,7 +31,7 @@ line_length = 88
 multi_line_output = 3
 use_parentheses = true
 skip_glob = [".direnv", "*migrations*", "tmp", ".venv"]
-known_third_party = ["attr", "crispy_forms", "debug_toolbar", "django", "fabric", "factory", "hypothesis", "lxml", "pytest", "pytest_django", "sentry_sdk", "structlog"]
+known_third_party = ["attr", "crispy_forms", "debug_toolbar", "django", "fabric", "factory", "hypothesis", "lxml", "openpyxl", "pytest", "pytest_django", "sentry_sdk", "structlog"]
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "opencodelists.settings"

@@ -10,6 +10,7 @@ from django.views.decorators.http import require_http_methods
 
 from codelists.hierarchy import Hierarchy
 from codelists.search import do_search
+from mappings.bnfdmd.mappers import bnf_to_dmd
 from opencodelists.models import User
 
 from . import actions
@@ -38,6 +39,30 @@ def download(request, username, codelist_slug):
     writer = csv.writer(response)
     writer.writerow(["id", "term"])
     writer.writerows([(k, v) for k, v in code_to_term.items()])
+
+    return response
+
+
+def download_dmd(request, username, codelist_slug):
+    codelist = get_object_or_404(
+        DraftCodelist, owner=username, slug=codelist_slug, coding_system_id="bnf"
+    )
+
+    # get codes
+    codes = list(
+        codelist.codes.filter(status__contains="+").values_list("code", flat=True)
+    )
+
+    timestamp = timezone.now().strftime("%Y-%m-%dT%H-%M-%S")
+    filename = f"{username}-{codelist_slug}-{timestamp}.csv"
+
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
+
+    dmd_rows = bnf_to_dmd(codes)
+    writer = csv.DictWriter(response, ["dmd_type", "dmd_id", "dmd_name", "bnf_code"])
+    writer.writeheader()
+    writer.writerows(dmd_rows)
 
     return response
 
@@ -125,6 +150,13 @@ def codelist(request, username, codelist_slug, search_slug=None):
         "builder:download", args=[codelist.owner.username, codelist.slug]
     )
 
+    if codelist.coding_system_id == "bnf":
+        download_dmd_url = reverse(
+            "builder:download-dmd", args=[codelist.owner.username, codelist.slug]
+        )
+    else:
+        download_dmd_url = None
+
     ctx = {
         "user": codelist.owner,
         "codelist": codelist,
@@ -147,6 +179,7 @@ def codelist(request, username, codelist_slug, search_slug=None):
         "update_url": update_url,
         "search_url": search_url,
         "download_url": download_url,
+        "download_dmd_url": download_dmd_url,
         # }
     }
 

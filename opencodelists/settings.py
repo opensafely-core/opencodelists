@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     "codelists",
     "coding_systems.bnf",
     "coding_systems.ctv3",
+    "coding_systems.dmd",
     "coding_systems.readv2",
     "coding_systems.snomedct",
     "mappings.rctctv3map",

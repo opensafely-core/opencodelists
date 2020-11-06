@@ -4,7 +4,11 @@
 {% block content %}
 
 <br />
+{% if project %}
+<h3>{{ project.name }} codelists</h3>
+{% else %}
 <h3>All codelists</h3>
+{% endif %}
 <br />
 
 <form class="form-inline mb-4">
@@ -32,7 +36,9 @@
       </dt>
       <dd>
       <div>{{ cl.description|markdown_filter|safe }}</div>
+      {% if not project %}
       <div>Part of the <a href="{% url 'project' cl.project_id %}">{{ cl.project.name }}</a> project</div>
+      {% endif %}
       </dd>
       {% endfor %}
     </dl>

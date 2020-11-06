@@ -49,7 +49,7 @@ urlpatterns = [
         name="codelist-edit",
     ),
     path(
-        "codelist/<project_slug>/<codelist_slug>/add",
+        "codelist/<project_slug>/<codelist_slug>/add/",
         views.VersionCreate.as_view(),
         name="version-create",
     ),

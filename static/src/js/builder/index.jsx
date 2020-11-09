@@ -41,6 +41,7 @@ ReactDOM.render(
     updateURL={readValueFromPage("update-url")}
     searchURL={readValueFromPage("search-url")}
     downloadURL={readValueFromPage("download-url")}
+    downloadDmdURL={readValueFromPage("download-dmd-url")}
   />,
   document.querySelector("#codelist-builder-container")
 );

@@ -142,12 +142,23 @@ class CodelistBuilder extends React.Component {
             <SearchForm searchURL={this.props.searchURL} />
             <hr />
 
-            <DownloadButton
-              enabled={this.counts()["!"] === 0 && this.counts()["?"] === 0}
-              url={this.props.downloadURL}
-            >
-              Download codelist
-            </DownloadButton>
+            <div className="btn-group-vertical btn-block" role="group">
+              <DownloadButton
+                enabled={this.counts()["!"] === 0 && this.counts()["?"] === 0}
+                url={this.props.downloadURL}
+              >
+                Download codelist
+              </DownloadButton>
+
+              {this.props.downloadDmdURL && (
+                <DownloadButton
+                  enabled={this.counts()["!"] === 0 && this.counts()["?"] === 0}
+                  url={this.props.downloadDmdURL}
+                >
+                  Download codelist as dm+d
+                </DownloadButton>
+              )}
+            </div>
           </div>
 
           <div className="col-9 pl-5">
@@ -338,7 +349,7 @@ function Summary(props) {
 function DownloadButton(props) {
   if (props.enabled) {
     return (
-      <a className="btn btn-primary" href={props.url}>
+      <a className="btn btn-outline-info btn-block" href={props.url}>
         {props.children}
       </a>
     );

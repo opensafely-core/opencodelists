@@ -7,6 +7,8 @@ from django.utils.text import slugify
 
 from codelists.hierarchy import Hierarchy
 
+from .models import Code, SearchResult
+
 logger = structlog.get_logger()
 
 
@@ -23,8 +25,21 @@ def create_codelist(*, owner, name, coding_system_id):
 @transaction.atomic
 def create_search(*, codelist, term, codes):
     search = codelist.searches.create(term=term, slug=slugify(term))
-    for code in codes:
-        search.results.create(code=codelist.codes.get_or_create(code=code)[0])
+
+    # Ensure that there is a Code object linked to this codelist for each code.
+    codes_with_existing_code_objs = set(
+        codelist.codes.filter(code__in=codes).values_list("code", flat=True)
+    )
+    codes_without_existing_code_objs = set(codes) - codes_with_existing_code_objs
+    Code.objects.bulk_create(
+        Code(codelist=codelist, code=code) for code in codes_without_existing_code_objs
+    )
+
+    # Create a SearchResult for each code.
+    code_obj_ids = codelist.codes.filter(code__in=codes).values_list("id", flat=True)
+    SearchResult.objects.bulk_create(
+        SearchResult(search=search, code_id=id) for id in code_obj_ids
+    )
 
     logger.info("Created Search", search_pk=search.pk)
 

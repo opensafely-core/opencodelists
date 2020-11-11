@@ -99,24 +99,36 @@ class CodelistVersion(models.Model):
 
     @cached_property
     def table(self):
-        return list(csv.reader(StringIO(self.csv_data)))
+        if self.csv_data:
+            return list(csv.reader(StringIO(self.csv_data)))
+        else:
+            code_to_term = self.coding_system.code_to_term(self.codes)
+            rows = [["code", "term"]]
+            rows.extend(
+                [code, code_to_term.get(code, "[Unknown]")] for code in self.codes
+            )
+            return rows
 
     @cached_property
     def codes(self):
-        if self.coding_system_id in ["ctv3", "ctv3tpp", "snomedct"]:
-            headers, *rows = self.table
+        if self.csv_data:
+            if self.coding_system_id in ["ctv3", "ctv3tpp", "snomedct"]:
+                headers, *rows = self.table
 
-            for header in ["CTV3ID", "CTV3Code", "ctv3_id", "snomedct_id", "id"]:
-                if header in headers:
-                    ix = headers.index(header)
-                    break
-            else:
-                if self.codelist.slug == "ethnicity":
-                    ix = 1
+                for header in ["CTV3ID", "CTV3Code", "ctv3_id", "snomedct_id", "id"]:
+                    if header in headers:
+                        ix = headers.index(header)
+                        break
                 else:
-                    ix = 0
+                    if self.codelist.slug == "ethnicity":
+                        ix = 1
+                    else:
+                        ix = 0
 
-            return tuple(sorted({row[ix] for row in rows}))
+                return tuple(sorted({row[ix] for row in rows}))
+
+        else:
+            return tuple(sorted(self.code_objs.values_list("code", flat=True)))
 
     def download_filename(self):
         return "{}-{}-{}".format(

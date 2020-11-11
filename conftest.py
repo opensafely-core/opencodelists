@@ -4,6 +4,7 @@ import pytest
 from django.conf import settings
 from django.core.management import call_command
 
+from codelists import actions
 from codelists.tests.factories import CodelistFactory
 
 
@@ -25,3 +26,9 @@ def tennis_elbow():
 @pytest.fixture(scope="function")
 def tennis_elbow_codelist(tennis_elbow):
     return CodelistFactory(csv_data=tennis_elbow)
+
+
+@pytest.fixture(scope="function")
+def tennis_elbow_new_style_codelist(tennis_elbow_codelist):
+    actions.convert_codelist_to_new_style(codelist=tennis_elbow_codelist)
+    return tennis_elbow_codelist

@@ -51,14 +51,15 @@ class CodelistVersion(models.Model):
         "Codelist", on_delete=models.CASCADE, related_name="versions"
     )
     version_str = models.CharField(max_length=12, verbose_name="Version")
-    csv_data = models.TextField(verbose_name="CSV data")
+    csv_data = models.TextField(verbose_name="CSV data", null=True)
     is_draft = models.BooleanField(default=True)
 
     class Meta:
         unique_together = ("codelist", "version_str")
 
     def save(self, *args, **kwargs):
-        self.csv_data = self.csv_data.replace("\r\n", "\n")
+        if self.csv_data:
+            self.csv_data = self.csv_data.replace("\r\n", "\n")
         super().save(*args, **kwargs)
 
     @property
@@ -98,10 +99,28 @@ class CodelistVersion(models.Model):
 
     @cached_property
     def table(self):
+        if self.csv_data:
+            return self._old_style_table()
+        else:
+            return self._new_style_table()
+
+    def _old_style_table(self):
         return list(csv.reader(StringIO(self.csv_data)))
+
+    def _new_style_table(self):
+        code_to_term = self.coding_system.code_to_term(self.codes)
+        rows = [["code", "term"]]
+        rows.extend([code, code_to_term.get(code, "[Unknown]")] for code in self.codes)
+        return rows
 
     @cached_property
     def codes(self):
+        if self.csv_data:
+            return self._old_style_codes()
+        else:
+            return self._new_style_codes()
+
+    def _old_style_codes(self):
         if self.coding_system_id in ["ctv3", "ctv3tpp", "snomedct"]:
             headers, *rows = self.table
 
@@ -117,10 +136,35 @@ class CodelistVersion(models.Model):
 
             return tuple(sorted({row[ix] for row in rows}))
 
+    def _new_style_codes(self):
+        return tuple(sorted(self.code_objs.values_list("code", flat=True)))
+
     def download_filename(self):
         return "{}-{}-{}".format(
             self.codelist.project_id, self.codelist.slug, self.version_str
         )
+
+
+class DefinitionRule(models.Model):
+    STATUS_CHOICES = [
+        ("+", "Included with descendants"),
+        ("-", "Excluded with descendants"),
+    ]
+    codelist = models.ForeignKey(
+        "CodelistVersion", related_name="rules", on_delete=models.CASCADE
+    )
+    code = models.CharField(max_length=18)
+    status = models.CharField(max_length=3, choices=STATUS_CHOICES, default="?")
+
+    class Meta:
+        unique_together = ("codelist", "code")
+
+
+class CodeObj(models.Model):
+    codelist = models.ForeignKey(
+        "CodelistVersion", related_name="code_objs", on_delete=models.CASCADE
+    )
+    code = models.CharField(max_length=18)
 
 
 class SignOff(models.Model):

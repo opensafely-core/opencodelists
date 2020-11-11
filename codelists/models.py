@@ -51,14 +51,15 @@ class CodelistVersion(models.Model):
         "Codelist", on_delete=models.CASCADE, related_name="versions"
     )
     version_str = models.CharField(max_length=12, verbose_name="Version")
-    csv_data = models.TextField(verbose_name="CSV data")
+    csv_data = models.TextField(verbose_name="CSV data", null=True)
     is_draft = models.BooleanField(default=True)
 
     class Meta:
         unique_together = ("codelist", "version_str")
 
     def save(self, *args, **kwargs):
-        self.csv_data = self.csv_data.replace("\r\n", "\n")
+        if self.csv_data:
+            self.csv_data = self.csv_data.replace("\r\n", "\n")
         super().save(*args, **kwargs)
 
     @property
@@ -121,6 +122,28 @@ class CodelistVersion(models.Model):
         return "{}-{}-{}".format(
             self.codelist.project_id, self.codelist.slug, self.version_str
         )
+
+
+class DefinitionRule(models.Model):
+    STATUS_CHOICES = [
+        ("+", "Included with descendants"),
+        ("-", "Excluded with descendants"),
+    ]
+    codelist = models.ForeignKey(
+        "CodelistVersion", related_name="rules", on_delete=models.CASCADE
+    )
+    code = models.CharField(max_length=18)
+    status = models.CharField(max_length=3, choices=STATUS_CHOICES, default="?")
+
+    class Meta:
+        unique_together = ("codelist", "code")
+
+
+class CodeObj(models.Model):
+    codelist = models.ForeignKey(
+        "CodelistVersion", related_name="code_objs", on_delete=models.CASCADE
+    )
+    code = models.CharField(max_length=18)
 
 
 class SignOff(models.Model):

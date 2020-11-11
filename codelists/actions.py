@@ -6,6 +6,9 @@ from django.db import transaction
 
 from opencodelists.models import User
 
+from .definition2 import Definition2
+from .hierarchy import Hierarchy
+
 logger = structlog.get_logger()
 
 
@@ -126,3 +129,33 @@ def publish_version(*, version):
     logger.info("Published Version", version_pk=version.pk)
 
     return version
+
+
+@transaction.atomic
+def convert_codelist_to_new_style(*, codelist):
+    """Convert codelist to new style.
+
+    For each version, create DefinitionRule and CodeObj records, and remove
+    csv_data.
+    """
+
+    for clv in codelist.versions.all():
+        assert clv.csv_data is not None
+        assert clv.rules.count() == 0
+        assert clv.code_objs.count() == 0
+
+        codes = set(clv.codes)
+        hierarchy = Hierarchy.from_codes(codelist.coding_system, codes)
+        definition = Definition2.from_codes(codes, hierarchy)
+
+        for code in codes:
+            clv.code_objs.create(code=code)
+
+        for code in definition.included_ancestors:
+            clv.rules.create(code=code, status="+")
+
+        for code in definition.excluded_ancestors:
+            clv.rules.create(code=code, status="-")
+
+        clv.csv_data = None
+        clv.save()

@@ -1,7 +1,7 @@
 import factory
 
 from opencodelists import actions
-from opencodelists.models import Organisation, Project, User
+from opencodelists.models import Organisation, User
 
 
 class OrganisationFactory(factory.django.DjangoModelFactory):
@@ -15,21 +15,6 @@ class OrganisationFactory(factory.django.DjangoModelFactory):
     def _create(cls, model_class, *args, **kwargs):
         """Override the default ``_create`` with our actions."""
         return actions.create_organisation(*args, **kwargs)
-
-
-class ProjectFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = Project
-
-    name = factory.Sequence(lambda n: f"Test Project {n}")
-    url = "https://test.org"
-    details = "This is a test"
-
-    @classmethod
-    def _create(cls, model_class, *args, **kwargs):
-        """Override the default ``_create`` with our actions."""
-        o = Organisation.objects.first() or OrganisationFactory()
-        return actions.create_project(*args, organisations=[o], **kwargs)
 
 
 class UserFactory(factory.django.DjangoModelFactory):

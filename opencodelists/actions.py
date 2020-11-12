@@ -1,6 +1,6 @@
 import structlog
 
-from .models import Organisation, Project, User
+from .models import Organisation, User
 
 logger = structlog.get_logger()
 
@@ -11,15 +11,6 @@ def create_organisation(*, name, url, slug=None):
     logger.info("Created Organisation", organisation_pk=org.pk)
 
     return org
-
-
-def create_project(*, name, url, details, organisations):
-    p = Project.objects.create(name=name, url=url, details=details)
-    p.organisations.set(organisations)
-
-    logger.info("Created Project", project_pk=p.pk)
-
-    return p
 
 
 def activate_user(*, user, password):

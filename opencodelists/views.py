@@ -2,20 +2,14 @@ from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.core import signing
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView
 
 from .actions import activate_user, create_user
 from .forms import UserForm, UserPasswordForm
-from .models import Project, User
-
-
-def project(request, project_slug):
-    project = get_object_or_404(Project, slug=project_slug)
-    ctx = {"project": project}
-    return render(request, "opencodelists/project.html", ctx)
+from .models import User
 
 
 @login_required

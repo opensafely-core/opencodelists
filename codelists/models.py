@@ -16,12 +16,6 @@ class Codelist(models.Model):
 
     name = models.CharField(max_length=255)
     slug = models.SlugField()
-    project = models.ForeignKey(
-        "opencodelists.Project",
-        null=True,
-        related_name="codelists",
-        on_delete=models.CASCADE,
-    )
     organisation = models.ForeignKey(
         "opencodelists.Organisation",
         null=True,

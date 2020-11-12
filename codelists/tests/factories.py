@@ -11,7 +11,9 @@ class CodelistFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Codelist
 
-    project = factory.SubFactory("opencodelists.tests.factories.ProjectFactory")
+    organisation = factory.SubFactory(
+        "opencodelists.tests.factories.OrganisationFactory"
+    )
 
     name = "Test Codelist"
     coding_system_id = "snomedct"

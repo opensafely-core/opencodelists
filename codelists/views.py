@@ -11,7 +11,7 @@ from django.views.decorators.http import require_POST
 from django.views.generic import FormView, TemplateView
 
 from coding_systems.snomedct.models import Concept as SnomedConcept
-from opencodelists.models import Project
+from opencodelists.models import Organisation
 
 from . import actions
 from .coding_systems import CODING_SYSTEMS
@@ -31,24 +31,24 @@ from .models import Codelist, CodelistVersion
 from .presenters import build_definition_rows
 
 
-def index(request, project_slug=None):
+def index(request, organisation_slug=None):
     codelists = Codelist.objects.all()
 
     q = request.GET.get("q")
     if q:
         codelists = codelists.filter(Q(name__contains=q) | Q(description__contains=q))
 
-    if project_slug:
-        project = get_object_or_404(Project, slug=project_slug)
-        codelists = codelists.filter(project=project)
+    if organisation_slug:
+        organisation = get_object_or_404(Organisation, slug=organisation_slug)
+        codelists = codelists.filter(organisation=organisation)
     else:
-        project = None
+        organisation = None
         # For now, we only want to show codelists that were created as part of the
-        # OpenSAFELY project.
-        codelists = codelists.filter(project_id="opensafely")
+        # OpenSAFELY organisation.
+        codelists = codelists.filter(organisation_id="opensafely")
 
     codelists = codelists.order_by("name")
-    ctx = {"codelists": codelists, "project": project, "q": q}
+    ctx = {"codelists": codelists, "organisation": organisation, "q": q}
     return render(request, "codelists/index.html", ctx)
 
 
@@ -59,7 +59,9 @@ class CodelistCreate(TemplateView):
     template_name = "codelists/codelist.html"
 
     def dispatch(self, request, *args, **kwargs):
-        self.project = get_object_or_404(Project, slug=self.kwargs["project_slug"])
+        self.organisation = get_object_or_404(
+            Organisation, slug=self.kwargs["organisation_slug"]
+        )
 
         return super().dispatch(request, *args, **kwargs)
 
@@ -96,7 +98,7 @@ class CodelistCreate(TemplateView):
 
         try:
             codelist = actions.create_codelist(
-                project=self.project,
+                organisation=self.organisation,
                 name=name,
                 coding_system_id=codelist_form.cleaned_data["coding_system_id"],
                 description=codelist_form.cleaned_data["description"],
@@ -109,7 +111,7 @@ class CodelistCreate(TemplateView):
             assert "UNIQUE constraint failed" in str(e)
             codelist_form.add_error(
                 NON_FIELD_ERRORS,
-                f"There is already a codelist in this project called {name}",
+                f"There is already a codelist in this organisation called {name}",
             )
             return self.some_invalid(codelist_form, reference_formset, signoff_formset)
 
@@ -154,7 +156,7 @@ class CodelistUpdate(TemplateView):
     def dispatch(self, request, *args, **kwargs):
         self.codelist = get_object_or_404(
             Codelist,
-            project__slug=self.kwargs["project_slug"],
+            organisation__slug=self.kwargs["organisation_slug"],
             slug=self.kwargs["codelist_slug"],
         )
 
@@ -164,7 +166,7 @@ class CodelistUpdate(TemplateView):
         codelist_form = CodelistUpdateForm(
             {
                 "name": self.codelist.name,
-                "project": self.codelist.project,
+                "organisation": self.codelist.organisation,
                 "coding_system_id": self.codelist.coding_system_id,
                 "description": self.codelist.description,
                 "methodology": self.codelist.methodology,
@@ -207,7 +209,7 @@ class CodelistUpdate(TemplateView):
         try:
             codelist = actions.update_codelist(
                 codelist=self.codelist,
-                project=codelist_form.cleaned_data["project"],
+                organisation=codelist_form.cleaned_data["organisation"],
                 name=codelist_form.cleaned_data["name"],
                 coding_system_id=codelist_form.cleaned_data["coding_system_id"],
                 description=codelist_form.cleaned_data["description"],
@@ -217,7 +219,7 @@ class CodelistUpdate(TemplateView):
             assert "UNIQUE constraint failed" in str(e)
             codelist_form.add_error(
                 NON_FIELD_ERRORS,
-                f"There is already a codelist in this project called {name}",
+                f"There is already a codelist in this organisation called {name}",
             )
             return self.some_invalid(codelist_form, reference_formset, signoff_formset)
 
@@ -245,7 +247,7 @@ class CodelistUpdate(TemplateView):
 
         # manually delete the deleted objects since we used .save(commit=False)
         # earlier, as per the docs:
-        # https://docs.djangoproject.com/en/3.0/topics/forms/formsets/#can-delete
+        # https://docs.djangoorganisation.com/en/3.0/topics/forms/formsets/#can-delete
         for obj in formset.deleted_objects:
             obj.delete()
 
@@ -260,10 +262,10 @@ class CodelistUpdate(TemplateView):
         )
 
 
-def codelist(request, project_slug, codelist_slug):
+def codelist(request, organisation_slug, codelist_slug):
     codelist = get_object_or_404(
         Codelist.objects.prefetch_related("versions"),
-        project=project_slug,
+        organisation=organisation_slug,
         slug=codelist_slug,
     )
 
@@ -279,7 +281,7 @@ class VersionCreate(FormView):
     def dispatch(self, request, *args, **kwargs):
         self.codelist = get_object_or_404(
             Codelist.objects.prefetch_related("versions"),
-            project=self.kwargs["project_slug"],
+            organisation=self.kwargs["organisation_slug"],
             slug=self.kwargs["codelist_slug"],
         )
 
@@ -292,7 +294,7 @@ class VersionCreate(FormView):
         return redirect(version)
 
 
-def version(request, project_slug, codelist_slug, qualified_version_str):
+def version(request, organisation_slug, codelist_slug, qualified_version_str):
     if qualified_version_str[-6:] == "-draft":
         expect_draft = True
         version_str = qualified_version_str[:-6]
@@ -302,7 +304,7 @@ def version(request, project_slug, codelist_slug, qualified_version_str):
 
     clv = get_object_or_404(
         CodelistVersion.objects.select_related("codelist"),
-        codelist__project_id=project_slug,
+        codelist__organisation_id=organisation_slug,
         codelist__slug=codelist_slug,
         version_str=version_str,
     )
@@ -373,7 +375,7 @@ def version(request, project_slug, codelist_slug, qualified_version_str):
 
 @require_POST
 @login_required
-def version_publish(request, project_slug, codelist_slug, qualified_version_str):
+def version_publish(request, organisation_slug, codelist_slug, qualified_version_str):
     if qualified_version_str[-6:] == "-draft":
         expect_draft = True
         version_str = qualified_version_str[:-6]
@@ -383,7 +385,7 @@ def version_publish(request, project_slug, codelist_slug, qualified_version_str)
 
     version = get_object_or_404(
         CodelistVersion.objects.select_related("codelist"),
-        codelist__project_id=project_slug,
+        codelist__organisation_id=organisation_slug,
         codelist__slug=codelist_slug,
         version_str=version_str,
     )
@@ -424,7 +426,7 @@ class VersionUpdate(TemplateView):
 
         self.version = get_object_or_404(
             CodelistVersion.objects.select_related("codelist"),
-            codelist__project_id=self.kwargs["project_slug"],
+            codelist__organisation_id=self.kwargs["organisation_slug"],
             codelist__slug=self.kwargs["codelist_slug"],
             version_str=version_str,
         )
@@ -455,7 +457,7 @@ class VersionUpdate(TemplateView):
         return context
 
 
-def download(request, project_slug, codelist_slug, qualified_version_str):
+def download(request, organisation_slug, codelist_slug, qualified_version_str):
     if qualified_version_str[-6:] == "-draft":
         expect_draft = True
         version_str = qualified_version_str[:-6]
@@ -465,7 +467,7 @@ def download(request, project_slug, codelist_slug, qualified_version_str):
 
     clv = get_object_or_404(
         CodelistVersion.objects.select_related("codelist"),
-        codelist__project_id=project_slug,
+        codelist__organisation_id=organisation_slug,
         codelist__slug=codelist_slug,
         version_str=version_str,
     )

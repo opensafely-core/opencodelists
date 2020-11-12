@@ -49,10 +49,10 @@ class Codelist(models.Model):
         return CODING_SYSTEMS[self.coding_system_id]
 
     def get_absolute_url(self):
-        return reverse("codelists:codelist", args=(self.project_id, self.slug))
+        return reverse("codelists:codelist", args=(self.organisation_id, self.slug))
 
     def full_slug(self):
-        return "{}/{}".format(self.project_id, self.slug)
+        return "{}/{}".format(self.organisation_id, self.slug)
 
 
 class CodelistVersion(models.Model):
@@ -82,7 +82,7 @@ class CodelistVersion(models.Model):
         return reverse(
             "codelists:version-detail",
             args=(
-                self.codelist.project_id,
+                self.codelist.organisation_id,
                 self.codelist.slug,
                 self.qualified_version_str,
             ),
@@ -92,7 +92,7 @@ class CodelistVersion(models.Model):
         return reverse(
             "codelists:version-publish",
             kwargs={
-                "project_slug": self.codelist.project.slug,
+                "organisation_slug": self.codelist.organisation_id,
                 "codelist_slug": self.codelist.slug,
                 "qualified_version_str": self.qualified_version_str,
             },
@@ -150,7 +150,7 @@ class CodelistVersion(models.Model):
 
     def download_filename(self):
         return "{}-{}-{}".format(
-            self.codelist.project_id, self.codelist.slug, self.version_str
+            self.codelist.organisation_id, self.codelist.slug, self.version_str
         )
 
 

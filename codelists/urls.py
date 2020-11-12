@@ -36,40 +36,42 @@ urlpatterns = [
     ),
     # ~~~
     path("", views.index, name="index"),
-    path("codelist/<project_slug>/", views.index, name="project_index"),
+    path("codelist/<organisation_slug>/", views.index, name="organisation_index"),
     path(
-        "codelist/<project_slug>/add/",
+        "codelist/<organisation_slug>/add/",
         views.CodelistCreate.as_view(),
         name="create_codelist",
     ),
-    path("codelist/<project_slug>/<codelist_slug>/", views.codelist, name="codelist"),
     path(
-        "codelist/<project_slug>/<codelist_slug>/edit/",
+        "codelist/<organisation_slug>/<codelist_slug>/", views.codelist, name="codelist"
+    ),
+    path(
+        "codelist/<organisation_slug>/<codelist_slug>/edit/",
         views.CodelistUpdate.as_view(),
         name="codelist-edit",
     ),
     path(
-        "codelist/<project_slug>/<codelist_slug>/add/",
+        "codelist/<organisation_slug>/<codelist_slug>/add/",
         views.VersionCreate.as_view(),
         name="version-create",
     ),
     path(
-        "codelist/<project_slug>/<codelist_slug>/<qualified_version_str>/",
+        "codelist/<organisation_slug>/<codelist_slug>/<qualified_version_str>/",
         views.version,
         name="version-detail",
     ),
     path(
-        "codelist/<project_slug>/<codelist_slug>/<qualified_version_str>/publish/",
+        "codelist/<organisation_slug>/<codelist_slug>/<qualified_version_str>/publish/",
         views.version_publish,
         name="version-publish",
     ),
     path(
-        "codelist/<project_slug>/<codelist_slug>/<qualified_version_str>/update/",
+        "codelist/<organisation_slug>/<codelist_slug>/<qualified_version_str>/update/",
         views.VersionUpdate.as_view(),
         name="version-update",
     ),
     path(
-        "codelist/<project_slug>/<codelist_slug>/<qualified_version_str>/download.csv",
+        "codelist/<organisation_slug>/<codelist_slug>/<qualified_version_str>/download.csv",
         views.download,
         name="download",
     ),

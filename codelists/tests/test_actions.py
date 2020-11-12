@@ -3,7 +3,7 @@ from django.db import IntegrityError
 
 from codelists import actions
 from codelists.models import Codelist
-from opencodelists.tests.factories import ProjectFactory
+from opencodelists.tests.factories import OrganisationFactory
 
 from . import factories
 
@@ -11,16 +11,16 @@ pytestmark = pytest.mark.freeze_time("2020-07-23")
 
 
 def test_create_codelist():
-    p = ProjectFactory()
+    organisation = OrganisationFactory()
     cl = actions.create_codelist(
-        project=p,
+        organisation=organisation,
         name="Test Codelist",
         coding_system_id="snomedct",
         description="This is a test",
         methodology="This is how we did it",
         csv_data="code,description\n1067731000000107,Injury whilst swimming (disorder)",
     )
-    assert cl.project == p
+    assert cl.organisation == organisation
     assert cl.name == "Test Codelist"
     assert cl.slug == "test-codelist"
     assert cl.coding_system_id == "snomedct"
@@ -33,10 +33,10 @@ def test_create_codelist():
 
 
 def test_create_codelist_with_duplicate_name():
-    p = ProjectFactory()
+    organisation = OrganisationFactory()
 
     actions.create_codelist(
-        project=p,
+        organisation=organisation,
         name="Test",
         coding_system_id="snomedct",
         description="This is a test",
@@ -46,7 +46,7 @@ def test_create_codelist_with_duplicate_name():
 
     with pytest.raises(IntegrityError):
         actions.create_codelist(
-            project=p,
+            organisation=organisation,
             name="Test",
             coding_system_id="snomedct",
             description="This is a test",

@@ -14,7 +14,7 @@ logger = structlog.get_logger()
 
 def create_codelist(
     *,
-    project,
+    organisation,
     name,
     coding_system_id,
     description,
@@ -26,7 +26,7 @@ def create_codelist(
     """Create a new codelist with a version."""
 
     with transaction.atomic():
-        codelist = project.codelists.create(
+        codelist = organisation.codelists.create(
             name=name,
             coding_system_id=coding_system_id,
             description=description,
@@ -92,11 +92,13 @@ def create_version(*, codelist, csv_data):
 
 @transaction.atomic
 def update_codelist(
-    *, codelist, project, name, coding_system_id, description, methodology
+    *, codelist, organisation, name, coding_system_id, description, methodology
 ):
     """Update a Codelist."""
 
-    codelist.project = project
+    # CHANGEME we don't want codelists moving between organisations
+    codelist.organisation = organisation
+
     codelist.name = name
     codelist.coding_system_id = coding_system_id
     codelist.description = description

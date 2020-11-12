@@ -17,7 +17,7 @@ from codelists.views import (
     version,
     version_publish,
 )
-from opencodelists.tests.factories import ProjectFactory, UserFactory
+from opencodelists.tests.factories import OrganisationFactory, UserFactory
 
 from .factories import (
     CodelistFactory,
@@ -38,10 +38,10 @@ pytestmark = [
 
 
 def test_codelistcreate_success(rf):
-    project = ProjectFactory()
+    organisation = OrganisationFactory()
     signoff_user = UserFactory()
 
-    assert project.codelists.count() == 0
+    assert organisation.codelists.count() == 0
 
     csv_data = "code,description\n1067731000000107,Injury whilst swimming (disorder)"
     data = {
@@ -66,13 +66,13 @@ def test_codelistcreate_success(rf):
 
     request = rf.post("/", data=data)
     request.user = UserFactory()
-    response = CodelistCreate.as_view()(request, project_slug=project.slug)
+    response = CodelistCreate.as_view()(request, organisation_slug=organisation.slug)
 
     assert response.status_code == 302
-    assert response.url == f"/codelist/{project.slug}/test-codelist/"
+    assert response.url == f"/codelist/{organisation.slug}/test-codelist/"
 
-    assert project.codelists.count() == 1
-    codelist = project.codelists.first()
+    assert organisation.codelists.count() == 1
+    codelist = organisation.codelists.first()
     assert codelist.name == "Test Codelist"
 
     # we should have one reference to example.com
@@ -87,10 +87,10 @@ def test_codelistcreate_success(rf):
 
 
 def test_codelistcreate_invalid_post(rf):
-    project = ProjectFactory()
+    organisation = OrganisationFactory()
     signoff_user = UserFactory()
 
-    assert project.codelists.count() == 0
+    assert organisation.codelists.count() == 0
 
     csv_data = "code,description\n1067731000000107,Injury whilst swimming (disorder)"
 
@@ -116,7 +116,7 @@ def test_codelistcreate_invalid_post(rf):
 
     request = rf.post("/", data=data)
     request.user = UserFactory()
-    response = CodelistCreate.as_view()(request, project_slug=project.slug)
+    response = CodelistCreate.as_view()(request, organisation_slug=organisation.slug)
 
     # we're returning an HTML response when there are errors so check we don't
     # receive a redirect code
@@ -127,7 +127,7 @@ def test_codelistcreate_invalid_post(rf):
 
 
 def test_codelistcreate_when_not_logged_in(client):
-    p = ProjectFactory()
+    p = OrganisationFactory()
     csv_data = "code,description\n1067731000000107,Injury whilst swimming (disorder)"
     data = {
         "name": "Test Codelist",
@@ -141,10 +141,10 @@ def test_codelistcreate_when_not_logged_in(client):
 
 
 def test_codelistcreate_with_duplicate_name(rf):
-    project = ProjectFactory()
+    organisation = OrganisationFactory()
 
     create_codelist(
-        project=project,
+        organisation=organisation,
         name="Test",
         coding_system_id="snomedct",
         description="This is a test",
@@ -152,7 +152,7 @@ def test_codelistcreate_with_duplicate_name(rf):
         csv_data="code,description\n1067731000000107,Injury whilst swimming (disorder)",
     )
 
-    assert project.codelists.count() == 1
+    assert organisation.codelists.count() == 1
 
     csv_data = "code,description\n1067731000000107,Injury whilst swimming (disorder)"
     data = {
@@ -173,9 +173,9 @@ def test_codelistcreate_with_duplicate_name(rf):
 
     request = rf.post("/", data=data)
     request.user = UserFactory()
-    response = CodelistCreate.as_view()(request, project_slug=project.slug)
+    response = CodelistCreate.as_view()(request, organisation_slug=organisation.slug)
 
-    assert project.codelists.count() == 1
+    assert organisation.codelists.count() == 1
 
     # we're returning an HTML response when there are errors so check we don't
     # receive a redirect code
@@ -183,7 +183,7 @@ def test_codelistcreate_with_duplicate_name(rf):
 
     # confirm we have errors from the codelist form
     assert response.context_data["codelist_form"].errors == {
-        "__all__": ["There is already a codelist in this project called Test"]
+        "__all__": ["There is already a codelist in this organisation called Test"]
     }
 
 
@@ -194,7 +194,7 @@ def test_codelistupdate_invalid_post(rf):
 
     # missing signoff-0-date
     data = {
-        "project": codelist.project.slug,
+        "organisation": codelist.organisation.slug,
         "name": "Test Codelist",
         "coding_system_id": "snomedct",
         "description": "This is a test",
@@ -215,7 +215,9 @@ def test_codelistupdate_invalid_post(rf):
     request = rf.post("/", data=data)
     request.user = UserFactory()
     response = CodelistUpdate.as_view()(
-        request, project_slug=codelist.project.slug, codelist_slug=codelist.slug
+        request,
+        organisation_slug=codelist.organisation.slug,
+        codelist_slug=codelist.slug,
     )
 
     # we're returning an HTML response when there are errors so check we don't
@@ -236,14 +238,16 @@ def test_codelistupdate_success_get(rf):
     request = rf.get("/")
     request.user = UserFactory()
     response = CodelistUpdate.as_view()(
-        request, project_slug=codelist.project.slug, codelist_slug=codelist.slug
+        request,
+        organisation_slug=codelist.organisation.slug,
+        codelist_slug=codelist.slug,
     )
 
     assert response.status_code == 200
 
     form = response.context_data["codelist_form"]
     assert form.data["name"] == codelist.name
-    assert form.data["project"] == codelist.project
+    assert form.data["organisation"] == codelist.organisation
     assert form.data["coding_system_id"] == codelist.coding_system_id
     assert form.data["description"] == codelist.description
     assert form.data["methodology"] == codelist.methodology
@@ -262,7 +266,7 @@ def test_codelistupdate_success_post(rf):
     new_signoff_user = UserFactory()
 
     data = {
-        "project": codelist.project.slug,
+        "organisation": codelist.organisation.slug,
         "name": "Test Codelist",
         "coding_system_id": "snomedct",
         "description": "This is a test CHANGED",
@@ -298,11 +302,13 @@ def test_codelistupdate_success_post(rf):
     request = rf.post("/", data=data)
     request.user = UserFactory()
     response = CodelistUpdate.as_view()(
-        request, project_slug=codelist.project.slug, codelist_slug=codelist.slug
+        request,
+        organisation_slug=codelist.organisation.slug,
+        codelist_slug=codelist.slug,
     )
 
     assert response.status_code == 302
-    assert response.url == f"/codelist/{codelist.project.slug}/{codelist.slug}/"
+    assert response.url == f"/codelist/{codelist.organisation.slug}/{codelist.slug}/"
 
     # we should have still have 2 references but the first should be changed
     # while the second is new.
@@ -323,7 +329,9 @@ def test_codelistupdate_when_not_logged_in(rf):
     request = rf.post("/the/current/url/")
     request.user = AnonymousUser()
     response = CodelistUpdate.as_view()(
-        request, project_slug=codelist.project.slug, codelist_slug=codelist.slug
+        request,
+        organisation_slug=codelist.organisation.slug,
+        codelist_slug=codelist.slug,
     )
 
     assert response.status_code == 302
@@ -331,13 +339,13 @@ def test_codelistupdate_when_not_logged_in(rf):
 
 
 def test_codelistupdate_with_duplicate_name(rf):
-    project = ProjectFactory()
+    organisation = OrganisationFactory()
 
-    CodelistFactory(name="Existing Codelist", project=project)
-    codelist = CodelistFactory(project=project)
+    CodelistFactory(name="Existing Codelist", organisation=organisation)
+    codelist = CodelistFactory(organisation=organisation)
 
     data = {
-        "project": codelist.project.slug,
+        "organisation": codelist.organisation.slug,
         "name": "Existing Codelist",
         "coding_system_id": "snomedct",
         "description": "This is a test CHANGED",
@@ -355,7 +363,9 @@ def test_codelistupdate_with_duplicate_name(rf):
     request = rf.post("/", data=data)
     request.user = UserFactory()
     response = CodelistUpdate.as_view()(
-        request, project_slug=codelist.project.slug, codelist_slug=codelist.slug
+        request,
+        organisation_slug=codelist.organisation.slug,
+        codelist_slug=codelist.slug,
     )
 
     assert response.status_code == 200
@@ -363,7 +373,7 @@ def test_codelistupdate_with_duplicate_name(rf):
     # confirm we have errors from the codelist form
     assert response.context_data["codelist_form"].errors == {
         "__all__": [
-            "There is already a codelist in this project called Existing Codelist"
+            "There is already a codelist in this organisation called Existing Codelist"
         ]
     }
 
@@ -373,17 +383,19 @@ def test_codelist(rf):
     cl = clv.codelist
 
     request = rf.get("/")
-    response = codelist(request, cl.project.slug, cl.slug)
+    response = codelist(request, cl.organisation.slug, cl.slug)
 
     # check codelist() redirects to the correct version page
     assert response.status_code == 302
-    assert response.url == f"/codelist/{cl.project.slug}/{cl.slug}/{clv.version_str}/"
+    assert (
+        response.url == f"/codelist/{cl.organisation.slug}/{cl.slug}/{clv.version_str}/"
+    )
 
 
 def test_version(client, tennis_elbow_codelist):
     cl = tennis_elbow_codelist
     clv = publish_version(version=cl.versions.first())
-    rsp = client.get(f"/codelist/{cl.project.slug}/{cl.slug}/{clv.version_str}/")
+    rsp = client.get(f"/codelist/{cl.organisation.slug}/{cl.slug}/{clv.version_str}/")
     assertContains(rsp, cl.name)
     assertContains(rsp, cl.description)
     assertContains(rsp, cl.methodology)
@@ -393,17 +405,23 @@ def test_version_redirects(rf):
     clv = create_published_version()
     cl = clv.codelist
     request = rf.get("/")
-    response = version(request, cl.project.slug, cl.slug, f"{clv.version_str}-draft")
+    response = version(
+        request, cl.organisation.slug, cl.slug, f"{clv.version_str}-draft"
+    )
 
     # check version() redirects to the non-draft page for a published version
     assert response.status_code == 302
-    assert response.url == f"/codelist/{cl.project.slug}/{cl.slug}/{clv.version_str}/"
+    assert (
+        response.url == f"/codelist/{cl.organisation.slug}/{cl.slug}/{clv.version_str}/"
+    )
 
 
 def test_draft_version(client, tennis_elbow_codelist):
     cl = tennis_elbow_codelist
     clv = cl.versions.first()
-    rsp = client.get(f"/codelist/{cl.project.slug}/{cl.slug}/{clv.version_str}-draft/")
+    rsp = client.get(
+        f"/codelist/{cl.organisation.slug}/{cl.slug}/{clv.version_str}-draft/"
+    )
     assertContains(rsp, cl.name)
     assertContains(rsp, cl.description)
     assertContains(rsp, cl.methodology)
@@ -413,12 +431,12 @@ def test_draft_version_redirects(rf):
     clv = create_draft_version()
     cl = clv.codelist
     request = rf.get("/")
-    response = version(request, cl.project.slug, cl.slug, clv.version_str)
+    response = version(request, cl.organisation.slug, cl.slug, clv.version_str)
 
     # check version() redirects to the draft page for a draft version
     assert response.status_code == 302
 
-    expected = f"/codelist/{cl.project.slug}/{cl.slug}/{clv.version_str}-draft/"
+    expected = f"/codelist/{cl.organisation.slug}/{cl.slug}/{clv.version_str}-draft/"
     assert response.url == expected
 
 
@@ -426,7 +444,7 @@ def test_download(client):
     clv = create_published_version()
     cl = clv.codelist
     rsp = client.get(
-        f"/codelist/{cl.project.slug}/{cl.slug}/{clv.version_str}/download.csv"
+        f"/codelist/{cl.organisation.slug}/{cl.slug}/{clv.version_str}/download.csv"
     )
     reader = csv.reader(StringIO(rsp.content.decode("utf8")))
     data = list(reader)
@@ -438,7 +456,7 @@ def test_download_does_not_redirect(client):
     clv = create_published_version()
     cl = clv.codelist
     rsp = client.get(
-        f"/codelist/{cl.project.slug}/{cl.slug}/{clv.version_str}-draft/download.csv"
+        f"/codelist/{cl.organisation.slug}/{cl.slug}/{clv.version_str}-draft/download.csv"
     )
     assert rsp.status_code == 404
 
@@ -447,7 +465,7 @@ def test_draft_download(client):
     clv = create_draft_version()
     cl = clv.codelist
     rsp = client.get(
-        f"/codelist/{cl.project.slug}/{cl.slug}/{clv.version_str}-draft/download.csv"
+        f"/codelist/{cl.organisation.slug}/{cl.slug}/{clv.version_str}-draft/download.csv"
     )
     reader = csv.reader(StringIO(rsp.content.decode("utf8")))
     data = list(reader)
@@ -459,7 +477,7 @@ def test_draft_download_does_not_redirect(client):
     clv = create_draft_version()
     cl = clv.codelist
     rsp = client.get(
-        f"/codelist/{cl.project.slug}/{cl.slug}/{clv.version_str}/download.csv"
+        f"/codelist/{cl.organisation.slug}/{cl.slug}/{clv.version_str}/download.csv"
     )
     assert rsp.status_code == 404
 
@@ -470,7 +488,9 @@ def test_versioncreate_missing_field(rf):
     request = rf.post("/", data={})
     request.user = UserFactory()
     response = VersionCreate.as_view()(
-        request, project_slug=codelist.project.slug, codelist_slug=codelist.slug
+        request,
+        organisation_slug=codelist.organisation.slug,
+        codelist_slug=codelist.slug,
     )
 
     assert response.status_code == 200
@@ -492,13 +512,15 @@ def test_versioncreate_success(rf):
     request = rf.post("/", data=data)
     request.user = UserFactory()
     response = VersionCreate.as_view()(
-        request, project_slug=codelist.project.slug, codelist_slug=codelist.slug
+        request,
+        organisation_slug=codelist.organisation.slug,
+        codelist_slug=codelist.slug,
     )
 
     assert response.status_code == 302
     assert (
         response.url
-        == f"/codelist/{codelist.project.slug}/{codelist.slug}/2020-07-23-a-draft/"
+        == f"/codelist/{codelist.organisation.slug}/{codelist.slug}/2020-07-23-a-draft/"
     )
 
     assert codelist.versions.count() == 2
@@ -512,7 +534,7 @@ def test_versioncreate_unknown_codelist(rf):
 
     with pytest.raises(Http404):
         VersionCreate.as_view()(
-            request, project_slug=codelist.project.slug, codelist_slug="test"
+            request, organisation_slug=codelist.organisation.slug, codelist_slug="test"
         )
 
 
@@ -523,7 +545,7 @@ def test_versionpublish_success(rf):
     request.user = UserFactory()
     response = version_publish(
         request,
-        project_slug=version.codelist.project.slug,
+        organisation_slug=version.codelist.organisation.slug,
         codelist_slug=version.codelist.slug,
         qualified_version_str=version.qualified_version_str,
     )
@@ -544,7 +566,7 @@ def test_versionpublish_unknown_version(rf):
     with pytest.raises(Http404):
         version_publish(
             request,
-            project_slug=codelist.project.slug,
+            organisation_slug=codelist.organisation.slug,
             codelist_slug=codelist.slug,
             qualified_version_str="test",
         )
@@ -560,7 +582,7 @@ def test_versionpublish_draft_mismatch(rf):
     request.user = UserFactory()
     response = version_publish(
         request,
-        project_slug=version.codelist.project.slug,
+        organisation_slug=version.codelist.organisation.slug,
         codelist_slug=version.codelist.slug,
         qualified_version_str=qualified_version_str,
     )
@@ -578,7 +600,7 @@ def test_versionupdate_unknown_version(rf):
     with pytest.raises(Http404):
         VersionUpdate.as_view()(
             request,
-            project_slug=codelist.project.slug,
+            organisation_slug=codelist.organisation.slug,
             codelist_slug=codelist.slug,
             qualified_version_str="test",
         )
@@ -594,7 +616,7 @@ def test_versionupdate_draft_mismatch(rf):
     request.user = UserFactory()
     response = VersionUpdate.as_view()(
         request,
-        project_slug=version.codelist.project.slug,
+        organisation_slug=version.codelist.organisation.slug,
         codelist_slug=version.codelist.slug,
         qualified_version_str=qualified_version_str,
     )
@@ -611,7 +633,7 @@ def test_versionupdate_form_error(rf):
     request.user = UserFactory()
     response = VersionUpdate.as_view()(
         request,
-        project_slug=version.codelist.project.slug,
+        organisation_slug=version.codelist.organisation.slug,
         codelist_slug=version.codelist.slug,
         qualified_version_str=version.qualified_version_str,
     )
@@ -635,7 +657,7 @@ def test_versionupdate_success(rf):
     request.user = UserFactory()
     response = VersionUpdate.as_view()(
         request,
-        project_slug=version.codelist.project.slug,
+        organisation_slug=version.codelist.organisation.slug,
         codelist_slug=version.codelist.slug,
         qualified_version_str=version.qualified_version_str,
     )
@@ -643,7 +665,7 @@ def test_versionupdate_success(rf):
     assert response.status_code == 302
     assert (
         response.url
-        == f"/codelist/{version.codelist.project.slug}/{version.codelist.slug}/2020-07-23-draft/"
+        == f"/codelist/{version.codelist.organisation.slug}/{version.codelist.slug}/2020-07-23-draft/"
     )
 
     assert version.codelist.versions.count() == 1
@@ -659,7 +681,7 @@ def test_versionupdate_not_logged_in(rf):
     request.user = AnonymousUser()
     response = VersionUpdate.as_view()(
         request,
-        project_slug=codelist.project.slug,
+        organisation_slug=codelist.organisation.slug,
         codelist_slug=codelist.slug,
         qualified_version_str=version.qualified_version_str,
     )

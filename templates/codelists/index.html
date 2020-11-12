@@ -4,8 +4,8 @@
 {% block content %}
 
 <br />
-{% if project %}
-<h3>{{ project.name }} codelists</h3>
+{% if organisation %}
+<h3>{{ organisation.name }} codelists</h3>
 {% else %}
 <h3>All codelists</h3>
 {% endif %}
@@ -36,8 +36,8 @@
       </dt>
       <dd>
       <div>{{ cl.description|markdown_filter|safe }}</div>
-      {% if not project %}
-      <div>Part of the <a href="{% url 'project' cl.project_id %}">{{ cl.project.name }}</a> project</div>
+      {% if not organisation %}
+      <div>Published by <a href="{% url 'codelists:organisation_index' cl.organisation_id %}">{{ cl.organisation.name }}</a></div>
       {% endif %}
       </dd>
       {% endfor %}

@@ -20,21 +20,6 @@ def test_create_organisation():
     assert o.url == "https://test.ac.uk"
 
 
-def test_create_project():
-    o = OrganisationFactory()
-    p = actions.create_project(
-        name="Test Project",
-        url="https://test.org",
-        details="This is a test",
-        organisations=[o],
-    )
-    assert p.name == "Test Project"
-    assert p.slug == "test-project"
-    assert p.url == "https://test.org"
-    assert p.details == "This is a test"
-    assert list(p.organisations.all()) == [o]
-
-
 def test_create_user():
     org = OrganisationFactory()
 

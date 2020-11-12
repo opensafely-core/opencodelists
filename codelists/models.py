@@ -19,6 +19,12 @@ class Codelist(models.Model):
     project = models.ForeignKey(
         "opencodelists.Project", related_name="codelists", on_delete=models.CASCADE
     )
+    organisation = models.ForeignKey(
+        "opencodelists.Organisation",
+        null=True,
+        related_name="codelists",
+        on_delete=models.CASCADE,
+    )
     coding_system_id = models.CharField(
         choices=CODING_SYSTEMS_CHOICES, max_length=32, verbose_name="Coding system"
     )

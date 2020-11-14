@@ -1,14 +1,9 @@
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import redirect
 
-from ..models import Codelist
+from .decorators import load_codelist
 
 
-def codelist(request, organisation_slug, codelist_slug):
-    codelist = get_object_or_404(
-        Codelist.objects.prefetch_related("versions"),
-        organisation=organisation_slug,
-        slug=codelist_slug,
-    )
-
+@load_codelist
+def codelist(request, codelist):
     clv = codelist.versions.order_by("version_str").last()
     return redirect(clv)

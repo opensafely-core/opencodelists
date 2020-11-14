@@ -1,30 +1,17 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 
 from .. import actions
 from ..forms import CodelistVersionForm
-from ..models import CodelistVersion
+from .decorators import load_version
 
 template_name = "codelists/version_update.html"
 
 
 @login_required
-def version_update(request, organisation_slug, codelist_slug, qualified_version_str):
-    if qualified_version_str[-6:] == "-draft":
-        expect_draft = True
-        version_str = qualified_version_str[:-6]
-    else:
-        expect_draft = False
-        version_str = qualified_version_str
-
-    version = get_object_or_404(
-        CodelistVersion.objects.select_related("codelist"),
-        codelist__organisation_id=organisation_slug,
-        codelist__slug=codelist_slug,
-        version_str=version_str,
-    )
-
+@load_version
+def version_update(request, version, expect_draft):
     if expect_draft != version.is_draft:
         return redirect(version)
 

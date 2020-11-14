@@ -1,29 +1,16 @@
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import redirect, render
 
 from coding_systems.snomedct.models import Concept as SnomedConcept
 
 from ..coding_systems import CODING_SYSTEMS
 from ..definition import Definition
 from ..hierarchy import Hierarchy
-from ..models import CodelistVersion
 from ..presenters import build_definition_rows
+from .decorators import load_version
 
 
-def version(request, organisation_slug, codelist_slug, qualified_version_str):
-    if qualified_version_str[-6:] == "-draft":
-        expect_draft = True
-        version_str = qualified_version_str[:-6]
-    else:
-        expect_draft = False
-        version_str = qualified_version_str
-
-    clv = get_object_or_404(
-        CodelistVersion.objects.select_related("codelist"),
-        codelist__organisation_id=organisation_slug,
-        codelist__slug=codelist_slug,
-        version_str=version_str,
-    )
-
+@load_version
+def version(request, clv, expect_draft):
     if expect_draft != clv.is_draft:
         return redirect(clv)
 

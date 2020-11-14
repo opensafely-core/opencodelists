@@ -1,22 +1,17 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 
 from .. import actions
 from ..forms import CodelistVersionForm
-from ..models import Codelist
+from .decorators import load_codelist
 
 template_name = "codelists/version_create.html"
 
 
 @login_required
-def version_create(request, organisation_slug, codelist_slug):
-    codelist = get_object_or_404(
-        Codelist.objects.prefetch_related("versions"),
-        organisation_id=organisation_slug,
-        slug=codelist_slug,
-    )
-
+@load_codelist
+def version_create(request, codelist):
     if request.method == "POST":
         return handle_post(request, codelist)
     return handle_get(request)

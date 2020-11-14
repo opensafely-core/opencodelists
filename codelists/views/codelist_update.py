@@ -2,24 +2,19 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.db import transaction
 from django.db.utils import IntegrityError
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 
 from .. import actions
 from ..forms import CodelistUpdateForm, ReferenceFormSet, SignOffFormSet
-from ..models import Codelist
+from .decorators import load_codelist
 
 template_name = "codelists/codelist.html"
 
 
 @login_required
-def codelist_update(request, organisation_slug, codelist_slug):
-    codelist = get_object_or_404(
-        Codelist,
-        organisation_id=organisation_slug,
-        slug=codelist_slug,
-    )
-
+@load_codelist
+def codelist_update(request, codelist):
     if request.method == "POST":
         return handle_post(request, codelist)
     return handle_get(request, codelist)

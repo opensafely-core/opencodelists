@@ -2,13 +2,12 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.db.utils import IntegrityError
 from django.forms import formset_factory
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import redirect
 from django.template.response import TemplateResponse
-
-from opencodelists.models import Organisation
 
 from .. import actions
 from ..forms import CodelistCreateForm, ReferenceForm, SignOffForm, data_without_delete
+from .decorators import load_organisation
 
 template_name = "codelists/codelist.html"
 ReferenceFormSet = formset_factory(ReferenceForm, can_delete=True)
@@ -16,9 +15,8 @@ SignOffFormSet = formset_factory(SignOffForm, can_delete=True)
 
 
 @login_required
-def codelist_create(request, organisation_slug):
-    organisation = get_object_or_404(Organisation, slug=organisation_slug)
-
+@load_organisation
+def codelist_create(request, organisation):
     if request.method == "POST":
         return handle_post(request, organisation)
     return handle_get(request)

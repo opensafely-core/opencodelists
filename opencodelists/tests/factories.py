@@ -23,13 +23,3 @@ class UserFactory(factory.django.DjangoModelFactory):
 
     username = factory.Sequence(lambda n: f"user{n}")
     email = factory.Sequence(lambda n: f"user{n}@example.com")
-
-    @classmethod
-    def _create(cls, model_class, *args, **kwargs):
-        """Override the default ``_create`` with our actions."""
-        o = Organisation.objects.first() or OrganisationFactory()
-        u = User.objects.create(**kwargs)
-        actions.add_user_to_organisation(
-            user=u, organisation=o, date_joined="2020-11-12"
-        )
-        return u

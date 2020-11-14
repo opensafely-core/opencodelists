@@ -9,11 +9,11 @@ from pytest_django.asserts import assertContains, assertRedirects
 
 from codelists.actions import create_codelist, publish_version
 from codelists.views import (
-    CodelistCreate,
     CodelistUpdate,
     VersionCreate,
     VersionUpdate,
     codelist,
+    codelist_create,
     version,
     version_publish,
 )
@@ -66,7 +66,7 @@ def test_codelistcreate_success(rf):
 
     request = rf.post("/", data=data)
     request.user = UserFactory()
-    response = CodelistCreate.as_view()(request, organisation_slug=organisation.slug)
+    response = codelist_create(request, organisation_slug=organisation.slug)
 
     assert response.status_code == 302
     assert response.url == f"/codelist/{organisation.slug}/test-codelist/"
@@ -116,7 +116,7 @@ def test_codelistcreate_invalid_post(rf):
 
     request = rf.post("/", data=data)
     request.user = UserFactory()
-    response = CodelistCreate.as_view()(request, organisation_slug=organisation.slug)
+    response = codelist_create(request, organisation_slug=organisation.slug)
 
     # we're returning an HTML response when there are errors so check we don't
     # receive a redirect code
@@ -173,7 +173,7 @@ def test_codelistcreate_with_duplicate_name(rf):
 
     request = rf.post("/", data=data)
     request.user = UserFactory()
-    response = CodelistCreate.as_view()(request, organisation_slug=organisation.slug)
+    response = codelist_create(request, organisation_slug=organisation.slug)
 
     assert organisation.codelists.count() == 1
 

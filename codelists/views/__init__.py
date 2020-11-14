@@ -1,5 +1,5 @@
 from .codelist import codelist
-from .codelist_create import CodelistCreate
+from .codelist_create import codelist_create
 from .codelist_update import CodelistUpdate
 from .index import index
 from .version import version

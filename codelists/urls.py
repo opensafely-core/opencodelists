@@ -39,8 +39,8 @@ urlpatterns = [
     path("codelist/<organisation_slug>/", views.index, name="organisation_index"),
     path(
         "codelist/<organisation_slug>/add/",
-        views.CodelistCreate.as_view(),
-        name="create_codelist",
+        views.codelist_create,
+        name="codelist-create",
     ),
     path(
         "codelist/<organisation_slug>/<codelist_slug>/", views.codelist, name="codelist"

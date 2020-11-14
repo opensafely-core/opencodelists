@@ -59,6 +59,10 @@ def version(request, clv, expect_draft):
 
     headers, *rows = clv.table
 
+    user_can_edit = False
+    if request.user.is_authenticated:
+        user_can_edit = request.user.is_member(clv.organisation)
+
     ctx = {
         "clv": clv,
         "codelist": clv.codelist,
@@ -71,5 +75,6 @@ def version(request, clv, expect_draft):
         "code_to_term": code_to_term,
         "code_to_status": code_to_status,
         "definition_rows": definition_rows,
+        "user_can_edit": user_can_edit,
     }
     return render(request, "codelists/version.html", ctx)

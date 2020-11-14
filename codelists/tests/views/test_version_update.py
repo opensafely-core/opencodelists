@@ -15,27 +15,13 @@ pytestmark = pytest.mark.freeze_time("2020-07-23")
 
 
 def test_get_not_logged_in(rf):
-    clv = create_draft_version()
-    cl = clv.codelist
-    assert_get_redirects_to_login_page(
-        rf,
-        version_update,
-        organisation_slug=cl.organisation_id,
-        codelist_slug=cl.slug,
-        qualified_version_str=clv.qualified_version_str,
-    )
+    version = create_draft_version()
+    assert_get_redirects_to_login_page(rf, version_update, version)
 
 
 def test_post_not_logged_in(rf):
-    clv = create_draft_version()
-    cl = clv.codelist
-    assert_post_redirects_to_login_page(
-        rf,
-        version_update,
-        organisation_slug=cl.organisation_id,
-        codelist_slug=cl.slug,
-        qualified_version_str=clv.qualified_version_str,
-    )
+    version = create_draft_version()
+    assert_post_redirects_to_login_page(rf, version_update, version)
 
 
 def test_get_unknown_version(rf):

@@ -11,17 +11,13 @@ from .assertions import (
 
 
 def test_get_not_logged_in(rf):
-    cl = CodelistFactory()
-    assert_get_redirects_to_login_page(
-        rf, codelist_update, organisation_slug=cl.organisation_id, codelist_slug=cl.slug
-    )
+    codelist = CodelistFactory()
+    assert_get_redirects_to_login_page(rf, codelist_update, codelist)
 
 
 def test_post_not_logged_in(rf):
-    cl = CodelistFactory()
-    assert_post_redirects_to_login_page(
-        rf, codelist_update, organisation_slug=cl.organisation_id, codelist_slug=cl.slug
-    )
+    codelist = CodelistFactory()
+    assert_post_redirects_to_login_page(rf, codelist_update, codelist)
 
 
 def test_get_success(rf):

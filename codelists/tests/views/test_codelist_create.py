@@ -10,13 +10,13 @@ from .assertions import (
 
 
 def test_get_not_logged_in(rf):
-    o = OrganisationFactory()
-    assert_get_redirects_to_login_page(rf, codelist_create, organisation_slug=o.slug)
+    organisation = OrganisationFactory()
+    assert_get_redirects_to_login_page(rf, codelist_create, organisation)
 
 
 def test_post_not_logged_in(rf):
-    o = OrganisationFactory()
-    assert_post_redirects_to_login_page(rf, codelist_create, organisation_slug=o.slug)
+    organisation = OrganisationFactory()
+    assert_post_redirects_to_login_page(rf, codelist_create, organisation)
 
 
 def test_post_success(rf):

@@ -15,17 +15,13 @@ pytestmark = pytest.mark.freeze_time("2020-07-23")
 
 
 def test_get_not_logged_in(rf):
-    cl = CodelistFactory()
-    assert_get_redirects_to_login_page(
-        rf, version_create, organisation_slug=cl.organisation_id, codelist_slug=cl.slug
-    )
+    codelist = CodelistFactory()
+    assert_get_redirects_to_login_page(rf, version_create, codelist)
 
 
 def test_post_not_logged_in(rf):
-    cl = CodelistFactory()
-    assert_post_redirects_to_login_page(
-        rf, version_create, organisation_slug=cl.organisation_id, codelist_slug=cl.slug
-    )
+    codelist = CodelistFactory()
+    assert_post_redirects_to_login_page(rf, version_create, codelist)
 
 
 def test_get_unknown_codelist(rf):

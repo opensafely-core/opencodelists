@@ -45,21 +45,23 @@ def test_get_published_with_draft_url(rf):
     assert response.url == version.get_absolute_url()
 
 
-def test_post_form_error(rf):
+def test_post_not_logged_in(rf):
     version = create_published_version()
+    codelist = version.codelist
 
-    request = rf.post("/", data={})
-    request.user = UserFactory()
+    assert version.codelist.versions.count() == 1
+
+    request = rf.post("/the/current/url/", data={})
+    request.user = AnonymousUser()
     response = version_update(
         request,
-        organisation_slug=version.codelist.organisation.slug,
-        codelist_slug=version.codelist.slug,
+        organisation_slug=codelist.organisation.slug,
+        codelist_slug=codelist.slug,
         qualified_version_str=version.qualified_version_str,
     )
 
-    assert response.status_code == 200
-    assert "form" in response.context_data
-    assert "csv_data" in response.context_data["form"].errors
+    assert response.status_code == 302
+    assert response.url == "/accounts/login/?next=/the/current/url/"
 
 
 def test_post_success(rf):
@@ -90,20 +92,18 @@ def test_post_success(rf):
     assert version.codelist.versions.count() == 1
 
 
-def test_post_not_logged_in(rf):
+def test_post_form_error(rf):
     version = create_published_version()
-    codelist = version.codelist
 
-    assert version.codelist.versions.count() == 1
-
-    request = rf.post("/the/current/url/", data={})
-    request.user = AnonymousUser()
+    request = rf.post("/", data={})
+    request.user = UserFactory()
     response = version_update(
         request,
-        organisation_slug=codelist.organisation.slug,
-        codelist_slug=codelist.slug,
+        organisation_slug=version.codelist.organisation.slug,
+        codelist_slug=version.codelist.slug,
         qualified_version_str=version.qualified_version_str,
     )
 
-    assert response.status_code == 302
-    assert response.url == "/accounts/login/?next=/the/current/url/"
+    assert response.status_code == 200
+    assert "form" in response.context_data
+    assert "csv_data" in response.context_data["form"].errors

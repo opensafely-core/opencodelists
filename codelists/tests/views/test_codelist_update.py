@@ -8,47 +8,6 @@ from opencodelists.tests.factories import OrganisationFactory, UserFactory
 from ..factories import CodelistFactory, ReferenceFactory, SignOffFactory
 
 
-def test_post_invalid(rf):
-    codelist = CodelistFactory()
-    signoff_1 = SignOffFactory(codelist=codelist)
-    reference_1 = ReferenceFactory(codelist=codelist)
-
-    # missing signoff-0-date
-    data = {
-        "organisation": codelist.organisation.slug,
-        "name": "Test Codelist",
-        "coding_system_id": "snomedct",
-        "description": "This is a test",
-        "methodology": "This is how we did it",
-        "reference-TOTAL_FORMS": "1",
-        "reference-INITIAL_FORMS": "0",
-        "reference-MIN_NUM_FORMS": "0",
-        "reference-MAX_NUM_FORMS": "1000",
-        "reference-0-text": reference_1.text,
-        "reference-0-url": reference_1.url,
-        "signoff-TOTAL_FORMS": "1",
-        "signoff-INITIAL_FORMS": "0",
-        "signoff-MIN_NUM_FORMS": "0",
-        "signoff-MAX_NUM_FORMS": "1000",
-        "signoff-0-user": signoff_1.user.username,
-    }
-
-    request = rf.post("/", data=data)
-    request.user = UserFactory()
-    response = codelist_update(
-        request,
-        organisation_slug=codelist.organisation.slug,
-        codelist_slug=codelist.slug,
-    )
-
-    # we're returning an HTML response when there are errors so check we don't
-    # receive a redirect code
-    assert response.status_code == 200
-
-    # confirm we have errors from the signoff formset
-    assert response.context_data["signoff_formset"].errors
-
-
 def test_get_success(rf):
     codelist = CodelistFactory()
     SignOffFactory(codelist=codelist)
@@ -72,6 +31,21 @@ def test_get_success(rf):
     assert form.data["coding_system_id"] == codelist.coding_system_id
     assert form.data["description"] == codelist.description
     assert form.data["methodology"] == codelist.methodology
+
+
+def test_post_when_not_logged_in(rf):
+    codelist = CodelistFactory()
+
+    request = rf.post("/the/current/url/")
+    request.user = AnonymousUser()
+    response = codelist_update(
+        request,
+        organisation_slug=codelist.organisation.slug,
+        codelist_slug=codelist.slug,
+    )
+
+    assert response.status_code == 302
+    assert response.url == "/accounts/login/?next=/the/current/url/"
 
 
 def test_post_success(rf):
@@ -144,19 +118,45 @@ def test_post_success(rf):
     assert codelist.signoffs.last().user == new_signoff_user
 
 
-def test_post_when_not_logged_in(rf):
+def test_post_invalid(rf):
     codelist = CodelistFactory()
+    signoff_1 = SignOffFactory(codelist=codelist)
+    reference_1 = ReferenceFactory(codelist=codelist)
 
-    request = rf.post("/the/current/url/")
-    request.user = AnonymousUser()
+    # missing signoff-0-date
+    data = {
+        "organisation": codelist.organisation.slug,
+        "name": "Test Codelist",
+        "coding_system_id": "snomedct",
+        "description": "This is a test",
+        "methodology": "This is how we did it",
+        "reference-TOTAL_FORMS": "1",
+        "reference-INITIAL_FORMS": "0",
+        "reference-MIN_NUM_FORMS": "0",
+        "reference-MAX_NUM_FORMS": "1000",
+        "reference-0-text": reference_1.text,
+        "reference-0-url": reference_1.url,
+        "signoff-TOTAL_FORMS": "1",
+        "signoff-INITIAL_FORMS": "0",
+        "signoff-MIN_NUM_FORMS": "0",
+        "signoff-MAX_NUM_FORMS": "1000",
+        "signoff-0-user": signoff_1.user.username,
+    }
+
+    request = rf.post("/", data=data)
+    request.user = UserFactory()
     response = codelist_update(
         request,
         organisation_slug=codelist.organisation.slug,
         codelist_slug=codelist.slug,
     )
 
-    assert response.status_code == 302
-    assert response.url == "/accounts/login/?next=/the/current/url/"
+    # we're returning an HTML response when there are errors so check we don't
+    # receive a redirect code
+    assert response.status_code == 200
+
+    # confirm we have errors from the signoff formset
+    assert response.context_data["signoff_formset"].errors
 
 
 def test_post_with_duplicate_name(rf):

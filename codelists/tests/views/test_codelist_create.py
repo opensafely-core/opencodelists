@@ -7,6 +7,20 @@ from opencodelists.tests.factories import OrganisationFactory, UserFactory
 from ..helpers import csv_builder
 
 
+def test_post_not_logged_in(client):
+    p = OrganisationFactory()
+    csv_data = "code,description\n1067731000000107,Injury whilst swimming (disorder)"
+    data = {
+        "name": "Test Codelist",
+        "coding_system_id": "snomedct",
+        "description": "This is a test",
+        "methodology": "This is how we did it",
+        "csv_data": csv_builder(csv_data),
+    }
+    rsp = client.post(f"/codelist/{p.slug}/add/", data, follow=True)
+    assertRedirects(rsp, f"/accounts/login/?next=%2Fcodelist%2F{p.slug}%2Fadd%2F")
+
+
 def test_post_success(rf):
     organisation = OrganisationFactory()
     signoff_user = UserFactory()
@@ -94,20 +108,6 @@ def test_post_invalid(rf):
 
     # confirm we have errors from the signoff formset
     assert response.context_data["signoff_formset"].errors
-
-
-def test_post_not_logged_in(client):
-    p = OrganisationFactory()
-    csv_data = "code,description\n1067731000000107,Injury whilst swimming (disorder)"
-    data = {
-        "name": "Test Codelist",
-        "coding_system_id": "snomedct",
-        "description": "This is a test",
-        "methodology": "This is how we did it",
-        "csv_data": csv_builder(csv_data),
-    }
-    rsp = client.post(f"/codelist/{p.slug}/add/", data, follow=True)
-    assertRedirects(rsp, f"/accounts/login/?next=%2Fcodelist%2F{p.slug}%2Fadd%2F")
 
 
 def test_post_with_duplicate_name(rf):

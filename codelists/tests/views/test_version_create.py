@@ -10,21 +10,16 @@ from ..helpers import csv_builder
 pytestmark = pytest.mark.freeze_time("2020-07-23")
 
 
-def test_post_missing_field(rf):
-    codelist = create_published_version().codelist
+def test_get_unknown_codelist(rf):
+    codelist = CodelistFactory()
 
-    request = rf.post("/", data={})
+    request = rf.get("/")
     request.user = UserFactory()
-    response = version_create(
-        request,
-        organisation_slug=codelist.organisation.slug,
-        codelist_slug=codelist.slug,
-    )
 
-    assert response.status_code == 200
-    assert "form" in response.context_data
-    assert len(response.context_data["form"].errors) == 1
-    assert "csv_data" in response.context_data["form"].errors
+    with pytest.raises(Http404):
+        version_create(
+            request, organisation_slug=codelist.organisation.slug, codelist_slug="test"
+        )
 
 
 def test_post_success(rf):
@@ -54,13 +49,18 @@ def test_post_success(rf):
     assert codelist.versions.count() == 2
 
 
-def test_get_unknown_codelist(rf):
-    codelist = CodelistFactory()
+def test_post_missing_field(rf):
+    codelist = create_published_version().codelist
 
-    request = rf.get("/")
+    request = rf.post("/", data={})
     request.user = UserFactory()
+    response = version_create(
+        request,
+        organisation_slug=codelist.organisation.slug,
+        codelist_slug=codelist.slug,
+    )
 
-    with pytest.raises(Http404):
-        version_create(
-            request, organisation_slug=codelist.organisation.slug, codelist_slug="test"
-        )
+    assert response.status_code == 200
+    assert "form" in response.context_data
+    assert len(response.context_data["form"].errors) == 1
+    assert "csv_data" in response.context_data["form"].errors

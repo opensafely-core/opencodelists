@@ -91,6 +91,13 @@ class User(AbstractBaseUser):
         except Membership.DoesNotExist:
             return None
 
+    def is_member(self, organisation):
+        return bool(self.get_organisation_membership(organisation))
+
+    def is_admin_member(self, organisation):
+        membership = self.get_organisation_membership(organisation)
+        return membership and membership.is_admin
+
     @staticmethod
     def unsign_username(token):
         return Signer(salt=SET_PASSWORD_SALT).unsign(token)

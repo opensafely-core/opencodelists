@@ -35,3 +35,25 @@ def create_user(*, username, name, email, organisation, is_active=False):
     logger.info("Created User", user_pk=user.pk)
 
     return user
+
+
+def add_user_to_organisation(*, user, organisation, date_joined):
+    return user.memberships.create(
+        organisation=organisation, date_joined=date_joined, is_admin=False
+    )
+
+
+def remove_user_from_organisation(*, user, organisation):
+    return user.get_organisation_membership(organisation).delete()
+
+
+def make_user_admin_for_organisation(*, user, organisation):
+    membership = user.get_organisation_membership(organisation)
+    membership.is_admin = True
+    membership.save()
+
+
+def make_user_nonadmin_for_organisation(*, user, organisation):
+    membership = user.get_organisation_membership(organisation)
+    membership.is_admin = False
+    membership.save()

@@ -4,7 +4,7 @@ from django.core.signing import Signer
 
 from ..models import SET_PASSWORD_SALT, User
 from ..views import UserCreate, user_set_password
-from .factories import OrganisationFactory, UserFactory
+from .factories import UserFactory
 
 pytestmark = [
     pytest.mark.filterwarnings(
@@ -60,12 +60,10 @@ def test_usercreate_renders_form(rf):
 
 
 def test_usercreate_creates_user(client):
-    org = OrganisationFactory(slug="datalab")
     data = {
         "username": "new-user",
         "name": "New User",
         "email": "new@example.com",
-        "organisation": "datalab",
     }
 
     client.force_login(UserFactory())
@@ -77,7 +75,6 @@ def test_usercreate_creates_user(client):
     assert user.username == "new-user"
     assert user.name == "New User"
     assert user.email == "new@example.com"
-    assert user.organisation == org
 
 
 def test_usersetpassword_invalid_form(rf):

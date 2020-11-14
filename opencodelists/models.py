@@ -51,7 +51,6 @@ class User(AbstractBaseUser):
     username = models.SlugField(primary_key=True)
     name = models.CharField(max_length=255)
     email = models.EmailField(verbose_name="email address", max_length=255, unique=True)
-    organisation = models.ForeignKey("Organisation", on_delete=models.CASCADE)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
 

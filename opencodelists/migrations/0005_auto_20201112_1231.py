@@ -9,7 +9,11 @@ def add_opensafely_users_to_organisation(apps, schema_editor):
     Organisation = apps.get_model("opencodelists", "Organisation")
     User = apps.get_model("opencodelists", "User")
 
-    opensafely = Organisation.objects.get(slug="opensafely")
+    try:
+        opensafely = Organisation.objects.get(slug="opensafely")
+    except Organisation.DoesNotExist:
+        # This organisation does not exist in tests
+        return
 
     for user in User.objects.filter(organisation_id__in=["ebm-datalab", "lshtm"]):
         membership = add_user_to_organisation(

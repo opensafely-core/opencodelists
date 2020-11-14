@@ -21,24 +21,20 @@ def test_create_organisation():
 
 
 def test_create_user():
-    org = OrganisationFactory()
-
     user = actions.create_user(
         username="testym",
         name="Testy McTesterson",
         email="test@example.com",
-        organisation=org,
     )
 
     assert user.username == "testym"
     assert user.name == "Testy McTesterson"
     assert user.email == "test@example.com"
-    assert user.organisation == org
 
 
 def test_add_user_to_organisation():
-    organisation = OrganisationFactory()
     user = UserFactory()
+    organisation = OrganisationFactory()
 
     membership = actions.add_user_to_organisation(
         user=user, organisation=organisation, date_joined="2020-11-12"
@@ -54,8 +50,8 @@ def test_add_user_to_organisation():
 
 
 def test_remove_user_from_organisation():
-    organisation = OrganisationFactory()
     user = UserFactory()
+    organisation = OrganisationFactory()
     actions.add_user_to_organisation(
         user=user, organisation=organisation, date_joined="2020-11-12"
     )
@@ -67,8 +63,8 @@ def test_remove_user_from_organisation():
 
 
 def test_make_user_admin_for_organisation():
-    organisation = OrganisationFactory()
     user = UserFactory()
+    organisation = OrganisationFactory()
     actions.add_user_to_organisation(
         user=user, organisation=organisation, date_joined="2020-11-12"
     )
@@ -80,8 +76,8 @@ def test_make_user_admin_for_organisation():
 
 
 def test_make_user_nonadmin_for_organisation():
-    organisation = OrganisationFactory()
     user = UserFactory()
+    organisation = OrganisationFactory()
     actions.add_user_to_organisation(
         user=user, organisation=organisation, date_joined="2020-11-12"
     )

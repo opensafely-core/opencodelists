@@ -23,12 +23,11 @@ def activate_user(*, user, password):
     return user
 
 
-def create_user(*, username, name, email, organisation, is_active=False):
+def create_user(*, username, name, email, is_active=False):
     user = User.objects.create(
         username=username,
         name=name,
         email=email,
-        organisation=organisation,
         is_active=is_active,
     )
 

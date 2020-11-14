@@ -8,7 +8,7 @@ class OrganisationFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Organisation
 
-    name = "Test University"
+    name = factory.Sequence(lambda n: f"Test University {n}")
     url = "https://test.ac.uk"
 
     @classmethod
@@ -28,4 +28,8 @@ class UserFactory(factory.django.DjangoModelFactory):
     def _create(cls, model_class, *args, **kwargs):
         """Override the default ``_create`` with our actions."""
         o = Organisation.objects.first() or OrganisationFactory()
-        return User.objects.create(organisation=o, **kwargs)
+        u = User.objects.create(**kwargs)
+        actions.add_user_to_organisation(
+            user=u, organisation=o, date_joined="2020-11-12"
+        )
+        return u

@@ -12,7 +12,6 @@ class UserForm(forms.ModelForm):
             "username",
             "email",
             "name",
-            "organisation",
         ]
         model = User
 

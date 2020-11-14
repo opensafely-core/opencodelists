@@ -6,22 +6,19 @@ from opencodelists.tests.factories import UserFactory
 
 from ..factories import CodelistFactory, create_draft_version, create_published_version
 from ..helpers import csv_builder
-from .assertions import (
-    assert_get_redirects_to_login_page,
-    assert_post_redirects_to_login_page,
-)
+from .assertions import assert_get_unauthenticated, assert_post_unauthenticated
 
 pytestmark = pytest.mark.freeze_time("2020-07-23")
 
 
-def test_get_not_logged_in(rf):
+def test_get_unauthenticated(rf):
     version = create_draft_version()
-    assert_get_redirects_to_login_page(rf, version_update, version)
+    assert_get_unauthenticated(rf, version_update, version)
 
 
-def test_post_not_logged_in(rf):
+def test_post_unauthenticated(rf):
     version = create_draft_version()
-    assert_post_redirects_to_login_page(rf, version_update, version)
+    assert_post_unauthenticated(rf, version_update, version)
 
 
 def test_get_unknown_version(rf):

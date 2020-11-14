@@ -4,7 +4,7 @@ from codelists.models import Codelist, CodelistVersion
 from opencodelists.models import Organisation
 
 
-def assert_redirects_to_login_page(rf, method, view, obj):
+def assert_unauthenticated(rf, method, view, obj):
     if isinstance(obj, Organisation):
         kwargs = {"organisation_slug": obj.slug}
     elif isinstance(obj, Codelist):
@@ -28,9 +28,9 @@ def assert_redirects_to_login_page(rf, method, view, obj):
     assert response.url == "/accounts/login/?next=/the/current/url/"
 
 
-def assert_get_redirects_to_login_page(rf, view, obj):
-    assert_redirects_to_login_page(rf, "get", view, obj)
+def assert_get_unauthenticated(rf, view, obj):
+    assert_unauthenticated(rf, "get", view, obj)
 
 
-def assert_post_redirects_to_login_page(rf, view, obj):
-    assert_redirects_to_login_page(rf, "post", view, obj)
+def assert_post_unauthenticated(rf, view, obj):
+    assert_unauthenticated(rf, "post", view, obj)

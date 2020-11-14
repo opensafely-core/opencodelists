@@ -4,20 +4,17 @@ from codelists.views import codelist_update
 from opencodelists.tests.factories import OrganisationFactory, UserFactory
 
 from ..factories import CodelistFactory, ReferenceFactory, SignOffFactory
-from .assertions import (
-    assert_get_redirects_to_login_page,
-    assert_post_redirects_to_login_page,
-)
+from .assertions import assert_get_unauthenticated, assert_post_unauthenticated
 
 
-def test_get_not_logged_in(rf):
+def test_get_unauthenticated(rf):
     codelist = CodelistFactory()
-    assert_get_redirects_to_login_page(rf, codelist_update, codelist)
+    assert_get_unauthenticated(rf, codelist_update, codelist)
 
 
-def test_post_not_logged_in(rf):
+def test_post_unauthenticated(rf):
     codelist = CodelistFactory()
-    assert_post_redirects_to_login_page(rf, codelist_update, codelist)
+    assert_post_unauthenticated(rf, codelist_update, codelist)
 
 
 def test_get_success(rf):

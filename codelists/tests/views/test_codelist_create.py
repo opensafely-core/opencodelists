@@ -3,20 +3,17 @@ from codelists.views import codelist_create
 from opencodelists.tests.factories import OrganisationFactory, UserFactory
 
 from ..helpers import csv_builder
-from .assertions import (
-    assert_get_redirects_to_login_page,
-    assert_post_redirects_to_login_page,
-)
+from .assertions import assert_get_unauthenticated, assert_post_unauthenticated
 
 
-def test_get_not_logged_in(rf):
+def test_get_unauthenticated(rf):
     organisation = OrganisationFactory()
-    assert_get_redirects_to_login_page(rf, codelist_create, organisation)
+    assert_get_unauthenticated(rf, codelist_create, organisation)
 
 
-def test_post_not_logged_in(rf):
+def test_post_unauthenticated(rf):
     organisation = OrganisationFactory()
-    assert_post_redirects_to_login_page(rf, codelist_create, organisation)
+    assert_post_unauthenticated(rf, codelist_create, organisation)
 
 
 def test_post_success(rf):

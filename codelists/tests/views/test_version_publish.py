@@ -5,12 +5,12 @@ from codelists.views import version_publish
 from opencodelists.tests.factories import UserFactory
 
 from ..factories import CodelistFactory, create_draft_version, create_published_version
-from .assertions import assert_post_redirects_to_login_page
+from .assertions import assert_post_unauthenticated
 
 
-def test_post_not_logged_in(rf):
+def test_post_unauthenticated(rf):
     version = create_draft_version()
-    assert_post_redirects_to_login_page(rf, version_publish, version)
+    assert_post_unauthenticated(rf, version_publish, version)
 
 
 def test_post_success(rf):

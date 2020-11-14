@@ -9,13 +9,13 @@ from pytest_django.asserts import assertContains, assertRedirects
 
 from codelists.actions import create_codelist, publish_version
 from codelists.views import (
-    VersionUpdate,
     codelist,
     codelist_create,
     codelist_update,
     version,
     version_create,
     version_publish,
+    version_update,
 )
 from opencodelists.tests.factories import OrganisationFactory, UserFactory
 
@@ -598,7 +598,7 @@ def test_versionupdate_unknown_version(rf):
     request = rf.get("/")
     request.user = UserFactory()
     with pytest.raises(Http404):
-        VersionUpdate.as_view()(
+        version_update(
             request,
             organisation_slug=codelist.organisation.slug,
             codelist_slug=codelist.slug,
@@ -614,7 +614,7 @@ def test_versionupdate_draft_mismatch(rf):
 
     request = rf.get("/")
     request.user = UserFactory()
-    response = VersionUpdate.as_view()(
+    response = version_update(
         request,
         organisation_slug=version.codelist.organisation.slug,
         codelist_slug=version.codelist.slug,
@@ -631,7 +631,7 @@ def test_versionupdate_form_error(rf):
 
     request = rf.post("/", data={})
     request.user = UserFactory()
-    response = VersionUpdate.as_view()(
+    response = version_update(
         request,
         organisation_slug=version.codelist.organisation.slug,
         codelist_slug=version.codelist.slug,
@@ -655,7 +655,7 @@ def test_versionupdate_success(rf):
 
     request = rf.post("/", data=data)
     request.user = UserFactory()
-    response = VersionUpdate.as_view()(
+    response = version_update(
         request,
         organisation_slug=version.codelist.organisation.slug,
         codelist_slug=version.codelist.slug,
@@ -679,7 +679,7 @@ def test_versionupdate_not_logged_in(rf):
 
     request = rf.post("/the/current/url/", data={})
     request.user = AnonymousUser()
-    response = VersionUpdate.as_view()(
+    response = version_update(
         request,
         organisation_slug=codelist.organisation.slug,
         codelist_slug=codelist.slug,

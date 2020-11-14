@@ -1,63 +1,63 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect
-from django.utils.decorators import method_decorator
-from django.views.generic import TemplateView
+from django.template.response import TemplateResponse
 
 from .. import actions
 from ..forms import CodelistVersionForm
 from ..models import CodelistVersion
 
+template_name = "codelists/version_update.html"
 
-@method_decorator(login_required, name="dispatch")
-class VersionUpdate(TemplateView):
-    """
-    Update a given CodelistVersion's CSV data.
 
-    This uses TemplateView instead of UpdateView view since getting a
-    CodelistVersion requires a few extra hoops (extra looks params and post
-    lookup checks).  Using an UpdateView required enough modifications to the
-    method hooks that readability started to suffer.
-    """
+@login_required
+def version_update(request, organisation_slug, codelist_slug, qualified_version_str):
+    if qualified_version_str[-6:] == "-draft":
+        expect_draft = True
+        version_str = qualified_version_str[:-6]
+    else:
+        expect_draft = False
+        version_str = qualified_version_str
 
-    template_name = "codelists/version_update.html"
+    version = get_object_or_404(
+        CodelistVersion.objects.select_related("codelist"),
+        codelist__organisation_id=organisation_slug,
+        codelist__slug=codelist_slug,
+        version_str=version_str,
+    )
 
-    def dispatch(self, request, *args, **kwargs):
-        version_string = self.kwargs["qualified_version_str"]
-        if version_string[-6:] == "-draft":
-            expect_draft = True
-            version_str = version_string[:-6]
-        else:
-            expect_draft = False
-            version_str = version_string
+    if expect_draft != version.is_draft:
+        return redirect(version)
 
-        self.version = get_object_or_404(
-            CodelistVersion.objects.select_related("codelist"),
-            codelist__organisation_id=self.kwargs["organisation_slug"],
-            codelist__slug=self.kwargs["codelist_slug"],
-            version_str=version_str,
-        )
+    if request.method == "POST":
+        return handle_post(request, version)
+    return handle_get(request, version)
 
-        if expect_draft != self.version.is_draft:
-            return redirect(self.version)
 
-        return super().dispatch(request, *args, **kwargs)
+def handle_get(request, version):
+    ctx = {
+        "form": CodelistVersionForm(),
+        "version": version,
+    }
+    return TemplateResponse(request, template_name, ctx)
 
-    def post(self, request, *args, **kwargs):
-        form = CodelistVersionForm(request.POST, request.FILES)
-        if not form.is_valid():
-            return self.render_to_response(self.get_context_data(form=form))
 
-        actions.update_version(
-            version=self.version, csv_data=form.cleaned_data["csv_data"]
-        )
+def handle_post(request, version):
+    form = CodelistVersionForm(request.POST, request.FILES)
+    if form.is_valid():
+        return handle_valid(request, version, form)
+    else:
+        return handle_invalid(request, version, form)
 
-        return redirect(self.version)
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["version"] = self.version
+def handle_valid(request, version, form):
+    actions.update_version(version=version, csv_data=form.cleaned_data["csv_data"])
 
-        if "form" not in kwargs:
-            context["form"] = CodelistVersionForm()
+    return redirect(version)
 
-        return context
+
+def handle_invalid(request, version, form):
+    ctx = {
+        "form": form,
+        "version": version,
+    }
+    return TemplateResponse(request, template_name, ctx)

@@ -67,7 +67,7 @@ urlpatterns = [
     ),
     path(
         "codelist/<organisation_slug>/<codelist_slug>/<qualified_version_str>/update/",
-        views.VersionUpdate.as_view(),
+        views.version_update,
         name="version-update",
     ),
     path(

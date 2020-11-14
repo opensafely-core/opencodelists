@@ -52,7 +52,7 @@ urlpatterns = [
     ),
     path(
         "codelist/<organisation_slug>/<codelist_slug>/add/",
-        views.VersionCreate.as_view(),
+        views.version_create,
         name="version-create",
     ),
     path(

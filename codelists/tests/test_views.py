@@ -9,12 +9,12 @@ from pytest_django.asserts import assertContains, assertRedirects
 
 from codelists.actions import create_codelist, publish_version
 from codelists.views import (
-    VersionCreate,
     VersionUpdate,
     codelist,
     codelist_create,
     codelist_update,
     version,
+    version_create,
     version_publish,
 )
 from opencodelists.tests.factories import OrganisationFactory, UserFactory
@@ -487,7 +487,7 @@ def test_versioncreate_missing_field(rf):
 
     request = rf.post("/", data={})
     request.user = UserFactory()
-    response = VersionCreate.as_view()(
+    response = version_create(
         request,
         organisation_slug=codelist.organisation.slug,
         codelist_slug=codelist.slug,
@@ -511,7 +511,7 @@ def test_versioncreate_success(rf):
 
     request = rf.post("/", data=data)
     request.user = UserFactory()
-    response = VersionCreate.as_view()(
+    response = version_create(
         request,
         organisation_slug=codelist.organisation.slug,
         codelist_slug=codelist.slug,
@@ -533,7 +533,7 @@ def test_versioncreate_unknown_codelist(rf):
     request.user = UserFactory()
 
     with pytest.raises(Http404):
-        VersionCreate.as_view()(
+        version_create(
             request, organisation_slug=codelist.organisation.slug, codelist_slug="test"
         )
 

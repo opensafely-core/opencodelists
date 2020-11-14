@@ -1,11 +1,27 @@
 import datetime
 
-from django.contrib.auth.models import AnonymousUser
-
 from codelists.views import codelist_update
 from opencodelists.tests.factories import OrganisationFactory, UserFactory
 
 from ..factories import CodelistFactory, ReferenceFactory, SignOffFactory
+from .assertions import (
+    assert_get_redirects_to_login_page,
+    assert_post_redirects_to_login_page,
+)
+
+
+def test_get_not_logged_in(rf):
+    cl = CodelistFactory()
+    assert_get_redirects_to_login_page(
+        rf, codelist_update, organisation_slug=cl.organisation_id, codelist_slug=cl.slug
+    )
+
+
+def test_post_not_logged_in(rf):
+    cl = CodelistFactory()
+    assert_post_redirects_to_login_page(
+        rf, codelist_update, organisation_slug=cl.organisation_id, codelist_slug=cl.slug
+    )
 
 
 def test_get_success(rf):
@@ -31,21 +47,6 @@ def test_get_success(rf):
     assert form.data["coding_system_id"] == codelist.coding_system_id
     assert form.data["description"] == codelist.description
     assert form.data["methodology"] == codelist.methodology
-
-
-def test_post_when_not_logged_in(rf):
-    codelist = CodelistFactory()
-
-    request = rf.post("/the/current/url/")
-    request.user = AnonymousUser()
-    response = codelist_update(
-        request,
-        organisation_slug=codelist.organisation.slug,
-        codelist_slug=codelist.slug,
-    )
-
-    assert response.status_code == 302
-    assert response.url == "/accounts/login/?next=/the/current/url/"
 
 
 def test_post_success(rf):

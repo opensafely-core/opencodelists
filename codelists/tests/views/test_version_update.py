@@ -1,5 +1,4 @@
 import pytest
-from django.contrib.auth.models import AnonymousUser
 from django.http import Http404
 
 from codelists.views import version_update
@@ -7,8 +6,36 @@ from opencodelists.tests.factories import UserFactory
 
 from ..factories import CodelistFactory, create_draft_version, create_published_version
 from ..helpers import csv_builder
+from .assertions import (
+    assert_get_redirects_to_login_page,
+    assert_post_redirects_to_login_page,
+)
 
 pytestmark = pytest.mark.freeze_time("2020-07-23")
+
+
+def test_get_not_logged_in(rf):
+    clv = create_draft_version()
+    cl = clv.codelist
+    assert_get_redirects_to_login_page(
+        rf,
+        version_update,
+        organisation_slug=cl.organisation_id,
+        codelist_slug=cl.slug,
+        qualified_version_str=clv.qualified_version_str,
+    )
+
+
+def test_post_not_logged_in(rf):
+    clv = create_draft_version()
+    cl = clv.codelist
+    assert_post_redirects_to_login_page(
+        rf,
+        version_update,
+        organisation_slug=cl.organisation_id,
+        codelist_slug=cl.slug,
+        qualified_version_str=clv.qualified_version_str,
+    )
 
 
 def test_get_unknown_version(rf):
@@ -43,25 +70,6 @@ def test_get_published_with_draft_url(rf):
     # we should get redirected to the Version page
     assert response.status_code == 302
     assert response.url == version.get_absolute_url()
-
-
-def test_post_not_logged_in(rf):
-    version = create_published_version()
-    codelist = version.codelist
-
-    assert version.codelist.versions.count() == 1
-
-    request = rf.post("/the/current/url/", data={})
-    request.user = AnonymousUser()
-    response = version_update(
-        request,
-        organisation_slug=codelist.organisation.slug,
-        codelist_slug=codelist.slug,
-        qualified_version_str=version.qualified_version_str,
-    )
-
-    assert response.status_code == 302
-    assert response.url == "/accounts/login/?next=/the/current/url/"
 
 
 def test_post_success(rf):

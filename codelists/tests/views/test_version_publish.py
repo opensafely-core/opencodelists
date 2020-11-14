@@ -5,6 +5,19 @@ from codelists.views import version_publish
 from opencodelists.tests.factories import UserFactory
 
 from ..factories import CodelistFactory, create_draft_version, create_published_version
+from .assertions import assert_post_redirects_to_login_page
+
+
+def test_post_not_logged_in(rf):
+    clv = create_draft_version()
+    cl = clv.codelist
+    assert_post_redirects_to_login_page(
+        rf,
+        version_publish,
+        organisation_slug=cl.organisation_id,
+        codelist_slug=cl.slug,
+        qualified_version_str=clv.qualified_version_str,
+    )
 
 
 def test_post_success(rf):

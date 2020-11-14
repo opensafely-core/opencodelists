@@ -1,24 +1,22 @@
-from pytest_django.asserts import assertRedirects
-
 from codelists.actions import create_codelist
 from codelists.views import codelist_create
 from opencodelists.tests.factories import OrganisationFactory, UserFactory
 
 from ..helpers import csv_builder
+from .assertions import (
+    assert_get_redirects_to_login_page,
+    assert_post_redirects_to_login_page,
+)
 
 
-def test_post_not_logged_in(client):
-    p = OrganisationFactory()
-    csv_data = "code,description\n1067731000000107,Injury whilst swimming (disorder)"
-    data = {
-        "name": "Test Codelist",
-        "coding_system_id": "snomedct",
-        "description": "This is a test",
-        "methodology": "This is how we did it",
-        "csv_data": csv_builder(csv_data),
-    }
-    rsp = client.post(f"/codelist/{p.slug}/add/", data, follow=True)
-    assertRedirects(rsp, f"/accounts/login/?next=%2Fcodelist%2F{p.slug}%2Fadd%2F")
+def test_get_not_logged_in(rf):
+    o = OrganisationFactory()
+    assert_get_redirects_to_login_page(rf, codelist_create, organisation_slug=o.slug)
+
+
+def test_post_not_logged_in(rf):
+    o = OrganisationFactory()
+    assert_post_redirects_to_login_page(rf, codelist_create, organisation_slug=o.slug)
 
 
 def test_post_success(rf):

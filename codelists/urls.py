@@ -47,8 +47,8 @@ urlpatterns = [
     ),
     path(
         "codelist/<organisation_slug>/<codelist_slug>/edit/",
-        views.CodelistUpdate.as_view(),
-        name="codelist-edit",
+        views.codelist_update,
+        name="codelist-update",
     ),
     path(
         "codelist/<organisation_slug>/<codelist_slug>/add/",

@@ -3,122 +3,127 @@ from django.core.exceptions import NON_FIELD_ERRORS
 from django.db import transaction
 from django.db.utils import IntegrityError
 from django.shortcuts import get_object_or_404, redirect
-from django.utils.decorators import method_decorator
-from django.views.generic import TemplateView
+from django.template.response import TemplateResponse
 
 from .. import actions
 from ..forms import CodelistUpdateForm, ReferenceFormSet, SignOffFormSet
 from ..models import Codelist
 
+template_name = "codelists/codelist.html"
 
-@method_decorator(login_required, name="dispatch")
-class CodelistUpdate(TemplateView):
-    template_name = "codelists/codelist.html"
 
-    def dispatch(self, request, *args, **kwargs):
-        self.codelist = get_object_or_404(
-            Codelist,
-            organisation__slug=self.kwargs["organisation_slug"],
-            slug=self.kwargs["codelist_slug"],
+@login_required
+def codelist_update(request, organisation_slug, codelist_slug):
+    codelist = get_object_or_404(
+        Codelist,
+        organisation_id=organisation_slug,
+        slug=codelist_slug,
+    )
+
+    if request.method == "POST":
+        return handle_post(request, codelist)
+    return handle_get(request, codelist)
+
+
+def handle_get(request, codelist):
+    codelist_form = CodelistUpdateForm(
+        {
+            "name": codelist.name,
+            "organisation": codelist.organisation,
+            "coding_system_id": codelist.coding_system_id,
+            "description": codelist.description,
+            "methodology": codelist.methodology,
+        }
+    )
+
+    reference_formset = ReferenceFormSet(
+        queryset=codelist.references.all(), prefix="reference"
+    )
+    signoff_formset = SignOffFormSet(queryset=codelist.signoffs.all(), prefix="signoff")
+
+    ctx = {
+        "codelist_form": codelist_form,
+        "reference_formset": reference_formset,
+        "signoff_formset": signoff_formset,
+    }
+    return TemplateResponse(request, template_name, ctx)
+
+
+def handle_post(request, codelist):
+    codelist_form = CodelistUpdateForm(request.POST, request.FILES)
+    reference_formset = ReferenceFormSet(
+        request.POST, queryset=codelist.references.all(), prefix="reference"
+    )
+    signoff_formset = SignOffFormSet(
+        request.POST, queryset=codelist.signoffs.all(), prefix="signoff"
+    )
+
+    if (
+        codelist_form.is_valid()
+        and reference_formset.is_valid()
+        and signoff_formset.is_valid()
+    ):
+        return handle_valid(
+            request, codelist, codelist_form, reference_formset, signoff_formset
+        )
+    else:
+        return handle_invalid(
+            request, codelist_form, reference_formset, signoff_formset
         )
 
-        return super().dispatch(request, *args, **kwargs)
 
-    def get(self, request, *args, **kwargs):
-        codelist_form = CodelistUpdateForm(
-            {
-                "name": self.codelist.name,
-                "organisation": self.codelist.organisation,
-                "coding_system_id": self.codelist.coding_system_id,
-                "description": self.codelist.description,
-                "methodology": self.codelist.methodology,
-            }
+@transaction.atomic
+def handle_valid(request, codelist, codelist_form, reference_formset, signoff_formset):
+    save_formset(reference_formset, codelist)
+    save_formset(signoff_formset, codelist)
+
+    name = codelist_form.cleaned_data["name"]
+
+    try:
+        codelist = actions.update_codelist(
+            codelist=codelist,
+            organisation=codelist_form.cleaned_data["organisation"],
+            name=codelist_form.cleaned_data["name"],
+            coding_system_id=codelist_form.cleaned_data["coding_system_id"],
+            description=codelist_form.cleaned_data["description"],
+            methodology=codelist_form.cleaned_data["methodology"],
+        )
+    except IntegrityError as e:
+        assert "UNIQUE constraint failed" in str(e)
+        codelist_form.add_error(
+            NON_FIELD_ERRORS,
+            f"There is already a codelist in this organisation called {name}",
+        )
+        return handle_invalid(
+            request, codelist_form, reference_formset, signoff_formset
         )
 
-        reference_formset = self.get_reference_formset()
-        signoff_formset = self.get_signoff_formset()
+    return redirect(codelist)
 
-        context = self.get_context_data(
-            codelist_form=codelist_form,
-            reference_formset=reference_formset,
-            signoff_formset=signoff_formset,
-        )
-        return self.render_to_response(context)
 
-    def post(self, request, *args, **kwargs):
-        codelist_form = CodelistUpdateForm(request.POST, request.FILES)
-        reference_formset = self.get_reference_formset(request.POST, request.FILES)
-        signoff_formset = self.get_signoff_formset(request.POST, request.FILES)
+def handle_invalid(request, codelist_form, reference_formset, signoff_formset):
+    ctx = {
+        "codelist_form": codelist_form,
+        "reference_formset": reference_formset,
+        "signoff_formset": signoff_formset,
+    }
+    return TemplateResponse(request, template_name, ctx)
 
-        all_valid = (
-            codelist_form.is_valid()
-            and reference_formset.is_valid()
-            and signoff_formset.is_valid()
-        )
 
-        if all_valid:
-            return self.all_valid(codelist_form, reference_formset, signoff_formset)
-        else:
-            return self.some_invalid(codelist_form, reference_formset, signoff_formset)
+def save_formset(formset, codelist):
+    """
+    Save the the given FormSet
 
-    @transaction.atomic
-    def all_valid(self, codelist_form, reference_formset, signoff_formset):
-        self.save_formset(reference_formset, self.codelist)
-        self.save_formset(signoff_formset, self.codelist)
+    Both our Reference and SignOff FormSets contain forms which are linked
+    to a particular Codelist.  We need to set that Codelist on the
+    instances generated by the FormSet on `.save()`.
+    """
+    for instance in formset.save(commit=False):
+        instance.codelist = codelist
+        instance.save()
 
-        name = codelist_form.cleaned_data["name"]
-
-        try:
-            codelist = actions.update_codelist(
-                codelist=self.codelist,
-                organisation=codelist_form.cleaned_data["organisation"],
-                name=codelist_form.cleaned_data["name"],
-                coding_system_id=codelist_form.cleaned_data["coding_system_id"],
-                description=codelist_form.cleaned_data["description"],
-                methodology=codelist_form.cleaned_data["methodology"],
-            )
-        except IntegrityError as e:
-            assert "UNIQUE constraint failed" in str(e)
-            codelist_form.add_error(
-                NON_FIELD_ERRORS,
-                f"There is already a codelist in this organisation called {name}",
-            )
-            return self.some_invalid(codelist_form, reference_formset, signoff_formset)
-
-        return redirect(codelist)
-
-    def some_invalid(self, codelist_form, reference_formset, signoff_formset):
-        context = self.get_context_data(
-            codelist_form=codelist_form,
-            reference_formset=reference_formset,
-            signoff_formset=signoff_formset,
-        )
-        return self.render_to_response(context)
-
-    def save_formset(self, formset, codelist):
-        """
-        Save the the given FormSet
-
-        Both our Reference and SignOff FormSets contain forms which are linked
-        to a particular Codelist.  We need to set that Codelist on the
-        instances generated by the FormSet on `.save()`.
-        """
-        for instance in formset.save(commit=False):
-            instance.codelist = codelist
-            instance.save()
-
-        # manually delete the deleted objects since we used .save(commit=False)
-        # earlier, as per the docs:
-        # https://docs.djangoorganisation.com/en/3.0/topics/forms/formsets/#can-delete
-        for obj in formset.deleted_objects:
-            obj.delete()
-
-    def get_reference_formset(self, data=None, files=None):
-        return ReferenceFormSet(
-            data, files, queryset=self.codelist.references.all(), prefix="reference"
-        )
-
-    def get_signoff_formset(self, data=None, files=None):
-        return SignOffFormSet(
-            data, files, queryset=self.codelist.signoffs.all(), prefix="signoff"
-        )
+    # manually delete the deleted objects since we used .save(commit=False)
+    # earlier, as per the docs:
+    # https://docs.djangoorganisation.com/en/3.0/topics/forms/formsets/#can-delete
+    for obj in formset.deleted_objects:
+        obj.delete()

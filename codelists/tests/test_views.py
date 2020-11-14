@@ -9,11 +9,11 @@ from pytest_django.asserts import assertContains, assertRedirects
 
 from codelists.actions import create_codelist, publish_version
 from codelists.views import (
-    CodelistUpdate,
     VersionCreate,
     VersionUpdate,
     codelist,
     codelist_create,
+    codelist_update,
     version,
     version_publish,
 )
@@ -214,7 +214,7 @@ def test_codelistupdate_invalid_post(rf):
 
     request = rf.post("/", data=data)
     request.user = UserFactory()
-    response = CodelistUpdate.as_view()(
+    response = codelist_update(
         request,
         organisation_slug=codelist.organisation.slug,
         codelist_slug=codelist.slug,
@@ -237,7 +237,7 @@ def test_codelistupdate_success_get(rf):
 
     request = rf.get("/")
     request.user = UserFactory()
-    response = CodelistUpdate.as_view()(
+    response = codelist_update(
         request,
         organisation_slug=codelist.organisation.slug,
         codelist_slug=codelist.slug,
@@ -301,7 +301,7 @@ def test_codelistupdate_success_post(rf):
 
     request = rf.post("/", data=data)
     request.user = UserFactory()
-    response = CodelistUpdate.as_view()(
+    response = codelist_update(
         request,
         organisation_slug=codelist.organisation.slug,
         codelist_slug=codelist.slug,
@@ -328,7 +328,7 @@ def test_codelistupdate_when_not_logged_in(rf):
 
     request = rf.post("/the/current/url/")
     request.user = AnonymousUser()
-    response = CodelistUpdate.as_view()(
+    response = codelist_update(
         request,
         organisation_slug=codelist.organisation.slug,
         codelist_slug=codelist.slug,
@@ -362,7 +362,7 @@ def test_codelistupdate_with_duplicate_name(rf):
 
     request = rf.post("/", data=data)
     request.user = UserFactory()
-    response = CodelistUpdate.as_view()(
+    response = codelist_update(
         request,
         organisation_slug=codelist.organisation.slug,
         codelist_slug=codelist.slug,

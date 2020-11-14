@@ -2,10 +2,9 @@ import pytest
 from django.http import Http404
 
 from codelists.views import version_publish
-from opencodelists.tests.factories import UserFactory
 
 from ..factories import CodelistFactory, create_draft_version, create_published_version
-from .assertions import assert_post_unauthenticated
+from .assertions import assert_post_unauthenticated, assert_post_unauthorised
 
 
 def test_post_unauthenticated(rf):
@@ -13,11 +12,16 @@ def test_post_unauthenticated(rf):
     assert_post_unauthenticated(rf, version_publish, version)
 
 
+def test_post_unauthorised(rf):
+    version = create_draft_version()
+    assert_post_unauthorised(rf, version_publish, version)
+
+
 def test_post_success(rf):
     version = create_draft_version()
 
     request = rf.post("/")
-    request.user = UserFactory()
+    request.user = version.codelist.organisation.regular_user
     response = version_publish(
         request,
         organisation_slug=version.codelist.organisation.slug,
@@ -37,7 +41,7 @@ def test_post_unknown_version(rf):
     codelist = CodelistFactory()
 
     request = rf.post("/")
-    request.user = UserFactory()
+    request.user = codelist.organisation.regular_user
     with pytest.raises(Http404):
         version_publish(
             request,
@@ -54,7 +58,7 @@ def test_post_draft_mismatch(rf):
     qualified_version_str = f"{version.qualified_version_str}-draft"
 
     request = rf.post("/")
-    request.user = UserFactory()
+    request.user = version.codelist.organisation.regular_user
     response = version_publish(
         request,
         organisation_slug=version.codelist.organisation.slug,

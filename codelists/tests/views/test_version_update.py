@@ -2,11 +2,15 @@ import pytest
 from django.http import Http404
 
 from codelists.views import version_update
-from opencodelists.tests.factories import UserFactory
 
 from ..factories import CodelistFactory, create_draft_version, create_published_version
 from ..helpers import csv_builder
-from .assertions import assert_get_unauthenticated, assert_post_unauthenticated
+from .assertions import (
+    assert_get_unauthenticated,
+    assert_get_unauthorised,
+    assert_post_unauthenticated,
+    assert_post_unauthorised,
+)
 
 pytestmark = pytest.mark.freeze_time("2020-07-23")
 
@@ -21,11 +25,21 @@ def test_post_unauthenticated(rf):
     assert_post_unauthenticated(rf, version_update, version)
 
 
+def test_get_unauthorised(rf):
+    version = create_draft_version()
+    assert_get_unauthorised(rf, version_update, version)
+
+
+def test_post_unauthorised(rf):
+    version = create_draft_version()
+    assert_post_unauthorised(rf, version_update, version)
+
+
 def test_get_unknown_version(rf):
     codelist = CodelistFactory()
 
     request = rf.get("/")
-    request.user = UserFactory()
+    request.user = codelist.organisation.regular_user
     with pytest.raises(Http404):
         version_update(
             request,
@@ -42,7 +56,7 @@ def test_get_published_with_draft_url(rf):
     qualified_version_str = f"{version.qualified_version_str}-draft"
 
     request = rf.get("/")
-    request.user = UserFactory()
+    request.user = version.codelist.organisation.regular_user
     response = version_update(
         request,
         organisation_slug=version.codelist.organisation.slug,
@@ -66,7 +80,7 @@ def test_post_success(rf):
     }
 
     request = rf.post("/", data=data)
-    request.user = UserFactory()
+    request.user = version.codelist.organisation.regular_user
     response = version_update(
         request,
         organisation_slug=version.codelist.organisation.slug,
@@ -87,7 +101,7 @@ def test_post_form_error(rf):
     version = create_published_version()
 
     request = rf.post("/", data={})
-    request.user = UserFactory()
+    request.user = version.codelist.organisation.regular_user
     response = version_update(
         request,
         organisation_slug=version.codelist.organisation.slug,

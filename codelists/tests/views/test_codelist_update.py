@@ -4,7 +4,12 @@ from codelists.views import codelist_update
 from opencodelists.tests.factories import OrganisationFactory, UserFactory
 
 from ..factories import CodelistFactory, ReferenceFactory, SignOffFactory
-from .assertions import assert_get_unauthenticated, assert_post_unauthenticated
+from .assertions import (
+    assert_get_unauthenticated,
+    assert_get_unauthorised,
+    assert_post_unauthenticated,
+    assert_post_unauthorised,
+)
 
 
 def test_get_unauthenticated(rf):
@@ -17,6 +22,16 @@ def test_post_unauthenticated(rf):
     assert_post_unauthenticated(rf, codelist_update, codelist)
 
 
+def test_get_unauthorised(rf):
+    codelist = CodelistFactory()
+    assert_get_unauthorised(rf, codelist_update, codelist)
+
+
+def test_post_unauthorised(rf):
+    codelist = CodelistFactory()
+    assert_post_unauthorised(rf, codelist_update, codelist)
+
+
 def test_get_success(rf):
     codelist = CodelistFactory()
     SignOffFactory(codelist=codelist)
@@ -25,7 +40,7 @@ def test_get_success(rf):
     ReferenceFactory(codelist=codelist)
 
     request = rf.get("/")
-    request.user = UserFactory()
+    request.user = codelist.organisation.regular_user
     response = codelist_update(
         request,
         organisation_slug=codelist.organisation.slug,
@@ -89,7 +104,7 @@ def test_post_success(rf):
     }
 
     request = rf.post("/", data=data)
-    request.user = UserFactory()
+    request.user = codelist.organisation.regular_user
     response = codelist_update(
         request,
         organisation_slug=codelist.organisation.slug,
@@ -138,7 +153,7 @@ def test_post_invalid(rf):
     }
 
     request = rf.post("/", data=data)
-    request.user = UserFactory()
+    request.user = codelist.organisation.regular_user
     response = codelist_update(
         request,
         organisation_slug=codelist.organisation.slug,
@@ -176,7 +191,7 @@ def test_post_with_duplicate_name(rf):
     }
 
     request = rf.post("/", data=data)
-    request.user = UserFactory()
+    request.user = codelist.organisation.regular_user
     response = codelist_update(
         request,
         organisation_slug=codelist.organisation.slug,

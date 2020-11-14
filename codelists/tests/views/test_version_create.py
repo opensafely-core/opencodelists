@@ -2,11 +2,15 @@ import pytest
 from django.http import Http404
 
 from codelists.views import version_create
-from opencodelists.tests.factories import UserFactory
 
 from ..factories import CodelistFactory, create_published_version
 from ..helpers import csv_builder
-from .assertions import assert_get_unauthenticated, assert_post_unauthenticated
+from .assertions import (
+    assert_get_unauthenticated,
+    assert_get_unauthorised,
+    assert_post_unauthenticated,
+    assert_post_unauthorised,
+)
 
 pytestmark = pytest.mark.freeze_time("2020-07-23")
 
@@ -21,11 +25,21 @@ def test_post_unauthenticated(rf):
     assert_post_unauthenticated(rf, version_create, codelist)
 
 
+def test_get_unauthorised(rf):
+    codelist = CodelistFactory()
+    assert_get_unauthorised(rf, version_create, codelist)
+
+
+def test_post_unauthorised(rf):
+    codelist = CodelistFactory()
+    assert_post_unauthorised(rf, version_create, codelist)
+
+
 def test_get_unknown_codelist(rf):
     codelist = CodelistFactory()
 
     request = rf.get("/")
-    request.user = UserFactory()
+    request.user = codelist.organisation.regular_user
 
     with pytest.raises(Http404):
         version_create(
@@ -44,7 +58,7 @@ def test_post_success(rf):
     }
 
     request = rf.post("/", data=data)
-    request.user = UserFactory()
+    request.user = codelist.organisation.regular_user
     response = version_create(
         request,
         organisation_slug=codelist.organisation.slug,
@@ -64,7 +78,7 @@ def test_post_missing_field(rf):
     codelist = create_published_version().codelist
 
     request = rf.post("/", data={})
-    request.user = UserFactory()
+    request.user = codelist.organisation.regular_user
     response = version_create(
         request,
         organisation_slug=codelist.organisation.slug,

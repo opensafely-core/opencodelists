@@ -3,12 +3,13 @@ from django.shortcuts import redirect
 from django.views.decorators.http import require_POST
 
 from .. import actions
-from .decorators import load_version
+from .decorators import load_version, require_permission
 
 
 @require_POST
 @login_required
 @load_version
+@require_permission
 def version_publish(request, version, expect_draft):
     if expect_draft != version.is_draft:
         return redirect(version)

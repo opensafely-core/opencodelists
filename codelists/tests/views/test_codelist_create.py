@@ -3,7 +3,12 @@ from codelists.views import codelist_create
 from opencodelists.tests.factories import OrganisationFactory, UserFactory
 
 from ..helpers import csv_builder
-from .assertions import assert_get_unauthenticated, assert_post_unauthenticated
+from .assertions import (
+    assert_get_unauthenticated,
+    assert_get_unauthorised,
+    assert_post_unauthenticated,
+    assert_post_unauthorised,
+)
 
 
 def test_get_unauthenticated(rf):
@@ -14,6 +19,16 @@ def test_get_unauthenticated(rf):
 def test_post_unauthenticated(rf):
     organisation = OrganisationFactory()
     assert_post_unauthenticated(rf, codelist_create, organisation)
+
+
+def test_get_unauthorised(rf):
+    organisation = OrganisationFactory()
+    assert_get_unauthorised(rf, codelist_create, organisation)
+
+
+def test_post_unauthorised(rf):
+    organisation = OrganisationFactory()
+    assert_post_unauthorised(rf, codelist_create, organisation)
 
 
 def test_post_success(rf):
@@ -44,7 +59,7 @@ def test_post_success(rf):
     }
 
     request = rf.post("/", data=data)
-    request.user = UserFactory()
+    request.user = organisation.regular_user
     response = codelist_create(request, organisation_slug=organisation.slug)
 
     assert response.status_code == 302
@@ -94,7 +109,7 @@ def test_post_invalid(rf):
     }
 
     request = rf.post("/", data=data)
-    request.user = UserFactory()
+    request.user = organisation.regular_user
     response = codelist_create(request, organisation_slug=organisation.slug)
 
     # we're returning an HTML response when there are errors so check we don't
@@ -137,7 +152,7 @@ def test_post_with_duplicate_name(rf):
     }
 
     request = rf.post("/", data=data)
-    request.user = UserFactory()
+    request.user = organisation.regular_user
     response = codelist_create(request, organisation_slug=organisation.slug)
 
     assert organisation.codelists.count() == 1

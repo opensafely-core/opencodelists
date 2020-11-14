@@ -4,13 +4,14 @@ from django.template.response import TemplateResponse
 
 from .. import actions
 from ..forms import CodelistVersionForm
-from .decorators import load_version
+from .decorators import load_version, require_permission
 
 template_name = "codelists/version_update.html"
 
 
 @login_required
 @load_version
+@require_permission
 def version_update(request, version, expect_draft):
     if expect_draft != version.is_draft:
         return redirect(version)

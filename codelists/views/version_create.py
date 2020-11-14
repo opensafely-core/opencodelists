@@ -4,13 +4,14 @@ from django.template.response import TemplateResponse
 
 from .. import actions
 from ..forms import CodelistVersionForm
-from .decorators import load_codelist
+from .decorators import load_codelist, require_permission
 
 template_name = "codelists/version_create.html"
 
 
 @login_required
 @load_codelist
+@require_permission
 def version_create(request, codelist):
     if request.method == "POST":
         return handle_post(request, codelist)

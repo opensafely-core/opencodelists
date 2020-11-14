@@ -7,13 +7,14 @@ from django.template.response import TemplateResponse
 
 from .. import actions
 from ..forms import CodelistUpdateForm, ReferenceFormSet, SignOffFormSet
-from .decorators import load_codelist
+from .decorators import load_codelist, require_permission
 
 template_name = "codelists/codelist.html"
 
 
 @login_required
 @load_codelist
+@require_permission
 def codelist_update(request, codelist):
     if request.method == "POST":
         return handle_post(request, codelist)

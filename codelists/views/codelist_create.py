@@ -7,7 +7,7 @@ from django.template.response import TemplateResponse
 
 from .. import actions
 from ..forms import CodelistCreateForm, ReferenceForm, SignOffForm, data_without_delete
-from .decorators import load_organisation
+from .decorators import load_organisation, require_permission
 
 template_name = "codelists/codelist.html"
 ReferenceFormSet = formset_factory(ReferenceForm, can_delete=True)
@@ -16,6 +16,7 @@ SignOffFormSet = formset_factory(SignOffForm, can_delete=True)
 
 @login_required
 @load_organisation
+@require_permission
 def codelist_create(request, organisation):
     if request.method == "POST":
         return handle_post(request, organisation)

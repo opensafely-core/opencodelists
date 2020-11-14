@@ -14,7 +14,14 @@ class OrganisationFactory(factory.django.DjangoModelFactory):
     @classmethod
     def _create(cls, model_class, *args, **kwargs):
         """Override the default ``_create`` with our actions."""
-        return actions.create_organisation(*args, **kwargs)
+        organisation = actions.create_organisation(*args, **kwargs)
+        organisation.regular_user = UserFactory()
+        actions.add_user_to_organisation(
+            user=organisation.regular_user,
+            organisation=organisation,
+            date_joined="2020-11-12",
+        )
+        return organisation
 
 
 class UserFactory(factory.django.DjangoModelFactory):

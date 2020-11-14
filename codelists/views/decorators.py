@@ -1,6 +1,6 @@
 from functools import wraps
 
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 
 from opencodelists.models import Organisation
 
@@ -36,7 +36,6 @@ def load_codelist(view_fn):
             organisation_id=organisation_slug,
             slug=codelist_slug,
         )
-
         return view_fn(request, cl)
 
     return wrapped_view
@@ -66,5 +65,17 @@ def load_version(view_fn):
         )
 
         return view_fn(request, clv, expect_draft)
+
+    return wrapped_view
+
+
+def require_permission(view_fn):
+    """Ensure the user has permission to access the view."""
+
+    @wraps(view_fn)
+    def wrapped_view(request, obj, *args, **kwargs):
+        if not request.user.is_member(obj.organisation):
+            return redirect("/")
+        return view_fn(request, obj, *args, **kwargs)
 
     return wrapped_view

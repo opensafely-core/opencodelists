@@ -120,6 +120,11 @@ class Organisation(models.Model):
     def __str__(self):
         return self.name
 
+    @property
+    def organisation(self):
+        # Required for duck-typing in codelists.views.decorators.require_permission.
+        return self
+
     def get_user_membership(self, user):
         try:
             return self.memberships.get(user=user)

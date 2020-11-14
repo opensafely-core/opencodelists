@@ -6,7 +6,7 @@ from codelists.views import version
 from ..factories import create_draft_version, create_published_version
 
 
-def test_version(client, tennis_elbow_codelist):
+def test_get_published(client, tennis_elbow_codelist):
     cl = tennis_elbow_codelist
     clv = publish_version(version=cl.versions.first())
     rsp = client.get(f"/codelist/{cl.organisation.slug}/{cl.slug}/{clv.version_str}/")
@@ -15,7 +15,7 @@ def test_version(client, tennis_elbow_codelist):
     assertContains(rsp, cl.methodology)
 
 
-def test_version_redirects(rf):
+def test_get_published_with_draft_url(rf):
     clv = create_published_version()
     cl = clv.codelist
     request = rf.get("/")
@@ -30,7 +30,7 @@ def test_version_redirects(rf):
     )
 
 
-def test_draft_version(client, tennis_elbow_codelist):
+def test_get_draft(client, tennis_elbow_codelist):
     cl = tennis_elbow_codelist
     clv = cl.versions.first()
     rsp = client.get(
@@ -41,7 +41,7 @@ def test_draft_version(client, tennis_elbow_codelist):
     assertContains(rsp, cl.methodology)
 
 
-def test_draft_version_redirects(rf):
+def test_get_draft_with_published_url(rf):
     clv = create_draft_version()
     cl = clv.codelist
     request = rf.get("/")

@@ -7,7 +7,7 @@ from opencodelists.tests.factories import UserFactory
 from ..factories import CodelistFactory, create_draft_version, create_published_version
 
 
-def test_versionpublish_success(rf):
+def test_post_success(rf):
     version = create_draft_version()
 
     request = rf.post("/")
@@ -27,7 +27,7 @@ def test_versionpublish_success(rf):
     assert not version.is_draft
 
 
-def test_versionpublish_unknown_version(rf):
+def test_post_unknown_version(rf):
     codelist = CodelistFactory()
 
     request = rf.post("/")
@@ -41,7 +41,7 @@ def test_versionpublish_unknown_version(rf):
         )
 
 
-def test_versionpublish_draft_mismatch(rf):
+def test_post_draft_mismatch(rf):
     version = create_published_version()
 
     # set the version string to that of a draft

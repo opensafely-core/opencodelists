@@ -10,7 +10,7 @@ from ..helpers import csv_builder
 pytestmark = pytest.mark.freeze_time("2020-07-23")
 
 
-def test_versioncreate_missing_field(rf):
+def test_post_missing_field(rf):
     codelist = create_published_version().codelist
 
     request = rf.post("/", data={})
@@ -27,7 +27,7 @@ def test_versioncreate_missing_field(rf):
     assert "csv_data" in response.context_data["form"].errors
 
 
-def test_versioncreate_success(rf):
+def test_post_success(rf):
     codelist = create_published_version().codelist
 
     assert codelist.versions.count() == 1
@@ -54,7 +54,7 @@ def test_versioncreate_success(rf):
     assert codelist.versions.count() == 2
 
 
-def test_versioncreate_unknown_codelist(rf):
+def test_get_unknown_codelist(rf):
     codelist = CodelistFactory()
 
     request = rf.get("/")

@@ -8,7 +8,7 @@ from opencodelists.tests.factories import OrganisationFactory, UserFactory
 from ..factories import CodelistFactory, ReferenceFactory, SignOffFactory
 
 
-def test_codelistupdate_invalid_post(rf):
+def test_post_invalid(rf):
     codelist = CodelistFactory()
     signoff_1 = SignOffFactory(codelist=codelist)
     reference_1 = ReferenceFactory(codelist=codelist)
@@ -49,7 +49,7 @@ def test_codelistupdate_invalid_post(rf):
     assert response.context_data["signoff_formset"].errors
 
 
-def test_codelistupdate_success_get(rf):
+def test_get_success(rf):
     codelist = CodelistFactory()
     SignOffFactory(codelist=codelist)
     SignOffFactory(codelist=codelist)
@@ -74,7 +74,7 @@ def test_codelistupdate_success_get(rf):
     assert form.data["methodology"] == codelist.methodology
 
 
-def test_codelistupdate_success_post(rf):
+def test_post_success(rf):
     codelist = CodelistFactory()
     signoff_1 = SignOffFactory(codelist=codelist)
     signoff_2 = SignOffFactory(codelist=codelist)
@@ -144,7 +144,7 @@ def test_codelistupdate_success_post(rf):
     assert codelist.signoffs.last().user == new_signoff_user
 
 
-def test_codelistupdate_when_not_logged_in(rf):
+def test_post_when_not_logged_in(rf):
     codelist = CodelistFactory()
 
     request = rf.post("/the/current/url/")
@@ -159,7 +159,7 @@ def test_codelistupdate_when_not_logged_in(rf):
     assert response.url == "/accounts/login/?next=/the/current/url/"
 
 
-def test_codelistupdate_with_duplicate_name(rf):
+def test_post_with_duplicate_name(rf):
     organisation = OrganisationFactory()
 
     CodelistFactory(name="Existing Codelist", organisation=organisation)

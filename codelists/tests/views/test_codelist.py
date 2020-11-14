@@ -3,7 +3,7 @@ from codelists.views import codelist
 from ..factories import create_published_version
 
 
-def test_codelist(rf):
+def test_get(rf):
     clv = create_published_version()
     cl = clv.codelist
 

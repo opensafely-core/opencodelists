@@ -11,7 +11,7 @@ from ..helpers import csv_builder
 pytestmark = pytest.mark.freeze_time("2020-07-23")
 
 
-def test_versionupdate_unknown_version(rf):
+def test_get_unknown_version(rf):
     codelist = CodelistFactory()
 
     request = rf.get("/")
@@ -25,7 +25,7 @@ def test_versionupdate_unknown_version(rf):
         )
 
 
-def test_versionupdate_draft_mismatch(rf):
+def test_get_published_with_draft_url(rf):
     version = create_published_version()
 
     # set the version string to that of a draft
@@ -45,7 +45,7 @@ def test_versionupdate_draft_mismatch(rf):
     assert response.url == version.get_absolute_url()
 
 
-def test_versionupdate_form_error(rf):
+def test_post_form_error(rf):
     version = create_published_version()
 
     request = rf.post("/", data={})
@@ -62,7 +62,7 @@ def test_versionupdate_form_error(rf):
     assert "csv_data" in response.context_data["form"].errors
 
 
-def test_versionupdate_success(rf):
+def test_post_success(rf):
     version = create_draft_version()
 
     assert version.codelist.versions.count() == 1
@@ -90,7 +90,7 @@ def test_versionupdate_success(rf):
     assert version.codelist.versions.count() == 1
 
 
-def test_versionupdate_not_logged_in(rf):
+def test_post_not_logged_in(rf):
     version = create_published_version()
     codelist = version.codelist
 

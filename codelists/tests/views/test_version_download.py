@@ -4,7 +4,7 @@ from io import StringIO
 from ..factories import create_draft_version, create_published_version
 
 
-def test_download(client):
+def test_get_published(client):
     clv = create_published_version()
     cl = clv.codelist
     rsp = client.get(
@@ -16,7 +16,7 @@ def test_download(client):
     assert data[1] == ["1067731000000107", "Injury whilst swimming (disorder)"]
 
 
-def test_download_does_not_redirect(client):
+def test_get_published_with_draft_url(client):
     clv = create_published_version()
     cl = clv.codelist
     rsp = client.get(
@@ -25,7 +25,7 @@ def test_download_does_not_redirect(client):
     assert rsp.status_code == 404
 
 
-def test_draft_download(client):
+def test_get_draft(client):
     clv = create_draft_version()
     cl = clv.codelist
     rsp = client.get(
@@ -37,7 +37,7 @@ def test_draft_download(client):
     assert data[1] == ["1067731000000107", "Injury whilst swimming (disorder)"]
 
 
-def test_draft_download_does_not_redirect(client):
+def test_get_draft_with_published_url(client):
     clv = create_draft_version()
     cl = clv.codelist
     rsp = client.get(

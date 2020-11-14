@@ -7,7 +7,7 @@ from opencodelists.tests.factories import OrganisationFactory, UserFactory
 from ..helpers import csv_builder
 
 
-def test_codelistcreate_success(rf):
+def test_post_success(rf):
     organisation = OrganisationFactory()
     signoff_user = UserFactory()
 
@@ -56,7 +56,7 @@ def test_codelistcreate_success(rf):
     assert signoff.user == signoff_user
 
 
-def test_codelistcreate_invalid_post(rf):
+def test_post_invalid(rf):
     organisation = OrganisationFactory()
     signoff_user = UserFactory()
 
@@ -96,7 +96,7 @@ def test_codelistcreate_invalid_post(rf):
     assert response.context_data["signoff_formset"].errors
 
 
-def test_codelistcreate_when_not_logged_in(client):
+def test_post_not_logged_in(client):
     p = OrganisationFactory()
     csv_data = "code,description\n1067731000000107,Injury whilst swimming (disorder)"
     data = {
@@ -110,7 +110,7 @@ def test_codelistcreate_when_not_logged_in(client):
     assertRedirects(rsp, f"/accounts/login/?next=%2Fcodelist%2F{p.slug}%2Fadd%2F")
 
 
-def test_codelistcreate_with_duplicate_name(rf):
+def test_post_with_duplicate_name(rf):
     organisation = OrganisationFactory()
 
     create_codelist(

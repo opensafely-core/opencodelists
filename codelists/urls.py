@@ -72,7 +72,7 @@ urlpatterns = [
     ),
     path(
         "codelist/<organisation_slug>/<codelist_slug>/<qualified_version_str>/download.csv",
-        views.download,
-        name="download",
+        views.version_download,
+        name="version-download",
     ),
 ]

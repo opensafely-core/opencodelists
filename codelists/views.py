@@ -457,7 +457,7 @@ class VersionUpdate(TemplateView):
         return context
 
 
-def download(request, organisation_slug, codelist_slug, qualified_version_str):
+def version_download(request, organisation_slug, codelist_slug, qualified_version_str):
     if qualified_version_str[-6:] == "-draft":
         expect_draft = True
         version_str = qualified_version_str[:-6]

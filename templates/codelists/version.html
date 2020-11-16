@@ -43,7 +43,7 @@
       <dd>{{ clv.qualified_version_str }}</dd>
     </dl>
 
-    {% if user.is_authenticated %}
+    {% if user_can_edit %}
     <hr />
 
     <div class="btn-group-vertical btn-block" role="group">

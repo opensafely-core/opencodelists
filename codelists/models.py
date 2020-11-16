@@ -72,6 +72,10 @@ class CodelistVersion(models.Model):
         else:
             return self.version_str
 
+    @property
+    def organisation(self):
+        return self.codelist.organisation
+
     def get_absolute_url(self):
         return reverse(
             "codelists:version-detail",

@@ -39,20 +39,20 @@ urlpatterns = [
     path("codelist/<organisation_slug>/", views.index, name="organisation_index"),
     path(
         "codelist/<organisation_slug>/add/",
-        views.CodelistCreate.as_view(),
-        name="create_codelist",
+        views.codelist_create,
+        name="codelist-create",
     ),
     path(
         "codelist/<organisation_slug>/<codelist_slug>/", views.codelist, name="codelist"
     ),
     path(
         "codelist/<organisation_slug>/<codelist_slug>/edit/",
-        views.CodelistUpdate.as_view(),
-        name="codelist-edit",
+        views.codelist_update,
+        name="codelist-update",
     ),
     path(
         "codelist/<organisation_slug>/<codelist_slug>/add/",
-        views.VersionCreate.as_view(),
+        views.version_create,
         name="version-create",
     ),
     path(
@@ -67,12 +67,12 @@ urlpatterns = [
     ),
     path(
         "codelist/<organisation_slug>/<codelist_slug>/<qualified_version_str>/update/",
-        views.VersionUpdate.as_view(),
+        views.version_update,
         name="version-update",
     ),
     path(
         "codelist/<organisation_slug>/<codelist_slug>/<qualified_version_str>/download.csv",
-        views.download,
-        name="download",
+        views.version_download,
+        name="version-download",
     ),
 ]

@@ -41,7 +41,6 @@ class UserCreate(CreateView):
             username=form.cleaned_data["username"],
             name=form.cleaned_data["name"],
             email=form.cleaned_data["email"],
-            organisation=form.cleaned_data["organisation"],
         )
 
         messages.success(self.request, f"Created user '{user.username}'")

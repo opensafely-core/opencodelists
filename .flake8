@@ -3,3 +3,5 @@ exclude = .direnv,.venv,venv
 ignore = \
     E501 \ # line too long (black fixes long lines, except for long strings which may benefit from being long (eg URLs))
     W503   # line break before binary operator (black disagrees)
+per-file-ignores =
+    codelists/views/__init__.py:F401

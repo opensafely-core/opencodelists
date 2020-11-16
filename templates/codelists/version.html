@@ -20,7 +20,7 @@
   <div class="col-md-3 col-lg-2">
     <div class="btn-group btn-block" role="group">
       <a
-        href="{% url 'codelists:download' clv.codelist.organisation_id clv.codelist.slug clv.qualified_version_str %}"
+        href="{% url 'codelists:version-download' clv.codelist.organisation_id clv.codelist.slug clv.qualified_version_str %}"
         role="button"
         class="btn btn-outline-info btn-block"
       >
@@ -49,7 +49,7 @@
     <div class="btn-group-vertical btn-block" role="group">
       <a
         class="btn btn-outline-info btn-block"
-        href="{% url 'codelists:codelist-edit' organisation_slug=codelist.organisation.slug codelist_slug=codelist.slug %}">
+        href="{% url 'codelists:codelist-update' organisation_slug=codelist.organisation.slug codelist_slug=codelist.slug %}">
         Edit metadata
       </a>
     </div>

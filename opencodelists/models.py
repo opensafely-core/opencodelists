@@ -51,9 +51,6 @@ class User(AbstractBaseUser):
     username = models.SlugField(primary_key=True)
     name = models.CharField(max_length=255)
     email = models.EmailField(verbose_name="email address", max_length=255, unique=True)
-    organisation = models.ForeignKey(
-        "Organisation", on_delete=models.CASCADE, related_name="users"
-    )
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
 
@@ -88,6 +85,19 @@ class User(AbstractBaseUser):
     def get_set_password_url(self):
         return reverse("user-set-password", kwargs={"token": self.signed_username})
 
+    def get_organisation_membership(self, organisation):
+        try:
+            return self.memberships.get(organisation=organisation)
+        except Membership.DoesNotExist:
+            return None
+
+    def is_member(self, organisation):
+        return bool(self.get_organisation_membership(organisation))
+
+    def is_admin_member(self, organisation):
+        membership = self.get_organisation_membership(organisation)
+        return membership and membership.is_admin
+
     @staticmethod
     def unsign_username(token):
         return Signer(salt=SET_PASSWORD_SALT).unsign(token)
@@ -97,6 +107,9 @@ class Organisation(models.Model):
     slug = models.SlugField(primary_key=True)
     name = models.CharField(max_length=255)
     url = models.URLField()
+    users = models.ManyToManyField(
+        "User", through="Membership", related_name="organisations"
+    )
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -106,3 +119,28 @@ class Organisation(models.Model):
 
     def __str__(self):
         return self.name
+
+    @property
+    def organisation(self):
+        # Required for duck-typing in codelists.views.decorators.require_permission.
+        return self
+
+    def get_user_membership(self, user):
+        try:
+            return self.memberships.get(user=user)
+        except Membership.DoesNotExist:
+            return None
+
+
+class Membership(models.Model):
+    user = models.ForeignKey(
+        "User", on_delete=models.CASCADE, related_name="memberships"
+    )
+    organisation = models.ForeignKey(
+        "Organisation", on_delete=models.CASCADE, related_name="memberships"
+    )
+    is_admin = models.BooleanField(default=False)
+    date_joined = models.DateField()
+
+    class Meta:
+        unique_together = ("user", "organisation")

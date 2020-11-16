@@ -7,6 +7,8 @@ from django.core.management import call_command
 from codelists import actions
 from codelists.tests.factories import CodelistFactory
 
+pytest.register_assert_rewrite("codelists.tests.views.assertions")
+
 
 @pytest.fixture(autouse=True)
 def enable_db_access_for_all_tests(db):

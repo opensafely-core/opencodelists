@@ -130,13 +130,17 @@ class CodelistBuilder extends React.Component {
             <Summary counts={this.counts()} />
             <hr />
 
-            <h3 className="mb-4">Term searches</h3>
-            <ul className="list-group">
-              {this.props.searches.map((search) => (
-                <TermSearch key={search.url} search={search} />
-              ))}
-            </ul>
-            <hr />
+            {this.props.searches.length > 0 && (
+              <>
+                <h3 className="mb-4">Term searches</h3>
+                <ul className="list-group">
+                  {this.props.searches.map((search) => (
+                    <TermSearch key={search.url} search={search} />
+                  ))}
+                </ul>
+                <hr />
+              </>
+            )}
 
             <h3 className="mb-4">New term search</h3>
             <SearchForm searchURL={this.props.searchURL} />

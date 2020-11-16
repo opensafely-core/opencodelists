@@ -23,6 +23,19 @@ def create_codelist(*, owner, name, coding_system_id):
 
 
 @transaction.atomic
+def create_codelist_with_codes(*, owner, name, coding_system_id, codes):
+    codelist = owner.draft_codelists.create(
+        name=name, slug=slugify(name), coding_system_id=coding_system_id
+    )
+
+    Code.objects.bulk_create(Code(codelist=codelist, code=code) for code in codes)
+
+    logger.info("Create Codelist with codes", codelist_pk=codelist.pk)
+
+    return codelist
+
+
+@transaction.atomic
 def create_search(*, codelist, term, codes):
     search = codelist.searches.create(term=term, slug=slugify(term))
 
@@ -51,10 +64,13 @@ def delete_search(*, search):
     # Grab the PK before we delete the instance
     search_pk = search.pk
 
-    search.delete()
+    # Delete any codes that only belong to this search
     search.codelist.codes.annotate(num_results=Count("results")).filter(
-        num_results=0
+        results__search=search, num_results=1
     ).delete()
+
+    # Delete the search
+    search.delete()
 
     logger.info("Deleted Search", search_pk=search_pk)
 

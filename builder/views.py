@@ -17,6 +17,8 @@ from . import actions
 from .forms import DraftCodelistForm
 from .models import DraftCodelist
 
+NO_SEARCH_TERM = object()
+
 
 def download(request, username, codelist_slug):
     codelist = get_object_or_404(DraftCodelist, owner=username, slug=codelist_slug)
@@ -110,9 +112,31 @@ def codelist(request, username, codelist_slug, search_slug=None):
     if search_slug is None:
         search = None
         displayed_codes = list(code_to_status)
+    elif search_slug is NO_SEARCH_TERM:
+        search = NO_SEARCH_TERM
+        displayed_codes = list(
+            codelist.codes.filter(results=None).values_list("code", flat=True)
+        )
     else:
         search = get_object_or_404(codelist.searches, slug=search_slug)
         displayed_codes = list(search.results.values_list("code__code", flat=True))
+
+    searches = [
+        {"term": s.term, "url": s.get_absolute_url(), "active": s == search}
+        for s in codelist.searches.order_by("term")
+    ]
+
+    if searches and codelist.codes.filter(results=None).exists():
+        searches.append(
+            {
+                "term": "[no search term]",
+                "url": reverse(
+                    "builder:no-search-term",
+                    args=[codelist.owner.username, codelist.slug],
+                ),
+                "active": search_slug == NO_SEARCH_TERM,
+            }
+        )
 
     filter = request.GET.get("filter")
     if filter == "included":
@@ -136,10 +160,6 @@ def codelist(request, username, codelist_slug, search_slug=None):
         ).items()
     )
 
-    searches = [
-        {"term": s.term, "url": s.get_absolute_url(), "active": s == search}
-        for s in codelist.searches.order_by("term")
-    ]
     update_url = reverse(
         "builder:update", args=[codelist.owner.username, codelist.slug]
     )
@@ -161,6 +181,7 @@ def codelist(request, username, codelist_slug, search_slug=None):
         "user": codelist.owner,
         "codelist": codelist,
         "search": search,
+        "NO_SEARCH_TERM": NO_SEARCH_TERM,
         # The following values are passed to the CodelistBuilder component.
         # When any of these chage, use generate_builder_fixture to update
         # static/test/js/fixtures/elbow.json.

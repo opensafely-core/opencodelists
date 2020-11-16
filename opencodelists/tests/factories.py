@@ -15,6 +15,10 @@ class OrganisationFactory(factory.django.DjangoModelFactory):
     def _create(cls, model_class, *args, **kwargs):
         """Override the default ``_create`` with our actions."""
         organisation = actions.create_organisation(*args, **kwargs)
+
+        # Create a user that belongs to the organisation, and assign this user to an
+        # instance attribute.  This is useful in tests where we need to log a user in to
+        # access an organisation's resources.
         organisation.regular_user = UserFactory()
         actions.add_user_to_organisation(
             user=organisation.regular_user,

@@ -9,7 +9,9 @@ def assert_unauthenticated(rf, method, view, obj):
     request = getattr(rf, method)("/the/current/url/")
     request.user = AnonymousUser()
     response = view(request, **kwargs_for_obj(obj))
-    assert response.status_code == 302
+    assert (
+        response.status_code == 302
+    ), f"Unexpected status code!  Can unauthenticated user {method.upper()} to {view.__module__}.{view.__name__}?"
     assert response.url == "/accounts/login/?next=/the/current/url/"
 
 
@@ -25,7 +27,9 @@ def assert_unauthorised(rf, method, view, obj):
     request = getattr(rf, method)("/the/current/url/")
     request.user = UserFactory()
     response = view(request, **kwargs_for_obj(obj))
-    assert response.status_code == 302
+    assert (
+        response.status_code == 302
+    ), f"Unexpected status code!  Can unauthorised user {method.upper()} to to {view.__module__}.{view.__name__}?"
     assert response.url == "/"
 
 

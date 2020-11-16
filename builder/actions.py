@@ -64,10 +64,13 @@ def delete_search(*, search):
     # Grab the PK before we delete the instance
     search_pk = search.pk
 
-    search.delete()
+    # Delete any codes that only belong to this search
     search.codelist.codes.annotate(num_results=Count("results")).filter(
-        num_results=0
+        results__search=search, num_results=1
     ).delete()
+
+    # Delete the search
+    search.delete()
 
     logger.info("Deleted Search", search_pk=search_pk)
 

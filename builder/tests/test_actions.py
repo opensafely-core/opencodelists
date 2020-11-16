@@ -80,11 +80,28 @@ def test_create_search():
 
 
 def test_delete_search():
-    # Arrange: create a codelist with searches
+    # Arrange: create a codelist with codes and a search
     owner = UserFactory()
-    cl = actions.create_codelist(
-        owner=owner, name="Test Codelist", coding_system_id="snomedct"
+    cl = actions.create_codelist_with_codes(
+        owner=owner,
+        name="Test Codelist",
+        coding_system_id="snomedct",
+        codes=["1067731000000107", "1068181000000106"],
     )
+    s = actions.create_search(
+        codelist=cl, term="synchronised", codes=["1068181000000106"]
+    )
+
+    # Act: delete the search
+    actions.delete_search(search=s)
+
+    # Assert...
+    # that the codelist has 0 searches
+    assert cl.searches.count() == 0
+    # that the still codelist has 1 code which doesn't belong to a search
+    assert cl.codes.count() == 1
+
+    # Arrange: create new searches
     s1 = actions.create_search(
         codelist=cl, term="synchronised", codes=["1068181000000106"]
     )

@@ -19,6 +19,27 @@ def test_create_codelist():
     assert cl.coding_system_id == "snomedct"
 
 
+def test_create_codelist_with_codes():
+    # Arrange: create a user
+    owner = UserFactory()
+
+    # Act: create a codelist with codes
+    cl = actions.create_codelist_with_codes(
+        owner=owner,
+        name="Test Codelist",
+        coding_system_id="snomedct",
+        codes=["1067731000000107", "1068181000000106"],
+    )
+
+    # Assert...
+    # that a codelist's attributes have been set
+    assert cl.owner == owner
+    assert cl.name == "Test Codelist"
+    assert cl.slug == "test-codelist"
+    assert cl.coding_system_id == "snomedct"
+    assert cl.codes.count() == 2
+
+
 def test_create_search():
     # Arrange: create a codelist
     owner = UserFactory()

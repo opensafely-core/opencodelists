@@ -37,42 +37,25 @@ urlpatterns = [
     # ~~~
     path("", views.index, name="index"),
     path("codelist/<organisation_slug>/", views.index, name="organisation_index"),
-    path(
-        "codelist/<organisation_slug>/add/",
-        views.codelist_create,
-        name="codelist-create",
-    ),
-    path(
-        "codelist/<organisation_slug>/<codelist_slug>/", views.codelist, name="codelist"
-    ),
-    path(
-        "codelist/<organisation_slug>/<codelist_slug>/edit/",
-        views.codelist_update,
-        name="codelist-update",
-    ),
-    path(
-        "codelist/<organisation_slug>/<codelist_slug>/add/",
-        views.version_create,
-        name="version-create",
-    ),
-    path(
-        "codelist/<organisation_slug>/<codelist_slug>/<qualified_version_str>/",
-        views.version,
-        name="version-detail",
-    ),
-    path(
-        "codelist/<organisation_slug>/<codelist_slug>/<qualified_version_str>/publish/",
-        views.version_publish,
-        name="version-publish",
-    ),
-    path(
-        "codelist/<organisation_slug>/<codelist_slug>/<qualified_version_str>/update/",
-        views.version_update,
-        name="version-update",
-    ),
-    path(
-        "codelist/<organisation_slug>/<codelist_slug>/<qualified_version_str>/download.csv",
-        views.version_download,
-        name="version-download",
-    ),
 ]
+
+for subpath, view in [
+    ("add/", views.codelist_create),
+    ("<codelist_slug>/", views.codelist),
+    ("<codelist_slug>/edit/", views.codelist_update),
+    ("<codelist_slug>/add/", views.version_create),
+    ("<codelist_slug>/<qualified_version_str>/", views.version),
+    ("<codelist_slug>/<qualified_version_str>/update/", views.version_update),
+    ("<codelist_slug>/<qualified_version_str>/publish/", views.version_publish),
+    ("<codelist_slug>/<qualified_version_str>/download.csv", views.version_download),
+]:
+    urlpatterns.append(
+        path(
+            "codelist/<organisation_slug>/" + subpath,
+            view,
+            name="organisation_" + view.__name__,
+        )
+    )
+    urlpatterns.append(
+        path("codelist/user/<username>/" + subpath, view, name="user_" + view.__name__)
+    )

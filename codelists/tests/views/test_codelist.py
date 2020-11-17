@@ -1,17 +1,23 @@
-from codelists.views import codelist
-
-from ..factories import create_published_version
+from ..factories import create_published_version, create_published_version_for_user
 
 
-def test_get(rf):
+def test_get_for_organisation(client):
     clv = create_published_version()
     cl = clv.codelist
 
-    request = rf.get("/")
-    response = codelist(request, cl.organisation.slug, cl.slug)
+    response = client.get(cl.get_absolute_url())
 
-    # check codelist() redirects to the correct version page
+    # check redirect to the correct version page
     assert response.status_code == 302
-    assert (
-        response.url == f"/codelist/{cl.organisation.slug}/{cl.slug}/{clv.version_str}/"
-    )
+    assert response.url == clv.get_absolute_url()
+
+
+def test_get_for_user(client):
+    clv = create_published_version_for_user()
+    cl = clv.codelist
+
+    response = client.get(cl.get_absolute_url())
+
+    # check redirect to the correct version page
+    assert response.status_code == 302
+    assert response.url == clv.get_absolute_url()

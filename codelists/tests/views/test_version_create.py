@@ -1,9 +1,6 @@
 import pytest
-from django.http import Http404
 
-from codelists.views import version_create
-
-from ..factories import CodelistFactory, create_published_version
+from ..factories import CodelistFactory, UserFactory, create_published_version
 from ..helpers import csv_builder
 from .assertions import (
     assert_get_unauthenticated,
@@ -15,40 +12,47 @@ from .assertions import (
 pytestmark = pytest.mark.freeze_time("2020-07-23")
 
 
-def test_get_unauthenticated(rf):
+def test_get_unauthenticated(client):
     codelist = CodelistFactory()
-    assert_get_unauthenticated(rf, version_create, codelist)
+    assert_get_unauthenticated(client, codelist.get_version_create_url())
 
 
-def test_post_unauthenticated(rf):
+def test_post_unauthenticated(client):
     codelist = CodelistFactory()
-    assert_post_unauthenticated(rf, version_create, codelist)
+    assert_post_unauthenticated(client, codelist.get_version_create_url())
 
 
-def test_get_unauthorised(rf):
+def test_get_unauthorised(client):
     codelist = CodelistFactory()
-    assert_get_unauthorised(rf, version_create, codelist)
+    assert_get_unauthorised(client, codelist.get_version_create_url())
 
 
-def test_post_unauthorised(rf):
+def test_post_unauthorised(client):
     codelist = CodelistFactory()
-    assert_post_unauthorised(rf, version_create, codelist)
+    assert_post_unauthorised(client, codelist.get_version_create_url())
 
 
-def test_get_unknown_codelist(rf):
+def test_get_unauthorised_for_user(client):
+    codelist = CodelistFactory(owner=UserFactory())
+    assert_get_unauthorised(client, codelist.get_version_create_url())
+
+
+def test_post_unauthorised_for_user(client):
+    codelist = CodelistFactory(owner=UserFactory())
+    assert_post_unauthorised(client, codelist.get_version_create_url())
+
+
+def test_get_unknown_codelist(client):
     codelist = CodelistFactory()
-
-    request = rf.get("/")
-    request.user = codelist.organisation.regular_user
-
-    with pytest.raises(Http404):
-        version_create(
-            request, organisation_slug=codelist.organisation.slug, codelist_slug="test"
-        )
+    client.force_login(codelist.organisation.regular_user)
+    url = codelist.get_version_create_url().replace(codelist.slug, "test")
+    response = client.get(url, data={})
+    assert response.status_code == 404
 
 
-def test_post_success(rf):
+def test_post_success(client):
     codelist = create_published_version().codelist
+    client.force_login(codelist.organisation.regular_user)
 
     assert codelist.versions.count() == 1
 
@@ -57,33 +61,19 @@ def test_post_success(rf):
         "csv_data": csv_builder(csv_data),
     }
 
-    request = rf.post("/", data=data)
-    request.user = codelist.organisation.regular_user
-    response = version_create(
-        request,
-        organisation_slug=codelist.organisation.slug,
-        codelist_slug=codelist.slug,
-    )
+    response = client.post(codelist.get_version_create_url(), data=data)
 
+    clv = codelist.versions.filter(is_draft=True).get()
     assert response.status_code == 302
-    assert (
-        response.url
-        == f"/codelist/{codelist.organisation.slug}/{codelist.slug}/2020-07-23-a-draft/"
-    )
-
+    assert response.url == clv.get_absolute_url()
     assert codelist.versions.count() == 2
 
 
-def test_post_missing_field(rf):
+def test_post_missing_field(client):
     codelist = create_published_version().codelist
+    client.force_login(codelist.organisation.regular_user)
 
-    request = rf.post("/", data={})
-    request.user = codelist.organisation.regular_user
-    response = version_create(
-        request,
-        organisation_slug=codelist.organisation.slug,
-        codelist_slug=codelist.slug,
-    )
+    response = client.post(codelist.get_version_create_url(), data={})
 
     assert response.status_code == 200
     assert "form" in response.context_data

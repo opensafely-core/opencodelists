@@ -22,6 +22,12 @@ class Codelist(models.Model):
         related_name="codelists",
         on_delete=models.CASCADE,
     )
+    user = models.ForeignKey(
+        "opencodelists.User",
+        null=True,
+        related_name="codelists",
+        on_delete=models.CASCADE,
+    )
     coding_system_id = models.CharField(
         choices=CODING_SYSTEMS_CHOICES, max_length=32, verbose_name="Coding system"
     )
@@ -29,7 +35,16 @@ class Codelist(models.Model):
     methodology = models.TextField()
 
     class Meta:
-        unique_together = ("organisation", "name", "slug")
+        unique_together = [("organisation", "name", "slug"), ("user", "name", "slug")]
+        constraints = [
+            models.CheckConstraint(
+                name="%(app_label)s_%(class)s_organisation_xor_user",
+                check=(
+                    models.Q(organisation_id__isnull=False, user_id__isnull=True)
+                    | models.Q(user_id__isnull=False, organisation_id__isnull=True)
+                ),
+            )
+        ]
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)
@@ -42,8 +57,42 @@ class Codelist(models.Model):
     def coding_system(self):
         return CODING_SYSTEMS[self.coding_system_id]
 
+    @property
+    def codelist_type(self):
+        if self.user_id:
+            assert not self.organisation_id
+            return "user"
+        else:
+            assert self.organisation_id
+            return "organisation"
+
     def get_absolute_url(self):
-        return reverse("codelists:codelist", args=(self.organisation_id, self.slug))
+        return reverse(
+            f"codelists:{self.codelist_type}_codelist", kwargs=self.url_kwargs
+        )
+
+    def get_update_url(self):
+        return reverse(
+            f"codelists:{self.codelist_type}_codelist_update", kwargs=self.url_kwargs
+        )
+
+    def get_version_create_url(self):
+        return reverse(
+            f"codelists:{self.codelist_type}_version_create", kwargs=self.url_kwargs
+        )
+
+    @property
+    def url_kwargs(self):
+        if self.codelist_type == "organisation":
+            return {
+                "organisation_slug": self.organisation_id,
+                "codelist_slug": self.slug,
+            }
+        else:
+            return {
+                "username": self.user_id,
+                "codelist_slug": self.slug,
+            }
 
     def full_slug(self):
         return "{}/{}".format(self.organisation_id, self.slug)
@@ -76,25 +125,35 @@ class CodelistVersion(models.Model):
     def organisation(self):
         return self.codelist.organisation
 
+    @property
+    def user(self):
+        return self.codelist.user
+
     def get_absolute_url(self):
         return reverse(
-            "codelists:version-detail",
-            args=(
-                self.codelist.organisation_id,
-                self.codelist.slug,
-                self.qualified_version_str,
-            ),
+            f"codelists:{self.codelist_type}_version", kwargs=self.url_kwargs
+        )
+
+    def get_update_url(self):
+        return reverse(
+            f"codelists:{self.codelist_type}_version_update", kwargs=self.url_kwargs
         )
 
     def get_publish_url(self):
         return reverse(
-            "codelists:version-publish",
-            kwargs={
-                "organisation_slug": self.codelist.organisation_id,
-                "codelist_slug": self.codelist.slug,
-                "qualified_version_str": self.qualified_version_str,
-            },
+            f"codelists:{self.codelist_type}_version_publish", kwargs=self.url_kwargs
         )
+
+    def get_download_url(self):
+        return reverse(
+            f"codelists:{self.codelist_type}_version_download", kwargs=self.url_kwargs
+        )
+
+    @property
+    def url_kwargs(self):
+        kwargs = self.codelist.url_kwargs
+        kwargs["qualified_version_str"] = self.qualified_version_str
+        return kwargs
 
     @cached_property
     def coding_system_id(self):
@@ -103,6 +162,10 @@ class CodelistVersion(models.Model):
     @cached_property
     def coding_system(self):
         return CODING_SYSTEMS[self.coding_system_id]
+
+    @property
+    def codelist_type(self):
+        return self.codelist.codelist_type
 
     @cached_property
     def table(self):

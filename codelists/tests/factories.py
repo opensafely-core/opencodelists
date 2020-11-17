@@ -5,15 +5,14 @@ import factory.fuzzy
 
 from codelists import actions
 from codelists.models import Codelist, Reference, SignOff
+from opencodelists.tests.factories import UserFactory
 
 
 class CodelistFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Codelist
 
-    organisation = factory.SubFactory(
-        "opencodelists.tests.factories.OrganisationFactory"
-    )
+    owner = factory.SubFactory("opencodelists.tests.factories.OrganisationFactory")
 
     name = "Test Codelist"
     coding_system_id = "snomedct"
@@ -50,5 +49,12 @@ def create_draft_version():
 
 def create_published_version():
     clv = create_draft_version()
+    actions.publish_version(version=clv)
+    return clv
+
+
+def create_published_version_for_user():
+    codelist = CodelistFactory(owner=UserFactory())
+    clv = codelist.versions.get()
     actions.publish_version(version=clv)
     return clv

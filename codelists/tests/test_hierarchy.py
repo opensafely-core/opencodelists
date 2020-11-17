@@ -1,4 +1,4 @@
-from .helpers import build_small_hierarchy
+from .helpers import build_hierarchy, build_small_hierarchy
 
 
 def test_nodes():
@@ -59,3 +59,199 @@ def test_descendants():
         "f": set(),
     }.items():
         assert hierarchy.descendants(node) == descendants
+
+
+def test_update_node_to_status():
+    hierarchy = build_hierarchy()
+
+    node_to_status = {
+        #        ?
+        #       / \
+        #      +   -
+        #     / \ / \
+        #   (+)  !  (-)
+        #   / \ / \ / \
+        # (+)  !   !  (-)
+        "a": "?",
+        "b": "+",
+        "c": "-",
+        "d": "(+)",
+        "e": "!",
+        "f": "(-)",
+        "g": "(+)",
+        "h": "!",
+        "i": "!",
+        "j": "(-)",
+    }
+
+    assert hierarchy.update_node_to_status(
+        node_to_status, [("a", "-"), ("f", "+"), ("b", "?"), ("a", "+")]
+    ) == {
+        #        +
+        #       / \
+        #     (+)  -
+        #     / \ / \
+        #   (+) (-)  +
+        #   / \ / \ / \
+        # (+) (-) (+) (+)
+        "a": "+",
+        "b": "(+)",
+        "c": "-",
+        "d": "(+)",
+        "e": "(-)",
+        "f": "+",
+        "g": "(+)",
+        "h": "(-)",
+        "i": "(+)",
+        "j": "(+)",
+    }
+
+
+def test_node_status():
+    hierarchy = build_hierarchy()
+
+    def build_node_to_status(included, excluded):
+        return {
+            node: hierarchy.node_status(node, included, excluded)
+            for node in hierarchy.nodes
+        }
+
+    assert build_node_to_status(set(), set()) == {
+        #        ?
+        #       / \
+        #      ?   ?
+        #     / \ / \
+        #    ?   ?   ?
+        #   / \ / \ / \
+        #  ?   ?   ?   ?
+        "a": "?",
+        "b": "?",
+        "c": "?",
+        "d": "?",
+        "e": "?",
+        "f": "?",
+        "g": "?",
+        "h": "?",
+        "i": "?",
+        "j": "?",
+    }
+
+    assert build_node_to_status({"a"}, set()) == {
+        #        +
+        #       / \
+        #     (+) (+)
+        #     / \ / \
+        #   (+) (+) (+)
+        #   / \ / \ / \
+        # (+) (+) (+) (+)
+        "a": "+",
+        "b": "(+)",
+        "c": "(+)",
+        "d": "(+)",
+        "e": "(+)",
+        "f": "(+)",
+        "g": "(+)",
+        "h": "(+)",
+        "i": "(+)",
+        "j": "(+)",
+    }
+
+    assert build_node_to_status({"b"}, {"c"}) == {
+        #        ?
+        #       / \
+        #      +   -
+        #     / \ / \
+        #   (+)  !  (-)
+        #   / \ / \ / \
+        # (+)  !   !  (-)
+        "a": "?",
+        "b": "+",
+        "c": "-",
+        "d": "(+)",
+        "e": "!",
+        "f": "(-)",
+        "g": "(+)",
+        "h": "!",
+        "i": "!",
+        "j": "(-)",
+    }
+
+    assert build_node_to_status({"a", "b"}, set()) == {
+        #        +
+        #       / \
+        #      +  (+)
+        #     / \ / \
+        #   (+) (+) (+)
+        #   / \ / \ / \
+        # (+) (+) (+) (+)
+        "a": "+",
+        "b": "+",
+        "c": "(+)",
+        "d": "(+)",
+        "e": "(+)",
+        "f": "(+)",
+        "g": "(+)",
+        "h": "(+)",
+        "i": "(+)",
+        "j": "(+)",
+    }
+
+    assert build_node_to_status({"a"}, {"b"}) == {
+        #        +
+        #       / \
+        #      -  (+)
+        #     / \ / \
+        #   (-) (-) (+)
+        #   / \ / \ / \
+        # (-) (-) (-) (+)
+        "a": "+",
+        "b": "-",
+        "c": "(+)",
+        "d": "(-)",
+        "e": "(-)",
+        "f": "(+)",
+        "g": "(-)",
+        "h": "(-)",
+        "i": "(-)",
+        "j": "(+)",
+    }
+
+    assert build_node_to_status({"a"}, {"b", "c"}) == {
+        #        +
+        #       / \
+        #      -   -
+        #     / \ / \
+        #   (-) (-) (-)
+        #   / \ / \ / \
+        # (-) (-) (-) (-)
+        "a": "+",
+        "b": "-",
+        "c": "-",
+        "d": "(-)",
+        "e": "(-)",
+        "f": "(-)",
+        "g": "(-)",
+        "h": "(-)",
+        "i": "(-)",
+        "j": "(-)",
+    }
+
+    assert build_node_to_status({"a", "e"}, {"b", "c"}) == {
+        #        +
+        #       / \
+        #      -   -
+        #     / \ / \
+        #   (-)  +  (-)
+        #   / \ / \ / \
+        # (-) (+) (+) (-)
+        "a": "+",
+        "b": "-",
+        "c": "-",
+        "d": "(-)",
+        "e": "+",
+        "f": "(-)",
+        "g": "(-)",
+        "h": "(+)",
+        "i": "(+)",
+        "j": "(-)",
+    }

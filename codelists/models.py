@@ -22,6 +22,12 @@ class Codelist(models.Model):
         related_name="codelists",
         on_delete=models.CASCADE,
     )
+    user = models.ForeignKey(
+        "opencodelists.User",
+        null=True,
+        related_name="codelists",
+        on_delete=models.CASCADE,
+    )
     coding_system_id = models.CharField(
         choices=CODING_SYSTEMS_CHOICES, max_length=32, verbose_name="Coding system"
     )
@@ -29,7 +35,7 @@ class Codelist(models.Model):
     methodology = models.TextField()
 
     class Meta:
-        unique_together = ("organisation", "name", "slug")
+        unique_together = [("organisation", "name", "slug"), ("user", "name", "slug")]
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)

@@ -50,9 +50,5 @@ for subpath, view in [
     ("<codelist_slug>/<qualified_version_str>/download.csv", views.version_download),
 ]:
     urlpatterns.append(
-        path(
-            "codelist/<organisation_slug>/" + subpath,
-            view,
-            name=view.__name__.replace("_", "-"),
-        )
+        path("codelist/<organisation_slug>/" + subpath, view, name=view.__name__)
     )

@@ -61,10 +61,10 @@ class Codelist(models.Model):
         return reverse("codelists:codelist", kwargs=self.url_kwargs)
 
     def get_update_url(self):
-        return reverse("codelists:codelist-update", kwargs=self.url_kwargs)
+        return reverse("codelists:codelist_update", kwargs=self.url_kwargs)
 
     def get_version_create_url(self):
-        return reverse("codelists:version-create", kwargs=self.url_kwargs)
+        return reverse("codelists:version_create", kwargs=self.url_kwargs)
 
     @cached_property
     def url_kwargs(self):
@@ -108,13 +108,13 @@ class CodelistVersion(models.Model):
         return reverse("codelists:version", kwargs=self.url_kwargs)
 
     def get_update_url(self):
-        return reverse("codelists:version-update", kwargs=self.url_kwargs)
+        return reverse("codelists:version_update", kwargs=self.url_kwargs)
 
     def get_publish_url(self):
-        return reverse("codelists:version-publish", kwargs=self.url_kwargs)
+        return reverse("codelists:version_publish", kwargs=self.url_kwargs)
 
     def get_download_url(self):
-        return reverse("codelists:version-download", kwargs=self.url_kwargs)
+        return reverse("codelists:version_download", kwargs=self.url_kwargs)
 
     @cached_property
     def url_kwargs(self):

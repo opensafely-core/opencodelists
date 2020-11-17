@@ -1,3 +1,32 @@
+import pytest
+from django.db.utils import IntegrityError
+
+from codelists.models import Codelist
+from opencodelists.tests.factories import OrganisationFactory, UserFactory
+
+
+def test_codelist_cannot_belong_to_user_and_organisation():
+    with pytest.raises(IntegrityError):
+        Codelist.objects.create(
+            name="Test",
+            coding_system_id="snomedct",
+            description="blah",
+            methodology="blah",
+            user=UserFactory(),
+            organisation=OrganisationFactory(),
+        )
+
+
+def test_codelist_must_belong_to_user_or_organisation():
+    with pytest.raises(IntegrityError):
+        Codelist.objects.create(
+            name="Test",
+            coding_system_id="snomedct",
+            description="blah",
+            methodology="blah",
+        )
+
+
 def test_old_style_codes(tennis_elbow_codelist):
     cl = tennis_elbow_codelist
     clv = cl.versions.get()

@@ -36,6 +36,15 @@ class Codelist(models.Model):
 
     class Meta:
         unique_together = [("organisation", "name", "slug"), ("user", "name", "slug")]
+        constraints = [
+            models.CheckConstraint(
+                name="%(app_label)s_%(class)s_organisation_xor_user",
+                check=(
+                    models.Q(organisation_id__isnull=False, user_id__isnull=True)
+                    | models.Q(user_id__isnull=False, organisation_id__isnull=True)
+                ),
+            )
+        ]
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)

@@ -126,7 +126,7 @@ class Organisation(models.Model):
         return self
 
     def get_codelist_create_url(self):
-        return reverse("codelists:codelist_create", kwargs=self.url_kwargs)
+        return reverse("codelists:organisation_codelist_create", kwargs=self.url_kwargs)
 
     @property
     def url_kwargs(self):

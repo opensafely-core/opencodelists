@@ -57,14 +57,29 @@ class Codelist(models.Model):
     def coding_system(self):
         return CODING_SYSTEMS[self.coding_system_id]
 
+    @property
+    def codelist_type(self):
+        if self.user_id:
+            assert not self.organisation_id
+            return "user"
+        else:
+            assert self.organisation_id
+            return "organisation"
+
     def get_absolute_url(self):
-        return reverse("codelists:codelist", kwargs=self.url_kwargs)
+        return reverse(
+            f"codelists:{self.codelist_type}_codelist", kwargs=self.url_kwargs
+        )
 
     def get_update_url(self):
-        return reverse("codelists:codelist_update", kwargs=self.url_kwargs)
+        return reverse(
+            f"codelists:{self.codelist_type}_codelist_update", kwargs=self.url_kwargs
+        )
 
     def get_version_create_url(self):
-        return reverse("codelists:version_create", kwargs=self.url_kwargs)
+        return reverse(
+            f"codelists:{self.codelist_type}_version_create", kwargs=self.url_kwargs
+        )
 
     @property
     def url_kwargs(self):
@@ -105,16 +120,24 @@ class CodelistVersion(models.Model):
         return self.codelist.organisation
 
     def get_absolute_url(self):
-        return reverse("codelists:version", kwargs=self.url_kwargs)
+        return reverse(
+            f"codelists:{self.codelist_type}_version", kwargs=self.url_kwargs
+        )
 
     def get_update_url(self):
-        return reverse("codelists:version_update", kwargs=self.url_kwargs)
+        return reverse(
+            f"codelists:{self.codelist_type}_version_update", kwargs=self.url_kwargs
+        )
 
     def get_publish_url(self):
-        return reverse("codelists:version_publish", kwargs=self.url_kwargs)
+        return reverse(
+            f"codelists:{self.codelist_type}_version_publish", kwargs=self.url_kwargs
+        )
 
     def get_download_url(self):
-        return reverse("codelists:version_download", kwargs=self.url_kwargs)
+        return reverse(
+            f"codelists:{self.codelist_type}_version_download", kwargs=self.url_kwargs
+        )
 
     @property
     def url_kwargs(self):
@@ -131,6 +154,10 @@ class CodelistVersion(models.Model):
     @cached_property
     def coding_system(self):
         return CODING_SYSTEMS[self.coding_system_id]
+
+    @property
+    def codelist_type(self):
+        return self.codelist.codelist_type
 
     @cached_property
     def table(self):

@@ -23,7 +23,7 @@ def test_get_published_with_draft_url(client):
         codelist_slug=clv.codelist.slug,
         qualified_version_str=clv.version_str + "-draft",
     )
-    url = reverse("codelists:version", kwargs=kwargs)
+    url = reverse("codelists:organisation_version", kwargs=kwargs)
     response = client.get(url)
 
     # check redirect to the non-draft page for a published version
@@ -47,7 +47,7 @@ def test_get_draft_with_published_url(client):
         codelist_slug=clv.codelist.slug,
         qualified_version_str=clv.qualified_version_str[:-6],
     )
-    url = reverse("codelists:version", kwargs=kwargs)
+    url = reverse("codelists:organisation_version", kwargs=kwargs)
     response = client.get(url)
 
     # check redirect to the draft page for a draft version

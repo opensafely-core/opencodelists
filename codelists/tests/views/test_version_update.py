@@ -42,7 +42,7 @@ def test_get_unknown_version(client):
         codelist_slug=codelist.slug,
         qualified_version_str="test",
     )
-    url = reverse("codelists:version_update", kwargs=kwargs)
+    url = reverse("codelists:organisation_version_update", kwargs=kwargs)
 
     response = client.get(url)
 
@@ -58,7 +58,7 @@ def test_get_published_with_draft_url(client):
         codelist_slug=version.codelist.slug,
         qualified_version_str=f"{version.qualified_version_str}-draft",
     )
-    url = reverse("codelists:version_update", kwargs=kwargs)
+    url = reverse("codelists:organisation_version_update", kwargs=kwargs)
 
     response = client.post(url)
 

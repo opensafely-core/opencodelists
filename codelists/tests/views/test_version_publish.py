@@ -35,7 +35,7 @@ def test_post_unknown_version(client):
         codelist_slug=codelist.slug,
         qualified_version_str="test",
     )
-    url = reverse("codelists:version_publish", kwargs=kwargs)
+    url = reverse("codelists:organisation_version_publish", kwargs=kwargs)
 
     response = client.post(url)
 
@@ -51,7 +51,7 @@ def test_post_draft_mismatch(client):
         codelist_slug=version.codelist.slug,
         qualified_version_str=f"{version.qualified_version_str}-draft",
     )
-    url = reverse("codelists:version_publish", kwargs=kwargs)
+    url = reverse("codelists:organisation_version_publish", kwargs=kwargs)
 
     response = client.post(url)
 

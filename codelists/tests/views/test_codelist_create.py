@@ -124,7 +124,7 @@ def test_post_with_duplicate_name(rf):
     organisation = OrganisationFactory()
 
     create_codelist(
-        organisation=organisation,
+        owner=organisation,
         name="Test",
         coding_system_id="snomedct",
         description="This is a test",
@@ -163,5 +163,5 @@ def test_post_with_duplicate_name(rf):
 
     # confirm we have errors from the codelist form
     assert response.context_data["codelist_form"].errors == {
-        "__all__": ["There is already a codelist in this organisation called Test"]
+        "__all__": ["There is already a codelist called Test"]
     }

@@ -14,7 +14,7 @@ logger = structlog.get_logger()
 
 def create_codelist(
     *,
-    organisation,
+    owner,  # Can be an Organisation or a User
     name,
     coding_system_id,
     description,
@@ -26,7 +26,7 @@ def create_codelist(
     """Create a new codelist with a version."""
 
     with transaction.atomic():
-        codelist = organisation.codelists.create(
+        codelist = owner.codelists.create(
             name=name,
             coding_system_id=coding_system_id,
             description=description,

@@ -70,7 +70,7 @@ def handle_valid(
 
     try:
         codelist = actions.create_codelist(
-            organisation=organisation,
+            owner=organisation,
             name=name,
             coding_system_id=codelist_form.cleaned_data["coding_system_id"],
             description=codelist_form.cleaned_data["description"],
@@ -83,7 +83,7 @@ def handle_valid(
         assert "UNIQUE constraint failed" in str(e)
         codelist_form.add_error(
             NON_FIELD_ERRORS,
-            f"There is already a codelist in this organisation called {name}",
+            f"There is already a codelist called {name}",
         )
         return handle_invalid(
             request, codelist_form, reference_formset, signoff_formset

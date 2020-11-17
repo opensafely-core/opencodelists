@@ -86,7 +86,7 @@ def handle_valid(request, codelist, codelist_form, reference_formset, signoff_fo
         assert "UNIQUE constraint failed" in str(e)
         codelist_form.add_error(
             NON_FIELD_ERRORS,
-            f"There is already a codelist in this organisation called {name}",
+            f"There is already a codelist called {name}",
         )
         return handle_invalid(
             request, codelist_form, reference_formset, signoff_formset

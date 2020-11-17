@@ -168,8 +168,8 @@ def test_post_invalid(rf):
 def test_post_with_duplicate_name(rf):
     organisation = OrganisationFactory()
 
-    CodelistFactory(name="Existing Codelist", organisation=organisation)
-    codelist = CodelistFactory(organisation=organisation)
+    CodelistFactory(name="Existing Codelist", owner=organisation)
+    codelist = CodelistFactory(owner=organisation)
 
     data = {
         "name": "Existing Codelist",
@@ -198,7 +198,5 @@ def test_post_with_duplicate_name(rf):
 
     # confirm we have errors from the codelist form
     assert response.context_data["codelist_form"].errors == {
-        "__all__": [
-            "There is already a codelist in this organisation called Existing Codelist"
-        ]
+        "__all__": ["There is already a codelist called Existing Codelist"]
     }

@@ -1,5 +1,4 @@
 from codelists.actions import create_codelist
-from codelists.views import codelist_create
 from opencodelists.tests.factories import OrganisationFactory, UserFactory
 
 from ..helpers import csv_builder
@@ -11,27 +10,27 @@ from .assertions import (
 )
 
 
-def test_get_unauthenticated(rf):
+def test_get_unauthenticated(client):
     organisation = OrganisationFactory()
-    assert_get_unauthenticated(rf, codelist_create, organisation)
+    assert_get_unauthenticated(client, organisation.get_codelist_create_url())
 
 
-def test_post_unauthenticated(rf):
+def test_post_unauthenticated(client):
     organisation = OrganisationFactory()
-    assert_post_unauthenticated(rf, codelist_create, organisation)
+    assert_post_unauthenticated(client, organisation.get_codelist_create_url())
 
 
-def test_get_unauthorised(rf):
+def test_get_unauthorised(client):
     organisation = OrganisationFactory()
-    assert_get_unauthorised(rf, codelist_create, organisation)
+    assert_get_unauthorised(client, organisation.get_codelist_create_url())
 
 
-def test_post_unauthorised(rf):
+def test_post_unauthorised(client):
     organisation = OrganisationFactory()
-    assert_post_unauthorised(rf, codelist_create, organisation)
+    assert_post_unauthorised(client, organisation.get_codelist_create_url())
 
 
-def test_post_success(rf):
+def test_post_success(client):
     organisation = OrganisationFactory()
     signoff_user = UserFactory()
 
@@ -58,9 +57,8 @@ def test_post_success(rf):
         "signoff-0-date": "2020-01-23",
     }
 
-    request = rf.post("/", data=data)
-    request.user = organisation.regular_user
-    response = codelist_create(request, organisation_slug=organisation.slug)
+    client.force_login(organisation.regular_user)
+    response = client.post(organisation.get_codelist_create_url(), data=data)
 
     assert response.status_code == 302
     assert response.url == f"/codelist/{organisation.slug}/test-codelist/"
@@ -80,7 +78,7 @@ def test_post_success(rf):
     assert signoff.user == signoff_user
 
 
-def test_post_invalid(rf):
+def test_post_invalid(client):
     organisation = OrganisationFactory()
     signoff_user = UserFactory()
 
@@ -108,9 +106,8 @@ def test_post_invalid(rf):
         "signoff-0-user": signoff_user.username,
     }
 
-    request = rf.post("/", data=data)
-    request.user = organisation.regular_user
-    response = codelist_create(request, organisation_slug=organisation.slug)
+    client.force_login(organisation.regular_user)
+    response = client.post(organisation.get_codelist_create_url(), data=data)
 
     # we're returning an HTML response when there are errors so check we don't
     # receive a redirect code
@@ -120,7 +117,7 @@ def test_post_invalid(rf):
     assert response.context_data["signoff_formset"].errors
 
 
-def test_post_with_duplicate_name(rf):
+def test_post_with_duplicate_name(client):
     organisation = OrganisationFactory()
 
     create_codelist(
@@ -151,9 +148,8 @@ def test_post_with_duplicate_name(rf):
         "signoff-MAX_NUM_FORMS": "1000",
     }
 
-    request = rf.post("/", data=data)
-    request.user = organisation.regular_user
-    response = codelist_create(request, organisation_slug=organisation.slug)
+    client.force_login(organisation.regular_user)
+    response = client.post(organisation.get_codelist_create_url(), data=data)
 
     assert organisation.codelists.count() == 1
 

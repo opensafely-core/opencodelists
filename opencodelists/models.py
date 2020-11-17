@@ -125,6 +125,13 @@ class Organisation(models.Model):
         # Required for duck-typing in codelists.views.decorators.require_permission.
         return self
 
+    def get_codelist_create_url(self):
+        return reverse("codelists:codelist_create", kwargs=self.url_kwargs)
+
+    @property
+    def url_kwargs(self):
+        return {"organisation_slug": self.slug}
+
     def get_user_membership(self, user):
         try:
             return self.memberships.get(user=user)

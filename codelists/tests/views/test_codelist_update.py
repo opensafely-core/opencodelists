@@ -1,6 +1,5 @@
 import datetime
 
-from codelists.views import codelist_update
 from opencodelists.tests.factories import OrganisationFactory, UserFactory
 
 from ..factories import CodelistFactory, ReferenceFactory, SignOffFactory
@@ -12,40 +11,35 @@ from .assertions import (
 )
 
 
-def test_get_unauthenticated(rf):
+def test_get_unauthenticated(client):
     codelist = CodelistFactory()
-    assert_get_unauthenticated(rf, codelist_update, codelist)
+    assert_get_unauthenticated(client, codelist.get_update_url())
 
 
-def test_post_unauthenticated(rf):
+def test_post_unauthenticated(client):
     codelist = CodelistFactory()
-    assert_post_unauthenticated(rf, codelist_update, codelist)
+    assert_post_unauthenticated(client, codelist.get_update_url())
 
 
-def test_get_unauthorised(rf):
+def test_get_unauthorised(client):
     codelist = CodelistFactory()
-    assert_get_unauthorised(rf, codelist_update, codelist)
+    assert_get_unauthorised(client, codelist.get_update_url())
 
 
-def test_post_unauthorised(rf):
+def test_post_unauthorised(client):
     codelist = CodelistFactory()
-    assert_post_unauthorised(rf, codelist_update, codelist)
+    assert_post_unauthorised(client, codelist.get_update_url())
 
 
-def test_get_success(rf):
+def test_get_success(client):
     codelist = CodelistFactory()
     SignOffFactory(codelist=codelist)
     SignOffFactory(codelist=codelist)
     ReferenceFactory(codelist=codelist)
     ReferenceFactory(codelist=codelist)
 
-    request = rf.get("/")
-    request.user = codelist.organisation.regular_user
-    response = codelist_update(
-        request,
-        organisation_slug=codelist.organisation.slug,
-        codelist_slug=codelist.slug,
-    )
+    client.force_login(codelist.organisation.regular_user)
+    response = client.get(codelist.get_update_url())
 
     assert response.status_code == 200
 
@@ -56,7 +50,7 @@ def test_get_success(rf):
     assert form.data["methodology"] == codelist.methodology
 
 
-def test_post_success(rf):
+def test_post_success(client):
     codelist = CodelistFactory()
     signoff_1 = SignOffFactory(codelist=codelist)
     signoff_2 = SignOffFactory(codelist=codelist)
@@ -101,13 +95,8 @@ def test_post_success(rf):
         "signoff-2-date": "2000-01-01",
     }
 
-    request = rf.post("/", data=data)
-    request.user = codelist.organisation.regular_user
-    response = codelist_update(
-        request,
-        organisation_slug=codelist.organisation.slug,
-        codelist_slug=codelist.slug,
-    )
+    client.force_login(codelist.organisation.regular_user)
+    response = client.post(codelist.get_update_url(), data=data)
 
     assert response.status_code == 302
     assert response.url == f"/codelist/{codelist.organisation.slug}/{codelist.slug}/"
@@ -125,7 +114,7 @@ def test_post_success(rf):
     assert codelist.signoffs.last().user == new_signoff_user
 
 
-def test_post_invalid(rf):
+def test_post_invalid(client):
     codelist = CodelistFactory()
     signoff_1 = SignOffFactory(codelist=codelist)
     reference_1 = ReferenceFactory(codelist=codelist)
@@ -149,13 +138,8 @@ def test_post_invalid(rf):
         "signoff-0-user": signoff_1.user.username,
     }
 
-    request = rf.post("/", data=data)
-    request.user = codelist.organisation.regular_user
-    response = codelist_update(
-        request,
-        organisation_slug=codelist.organisation.slug,
-        codelist_slug=codelist.slug,
-    )
+    client.force_login(codelist.organisation.regular_user)
+    response = client.post(codelist.get_update_url(), data=data)
 
     # we're returning an HTML response when there are errors so check we don't
     # receive a redirect code
@@ -165,7 +149,7 @@ def test_post_invalid(rf):
     assert response.context_data["signoff_formset"].errors
 
 
-def test_post_with_duplicate_name(rf):
+def test_post_with_duplicate_name(client):
     organisation = OrganisationFactory()
 
     CodelistFactory(name="Existing Codelist", owner=organisation)
@@ -186,13 +170,8 @@ def test_post_with_duplicate_name(rf):
         "signoff-MAX_NUM_FORMS": "1000",
     }
 
-    request = rf.post("/", data=data)
-    request.user = codelist.organisation.regular_user
-    response = codelist_update(
-        request,
-        organisation_slug=codelist.organisation.slug,
-        codelist_slug=codelist.slug,
-    )
+    client.force_login(codelist.organisation.regular_user)
+    response = client.post(codelist.get_update_url(), data=data)
 
     assert response.status_code == 200
 

@@ -66,7 +66,7 @@ class Codelist(models.Model):
     def get_version_create_url(self):
         return reverse("codelists:version_create", kwargs=self.url_kwargs)
 
-    @cached_property
+    @property
     def url_kwargs(self):
         return {
             "organisation_slug": self.organisation_id,
@@ -116,7 +116,7 @@ class CodelistVersion(models.Model):
     def get_download_url(self):
         return reverse("codelists:version_download", kwargs=self.url_kwargs)
 
-    @cached_property
+    @property
     def url_kwargs(self):
         return {
             "organisation_slug": self.codelist.organisation_id,

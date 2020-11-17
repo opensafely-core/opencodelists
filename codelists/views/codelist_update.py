@@ -25,7 +25,6 @@ def handle_get(request, codelist):
     codelist_form = CodelistUpdateForm(
         {
             "name": codelist.name,
-            "organisation": codelist.organisation,
             "coding_system_id": codelist.coding_system_id,
             "description": codelist.description,
             "methodology": codelist.methodology,
@@ -78,7 +77,6 @@ def handle_valid(request, codelist, codelist_form, reference_formset, signoff_fo
     try:
         codelist = actions.update_codelist(
             codelist=codelist,
-            organisation=codelist_form.cleaned_data["organisation"],
             name=codelist_form.cleaned_data["name"],
             coding_system_id=codelist_form.cleaned_data["coding_system_id"],
             description=codelist_form.cleaned_data["description"],

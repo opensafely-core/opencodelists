@@ -91,13 +91,8 @@ def create_version(*, codelist, csv_data):
 
 
 @transaction.atomic
-def update_codelist(
-    *, codelist, organisation, name, coding_system_id, description, methodology
-):
+def update_codelist(*, codelist, name, coding_system_id, description, methodology):
     """Update a Codelist."""
-
-    # CHANGEME we don't want codelists moving between organisations
-    codelist.organisation = organisation
 
     codelist.name = name
     codelist.coding_system_id = coding_system_id

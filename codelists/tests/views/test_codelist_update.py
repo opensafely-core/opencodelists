@@ -51,7 +51,6 @@ def test_get_success(rf):
 
     form = response.context_data["codelist_form"]
     assert form.data["name"] == codelist.name
-    assert form.data["organisation"] == codelist.organisation
     assert form.data["coding_system_id"] == codelist.coding_system_id
     assert form.data["description"] == codelist.description
     assert form.data["methodology"] == codelist.methodology
@@ -70,7 +69,6 @@ def test_post_success(rf):
     new_signoff_user = UserFactory()
 
     data = {
-        "organisation": codelist.organisation.slug,
         "name": "Test Codelist",
         "coding_system_id": "snomedct",
         "description": "This is a test CHANGED",
@@ -134,7 +132,6 @@ def test_post_invalid(rf):
 
     # missing signoff-0-date
     data = {
-        "organisation": codelist.organisation.slug,
         "name": "Test Codelist",
         "coding_system_id": "snomedct",
         "description": "This is a test",
@@ -175,7 +172,6 @@ def test_post_with_duplicate_name(rf):
     codelist = CodelistFactory(organisation=organisation)
 
     data = {
-        "organisation": codelist.organisation.slug,
         "name": "Existing Codelist",
         "coding_system_id": "snomedct",
         "description": "This is a test CHANGED",

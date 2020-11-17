@@ -20,7 +20,7 @@
   <div class="col-md-3 col-lg-2">
     <div class="btn-group btn-block" role="group">
       <a
-        href="{% url 'codelists:version-download' clv.codelist.organisation_id clv.codelist.slug clv.qualified_version_str %}"
+        href="{{ clv.get_download_url }}"
         role="button"
         class="btn btn-outline-info btn-block"
       >
@@ -49,7 +49,7 @@
     <div class="btn-group-vertical btn-block" role="group">
       <a
         class="btn btn-outline-info btn-block"
-        href="{% url 'codelists:codelist-update' organisation_slug=codelist.organisation.slug codelist_slug=codelist.slug %}">
+        href="{{ clv.get_update_url }}">
         Edit metadata
       </a>
     </div>
@@ -59,14 +59,14 @@
     <div class="btn-group-vertical btn-block" role="group">
       <a
         class="btn btn-outline-info btn-block"
-        href="{% url 'codelists:version-create' organisation_slug=codelist.organisation.slug codelist_slug=codelist.slug %}">
+        href="{{ codelist.get_version_create_url }}">
         Create new version
       </a>
 
       {% if clv.is_draft %}
       <a
         class="btn btn-outline-info btn-block"
-        href="{% url 'codelists:version-update' organisation_slug=codelist.organisation.slug codelist_slug=codelist.slug qualified_version_str=clv.qualified_version_str %}">
+        href="{{ clv.get_update_url }}">
         Update version
       </a>
       <button

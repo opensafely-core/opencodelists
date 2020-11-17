@@ -58,7 +58,20 @@ class Codelist(models.Model):
         return CODING_SYSTEMS[self.coding_system_id]
 
     def get_absolute_url(self):
-        return reverse("codelists:codelist", args=(self.organisation_id, self.slug))
+        return reverse("codelists:codelist", kwargs=self.url_kwargs)
+
+    def get_update_url(self):
+        return reverse("codelists:codelist-update", kwargs=self.url_kwargs)
+
+    def get_version_create_url(self):
+        return reverse("codelists:version-create", kwargs=self.url_kwargs)
+
+    @cached_property
+    def url_kwargs(self):
+        return {
+            "organisation_slug": self.organisation_id,
+            "codelist_slug": self.slug,
+        }
 
     def full_slug(self):
         return "{}/{}".format(self.organisation_id, self.slug)
@@ -92,24 +105,24 @@ class CodelistVersion(models.Model):
         return self.codelist.organisation
 
     def get_absolute_url(self):
-        return reverse(
-            "codelists:version",
-            args=(
-                self.codelist.organisation_id,
-                self.codelist.slug,
-                self.qualified_version_str,
-            ),
-        )
+        return reverse("codelists:version", kwargs=self.url_kwargs)
+
+    def get_update_url(self):
+        return reverse("codelists:version-update", kwargs=self.url_kwargs)
 
     def get_publish_url(self):
-        return reverse(
-            "codelists:version-publish",
-            kwargs={
-                "organisation_slug": self.codelist.organisation_id,
-                "codelist_slug": self.codelist.slug,
-                "qualified_version_str": self.qualified_version_str,
-            },
-        )
+        return reverse("codelists:version-publish", kwargs=self.url_kwargs)
+
+    def get_download_url(self):
+        return reverse("codelists:version-download", kwargs=self.url_kwargs)
+
+    @cached_property
+    def url_kwargs(self):
+        return {
+            "organisation_slug": self.codelist.organisation_id,
+            "codelist_slug": self.codelist.slug,
+            "qualified_version_str": self.qualified_version_str,
+        }
 
     @cached_property
     def coding_system_id(self):

@@ -1,7 +1,12 @@
 import pytest
 from django.urls import reverse
 
-from ..factories import CodelistFactory, create_draft_version, create_published_version
+from ..factories import (
+    CodelistFactory,
+    create_draft_version,
+    create_published_version,
+    create_published_version_for_user,
+)
 from ..helpers import csv_builder
 from .assertions import (
     assert_get_unauthenticated,
@@ -30,6 +35,16 @@ def test_get_unauthorised(client):
 
 def test_post_unauthorised(client):
     version = create_draft_version()
+    assert_post_unauthorised(client, version.get_update_url())
+
+
+def test_get_unauthorised_for_user(client):
+    version = create_published_version_for_user()
+    assert_get_unauthorised(client, version.get_update_url())
+
+
+def test_post_unauthorised_for_user(client):
+    version = create_published_version_for_user()
     assert_post_unauthorised(client, version.get_update_url())
 
 

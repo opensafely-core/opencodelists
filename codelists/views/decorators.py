@@ -2,22 +2,27 @@ from functools import wraps
 
 from django.shortcuts import get_object_or_404, redirect
 
-from opencodelists.models import Organisation
+from opencodelists.models import Organisation, User
 
 from ..models import Codelist, CodelistVersion
 
 
-def load_organisation(view_fn):
-    """Load an Organisation (or raise 404) and pass it to view function.
+def load_owner(view_fn):
+    """Load an Organisation or User (or raise 404) and pass it to view function.
 
-    Assumes that the view function get a single parameter from the URL,
-    organisation_slug.
+    Assumes that the view function get a single parameter from the URL:
+    organisation_slug/username.
     """
 
     @wraps(view_fn)
-    def wrapped_view(request, organisation_slug):
-        org = get_object_or_404(Organisation, slug=organisation_slug)
-        return view_fn(request, org)
+    def wrapped_view(request, organisation_slug=None, username=None):
+        if organisation_slug:
+            assert not username
+            owner = get_object_or_404(Organisation, slug=organisation_slug)
+        else:
+            assert username
+            owner = get_object_or_404(User, username=username)
+        return view_fn(request, owner)
 
     return wrapped_view
 
@@ -25,17 +30,21 @@ def load_organisation(view_fn):
 def load_codelist(view_fn):
     """Load a Codelist (or raise 404) and pass it to view function.
 
-    Assumes that the view function get a two parameters from the URL,
-    organisation_slug and codelist_slug.
+    Assumes that the view function get a two parameters from the URL:
+    organisation_slug/username and codelist_slug.
     """
 
     @wraps(view_fn)
-    def wrapped_view(request, organisation_slug, codelist_slug):
-        cl = get_object_or_404(
-            Codelist,
-            organisation_id=organisation_slug,
-            slug=codelist_slug,
-        )
+    def wrapped_view(request, codelist_slug, organisation_slug=None, username=None):
+        kwargs = {"slug": codelist_slug}
+        if organisation_slug:
+            assert not username
+            kwargs["organisation_id"] = organisation_slug
+        else:
+            assert username
+            kwargs["user_id"] = username
+
+        cl = get_object_or_404(Codelist, **kwargs)
         return view_fn(request, cl)
 
     return wrapped_view
@@ -45,11 +54,17 @@ def load_version(view_fn):
     """Load a CodelistVersion (or raise 404) and pass it to view function.
 
     Assumes that the view function get a three parameters from the URL,
-    organisation_slug, codelist_slug, and qualified_version_str.
+    organisation_slug/username, codelist_slug, and qualified_version_str:
     """
 
     @wraps(view_fn)
-    def wrapped_view(request, organisation_slug, codelist_slug, qualified_version_str):
+    def wrapped_view(
+        request,
+        codelist_slug,
+        qualified_version_str,
+        organisation_slug=None,
+        username=None,
+    ):
         if qualified_version_str[-6:] == "-draft":
             expect_draft = True
             version_str = qualified_version_str[:-6]
@@ -57,12 +72,15 @@ def load_version(view_fn):
             expect_draft = False
             version_str = qualified_version_str
 
-        clv = get_object_or_404(
-            CodelistVersion.objects,
-            codelist__organisation_id=organisation_slug,
-            codelist__slug=codelist_slug,
-            version_str=version_str,
-        )
+        kwargs = {"codelist__slug": codelist_slug, "version_str": version_str}
+        if organisation_slug:
+            assert not username
+            kwargs["codelist__organisation_id"] = organisation_slug
+        else:
+            assert username
+            kwargs["codelist__user_id"] = username
+
+        clv = get_object_or_404(CodelistVersion.objects, **kwargs)
 
         return view_fn(request, clv, expect_draft)
 
@@ -74,8 +92,14 @@ def require_permission(view_fn):
 
     @wraps(view_fn)
     def wrapped_view(request, obj, *args, **kwargs):
-        if not request.user.is_member(obj.organisation):
-            return redirect("/")
+        if obj.organisation:
+            assert not obj.user
+            if not request.user.is_member(obj.organisation):
+                return redirect("/")
+        else:
+            assert obj.user
+            if request.user != obj.user:
+                return redirect("/")
         return view_fn(request, obj, *args, **kwargs)
 
     return wrapped_view

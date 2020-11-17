@@ -83,10 +83,16 @@ class Codelist(models.Model):
 
     @property
     def url_kwargs(self):
-        return {
-            "organisation_slug": self.organisation_id,
-            "codelist_slug": self.slug,
-        }
+        if self.codelist_type == "organisation":
+            return {
+                "organisation_slug": self.organisation_id,
+                "codelist_slug": self.slug,
+            }
+        else:
+            return {
+                "username": self.user_id,
+                "codelist_slug": self.slug,
+            }
 
     def full_slug(self):
         return "{}/{}".format(self.organisation_id, self.slug)
@@ -119,6 +125,10 @@ class CodelistVersion(models.Model):
     def organisation(self):
         return self.codelist.organisation
 
+    @property
+    def user(self):
+        return self.codelist.user
+
     def get_absolute_url(self):
         return reverse(
             f"codelists:{self.codelist_type}_version", kwargs=self.url_kwargs
@@ -141,11 +151,9 @@ class CodelistVersion(models.Model):
 
     @property
     def url_kwargs(self):
-        return {
-            "organisation_slug": self.codelist.organisation_id,
-            "codelist_slug": self.codelist.slug,
-            "qualified_version_str": self.qualified_version_str,
-        }
+        kwargs = self.codelist.url_kwargs
+        kwargs["qualified_version_str"] = self.qualified_version_str
+        return kwargs
 
     @cached_property
     def coding_system_id(self):

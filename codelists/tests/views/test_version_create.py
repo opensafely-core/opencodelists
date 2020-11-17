@@ -1,6 +1,6 @@
 import pytest
 
-from ..factories import CodelistFactory, create_published_version
+from ..factories import CodelistFactory, UserFactory, create_published_version
 from ..helpers import csv_builder
 from .assertions import (
     assert_get_unauthenticated,
@@ -29,6 +29,16 @@ def test_get_unauthorised(client):
 
 def test_post_unauthorised(client):
     codelist = CodelistFactory()
+    assert_post_unauthorised(client, codelist.get_version_create_url())
+
+
+def test_get_unauthorised_for_user(client):
+    codelist = CodelistFactory(owner=UserFactory())
+    assert_get_unauthorised(client, codelist.get_version_create_url())
+
+
+def test_post_unauthorised_for_user(client):
+    codelist = CodelistFactory(owner=UserFactory())
     assert_post_unauthorised(client, codelist.get_version_create_url())
 
 

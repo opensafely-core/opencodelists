@@ -3,7 +3,11 @@ from pytest_django.asserts import assertContains
 
 from codelists.actions import publish_version
 
-from ..factories import create_draft_version, create_published_version
+from ..factories import (
+    create_draft_version,
+    create_published_version,
+    create_published_version_for_user,
+)
 
 
 def test_get_published(client, tennis_elbow_codelist):
@@ -53,3 +57,9 @@ def test_get_draft_with_published_url(client):
     # check redirect to the draft page for a draft version
     assert response.status_code == 302
     assert response.url == clv.get_absolute_url()
+
+
+def test_get_for_user(client):
+    clv = create_published_version_for_user()
+    response = client.get(clv.get_absolute_url())
+    assert response.status_code == 200

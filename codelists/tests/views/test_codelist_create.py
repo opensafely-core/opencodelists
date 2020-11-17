@@ -30,6 +30,34 @@ def test_post_unauthorised(client):
     assert_post_unauthorised(client, organisation.get_codelist_create_url())
 
 
+def test_get_unauthorised_for_user(client):
+    user = UserFactory()
+    assert_get_unauthorised(client, user.get_codelist_create_url())
+
+
+def test_post_unauthorised_for_user(client):
+    user = UserFactory()
+    assert_post_unauthorised(client, user.get_codelist_create_url())
+
+
+def test_get_for_organisation(client):
+    organisation = OrganisationFactory()
+    client.force_login(organisation.regular_user)
+
+    response = client.get(organisation.get_codelist_create_url())
+
+    assert response.status_code == 200
+
+
+def test_get_for_user(client):
+    user = UserFactory()
+    client.force_login(user)
+
+    response = client.get(user.get_codelist_create_url())
+
+    assert response.status_code == 200
+
+
 def test_post_success(client):
     organisation = OrganisationFactory()
     signoff_user = UserFactory()

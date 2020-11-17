@@ -56,3 +56,6 @@ for subpath, view in [
             name="organisation_" + view.__name__,
         )
     )
+    urlpatterns.append(
+        path("codelist/user/<username>/" + subpath, view, name="user_" + view.__name__)
+    )

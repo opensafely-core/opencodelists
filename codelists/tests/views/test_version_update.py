@@ -64,24 +64,6 @@ def test_get_unknown_version(client):
     assert response.status_code == 404
 
 
-def test_get_published_with_draft_url(client):
-    version = create_published_version()
-    client.force_login(version.codelist.organisation.regular_user)
-
-    kwargs = dict(
-        organisation_slug=version.codelist.organisation.slug,
-        codelist_slug=version.codelist.slug,
-        qualified_tag=f"{version.qualified_tag}-draft",
-    )
-    url = reverse("codelists:organisation_version_update", kwargs=kwargs)
-
-    response = client.post(url)
-
-    # we should get redirected to the Version page
-    assert response.status_code == 302
-    assert response.url == version.get_absolute_url()
-
-
 def test_post_success(client):
     version = create_draft_version()
     client.force_login(version.codelist.organisation.regular_user)
@@ -96,11 +78,7 @@ def test_post_success(client):
     response = client.post(version.get_update_url(), data=data)
 
     assert response.status_code == 302
-    assert (
-        response.url
-        == f"/codelist/{version.codelist.organisation.slug}/{version.codelist.slug}/2020-07-23-draft/"
-    )
-
+    assert response.url == version.get_absolute_url()
     assert version.codelist.versions.count() == 1
 
 

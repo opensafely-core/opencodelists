@@ -116,10 +116,7 @@ class CodelistVersion(models.Model):
 
     @property
     def qualified_tag(self):
-        if self.is_draft:
-            return f"{self.tag}-draft"
-        else:
-            return self.tag
+        return self.tag
 
     @property
     def organisation(self):

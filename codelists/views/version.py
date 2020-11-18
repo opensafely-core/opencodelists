@@ -1,4 +1,4 @@
-from django.shortcuts import redirect, render
+from django.shortcuts import render
 
 from coding_systems.snomedct.models import Concept as SnomedConcept
 
@@ -10,10 +10,7 @@ from .decorators import load_version
 
 
 @load_version
-def version(request, clv, expect_draft):
-    if expect_draft != clv.is_draft:
-        return redirect(clv)
-
+def version(request, clv):
     definition_rows = {}
     child_map = None
     code_to_status = None

@@ -1,13 +1,10 @@
-from django.http import Http404, HttpResponse
+from django.http import HttpResponse
 
 from .decorators import load_version
 
 
 @load_version
-def version_download(request, clv, expect_draft):
-    if expect_draft != clv.is_draft:
-        raise Http404
-
+def version_download(request, clv):
     response = HttpResponse(content_type="text/csv")
     content_disposition = 'attachment; filename="{}.csv"'.format(
         clv.download_filename()

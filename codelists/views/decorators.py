@@ -65,14 +65,7 @@ def load_version(view_fn):
         organisation_slug=None,
         username=None,
     ):
-        if qualified_tag[-6:] == "-draft":
-            expect_draft = True
-            tag = qualified_tag[:-6]
-        else:
-            expect_draft = False
-            tag = qualified_tag
-
-        kwargs = {"codelist__slug": codelist_slug, "tag": tag}
+        kwargs = {"codelist__slug": codelist_slug, "tag": qualified_tag}
         if organisation_slug:
             assert not username
             kwargs["codelist__organisation_id"] = organisation_slug
@@ -82,7 +75,7 @@ def load_version(view_fn):
 
         clv = get_object_or_404(CodelistVersion.objects, **kwargs)
 
-        return view_fn(request, clv, expect_draft)
+        return view_fn(request, clv)
 
     return wrapped_view
 

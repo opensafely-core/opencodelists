@@ -54,18 +54,18 @@ def load_version(view_fn):
     """Load a CodelistVersion (or raise 404) and pass it to view function.
 
     Assumes that the view function get a three parameters from the URL,
-    organisation_slug/username, codelist_slug, and qualified_tag:
+    organisation_slug/username, codelist_slug, and tag:
     """
 
     @wraps(view_fn)
     def wrapped_view(
         request,
         codelist_slug,
-        qualified_tag,
+        tag,
         organisation_slug=None,
         username=None,
     ):
-        kwargs = {"codelist__slug": codelist_slug, "tag": qualified_tag}
+        kwargs = {"codelist__slug": codelist_slug, "tag": tag}
         if organisation_slug:
             assert not username
             kwargs["codelist__organisation_id"] = organisation_slug

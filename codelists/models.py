@@ -115,10 +115,6 @@ class CodelistVersion(models.Model):
         super().save(*args, **kwargs)
 
     @property
-    def qualified_tag(self):
-        return self.tag
-
-    @property
     def organisation(self):
         return self.codelist.organisation
 
@@ -149,7 +145,7 @@ class CodelistVersion(models.Model):
     @property
     def url_kwargs(self):
         kwargs = self.codelist.url_kwargs
-        kwargs["qualified_tag"] = self.qualified_tag
+        kwargs["tag"] = self.tag
         return kwargs
 
     @cached_property

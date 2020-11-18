@@ -6,6 +6,8 @@ from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.text import slugify
 
+from opencodelists.hash_utils import hash
+
 from .coding_systems import CODING_SYSTEMS
 
 
@@ -145,8 +147,12 @@ class CodelistVersion(models.Model):
     @property
     def url_kwargs(self):
         kwargs = self.codelist.url_kwargs
-        kwargs["tag"] = self.tag
+        kwargs["tag_or_hash"] = self.tag or self.hash
         return kwargs
+
+    @property
+    def hash(self):
+        return hash(self.id, "CodelistVersion")
 
     @cached_property
     def coding_system_id(self):

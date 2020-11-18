@@ -33,7 +33,7 @@ def test_post_unknown_version(client):
     kwargs = dict(
         organisation_slug=codelist.organisation.slug,
         codelist_slug=codelist.slug,
-        tag="test",
+        tag_or_hash="test",
     )
     url = reverse("codelists:organisation_version_publish", kwargs=kwargs)
 

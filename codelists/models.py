@@ -147,12 +147,16 @@ class CodelistVersion(models.Model):
     @property
     def url_kwargs(self):
         kwargs = self.codelist.url_kwargs
-        kwargs["tag_or_hash"] = self.tag or self.hash
+        kwargs["tag_or_hash"] = self.tag_or_hash
         return kwargs
 
     @property
     def hash(self):
         return hash(self.id, "CodelistVersion")
+
+    @property
+    def tag_or_hash(self):
+        return self.tag or self.hash
 
     @cached_property
     def coding_system_id(self):

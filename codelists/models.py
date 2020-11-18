@@ -36,6 +36,9 @@ class Codelist(models.Model):
     description = models.TextField()
     methodology = models.TextField()
 
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
     class Meta:
         unique_together = [("organisation", "name", "slug"), ("user", "name", "slug")]
         constraints = [
@@ -107,6 +110,9 @@ class CodelistVersion(models.Model):
     tag = models.CharField(max_length=12, null=True)
     csv_data = models.TextField(verbose_name="CSV data", null=True)
     is_draft = models.BooleanField(default=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         unique_together = ("codelist", "tag")

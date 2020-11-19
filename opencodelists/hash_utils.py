@@ -41,8 +41,6 @@ def hash(m, key):
     if m >= N:
         raise ValueError(f"{m} is too large")
     c = int(key, 36)
-    assert c < N
-
     m_hash = (m * c) % N
     return hex(m_hash)[2:].rjust(8, "0")
 
@@ -53,6 +51,5 @@ def unhash(h, key):
     if len(h) > 8:
         raise ValueError(f"{h} is too long")
     c = int(key, 36)
-    assert c < N
     inv_c = pow(c, N - 2, N)  # Equivalent to pow(c, N - 2) % N, but efficient!
     return int(h, 16) * inv_c % N

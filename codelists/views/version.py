@@ -66,7 +66,7 @@ def version(request, clv, expect_draft):
     ctx = {
         "clv": clv,
         "codelist": clv.codelist,
-        "versions": clv.codelist.versions.order_by("-version_str"),
+        "versions": clv.codelist.versions.order_by("-tag"),
         "headers": headers,
         "rows": rows,
         "tree_tables": tree_tables,

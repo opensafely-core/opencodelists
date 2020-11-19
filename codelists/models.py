@@ -102,12 +102,12 @@ class CodelistVersion(models.Model):
     codelist = models.ForeignKey(
         "Codelist", on_delete=models.CASCADE, related_name="versions"
     )
-    version_str = models.CharField(max_length=12, verbose_name="Version")
+    tag = models.CharField(max_length=12)
     csv_data = models.TextField(verbose_name="CSV data", null=True)
     is_draft = models.BooleanField(default=True)
 
     class Meta:
-        unique_together = ("codelist", "version_str")
+        unique_together = ("codelist", "tag")
 
     def save(self, *args, **kwargs):
         if self.csv_data:
@@ -115,11 +115,11 @@ class CodelistVersion(models.Model):
         super().save(*args, **kwargs)
 
     @property
-    def qualified_version_str(self):
+    def qualified_tag(self):
         if self.is_draft:
-            return f"{self.version_str}-draft"
+            return f"{self.tag}-draft"
         else:
-            return self.version_str
+            return self.tag
 
     @property
     def organisation(self):
@@ -152,7 +152,7 @@ class CodelistVersion(models.Model):
     @property
     def url_kwargs(self):
         kwargs = self.codelist.url_kwargs
-        kwargs["qualified_version_str"] = self.qualified_version_str
+        kwargs["qualified_tag"] = self.qualified_tag
         return kwargs
 
     @cached_property
@@ -211,7 +211,7 @@ class CodelistVersion(models.Model):
 
     def download_filename(self):
         return "{}-{}-{}".format(
-            self.codelist.organisation_id, self.codelist.slug, self.version_str
+            self.codelist.organisation_id, self.codelist.slug, self.tag
         )
 
 

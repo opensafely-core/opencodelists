@@ -25,7 +25,7 @@ def test_get_published_with_draft_url(client):
     kwargs = dict(
         organisation_slug=clv.codelist.organisation.slug,
         codelist_slug=clv.codelist.slug,
-        qualified_version_str=clv.version_str + "-draft",
+        qualified_tag=clv.tag + "-draft",
     )
     url = reverse("codelists:organisation_version", kwargs=kwargs)
     response = client.get(url)
@@ -49,7 +49,7 @@ def test_get_draft_with_published_url(client):
     kwargs = dict(
         organisation_slug=clv.codelist.organisation.slug,
         codelist_slug=clv.codelist.slug,
-        qualified_version_str=clv.qualified_version_str[:-6],
+        qualified_tag=clv.qualified_tag[:-6],
     )
     url = reverse("codelists:organisation_version", kwargs=kwargs)
     response = client.get(url)

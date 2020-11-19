@@ -74,14 +74,12 @@ def create_version(*, codelist, csv_data):
     hit it.
     """
 
-    base_version_str = str(date.today())
+    base_tag = str(date.today())
     suffixes = string.ascii_lowercase
-    version_strs = [base_version_str] + [f"{base_version_str}-{s}" for s in suffixes]
-    for version_str in version_strs:
-        if not codelist.versions.filter(version_str=version_str).exists():
-            version = codelist.versions.create(
-                version_str=version_str, csv_data=csv_data
-            )
+    tags = [base_tag] + [f"{base_tag}-{s}" for s in suffixes]
+    for tag in tags:
+        if not codelist.versions.filter(tag=tag).exists():
+            version = codelist.versions.create(tag=tag, csv_data=csv_data)
 
             logger.info("Created Version", version_pk=version.pk)
 

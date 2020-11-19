@@ -55,7 +55,7 @@ def test_get_unknown_version(client):
     kwargs = dict(
         organisation_slug=codelist.organisation.slug,
         codelist_slug=codelist.slug,
-        qualified_version_str="test",
+        qualified_tag="test",
     )
     url = reverse("codelists:organisation_version_update", kwargs=kwargs)
 
@@ -71,7 +71,7 @@ def test_get_published_with_draft_url(client):
     kwargs = dict(
         organisation_slug=version.codelist.organisation.slug,
         codelist_slug=version.codelist.slug,
-        qualified_version_str=f"{version.qualified_version_str}-draft",
+        qualified_tag=f"{version.qualified_tag}-draft",
     )
     url = reverse("codelists:organisation_version_update", kwargs=kwargs)
 

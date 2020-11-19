@@ -33,7 +33,7 @@ def test_post_unknown_version(client):
     kwargs = dict(
         organisation_slug=codelist.organisation.slug,
         codelist_slug=codelist.slug,
-        qualified_version_str="test",
+        qualified_tag="test",
     )
     url = reverse("codelists:organisation_version_publish", kwargs=kwargs)
 
@@ -49,7 +49,7 @@ def test_post_draft_mismatch(client):
     kwargs = dict(
         organisation_slug=version.codelist.organisation.slug,
         codelist_slug=version.codelist.slug,
-        qualified_version_str=f"{version.qualified_version_str}-draft",
+        qualified_tag=f"{version.qualified_tag}-draft",
     )
     url = reverse("codelists:organisation_version_publish", kwargs=kwargs)
 

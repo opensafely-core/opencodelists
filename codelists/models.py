@@ -6,6 +6,8 @@ from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.text import slugify
 
+from opencodelists.hash_utils import hash
+
 from .coding_systems import CODING_SYSTEMS
 
 
@@ -33,6 +35,9 @@ class Codelist(models.Model):
     )
     description = models.TextField()
     methodology = models.TextField()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         unique_together = [("organisation", "name", "slug"), ("user", "name", "slug")]
@@ -102,24 +107,20 @@ class CodelistVersion(models.Model):
     codelist = models.ForeignKey(
         "Codelist", on_delete=models.CASCADE, related_name="versions"
     )
-    version_str = models.CharField(max_length=12, verbose_name="Version")
+    tag = models.CharField(max_length=12, null=True)
     csv_data = models.TextField(verbose_name="CSV data", null=True)
     is_draft = models.BooleanField(default=True)
 
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
     class Meta:
-        unique_together = ("codelist", "version_str")
+        unique_together = ("codelist", "tag")
 
     def save(self, *args, **kwargs):
         if self.csv_data:
             self.csv_data = self.csv_data.replace("\r\n", "\n")
         super().save(*args, **kwargs)
-
-    @property
-    def qualified_version_str(self):
-        if self.is_draft:
-            return f"{self.version_str}-draft"
-        else:
-            return self.version_str
 
     @property
     def organisation(self):
@@ -152,8 +153,16 @@ class CodelistVersion(models.Model):
     @property
     def url_kwargs(self):
         kwargs = self.codelist.url_kwargs
-        kwargs["qualified_version_str"] = self.qualified_version_str
+        kwargs["tag_or_hash"] = self.tag_or_hash
         return kwargs
+
+    @property
+    def hash(self):
+        return hash(self.id, "CodelistVersion")
+
+    @property
+    def tag_or_hash(self):
+        return self.tag or self.hash
 
     @cached_property
     def coding_system_id(self):
@@ -211,7 +220,7 @@ class CodelistVersion(models.Model):
 
     def download_filename(self):
         return "{}-{}-{}".format(
-            self.codelist.organisation_id, self.codelist.slug, self.version_str
+            self.codelist.organisation_id, self.codelist.slug, self.tag
         )
 
 

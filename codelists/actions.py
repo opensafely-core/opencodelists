@@ -1,6 +1,3 @@
-import string
-from datetime import date
-
 import structlog
 from django.db import transaction
 
@@ -68,26 +65,9 @@ def create_signoff(*, codelist, user, date):
 
 
 def create_version(*, codelist, csv_data):
-    """Create a new version of a codelist.
-
-    There is a race condition in this code, but in practice we're unlikely to
-    hit it.
-    """
-
-    base_version_str = str(date.today())
-    suffixes = string.ascii_lowercase
-    version_strs = [base_version_str] + [f"{base_version_str}-{s}" for s in suffixes]
-    for version_str in version_strs:
-        if not codelist.versions.filter(version_str=version_str).exists():
-            version = codelist.versions.create(
-                version_str=version_str, csv_data=csv_data
-            )
-
-            logger.info("Created Version", version_pk=version.pk)
-
-            return version
-
-    raise ValueError("E_TOO_MANY_VERSIONS")
+    version = codelist.versions.create(csv_data=csv_data)
+    logger.info("Created Version", version_pk=version.pk)
+    return version
 
 
 @transaction.atomic

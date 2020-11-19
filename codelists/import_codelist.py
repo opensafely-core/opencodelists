@@ -11,9 +11,7 @@ class ImportCodelistError(Exception):
     pass
 
 
-def import_codelist(
-    publisher_slug, codelist_slug, coding_system_id, version_str, csv_path
-):
+def import_codelist(publisher_slug, codelist_slug, coding_system_id, tag, csv_path):
     if coding_system_id not in CODING_SYSTEMS:
         raise ImportCodelistError("Invalid coding_system")
 
@@ -35,11 +33,11 @@ def import_codelist(
             )
 
         try:
-            clv = CodelistVersion.objects.create(codelist=cl, version_str=version_str)
+            clv = CodelistVersion.objects.create(codelist=cl, tag=tag)
         except IntegrityError:
             raise ImportCodelistError(
                 "Version {} already exists for codelist {}/{}".format(
-                    version_str, publisher_slug, codelist_slug
+                    tag, publisher_slug, codelist_slug
                 )
             )
 

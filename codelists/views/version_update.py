@@ -12,10 +12,7 @@ template_name = "codelists/version_update.html"
 @login_required
 @load_version
 @require_permission
-def version_update(request, version, expect_draft):
-    if expect_draft != version.is_draft:
-        return redirect(version)
-
+def version_update(request, version):
     if request.method == "POST":
         return handle_post(request, version)
     return handle_get(request, version)

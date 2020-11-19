@@ -9,13 +9,11 @@ class Command(BaseCommand):
         parser.add_argument("publisher")
         parser.add_argument("codelist")
         parser.add_argument("coding_system", choices=CODING_SYSTEMS.keys())
-        parser.add_argument("version_str")
+        parser.add_argument("tag")
         parser.add_argument("csv_path")
 
-    def handle(
-        self, publisher, codelist, coding_system, version_str, csv_path, **kwargs
-    ):
+    def handle(self, publisher, codelist, coding_system, tag, csv_path, **kwargs):
         try:
-            import_codelist(publisher, codelist, coding_system, version_str, csv_path)
+            import_codelist(publisher, codelist, coding_system, tag, csv_path)
         except ImportCodelistError as e:
             raise CommandError(str(e))

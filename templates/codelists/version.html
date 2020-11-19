@@ -40,7 +40,7 @@
       <dd>{{ codelist.full_slug }}</dd>
 
       <dt>Version</dt>
-      <dd>{{ clv.qualified_version_str }}</dd>
+      <dd>{{ clv.tag_or_hash }}</dd>
     </dl>
 
     {% if user_can_edit %}
@@ -87,9 +87,9 @@
       <li>
 
         {% if version == clv %}
-        {{ version.version_str }}
+        {{ version.tag_or_hash }}
         {% else %}
-        <a href="{{ version.get_absolute_url }}">{{ version.version_str }}</a>
+        <a href="{{ version.get_absolute_url }}">{{ version.tag_or_hash }}</a>
         {% endif %}
 
         {% if version.is_draft %}

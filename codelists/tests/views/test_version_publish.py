@@ -1,6 +1,6 @@
 from django.urls import reverse
 
-from ..factories import CodelistFactory, create_draft_version, create_published_version
+from ..factories import CodelistFactory, create_draft_version
 from .assertions import assert_post_unauthenticated, assert_post_unauthorised
 
 
@@ -33,28 +33,10 @@ def test_post_unknown_version(client):
     kwargs = dict(
         organisation_slug=codelist.organisation.slug,
         codelist_slug=codelist.slug,
-        qualified_version_str="test",
+        tag_or_hash="test",
     )
     url = reverse("codelists:organisation_version_publish", kwargs=kwargs)
 
     response = client.post(url)
 
     assert response.status_code == 404
-
-
-def test_post_draft_mismatch(client):
-    version = create_published_version()
-    client.force_login(version.codelist.organisation.regular_user)
-
-    kwargs = dict(
-        organisation_slug=version.codelist.organisation.slug,
-        codelist_slug=version.codelist.slug,
-        qualified_version_str=f"{version.qualified_version_str}-draft",
-    )
-    url = reverse("codelists:organisation_version_publish", kwargs=kwargs)
-
-    response = client.post(url)
-
-    # we should get redirected to the Version page
-    assert response.status_code == 302
-    assert response.url == version.get_absolute_url()

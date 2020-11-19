@@ -44,10 +44,10 @@ for subpath, view in [
     ("<codelist_slug>/", views.codelist),
     ("<codelist_slug>/edit/", views.codelist_update),
     ("<codelist_slug>/add/", views.version_create),
-    ("<codelist_slug>/<qualified_version_str>/", views.version),
-    ("<codelist_slug>/<qualified_version_str>/update/", views.version_update),
-    ("<codelist_slug>/<qualified_version_str>/publish/", views.version_publish),
-    ("<codelist_slug>/<qualified_version_str>/download.csv", views.version_download),
+    ("<codelist_slug>/<tag_or_hash>/", views.version),
+    ("<codelist_slug>/<tag_or_hash>/update/", views.version_update),
+    ("<codelist_slug>/<tag_or_hash>/publish/", views.version_publish),
+    ("<codelist_slug>/<tag_or_hash>/download.csv", views.version_download),
 ]:
     urlpatterns.append(
         path(

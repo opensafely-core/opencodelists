@@ -10,10 +10,7 @@ from .decorators import load_version, require_permission
 @login_required
 @load_version
 @require_permission
-def version_publish(request, version, expect_draft):
-    if expect_draft != version.is_draft:
-        return redirect(version)
-
+def version_publish(request, version):
     # We want to redirect to the now-published Version after publishing it, but
     # the in-memory instance in this view won't be updated by the .save() call
     # inside the action.  So instead we return the new instance from the action

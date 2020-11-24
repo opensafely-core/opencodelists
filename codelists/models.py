@@ -121,6 +121,9 @@ class CodelistVersion(models.Model):
     # have much practical meaning at the moment and should be revisited.
     is_draft = models.BooleanField(default=True)
 
+    # Indicates whether a CodelistVersion was edited in the builder, and then discarded.
+    discarded = models.BooleanField(default=False)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

@@ -90,3 +90,10 @@ def save(*, draft):
 
     draft.draft_owner = None
     draft.save()
+
+
+def discard_draft(*, draft):
+    """Mark draft as discarded."""
+
+    draft.discarded = True
+    draft.save()

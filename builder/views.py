@@ -1,68 +1,17 @@
-import csv
 import json
 
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.utils import timezone
 from django.views.decorators.http import require_http_methods
 
 from codelists.hierarchy import Hierarchy
 from codelists.search import do_search
-from mappings.bnfdmd.mappers import bnf_to_dmd
 
 from . import actions
 from .decorators import load_draft
 
 NO_SEARCH_TERM = object()
-
-
-@load_draft
-def download(request, draft):
-    # get codes
-    codes = list(
-        draft.code_objs.filter(status__contains="+").values_list("code", flat=True)
-    )
-
-    # get terms for codes
-    code_to_term = draft.coding_system.lookup_names(codes)
-
-    timestamp = timezone.now().strftime("%Y-%m-%dT%H-%M-%S")
-    filename = f"{draft.draft_owner.username}-{draft.slug}-{timestamp}.csv"
-
-    response = HttpResponse(content_type="text/csv")
-    response["Content-Disposition"] = f'attachment; filename="{filename}"'
-
-    # render to csv
-    writer = csv.writer(response)
-    writer.writerow(["id", "term"])
-    writer.writerows([(k, v) for k, v in code_to_term.items()])
-
-    return response
-
-
-@load_draft
-def download_dmd(request, draft):
-    if draft.coding_system_id != "bnf":
-        raise "Http404"
-
-    # get codes
-    codes = list(
-        draft.code_objs.filter(status__contains="+").values_list("code", flat=True)
-    )
-
-    timestamp = timezone.now().strftime("%Y-%m-%dT%H-%M-%S")
-    filename = f"{draft.draft_owner.username}-{draft.slug}-{timestamp}.csv"
-
-    response = HttpResponse(content_type="text/csv")
-    response["Content-Disposition"] = f'attachment; filename="{filename}"'
-
-    dmd_rows = bnf_to_dmd(codes)
-    writer = csv.DictWriter(response, ["dmd_type", "dmd_id", "dmd_name", "bnf_code"])
-    writer.writeheader()
-    writer.writerows(dmd_rows)
-
-    return response
 
 
 @load_draft
@@ -145,12 +94,6 @@ def _codelist(request, draft, search_slug):
 
     update_url = draft.get_builder_url("update")
     search_url = draft.get_builder_url("new-search")
-    download_url = draft.get_builder_url("download")
-
-    if draft.coding_system_id == "bnf":
-        download_dmd_url = draft.get_builder_url("download-dmd")
-    else:
-        download_dmd_url = None
 
     ctx = {
         "user": draft.draft_owner,
@@ -176,8 +119,6 @@ def _codelist(request, draft, search_slug):
         "is_editable": request.user == draft.draft_owner,
         "update_url": update_url,
         "search_url": search_url,
-        "download_url": download_url,
-        "download_dmd_url": download_dmd_url,
         # }
     }
 

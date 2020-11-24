@@ -1,14 +1,6 @@
-import pytest
-
 from builder import actions
 from codelists.search import do_search
 from opencodelists.tests.factories import UserFactory
-
-pytestmark = [
-    pytest.mark.filterwarnings(
-        "ignore::django.utils.deprecation.RemovedInDjango40Warning:debug_toolbar",
-    ),
-]
 
 
 def test_codelist(client, tennis_elbow_codelist):

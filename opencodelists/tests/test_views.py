@@ -1,17 +1,9 @@
-import pytest
 from django.contrib.auth import SESSION_KEY
 from django.core.signing import Signer
 
 from ..models import SET_PASSWORD_SALT, User
 from ..views import UserCreate, user_set_password
 from .factories import UserFactory
-
-pytestmark = [
-    pytest.mark.filterwarnings(
-        "ignore::DeprecationWarning:bleach",
-        "ignore::django.utils.deprecation.RemovedInDjango40Warning:debug_toolbar",
-    ),
-]
 
 
 def test_useractivationurl_already_active(client):

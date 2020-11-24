@@ -1,14 +1,6 @@
-import pytest
-
 from codelists import presenters
 from codelists.definition import Definition
 from codelists.hierarchy import Hierarchy
-
-pytestmark = [
-    pytest.mark.filterwarnings(
-        "ignore::django.utils.deprecation.RemovedInDjango40Warning:debug_toolbar",
-    ),
-]
 
 
 class DummyCodingSystem:

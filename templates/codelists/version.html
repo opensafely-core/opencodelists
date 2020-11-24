@@ -56,23 +56,34 @@
 
     <hr />
 
-    <div class="btn-group-vertical btn-block" role="group">
-      <a
-        class="btn btn-outline-info btn-block"
-        href="{{ codelist.get_version_upload_url }}">
-        Upload new version
-      </a>
+    <form method="POST" action={{ clv.get_create_url }}>
+      <div class="btn-group-vertical btn-block" role="group">
+        {% if codelist.is_new_style %}
+          {% csrf_token %}
+          <button
+            type="submit"
+            class="btn btn-outline-info btn-block">
+            Create new version
+          </button>
+        {% else %}
+        <a
+          class="btn btn-outline-info btn-block"
+          href="{{ codelist.get_version_upload_url }}">
+          Upload new version
+        </a>
+        {% endif %}
 
-      {% if clv.is_draft %}
-      <button
-        type="button"
-        class="btn btn-outline-info btn-block"
-        data-toggle="modal"
-        data-target="#js-publish-version-form">
-        Publish version
-      </button>
-      {% endif %}
-    </div>
+        {% if clv.is_draft %}
+        <button
+          type="button"
+          class="btn btn-outline-info btn-block"
+          data-toggle="modal"
+          data-target="#js-publish-version-form">
+          Publish version
+        </button>
+        {% endif %}
+      </div>
+    </form>
     {% endif %}
 
     <hr />

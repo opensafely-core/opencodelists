@@ -45,6 +45,7 @@ for subpath, view in [
     ("<codelist_slug>/edit/", views.codelist_update),
     ("<codelist_slug>/upload-version/", views.version_upload),
     ("<codelist_slug>/<tag_or_hash>/", views.version),
+    ("<codelist_slug>/<tag_or_hash>/create-new-version/", views.version_create),
     ("<codelist_slug>/<tag_or_hash>/publish/", views.version_publish),
     ("<codelist_slug>/<tag_or_hash>/download.csv", views.version_download),
 ]:

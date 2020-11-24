@@ -102,6 +102,9 @@ class Codelist(models.Model):
     def full_slug(self):
         return "{}/{}".format(self.organisation_id, self.slug)
 
+    def is_new_style(self):
+        return self.versions.filter(csv_data__isnull=True).exists()
+
 
 class CodelistVersion(models.Model):
     codelist = models.ForeignKey(

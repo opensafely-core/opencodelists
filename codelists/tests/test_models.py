@@ -83,3 +83,11 @@ def test_new_style_table(tennis_elbow_new_style_codelist):
         ["439656005", "Arthritis of elbow"],
         ["73583000", "Epicondylitis"],
     ]
+
+
+def test_old_style_is_new_style(tennis_elbow_codelist):
+    assert not tennis_elbow_codelist.is_new_style()
+
+
+def test_new_style_is_new_style(tennis_elbow_new_style_codelist):
+    assert tennis_elbow_new_style_codelist.is_new_style()

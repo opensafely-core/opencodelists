@@ -122,3 +122,18 @@ def test_convert_codelist_to_new_style(tennis_elbow_codelist):
     converted_clv = cl.versions.last()
     assert converted_clv.csv_data is None
     assert original_clv.codes == converted_clv.codes
+
+
+def test_export_to_builder(tennis_elbow_codelist):
+    # This is not a great test, since we're not passing a CodelistVersion with any
+    # Searches to export_to_builder.  When we have a better suite of fixtures, this will
+    # be improved.
+
+    user = UserFactory()
+    cl = tennis_elbow_codelist
+    converted_clv = actions.convert_codelist_to_new_style(codelist=cl)
+
+    draft = actions.export_to_builder(version=converted_clv, owner=user)
+
+    assert draft.draft_owner == user
+    assert draft.codes == converted_clv.codes

@@ -1,11 +1,14 @@
 import structlog
 from django.db import transaction
 
+from builder import actions as builder_actions
+from opencodelists.dict_utils import invert_dict
 from opencodelists.models import User
 
 from .definition2 import Definition2
 from .hierarchy import Hierarchy
 from .models import CodeObj
+from .search import do_search
 
 logger = structlog.get_logger()
 
@@ -139,3 +142,38 @@ def convert_codelist_to_new_style(*, codelist):
     )
 
     return next_clv
+
+
+@transaction.atomic
+def export_to_builder(*, version, owner):
+    """Create a new CodelistVersion for editing in the builder."""
+
+    # Create a new CodelistVersion and CodeObjs.
+    draft = builder_actions.create_draft_with_codes(
+        codelist=version.codelist, owner=owner, codes=version.codes
+    )
+
+    # Recreate each search.  This creates the SearchResults linked to the new draft.  We
+    # can't just copy them across, because the data may have been updated, and new
+    # matching concepts might have been imported.
+    #
+    # In future, we should be able to short-circuit this by keeping track of the release
+    # that version was created with.
+    for search in version.searches.all():
+        term = search.term
+        codes = do_search(version.coding_system, term)["all_codes"]
+        builder_actions.create_search(draft=draft, term=term, codes=codes)
+
+    # Update each code status.
+    code_to_status = dict(version.code_objs.values_list("code", "status"))
+    status_to_code = invert_dict(code_to_status)
+    for status, codes in status_to_code.items():
+        draft.code_objs.filter(code__in=codes).update(status=status)
+
+    # This assert will fire if new matching concepts have been imported.  At the moment,
+    # the builder frontend cannot deal with a CodeObj with status ?  if any of its
+    # ancestors are included or excluded.  We will have to deal with this soon but for
+    # now fail loudly.
+    assert not draft.code_objs.filter(status="?").exists()
+
+    return draft

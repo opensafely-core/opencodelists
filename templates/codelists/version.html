@@ -49,35 +49,42 @@
     <div class="btn-group-vertical btn-block" role="group">
       <a
         class="btn btn-outline-info btn-block"
-        href="{{ clv.get_update_url }}">
+        href="{{ codelist.get_update_url }}">
         Edit metadata
       </a>
     </div>
 
     <hr />
 
-    <div class="btn-group-vertical btn-block" role="group">
-      <a
-        class="btn btn-outline-info btn-block"
-        href="{{ codelist.get_version_create_url }}">
-        Create new version
-      </a>
+    <form method="POST" action={{ clv.get_create_url }}>
+      <div class="btn-group-vertical btn-block" role="group">
+        {% if codelist.is_new_style %}
+          {% csrf_token %}
+          <button
+            type="submit"
+            class="btn btn-outline-info btn-block">
+            Create new version
+          </button>
+        {% else %}
+        <a
+          class="btn btn-outline-info btn-block"
+          href="{{ codelist.get_version_upload_url }}">
+          Upload new version
+        </a>
+        {% endif %}
 
-      {% if clv.is_draft %}
-      <a
-        class="btn btn-outline-info btn-block"
-        href="{{ clv.get_update_url }}">
-        Update version
-      </a>
-      <button
-        type="button"
-        class="btn btn-outline-info btn-block"
-        data-toggle="modal"
-        data-target="#js-publish-version-form">
-        Publish version
-      </button>
-      {% endif %}
-    </div>
+        {% if clv.is_draft %}
+        <button
+          type="button"
+          class="btn btn-outline-info btn-block"
+          data-toggle="modal"
+          data-target="#js-publish-version-form">
+          Publish version
+        </button>
+        {% endif %}
+      </div>
+    </form>
+    {% endif %}
 
     <hr />
 
@@ -99,8 +106,6 @@
       </li>
       {% endfor %}
     </ul>
-
-    {% endif %}
   </div>
 
   <div class="col-md-9 col-lg-10">
@@ -166,8 +171,10 @@
         role="tabpanel"
         aria-labelledby="about-tab"
       >
+        {% if codelist.description %}
         <h4>Description</h4>
         <p>{{ codelist.description|markdown_filter|safe }}</p>
+        {% endif %}
 
         {% if codelist.methodology %}
         <h4>Methodology</h4>

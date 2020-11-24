@@ -1,81 +1,27 @@
-import pytest
+from codelists import actions
 
-from ..factories import CodelistFactory, UserFactory, create_published_version
-from ..helpers import csv_builder
-from .assertions import (
-    assert_get_unauthenticated,
-    assert_get_unauthorised,
-    assert_post_unauthenticated,
-    assert_post_unauthorised,
-)
-
-pytestmark = pytest.mark.freeze_time("2020-07-23")
-
-
-def test_get_unauthenticated(client):
-    codelist = CodelistFactory()
-    assert_get_unauthenticated(client, codelist.get_version_create_url())
+from ..factories import create_draft_version
+from .assertions import assert_post_unauthenticated, assert_post_unauthorised
 
 
 def test_post_unauthenticated(client):
-    codelist = CodelistFactory()
-    assert_post_unauthenticated(client, codelist.get_version_create_url())
-
-
-def test_get_unauthorised(client):
-    codelist = CodelistFactory()
-    assert_get_unauthorised(client, codelist.get_version_create_url())
+    version = create_draft_version()
+    assert_post_unauthenticated(client, version.get_create_url())
 
 
 def test_post_unauthorised(client):
-    codelist = CodelistFactory()
-    assert_post_unauthorised(client, codelist.get_version_create_url())
-
-
-def test_get_unauthorised_for_user(client):
-    codelist = CodelistFactory(owner=UserFactory())
-    assert_get_unauthorised(client, codelist.get_version_create_url())
-
-
-def test_post_unauthorised_for_user(client):
-    codelist = CodelistFactory(owner=UserFactory())
-    assert_post_unauthorised(client, codelist.get_version_create_url())
-
-
-def test_get_unknown_codelist(client):
-    codelist = CodelistFactory()
-    client.force_login(codelist.organisation.regular_user)
-    url = codelist.get_version_create_url().replace(codelist.slug, "test")
-    response = client.get(url, data={})
-    assert response.status_code == 404
+    version = create_draft_version()
+    assert_post_unauthorised(client, version.get_create_url())
 
 
 def test_post_success(client):
-    codelist = create_published_version().codelist
+    version = create_draft_version()
+    codelist = version.codelist
     client.force_login(codelist.organisation.regular_user)
+    converted_version = actions.convert_codelist_to_new_style(codelist=codelist)
 
-    assert codelist.versions.count() == 1
+    response = client.post(converted_version.get_create_url())
 
-    csv_data = "code,description\n1068181000000106, Injury whilst synchronised swimming (disorder)"
-    data = {
-        "csv_data": csv_builder(csv_data),
-    }
-
-    response = client.post(codelist.get_version_create_url(), data=data)
-
-    clv = codelist.versions.filter(is_draft=True).get()
+    draft = codelist.versions.get(draft_owner__isnull=False)
     assert response.status_code == 302
-    assert response.url == clv.get_absolute_url()
-    assert codelist.versions.count() == 2
-
-
-def test_post_missing_field(client):
-    codelist = create_published_version().codelist
-    client.force_login(codelist.organisation.regular_user)
-
-    response = client.post(codelist.get_version_create_url(), data={})
-
-    assert response.status_code == 200
-    assert "form" in response.context_data
-    assert len(response.context_data["form"].errors) == 1
-    assert "csv_data" in response.context_data["form"].errors
+    assert response.url == draft.get_builder_url("draft")

@@ -167,7 +167,6 @@ it("does the right thing when clicking around", () => {
         isEditable={data.is_editable}
         updateURL={data.update_url}
         searchURL={data.search_url}
-        downloadURL={data.download_url}
         hierarchy={hierarchy}
       />,
       container

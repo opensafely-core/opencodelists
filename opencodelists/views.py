@@ -2,14 +2,18 @@ from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.core import signing
-from django.shortcuts import redirect
+from django.core.exceptions import NON_FIELD_ERRORS
+from django.db.utils import IntegrityError
+from django.shortcuts import get_object_or_404, redirect, render
 from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView
 
+from codelists.actions import create_codelist_from_scratch, create_codelist_with_codes
+
 from .actions import activate_user, create_user
-from .forms import UserForm, UserPasswordForm
-from .models import User
+from .forms import CodelistCreateForm, UserForm, UserPasswordForm
+from .models import Organisation, User
 
 
 @login_required
@@ -85,3 +89,105 @@ def user_set_password(request, token):
     messages.success(request, msg)
 
     return redirect("/")
+
+
+def user(request, username):
+    user = get_object_or_404(User, username=username)
+
+    # Find all of the codelists with at least one non-draft version.
+    codelists = user.codelists.filter(versions__draft_owner__isnull=True).distinct()
+
+    ctx = {
+        "user": user,
+        "codelists": codelists.order_by("name"),
+        "drafts": user.drafts.select_related("codelist").order_by("codelist__name"),
+    }
+
+    if user == request.user:
+        return render(request, "opencodelists/this_user.html", ctx)
+    else:
+        return render(request, "opencodelists/that_user.html", ctx)
+
+
+@login_required
+def user_create_codelist(request, username):
+    user = get_object_or_404(User, username=username)
+    if user != request.user:
+        return redirect("/")
+
+    if user.organisations.exists():
+        owner_choices = [(f"user:{user.pk}", "Me")]
+        for organisation in user.organisations.order_by("name"):
+            owner_choices.append((f"organisation:{organisation.pk}", organisation.name))
+    else:
+        owner_choices = []
+
+    if request.method == "POST":
+        return handle_user_create_codelist_post(request, user, owner_choices)
+    return handle_user_create_codelist_get(request, user, owner_choices)
+
+
+def handle_user_create_codelist_get(request, user, owner_choices):
+    ctx = {
+        "user": user,
+        "form": CodelistCreateForm(owner_choices=owner_choices),
+    }
+    return render(request, "opencodelists/user_create_codelist.html", ctx)
+
+
+def handle_user_create_codelist_post(request, user, owner_choices):
+    form = CodelistCreateForm(request.POST, request.FILES, owner_choices=owner_choices)
+
+    if form.is_valid():
+        return handle_user_create_codelist_post_valid(
+            request, form, user, owner_choices
+        )
+    else:
+        return handle_user_create_codelist_post_invalid(request, form, user)
+
+
+def handle_user_create_codelist_post_valid(request, form, user, owner_choices):
+    if owner_choices:
+        # TODO handle these asserts better
+        owner_identifier = form.cleaned_data["owner"]
+        assert owner_identifier in [choice[0] for choice in owner_choices]
+        if owner_identifier.startswith("user:"):
+            owner = get_object_or_404(User, username=owner_identifier[5:])
+            assert owner == user
+        else:
+            assert owner_identifier.startswith("organisation:")
+            owner = get_object_or_404(Organisation, slug=owner_identifier[12:])
+            assert user.is_member(owner)
+    else:
+        owner = user
+
+    name = form.cleaned_data["name"]
+    coding_system_id = form.cleaned_data["coding_system_id"]
+    codes = form.cleaned_data["csv_data"]
+
+    try:
+        if codes:
+            codelist = create_codelist_with_codes(
+                owner=owner, name=name, coding_system_id=coding_system_id, codes=codes
+            )
+        else:
+            codelist = create_codelist_from_scratch(
+                owner=owner,
+                name=name,
+                coding_system_id=coding_system_id,
+                draft_owner=user,
+            )
+    except IntegrityError as e:
+        assert "UNIQUE constraint failed" in str(e)
+        form.add_error(
+            NON_FIELD_ERRORS,
+            f"There is already a codelist called {name}",
+        )
+        return handle_user_create_codelist_post_invalid(request, form, user)
+
+    return redirect(codelist)
+
+
+def handle_user_create_codelist_post_invalid(request, form, user):
+    ctx = {"user": user, "form": form}
+    return render(request, "opencodelists/user_create_codelist.html", ctx)

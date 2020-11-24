@@ -58,7 +58,7 @@ def test_old_style_table(tennis_elbow_codelist):
 
 def test_new_style_codes(tennis_elbow_new_style_codelist):
     cl = tennis_elbow_new_style_codelist
-    clv = cl.versions.get()
+    clv = cl.versions.get(csv_data=None)
     assert clv.codes == (
         "128133004",
         "202855006",
@@ -72,7 +72,7 @@ def test_new_style_codes(tennis_elbow_new_style_codelist):
 
 def test_new_style_table(tennis_elbow_new_style_codelist):
     cl = tennis_elbow_new_style_codelist
-    clv = cl.versions.get()
+    clv = cl.versions.get(csv_data=None)
     assert clv.table == [
         ["code", "term"],
         ["128133004", "Disorder of elbow"],
@@ -83,3 +83,11 @@ def test_new_style_table(tennis_elbow_new_style_codelist):
         ["439656005", "Arthritis of elbow"],
         ["73583000", "Epicondylitis"],
     ]
+
+
+def test_old_style_is_new_style(tennis_elbow_codelist):
+    assert not tennis_elbow_codelist.is_new_style()
+
+
+def test_new_style_is_new_style(tennis_elbow_new_style_codelist):
+    assert tennis_elbow_new_style_codelist.is_new_style()

@@ -1,3 +1,6 @@
+import csv
+from io import StringIO
+
 import pytest
 from django.db import IntegrityError
 
@@ -79,6 +82,27 @@ def test_create_codelist_with_duplicate_name():
     assert Codelist.objects.filter(name="Test").count() == 1
 
 
+def test_create_codelist_with_codes(tennis_elbow):
+    user = UserFactory()
+    codes = [row[0] for row in list(csv.reader(StringIO(tennis_elbow)))[1:]]
+    cl = actions.create_codelist_with_codes(
+        owner=user, name="Test", coding_system_id="snomedct", codes=codes
+    )
+    clv = cl.versions.get()
+    assert len(clv.codes) == 7
+
+
+def test_create_codelist_from_scratch():
+    user = UserFactory()
+    organisation = OrganisationFactory()
+
+    cl = actions.create_codelist_from_scratch(
+        owner=organisation, name="Test", coding_system_id="snomedct", draft_owner=user
+    )
+    clv = cl.versions.get()
+    assert clv.draft_owner == user
+
+
 def test_update_draft_version():
     clv = factories.create_draft_version()
     actions.update_version(
@@ -114,17 +138,26 @@ def test_publish_published_version():
 
 def test_convert_codelist_to_new_style(tennis_elbow_codelist):
     cl = tennis_elbow_codelist
+    original_clv = cl.versions.get()
+
     actions.convert_codelist_to_new_style(codelist=cl)
-    clv = cl.versions.get()
-    assert set(clv.rules.values_list("code", "status")) == {
-        ("128133004", "+"),  # Disorder of elbow and all descendants
-    }
-    assert set(clv.code_objs.values_list("code", flat=True)) == {
-        "128133004",  # Disorder of elbow
-        "239964003",  # Soft tissue lesion of elbow region
-        "35185008",  # Enthesopathy of elbow region
-        "73583000",  # Epicondylitis
-        "202855006",  # Lateral epicondylitis
-        "429554009",  # Arthropathy of elbow
-        "439656005",  # Arthritis of elbow
-    }
+
+    assert cl.versions.count() == 2
+    converted_clv = cl.versions.last()
+    assert converted_clv.csv_data is None
+    assert original_clv.codes == converted_clv.codes
+
+
+def test_export_to_builder(tennis_elbow_codelist):
+    # This is not a great test, since we're not passing a CodelistVersion with any
+    # Searches to export_to_builder.  When we have a better suite of fixtures, this will
+    # be improved.
+
+    user = UserFactory()
+    cl = tennis_elbow_codelist
+    converted_clv = actions.convert_codelist_to_new_style(codelist=cl)
+
+    draft = actions.export_to_builder(version=converted_clv, owner=user)
+
+    assert draft.draft_owner == user
+    assert draft.codes == converted_clv.codes

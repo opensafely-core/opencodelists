@@ -84,7 +84,12 @@ def load_version(view_fn):
             q |= Q(id=id)
 
         clv = get_object_or_404(CodelistVersion.objects.filter(q), **kwargs)
-        return view_fn(request, clv)
+
+        if clv.draft_owner:
+            # TODO test this properly
+            return redirect(clv.get_builder_url("draft"))
+        else:
+            return view_fn(request, clv)
 
     return wrapped_view
 

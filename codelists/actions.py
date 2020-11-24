@@ -1,10 +1,14 @@
 import structlog
 from django.db import transaction
 
+from builder import actions as builder_actions
+from opencodelists.dict_utils import invert_dict
 from opencodelists.models import User
 
 from .definition2 import Definition2
 from .hierarchy import Hierarchy
+from .models import CodeObj
+from .search import do_search
 
 logger = structlog.get_logger()
 
@@ -42,6 +46,46 @@ def create_codelist(
 
     logger.info("Created Codelist", codelist_pk=codelist.pk)
 
+    return codelist
+
+
+@transaction.atomic
+def create_codelist_with_codes(*, owner, name, coding_system_id, codes):
+    """Create a new Codelist with a CodelistVersion with given codes."""
+
+    codes = set(codes)
+
+    codelist = owner.codelists.create(name=name, coding_system_id=coding_system_id)
+
+    coding_system = codelist.coding_system
+    code_to_term = coding_system.code_to_term(codes)
+    assert codes == set(code_to_term)
+
+    version = codelist.versions.create()
+    hierarchy = Hierarchy.from_codes(codelist.coding_system, codes)
+    definition = Definition2.from_codes(codes, hierarchy)
+
+    CodeObj.objects.bulk_create(
+        CodeObj(
+            version=version,
+            code=node,
+            status=hierarchy.node_status(
+                node, definition.included_ancestors, definition.excluded_ancestors
+            ),
+        )
+        for node in hierarchy.nodes
+        if node in codes
+    )
+
+    return codelist
+
+
+@transaction.atomic
+def create_codelist_from_scratch(*, owner, name, coding_system_id, draft_owner):
+    """Create a new Codelist with a draft CodelistVersion."""
+
+    codelist = owner.codelists.create(name=name, coding_system_id=coding_system_id)
+    codelist.versions.create(draft_owner=draft_owner)
     return codelist
 
 
@@ -112,27 +156,64 @@ def publish_version(*, version):
 def convert_codelist_to_new_style(*, codelist):
     """Convert codelist to new style.
 
-    For each version, create DefinitionRule and CodeObj records, and remove
-    csv_data.
+    Create a new version with the same codes as the latest version.
     """
 
-    for clv in codelist.versions.all():
-        assert clv.csv_data is not None
-        assert clv.rules.count() == 0
-        assert clv.code_objs.count() == 0
+    prev_clv = codelist.versions.order_by("id").last()
+    assert prev_clv.csv_data is not None
+    assert prev_clv.code_objs.count() == 0
 
-        codes = set(clv.codes)
-        hierarchy = Hierarchy.from_codes(codelist.coding_system, codes)
-        definition = Definition2.from_codes(codes, hierarchy)
+    next_clv = codelist.versions.create(is_draft=prev_clv.is_draft)
 
-        for code in codes:
-            clv.code_objs.create(code=code)
+    codes = set(prev_clv.codes)
+    hierarchy = Hierarchy.from_codes(codelist.coding_system, codes)
+    definition = Definition2.from_codes(codes, hierarchy)
 
-        for code in definition.included_ancestors:
-            clv.rules.create(code=code, status="+")
+    CodeObj.objects.bulk_create(
+        CodeObj(
+            version=next_clv,
+            code=node,
+            status=hierarchy.node_status(
+                node, definition.included_ancestors, definition.excluded_ancestors
+            ),
+        )
+        for node in hierarchy.nodes
+        if node in codes
+    )
 
-        for code in definition.excluded_ancestors:
-            clv.rules.create(code=code, status="-")
+    return next_clv
 
-        clv.csv_data = None
-        clv.save()
+
+@transaction.atomic
+def export_to_builder(*, version, owner):
+    """Create a new CodelistVersion for editing in the builder."""
+
+    # Create a new CodelistVersion and CodeObjs.
+    draft = builder_actions.create_draft_with_codes(
+        codelist=version.codelist, owner=owner, codes=version.codes
+    )
+
+    # Recreate each search.  This creates the SearchResults linked to the new draft.  We
+    # can't just copy them across, because the data may have been updated, and new
+    # matching concepts might have been imported.
+    #
+    # In future, we should be able to short-circuit this by keeping track of the release
+    # that version was created with.
+    for search in version.searches.all():
+        term = search.term
+        codes = do_search(version.coding_system, term)["all_codes"]
+        builder_actions.create_search(draft=draft, term=term, codes=codes)
+
+    # Update each code status.
+    code_to_status = dict(version.code_objs.values_list("code", "status"))
+    status_to_code = invert_dict(code_to_status)
+    for status, codes in status_to_code.items():
+        draft.code_objs.filter(code__in=codes).update(status=status)
+
+    # This assert will fire if new matching concepts have been imported.  At the moment,
+    # the builder frontend cannot deal with a CodeObj with status ?  if any of its
+    # ancestors are included or excluded.  We will have to deal with this soon but for
+    # now fail loudly.
+    assert not draft.code_objs.filter(status="?").exists()
+
+    return draft

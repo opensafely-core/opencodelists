@@ -60,10 +60,14 @@ def version(request, clv):
     if request.user.is_authenticated:
         user_can_edit = request.user.is_member(clv.organisation)
 
+    visible_versions = clv.codelist.versions.filter(draft_owner=None).order_by(
+        "-created_at"
+    )
+
     ctx = {
         "clv": clv,
         "codelist": clv.codelist,
-        "versions": clv.codelist.versions.order_by("-tag"),
+        "versions": visible_versions,
         "headers": headers,
         "rows": rows,
         "tree_tables": tree_tables,

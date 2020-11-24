@@ -1,7 +1,12 @@
+import csv
+from io import StringIO
+
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 from django import forms
 from django.contrib.auth import password_validation
+
+from codelists.coding_systems import CODING_SYSTEMS
 
 from .models import User
 
@@ -51,3 +56,58 @@ class UserPasswordForm(forms.Form):
         password_validation.validate_password(password2)
 
         return password2
+
+
+class CodelistCreateForm(forms.Form):
+    CODING_SYSTEM_CHOICES = [("", "---")] + sorted(
+        (id, system.name)
+        for id, system in CODING_SYSTEMS.items()
+        if hasattr(system, "ancestor_relationships")
+    )
+
+    owner = forms.ChoiceField()
+    name = forms.CharField(max_length=255, label="Codlist name")
+    coding_system_id = forms.ChoiceField(
+        choices=CODING_SYSTEM_CHOICES, label="Coding system"
+    )
+    csv_data = forms.FileField(
+        label="CSV data",
+        required=False,
+        help_text="Optional.  If provided, the CSV file should not have a header, and its first column must contain valid codes in the chosen coding system.",
+    )
+
+    def __init__(self, *args, **kwargs):
+        owner_choices = kwargs.pop("owner_choices")
+        self.helper = FormHelper()
+        self.helper.add_input(Submit("submit", "Create"))
+        super().__init__(*args, **kwargs)
+        if owner_choices:
+            self.fields["owner"] = forms.ChoiceField(choices=owner_choices)
+        else:
+            del self.fields["owner"]
+
+    def clean_csv_data(self):
+        f = self.cleaned_data["csv_data"]
+        if not f:
+            return
+
+        coding_system = CODING_SYSTEMS[self.cleaned_data["coding_system_id"]]
+
+        data = f.read().decode("utf-8-sig")
+        codes = [row[0] for row in csv.reader(StringIO(data))]
+        code_to_term = coding_system.code_to_term(codes)
+        unknown_codes_and_ixs = [
+            (ix, code) for ix, code in enumerate(codes) if code not in code_to_term
+        ]
+
+        if unknown_codes_and_ixs:
+            line = unknown_codes_and_ixs[0][0] + 1
+            code = unknown_codes_and_ixs[0][1]
+            if len(unknown_codes_and_ixs) == 1:
+                msg = f"CSV file contains 1 unknown code ({code}) on line {line}"
+            else:
+                num = len(unknown_codes_and_ixs)
+                msg = f"CSV file contains {num} unknown code -- the first ({code}) is on line {line}"
+            raise forms.ValidationError(msg)
+
+        return codes

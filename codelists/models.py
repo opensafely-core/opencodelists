@@ -33,8 +33,8 @@ class Codelist(models.Model):
     coding_system_id = models.CharField(
         choices=CODING_SYSTEMS_CHOICES, max_length=32, verbose_name="Coding system"
     )
-    description = models.TextField()
-    methodology = models.TextField()
+    description = models.TextField(null=True, blank=True)
+    methodology = models.TextField(null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -81,9 +81,9 @@ class Codelist(models.Model):
             f"codelists:{self.codelist_type}_codelist_update", kwargs=self.url_kwargs
         )
 
-    def get_version_create_url(self):
+    def get_version_upload_url(self):
         return reverse(
-            f"codelists:{self.codelist_type}_version_create", kwargs=self.url_kwargs
+            f"codelists:{self.codelist_type}_version_upload", kwargs=self.url_kwargs
         )
 
     @property
@@ -102,14 +102,27 @@ class Codelist(models.Model):
     def full_slug(self):
         return "{}/{}".format(self.organisation_id, self.slug)
 
+    def is_new_style(self):
+        return self.versions.filter(csv_data__isnull=True).exists()
+
 
 class CodelistVersion(models.Model):
     codelist = models.ForeignKey(
         "Codelist", on_delete=models.CASCADE, related_name="versions"
     )
+    # If set, indicates that a CodelistVersion is a draft that's being edited in the
+    # builder.
+    draft_owner = models.ForeignKey(
+        "opencodelists.User", related_name="drafts", on_delete=models.CASCADE, null=True
+    )
     tag = models.CharField(max_length=12, null=True)
     csv_data = models.TextField(verbose_name="CSV data", null=True)
+    # This field indicates whether a CodelistVersion is published or not.  This doesn't
+    # have much practical meaning at the moment and should be revisited.
     is_draft = models.BooleanField(default=True)
+
+    # Indicates whether a CodelistVersion was edited in the builder, and then discarded.
+    discarded = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -135,11 +148,6 @@ class CodelistVersion(models.Model):
             f"codelists:{self.codelist_type}_version", kwargs=self.url_kwargs
         )
 
-    def get_update_url(self):
-        return reverse(
-            f"codelists:{self.codelist_type}_version_update", kwargs=self.url_kwargs
-        )
-
     def get_publish_url(self):
         return reverse(
             f"codelists:{self.codelist_type}_version_publish", kwargs=self.url_kwargs
@@ -149,6 +157,14 @@ class CodelistVersion(models.Model):
         return reverse(
             f"codelists:{self.codelist_type}_version_download", kwargs=self.url_kwargs
         )
+
+    def get_create_url(self):
+        return reverse(
+            f"codelists:{self.codelist_type}_version_create", kwargs=self.url_kwargs
+        )
+
+    def get_builder_url(self, view_name, *args):
+        return reverse(f"builder:{view_name}", args=[self.hash] + list(args))
 
     @property
     def url_kwargs(self):
@@ -224,26 +240,46 @@ class CodelistVersion(models.Model):
         )
 
 
-class DefinitionRule(models.Model):
+class CodeObj(models.Model):
     STATUS_CHOICES = [
+        ("?", "Undecided"),
+        ("!", "In conflict"),
         ("+", "Included with descendants"),
+        ("(+)", "Included by ancestor"),
         ("-", "Excluded with descendants"),
+        ("(-)", "Excluded by ancestor"),
     ]
-    codelist = models.ForeignKey(
-        "CodelistVersion", related_name="rules", on_delete=models.CASCADE
+    version = models.ForeignKey(
+        "CodelistVersion", related_name="code_objs", on_delete=models.CASCADE
     )
     code = models.CharField(max_length=18)
     status = models.CharField(max_length=3, choices=STATUS_CHOICES, default="?")
 
     class Meta:
-        unique_together = ("codelist", "code")
+        unique_together = ("version", "code")
 
 
-class CodeObj(models.Model):
-    codelist = models.ForeignKey(
-        "CodelistVersion", related_name="code_objs", on_delete=models.CASCADE
+class Search(models.Model):
+    version = models.ForeignKey(
+        "CodelistVersion", related_name="searches", on_delete=models.CASCADE
     )
-    code = models.CharField(max_length=18)
+    term = models.CharField(max_length=255)
+    slug = models.SlugField()
+
+    class Meta:
+        unique_together = ("version", "slug")
+
+
+class SearchResult(models.Model):
+    search = models.ForeignKey(
+        "Search", related_name="results", on_delete=models.CASCADE
+    )
+    code_obj = models.ForeignKey(
+        "CodeObj", related_name="results", on_delete=models.CASCADE
+    )
+
+    class Meta:
+        unique_together = ("search", "code_obj")
 
 
 class SignOff(models.Model):

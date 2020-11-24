@@ -56,10 +56,9 @@ def test_old_style_table(tennis_elbow_codelist):
     ]
 
 
-@pytest.mark.xfail
 def test_new_style_codes(tennis_elbow_new_style_codelist):
     cl = tennis_elbow_new_style_codelist
-    clv = cl.versions.get()
+    clv = cl.versions.get(csv_data=None)
     assert clv.codes == (
         "128133004",
         "202855006",
@@ -71,10 +70,9 @@ def test_new_style_codes(tennis_elbow_new_style_codelist):
     )
 
 
-@pytest.mark.xfail
 def test_new_style_table(tennis_elbow_new_style_codelist):
     cl = tennis_elbow_new_style_codelist
-    clv = cl.versions.get()
+    clv = cl.versions.get(csv_data=None)
     assert clv.table == [
         ["code", "term"],
         ["128133004", "Disorder of elbow"],

@@ -3,6 +3,10 @@ from django.db import transaction
 
 from opencodelists.models import User
 
+from .definition2 import Definition2
+from .hierarchy import Hierarchy
+from .models import CodeObj
+
 logger = structlog.get_logger()
 
 
@@ -103,3 +107,35 @@ def publish_version(*, version):
     logger.info("Published Version", version_pk=version.pk)
 
     return version
+
+
+@transaction.atomic
+def convert_codelist_to_new_style(*, codelist):
+    """Convert codelist to new style.
+
+    Create a new version with the same codes as the latest version.
+    """
+
+    prev_clv = codelist.versions.order_by("id").last()
+    assert prev_clv.csv_data is not None
+    assert prev_clv.code_objs.count() == 0
+
+    next_clv = codelist.versions.create()
+
+    codes = set(prev_clv.codes)
+    hierarchy = Hierarchy.from_codes(codelist.coding_system, codes)
+    definition = Definition2.from_codes(codes, hierarchy)
+
+    CodeObj.objects.bulk_create(
+        CodeObj(
+            version=next_clv,
+            code=node,
+            status=hierarchy.node_status(
+                node, definition.included_ancestors, definition.excluded_ancestors
+            ),
+        )
+        for node in hierarchy.nodes
+        if node in codes
+    )
+
+    return next_clv

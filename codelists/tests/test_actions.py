@@ -110,3 +110,15 @@ def test_publish_published_version():
     clv = factories.create_published_version()
     with pytest.raises(AssertionError):
         actions.publish_version(version=clv)
+
+
+def test_convert_codelist_to_new_style(tennis_elbow_codelist):
+    cl = tennis_elbow_codelist
+    original_clv = cl.versions.get()
+
+    actions.convert_codelist_to_new_style(codelist=cl)
+
+    assert cl.versions.count() == 2
+    converted_clv = cl.versions.last()
+    assert converted_clv.csv_data is None
+    assert original_clv.codes == converted_clv.codes

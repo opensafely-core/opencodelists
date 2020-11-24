@@ -110,21 +110,3 @@ def test_publish_published_version():
     clv = factories.create_published_version()
     with pytest.raises(AssertionError):
         actions.publish_version(version=clv)
-
-
-def test_convert_codelist_to_new_style(tennis_elbow_codelist):
-    cl = tennis_elbow_codelist
-    actions.convert_codelist_to_new_style(codelist=cl)
-    clv = cl.versions.get()
-    assert set(clv.rules.values_list("code", "status")) == {
-        ("128133004", "+"),  # Disorder of elbow and all descendants
-    }
-    assert set(clv.code_objs.values_list("code", flat=True)) == {
-        "128133004",  # Disorder of elbow
-        "239964003",  # Soft tissue lesion of elbow region
-        "35185008",  # Enthesopathy of elbow region
-        "73583000",  # Epicondylitis
-        "202855006",  # Lateral epicondylitis
-        "429554009",  # Arthropathy of elbow
-        "439656005",  # Arthritis of elbow
-    }

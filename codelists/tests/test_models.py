@@ -56,6 +56,7 @@ def test_old_style_table(tennis_elbow_codelist):
     ]
 
 
+@pytest.mark.xfail
 def test_new_style_codes(tennis_elbow_new_style_codelist):
     cl = tennis_elbow_new_style_codelist
     clv = cl.versions.get()
@@ -70,6 +71,7 @@ def test_new_style_codes(tennis_elbow_new_style_codelist):
     )
 
 
+@pytest.mark.xfail
 def test_new_style_table(tennis_elbow_new_style_codelist):
     cl = tennis_elbow_new_style_codelist
     clv = cl.versions.get()

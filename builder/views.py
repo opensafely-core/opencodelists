@@ -14,15 +14,14 @@ from mappings.bnfdmd.mappers import bnf_to_dmd
 from opencodelists.models import User
 
 from . import actions
+from .decorators import load_codelist
 from .forms import DraftCodelistForm
-from .models import DraftCodelist
 
 NO_SEARCH_TERM = object()
 
 
-def download(request, username, codelist_slug):
-    codelist = get_object_or_404(DraftCodelist, owner=username, slug=codelist_slug)
-
+@load_codelist
+def download(request, codelist):
     # get codes
     codes = list(
         codelist.codes.filter(status__contains="+").values_list("code", flat=True)
@@ -32,7 +31,7 @@ def download(request, username, codelist_slug):
     code_to_term = codelist.coding_system.lookup_names(codes)
 
     timestamp = timezone.now().strftime("%Y-%m-%dT%H-%M-%S")
-    filename = f"{username}-{codelist_slug}-{timestamp}.csv"
+    filename = f"{codelist.owner.username}-{codelist.slug}-{timestamp}.csv"
 
     response = HttpResponse(content_type="text/csv")
     response["Content-Disposition"] = f'attachment; filename="{filename}"'
@@ -45,10 +44,10 @@ def download(request, username, codelist_slug):
     return response
 
 
-def download_dmd(request, username, codelist_slug):
-    codelist = get_object_or_404(
-        DraftCodelist, owner=username, slug=codelist_slug, coding_system_id="bnf"
-    )
+@load_codelist
+def download_dmd(request, codelist):
+    if codelist.coding_system_id != "bnf":
+        raise "Http404"
 
     # get codes
     codes = list(
@@ -56,7 +55,7 @@ def download_dmd(request, username, codelist_slug):
     )
 
     timestamp = timezone.now().strftime("%Y-%m-%dT%H-%M-%S")
-    filename = f"{username}-{codelist_slug}-{timestamp}.csv"
+    filename = f"{codelist.owner.username}-{codelist.slug}-{timestamp}.csv"
 
     response = HttpResponse(content_type="text/csv")
     response["Content-Disposition"] = f'attachment; filename="{filename}"'
@@ -98,23 +97,24 @@ def user(request, username):
     return render(request, "builder/user.html", ctx)
 
 
-@login_required
-def codelist(request, username, codelist_slug):
-    return _codelist(request, username, codelist_slug, None)
+@load_codelist
+def codelist(request, draft):
+    return _codelist(request, draft, None)
 
 
 @login_required
-def search(request, username, codelist_slug, search_slug):
-    return _codelist(request, username, codelist_slug, search_slug)
+@load_codelist
+def search(request, draft, search_slug):
+    return _codelist(request, draft, search_slug)
 
 
 @login_required
-def no_search_term(request, username, codelist_slug):
-    return _codelist(request, username, codelist_slug, NO_SEARCH_TERM)
+@load_codelist
+def no_search_term(request, draft):
+    return _codelist(request, draft, NO_SEARCH_TERM)
 
 
-def _codelist(request, username, codelist_slug, search_slug):
-    codelist = get_object_or_404(DraftCodelist, owner=username, slug=codelist_slug)
+def _codelist(request, codelist, search_slug):
     coding_system = codelist.coding_system
 
     code_to_status = dict(codelist.codes.values_list("code", "status"))
@@ -223,8 +223,8 @@ def _codelist(request, username, codelist_slug, search_slug):
 
 @login_required
 @require_http_methods(["POST"])
-def update(request, username, codelist_slug):
-    codelist = get_object_or_404(DraftCodelist, owner=username, slug=codelist_slug)
+@load_codelist
+def update(request, codelist):
     updates = json.loads(request.body)["updates"]
     actions.update_code_statuses(codelist=codelist, updates=updates)
     return JsonResponse({"updates": updates})
@@ -232,8 +232,8 @@ def update(request, username, codelist_slug):
 
 @login_required
 @require_http_methods(["POST"])
-def new_search(request, username, codelist_slug):
-    codelist = get_object_or_404(DraftCodelist, owner=username, slug=codelist_slug)
+@load_codelist
+def new_search(request, codelist):
     term = request.POST["term"]
     codes = do_search(codelist.coding_system, term)["all_codes"]
     if not codes:

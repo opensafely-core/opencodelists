@@ -107,6 +107,9 @@ class CodelistVersion(models.Model):
     codelist = models.ForeignKey(
         "Codelist", on_delete=models.CASCADE, related_name="versions"
     )
+    draft_owner = models.ForeignKey(
+        "opencodelists.User", related_name="drafts", on_delete=models.CASCADE, null=True
+    )
     tag = models.CharField(max_length=12, null=True)
     csv_data = models.TextField(verbose_name="CSV data", null=True)
     is_draft = models.BooleanField(default=True)
@@ -224,26 +227,46 @@ class CodelistVersion(models.Model):
         )
 
 
-class DefinitionRule(models.Model):
+class CodeObj(models.Model):
     STATUS_CHOICES = [
+        ("?", "Undecided"),
+        ("!", "In conflict"),
         ("+", "Included with descendants"),
+        ("(+)", "Included by ancestor"),
         ("-", "Excluded with descendants"),
+        ("(-)", "Excluded by ancestor"),
     ]
-    codelist = models.ForeignKey(
-        "CodelistVersion", related_name="rules", on_delete=models.CASCADE
+    version = models.ForeignKey(
+        "CodelistVersion", related_name="code_objs", on_delete=models.CASCADE
     )
     code = models.CharField(max_length=18)
     status = models.CharField(max_length=3, choices=STATUS_CHOICES, default="?")
 
     class Meta:
-        unique_together = ("codelist", "code")
+        unique_together = ("version", "code")
 
 
-class CodeObj(models.Model):
-    codelist = models.ForeignKey(
-        "CodelistVersion", related_name="code_objs", on_delete=models.CASCADE
+class Search(models.Model):
+    version = models.ForeignKey(
+        "CodelistVersion", related_name="searches", on_delete=models.CASCADE
     )
-    code = models.CharField(max_length=18)
+    term = models.CharField(max_length=255)
+    slug = models.SlugField()
+
+    class Meta:
+        unique_together = ("version", "slug")
+
+
+class SearchResult(models.Model):
+    search = models.ForeignKey(
+        "Search", related_name="results", on_delete=models.CASCADE
+    )
+    code_obj = models.ForeignKey(
+        "CodeObj", related_name="results", on_delete=models.CASCADE
+    )
+
+    class Meta:
+        unique_together = ("search", "code_obj")
 
 
 class SignOff(models.Model):

@@ -1,5 +1,6 @@
 import json
 
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -14,24 +15,44 @@ from .decorators import load_draft
 NO_SEARCH_TERM = object()
 
 
+@login_required
 @load_draft
 def draft(request, draft):
-    return _codelist(request, draft, None)
+    if request.POST:
+        return _handle_post(request, draft)
+    return _draft(request, draft, None)
+
+
+def _handle_post(request, draft):
+    action = request.POST["action"]
+    if action == "save":
+        actions.save(draft=draft)
+        messages.add_message(request, messages.INFO, "A new version has been saved")
+        return redirect(draft)
+    elif action == "save-draft":
+        messages.add_message(
+            request, messages.INFO, "Your changes have been saved as draft"
+        )
+        return redirect(draft.codelist)
+    elif action == "discard":
+        messages.add_message(request, messages.INFO, "Your changes have been discarded")
+        actions.discard_draft(draft=draft)
+        return redirect(draft.codelist)
 
 
 @login_required
 @load_draft
 def search(request, draft, search_slug):
-    return _codelist(request, draft, search_slug)
+    return _draft(request, draft, search_slug)
 
 
 @login_required
 @load_draft
 def no_search_term(request, draft):
-    return _codelist(request, draft, NO_SEARCH_TERM)
+    return _draft(request, draft, NO_SEARCH_TERM)
 
 
-def _codelist(request, draft, search_slug):
+def _draft(request, draft, search_slug):
     coding_system = draft.coding_system
 
     code_to_status = dict(draft.code_objs.values_list("code", "status"))

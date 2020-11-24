@@ -116,6 +116,11 @@ class CodelistBuilder extends React.Component {
     return counts;
   }
 
+  complete() {
+    const counts = this.counts();
+    return counts["!"] === 0 && counts["?"] === 0;
+  }
+
   render() {
     const moreInfoModal =
       this.state.moreInfoModalCode &&
@@ -125,6 +130,9 @@ class CodelistBuilder extends React.Component {
       <>
         <div className="row">
           <div className="col-3">
+            <ManagementForm complete={this.complete()} />
+            <hr />
+
             <h3 className="mb-4">Summary</h3>
             <Filter filter={this.props.filter} />
             <Summary counts={this.counts()} />
@@ -144,25 +152,6 @@ class CodelistBuilder extends React.Component {
 
             <h3 className="mb-4">New term search</h3>
             <SearchForm searchURL={this.props.searchURL} />
-            <hr />
-
-            <div className="btn-group-vertical btn-block" role="group">
-              <DownloadButton
-                enabled={this.counts()["!"] === 0 && this.counts()["?"] === 0}
-                url={this.props.downloadURL}
-              >
-                Download codelist
-              </DownloadButton>
-
-              {this.props.downloadDmdURL && (
-                <DownloadButton
-                  enabled={this.counts()["!"] === 0 && this.counts()["?"] === 0}
-                  url={this.props.downloadDmdURL}
-                >
-                  Download codelist as dm+d
-                </DownloadButton>
-              )}
-            </div>
           </div>
 
           <div className="col-9 pl-5">
@@ -216,6 +205,56 @@ class CodelistBuilder extends React.Component {
       />
     );
   }
+}
+
+function ManagementForm(props) {
+  const { complete } = props;
+
+  return (
+    <form method="post">
+      <input
+        type="hidden"
+        name="csrfmiddlewaretoken"
+        value={getCookie("csrftoken")}
+      />
+      <div className="btn-group-vertical btn-block" role="group">
+        {complete ? (
+          <button
+            type="submit"
+            name="action"
+            value="save"
+            className="btn btn-outline-primary btn-block"
+          >
+            Save changes
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="disabled btn btn-outline-secondary btn-block"
+            aria-disabled="true"
+          >
+            Save changes
+          </button>
+        )}
+        <button
+          type="submit"
+          name="action"
+          value="save-draft"
+          className="btn btn-outline-primary btn-block"
+        >
+          Save draft
+        </button>
+        <button
+          type="submit"
+          name="action"
+          value="discard"
+          className="btn btn-outline-primary btn-block"
+        >
+          Discard
+        </button>
+      </div>
+    </form>
+  );
 }
 
 function Filter(props) {
@@ -346,27 +385,6 @@ function Summary(props) {
         </li>
       )}
     </ul>
-  );
-}
-
-function DownloadButton(props) {
-  if (props.enabled) {
-    return (
-      <a className="btn btn-outline-info btn-block" href={props.url}>
-        {props.children}
-      </a>
-    );
-  }
-
-  // Button is disabled, tell the user why
-  return (
-    <>
-      <p>
-        Downloads are disabled until all conflicted or unresolved concepts are
-        resolved.
-      </p>
-      <a className="disabled btn btn-secondary text-white">{props.children}</a>
-    </>
   );
 }
 

@@ -123,7 +123,7 @@ def convert_codelist_to_new_style(*, codelist):
     assert prev_clv.csv_data is not None
     assert prev_clv.code_objs.count() == 0
 
-    next_clv = codelist.versions.create()
+    next_clv = codelist.versions.create(is_draft=prev_clv.is_draft)
 
     codes = set(prev_clv.codes)
     hierarchy = Hierarchy.from_codes(codelist.coding_system, codes)

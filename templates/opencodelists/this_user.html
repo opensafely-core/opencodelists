@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block title_extra %}: {{ user.name }}{% endblock %}
+
+{% block content %}
+<br />
+<h3>Hello, {{ user.name }}</h3>
+<br />
+
+<div>
+    <a href="{% url 'user-create-codelist' user.username %}" class="btn btn-primary">
+        Create a codelist!
+    </a>
+</div>
+<br />
+
+{% if codelists %}
+<h4>Your codelists</h4>
+
+<ul>
+        {% for codelist in codelists %}
+        <li><a href="{{ codelist.get_absolute_url }}">{{ codelist.name }}</a></li>
+        {% endfor %}
+</ul>
+{% endif %}
+
+{% if drafts %}
+<h4>Your drafts</h4>
+
+<ul>
+        {% for draft in drafts %}
+        <li><a href="{{ draft.get_absolute_url }}">{{ draft.codelist.name }}</a></li>
+        {% endfor %}
+</ul>
+{% endif %}
+{% endblock %}

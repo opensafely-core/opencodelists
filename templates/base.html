@@ -61,13 +61,18 @@
         >OpenSAFELY Codelists</a
       >
 
-      <div class="navbar-nav nav-item">
-        {% if user.is_authenticated %}
-        <a class="nav-link text-white" href="{% url 'logout' %}">Sign out</a>
-        {% else %}
-        <a class="nav-link text-white" href="{% url 'login' %}">Sign in</a>
-        {% endif %}
-      </div>
+      {% if request.user.is_authenticated %}
+        <div class="navbar-nav nav-item">
+          <a class="nav-link text-white" href="{% url 'user' user.username %}">My codelists</a>
+        </div>
+        <div class="navbar-nav nav-item">
+          <a class="nav-link text-white" href="{% url 'logout' %}">Sign out</a>
+        </div>
+      {% else %}
+        <div class="navbar-nav nav-item">
+          <a class="nav-link text-white" href="{% url 'login' %}">Sign in</a>
+        </div>
+      {% endif %}
     </nav>
 
     <div class="container">

@@ -16,6 +16,7 @@ users_patterns = [
         views.user_activation_url,
         name="user-activation-url",
     ),
+    path("<username>/", views.user, name="user"),
     path(
         "<username>/new-codelist/",
         views.user_create_codelist,

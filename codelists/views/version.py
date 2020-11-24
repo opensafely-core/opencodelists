@@ -63,7 +63,7 @@ def version(request, clv):
     ctx = {
         "clv": clv,
         "codelist": clv.codelist,
-        "versions": clv.codelist.versions.order_by("-tag"),
+        "versions": clv.codelist.versions.order_by("-created_at"),
         "headers": headers,
         "rows": rows,
         "tree_tables": tree_tables,

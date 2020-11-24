@@ -176,7 +176,6 @@ class CodelistBuilder extends React.Component {
               updateStatus={this.updateStatus}
               showMoreInfoModal={this.showMoreInfoModal}
             />
-            ,
           </div>
         </div>
 

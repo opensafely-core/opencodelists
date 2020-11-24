@@ -107,11 +107,15 @@ class CodelistVersion(models.Model):
     codelist = models.ForeignKey(
         "Codelist", on_delete=models.CASCADE, related_name="versions"
     )
+    # If set, indicates that a CodelistVersion is a draft that's being edited in the
+    # builder.
     draft_owner = models.ForeignKey(
         "opencodelists.User", related_name="drafts", on_delete=models.CASCADE, null=True
     )
     tag = models.CharField(max_length=12, null=True)
     csv_data = models.TextField(verbose_name="CSV data", null=True)
+    # This field indicates whether a CodelistVersion is published or not.  This doesn't
+    # have much practical meaning at the moment and should be revisited.
     is_draft = models.BooleanField(default=True)
 
     created_at = models.DateTimeField(auto_now_add=True)

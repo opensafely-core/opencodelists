@@ -99,7 +99,21 @@ def user(request, username):
 
 
 @login_required
-def codelist(request, username, codelist_slug, search_slug=None):
+def codelist(request, username, codelist_slug):
+    return _codelist(request, username, codelist_slug, None)
+
+
+@login_required
+def search(request, username, codelist_slug, search_slug):
+    return _codelist(request, username, codelist_slug, search_slug)
+
+
+@login_required
+def no_search_term(request, username, codelist_slug):
+    return _codelist(request, username, codelist_slug, NO_SEARCH_TERM)
+
+
+def _codelist(request, username, codelist_slug, search_slug):
     codelist = get_object_or_404(DraftCodelist, owner=username, slug=codelist_slug)
     coding_system = codelist.coding_system
 

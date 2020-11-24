@@ -10,13 +10,12 @@ urlpatterns = [
     path("<username>/<codelist_slug>/", views.codelist, name="codelist"),
     path(
         "<username>/<codelist_slug>/search/<search_slug>/",
-        views.codelist,
+        views.search,
         name="search",
     ),
     path(
         "<username>/<codelist_slug>/no-search-term/",
-        views.codelist,
-        {"search_slug": views.NO_SEARCH_TERM},
+        views.no_search_term,
         name="no-search-term",
     ),
     path("<username>/<codelist_slug>/update/", views.update, name="update"),

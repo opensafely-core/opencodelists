@@ -81,9 +81,9 @@ class Codelist(models.Model):
             f"codelists:{self.codelist_type}_codelist_update", kwargs=self.url_kwargs
         )
 
-    def get_version_create_url(self):
+    def get_version_upload_url(self):
         return reverse(
-            f"codelists:{self.codelist_type}_version_create", kwargs=self.url_kwargs
+            f"codelists:{self.codelist_type}_version_upload", kwargs=self.url_kwargs
         )
 
     @property

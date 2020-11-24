@@ -14,38 +14,38 @@ pytestmark = pytest.mark.freeze_time("2020-07-23")
 
 def test_get_unauthenticated(client):
     codelist = CodelistFactory()
-    assert_get_unauthenticated(client, codelist.get_version_create_url())
+    assert_get_unauthenticated(client, codelist.get_version_upload_url())
 
 
 def test_post_unauthenticated(client):
     codelist = CodelistFactory()
-    assert_post_unauthenticated(client, codelist.get_version_create_url())
+    assert_post_unauthenticated(client, codelist.get_version_upload_url())
 
 
 def test_get_unauthorised(client):
     codelist = CodelistFactory()
-    assert_get_unauthorised(client, codelist.get_version_create_url())
+    assert_get_unauthorised(client, codelist.get_version_upload_url())
 
 
 def test_post_unauthorised(client):
     codelist = CodelistFactory()
-    assert_post_unauthorised(client, codelist.get_version_create_url())
+    assert_post_unauthorised(client, codelist.get_version_upload_url())
 
 
 def test_get_unauthorised_for_user(client):
     codelist = CodelistFactory(owner=UserFactory())
-    assert_get_unauthorised(client, codelist.get_version_create_url())
+    assert_get_unauthorised(client, codelist.get_version_upload_url())
 
 
 def test_post_unauthorised_for_user(client):
     codelist = CodelistFactory(owner=UserFactory())
-    assert_post_unauthorised(client, codelist.get_version_create_url())
+    assert_post_unauthorised(client, codelist.get_version_upload_url())
 
 
 def test_get_unknown_codelist(client):
     codelist = CodelistFactory()
     client.force_login(codelist.organisation.regular_user)
-    url = codelist.get_version_create_url().replace(codelist.slug, "test")
+    url = codelist.get_version_upload_url().replace(codelist.slug, "test")
     response = client.get(url, data={})
     assert response.status_code == 404
 
@@ -61,7 +61,7 @@ def test_post_success(client):
         "csv_data": csv_builder(csv_data),
     }
 
-    response = client.post(codelist.get_version_create_url(), data=data)
+    response = client.post(codelist.get_version_upload_url(), data=data)
 
     clv = codelist.versions.filter(is_draft=True).get()
     assert response.status_code == 302
@@ -73,7 +73,7 @@ def test_post_missing_field(client):
     codelist = create_published_version().codelist
     client.force_login(codelist.organisation.regular_user)
 
-    response = client.post(codelist.get_version_create_url(), data={})
+    response = client.post(codelist.get_version_upload_url(), data={})
 
     assert response.status_code == 200
     assert "form" in response.context_data

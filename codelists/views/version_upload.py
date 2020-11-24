@@ -6,13 +6,13 @@ from .. import actions
 from ..forms import CodelistVersionForm
 from .decorators import load_codelist, require_permission
 
-template_name = "codelists/version_create.html"
+template_name = "codelists/version_upload.html"
 
 
 @login_required
 @load_codelist
 @require_permission
-def version_create(request, codelist):
+def version_upload(request, codelist):
     if request.method == "POST":
         return handle_post(request, codelist)
     return handle_get(request)

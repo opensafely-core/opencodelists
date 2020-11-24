@@ -145,11 +145,6 @@ class CodelistVersion(models.Model):
             f"codelists:{self.codelist_type}_version", kwargs=self.url_kwargs
         )
 
-    def get_update_url(self):
-        return reverse(
-            f"codelists:{self.codelist_type}_version_update", kwargs=self.url_kwargs
-        )
-
     def get_publish_url(self):
         return reverse(
             f"codelists:{self.codelist_type}_version_publish", kwargs=self.url_kwargs

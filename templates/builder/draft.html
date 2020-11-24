@@ -3,13 +3,13 @@
 
 {% block content %}
 {% if search == NO_SEARCH_TERM %}
-<h2 class="my-4"><a href="{{ codelist.get_absolute_url }}">{{ codelist.name }}</a></h2>
+<h2 class="my-4"><a href="{{ draft_url }}">{{ codelist_name }}</a></h2>
 <h3 class="mb-4">No search term</h3>
 {% elif search %}
-<h2 class="my-4"><a href="{{ codelist.get_absolute_url }}">{{ codelist.name }}</a></h2>
+<h2 class="my-4"><a href="{{ draft_url }}">{{ codelist_name }}</a></h2>
 <h3 class="mb-4">Search term: "{{ search.term }}"</h3>
 {% else %}
-<h2 class="my-4">{{ codelist.name }}</h2>
+<h2 class="my-4">{{ codelist_name }}</h2>
 {% endif %}
 <hr />
 

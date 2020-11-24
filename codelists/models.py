@@ -153,6 +153,9 @@ class CodelistVersion(models.Model):
             f"codelists:{self.codelist_type}_version_download", kwargs=self.url_kwargs
         )
 
+    def get_builder_url(self, view_name, *args):
+        return reverse(f"builder:{view_name}", args=[self.hash] + list(args))
+
     @property
     def url_kwargs(self):
         kwargs = self.codelist.url_kwargs

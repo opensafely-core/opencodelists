@@ -33,8 +33,8 @@ class Codelist(models.Model):
     coding_system_id = models.CharField(
         choices=CODING_SYSTEMS_CHOICES, max_length=32, verbose_name="Coding system"
     )
-    description = models.TextField()
-    methodology = models.TextField()
+    description = models.TextField(null=True, blank=True)
+    methodology = models.TextField(null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

@@ -171,8 +171,10 @@
         role="tabpanel"
         aria-labelledby="about-tab"
       >
+        {% if codelist.description %}
         <h4>Description</h4>
         <p>{{ codelist.description|markdown_filter|safe }}</p>
+        {% endif %}
 
         {% if codelist.methodology %}
         <h4>Methodology</h4>

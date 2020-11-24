@@ -137,15 +137,3 @@ def test_export_to_builder(tennis_elbow_codelist):
 
     assert draft.draft_owner == user
     assert draft.codes == converted_clv.codes
-
-
-def test_import_from_builder(tennis_elbow_codelist):
-    user = UserFactory()
-    cl = tennis_elbow_codelist
-    converted_clv = actions.convert_codelist_to_new_style(codelist=cl)
-    draft = actions.export_to_builder(version=converted_clv, owner=user)
-
-    actions.import_from_builder(draft=draft)
-
-    draft.refresh_from_db()
-    assert draft.draft_owner is None

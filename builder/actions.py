@@ -79,3 +79,14 @@ def update_code_statuses(*, draft, updates):
         draft.code_objs.filter(code__in=codes).update(status=status)
 
     logger.info("Updated code statuses", draft_pk=draft.pk)
+
+
+def save(*, draft):
+    """Convert CodelistVersion from something that's in the builder to something that's
+    shown on the site.
+
+    All this does is unset the draft_owner attribute.
+    """
+
+    draft.draft_owner = None
+    draft.save()

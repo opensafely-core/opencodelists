@@ -1,4 +1,5 @@
 from builder import actions
+from codelists import actions as codelists_actions
 from codelists.tests.factories import CodelistFactory
 from opencodelists.tests.factories import UserFactory
 
@@ -204,3 +205,15 @@ def test_update_code_statuses(tennis_elbow):
         "298869002": "(+)",  # Finding of elbow joint
         "298163003": "(+)",  # Elbow joint inflamed
     }
+
+
+def test_save(tennis_elbow_codelist):
+    user = UserFactory()
+    cl = tennis_elbow_codelist
+    converted_clv = codelists_actions.convert_codelist_to_new_style(codelist=cl)
+    draft = codelists_actions.export_to_builder(version=converted_clv, owner=user)
+
+    actions.save(draft=draft)
+
+    draft.refresh_from_db()
+    assert draft.draft_owner is None

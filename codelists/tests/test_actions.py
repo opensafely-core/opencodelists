@@ -1,3 +1,6 @@
+import csv
+from io import StringIO
+
 import pytest
 from django.db import IntegrityError
 
@@ -77,6 +80,27 @@ def test_create_codelist_with_duplicate_name():
         )
 
     assert Codelist.objects.filter(name="Test").count() == 1
+
+
+def test_create_codelist_with_codes(tennis_elbow):
+    user = UserFactory()
+    codes = [row[0] for row in list(csv.reader(StringIO(tennis_elbow)))[1:]]
+    cl = actions.create_codelist_with_codes(
+        owner=user, name="Test", coding_system_id="snomedct", codes=codes
+    )
+    clv = cl.versions.get()
+    assert len(clv.codes) == 7
+
+
+def test_create_codelist_from_scratch():
+    user = UserFactory()
+    organisation = OrganisationFactory()
+
+    cl = actions.create_codelist_from_scratch(
+        owner=organisation, name="Test", coding_system_id="snomedct", draft_owner=user
+    )
+    clv = cl.versions.get()
+    assert clv.draft_owner == user
 
 
 def test_update_draft_version():

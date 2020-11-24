@@ -49,6 +49,46 @@ def create_codelist(
     return codelist
 
 
+@transaction.atomic
+def create_codelist_with_codes(*, owner, name, coding_system_id, codes):
+    """Create a new Codelist with a CodelistVersion with given codes."""
+
+    codes = set(codes)
+
+    codelist = owner.codelists.create(name=name, coding_system_id=coding_system_id)
+
+    coding_system = codelist.coding_system
+    code_to_term = coding_system.code_to_term(codes)
+    assert codes == set(code_to_term)
+
+    version = codelist.versions.create()
+    hierarchy = Hierarchy.from_codes(codelist.coding_system, codes)
+    definition = Definition2.from_codes(codes, hierarchy)
+
+    CodeObj.objects.bulk_create(
+        CodeObj(
+            version=version,
+            code=node,
+            status=hierarchy.node_status(
+                node, definition.included_ancestors, definition.excluded_ancestors
+            ),
+        )
+        for node in hierarchy.nodes
+        if node in codes
+    )
+
+    return codelist
+
+
+@transaction.atomic
+def create_codelist_from_scratch(*, owner, name, coding_system_id, draft_owner):
+    """Create a new Codelist with a draft CodelistVersion."""
+
+    codelist = owner.codelists.create(name=name, coding_system_id=coding_system_id)
+    codelist.versions.create(draft_owner=draft_owner)
+    return codelist
+
+
 def create_reference(*, codelist, text, url):
     """Create a new Reference for the given Codelist."""
     ref = codelist.references.create(text=text, url=url)

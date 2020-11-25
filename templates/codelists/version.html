@@ -181,18 +181,21 @@
         <p>{{ codelist.methodology|markdown_filter|safe }}</p>
         {% endif %}
 
+        {% if references %}
         <h4>References</h4>
         <ul>
-          {% for reference in codelist.references.all %}
+          {% for reference in references %}
           <li><a href="{{ reference.url }}">{{ reference.text }}</a></li>
           {% empty %}
           <li>...</li>
           {% endfor %}
         </ul>
+        {% endif %}
 
+        {% if signoffs %}
         <h4>Signed off by</h4>
         <ul>
-          {% for signoff in codelist.signoffs.all %}
+          {% for signoff in signoffs %}
           <li>
             {{ signoff.user.name }},
             {{ signoff.user.organisation.name }}
@@ -202,6 +205,12 @@
           <li>...</li>
           {% endfor %}
         </ul>
+        {% endif %}
+
+        {% if not codelist.description and not codelist.methodology and not references and not signoffs %}
+        <p>No metadata has been provided for this codelist.</p>
+        {% endif %}
+
       </div>
 
       {% if definition_rows %}

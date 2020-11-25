@@ -67,6 +67,8 @@ def version(request, clv):
     ctx = {
         "clv": clv,
         "codelist": clv.codelist,
+        "references": clv.codelist.references.all(),
+        "signoffs": clv.codelist.signoffs.all(),
         "versions": visible_versions,
         "headers": headers,
         "rows": rows,

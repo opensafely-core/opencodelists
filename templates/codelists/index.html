@@ -35,7 +35,11 @@
 	<span class="badge badge-secondary">{{ cl.coding_system.short_name }}</span>
       </dt>
       <dd>
+
+      {% if cl.description %}
       <div>{{ cl.description|markdown_filter|safe }}</div>
+      {% endif %}
+
       {% if not organisation %}
       <div>Published by <a href="{% url 'codelists:organisation_index' cl.organisation_id %}">{{ cl.organisation.name }}</a></div>
       {% endif %}

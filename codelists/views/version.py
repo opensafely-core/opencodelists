@@ -5,7 +5,7 @@ from coding_systems.snomedct.models import Concept as SnomedConcept
 from ..coding_systems import CODING_SYSTEMS
 from ..definition import Definition
 from ..hierarchy import Hierarchy
-from ..presenters import build_definition_rows
+from ..presenters import build_definition_rows, present_search_results
 from .decorators import load_version
 
 
@@ -76,6 +76,7 @@ def version(request, clv):
         "code_to_term": code_to_term,
         "code_to_status": code_to_status,
         "definition_rows": definition_rows,
+        "search_results": present_search_results(clv, code_to_term),
         "user_can_edit": user_can_edit,
     }
     return render(request, "codelists/version.html", ctx)

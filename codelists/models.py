@@ -258,6 +258,12 @@ class CodeObj(models.Model):
     class Meta:
         unique_together = ("version", "code")
 
+    def is_included(self):
+        return self.status in ["+", "(+)"]
+
+    def is_excluded(self):
+        return self.status in ["-", "(-)"]
+
 
 class Search(models.Model):
     version = models.ForeignKey(

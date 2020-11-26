@@ -162,6 +162,20 @@
         >
       </li>
       {% endif %}
+      {% if search_results %}
+      <li class="nav-item">
+        <a
+          class="nav-link"
+          id="search-results-tab"
+          data-toggle="tab"
+          href="#search-results"
+          role="tab"
+          aria-controls="search-results"
+          aria-selected="false"
+          >Searches</a
+        >
+      </li>
+      {% endif %}
     </ul>
 
     <div class="tab-content">
@@ -275,6 +289,10 @@
       </p>
         <div id="codelist-tree"></div>
       </div>
+      {% endif %}
+
+      {% if search_results %}
+      {% include "./_search_results.html" %}
       {% endif %}
     </div>
   </div>

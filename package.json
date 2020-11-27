@@ -7,7 +7,7 @@
     "test": "jest"
   },
   "devDependencies": {
-    "@babel/core": "^7.12.7",
+    "@babel/core": "^7.12.9",
     "@babel/preset-env": "^7.12.1",
     "@babel/preset-react": "^7.12.7",
     "@testing-library/jest-dom": "^5.11.6",

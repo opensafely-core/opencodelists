@@ -33,8 +33,10 @@
       <dt>Coding system</dt>
       <dd>{{ codelist.coding_system.name }}</dd>
 
+      {% if codelist.organisation %}
       <dt>Organisation</dt>
       <dd>{{ codelist.organisation.name }}</dd>
+      {% endif %}
 
       <dt>Codelist ID</dt>
       <dd>{{ codelist.full_slug }}</dd>

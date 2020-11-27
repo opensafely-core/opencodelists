@@ -70,6 +70,9 @@
         </div>
       {% else %}
         <div class="navbar-nav nav-item">
+          <a class="nav-link text-white" href="{% url 'register' %}">Sign up</a>
+        </div>
+        <div class="navbar-nav nav-item">
           <a class="nav-link text-white" href="{% url 'login' %}">Sign in</a>
         </div>
       {% endif %}

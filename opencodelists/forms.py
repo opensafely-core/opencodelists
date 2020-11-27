@@ -114,6 +114,12 @@ class CodelistCreateForm(forms.Form):
 
 
 class RegisterForm(forms.ModelForm):
+    """Form for users to register.
+
+    We cannot use UserCreationForm because our custom User model is not a subclass of
+    AbstractUser.
+    """
+
     password1 = forms.CharField(
         label="Password",
         strip=False,

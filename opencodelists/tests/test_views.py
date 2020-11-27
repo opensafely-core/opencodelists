@@ -213,3 +213,77 @@ def test_user_create_codelist_post_duplicate_name(client):
 
     response = client.post(f"/users/{user.username}/new-codelist/", data)
     assert b"There is already a codelist called Test" in response.content
+
+
+def test_register_get(client):
+    rsp = client.get("/accounts/register/")
+    assert rsp.status_code == 200
+
+
+def test_register_get_when_authenticated(client):
+    user = UserFactory()
+    client.force_login(user)
+    rsp = client.get("/accounts/register/")
+    assert rsp.status_code == 302
+
+
+def test_register_post_success(client):
+    data = {
+        "username": "user",
+        "name": "Prof User",
+        "email": "user@example.com",
+        "password1": "password",
+        "password2": "password",
+    }
+    client.post("/accounts/register/", data)
+
+    u = User.objects.get()
+    assert u.username == "user"
+    assert u.name == "Prof User"
+    assert u.email == "user@example.com"
+    assert u.check_password("password")
+    assert u.is_active
+    assert not u.is_staff
+
+
+def test_register_post_failure_pasword_mismatch(client):
+    data = {
+        "username": "user",
+        "name": "Prof User",
+        "email": "user@example.com",
+        "password1": "password",
+        "password2": "wordpass",
+    }
+    rsp = client.post("/accounts/register/", data)
+    assert b"The two password fields didn&#x27;t match." in rsp.content
+    assert User.objects.count() == 0
+
+
+def test_register_post_failure_duplicate_username(client):
+    u = UserFactory()
+
+    data = {
+        "username": u.username,
+        "name": "Prof User",
+        "email": "user@example.com",
+        "password1": "password",
+        "password2": "wordpass",
+    }
+    rsp = client.post("/accounts/register/", data)
+    assert b"A user with this username already exists." in rsp.content
+    assert User.objects.count() == 1
+
+
+def test_register_post_failure_duplicate_email(client):
+    u = UserFactory()
+
+    data = {
+        "username": "user",
+        "name": "Prof User",
+        "email": u.email,
+        "password1": "password",
+        "password2": "wordpass",
+    }
+    rsp = client.post("/accounts/register/", data)
+    assert b"A user with this email address already exists." in rsp.content
+    assert User.objects.count() == 1

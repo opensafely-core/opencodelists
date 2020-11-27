@@ -5,17 +5,9 @@ from django.urls import include, path
 from . import views
 
 users_patterns = [
-    path(
-        "activate/<token>/",
-        views.user_set_password,
-        name="user-set-password",
-    ),
+    path("activate/<token>/", views.user_set_password, name="user-set-password"),
     path("add/", views.UserCreate.as_view(), name="user-create"),
-    path(
-        "added/<username>/",
-        views.user_activation_url,
-        name="user-activation-url",
-    ),
+    path("added/<username>/", views.user_activation_url, name="user-activation-url"),
     path("<username>/", views.user, name="user"),
     path(
         "<username>/new-codelist/",
@@ -29,6 +21,7 @@ urlpatterns = [
     path("users/", include(users_patterns)),
     path("admin/", admin.site.urls),
     path("accounts/", include("django.contrib.auth.urls")),
+    path("accounts/register/", views.register, name="register"),
     path("builder/", include("builder.urls")),
     path("conversions/", include("conversions.urls")),
     path("ctv3/", include("coding_systems.ctv3.urls")),

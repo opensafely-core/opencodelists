@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.contrib.auth import login
+from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.core import signing
 from django.core.exceptions import NON_FIELD_ERRORS
@@ -12,7 +12,7 @@ from django.views.generic import CreateView
 from codelists.actions import create_codelist_from_scratch, create_codelist_with_codes
 
 from .actions import activate_user, create_user
-from .forms import CodelistCreateForm, UserForm, UserPasswordForm
+from .forms import CodelistCreateForm, RegisterForm, UserForm, UserPasswordForm
 from .models import Organisation, User
 
 
@@ -191,3 +191,27 @@ def handle_user_create_codelist_post_valid(request, form, user, owner_choices):
 def handle_user_create_codelist_post_invalid(request, form, user):
     ctx = {"user": user, "form": form}
     return render(request, "opencodelists/user_create_codelist.html", ctx)
+
+
+def register(request):
+    if request.user.is_authenticated:
+        messages.error(request, "You are already signed in!")
+        return redirect("/")
+
+    if request.method == "POST":
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            user = authenticate(
+                username=user.username, password=form.cleaned_data["password1"]
+            )
+            login(request, user)
+
+            return redirect("/")
+
+    else:
+        form = RegisterForm()
+
+    context = {"form": form}
+
+    return render(request, "registration/register.html", context)

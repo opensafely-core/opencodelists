@@ -67,3 +67,30 @@ def build_definition_rows(coding_system, hierarchy, definition):
     excluded_rules = sorted(definition.excluding_rules(), key=name_for_rule)
 
     return list(_iter_rules(hierarchy, included_rules, name_for_rule, excluded_rules))
+
+
+def present_search_results(clv, code_to_term):
+    results = []
+    for search in clv.searches.prefetch_related(
+        "results", "results__code_obj"
+    ).order_by("term"):
+        rows = [
+            {
+                "code": result.code_obj.code,
+                "term": code_to_term[result.code_obj.code],
+                "included": result.code_obj.is_included(),
+            }
+            for result in search.results.all()
+        ]
+        rows.sort(key=lambda row: row["term"])
+        num_included = len([r for r in rows if r["included"]])
+        results.append(
+            {
+                "term": search.term,
+                "rows": rows,
+                "num_included": num_included,
+                "total": len(rows),
+            }
+        )
+
+    return results

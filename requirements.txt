@@ -17,7 +17,7 @@ cli-helpers[styles]==1.2.1  # via litecli
 click==7.1.2              # via black, litecli, pip-tools
 configobj==5.0.6          # via cli-helpers, litecli
 coverage==5.2.1           # via pytest-cov
-cryptography==2.9.2       # via paramiko
+cryptography==3.2         # via paramiko
 dataclasses==0.7          # via black
 distlib==0.3.1            # via virtualenv
 django-cors-headers==3.5.0  # via -r requirements.in

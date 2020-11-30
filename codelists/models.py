@@ -232,7 +232,13 @@ class CodelistVersion(models.Model):
             return tuple(sorted({row[ix] for row in rows}))
 
     def _new_style_codes(self):
-        return tuple(sorted(self.code_objs.values_list("code", flat=True)))
+        return tuple(
+            sorted(
+                self.code_objs.filter(status__in=["+", "(+)"]).values_list(
+                    "code", flat=True
+                )
+            )
+        )
 
     def download_filename(self):
         return "{}-{}-{}".format(

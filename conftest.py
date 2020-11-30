@@ -6,6 +6,7 @@ from django.core.management import call_command
 
 from codelists import actions
 from codelists.tests.factories import CodelistFactory
+from opencodelists.tests.fixtures import *  # noqa
 
 pytest.register_assert_rewrite("codelists.tests.views.assertions")
 

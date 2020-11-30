@@ -242,6 +242,12 @@ class CodelistVersion(models.Model):
             self.codelist.organisation_id, self.codelist.slug, self.tag
         )
 
+    def can_be_edited_by(self, user):
+        if self.codelist_type == "user":
+            return user == self.user
+        else:
+            return user.is_member(self.organisation)
+
 
 class CodeObj(models.Model):
     STATUS_CHOICES = [

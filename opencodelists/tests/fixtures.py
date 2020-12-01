@@ -12,9 +12,9 @@ a given state you might need to have an Organisation, a User, a Codelist, and ot
 CodelistVersions.  The approach we have taken is to build a "universe" of test objects
 once, and then to pull out members of that universe as and when we need them.
 
-This module contains some Cleverness, through use of locals() and dynamically generating
-pytest fixtures.  This is acceptable Cleverness, because it should not leak out of the
-module, and users of the module do not need to understand in detail how it works.
+Since each fixture function needs to do the same thing (find the member of the universe
+with the given name, reload it from the database, and return it) we provide
+build_fixture() to avoid excessive duplication.
 """
 
 import csv
@@ -41,27 +41,24 @@ from opencodelists.actions import (
     make_user_admin_for_organisation,
 )
 
-# The following fixtures are available.  See comments in build_fixtures() for exactly
-# what each fixture returns.
-AVAILABLE_FIXTURES = {
-    "organisation",
-    "organisation_admin",
-    "organisation_user",
-    "user_without_organisation",
-    "old_style_codelist",
-    "old_style_version",
-    "new_style_codelist",
-    "version_with_no_searches",
-    "version_with_some_searches",
-    "version_with_complete_searches",
-    "new_style_version",
-    "draft_codelist",
-    "draft_version",
-    "user_codelist",
-    "user_version",
-}
-
 SNOMED_FIXTURES_PATH = Path(settings.BASE_DIR, "coding_systems", "snomedct", "fixtures")
+
+
+def build_fixture(fixture_name):
+    """Build and register a fixture function that returns the fixture object with the
+    given name."""
+
+    def fixture(universe):
+        """The actual pytest fixture.
+
+        Finds the member of the universe with the given name, reloads it from the
+        database, and returns it.
+        """
+        obj = universe[fixture_name]
+        obj.refresh_from_db()
+        return obj
+
+    return pytest.fixture(scope="function")(fixture)
 
 
 @pytest.fixture(scope="session")
@@ -83,8 +80,7 @@ def universe(django_db_setup, django_db_blocker):
 def build_fixtures():
     """Create fixture objects.
 
-    Returns a dict of locals(), mapping a key in AVAILABLE_FIXTURES to the fixture
-    object.
+    Returns a dict of locals(), mapping a fixture name to the fixture object.
     """
 
     # organisation
@@ -239,7 +235,6 @@ def build_fixtures():
     # - belongs to user_codelist
     user_version = user_codelist.versions.get()
 
-    assert set(locals()) == AVAILABLE_FIXTURES
     return locals()
 
 
@@ -264,31 +259,3 @@ def codes_for_search_term(term):
 
     coding_system = CODING_SYSTEMS["snomedct"]
     return do_search(coding_system, term)["all_codes"]
-
-
-# Create each fixture in the module scope.
-for fixture_name in AVAILABLE_FIXTURES:
-
-    def build_fixture(fixture_name):
-        """Build a fixture function."""
-
-        def fixture(universe):
-            """The actual pytest fixture.
-
-            Finds the member of the universe with the given name, reloads it from the
-            database, and returns it.
-            """
-            obj = universe[fixture_name]
-            obj.refresh_from_db()
-            return obj
-
-        return fixture
-
-    # Update the module's locals with the fixture's name.  This lets us do:
-    #
-    #   from opencodelists.tests.fixtures import *
-    #
-    # in conftest.py.
-    locals()[fixture_name] = pytest.fixture(scope="function")(
-        build_fixture(fixture_name)
-    )

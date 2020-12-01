@@ -54,6 +54,7 @@ AVAILABLE_FIXTURES = {
     "version_with_no_searches",
     "version_with_some_searches",
     "version_with_complete_searches",
+    "new_style_version",
     "draft_codelist",
     "draft_version",
     "user_codelist",
@@ -202,6 +203,10 @@ def build_fixtures():
         updates=[("116309007", "-")],  # exclude "Finding of elbow region"
     )
     save(draft=version_with_complete_searches)
+
+    # new_style_version
+    # - an alias for version_with_some_searches
+    new_style_version = version_with_some_searches
 
     # draft_codelist
     # - belongs to organisation

@@ -45,8 +45,7 @@ SNOMED_FIXTURES_PATH = Path(settings.BASE_DIR, "coding_systems", "snomedct", "fi
 
 
 def build_fixture(fixture_name):
-    """Build and register a fixture function that returns the fixture object with the
-    given name."""
+    """Build a fixture function that returns the fixture object with the given name."""
 
     def fixture(universe):
         """The actual pytest fixture.
@@ -58,6 +57,8 @@ def build_fixture(fixture_name):
         obj.refresh_from_db()
         return obj
 
+    # This docstring is used in the output of `pytest --fixtures`
+    fixture.__doc__ = f"Return {fixture_name} from the universe fixture"
     return pytest.fixture(scope="function")(fixture)
 
 

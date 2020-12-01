@@ -14,10 +14,12 @@ def test_activate_user():
 
 
 def test_create_organisation():
-    o = actions.create_organisation(name="Test University", url="https://test.ac.uk")
-    assert o.name == "Test University"
-    assert o.slug == "test-university"
-    assert o.url == "https://test.ac.uk"
+    o = actions.create_organisation(
+        name="Another Test University", url="https://another-test.ac.uk"
+    )
+    assert o.name == "Another Test University"
+    assert o.slug == "another-test-university"
+    assert o.url == "https://another-test.ac.uk"
 
 
 def test_create_user():

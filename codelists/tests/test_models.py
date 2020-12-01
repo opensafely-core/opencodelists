@@ -27,10 +27,8 @@ def test_codelist_must_belong_to_user_or_organisation():
         )
 
 
-def test_old_style_codes(tennis_elbow_codelist):
-    cl = tennis_elbow_codelist
-    clv = cl.versions.get()
-    assert clv.codes == (
+def test_old_style_codes(old_style_version):
+    assert old_style_version.codes == (
         "128133004",
         "202855006",
         "239964003",
@@ -41,10 +39,8 @@ def test_old_style_codes(tennis_elbow_codelist):
     )
 
 
-def test_old_style_table(tennis_elbow_codelist):
-    cl = tennis_elbow_codelist
-    clv = cl.versions.get()
-    assert clv.table == [
+def test_old_style_table(old_style_version):
+    assert old_style_version.table == [
         ["id", "name"],
         ["429554009", "Arthropathy of elbow (disorder)"],
         ["128133004", "Disorder of elbow (disorder)"],
@@ -56,10 +52,8 @@ def test_old_style_table(tennis_elbow_codelist):
     ]
 
 
-def test_new_style_codes(tennis_elbow_new_style_codelist):
-    cl = tennis_elbow_new_style_codelist
-    clv = cl.versions.get(csv_data=None)
-    assert clv.codes == (
+def test_new_style_codes(new_style_version):
+    assert new_style_version.codes == (
         "128133004",
         "202855006",
         "239964003",
@@ -70,10 +64,8 @@ def test_new_style_codes(tennis_elbow_new_style_codelist):
     )
 
 
-def test_new_style_table(tennis_elbow_new_style_codelist):
-    cl = tennis_elbow_new_style_codelist
-    clv = cl.versions.get(csv_data=None)
-    assert clv.table == [
+def test_new_style_table(new_style_version):
+    assert new_style_version.table == [
         ["code", "term"],
         ["128133004", "Disorder of elbow"],
         ["202855006", "Lateral epicondylitis"],
@@ -85,9 +77,9 @@ def test_new_style_table(tennis_elbow_new_style_codelist):
     ]
 
 
-def test_old_style_is_new_style(tennis_elbow_codelist):
-    assert not tennis_elbow_codelist.is_new_style()
+def test_old_style_is_new_style(old_style_codelist):
+    assert not old_style_codelist.is_new_style()
 
 
-def test_new_style_is_new_style(tennis_elbow_new_style_codelist):
-    assert tennis_elbow_new_style_codelist.is_new_style()
+def test_new_style_is_new_style(new_style_codelist):
+    assert new_style_codelist.is_new_style()

@@ -5,6 +5,7 @@ from codelists.tests.helpers import csv_builder
 
 from ..models import SET_PASSWORD_SALT, User
 from ..views import UserCreate, user_set_password
+from .assertions import assert_difference, assert_no_difference
 from .factories import UserFactory
 
 
@@ -54,6 +55,8 @@ def test_usercreate_renders_form(rf):
 
 
 def test_usercreate_creates_user(client):
+    assert not User.objects.filter(username="new-user").exists()
+
     data = {
         "username": "new-user",
         "name": "New User",
@@ -65,7 +68,7 @@ def test_usercreate_creates_user(client):
 
     assert response.status_code == 302
 
-    user = User.objects.first()
+    user = User.objects.get(username="new-user")
     assert user.username == "new-user"
     assert user.name == "New User"
     assert user.email == "new@example.com"
@@ -228,6 +231,8 @@ def test_register_get_when_authenticated(client):
 
 
 def test_register_post_success(client):
+    assert not User.objects.filter(username="user").exists()
+
     data = {
         "username": "user",
         "name": "Prof User",
@@ -235,10 +240,11 @@ def test_register_post_success(client):
         "password1": "password",
         "password2": "password",
     }
-    client.post("/accounts/register/", data)
 
-    u = User.objects.get()
-    assert u.username == "user"
+    with assert_difference(User.objects.count, expected_difference=1):
+        client.post("/accounts/register/", data)
+
+    u = User.objects.get(username="user")
     assert u.name == "Prof User"
     assert u.email == "user@example.com"
     assert u.check_password("password")
@@ -254,9 +260,11 @@ def test_register_post_failure_pasword_mismatch(client):
         "password1": "password",
         "password2": "wordpass",
     }
-    rsp = client.post("/accounts/register/", data)
+
+    with assert_no_difference(User.objects.count):
+        rsp = client.post("/accounts/register/", data)
+
     assert b"The two password fields didn&#x27;t match." in rsp.content
-    assert User.objects.count() == 0
 
 
 def test_register_post_failure_duplicate_username(client):
@@ -269,9 +277,11 @@ def test_register_post_failure_duplicate_username(client):
         "password1": "password",
         "password2": "wordpass",
     }
-    rsp = client.post("/accounts/register/", data)
+
+    with assert_no_difference(User.objects.count):
+        rsp = client.post("/accounts/register/", data)
+
     assert b"A user with this username already exists." in rsp.content
-    assert User.objects.count() == 1
 
 
 def test_register_post_failure_duplicate_email(client):
@@ -284,6 +294,8 @@ def test_register_post_failure_duplicate_email(client):
         "password1": "password",
         "password2": "wordpass",
     }
-    rsp = client.post("/accounts/register/", data)
+
+    with assert_no_difference(User.objects.count):
+        rsp = client.post("/accounts/register/", data)
+
     assert b"A user with this email address already exists." in rsp.content
-    assert User.objects.count() == 1

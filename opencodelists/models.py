@@ -1,3 +1,5 @@
+import os
+
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.core.signing import Signer
 from django.db import models
@@ -92,6 +94,11 @@ class User(AbstractBaseUser):
 
     def get_set_password_url(self):
         return reverse("user-set-password", kwargs={"token": self.signed_username})
+
+    def full_set_password_url(self):
+        # ALLOWED_HOST is not a typo!  (See settings.py)
+        host = os.environ.get("ALLOWED_HOST", "[host-not-set]")
+        return host + self.get_set_password_url()
 
     def get_organisation_membership(self, organisation):
         try:

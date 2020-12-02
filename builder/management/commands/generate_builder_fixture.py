@@ -8,6 +8,7 @@ from pathlib import Path
 
 from django.conf import settings
 from django.core.management import BaseCommand, CommandError, call_command
+from django.db import connections
 from django.test.client import Client
 
 from builder import actions
@@ -24,8 +25,7 @@ class Command(BaseCommand):
         parser.add_argument("path", help="Path to write JSON file")
 
     def handle(self, path, **kwargs):
-        if Concept.objects.count() > 0:
-            raise CommandError("Must be run against empty database")
+        set_up_db()
 
         fixtures_path = Path(
             settings.BASE_DIR, "coding_systems", "snomedct", "fixtures"
@@ -66,3 +66,21 @@ class Command(BaseCommand):
 
         with open(path, "w") as f:
             json.dump(data, f, indent=2)
+
+
+def set_up_db():
+    """Set up the in-memory database so that we can avoid clobbering existing data.
+
+    Clear the cached database connection, set up connection to in-memory sqlite3
+    database, and migrate."""
+
+    databases = connections.databases
+    assert databases["default"]["ENGINE"] == "django.db.backends.sqlite3"
+    databases["default"]["NAME"] = ":memory:"
+    del connections.databases
+    connections.__init__(databases=databases)
+    call_command("migrate")
+
+    # This is a belt-and-braces check to ensure that the above hackery has worked.
+    if Concept.objects.count() > 0:
+        raise CommandError("Must be run against empty database")

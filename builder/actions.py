@@ -88,6 +88,7 @@ def save(*, draft):
     All this does is unset the draft_owner attribute.
     """
 
+    assert not draft.code_objs.filter(status__in=["?", "!"]).exists()
     draft.draft_owner = None
     draft.save()
 

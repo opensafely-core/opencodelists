@@ -212,6 +212,13 @@ class CodelistVersion(models.Model):
         return rows
 
     @cached_property
+    def all_related_codes(self):
+        if self.csv_data:
+            return self._old_style_codes()
+        else:
+            return self.code_objs.values_list("code", flat=True)
+
+    @cached_property
     def codes(self):
         if self.csv_data:
             return self._old_style_codes()

@@ -23,7 +23,7 @@ def version(request, clv):
         else:
             coding_system = CODING_SYSTEMS["snomedct"]
 
-        hierarchy = Hierarchy.from_codes(coding_system, clv.codes)
+        hierarchy = Hierarchy.from_codes(coding_system, clv.all_related_codes)
         parent_map = {p: list(cc) for p, cc in hierarchy.parent_map.items()}
         child_map = {c: list(pp) for c, pp in hierarchy.child_map.items()}
         code_to_term = coding_system.code_to_term(hierarchy.nodes)

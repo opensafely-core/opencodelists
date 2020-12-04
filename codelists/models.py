@@ -257,9 +257,14 @@ class CodelistVersion(models.Model):
         return buf.getvalue()
 
     def download_filename(self):
-        return "{}-{}-{}".format(
-            self.codelist.organisation_id, self.codelist.slug, self.tag
-        )
+        if self.codelist_type == "user":
+            return "{}-{}-{}".format(
+                self.codelist.user_id, self.codelist.slug, self.tag_or_hash
+            )
+        else:
+            return "{}-{}-{}".format(
+                self.codelist.organisation_id, self.codelist.slug, self.tag_or_hash
+            )
 
     def can_be_edited_by(self, user):
         if self.codelist_type == "user":

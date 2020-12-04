@@ -6,6 +6,10 @@ register = template.Library()
 
 @register.simple_tag
 def concept_url(coding_system_id, code):
+    if coding_system_id == "bnf":
+        # There's no BNF browser to link to at the moment
+        return ""
+
     if coding_system_id == "ctv3tpp":
         coding_system_id = "ctv3"
 

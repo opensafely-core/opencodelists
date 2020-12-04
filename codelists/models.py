@@ -250,6 +250,12 @@ class CodelistVersion(models.Model):
             )
         )
 
+    def csv_data_for_download(self):
+        buf = StringIO()
+        writer = csv.writer(buf)
+        writer.writerows(self.table)
+        return buf.getvalue()
+
     def download_filename(self):
         return "{}-{}-{}".format(
             self.codelist.organisation_id, self.codelist.slug, self.tag

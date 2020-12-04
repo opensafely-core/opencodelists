@@ -251,6 +251,8 @@ class CodelistVersion(models.Model):
         )
 
     def csv_data_for_download(self):
+        if self.csv_data:
+            return self.csv_data
         buf = StringIO()
         writer = csv.writer(buf)
         writer.writerows(self.table)

@@ -35,3 +35,4 @@ known_third_party = ["attr", "crispy_forms", "debug_toolbar", "django", "fabric"
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "opencodelists.settings"
+addopts = "--tb=native"

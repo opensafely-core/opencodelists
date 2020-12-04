@@ -10,5 +10,5 @@ def version_download(request, clv):
         clv.download_filename()
     )
     response["Content-Disposition"] = content_disposition
-    response.write(clv.csv_data)
+    response.write(clv.csv_data_for_download())
     return response

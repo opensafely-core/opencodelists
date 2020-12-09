@@ -362,3 +362,23 @@ codelist_from_scratch = build_fixture("codelist_from_scratch")
 version_from_scratch = build_fixture("version_from_scratch")
 user_codelist = build_fixture("user_codelist")
 user_version = build_fixture("user_version")
+
+
+# These extra fixtures make modifications to those built in build_fixtures
+@pytest.fixture(scope="function")
+def draft_with_no_searches(version_with_no_searches, organisation_user):
+    return export_to_builder(version=version_with_no_searches, owner=organisation_user)
+
+
+@pytest.fixture(scope="function")
+def draft_with_some_searches(version_with_some_searches, organisation_user):
+    return export_to_builder(
+        version=version_with_some_searches, owner=organisation_user
+    )
+
+
+@pytest.fixture(scope="function")
+def draft_with_complete_searches(version_with_complete_searches, organisation_user):
+    return export_to_builder(
+        version=version_with_complete_searches, owner=organisation_user
+    )

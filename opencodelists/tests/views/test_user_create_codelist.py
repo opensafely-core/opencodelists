@@ -31,6 +31,21 @@ def test_post_valid_with_csv(client, tennis_elbow):
     )
 
 
+def test_post_valid_without_csv(client):
+    user = UserFactory()
+    client.force_login(user)
+
+    data = {
+        "name": "Test",
+        "coding_system_id": "snomedct",
+        "owner": user.username,
+    }
+    response = client.post(f"/users/{user.username}/new-codelist/", data, follow=True)
+
+    assert response.status_code == 200
+    assert response.redirect_chain[-1][0].startswith("/builder/")
+
+
 def test_post_invalid_with_csv(client, tennis_elbow):
     user = UserFactory()
     client.force_login(user)
@@ -45,21 +60,6 @@ def test_post_invalid_with_csv(client, tennis_elbow):
     response = client.post(f"/users/{user.username}/new-codelist/", data)
 
     assert b"CSV file contains 1 unknown code (256307007) on line 1" in response.content
-
-
-def test_post_valid_without_csv(client):
-    user = UserFactory()
-    client.force_login(user)
-
-    data = {
-        "name": "Test",
-        "coding_system_id": "snomedct",
-        "owner": user.username,
-    }
-    response = client.post(f"/users/{user.username}/new-codelist/", data, follow=True)
-
-    assert response.status_code == 200
-    assert response.redirect_chain[-1][0].startswith("/builder/")
 
 
 def test_post_duplicate_name(client):

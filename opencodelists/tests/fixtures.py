@@ -52,6 +52,7 @@ A.       └ Lateral epicondylitis (202855006)
 """
 
 import csv
+from io import StringIO
 from pathlib import Path
 
 import pytest
@@ -131,6 +132,24 @@ def build_fixtures():
         "disorder-of-elbow-excl-arthritis.csv"
     )
 
+    # disorder_of_elbow_csv_data
+    disorder_of_elbow_csv_data = load_csv_data("disorder-of-elbow.csv")
+
+    # disorder_of_elbow_excl_arthritis_csv_data
+    disorder_of_elbow_excl_arthritis_csv_data = load_csv_data(
+        "disorder-of-elbow-excl-arthritis.csv"
+    )
+
+    # disorder_of_elbow_csv_data_no_header
+    disorder_of_elbow_csv_data_no_header = load_csv_data_no_header(
+        "disorder-of-elbow.csv"
+    )
+
+    # disorder_of_elbow_excl_arthritis_csv_data_no_header
+    disorder_of_elbow_excl_arthritis_csv_data_no_header = load_csv_data_no_header(
+        "disorder-of-elbow-excl-arthritis.csv"
+    )
+
     # organisation
     # - has two users:
     #   - organisation_admin
@@ -187,14 +206,15 @@ def build_fixtures():
         coding_system_id="snomedct",
         description="What this is",
         methodology="How we did it",
-        csv_data=load_csv_data("disorder-of-elbow-excl-arthritis.csv"),
+        csv_data=disorder_of_elbow_excl_arthritis_csv_data,
     )
 
     # old_style_version
     # - belongs to old_style_codelist
     # - includes Disorder of elbow
     old_style_version = create_version(
-        codelist=old_style_codelist, csv_data=load_csv_data("disorder-of-elbow.csv")
+        codelist=old_style_codelist,
+        csv_data=disorder_of_elbow_csv_data,
     )
 
     # Check that this version has the expected codes
@@ -322,7 +342,7 @@ def build_fixtures():
         owner=organisation_user,
         name="User-owned Codelist",
         coding_system_id="snomedct",
-        codes=load_codes_from_csv("disorder-of-elbow-excl-arthritis.csv"),
+        codes=disorder_of_elbow_excl_arthritis_codes,
     )
 
     # user_version
@@ -337,6 +357,18 @@ def load_csv_data(filename):
 
     with open(SNOMED_FIXTURES_PATH / filename) as f:
         return f.read()
+
+
+def load_csv_data_no_header(filename):
+    """Return CSV data in given filename, dropping header."""
+
+    with open(SNOMED_FIXTURES_PATH / filename) as f:
+        rows = list(csv.reader(f))[1:]
+
+    buffer = StringIO()
+    writer = csv.writer(buffer)
+    writer.writerows(rows)
+    return buffer.getvalue()
 
 
 def load_codes_from_csv(filename):
@@ -362,6 +394,16 @@ def check_expected_codes(version, codes):
 disorder_of_elbow_codes = build_fixture("disorder_of_elbow_codes")
 disorder_of_elbow_excl_arthritis_codes = build_fixture(
     "disorder_of_elbow_excl_arthritis_codes"
+)
+disorder_of_elbow_csv_data = build_fixture("disorder_of_elbow_csv_data")
+disorder_of_elbow_excl_arthritis_csv_data = build_fixture(
+    "disorder_of_elbow_excl_arthritis_csv_data"
+)
+disorder_of_elbow_csv_data_no_header = build_fixture(
+    "disorder_of_elbow_csv_data_no_header"
+)
+disorder_of_elbow_excl_arthritis_csv_data_no_header = build_fixture(
+    "disorder_of_elbow_excl_arthritis_csv_data_no_header"
 )
 organisation = build_fixture("organisation")
 organisation_admin = build_fixture("organisation_admin")

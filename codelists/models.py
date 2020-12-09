@@ -241,6 +241,10 @@ class CodelistVersion(models.Model):
 
             return tuple(sorted({row[ix] for row in rows}))
 
+    @property
+    def in_progress(self):
+        return self.draft_owner
+
     def _new_style_codes(self):
         return tuple(
             sorted(

@@ -9,8 +9,11 @@ import CodelistBuilder from "../../../src/js/builder/codelistbuilder";
 import Hierarchy from "../../../src/js/hierarchy";
 
 // See builder/management/commands/generate_builder_fixtures.py and
-// opencodelists/tests/fixtures.py for details about what this fixture contains.
-import * as data from "../fixtures/version_with_some_searches.json";
+// opencodelists/tests/fixtures.py for details about what these fixtures contain.
+import * as versionWithNoSearchesData from "../fixtures/version_with_no_searches.json";
+import * as versionWithSomeSearchesData from "../fixtures/version_with_some_searches.json";
+import * as versionWithCompleteSearchesData from "../fixtures/version_with_complete_searches.json";
+import * as versionFromScratchData from "../fixtures/version_from_scratch.json";
 
 let container = null;
 beforeEach(() => {
@@ -31,7 +34,57 @@ global.fetch = jest.fn().mockImplementation((url, config) =>
   })
 );
 
+const testRender = (data) => {
+  const hierarchy = new Hierarchy(data.parent_map, data.child_map);
+  const ancestorCodes = data.tree_tables
+    .map(([_, ancestorCodes]) => ancestorCodes) // eslint-disable-line no-unused-vars
+    .flat();
+  const visiblePaths = hierarchy.initiallyVisiblePaths(
+    ancestorCodes,
+    data.code_to_status,
+    1
+  );
+
+  act(() => {
+    render(
+      <CodelistBuilder
+        searches={data.searches}
+        filter={data.filter}
+        treeTables={data.tree_tables}
+        codeToStatus={data.code_to_status}
+        codeToTerm={data.code_to_term}
+        visiblePaths={visiblePaths}
+        allCodes={data.all_codes}
+        includedCodes={data.included_codes}
+        excludedCodes={data.excluded_codes}
+        isEditable={data.is_editable}
+        updateURL={data.update_url}
+        searchURL={data.search_url}
+        hierarchy={hierarchy}
+      />,
+      container
+    );
+  });
+};
+
+it("renders version_with_no_searches without error", () => {
+  testRender(versionWithNoSearchesData);
+});
+
+it("renders version_with_some_searches without error", () => {
+  testRender(versionWithSomeSearchesData);
+});
+
+it("renders version_with_complete_searches without error", () => {
+  testRender(versionWithCompleteSearchesData);
+});
+
+it("renders version_from_scratch without error", () => {
+  testRender(versionFromScratchData);
+});
+
 it("does the right thing when clicking around", () => {
+  const data = versionWithSomeSearchesData;
   const hierarchy = new Hierarchy(data.parent_map, data.child_map);
   const ancestorCodes = data.tree_tables
     .map(([_, ancestorCodes]) => ancestorCodes) // eslint-disable-line no-unused-vars

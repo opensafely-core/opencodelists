@@ -5,3 +5,4 @@ ignore = \
     W503   # line break before binary operator (black disagrees)
 per-file-ignores =
     codelists/views/__init__.py:F401
+    opencodelists/views/__init__.py:F401

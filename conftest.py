@@ -6,7 +6,7 @@ from django.core.management import call_command
 
 from codelists import actions
 from codelists.tests.factories import CodelistFactory
-from opencodelists.tests.fixtures import build_fixture, universe  # noqa
+from opencodelists.tests.fixtures import *  # noqa
 
 pytest.register_assert_rewrite("codelists.tests.views.assertions")
 pytest.register_assert_rewrite("opencodelists.tests.assertions")
@@ -36,20 +36,3 @@ def tennis_elbow_codelist(tennis_elbow):
 def tennis_elbow_new_style_codelist(tennis_elbow_codelist):
     actions.convert_codelist_to_new_style(codelist=tennis_elbow_codelist)
     return tennis_elbow_codelist
-
-
-organisation = build_fixture("organisation")
-organisation_admin = build_fixture("organisation_admin")
-organisation_user = build_fixture("organisation_user")
-user_without_organisation = build_fixture("user_without_organisation")
-old_style_codelist = build_fixture("old_style_codelist")
-old_style_version = build_fixture("old_style_version")
-new_style_codelist = build_fixture("new_style_codelist")
-version_with_no_searches = build_fixture("version_with_no_searches")
-version_with_some_searches = build_fixture("version_with_some_searches")
-version_with_complete_searches = build_fixture("version_with_complete_searches")
-new_style_version = build_fixture("new_style_version")
-draft_codelist = build_fixture("draft_codelist")
-draft_version = build_fixture("draft_version")
-user_codelist = build_fixture("user_codelist")
-user_version = build_fixture("user_version")

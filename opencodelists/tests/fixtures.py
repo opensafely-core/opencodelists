@@ -13,8 +13,8 @@ CodelistVersions.  The approach we have taken is to build a "universe" of test o
 once, and then to pull out members of that universe as and when we need them.
 
 Since each fixture function needs to do the same thing (find the member of the universe
-with the given name, reload it from the database, and return it) we provide
-build_fixture() to avoid excessive duplication.
+with the given name, reload it from the database, and return it) we use build_fixture()
+to avoid excessive duplication.
 """
 
 import csv
@@ -260,3 +260,20 @@ def codes_for_search_term(term):
 
     coding_system = CODING_SYSTEMS["snomedct"]
     return do_search(coding_system, term)["all_codes"]
+
+
+organisation = build_fixture("organisation")
+organisation_admin = build_fixture("organisation_admin")
+organisation_user = build_fixture("organisation_user")
+user_without_organisation = build_fixture("user_without_organisation")
+old_style_codelist = build_fixture("old_style_codelist")
+old_style_version = build_fixture("old_style_version")
+new_style_codelist = build_fixture("new_style_codelist")
+version_with_no_searches = build_fixture("version_with_no_searches")
+version_with_some_searches = build_fixture("version_with_some_searches")
+version_with_complete_searches = build_fixture("version_with_complete_searches")
+new_style_version = build_fixture("new_style_version")
+draft_codelist = build_fixture("draft_codelist")
+draft_version = build_fixture("draft_version")
+user_codelist = build_fixture("user_codelist")
+user_version = build_fixture("user_version")

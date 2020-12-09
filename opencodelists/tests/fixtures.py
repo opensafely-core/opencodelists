@@ -15,6 +15,40 @@ once, and then to pull out members of that universe as and when we need them.
 Since each fixture function needs to do the same thing (find the member of the universe
 with the given name, reload it from the database, and return it) we use build_fixture()
 to avoid excessive duplication.
+
+We use a very small subset of the SNOMED hierarchy.  For details, see
+coding_systems/snomedct/fixtures/README.
+
+There are fixtures for CodelistVersions with two different lists of codes:
+
+    A) disorder-of-elbow
+    B) disorder-of-elbow-excl-arthritis
+
+The fixtures also create searches for "arthritis", "tennis", and "elbow".
+
+The concepts returned by these searches are shown below, along with which of the two
+list of codes they belong two.
+
+.. Arthritis (3723001)
+A. └ Arthritis of elbow (439656005)
+A.   └ Lateral epicondylitis (202855006)
+.. Finding of elbow region (116309007)
+AB ├ Disorder of elbow (128133004)
+AB │ ├ Arthropathy of elbow (429554009)
+A. │ │ └ Arthritis of elbow (439656005)
+A. │ │   └ Lateral epicondylitis (202855006)
+AB │ ├ Enthesopathy of elbow region (35185008)
+AB │ │ └ Epicondylitis (73583000)
+A. │ │   └ Lateral epicondylitis (202855006)
+AB │ └ Soft tissue lesion of elbow region (239964003)
+.. └ Finding of elbow joint (298869002)
+AB   ├ Arthropathy of elbow (429554009)
+A.   │ └ Arthritis of elbow (439656005)
+A.   │   └ Lateral epicondylitis (202855006)
+..   └ Elbow joint inflamed (298163003)
+A.     └ Arthritis of elbow (439656005)
+A.       └ Lateral epicondylitis (202855006)
+.. Tennis toe (238484001)
 """
 
 import csv
@@ -142,9 +176,13 @@ def build_fixtures():
 
     # old_style_version
     # - belongs to old_style_codelist
+    # - includes Disorder of elbow
     old_style_version = create_version(
         codelist=old_style_codelist, csv_data=load_csv_data("disorder-of-elbow.csv")
     )
+
+    # Check that this version has the expected codes
+    check_expected_codes(old_style_version, "disorder-of-elbow.csv")
 
     # new_style_codelist
     # - belongs to organisation
@@ -162,11 +200,21 @@ def build_fixtures():
     # version_with_no_searches
     # - belongs to new_style_codelist
     # - has no searches
+    # - includes Disorder of elbow, excludes Arthritis
     version_with_no_searches = new_style_codelist.versions.get()
+
+    # Check that no code_objs are linked to searches
+    assert not version_with_no_searches.code_objs.filter(results__isnull=False).exists()
+
+    # Check that this version has the expected codes
+    check_expected_codes(
+        version_with_no_searches, "disorder-of-elbow-excl-arthritis.csv"
+    )
 
     # version_with_some_searches
     # - belongs to new_style_codelist
     # - has some searches, but not all codes covered
+    # - includes Disorder of elbow
     version_with_some_searches = export_to_builder(
         version=version_with_no_searches, owner=organisation_user
     )
@@ -183,11 +231,23 @@ def build_fixtures():
         draft=version_with_some_searches,
         updates=[("3723001", "-")],  # exclude "Arthritis"
     )
+    update_code_statuses(
+        draft=version_with_some_searches,
+        updates=[("439656005", "+")],  # include "Arthritis of elbow"
+    )
     save(draft=version_with_some_searches)
+
+    # Check that some code_objs are linked to searches and some are not
+    assert version_with_some_searches.code_objs.filter(results__isnull=True).exists()
+    assert version_with_some_searches.code_objs.filter(results__isnull=False).exists()
+
+    # Check that this version has the expected codes
+    check_expected_codes(version_with_some_searches, "disorder-of-elbow.csv")
 
     # version_with_complete_searches
     # - belongs to new_style_codelist
     # - has some searches, and all codes covered
+    # - includes Disorder of elbow
     version_with_complete_searches = export_to_builder(
         version=version_with_some_searches, owner=organisation_user
     )
@@ -211,6 +271,14 @@ def build_fixtures():
     )
     save(draft=version_with_complete_searches)
 
+    # Check that all code_objs are linked to searches
+    assert not version_with_complete_searches.code_objs.filter(
+        results__isnull=True
+    ).exists()
+
+    # Check that this version has the expected codes
+    check_expected_codes(version_with_complete_searches, "disorder-of-elbow.csv")
+
     # new_style_version
     # - an alias for version_with_some_searches
     new_style_version = version_with_some_searches
@@ -230,6 +298,9 @@ def build_fixtures():
     # - belongs to codelist_from_scratch
     # - being edited by organisation_user
     version_from_scratch = codelist_from_scratch.versions.get()
+
+    # Check that this version has no codes
+    assert version_from_scratch.codes == ()
 
     # user_codelist
     # - belongs to organisation_user
@@ -270,6 +341,10 @@ def codes_for_search_term(term):
 
     coding_system = CODING_SYSTEMS["snomedct"]
     return do_search(coding_system, term)["all_codes"]
+
+
+def check_expected_codes(version, filename):
+    assert sorted(version.codes) == sorted(load_codes_from_csv(filename))
 
 
 organisation = build_fixture("organisation")

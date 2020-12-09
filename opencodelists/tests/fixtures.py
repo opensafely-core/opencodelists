@@ -74,6 +74,7 @@ def universe(django_db_setup, django_db_blocker):
         # load enough of the SNOMED hierarchy to be useful
         call_command("loaddata", SNOMED_FIXTURES_PATH / "core-model-components.json")
         call_command("loaddata", SNOMED_FIXTURES_PATH / "tennis-elbow.json")
+        call_command("loaddata", SNOMED_FIXTURES_PATH / "tennis-toe.json")
 
         return build_fixtures()
 
@@ -189,6 +190,15 @@ def build_fixtures():
     # - has some searches, and all codes covered
     version_with_complete_searches = export_to_builder(
         version=version_with_some_searches, owner=organisation_user
+    )
+    create_search(
+        draft=version_with_complete_searches,
+        term="tennis",
+        codes=codes_for_search_term("tennis"),
+    )
+    update_code_statuses(
+        draft=version_with_complete_searches,
+        updates=[("238484001", "-")],  # exclude "Tennis toe"
     )
     create_search(
         draft=version_with_complete_searches,

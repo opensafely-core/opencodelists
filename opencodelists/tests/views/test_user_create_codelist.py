@@ -53,6 +53,24 @@ def test_post_without_csv(client, organisation_user):
     assert version.in_progress
 
 
+def test_post_create_organisation_codelist(client, organisation_user, organisation):
+    client.force_login(organisation_user)
+    data = {
+        "name": "Test",
+        "coding_system_id": "snomedct",
+        "owner": "organisation:test-university",
+    }
+
+    with assert_difference(Codelist.objects.count, expected_difference=1):
+        response = client.post("/users/bob/new-codelist/", data, follow=True)
+
+    codelist = organisation.codelists.get(name="Test")
+    version = codelist.versions.get()
+
+    assert response.redirect_chain[-1][0] == version.get_builder_url("draft")
+    assert version.in_progress
+
+
 def test_post_invalid_with_csv(client, organisation_user):
     client.force_login(organisation_user)
     csv_data = "256307007,Banana (substance)"

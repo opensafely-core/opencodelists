@@ -54,7 +54,7 @@ def handle_post_valid(request, form, user, owner_choices):
             assert owner == user
         else:
             assert owner_identifier.startswith("organisation:")
-            owner = get_object_or_404(Organisation, slug=owner_identifier[12:])
+            owner = get_object_or_404(Organisation, slug=owner_identifier[13:])
             assert user.is_member(owner)
     else:
         owner = user

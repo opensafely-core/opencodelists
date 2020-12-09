@@ -23,11 +23,11 @@ def user_create_codelist(request, username):
         owner_choices = []
 
     if request.method == "POST":
-        return handle_user_create_codelist_post(request, user, owner_choices)
-    return handle_user_create_codelist_get(request, user, owner_choices)
+        return handle_post(request, user, owner_choices)
+    return handle_get(request, user, owner_choices)
 
 
-def handle_user_create_codelist_get(request, user, owner_choices):
+def handle_get(request, user, owner_choices):
     ctx = {
         "user": user,
         "form": CodelistCreateForm(owner_choices=owner_choices),
@@ -35,18 +35,16 @@ def handle_user_create_codelist_get(request, user, owner_choices):
     return render(request, "opencodelists/user_create_codelist.html", ctx)
 
 
-def handle_user_create_codelist_post(request, user, owner_choices):
+def handle_post(request, user, owner_choices):
     form = CodelistCreateForm(request.POST, request.FILES, owner_choices=owner_choices)
 
     if form.is_valid():
-        return handle_user_create_codelist_post_valid(
-            request, form, user, owner_choices
-        )
+        return handle_post_valid(request, form, user, owner_choices)
     else:
-        return handle_user_create_codelist_post_invalid(request, form, user)
+        return handle_post_invalid(request, form, user)
 
 
-def handle_user_create_codelist_post_valid(request, form, user, owner_choices):
+def handle_post_valid(request, form, user, owner_choices):
     if owner_choices:
         # TODO handle these asserts better
         owner_identifier = form.cleaned_data["owner"]
@@ -83,11 +81,11 @@ def handle_user_create_codelist_post_valid(request, form, user, owner_choices):
             NON_FIELD_ERRORS,
             f"There is already a codelist called {name}",
         )
-        return handle_user_create_codelist_post_invalid(request, form, user)
+        return handle_post_invalid(request, form, user)
 
     return redirect(codelist)
 
 
-def handle_user_create_codelist_post_invalid(request, form, user):
+def handle_post_invalid(request, form, user):
     ctx = {"user": user, "form": form}
     return render(request, "opencodelists/user_create_codelist.html", ctx)

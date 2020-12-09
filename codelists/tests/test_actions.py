@@ -160,16 +160,12 @@ def test_convert_codelist_to_new_style(tennis_elbow_codelist):
     assert original_clv.codes == converted_clv.codes
 
 
-def test_export_to_builder(tennis_elbow_codelist):
-    # This is not a great test, since we're not passing a CodelistVersion with any
-    # Searches to export_to_builder.  When we have a better suite of fixtures, this will
-    # be improved.
+def test_export_to_builder(organisation_user, new_style_version):
+    draft = actions.export_to_builder(
+        version=new_style_version, owner=organisation_user
+    )
 
-    user = UserFactory()
-    cl = tennis_elbow_codelist
-    converted_clv = actions.convert_codelist_to_new_style(codelist=cl)
-
-    draft = actions.export_to_builder(version=converted_clv, owner=user)
-
-    assert draft.draft_owner == user
-    assert draft.codes == converted_clv.codes
+    assert draft.draft_owner == organisation_user
+    assert draft.codes == new_style_version.codes
+    assert draft.code_objs.count() == new_style_version.code_objs.count()
+    assert draft.searches.count() == new_style_version.searches.count()

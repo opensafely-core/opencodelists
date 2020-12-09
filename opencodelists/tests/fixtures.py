@@ -293,10 +293,6 @@ def build_fixtures():
     # Check that this version has the expected codes
     check_expected_codes(version_with_complete_searches, disorder_of_elbow_codes)
 
-    # new_style_version
-    # - an alias for version_with_some_searches
-    new_style_version = version_with_some_searches
-
     # codelist_from_scratch
     # - belongs to organisation
     # - has single version, being edited:
@@ -376,7 +372,6 @@ new_style_codelist = build_fixture("new_style_codelist")
 version_with_no_searches = build_fixture("version_with_no_searches")
 version_with_some_searches = build_fixture("version_with_some_searches")
 version_with_complete_searches = build_fixture("version_with_complete_searches")
-new_style_version = build_fixture("new_style_version")
 codelist_from_scratch = build_fixture("codelist_from_scratch")
 version_from_scratch = build_fixture("version_from_scratch")
 user_codelist = build_fixture("user_codelist")
@@ -401,3 +396,20 @@ def draft_with_complete_searches(version_with_complete_searches, organisation_us
     return export_to_builder(
         version=version_with_complete_searches, owner=organisation_user
     )
+
+
+# This is a parameterized fixture.  When used in a test, the test will be run once for
+# each of version_with_no_searches, version_with_some_searches,
+# version_with_complete_searches.
+@pytest.fixture(
+    scope="function",
+    params=[
+        "version_with_no_searches",
+        "version_with_some_searches",
+        "version_with_complete_searches",
+    ],
+)
+def new_style_version(universe, request):
+    version = universe[request.param]
+    version.refresh_from_db()
+    return version

@@ -182,8 +182,10 @@ def export_to_builder(*, version, owner):
     """Create a new CodelistVersion for editing in the builder."""
 
     # Create a new CodelistVersion and CodeObjs.
-    draft = builder_actions.create_draft_with_codes(
-        codelist=version.codelist, owner=owner, codes=version.codes
+    draft = owner.drafts.create(codelist=version.codelist)
+    CodeObj.objects.bulk_create(
+        CodeObj(version=draft, code=code_obj.code, status=code_obj.status)
+        for code_obj in version.code_objs.all()
     )
 
     # Recreate each search.  This creates the SearchResults linked to the new draft.  We

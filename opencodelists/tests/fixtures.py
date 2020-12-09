@@ -86,10 +86,12 @@ def build_fixture(fixture_name):
         """The actual pytest fixture.
 
         Finds the member of the universe with the given name, reloads it from the
-        database, and returns it.
+        database if necessary, and returns it.
         """
         obj = universe[fixture_name]
         if isinstance(obj, Model):
+            # Some fixtures (eg disorder_of_elbow_codes) are not instances of Django
+            # models.
             obj.refresh_from_db()
         return obj
 

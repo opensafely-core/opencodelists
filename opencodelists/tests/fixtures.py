@@ -91,7 +91,7 @@ def build_fixtures():
     # - has three codelists:
     #   - old_style_codelist
     #   - new_style_codelist
-    #   - draft_codelist
+    #   - codelist_from_scratch
     organisation = create_organisation(name="Test University", url="https://test.ac.uk")
 
     # organisation_admin
@@ -106,7 +106,7 @@ def build_fixtures():
 
     # organisation_user
     # - is non-admin for organisation
-    # - is editing draft_version
+    # - is editing version_from_scratch
     # - has one codelist:
     #   - user_codelist
     organisation_user = create_user(
@@ -205,21 +205,21 @@ def build_fixtures():
     # - an alias for version_with_some_searches
     new_style_version = version_with_some_searches
 
-    # draft_codelist
+    # codelist_from_scratch
     # - belongs to organisation
     # - has single version, being edited:
-    #   - draft_version
-    draft_codelist = create_codelist_from_scratch(
+    #   - version_from_scratch
+    codelist_from_scratch = create_codelist_from_scratch(
         owner=organisation,
-        name="Draft Codelist",
+        name="Codelist From Scratch",
         coding_system_id="snomedct",
         draft_owner=organisation_user,
     )
 
-    # draft_version
-    # - belongs to draft_codelist
+    # version_from_scratch
+    # - belongs to codelist_from_scratch
     # - being edited by organisation_user
-    draft_version = draft_codelist.versions.get()
+    version_from_scratch = codelist_from_scratch.versions.get()
 
     # user_codelist
     # - belongs to organisation_user
@@ -273,7 +273,7 @@ version_with_no_searches = build_fixture("version_with_no_searches")
 version_with_some_searches = build_fixture("version_with_some_searches")
 version_with_complete_searches = build_fixture("version_with_complete_searches")
 new_style_version = build_fixture("new_style_version")
-draft_codelist = build_fixture("draft_codelist")
-draft_version = build_fixture("draft_version")
+codelist_from_scratch = build_fixture("codelist_from_scratch")
+version_from_scratch = build_fixture("version_from_scratch")
 user_codelist = build_fixture("user_codelist")
 user_version = build_fixture("user_version")

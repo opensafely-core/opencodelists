@@ -142,8 +142,6 @@ def publish_version(*, version):
 
     logger.info("Published Version", version_pk=version.pk)
 
-    return version
-
 
 @transaction.atomic
 def convert_codelist_to_new_style(*, codelist):

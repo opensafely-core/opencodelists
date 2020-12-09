@@ -68,6 +68,7 @@ def set_up_systemd():
     )
 
     run("sudo systemctl daemon-reload")
+    run("sudo systemctl enable app.opencodelists.web.service")
 
 
 def set_up_cron():

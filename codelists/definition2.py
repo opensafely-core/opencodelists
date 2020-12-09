@@ -80,3 +80,27 @@ class Definition2:
             )
             in ["+", "(+)"]
         }
+
+    def all_related_codes(self, hierarchy):
+        """Return all codes related to this definition."""
+
+        all_codes = set()
+        included_codes = self.codes(hierarchy)
+
+        for ancestor_code in hierarchy.filter_to_ultimate_ancestors(included_codes):
+            all_codes.add(ancestor_code)
+            all_codes |= hierarchy.descendants(ancestor_code)
+
+        return all_codes
+
+    def code_to_status(self, hierarchy):
+        """Return mapping from code to status for all codes defined by this definition,
+        and their descendants.
+        """
+
+        return {
+            code: hierarchy.node_status(
+                code, self.included_ancestors, self.excluded_ancestors
+            )
+            for code in self.all_related_codes(hierarchy)
+        }

@@ -3,6 +3,9 @@ This directory contains the following JSON fixtures, which contain a slice of th
 * tennis-elbow.json
   * All SNOMED CT concepts related to Lateral epicondylitis (202855006)
   * Useful for tests that want to use some clinically-significant data
+* tennis-toe.json
+  * All SNOMED CT concepts related to Tennis toe (202855006)
+  * Useful for tests that want to use some clinically-significant data
 * core-model-components.json
   * All SNOMED CT concepts related to the magic numbers at the top of models.py
 * model-components.json

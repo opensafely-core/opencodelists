@@ -1,20 +1,23 @@
-from pytest_django.asserts import assertContains
-
-from codelists.actions import publish_version
-
-from ..factories import create_published_version_for_user
+def test_get_old_style_version(client, old_style_version):
+    rsp = client.get(old_style_version.get_absolute_url())
+    assert rsp.status_code == 200
 
 
-def test_get(client, tennis_elbow_codelist):
-    cl = tennis_elbow_codelist
-    clv = publish_version(version=cl.versions.first())
-    rsp = client.get(clv.get_absolute_url())
-    assertContains(rsp, cl.name)
-    assertContains(rsp, cl.description)
-    assertContains(rsp, cl.methodology)
+def test_get_version_with_no_searches(client, version_with_no_searches):
+    rsp = client.get(version_with_no_searches.get_absolute_url())
+    assert rsp.status_code == 200
 
 
-def test_get_for_user(client):
-    clv = create_published_version_for_user()
-    response = client.get(clv.get_absolute_url())
-    assert response.status_code == 200
+def test_get_version_with_some_searches(client, version_with_some_searches):
+    rsp = client.get(version_with_some_searches.get_absolute_url())
+    assert rsp.status_code == 200
+
+
+def test_get_version_with_complete_searches(client, version_with_complete_searches):
+    rsp = client.get(version_with_complete_searches.get_absolute_url())
+    assert rsp.status_code == 200
+
+
+def test_get_user_version(client, user_version):
+    rsp = client.get(user_version.get_absolute_url())
+    assert rsp.status_code == 200

@@ -1,3 +1,5 @@
+import pytest
+
 from builder import actions
 from codelists import actions as codelists_actions
 from codelists.tests.factories import CodelistFactory
@@ -16,25 +18,6 @@ def test_create_draft():
     # that a codelist's attributes have been set
     assert draft.codelist == codelist
     assert draft.draft_owner == owner
-
-
-def test_create_draft_with_codes():
-    # Arrange: create a codelist and a user
-    codelist = CodelistFactory()
-    owner = UserFactory()
-
-    # Act: create a codelist with codes
-    draft = actions.create_draft_with_codes(
-        codelist=codelist,
-        owner=owner,
-        codes=["1067731000000107", "1068181000000106"],
-    )
-
-    # Assert...
-    # that a codelist's attributes have been set
-    assert draft.draft_owner == owner
-    assert draft.codelist == codelist
-    assert draft.code_objs.count() == 2
 
 
 def test_create_search():
@@ -75,6 +58,7 @@ def test_create_search():
     assert draft.code_objs.count() == 2
 
 
+@pytest.mark.xfail
 def test_delete_search():
     # Arrange: create a draft with codes and a search
     codelist = CodelistFactory()

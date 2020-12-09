@@ -52,8 +52,8 @@ def test_old_style_table(old_style_version):
     ]
 
 
-def test_new_style_codes(new_style_version):
-    assert new_style_version.codes == (
+def test_new_style_codes(version_with_some_searches):
+    assert version_with_some_searches.codes == (
         "128133004",
         "202855006",
         "239964003",
@@ -64,8 +64,8 @@ def test_new_style_codes(new_style_version):
     )
 
 
-def test_new_style_table(new_style_version):
-    assert new_style_version.table == [
+def test_new_style_table(version_with_some_searches):
+    assert version_with_some_searches.table == [
         ["code", "term"],
         ["128133004", "Disorder of elbow"],
         ["202855006", "Lateral epicondylitis"],

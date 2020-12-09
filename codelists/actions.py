@@ -66,15 +66,8 @@ def create_codelist_with_codes(*, owner, name, coding_system_id, codes):
     definition = Definition2.from_codes(codes, hierarchy)
 
     CodeObj.objects.bulk_create(
-        CodeObj(
-            version=version,
-            code=node,
-            status=hierarchy.node_status(
-                node, definition.included_ancestors, definition.excluded_ancestors
-            ),
-        )
-        for node in hierarchy.nodes
-        if node in codes
+        CodeObj(version=version, code=code, status=status)
+        for code, status in definition.code_to_status(hierarchy).items()
     )
 
     return codelist
@@ -189,8 +182,10 @@ def export_to_builder(*, version, owner):
     """Create a new CodelistVersion for editing in the builder."""
 
     # Create a new CodelistVersion and CodeObjs.
-    draft = builder_actions.create_draft_with_codes(
-        codelist=version.codelist, owner=owner, codes=version.codes
+    draft = owner.drafts.create(codelist=version.codelist)
+    CodeObj.objects.bulk_create(
+        CodeObj(version=draft, code=code_obj.code, status=code_obj.status)
+        for code_obj in version.code_objs.all()
     )
 
     # Recreate each search.  This creates the SearchResults linked to the new draft.  We

@@ -8,31 +8,12 @@ import "@testing-library/jest-dom";
 import CodelistBuilder from "../../../src/js/builder/codelistbuilder";
 import Hierarchy from "../../../src/js/hierarchy";
 
-// elbow.json was generated via generate_builder_fixture.
-//
-// It contains data for a codelist with a single search for "elbow", and the following
-// concepts:
-//
-// Finding of elbow region (116309007)
-// ├ Disorder of elbow (128133004)
-// │ ├ Arthropathy of elbow (429554009)
-// │ │ └ Arthritis of elbow (439656005)
-// │ │   └ Lateral epicondylitis (202855006)
-// │ ├ Enthesopathy of elbow region (35185008)
-// │ │ └ Epicondylitis (73583000)
-// │ │   └ Lateral epicondylitis (202855006)
-// │ └ Soft tissue lesion of elbow region (239964003)
-// └ Finding of elbow joint (298869002)
-//   ├ Arthropathy of elbow (429554009)
-//   │ └ Arthritis of elbow (439656005)
-//   │   └ Lateral epicondylitis (202855006)
-//   └ Elbow joint inflamed (298163003)
-//     └ Arthritis of elbow (439656005)
-//       └ Lateral epicondylitis (202855006)
-//
-// All concepts are in the ? state.
-
-import * as data from "../fixtures/elbow.json";
+// See builder/management/commands/generate_builder_fixtures.py and
+// opencodelists/tests/fixtures.py for details about what these fixtures contain.
+import * as versionWithNoSearchesData from "../fixtures/version_with_no_searches.json";
+import * as versionWithSomeSearchesData from "../fixtures/version_with_some_searches.json";
+import * as versionWithCompleteSearchesData from "../fixtures/version_with_complete_searches.json";
+import * as versionFromScratchData from "../fixtures/version_from_scratch.json";
 
 let container = null;
 beforeEach(() => {
@@ -53,7 +34,57 @@ global.fetch = jest.fn().mockImplementation((url, config) =>
   })
 );
 
+const testRender = (data) => {
+  const hierarchy = new Hierarchy(data.parent_map, data.child_map);
+  const ancestorCodes = data.tree_tables
+    .map(([_, ancestorCodes]) => ancestorCodes) // eslint-disable-line no-unused-vars
+    .flat();
+  const visiblePaths = hierarchy.initiallyVisiblePaths(
+    ancestorCodes,
+    data.code_to_status,
+    1
+  );
+
+  act(() => {
+    render(
+      <CodelistBuilder
+        searches={data.searches}
+        filter={data.filter}
+        treeTables={data.tree_tables}
+        codeToStatus={data.code_to_status}
+        codeToTerm={data.code_to_term}
+        visiblePaths={visiblePaths}
+        allCodes={data.all_codes}
+        includedCodes={data.included_codes}
+        excludedCodes={data.excluded_codes}
+        isEditable={data.is_editable}
+        updateURL={data.update_url}
+        searchURL={data.search_url}
+        hierarchy={hierarchy}
+      />,
+      container
+    );
+  });
+};
+
+it("renders version_with_no_searches without error", () => {
+  testRender(versionWithNoSearchesData);
+});
+
+it("renders version_with_some_searches without error", () => {
+  testRender(versionWithSomeSearchesData);
+});
+
+it("renders version_with_complete_searches without error", () => {
+  testRender(versionWithCompleteSearchesData);
+});
+
+it("renders version_from_scratch without error", () => {
+  testRender(versionFromScratchData);
+});
+
 it("does the right thing when clicking around", () => {
+  const data = versionWithSomeSearchesData;
   const hierarchy = new Hierarchy(data.parent_map, data.child_map);
   const ancestorCodes = data.tree_tables
     .map(([_, ancestorCodes]) => ancestorCodes) // eslint-disable-line no-unused-vars
@@ -64,26 +95,24 @@ it("does the right thing when clicking around", () => {
     100 // we want all codes to be visible so that we can check statuses
   );
 
-  // Keep track of which concept has which status
+  // Keep track of which visible concept has which status
   const statuses = {
-    116309007: "?", // Finding of elbow region
-    128133004: "?", // Disorder of elbow
-    239964003: "?", // Soft tissue lesion of elbow region
-    35185008: "?", // Enthesopathy of elbow region
-    73583000: "?", // Epicondylitis
-    202855006: "?", // Lateral epicondylitis
-    429554009: "?", // Arthropathy of elbow
-    439656005: "?", // Arthritis of elbow
-    298869002: "?", // Finding of elbow joint
-    298163003: "?", // Elbow joint inflamed
+    128133004: "+", // Disorder of elbow
+    239964003: "(+)", // Soft tissue lesion of elbow region
+    35185008: "(+)", // Enthesopathy of elbow region
+    73583000: "(+)", // Epicondylitis
+    202855006: "(+)", // Lateral epicondylitis
+    429554009: "(+)", // Arthropathy of elbow
+    439656005: "+", // Arthritis of elbow
+    3723001: "-", // Arthritis
   };
 
   // Keep track of how many concepts we expect to have each status
   const summaryCounts = {
-    total: 10,
-    included: 0,
-    excluded: 0,
-    unresolved: 10,
+    total: 8,
+    included: 7,
+    excluded: 1,
+    unresolved: 0,
     "in-conflict": 0,
   };
 
@@ -177,31 +206,31 @@ it("does the right thing when clicking around", () => {
   checkStatus();
 
   act(() => {
-    click("298163003", "+");
+    click("35185008", "-"); // Exclude Enthesopathy of elbow region
   });
 
-  summaryCounts.included += 3;
-  summaryCounts.unresolved -= 3;
+  summaryCounts.excluded += 2;
+  summaryCounts["in-conflict"] += 1;
+  summaryCounts.included -= 3;
 
-  statuses["298163003"] = "+";
-  statuses["439656005"] = "(+)";
-  statuses["202855006"] = "(+)";
+  statuses["35185008"] = "-"; // Enthesopathy of elbow region
+  statuses["73583000"] = "(-)"; // Epicondylitis
+  statuses["202855006"] = "!"; // Lateral epicondylitis
 
   checkSummary();
   checkStatus();
 
   act(() => {
-    click("429554009", "-");
+    click("35185008", "-"); // Un-exclude Enthesopathy of elbow region
   });
 
-  summaryCounts.included -= 2;
-  summaryCounts.excluded += 1;
-  summaryCounts.unresolved -= 1;
-  summaryCounts["in-conflict"] += 2;
+  summaryCounts.excluded -= 2;
+  summaryCounts["in-conflict"] -= 1;
+  summaryCounts.included += 3;
 
-  statuses["429554009"] = "-";
-  statuses["439656005"] = "!";
-  statuses["202855006"] = "!";
+  statuses["35185008"] = "(+)"; // Enthesopathy of elbow region
+  statuses["73583000"] = "(+)"; // Epicondylitis
+  statuses["202855006"] = "(+)"; // Lateral epicondylitis
 
   checkSummary();
   checkStatus();

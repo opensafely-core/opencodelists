@@ -13,8 +13,42 @@ CodelistVersions.  The approach we have taken is to build a "universe" of test o
 once, and then to pull out members of that universe as and when we need them.
 
 Since each fixture function needs to do the same thing (find the member of the universe
-with the given name, reload it from the database, and return it) we provide
-build_fixture() to avoid excessive duplication.
+with the given name, reload it from the database, and return it) we use build_fixture()
+to avoid excessive duplication.
+
+We use a very small subset of the SNOMED hierarchy.  For details, see
+coding_systems/snomedct/fixtures/README.
+
+There are fixtures for CodelistVersions with two different lists of codes:
+
+    A) disorder-of-elbow
+    B) disorder-of-elbow-excl-arthritis
+
+The fixtures also create searches for "arthritis", "tennis", and "elbow".
+
+The concepts returned by these searches are shown below, along with which of the two
+list of codes they belong two.
+
+.. Arthritis (3723001)
+A. └ Arthritis of elbow (439656005)
+A.   └ Lateral epicondylitis (202855006)
+.. Finding of elbow region (116309007)
+AB ├ Disorder of elbow (128133004)
+AB │ ├ Arthropathy of elbow (429554009)
+A. │ │ └ Arthritis of elbow (439656005)
+A. │ │   └ Lateral epicondylitis (202855006)
+AB │ ├ Enthesopathy of elbow region (35185008)
+AB │ │ └ Epicondylitis (73583000)
+A. │ │   └ Lateral epicondylitis (202855006)
+AB │ └ Soft tissue lesion of elbow region (239964003)
+.. └ Finding of elbow joint (298869002)
+AB   ├ Arthropathy of elbow (429554009)
+A.   │ └ Arthritis of elbow (439656005)
+A.   │   └ Lateral epicondylitis (202855006)
+..   └ Elbow joint inflamed (298163003)
+A.     └ Arthritis of elbow (439656005)
+A.       └ Lateral epicondylitis (202855006)
+.. Tennis toe (238484001)
 """
 
 import csv
@@ -23,6 +57,7 @@ from pathlib import Path
 import pytest
 from django.conf import settings
 from django.core.management import call_command
+from django.db.models import Model
 
 from builder.actions import create_search, save, update_code_statuses
 from codelists.actions import (
@@ -51,10 +86,13 @@ def build_fixture(fixture_name):
         """The actual pytest fixture.
 
         Finds the member of the universe with the given name, reloads it from the
-        database, and returns it.
+        database if necessary, and returns it.
         """
         obj = universe[fixture_name]
-        obj.refresh_from_db()
+        if isinstance(obj, Model):
+            # Some fixtures (eg disorder_of_elbow_codes) are not instances of Django
+            # models.
+            obj.refresh_from_db()
         return obj
 
     # This docstring is used in the output of `pytest --fixtures`
@@ -74,6 +112,7 @@ def universe(django_db_setup, django_db_blocker):
         # load enough of the SNOMED hierarchy to be useful
         call_command("loaddata", SNOMED_FIXTURES_PATH / "core-model-components.json")
         call_command("loaddata", SNOMED_FIXTURES_PATH / "tennis-elbow.json")
+        call_command("loaddata", SNOMED_FIXTURES_PATH / "tennis-toe.json")
 
         return build_fixtures()
 
@@ -84,6 +123,14 @@ def build_fixtures():
     Returns a dict of locals(), mapping a fixture name to the fixture object.
     """
 
+    # disorder_of_elbow_codes
+    disorder_of_elbow_codes = load_codes_from_csv("disorder-of-elbow.csv")
+
+    # disorder_of_elbow_excl_arthritis_codes
+    disorder_of_elbow_excl_arthritis_codes = load_codes_from_csv(
+        "disorder-of-elbow-excl-arthritis.csv"
+    )
+
     # organisation
     # - has two users:
     #   - organisation_admin
@@ -91,7 +138,7 @@ def build_fixtures():
     # - has three codelists:
     #   - old_style_codelist
     #   - new_style_codelist
-    #   - draft_codelist
+    #   - codelist_from_scratch
     organisation = create_organisation(name="Test University", url="https://test.ac.uk")
 
     # organisation_admin
@@ -106,7 +153,7 @@ def build_fixtures():
 
     # organisation_user
     # - is non-admin for organisation
-    # - is editing draft_version
+    # - is editing version_from_scratch
     # - has one codelist:
     #   - user_codelist
     organisation_user = create_user(
@@ -126,6 +173,10 @@ def build_fixtures():
         is_active=True,
     )
 
+    # user
+    # - an alias for user_without_organisation
+    user = user_without_organisation
+
     # old_style_codelist
     # - owned by organisation
     # - has one version:
@@ -141,9 +192,13 @@ def build_fixtures():
 
     # old_style_version
     # - belongs to old_style_codelist
+    # - includes Disorder of elbow
     old_style_version = create_version(
         codelist=old_style_codelist, csv_data=load_csv_data("disorder-of-elbow.csv")
     )
+
+    # Check that this version has the expected codes
+    check_expected_codes(old_style_version, disorder_of_elbow_codes)
 
     # new_style_codelist
     # - belongs to organisation
@@ -155,17 +210,27 @@ def build_fixtures():
         owner=organisation,
         name="New-style Codelist",
         coding_system_id="snomedct",
-        codes=load_codes_from_csv("disorder-of-elbow-excl-arthritis.csv"),
+        codes=disorder_of_elbow_excl_arthritis_codes,
     )
 
     # version_with_no_searches
     # - belongs to new_style_codelist
     # - has no searches
+    # - includes Disorder of elbow, excludes Arthritis
     version_with_no_searches = new_style_codelist.versions.get()
+
+    # Check that no code_objs are linked to searches
+    assert not version_with_no_searches.code_objs.filter(results__isnull=False).exists()
+
+    # Check that this version has the expected codes
+    check_expected_codes(
+        version_with_no_searches, disorder_of_elbow_excl_arthritis_codes
+    )
 
     # version_with_some_searches
     # - belongs to new_style_codelist
     # - has some searches, but not all codes covered
+    # - includes Disorder of elbow
     version_with_some_searches = export_to_builder(
         version=version_with_no_searches, owner=organisation_user
     )
@@ -182,13 +247,34 @@ def build_fixtures():
         draft=version_with_some_searches,
         updates=[("3723001", "-")],  # exclude "Arthritis"
     )
+    update_code_statuses(
+        draft=version_with_some_searches,
+        updates=[("439656005", "+")],  # include "Arthritis of elbow"
+    )
     save(draft=version_with_some_searches)
+
+    # Check that some code_objs are linked to searches and some are not
+    assert version_with_some_searches.code_objs.filter(results__isnull=True).exists()
+    assert version_with_some_searches.code_objs.filter(results__isnull=False).exists()
+
+    # Check that this version has the expected codes
+    check_expected_codes(version_with_some_searches, disorder_of_elbow_codes)
 
     # version_with_complete_searches
     # - belongs to new_style_codelist
     # - has some searches, and all codes covered
+    # - includes Disorder of elbow
     version_with_complete_searches = export_to_builder(
         version=version_with_some_searches, owner=organisation_user
+    )
+    create_search(
+        draft=version_with_complete_searches,
+        term="tennis",
+        codes=codes_for_search_term("tennis"),
+    )
+    update_code_statuses(
+        draft=version_with_complete_searches,
+        updates=[("238484001", "-")],  # exclude "Tennis toe"
     )
     create_search(
         draft=version_with_complete_searches,
@@ -201,25 +287,32 @@ def build_fixtures():
     )
     save(draft=version_with_complete_searches)
 
-    # new_style_version
-    # - an alias for version_with_some_searches
-    new_style_version = version_with_some_searches
+    # Check that all code_objs are linked to searches
+    assert not version_with_complete_searches.code_objs.filter(
+        results__isnull=True
+    ).exists()
 
-    # draft_codelist
+    # Check that this version has the expected codes
+    check_expected_codes(version_with_complete_searches, disorder_of_elbow_codes)
+
+    # codelist_from_scratch
     # - belongs to organisation
     # - has single version, being edited:
-    #   - draft_version
-    draft_codelist = create_codelist_from_scratch(
+    #   - version_from_scratch
+    codelist_from_scratch = create_codelist_from_scratch(
         owner=organisation,
-        name="Draft Codelist",
+        name="Codelist From Scratch",
         coding_system_id="snomedct",
         draft_owner=organisation_user,
     )
 
-    # draft_version
-    # - belongs to draft_codelist
+    # version_from_scratch
+    # - belongs to codelist_from_scratch
     # - being edited by organisation_user
-    draft_version = draft_codelist.versions.get()
+    version_from_scratch = codelist_from_scratch.versions.get()
+
+    # Check that this version has no codes
+    assert version_from_scratch.codes == ()
 
     # user_codelist
     # - belongs to organisation_user
@@ -260,3 +353,65 @@ def codes_for_search_term(term):
 
     coding_system = CODING_SYSTEMS["snomedct"]
     return do_search(coding_system, term)["all_codes"]
+
+
+def check_expected_codes(version, codes):
+    assert sorted(version.codes) == sorted(codes)
+
+
+disorder_of_elbow_codes = build_fixture("disorder_of_elbow_codes")
+disorder_of_elbow_excl_arthritis_codes = build_fixture(
+    "disorder_of_elbow_excl_arthritis_codes"
+)
+organisation = build_fixture("organisation")
+organisation_admin = build_fixture("organisation_admin")
+organisation_user = build_fixture("organisation_user")
+user_without_organisation = build_fixture("user_without_organisation")
+user = build_fixture("user")
+old_style_codelist = build_fixture("old_style_codelist")
+old_style_version = build_fixture("old_style_version")
+new_style_codelist = build_fixture("new_style_codelist")
+version_with_no_searches = build_fixture("version_with_no_searches")
+version_with_some_searches = build_fixture("version_with_some_searches")
+version_with_complete_searches = build_fixture("version_with_complete_searches")
+codelist_from_scratch = build_fixture("codelist_from_scratch")
+version_from_scratch = build_fixture("version_from_scratch")
+user_codelist = build_fixture("user_codelist")
+user_version = build_fixture("user_version")
+
+
+# These extra fixtures make modifications to those built in build_fixtures
+@pytest.fixture(scope="function")
+def draft_with_no_searches(version_with_no_searches, organisation_user):
+    return export_to_builder(version=version_with_no_searches, owner=organisation_user)
+
+
+@pytest.fixture(scope="function")
+def draft_with_some_searches(version_with_some_searches, organisation_user):
+    return export_to_builder(
+        version=version_with_some_searches, owner=organisation_user
+    )
+
+
+@pytest.fixture(scope="function")
+def draft_with_complete_searches(version_with_complete_searches, organisation_user):
+    return export_to_builder(
+        version=version_with_complete_searches, owner=organisation_user
+    )
+
+
+# This is a parameterized fixture.  When used in a test, the test will be run once for
+# each of version_with_no_searches, version_with_some_searches,
+# version_with_complete_searches.
+@pytest.fixture(
+    scope="function",
+    params=[
+        "version_with_no_searches",
+        "version_with_some_searches",
+        "version_with_complete_searches",
+    ],
+)
+def new_style_version(universe, request):
+    version = universe[request.param]
+    version.refresh_from_db()
+    return version

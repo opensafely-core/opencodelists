@@ -18,14 +18,6 @@ def create_draft(*, codelist, owner):
 
 
 @transaction.atomic
-def create_draft_with_codes(*, codelist, owner, codes):
-    draft = owner.drafts.create(codelist=codelist)
-    CodeObj.objects.bulk_create(CodeObj(version=draft, code=code) for code in codes)
-    logger.info("Create draft with codes", draft_pk=draft.pk)
-    return draft
-
-
-@transaction.atomic
 def create_search(*, draft, term, codes):
     search = draft.searches.create(term=term, slug=slugify(term))
 

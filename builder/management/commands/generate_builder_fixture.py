@@ -11,61 +11,81 @@ from django.core.management import BaseCommand, CommandError, call_command
 from django.db import connections
 from django.test.client import Client
 
-from builder import actions
-from codelists.search import do_search
-from codelists.tests.factories import CodelistFactory
+from codelists.actions import export_to_builder
 from coding_systems.snomedct.models import Concept
-from opencodelists.tests.factories import UserFactory
+from opencodelists.tests.fixtures import build_fixtures
 
 
 class Command(BaseCommand):
     help = __doc__
 
-    def add_arguments(self, parser):
-        parser.add_argument("path", help="Path to write JSON file")
-
-    def handle(self, path, **kwargs):
+    def handle(self, **kwargs):
         set_up_db()
 
-        fixtures_path = Path(
+        snomed_fixtures_path = Path(
             settings.BASE_DIR, "coding_systems", "snomedct", "fixtures"
         )
-        call_command("loaddata", fixtures_path / "core-model-components.json")
-        call_command("loaddata", fixtures_path / "tennis-elbow.json")
+        call_command("loaddata", snomed_fixtures_path / "core-model-components.json")
+        call_command("loaddata", snomed_fixtures_path / "tennis-elbow.json")
 
-        codelist = CodelistFactory()
-        owner = UserFactory()
-        draft = actions.create_draft(owner=owner, codelist=codelist)
-        search_results = do_search(draft.coding_system, "elbow")
-        actions.create_search(
-            draft=draft, term="elbow", codes=search_results["all_codes"]
-        )
+        fixtures = build_fixtures()
 
+        organisation_user = fixtures["organisation_user"]
         client = Client()
-        client.force_login(owner)
+        client.force_login(organisation_user)
 
-        rsp = client.get(f"/builder/{draft.hash}/")
-        data = {
-            k: rsp.context[k]
-            for k in [
-                "searches",
-                "filter",
-                "tree_tables",
-                "all_codes",
-                "included_codes",
-                "excluded_codes",
-                "parent_map",
-                "child_map",
-                "code_to_term",
-                "code_to_status",
-                "is_editable",
-                "update_url",
-                "search_url",
-            ]
-        }
+        for version_key in [
+            "version_with_no_searches",
+            "version_with_some_searches",
+            "version_with_complete_searches",
+            "version_from_scratch",
+        ]:
+            version = fixtures[version_key]
+            if version_key != "version_from_scratch":
+                draft = export_to_builder(version=version, owner=organisation_user)
 
-        with open(path, "w") as f:
-            json.dump(data, f, indent=2)
+            rsp = client.get(draft.get_builder_url("draft"))
+            data = {
+                context_key: rsp.context[context_key]
+                for context_key in [
+                    "searches",
+                    "filter",
+                    "tree_tables",
+                    "all_codes",
+                    "included_codes",
+                    "excluded_codes",
+                    "parent_map",
+                    "child_map",
+                    "code_to_term",
+                    "code_to_status",
+                    "is_editable",
+                    "update_url",
+                    "search_url",
+                ]
+            }
+
+            # Ensure that all fields are sorted, to allow for meaningful diffs should
+            # the data change.
+            data["all_codes"] = sorted(data["all_codes"])
+            data["included_codes"] = sorted(data["included_codes"])
+            data["excluded_codes"] = sorted(data["excluded_codes"])
+            data["parent_map"] = {
+                code: sorted(parents)
+                for code, parents in sorted(data["parent_map"].items())
+            }
+            data["child_map"] = {
+                code: sorted(children)
+                for code, children in sorted(data["child_map"].items())
+            }
+            data["code_to_term"] = dict(sorted(data["code_to_term"].items()))
+            data["code_to_status"] = dict(sorted(data["code_to_status"].items()))
+
+            js_fixtures_path = Path(
+                settings.BASE_DIR, "static", "test", "js", "fixtures"
+            )
+
+            with open(js_fixtures_path / f"{version_key}.json", "w") as f:
+                json.dump(data, f, indent=2)
 
 
 def set_up_db():

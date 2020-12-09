@@ -64,3 +64,18 @@ def test_codes(subtests):
 def test_roundtrip(hierarchy, codes):
     definition = Definition2.from_codes(codes, hierarchy)
     assert definition.codes(hierarchy) == codes
+
+
+@settings(deadline=None)
+@given(hierarchies(24), st.sets(st.sampled_from(range(16))))
+def test_code_to_status(hierarchy, codes):
+    definition = Definition2.from_codes(codes, hierarchy)
+    code_to_status = definition.code_to_status(hierarchy)
+    included_ancestors = {
+        code for code, status in code_to_status.items() if status == "+"
+    }
+    assert included_ancestors == definition.included_ancestors
+    excluded_ancestors = {
+        code for code, status in code_to_status.items() if status == "-"
+    }
+    assert excluded_ancestors == definition.excluded_ancestors

@@ -57,6 +57,7 @@ from pathlib import Path
 import pytest
 from django.conf import settings
 from django.core.management import call_command
+from django.db.models import Model
 
 from builder.actions import create_search, save, update_code_statuses
 from codelists.actions import (
@@ -88,7 +89,8 @@ def build_fixture(fixture_name):
         database, and returns it.
         """
         obj = universe[fixture_name]
-        obj.refresh_from_db()
+        if isinstance(obj, Model):
+            obj.refresh_from_db()
         return obj
 
     # This docstring is used in the output of `pytest --fixtures`
@@ -118,6 +120,14 @@ def build_fixtures():
 
     Returns a dict of locals(), mapping a fixture name to the fixture object.
     """
+
+    # disorder_of_elbow_codes
+    disorder_of_elbow_codes = load_codes_from_csv("disorder-of-elbow.csv")
+
+    # disorder_of_elbow_excl_arthritis_codes
+    disorder_of_elbow_excl_arthritis_codes = load_codes_from_csv(
+        "disorder-of-elbow-excl-arthritis.csv"
+    )
 
     # organisation
     # - has two users:
@@ -161,6 +171,10 @@ def build_fixtures():
         is_active=True,
     )
 
+    # user
+    # - an alias for user_without_organisation
+    user = user_without_organisation
+
     # old_style_codelist
     # - owned by organisation
     # - has one version:
@@ -182,7 +196,7 @@ def build_fixtures():
     )
 
     # Check that this version has the expected codes
-    check_expected_codes(old_style_version, "disorder-of-elbow.csv")
+    check_expected_codes(old_style_version, disorder_of_elbow_codes)
 
     # new_style_codelist
     # - belongs to organisation
@@ -194,7 +208,7 @@ def build_fixtures():
         owner=organisation,
         name="New-style Codelist",
         coding_system_id="snomedct",
-        codes=load_codes_from_csv("disorder-of-elbow-excl-arthritis.csv"),
+        codes=disorder_of_elbow_excl_arthritis_codes,
     )
 
     # version_with_no_searches
@@ -208,7 +222,7 @@ def build_fixtures():
 
     # Check that this version has the expected codes
     check_expected_codes(
-        version_with_no_searches, "disorder-of-elbow-excl-arthritis.csv"
+        version_with_no_searches, disorder_of_elbow_excl_arthritis_codes
     )
 
     # version_with_some_searches
@@ -242,7 +256,7 @@ def build_fixtures():
     assert version_with_some_searches.code_objs.filter(results__isnull=False).exists()
 
     # Check that this version has the expected codes
-    check_expected_codes(version_with_some_searches, "disorder-of-elbow.csv")
+    check_expected_codes(version_with_some_searches, disorder_of_elbow_codes)
 
     # version_with_complete_searches
     # - belongs to new_style_codelist
@@ -277,7 +291,7 @@ def build_fixtures():
     ).exists()
 
     # Check that this version has the expected codes
-    check_expected_codes(version_with_complete_searches, "disorder-of-elbow.csv")
+    check_expected_codes(version_with_complete_searches, disorder_of_elbow_codes)
 
     # new_style_version
     # - an alias for version_with_some_searches
@@ -343,14 +357,19 @@ def codes_for_search_term(term):
     return do_search(coding_system, term)["all_codes"]
 
 
-def check_expected_codes(version, filename):
-    assert sorted(version.codes) == sorted(load_codes_from_csv(filename))
+def check_expected_codes(version, codes):
+    assert sorted(version.codes) == sorted(codes)
 
 
+disorder_of_elbow_codes = build_fixture("disorder_of_elbow_codes")
+disorder_of_elbow_excl_arthritis_codes = build_fixture(
+    "disorder_of_elbow_excl_arthritis_codes"
+)
 organisation = build_fixture("organisation")
 organisation_admin = build_fixture("organisation_admin")
 organisation_user = build_fixture("organisation_user")
 user_without_organisation = build_fixture("user_without_organisation")
+user = build_fixture("user")
 old_style_codelist = build_fixture("old_style_codelist")
 old_style_version = build_fixture("old_style_version")
 new_style_codelist = build_fixture("new_style_codelist")

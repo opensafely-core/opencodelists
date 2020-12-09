@@ -66,15 +66,8 @@ def create_codelist_with_codes(*, owner, name, coding_system_id, codes):
     definition = Definition2.from_codes(codes, hierarchy)
 
     CodeObj.objects.bulk_create(
-        CodeObj(
-            version=version,
-            code=node,
-            status=hierarchy.node_status(
-                node, definition.included_ancestors, definition.excluded_ancestors
-            ),
-        )
-        for node in hierarchy.nodes
-        if node in codes
+        CodeObj(version=version, code=code, status=status)
+        for code, status in definition.code_to_status(hierarchy).items()
     )
 
     return codelist

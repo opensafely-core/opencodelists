@@ -1,6 +1,3 @@
-import csv
-from io import StringIO
-
 import pytest
 from django.db import IntegrityError
 
@@ -82,14 +79,29 @@ def test_create_codelist_with_duplicate_name():
     assert Codelist.objects.filter(name="Test").count() == 1
 
 
-def test_create_codelist_with_codes(tennis_elbow):
-    user = UserFactory()
-    codes = [row[0] for row in list(csv.reader(StringIO(tennis_elbow)))[1:]]
+def test_create_codelist_with_codes(user, disorder_of_elbow_excl_arthritis_codes):
     cl = actions.create_codelist_with_codes(
-        owner=user, name="Test", coding_system_id="snomedct", codes=codes
+        owner=user,
+        name="Test",
+        coding_system_id="snomedct",
+        codes=disorder_of_elbow_excl_arthritis_codes,
     )
     clv = cl.versions.get()
-    assert len(clv.codes) == 7
+    assert len(clv.codes) == len(disorder_of_elbow_excl_arthritis_codes)
+
+    code_to_status = {
+        code_obj.code: code_obj.status for code_obj in clv.code_objs.all()
+    }
+
+    assert code_to_status == {
+        "128133004": "+",  # Disorder of elbow
+        "429554009": "(+)",  # Arthropathy of elbow
+        "35185008": "(+)",  # Enthesopathy of elbow region
+        "73583000": "(+)",  # Epicondylitis
+        "239964003": "(+)",  # Soft tissue lesion of elbow region
+        "439656005": "-",  # Arthritis of elbow
+        "202855006": "(-)",  # Lateral epicondylitis
+    }
 
 
 def test_create_codelist_from_scratch():

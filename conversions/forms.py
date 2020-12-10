@@ -25,6 +25,9 @@ class ConvertForm(forms.Form):
     )
     csv_data = forms.FileField(label="CSV data")
     type = forms.ChoiceField(choices=TYPE_CHOICES)
+    include_unassured = forms.BooleanField(
+        label="Include mappings that have not been assured", required=False
+    )
 
     def __init__(self, *args, **kwargs):
         self.helper = FormHelper()

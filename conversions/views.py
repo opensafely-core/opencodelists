@@ -1,5 +1,6 @@
 import csv
 import os
+from collections import defaultdict
 from io import StringIO
 
 from django.http import HttpResponse
@@ -25,9 +26,13 @@ class ConvertView(FormView):
 
         base_filename, _ = os.path.splitext(form.cleaned_data["csv_data"].name)
         csv_data = form.cleaned_data["csv_data"].read().decode("utf-8-sig")
+        include_unassured = form.cleaned_data["include_unassured"]
+
         rows = list(csv.reader(StringIO(csv_data)))
         snomedct_ids = [row[0] for row in rows[1:]]
-        mappings = get_mappings(snomedct_ids=snomedct_ids)
+        mappings = get_mappings(
+            snomedct_ids=snomedct_ids, include_unassured=include_unassured
+        )
 
         if form.cleaned_data["type"] == "full":
             return _build_csv_response_for_full_mapping(
@@ -50,6 +55,18 @@ def _build_csv_response_for_full_mapping(
     from_coding_system,
     to_coding_system,
 ):
+
+    # For each pair of (from_code, to_code) in the mappings, work out whether there are
+    # any mappings that are assured.
+    pair_to_is_assureds = defaultdict(set)
+    for m in mappings:
+        from_code = m[from_coding_system.id]
+        to_code = m[to_coding_system.id]
+        pair_to_is_assureds[(from_code, to_code)].add(m["is_assured"])
+    pair_to_is_assured = {
+        pair: True in is_assureds for pair, is_assureds in pair_to_is_assureds.items()
+    }
+
     from_codes = {m[from_coding_system.id] for m in mappings}
     to_codes = {m[to_coding_system.id] for m in mappings}
     from_coding_system_lookup_names = from_coding_system.lookup_names(from_codes)
@@ -61,17 +78,17 @@ def _build_csv_response_for_full_mapping(
         f"{from_coding_system.id}_name",
         f"{to_coding_system.id}_id",
         f"{to_coding_system.id}_name",
+        "is_assured",
     ]
     data = [
         [
-            mapping[from_coding_system.id],
-            from_coding_system_lookup_names.get(
-                mapping[from_coding_system.id], "Unknown"
-            ),
-            mapping[to_coding_system.id],
-            to_coding_system_lookup_names.get(mapping[to_coding_system.id], "Unknown"),
+            from_code,
+            from_coding_system_lookup_names.get(from_code, "Unknown"),
+            to_code,
+            to_coding_system_lookup_names.get(to_code, "Unknown"),
+            is_assured,
         ]
-        for mapping in mappings
+        for (from_code, to_code), is_assured in pair_to_is_assured.items()
     ]
 
     return _build_csv_response(filename, headers, data)
@@ -80,17 +97,26 @@ def _build_csv_response_for_full_mapping(
 def _build_csv_response_for_converted_codes_only(
     base_filename, mappings, to_coding_system
 ):
-    to_codes = {m[to_coding_system.id] for m in mappings}
-    to_coding_system_lookup_names = to_coding_system.lookup_names(to_codes)
+
+    # For each to_code in the mappings, work out whether there are any mappings that are
+    # assured.
+    code_to_is_assureds = defaultdict(set)
+    for m in mappings:
+        code_to_is_assureds[m[to_coding_system.id]].add(m["is_assured"])
+    code_to_is_assured = {
+        code: True in is_assureds for code, is_assureds in code_to_is_assureds.items()
+    }
+    to_coding_system_lookup_names = to_coding_system.lookup_names(code_to_is_assured)
 
     filename = f"{base_filename}-{to_coding_system.id}.csv"
     headers = [
         f"{to_coding_system.id}_id",
         f"{to_coding_system.id}_name",
+        "is_assured",
     ]
     data = [
-        [to_code, to_coding_system_lookup_names.get(to_code, "Unknown")]
-        for to_code in to_codes
+        [code, to_coding_system_lookup_names.get(code, "Unknown"), is_assured]
+        for code, is_assured in code_to_is_assured.items()
     ]
 
     return _build_csv_response(filename, headers, data)

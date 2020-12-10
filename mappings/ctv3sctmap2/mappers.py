@@ -9,22 +9,27 @@ from coding_systems.snomedct.models import QueryTableRecord
 from .models import Mapping
 
 
-def get_mappings(ctv3_ids=None, snomedct_ids=None):
-    """Return mappings between CTV3 and SNOMED CT concepts that are assured and
-    have map_status=True (which means that the mapping is active).
-    """
+def get_mappings(ctv3_ids=None, snomedct_ids=None, include_unassured=False):
+    """Return mappings between CTV3 and SNOMED CT concepts that have
+    map_status=True (which means that the mapping is active)."""
 
     assert ctv3_ids or snomedct_ids
 
-    mappings = Mapping.objects.filter(is_assured=True, map_status=True)
+    mappings = Mapping.objects.filter(map_status=True)
     if ctv3_ids:
         mappings = mappings.filter(ctv3_concept_id__in=ctv3_ids)
     if snomedct_ids:
         mappings = mappings.filter(sct_concept_id__in=snomedct_ids)
+    if not include_unassured:
+        mappings = mappings.exclude(is_assured=False)
 
     return [
-        {"ctv3": m[0], "snomedct": m[1]}
-        for m in mappings.values_list("ctv3_concept_id", "sct_concept_id")
+        {
+            "ctv3": m.ctv3_concept_id,
+            "snomedct": m.sct_concept_id,
+            "is_assured": m.is_assured,
+        }
+        for m in mappings
     ]
 
 

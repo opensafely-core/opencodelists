@@ -23,7 +23,10 @@ class ConvertForm(forms.Form):
     to_coding_system_id = forms.ChoiceField(
         choices=TO_CODING_SYSTEMS_CHOICES, label="Convert to"
     )
-    csv_data = forms.FileField(label="CSV data")
+    csv_data = forms.FileField(
+        label="CSV data",
+        help_text="The CSV file should not have a header, and its first column must contain valid codes in the chosen coding system.",
+    )
     type = forms.ChoiceField(choices=TYPE_CHOICES)
     include_unassured = forms.BooleanField(
         label="Include mappings that have not been assured", required=False

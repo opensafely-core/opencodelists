@@ -28,8 +28,7 @@ class ConvertView(FormView):
         csv_data = form.cleaned_data["csv_data"].read().decode("utf-8-sig")
         include_unassured = form.cleaned_data["include_unassured"]
 
-        rows = list(csv.reader(StringIO(csv_data)))
-        snomedct_ids = [row[0] for row in rows[1:]]
+        snomedct_ids = [row[0] for row in csv.reader(StringIO(csv_data))]
         mappings = get_mappings(
             snomedct_ids=snomedct_ids, include_unassured=include_unassured
         )

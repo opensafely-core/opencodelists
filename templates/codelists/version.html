@@ -18,7 +18,7 @@
 
 <div class="row">
   <div class="col-md-3 col-lg-2">
-    <div class="btn-group btn-block" role="group">
+    <div class="btn-group-vertical btn-block" role="group">
       <a
         href="{{ clv.get_download_url }}"
         role="button"
@@ -26,6 +26,15 @@
       >
         Download CSV
       </a>
+      {% if clv.coding_system_id == "bnf" %}
+      <a
+        href="{{ clv.get_dmd_download_url }}"
+        role="button"
+        class="btn btn-outline-info btn-block"
+      >
+        Download dm+d
+      </a>
+      {% endif %}
     </div>
     <hr />
 

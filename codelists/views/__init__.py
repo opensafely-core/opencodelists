@@ -4,6 +4,7 @@ from .codelist_update import codelist_update
 from .index import index
 from .version import version
 from .version_create import version_create
+from .version_dmd_download import version_dmd_download
 from .version_download import version_download
 from .version_publish import version_publish
 from .version_upload import version_upload

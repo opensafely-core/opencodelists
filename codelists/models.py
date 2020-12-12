@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.text import slugify
 
+from mappings.bnfdmd.mappers import bnf_to_dmd
 from opencodelists.hash_utils import hash
 
 from .coding_systems import CODING_SYSTEMS
@@ -161,6 +162,12 @@ class CodelistVersion(models.Model):
             f"codelists:{self.codelist_type}_version_download", kwargs=self.url_kwargs
         )
 
+    def get_dmd_download_url(self):
+        return reverse(
+            f"codelists:{self.codelist_type}_version_dmd_download",
+            kwargs=self.url_kwargs,
+        )
+
     def get_create_url(self):
         return reverse(
             f"codelists:{self.codelist_type}_version_create", kwargs=self.url_kwargs
@@ -260,6 +267,15 @@ class CodelistVersion(models.Model):
         buf = StringIO()
         writer = csv.writer(buf)
         writer.writerows(self.table)
+        return buf.getvalue()
+
+    def dmd_csv_data_for_download(self):
+        assert self.coding_system_id == "bnf"
+        buf = StringIO()
+        writer = csv.writer(buf)
+        writer = csv.DictWriter(buf, ["dmd_type", "dmd_id", "dmd_name", "bnf_code"])
+        writer.writeheader()
+        writer.writerows(bnf_to_dmd(self.codes))
         return buf.getvalue()
 
     def download_filename(self):

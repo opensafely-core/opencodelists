@@ -7,7 +7,7 @@ from django.utils.functional import cached_property
 from django.utils.text import slugify
 
 from mappings.bnfdmd.mappers import bnf_to_dmd
-from opencodelists.hash_utils import hash
+from opencodelists.hash_utils import hash, unhash
 
 from .coding_systems import CODING_SYSTEMS
 
@@ -133,6 +133,14 @@ class CodelistVersion(models.Model):
 
     class Meta:
         unique_together = ("codelist", "tag")
+
+    class Manager(models.Manager):
+        def get_by_hash(self, hash):
+            """Return the CodelistVersion with given hash."""
+            id = unhash(hash, "CodelistVersion")
+            return self.get(id=id)
+
+    objects = Manager()
 
     def save(self, *args, **kwargs):
         if self.csv_data:

@@ -1,7 +1,7 @@
 import pytest
 from django.db.utils import IntegrityError
 
-from codelists.models import Codelist
+from codelists.models import Codelist, CodelistVersion
 from opencodelists.tests.factories import OrganisationFactory, UserFactory
 
 
@@ -83,3 +83,9 @@ def test_old_style_is_new_style(old_style_codelist):
 
 def test_new_style_is_new_style(new_style_codelist):
     assert new_style_codelist.is_new_style()
+
+
+def test_get_by_hash(new_style_version):
+    assert (
+        CodelistVersion.objects.get_by_hash(new_style_version.hash) == new_style_version
+    )

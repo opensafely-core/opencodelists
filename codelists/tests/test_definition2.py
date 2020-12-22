@@ -3,6 +3,7 @@ from hypothesis import strategies as st
 
 from codelists.definition2 import Definition2
 
+from .definition_test_data import examples
 from .helpers import build_hierarchy, hierarchies
 
 # build_hierarchy returns a hierarchy with the following structure:
@@ -15,48 +16,29 @@ from .helpers import build_hierarchy, hierarchies
 #  / \ / \ / \
 # g   h   i   j
 
-examples = [
-    ("a", "a", "bc", "root element only"),
-    ("b", "b", "de", "intermediate element only"),
-    ("g", "g", "", "leaf element only"),
-    ("abcdefghij", "a", "", "root element + descendants"),
-    ("abcdfghij", "ahi", "e", "root element + all descendants except intermediate"),
-    ("abcdefghi", "a", "j", "root element + all descendants except leaf"),
-    ("bdeghi", "b", "", "intermediate element + descendants"),
-    ("bdegh", "b", "i", "intermediate element + all descendants except leaf"),
-    ("abdeghi", "ae", "c", "root element + descendants of intermediate element"),
-    ("abdg", "a", "c", "root element - descendants of intermediate element"),
-]
-
 
 def test_from_codes(subtests):
     hierarchy = build_hierarchy()
 
-    for codes, explicitly_included, explicitly_excluded, subtest_name in examples:
-        codes = set(codes)
-        explicitly_included = set(explicitly_included)
-        explicitly_excluded = set(explicitly_excluded)
-
-        with subtests.test(subtest_name):
-            definition = Definition2.from_codes(codes, hierarchy)
-            assert definition.explicitly_included == explicitly_included
-            assert definition.explicitly_excluded == explicitly_excluded
-            assert definition.codes(hierarchy) == codes
+    for example in examples:
+        with subtests.test(example["description"]):
+            definition = Definition2.from_codes(example["codes"], hierarchy)
+            assert definition.explicitly_included == example["explicitly_included"]
+            assert definition.explicitly_excluded == example["explicitly_excluded"]
+            assert definition.codes(hierarchy) == example["codes"]
 
 
 def test_codes(subtests):
     hierarchy = build_hierarchy()
 
-    for codes, explicitly_included, explicitly_excluded, subtest_name in examples:
-        codes = set(codes)
-        explicitly_included = set(explicitly_included)
-        explicitly_excluded = set(explicitly_excluded)
-
-        with subtests.test(subtest_name):
-            definition = Definition2(explicitly_included, explicitly_excluded)
-            assert definition.explicitly_included == explicitly_included
-            assert definition.explicitly_excluded == explicitly_excluded
-            assert definition.codes(hierarchy) == codes
+    for example in examples:
+        with subtests.test(example["description"]):
+            definition = Definition2(
+                example["explicitly_included"], example["explicitly_excluded"]
+            )
+            assert definition.explicitly_included == example["explicitly_included"]
+            assert definition.explicitly_excluded == example["explicitly_excluded"]
+            assert definition.codes(hierarchy) == example["codes"]
 
 
 @settings(deadline=None)

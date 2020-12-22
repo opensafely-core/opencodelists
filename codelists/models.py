@@ -1,12 +1,10 @@
-import csv
-from io import StringIO
-
 from django.db import models
 from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.text import slugify
 
 from mappings.bnfdmd.mappers import bnf_to_dmd
+from opencodelists.csv_utils import csv_data_to_rows, rows_to_csv_data
 from opencodelists.hash_utils import hash, unhash
 
 from .coding_systems import CODING_SYSTEMS
@@ -218,7 +216,7 @@ class CodelistVersion(models.Model):
             return self._new_style_table()
 
     def _old_style_table(self):
-        return list(csv.reader(StringIO(self.csv_data)))
+        return csv_data_to_rows(self.csv_data)
 
     def _new_style_table(self):
         code_to_term = self.coding_system.code_to_term(self.codes)
@@ -272,19 +270,12 @@ class CodelistVersion(models.Model):
     def csv_data_for_download(self):
         if self.csv_data:
             return self.csv_data
-        buf = StringIO()
-        writer = csv.writer(buf)
-        writer.writerows(self.table)
-        return buf.getvalue()
+        return rows_to_csv_data(self.table)
 
     def dmd_csv_data_for_download(self):
         assert self.coding_system_id == "bnf"
-        buf = StringIO()
-        writer = csv.writer(buf)
-        writer = csv.DictWriter(buf, ["dmd_type", "dmd_id", "dmd_name", "bnf_code"])
-        writer.writeheader()
-        writer.writerows(bnf_to_dmd(self.codes))
-        return buf.getvalue()
+        headers = ["dmd_type", "dmd_id", "dmd_name", "bnf_code"]
+        return rows_to_csv_data([headers] + bnf_to_dmd(self.codes))
 
     def download_filename(self):
         if self.codelist_type == "user":

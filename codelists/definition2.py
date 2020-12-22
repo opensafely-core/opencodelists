@@ -18,6 +18,17 @@ class Definition2:
     then ["a", "b", "d", "e", "g", "h", "i"] can be defined by including "a" and "e"
     (and descendants), and excluding "c" (and descendants).
 
+    The codes in a definition can be arranged in a tree structure, with the example
+    above represented by the following nested dict:
+
+        {
+            ("a", "+"): {
+                ("c", "-"): {
+                    ("e", "+"): {}
+                }
+            }
+        }
+
     This is different to the existing Definition class, which does not allow for
     excluding a concept and all of its descendents.  We need this, in order to be able
     to allow codelists to be edited in the builder.
@@ -80,6 +91,33 @@ class Definition2:
             )
             in ["+", "(+)"]
         }
+
+    def tree(self, hierarchy):
+        """Return a tree structure containing the explicitly included and excluded
+        codes.
+
+        See the class docstring and tests for examples.
+        """
+
+        def including_helper(included_codes, excluded_codes):
+            tree = {}
+            for ancestor in hierarchy.filter_to_ultimate_ancestors(included_codes):
+                descendants = hierarchy.descendants(ancestor)
+                tree[(ancestor, "+")] = excluding_helper(
+                    descendants & included_codes, descendants & excluded_codes
+                )
+            return tree
+
+        def excluding_helper(included_codes, excluded_codes):
+            tree = {}
+            for ancestor in hierarchy.filter_to_ultimate_ancestors(excluded_codes):
+                descendants = hierarchy.descendants(ancestor)
+                tree[(ancestor, "-")] = including_helper(
+                    descendants & included_codes, descendants & excluded_codes
+                )
+            return tree
+
+        return including_helper(self.explicitly_included, self.explicitly_excluded)
 
     def all_related_codes(self, hierarchy):
         """Return all codes related to this definition."""

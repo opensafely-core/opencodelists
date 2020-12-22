@@ -3,6 +3,7 @@ from hypothesis import strategies as st
 
 from codelists.definition2 import Definition2
 
+from .definition_test_data import examples
 from .helpers import build_hierarchy, hierarchies
 
 # build_hierarchy returns a hierarchy with the following structure:
@@ -15,48 +16,54 @@ from .helpers import build_hierarchy, hierarchies
 #  / \ / \ / \
 # g   h   i   j
 
-examples = [
-    ("a", "a", "bc", "root element only"),
-    ("b", "b", "de", "intermediate element only"),
-    ("g", "g", "", "leaf element only"),
-    ("abcdefghij", "a", "", "root element + descendants"),
-    ("abcdfghij", "ahi", "e", "root element + all descendants except intermediate"),
-    ("abcdefghi", "a", "j", "root element + all descendants except leaf"),
-    ("bdeghi", "b", "", "intermediate element + descendants"),
-    ("bdegh", "b", "i", "intermediate element + all descendants except leaf"),
-    ("abdeghi", "ae", "c", "root element + descendants of intermediate element"),
-    ("abdg", "a", "c", "root element - descendants of intermediate element"),
-]
-
 
 def test_from_codes(subtests):
     hierarchy = build_hierarchy()
 
-    for codes, included_ancestors, excluded_ancestors, subtest_name in examples:
-        codes = set(codes)
-        included_ancestors = set(included_ancestors)
-        excluded_ancestors = set(excluded_ancestors)
-
-        with subtests.test(subtest_name):
-            definition = Definition2.from_codes(codes, hierarchy)
-            assert definition.included_ancestors == included_ancestors
-            assert definition.excluded_ancestors == excluded_ancestors
-            assert definition.codes(hierarchy) == codes
+    for example in examples:
+        with subtests.test(example["description"]):
+            definition = Definition2.from_codes(example["codes"], hierarchy)
+            assert definition.explicitly_included == example["explicitly_included"]
+            assert definition.explicitly_excluded == example["explicitly_excluded"]
+            assert definition.codes(hierarchy) == example["codes"]
 
 
 def test_codes(subtests):
     hierarchy = build_hierarchy()
 
-    for codes, included_ancestors, excluded_ancestors, subtest_name in examples:
-        codes = set(codes)
-        included_ancestors = set(included_ancestors)
-        excluded_ancestors = set(excluded_ancestors)
+    for example in examples:
+        with subtests.test(example["description"]):
+            definition = Definition2(
+                example["explicitly_included"], example["explicitly_excluded"]
+            )
+            assert definition.explicitly_included == example["explicitly_included"]
+            assert definition.explicitly_excluded == example["explicitly_excluded"]
+            assert definition.codes(hierarchy) == example["codes"]
 
-        with subtests.test(subtest_name):
-            definition = Definition2(included_ancestors, excluded_ancestors)
-            assert definition.included_ancestors == included_ancestors
-            assert definition.excluded_ancestors == excluded_ancestors
-            assert definition.codes(hierarchy) == codes
+
+def test_tree(subtests):
+    hierarchy = build_hierarchy()
+
+    for example in examples:
+        with subtests.test(example["description"]):
+            definition = Definition2(
+                example["explicitly_included"], example["explicitly_excluded"]
+            )
+            assert definition.tree(hierarchy) == example["tree"]
+
+
+def test_walk_tree(subtests):
+    hierarchy = build_hierarchy()
+
+    for example in examples:
+        with subtests.test(example["description"]):
+            definition = Definition2(
+                example["explicitly_included"], example["explicitly_excluded"]
+            )
+            assert (
+                list(definition.walk_tree(hierarchy, lambda x: x))
+                == example["tree_rows"]
+            )
 
 
 @settings(deadline=None)
@@ -71,11 +78,11 @@ def test_roundtrip(hierarchy, codes):
 def test_code_to_status(hierarchy, codes):
     definition = Definition2.from_codes(codes, hierarchy)
     code_to_status = definition.code_to_status(hierarchy)
-    included_ancestors = {
+    explicitly_included = {
         code for code, status in code_to_status.items() if status == "+"
     }
-    assert included_ancestors == definition.included_ancestors
-    excluded_ancestors = {
+    assert explicitly_included == definition.explicitly_included
+    explicitly_excluded = {
         code for code, status in code_to_status.items() if status == "-"
     }
-    assert excluded_ancestors == definition.excluded_ancestors
+    assert explicitly_excluded == definition.explicitly_excluded

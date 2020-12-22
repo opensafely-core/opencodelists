@@ -247,6 +247,10 @@ def build_fixtures():
         version_with_no_searches, disorder_of_elbow_excl_arthritis_codes
     )
 
+    # version_with_excluded_codes
+    # - an alias for version_with_no_searches
+    version_with_excluded_codes = version_with_no_searches
+
     # version_with_some_searches
     # - belongs to new_style_codelist
     # - has some searches, but not all codes covered
@@ -416,6 +420,7 @@ new_style_codelist = build_fixture("new_style_codelist")
 version_with_no_searches = build_fixture("version_with_no_searches")
 version_with_some_searches = build_fixture("version_with_some_searches")
 version_with_complete_searches = build_fixture("version_with_complete_searches")
+version_with_excluded_codes = build_fixture("version_with_excluded_codes")
 codelist_from_scratch = build_fixture("codelist_from_scratch")
 version_from_scratch = build_fixture("version_from_scratch")
 user_codelist = build_fixture("user_codelist")

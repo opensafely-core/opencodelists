@@ -26,6 +26,13 @@
       >
         Download CSV
       </a>
+      <a
+        href="{{ clv.get_download_definition_url }}"
+        role="button"
+        class="btn btn-outline-info btn-block"
+      >
+        Download definition
+      </a>
       {% if clv.coding_system_id == "bnf" %}
       <a
         href="{{ clv.get_dmd_download_url }}"

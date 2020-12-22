@@ -18,6 +18,17 @@ class Definition2:
     then ["a", "b", "d", "e", "g", "h", "i"] can be defined by including "a" and "e"
     (and descendants), and excluding "c" (and descendants).
 
+    The codes in a definition can be arranged in a tree structure, with the example
+    above represented by the following nested dict:
+
+        {
+            ("a", "+"): {
+                ("c", "-"): {
+                    ("e", "+"): {}
+                }
+            }
+        }
+
     This is different to the existing Definition class, which does not allow for
     excluding a concept and all of its descendents.  We need this, in order to be able
     to allow codelists to be edited in the builder.
@@ -26,24 +37,24 @@ class Definition2:
     Definition.
     """
 
-    def __init__(self, included_ancestors, excluded_ancestors):
-        self.included_ancestors = included_ancestors
-        self.excluded_ancestors = excluded_ancestors
+    def __init__(self, explicitly_included, explicitly_excluded):
+        self.explicitly_included = explicitly_included
+        self.explicitly_excluded = explicitly_excluded
 
     @classmethod
     def from_codes(cls, codes, hierarchy):
         """Build a Definition2 from a set of codes."""
 
-        included_ancestors = set()
-        excluded_ancestors = set()
+        explicitly_included = set()
+        explicitly_excluded = set()
 
         def including_helper(included_codes):
-            """Add ancestors of included_codes to included_ancestors, and pass off
+            """Add ancestors of included_codes to explicitly_included, and pass off
             handling excluded descendants of these ancestors to excluding_helper.
             """
 
             for ancestor in hierarchy.filter_to_ultimate_ancestors(included_codes):
-                included_ancestors.add(ancestor)
+                explicitly_included.add(ancestor)
                 descendants = hierarchy.descendants(ancestor)
 
                 if not descendants < included_codes:
@@ -52,12 +63,12 @@ class Definition2:
                     excluding_helper(descendants - included_codes)
 
         def excluding_helper(excluded_codes):
-            """Add ancestors of excluded_codes to excluded_ancestors, and pass off
+            """Add ancestors of excluded_codes to explicitly_excluded, and pass off
             handling included descendants of these ancestors to including_helper.
             """
 
             for ancestor in hierarchy.filter_to_ultimate_ancestors(excluded_codes):
-                excluded_ancestors.add(ancestor)
+                explicitly_excluded.add(ancestor)
                 descendants = hierarchy.descendants(ancestor)
 
                 if not descendants < excluded_codes:
@@ -67,7 +78,7 @@ class Definition2:
 
         including_helper(codes)
 
-        return cls(included_ancestors, excluded_ancestors)
+        return cls(explicitly_included, explicitly_excluded)
 
     def codes(self, hierarchy):
         """Return the codes defined by this Definition2."""
@@ -76,10 +87,53 @@ class Definition2:
             node
             for node in hierarchy.nodes
             if hierarchy.node_status(
-                node, self.included_ancestors, self.excluded_ancestors
+                node, self.explicitly_included, self.explicitly_excluded
             )
             in ["+", "(+)"]
         }
+
+    def tree(self, hierarchy):
+        """Return a tree structure containing the explicitly included and excluded
+        codes.
+
+        See the class docstring and tests for examples.
+        """
+
+        def including_helper(included_codes, excluded_codes):
+            tree = {}
+            for ancestor in hierarchy.filter_to_ultimate_ancestors(included_codes):
+                descendants = hierarchy.descendants(ancestor)
+                tree[(ancestor, "+")] = excluding_helper(
+                    descendants & included_codes, descendants & excluded_codes
+                )
+            return tree
+
+        def excluding_helper(included_codes, excluded_codes):
+            tree = {}
+            for ancestor in hierarchy.filter_to_ultimate_ancestors(excluded_codes):
+                descendants = hierarchy.descendants(ancestor)
+                tree[(ancestor, "-")] = including_helper(
+                    descendants & included_codes, descendants & excluded_codes
+                )
+            return tree
+
+        return including_helper(self.explicitly_included, self.explicitly_excluded)
+
+    def walk_tree(self, hierarchy, sortkey):
+        """Yield tuples of (code, status) found by walking the tree depth first."""
+
+        def helper(tree):
+            if not tree:
+                return
+
+            codes = sorted((code for (code, _) in tree), key=sortkey)
+            _, status = list(tree)[0]
+
+            for code in codes:
+                yield (code, status)
+                yield from helper(tree[(code, status)])
+
+        yield from helper(self.tree(hierarchy))
 
     def all_related_codes(self, hierarchy):
         """Return all codes related to this definition."""
@@ -100,7 +154,7 @@ class Definition2:
 
         return {
             code: hierarchy.node_status(
-                code, self.included_ancestors, self.excluded_ancestors
+                code, self.explicitly_included, self.explicitly_excluded
             )
             for code in self.all_related_codes(hierarchy)
         }

@@ -52,6 +52,20 @@ def test_tree(subtests):
             assert definition.tree(hierarchy) == example["tree"]
 
 
+def test_walk_tree(subtests):
+    hierarchy = build_hierarchy()
+
+    for example in examples:
+        with subtests.test(example["description"]):
+            definition = Definition2(
+                example["explicitly_included"], example["explicitly_excluded"]
+            )
+            assert (
+                list(definition.walk_tree(hierarchy, lambda x: x))
+                == example["tree_rows"]
+            )
+
+
 @settings(deadline=None)
 @given(hierarchies(24), st.sets(st.sampled_from(range(16))))
 def test_roundtrip(hierarchy, codes):

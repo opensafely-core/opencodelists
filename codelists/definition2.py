@@ -119,6 +119,22 @@ class Definition2:
 
         return including_helper(self.explicitly_included, self.explicitly_excluded)
 
+    def walk_tree(self, hierarchy, sortkey):
+        """Yield tuples of (code, status) found by walking the tree depth first."""
+
+        def helper(tree):
+            if not tree:
+                return
+
+            codes = sorted((code for (code, _) in tree), key=sortkey)
+            _, status = list(tree)[0]
+
+            for code in codes:
+                yield (code, status)
+                yield from helper(tree[(code, status)])
+
+        yield from helper(self.tree(hierarchy))
+
     def all_related_codes(self, hierarchy):
         """Return all codes related to this definition."""
 

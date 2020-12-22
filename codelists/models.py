@@ -8,6 +8,7 @@ from opencodelists.csv_utils import csv_data_to_rows, rows_to_csv_data
 from opencodelists.hash_utils import hash, unhash
 
 from .coding_systems import CODING_SYSTEMS
+from .presenters import present_definition_for_download
 
 
 class Codelist(models.Model):
@@ -168,6 +169,12 @@ class CodelistVersion(models.Model):
             f"codelists:{self.codelist_type}_version_download", kwargs=self.url_kwargs
         )
 
+    def get_download_definition_url(self):
+        return reverse(
+            f"codelists:{self.codelist_type}_version_download_definition",
+            kwargs=self.url_kwargs,
+        )
+
     def get_dmd_download_url(self):
         return reverse(
             f"codelists:{self.codelist_type}_version_dmd_download",
@@ -271,6 +278,9 @@ class CodelistVersion(models.Model):
         if self.csv_data:
             return self.csv_data
         return rows_to_csv_data(self.table)
+
+    def definition_csv_data_for_download(self):
+        return rows_to_csv_data(present_definition_for_download(self))
 
     def dmd_csv_data_for_download(self):
         assert self.coding_system_id == "bnf"

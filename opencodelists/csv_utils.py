@@ -11,3 +11,11 @@ def rows_to_csv_data(rows):
     writer = csv.writer(buf)
     writer.writerows(rows)
     return buf.getvalue()
+
+
+def dict_rows_to_csv_data(headers, rows):
+    buf = StringIO()
+    writer = csv.DictWriter(buf, headers)
+    writer.writeheader()
+    writer.writerows(rows)
+    return buf.getvalue()

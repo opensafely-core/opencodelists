@@ -4,7 +4,11 @@ from django.utils.functional import cached_property
 from django.utils.text import slugify
 
 from mappings.bnfdmd.mappers import bnf_to_dmd
-from opencodelists.csv_utils import csv_data_to_rows, rows_to_csv_data
+from opencodelists.csv_utils import (
+    csv_data_to_rows,
+    dict_rows_to_csv_data,
+    rows_to_csv_data,
+)
 from opencodelists.hash_utils import hash, unhash
 
 from .coding_systems import CODING_SYSTEMS
@@ -285,7 +289,7 @@ class CodelistVersion(models.Model):
     def dmd_csv_data_for_download(self):
         assert self.coding_system_id == "bnf"
         headers = ["dmd_type", "dmd_id", "dmd_name", "bnf_code"]
-        return rows_to_csv_data([headers] + bnf_to_dmd(self.codes))
+        return dict_rows_to_csv_data(headers, bnf_to_dmd(self.codes))
 
     def download_filename(self):
         if self.codelist_type == "user":

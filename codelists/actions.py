@@ -165,7 +165,7 @@ def convert_codelist_to_new_style(*, codelist):
             version=next_clv,
             code=node,
             status=hierarchy.node_status(
-                node, definition.included_ancestors, definition.excluded_ancestors
+                node, definition.explicitly_included, definition.explicitly_excluded
             ),
         )
         for node in hierarchy.nodes

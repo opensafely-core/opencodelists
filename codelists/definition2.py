@@ -26,24 +26,24 @@ class Definition2:
     Definition.
     """
 
-    def __init__(self, included_ancestors, excluded_ancestors):
-        self.included_ancestors = included_ancestors
-        self.excluded_ancestors = excluded_ancestors
+    def __init__(self, explicitly_included, explicitly_excluded):
+        self.explicitly_included = explicitly_included
+        self.explicitly_excluded = explicitly_excluded
 
     @classmethod
     def from_codes(cls, codes, hierarchy):
         """Build a Definition2 from a set of codes."""
 
-        included_ancestors = set()
-        excluded_ancestors = set()
+        explicitly_included = set()
+        explicitly_excluded = set()
 
         def including_helper(included_codes):
-            """Add ancestors of included_codes to included_ancestors, and pass off
+            """Add ancestors of included_codes to explicitly_included, and pass off
             handling excluded descendants of these ancestors to excluding_helper.
             """
 
             for ancestor in hierarchy.filter_to_ultimate_ancestors(included_codes):
-                included_ancestors.add(ancestor)
+                explicitly_included.add(ancestor)
                 descendants = hierarchy.descendants(ancestor)
 
                 if not descendants < included_codes:
@@ -52,12 +52,12 @@ class Definition2:
                     excluding_helper(descendants - included_codes)
 
         def excluding_helper(excluded_codes):
-            """Add ancestors of excluded_codes to excluded_ancestors, and pass off
+            """Add ancestors of excluded_codes to explicitly_excluded, and pass off
             handling included descendants of these ancestors to including_helper.
             """
 
             for ancestor in hierarchy.filter_to_ultimate_ancestors(excluded_codes):
-                excluded_ancestors.add(ancestor)
+                explicitly_excluded.add(ancestor)
                 descendants = hierarchy.descendants(ancestor)
 
                 if not descendants < excluded_codes:
@@ -67,7 +67,7 @@ class Definition2:
 
         including_helper(codes)
 
-        return cls(included_ancestors, excluded_ancestors)
+        return cls(explicitly_included, explicitly_excluded)
 
     def codes(self, hierarchy):
         """Return the codes defined by this Definition2."""
@@ -76,7 +76,7 @@ class Definition2:
             node
             for node in hierarchy.nodes
             if hierarchy.node_status(
-                node, self.included_ancestors, self.excluded_ancestors
+                node, self.explicitly_included, self.explicitly_excluded
             )
             in ["+", "(+)"]
         }
@@ -100,7 +100,7 @@ class Definition2:
 
         return {
             code: hierarchy.node_status(
-                code, self.included_ancestors, self.excluded_ancestors
+                code, self.explicitly_included, self.explicitly_excluded
             )
             for code in self.all_related_codes(hierarchy)
         }

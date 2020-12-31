@@ -41,7 +41,7 @@ identify==1.4.25          # via pre-commit
 importlib-metadata==1.7.0  # via flake8, pluggy, pre-commit, pytest, virtualenv
 importlib-resources==3.3.0  # via pre-commit, virtualenv
 iniconfig==1.0.1          # via pytest
-isort==5.6.4              # via -r requirements.in
+isort==5.7.0              # via -r requirements.in
 jdcal==1.4.1              # via openpyxl
 litecli==1.5.0            # via -r requirements.in
 lxml==4.6.2               # via -r requirements.in

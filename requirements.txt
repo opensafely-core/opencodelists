@@ -54,7 +54,7 @@ openpyxl==3.0.5           # via -r requirements.in
 packaging==20.4           # via pytest
 paramiko==2.7.1           # via fabric3
 pathspec==0.8.0           # via black
-pip-tools==5.4.0          # via -r requirements.in
+pip-tools==5.5.0          # via -r requirements.in
 pluggy==0.13.1            # via pytest
 pre-commit==2.9.3         # via -r requirements.in
 prompt-toolkit==3.0.5     # via litecli
@@ -76,7 +76,7 @@ pytz==2020.1              # via django
 pyyaml==5.3.1             # via pre-commit
 regex==2020.4.4           # via black
 sentry-sdk==0.19.5        # via -r requirements.in
-six==1.14.0               # via bcrypt, bleach, configobj, cryptography, fabric3, freezegun, packaging, pip-tools, pynacl, python-dateutil, structlog, virtualenv
+six==1.14.0               # via bcrypt, bleach, configobj, cryptography, fabric3, freezegun, packaging, pynacl, python-dateutil, structlog, virtualenv
 sortedcontainers==2.1.0   # via hypothesis
 sqlparse==0.3.1           # via django, django-debug-toolbar, litecli
 structlog==20.1.0         # via -r requirements.in, django-structlog

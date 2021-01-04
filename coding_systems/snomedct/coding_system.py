@@ -1,6 +1,8 @@
 import collections
 import re
 
+from django.db.models import Q
+
 from opencodelists.db_utils import query
 
 from .models import FULLY_SPECIFIED_NAME, IS_A, Concept, Description
@@ -25,9 +27,11 @@ def lookup_names(codes):
 
 def search(term):
     return set(
-        Concept.objects.filter(
-            descriptions__term__contains=term, descriptions__active=True, active=True
-        ).values_list("id", flat=True)
+        Concept.objects.filter(active=True)
+        .filter(
+            Q(descriptions__term__contains=term, descriptions__active=True) | Q(id=term)
+        )
+        .values_list("id", flat=True)
     )
 
 

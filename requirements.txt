@@ -76,16 +76,16 @@ pytz==2020.1              # via django
 pyyaml==5.3.1             # via pre-commit
 regex==2020.4.4           # via black
 sentry-sdk==0.19.5        # via -r requirements.in
-six==1.14.0               # via bcrypt, bleach, configobj, cryptography, fabric3, freezegun, packaging, pynacl, python-dateutil, structlog, virtualenv
+six==1.14.0               # via bcrypt, bleach, configobj, cryptography, fabric3, freezegun, packaging, pynacl, python-dateutil, virtualenv
 sortedcontainers==2.1.0   # via hypothesis
 sqlparse==0.3.1           # via django, django-debug-toolbar, litecli
-structlog==20.1.0         # via -r requirements.in, django-structlog
+structlog==20.2.0         # via -r requirements.in, django-structlog
 tabulate[widechars]==0.8.7  # via cli-helpers
 terminaltables==3.1.0     # via cli-helpers
 text-unidecode==1.3       # via faker
 toml==0.10.1              # via black, pre-commit, pytest
 typed-ast==1.4.1          # via black
-typing-extensions==3.7.4.3  # via black
+typing-extensions==3.7.4.3  # via black, structlog
 urllib3==1.25.9           # via sentry-sdk
 virtualenv==20.0.30       # via pre-commit
 wcwidth==0.1.9            # via prompt-toolkit, tabulate

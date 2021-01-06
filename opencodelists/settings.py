@@ -208,6 +208,8 @@ MARKDOWN_FILTER_WHITELIST_TAGS = [
     "ul",
     "li",
     "code",
+    "em",
+    "strong",
 ]
 
 

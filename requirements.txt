@@ -36,7 +36,7 @@ filelock==3.0.12          # via virtualenv
 flake8==3.8.4             # via -r requirements.in
 freezegun==0.3.15         # via pytest-freezegun
 gunicorn==20.0.4          # via -r requirements.in
-hypothesis==5.47.0        # via -r requirements.in
+hypothesis==6.0.0         # via -r requirements.in
 identify==1.4.25          # via pre-commit
 importlib-metadata==1.7.0  # via flake8, pluggy, pre-commit, pytest, virtualenv
 importlib-resources==3.3.0  # via pre-commit, virtualenv

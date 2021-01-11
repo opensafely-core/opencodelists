@@ -17,7 +17,7 @@ class CodelistBuilder extends React.Component {
       moreInfoModalCode: null,
     };
 
-    this.updateStatus = this.updateStatus.bind(this);
+    this.updateStatus = props.isEditable ? this.updateStatus.bind(this) : null;
     this.showMoreInfoModal = this.showMoreInfoModal.bind(this);
     this.hideMoreInfoModal = this.hideMoreInfoModal.bind(this);
   }

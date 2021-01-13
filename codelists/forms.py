@@ -91,8 +91,6 @@ class CodelistCreateForm(forms.Form, CSVValidationMixin):
 
 
 class CodelistUpdateForm(forms.Form):
-    name = model_field(Codelist, "name")
-    coding_system_id = model_field(Codelist, "coding_system_id")
     description = model_field(Codelist, "description")
     methodology = model_field(Codelist, "methodology")
 

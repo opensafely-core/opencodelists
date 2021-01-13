@@ -1,7 +1,5 @@
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import NON_FIELD_ERRORS
 from django.db import transaction
-from django.db.utils import IntegrityError
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 
@@ -24,7 +22,6 @@ def codelist_update(request, codelist):
 def handle_get(request, codelist):
     codelist_form = CodelistUpdateForm(
         {
-            "name": codelist.name,
             "coding_system_id": codelist.coding_system_id,
             "description": codelist.description,
             "methodology": codelist.methodology,
@@ -72,25 +69,11 @@ def handle_valid(request, codelist, codelist_form, reference_formset, signoff_fo
     save_formset(reference_formset, codelist)
     save_formset(signoff_formset, codelist)
 
-    name = codelist_form.cleaned_data["name"]
-
-    try:
-        codelist = actions.update_codelist(
-            codelist=codelist,
-            name=codelist_form.cleaned_data["name"],
-            coding_system_id=codelist_form.cleaned_data["coding_system_id"],
-            description=codelist_form.cleaned_data["description"],
-            methodology=codelist_form.cleaned_data["methodology"],
-        )
-    except IntegrityError as e:
-        assert "UNIQUE constraint failed" in str(e)
-        codelist_form.add_error(
-            NON_FIELD_ERRORS,
-            f"There is already a codelist called {name}",
-        )
-        return handle_invalid(
-            request, codelist_form, reference_formset, signoff_formset
-        )
+    codelist = actions.update_codelist(
+        codelist=codelist,
+        description=codelist_form.cleaned_data["description"],
+        methodology=codelist_form.cleaned_data["methodology"],
+    )
 
     return redirect(codelist)
 

@@ -108,11 +108,9 @@ def create_version(*, codelist, csv_data):
 
 
 @transaction.atomic
-def update_codelist(*, codelist, name, coding_system_id, description, methodology):
+def update_codelist(*, codelist, description, methodology):
     """Update a Codelist."""
 
-    codelist.name = name
-    codelist.coding_system_id = coding_system_id
     codelist.description = description
     codelist.methodology = methodology
 

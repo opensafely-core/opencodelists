@@ -38,3 +38,5 @@ repos:
     rev: 2.1.4
     hooks:
     - id: shellcheck
+
+exclude: coding_systems/snomedct/parser_utils/

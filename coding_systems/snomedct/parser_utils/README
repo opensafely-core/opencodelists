@@ -1,0 +1,13 @@
+This directory contains two ANTLR4 grammar files:
+
+* ECL.g4, for the SNOMED CT Expression Constraint Language (from https://github.com/IHTSDO/snomed-ecl-parser)
+* ECLsubset.g4, for the subset of the SNOMED CT ECL that can describe a codelist (manually created by deleting things from ECL.g4)
+
+It also contains a generated number helper files to allow the ECLsubset grammar to be
+used in Python.
+
+To regenerate these files, run:
+
+    java -jar antlr-4.9.1-complete.jar -Dlanguage=Python3 -visitor -no-listener ECLsubset.g4
+
+The .jar file was downloaded from https://www.antlr.org/download.html

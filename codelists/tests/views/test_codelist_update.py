@@ -1,6 +1,6 @@
 import datetime
 
-from opencodelists.tests.factories import OrganisationFactory, UserFactory
+from opencodelists.tests.factories import UserFactory
 
 from ..factories import CodelistFactory, ReferenceFactory, SignOffFactory
 from .assertions import (
@@ -44,7 +44,6 @@ def test_get_success(client):
     assert response.status_code == 200
 
     form = response.context_data["codelist_form"]
-    assert form.data["name"] == codelist.name
     assert form.data["coding_system_id"] == codelist.coding_system_id
     assert form.data["description"] == codelist.description
     assert form.data["methodology"] == codelist.methodology
@@ -63,8 +62,6 @@ def test_post_success(client):
     new_signoff_user = UserFactory()
 
     data = {
-        "name": "Test Codelist",
-        "coding_system_id": "snomedct",
         "description": "This is a test CHANGED",
         "methodology": "This is how we did it",
         "reference-TOTAL_FORMS": "3",
@@ -121,8 +118,6 @@ def test_post_invalid(client):
 
     # missing signoff-0-date
     data = {
-        "name": "Test Codelist",
-        "coding_system_id": "snomedct",
         "description": "This is a test",
         "methodology": "This is how we did it",
         "reference-TOTAL_FORMS": "1",
@@ -147,35 +142,3 @@ def test_post_invalid(client):
 
     # confirm we have errors from the signoff formset
     assert response.context_data["signoff_formset"].errors
-
-
-def test_post_with_duplicate_name(client):
-    organisation = OrganisationFactory()
-
-    CodelistFactory(name="Existing Codelist", owner=organisation)
-    codelist = CodelistFactory(owner=organisation)
-
-    data = {
-        "name": "Existing Codelist",
-        "coding_system_id": "snomedct",
-        "description": "This is a test CHANGED",
-        "methodology": "This is how we did it",
-        "reference-TOTAL_FORMS": "0",
-        "reference-INITIAL_FORMS": "0",
-        "reference-MIN_NUM_FORMS": "0",
-        "reference-MAX_NUM_FORMS": "1000",
-        "signoff-TOTAL_FORMS": "0",
-        "signoff-INITIAL_FORMS": "0",
-        "signoff-MIN_NUM_FORMS": "0",
-        "signoff-MAX_NUM_FORMS": "1000",
-    }
-
-    client.force_login(codelist.organisation.regular_user)
-    response = client.post(codelist.get_update_url(), data=data)
-
-    assert response.status_code == 200
-
-    # confirm we have errors from the codelist form
-    assert response.context_data["codelist_form"].errors == {
-        "__all__": ["There is already a codelist called Existing Codelist"]
-    }

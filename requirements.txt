@@ -4,6 +4,7 @@
 #
 #    pip-compile
 #
+antlr4-python3-runtime==4.9.1  # via -r requirements.in
 appdirs==1.4.3            # via black, virtualenv
 asgiref==3.2.10           # via django
 attrs==19.3.0             # via hypothesis, pytest

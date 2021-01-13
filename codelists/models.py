@@ -1,7 +1,6 @@
 from django.db import models
 from django.urls import reverse
 from django.utils.functional import cached_property
-from django.utils.text import slugify
 
 from mappings.bnfdmd.mappers import bnf_to_dmd
 from opencodelists.csv_utils import (
@@ -54,10 +53,6 @@ class Codelist(models.Model):
                 ),
             )
         ]
-
-    def save(self, *args, **kwargs):
-        self.slug = slugify(self.name)
-        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name

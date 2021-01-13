@@ -1,5 +1,6 @@
 import structlog
 from django.db import transaction
+from django.utils.text import slugify
 
 from builder import actions as builder_actions
 from opencodelists.dict_utils import invert_dict
@@ -21,13 +22,18 @@ def create_codelist(
     description,
     methodology,
     csv_data,
+    slug=None,
     references=None,
     signoffs=None,
 ):
     """Create a new codelist with a version."""
 
+    if not slug:
+        slug = slugify(name)
+
     with transaction.atomic():
         codelist = owner.codelists.create(
+            slug=slug,
             name=name,
             coding_system_id=coding_system_id,
             description=description,
@@ -50,12 +56,16 @@ def create_codelist(
 
 
 @transaction.atomic
-def create_codelist_with_codes(*, owner, name, coding_system_id, codes):
+def create_codelist_with_codes(*, owner, name, coding_system_id, codes, slug=None):
     """Create a new Codelist with a CodelistVersion with given codes."""
 
     codes = set(codes)
+    if not slug:
+        slug = slugify(name)
 
-    codelist = owner.codelists.create(name=name, coding_system_id=coding_system_id)
+    codelist = owner.codelists.create(
+        slug=slug, name=name, coding_system_id=coding_system_id
+    )
 
     coding_system = codelist.coding_system
     code_to_term = coding_system.code_to_term(codes)
@@ -74,10 +84,17 @@ def create_codelist_with_codes(*, owner, name, coding_system_id, codes):
 
 
 @transaction.atomic
-def create_codelist_from_scratch(*, owner, name, coding_system_id, draft_owner):
+def create_codelist_from_scratch(
+    *, owner, name, coding_system_id, draft_owner, slug=None
+):
     """Create a new Codelist with a draft CodelistVersion."""
 
-    codelist = owner.codelists.create(name=name, coding_system_id=coding_system_id)
+    if not slug:
+        slug = slugify(name)
+
+    codelist = owner.codelists.create(
+        slug=slug, name=name, coding_system_id=coding_system_id
+    )
     codelist.versions.create(draft_owner=draft_owner)
     return codelist
 

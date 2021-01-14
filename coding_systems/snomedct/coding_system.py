@@ -118,7 +118,7 @@ def codes_by_type(codes, hierarchy):
     """Group codes by their Type"""
     # create a lookup of code -> type
     code_to_type = {
-        code: type for code, (_, type) in code_to_term_and_type(codes).items()
+        code: type.title() for code, (_, type) in code_to_term_and_type(codes).items()
     }
 
     lookup = collections.defaultdict(list)

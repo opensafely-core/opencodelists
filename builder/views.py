@@ -107,7 +107,7 @@ def _draft(request, draft, search_slug):
     ancestor_codes = hierarchy.filter_to_ultimate_ancestors(set(displayed_codes))
     code_to_term = coding_system.code_to_term(hierarchy.nodes | set(all_codes))
     tree_tables = sorted(
-        (type.title(), sorted(codes, key=code_to_term.__getitem__))
+        (type, sorted(codes, key=code_to_term.__getitem__))
         for type, codes in coding_system.codes_by_type(
             ancestor_codes, hierarchy
         ).items()

@@ -28,7 +28,7 @@ def ancestor_relationships(codes):
     WITH RECURSIVE tree(parent_code, child_code) AS (
       SELECT parent_id AS parent_code, code AS child_code
       FROM {concept_table}
-      WHERE code IN ({placeholders}) AND parent_id
+      WHERE code IN ({placeholders}) AND parent_id IS NOT NULL
 
       UNION
 

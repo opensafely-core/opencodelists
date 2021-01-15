@@ -51,7 +51,7 @@ mccabe==0.6.1             # via flake8
 more-itertools==8.4.0     # via pytest
 mypy-extensions==0.4.3    # via black
 nodeenv==1.4.0            # via pre-commit
-openpyxl==3.0.5           # via -r requirements.in
+openpyxl==3.0.6           # via -r requirements.in
 packaging==20.4           # via pytest
 paramiko==2.7.1           # via fabric3
 pathspec==0.8.0           # via black

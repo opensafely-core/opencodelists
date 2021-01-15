@@ -137,22 +137,20 @@ function TreeRow(props) {
 
   return (
     <div className={className} data-code={code} data-path={path}>
-      {updateStatus && (
-        <div className="btn-group btn-group-sm" role="group">
-          <StatusToggle
-            code={code}
-            symbol="+"
-            status={status}
-            updateStatus={updateStatus}
-          />
-          <StatusToggle
-            code={code}
-            symbol="-"
-            status={status}
-            updateStatus={updateStatus}
-          />
-        </div>
-      )}
+      <div className="btn-group btn-group-sm" role="group">
+        <StatusToggle
+          code={code}
+          symbol="+"
+          status={status}
+          updateStatus={updateStatus}
+        />
+        <StatusToggle
+          code={code}
+          symbol="-"
+          status={status}
+          updateStatus={updateStatus}
+        />
+      </div>
 
       {showMoreInfoModal && (
         <MoreInfoButton code={code} showMoreInfoModal={showMoreInfoModal} />
@@ -191,7 +189,7 @@ function StatusToggle(props) {
   return (
     <button
       type="button"
-      onClick={updateStatus.bind(null, code, symbol)}
+      onClick={updateStatus && updateStatus.bind(null, code, symbol)}
       className={buttonClasses.join(" ")}
       data-symbol={symbol}
     >

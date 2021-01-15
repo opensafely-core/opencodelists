@@ -3,9 +3,9 @@
 <ul>
   {% for row in rows %}
   <li>
-    <a href="{% concept_url codelist.coding_system_id row.code %}" style="color: blue">
+    <span style="color: blue">
       {{ row.name }}
-    </a>
+    </span>
     (<code>{{ row.code }}</code>)
 
     {% if row.all_descendants %}
@@ -17,9 +17,9 @@
 
       {% for child in row.excluded_descendants %}
       <li>
-        <a href="{% concept_url codelist.coding_system_id child.code %}" style="color: black">
+        <span style="color: black">
           {{ child.name }}
-        </a>
+        </span>
         (<code>{{ child.code }}</code>)
       </li>
       {% endfor %}

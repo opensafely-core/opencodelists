@@ -1,6 +1,7 @@
 import os
 
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.signing import Signer
 from django.db import models
 from django.urls import reverse
@@ -129,6 +130,13 @@ class User(AbstractBaseUser):
     @property
     def url_kwargs(self):
         return {"username": self.username}
+
+    @property
+    def api_token(self):
+        try:
+            return self.auth_token.key
+        except ObjectDoesNotExist:
+            return
 
     @staticmethod
     def unsign_username(token):

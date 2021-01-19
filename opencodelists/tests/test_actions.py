@@ -89,3 +89,13 @@ def test_make_user_nonadmin_for_organisation():
 
     membership = user.get_organisation_membership(organisation)
     assert not membership.is_admin
+
+
+def test_set_api_token(organisation_admin):
+    assert organisation_admin.api_token is None
+    actions.set_api_token(user=organisation_admin)
+    assert organisation_admin.api_token is not None
+    old_token = organisation_admin.api_token
+    actions.set_api_token(user=organisation_admin)
+    assert organisation_admin.api_token is not None
+    assert organisation_admin.api_token != old_token

@@ -1,4 +1,5 @@
 import structlog
+from rest_framework.authtoken.models import Token
 
 from .models import Organisation, User
 
@@ -56,3 +57,9 @@ def make_user_nonadmin_for_organisation(*, user, organisation):
     membership = user.get_organisation_membership(organisation)
     membership.is_admin = False
     membership.save()
+
+
+def set_api_token(*, user):
+    Token.objects.filter(user=user).delete()
+    token, _ = Token.objects.get_or_create(user=user)
+    return token

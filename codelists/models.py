@@ -85,6 +85,11 @@ class Codelist(models.Model):
             f"codelists:{self.codelist_type}_version_upload", kwargs=self.url_kwargs
         )
 
+    def get_versions_api_url(self):
+        return reverse(
+            f"codelists_api:{self.codelist_type}_versions", kwargs=self.url_kwargs
+        )
+
     @property
     def url_kwargs(self):
         if self.codelist_type == "organisation":

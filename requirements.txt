@@ -4,95 +4,240 @@
 #
 #    pip-compile
 #
-antlr4-python3-runtime==4.9.1  # via -r requirements.in
-appdirs==1.4.3            # via black, virtualenv
-asgiref==3.2.10           # via django
-attrs==19.3.0             # via hypothesis, pytest
-bcrypt==3.1.7             # via paramiko
-black==20.8b1             # via -r requirements.in
-bleach==3.1.4             # via django-markdown-filter
-certifi==2020.4.5.1       # via sentry-sdk
-cffi==1.14.0              # via bcrypt, cryptography, pynacl
-cfgv==3.2.0               # via pre-commit
-cli-helpers[styles]==1.2.1  # via litecli
-click==7.1.2              # via black, litecli, pip-tools
-configobj==5.0.6          # via cli-helpers, litecli
-coverage==5.2.1           # via pytest-cov
-cryptography==3.2         # via paramiko
-dataclasses==0.7          # via black
-distlib==0.3.1            # via virtualenv
-django-cors-headers==3.6.0  # via -r requirements.in
-django-crispy-forms==1.10.0  # via -r requirements.in
-django-debug-toolbar==3.2  # via -r requirements.in
-django-extensions==3.1.0  # via -r requirements.in
-django-ipware==3.0.1      # via django-structlog
-django-markdown-filter==0.0.1  # via -r requirements.in
-django-structlog==2.1.0   # via -r requirements.in
-django==3.1.5             # via -r requirements.in, django-cors-headers, django-debug-toolbar, django-markdown-filter, django-structlog
-et-xmlfile==1.0.1         # via openpyxl
-fabric3==1.14.post1       # via -r requirements.in
-factory-boy==3.2.0        # via -r requirements.in
-faker==4.1.1              # via factory-boy
-filelock==3.0.12          # via virtualenv
-flake8==3.8.4             # via -r requirements.in
-freezegun==0.3.15         # via pytest-freezegun
-gunicorn==20.0.4          # via -r requirements.in
-hypothesis==6.0.2         # via -r requirements.in
-identify==1.4.25          # via pre-commit
-importlib-metadata==1.7.0  # via flake8, pluggy, pre-commit, pytest, virtualenv
-importlib-resources==3.3.0  # via pre-commit, virtualenv
-iniconfig==1.0.1          # via pytest
-isort==5.7.0              # via -r requirements.in
-jdcal==1.4.1              # via openpyxl
-litecli==1.5.0            # via -r requirements.in
-lxml==4.6.2               # via -r requirements.in
-markdown2==2.3.9          # via django-markdown-filter
-mccabe==0.6.1             # via flake8
-more-itertools==8.4.0     # via pytest
-mypy-extensions==0.4.3    # via black
-nodeenv==1.4.0            # via pre-commit
-openpyxl==3.0.6           # via -r requirements.in
-packaging==20.4           # via pytest
-paramiko==2.7.1           # via fabric3
-pathspec==0.8.0           # via black
-pip-tools==5.5.0          # via -r requirements.in
-pluggy==0.13.1            # via pytest
-pre-commit==2.9.3         # via -r requirements.in
-prompt-toolkit==3.0.5     # via litecli
-py==1.9.0                 # via pytest
-pycodestyle==2.6.0        # via flake8
-pycparser==2.20           # via cffi
-pyflakes==2.2.0           # via flake8
-pygments==2.6.1           # via cli-helpers, litecli
-pynacl==1.3.0             # via paramiko
-pyparsing==2.4.7          # via packaging
-pysqlite3-binary==0.4.5   # via -r requirements.in
-pytest-cov==2.11.0        # via -r requirements.in
-pytest-django==4.1.0      # via -r requirements.in
-pytest-freezegun==0.4.2   # via -r requirements.in
-pytest-subtests==0.4.0    # via -r requirements.in
-pytest==6.0.1             # via pytest-cov, pytest-django, pytest-freezegun, pytest-subtests
-python-dateutil==2.8.1    # via faker, freezegun
-pytz==2020.1              # via django
-pyyaml==5.3.1             # via pre-commit
-regex==2020.4.4           # via black
-sentry-sdk==0.19.5        # via -r requirements.in
-six==1.14.0               # via bcrypt, bleach, configobj, cryptography, fabric3, freezegun, packaging, pynacl, python-dateutil, virtualenv
-sortedcontainers==2.1.0   # via hypothesis
-sqlparse==0.3.1           # via django, django-debug-toolbar, litecli
-structlog==20.2.0         # via -r requirements.in, django-structlog
-tabulate[widechars]==0.8.7  # via cli-helpers
-terminaltables==3.1.0     # via cli-helpers
-text-unidecode==1.3       # via faker
-toml==0.10.1              # via black, pre-commit, pytest
-typed-ast==1.4.1          # via black
-typing-extensions==3.7.4.3  # via black, structlog
-urllib3==1.25.9           # via sentry-sdk
-virtualenv==20.0.30       # via pre-commit
-wcwidth==0.1.9            # via prompt-toolkit, tabulate
-webencodings==0.5.1       # via bleach
-whitenoise==5.2.0         # via -r requirements.in
-zipp==3.4.0               # via importlib-metadata, importlib-resources
+antlr4-python3-runtime==4.9.1
+    # via -r requirements.in
+appdirs==1.4.3
+    # via
+    #   black
+    #   virtualenv
+asgiref==3.2.10
+    # via django
+attrs==19.3.0
+    # via
+    #   hypothesis
+    #   pytest
+bcrypt==3.1.7
+    # via paramiko
+black==20.8b1
+    # via -r requirements.in
+bleach==3.1.4
+    # via django-markdown-filter
+certifi==2020.4.5.1
+    # via sentry-sdk
+cffi==1.14.0
+    # via
+    #   bcrypt
+    #   cryptography
+    #   pynacl
+cfgv==3.2.0
+    # via pre-commit
+cli-helpers[styles]==1.2.1
+    # via litecli
+click==7.1.2
+    # via
+    #   black
+    #   litecli
+    #   pip-tools
+configobj==5.0.6
+    # via
+    #   cli-helpers
+    #   litecli
+coverage==5.2.1
+    # via pytest-cov
+cryptography==3.2
+    # via paramiko
+dataclasses==0.7
+    # via black
+distlib==0.3.1
+    # via virtualenv
+django-cors-headers==3.6.0
+    # via -r requirements.in
+django-crispy-forms==1.10.0
+    # via -r requirements.in
+django-debug-toolbar==3.2
+    # via -r requirements.in
+django-extensions==3.1.0
+    # via -r requirements.in
+django-ipware==3.0.1
+    # via django-structlog
+django-markdown-filter==0.0.1
+    # via -r requirements.in
+django-structlog==2.1.0
+    # via -r requirements.in
+django==3.1.5
+    # via
+    #   -r requirements.in
+    #   django-cors-headers
+    #   django-debug-toolbar
+    #   django-markdown-filter
+    #   django-structlog
+et-xmlfile==1.0.1
+    # via openpyxl
+fabric3==1.14.post1
+    # via -r requirements.in
+factory-boy==3.2.0
+    # via -r requirements.in
+faker==4.1.1
+    # via factory-boy
+filelock==3.0.12
+    # via virtualenv
+flake8==3.8.4
+    # via -r requirements.in
+freezegun==0.3.15
+    # via pytest-freezegun
+gunicorn==20.0.4
+    # via -r requirements.in
+hypothesis==6.0.2
+    # via -r requirements.in
+identify==1.4.25
+    # via pre-commit
+importlib-metadata==1.7.0
+    # via
+    #   flake8
+    #   pluggy
+    #   pre-commit
+    #   pytest
+    #   virtualenv
+importlib-resources==3.3.0
+    # via
+    #   pre-commit
+    #   virtualenv
+iniconfig==1.0.1
+    # via pytest
+isort==5.7.0
+    # via -r requirements.in
+jdcal==1.4.1
+    # via openpyxl
+litecli==1.5.0
+    # via -r requirements.in
+lxml==4.6.2
+    # via -r requirements.in
+markdown2==2.3.9
+    # via django-markdown-filter
+mccabe==0.6.1
+    # via flake8
+more-itertools==8.4.0
+    # via pytest
+mypy-extensions==0.4.3
+    # via black
+nodeenv==1.4.0
+    # via pre-commit
+openpyxl==3.0.6
+    # via -r requirements.in
+packaging==20.4
+    # via pytest
+paramiko==2.7.1
+    # via fabric3
+pathspec==0.8.0
+    # via black
+pip-tools==5.5.0
+    # via -r requirements.in
+pluggy==0.13.1
+    # via pytest
+pre-commit==2.9.3
+    # via -r requirements.in
+prompt-toolkit==3.0.5
+    # via litecli
+py==1.9.0
+    # via pytest
+pycodestyle==2.6.0
+    # via flake8
+pycparser==2.20
+    # via cffi
+pyflakes==2.2.0
+    # via flake8
+pygments==2.6.1
+    # via
+    #   cli-helpers
+    #   litecli
+pynacl==1.3.0
+    # via paramiko
+pyparsing==2.4.7
+    # via packaging
+pysqlite3-binary==0.4.5
+    # via -r requirements.in
+pytest-cov==2.11.0
+    # via -r requirements.in
+pytest-django==4.1.0
+    # via -r requirements.in
+pytest-freezegun==0.4.2
+    # via -r requirements.in
+pytest-subtests==0.4.0
+    # via -r requirements.in
+pytest==6.0.1
+    # via
+    #   pytest-cov
+    #   pytest-django
+    #   pytest-freezegun
+    #   pytest-subtests
+python-dateutil==2.8.1
+    # via
+    #   faker
+    #   freezegun
+pytz==2020.1
+    # via django
+pyyaml==5.3.1
+    # via pre-commit
+regex==2020.4.4
+    # via black
+sentry-sdk==0.19.5
+    # via -r requirements.in
+six==1.14.0
+    # via
+    #   bcrypt
+    #   bleach
+    #   configobj
+    #   cryptography
+    #   fabric3
+    #   freezegun
+    #   packaging
+    #   pynacl
+    #   python-dateutil
+    #   virtualenv
+sortedcontainers==2.1.0
+    # via hypothesis
+sqlparse==0.3.1
+    # via
+    #   django
+    #   django-debug-toolbar
+    #   litecli
+structlog==20.2.0
+    # via
+    #   -r requirements.in
+    #   django-structlog
+tabulate[widechars]==0.8.7
+    # via cli-helpers
+terminaltables==3.1.0
+    # via cli-helpers
+text-unidecode==1.3
+    # via faker
+toml==0.10.1
+    # via
+    #   black
+    #   pre-commit
+    #   pytest
+typed-ast==1.4.1
+    # via black
+typing-extensions==3.7.4.3
+    # via
+    #   black
+    #   structlog
+urllib3==1.25.9
+    # via sentry-sdk
+virtualenv==20.0.30
+    # via pre-commit
+wcwidth==0.1.9
+    # via
+    #   prompt-toolkit
+    #   tabulate
+webencodings==0.5.1
+    # via bleach
+whitenoise==5.2.0
+    # via -r requirements.in
+zipp==3.4.0
+    # via
+    #   importlib-metadata
+    #   importlib-resources
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip

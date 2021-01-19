@@ -115,6 +115,32 @@ def test_create_codelist_from_scratch():
     assert clv.draft_owner == user
 
 
+def test_create_version_with_codes(new_style_codelist):
+    clv = actions.create_version_with_codes(
+        codelist=new_style_codelist,
+        codes={"128133004"},
+        tag="test",
+    )
+    assert clv.codes == ("128133004",)
+    assert clv.tag == "test"
+
+    with pytest.raises(ValueError):
+        actions.create_version_with_codes(
+            codelist=new_style_codelist, codes={"128133004"}
+        )
+
+    with pytest.raises(ValueError):
+        actions.create_version_with_codes(codelist=new_style_codelist, codes=set())
+
+
+def test_create_version_from_ecl_expr(new_style_codelist):
+    clv = actions.create_version_from_ecl_expr(
+        codelist=new_style_codelist, expr="<<429554009", tag="test"
+    )
+    assert clv.codes == ("202855006", "429554009", "439656005")
+    assert clv.tag == "test"
+
+
 def test_update_draft_version():
     clv = factories.create_draft_version()
     actions.update_version(

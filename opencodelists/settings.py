@@ -66,6 +66,8 @@ INSTALLED_APPS = [
     "django_extensions",
     "debug_toolbar",
     "markdown_filter",
+    "rest_framework",
+    "rest_framework.authtoken",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -231,4 +233,16 @@ MESSAGE_TAGS = {
     messages.SUCCESS: "alert-success",
     messages.WARNING: "alert-warning",
     messages.ERROR: "alert-danger",
+}
+
+
+# DRF
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.TokenAuthentication",
+    ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
 }

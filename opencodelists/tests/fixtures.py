@@ -75,6 +75,7 @@ from opencodelists.actions import (
     create_organisation,
     create_user,
     make_user_admin_for_organisation,
+    set_api_token,
 )
 
 SNOMED_FIXTURES_PATH = Path(settings.BASE_DIR, "coding_systems", "snomedct", "fixtures")
@@ -181,6 +182,11 @@ def build_fixtures():
     add_user_to_organisation(
         user=organisation_user, organisation=organisation, date_joined="2020-02-29"
     )
+    set_api_token(user=organisation_user)
+
+    # user
+    # - an alias for organisation_user
+    user = organisation_user
 
     # user_without_organisation
     # - does not belong to an organisation
@@ -191,10 +197,7 @@ def build_fixtures():
         email="charlie@example.co.uk",
         is_active=True,
     )
-
-    # user
-    # - an alias for user_without_organisation
-    user = user_without_organisation
+    set_api_token(user=user_without_organisation)
 
     # old_style_codelist
     # - owned by organisation

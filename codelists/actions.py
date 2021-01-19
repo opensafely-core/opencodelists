@@ -3,6 +3,7 @@ from django.db import transaction
 from django.utils.text import slugify
 
 from builder import actions as builder_actions
+from coding_systems.snomedct import ecl_parser
 from opencodelists.dict_utils import invert_dict
 from opencodelists.models import User
 
@@ -122,6 +123,71 @@ def create_version(*, codelist, csv_data):
     version = codelist.versions.create(csv_data=csv_data)
     logger.info("Created Version", version_pk=version.pk)
     return version
+
+
+@transaction.atomic
+def create_version_with_codes(
+    *, codelist, codes, tag=None, hierarchy=None, definition=None
+):
+    """Create a new version of a codelist with given codes.
+
+    Raises ValueError if codes is empty or is the same as the codelist's previous
+    version.
+
+    `hierarchy` and `definition` may be passed in if they have already been calculated.
+    """
+
+    if not codes:
+        raise ValueError("No codes")
+
+    prev_clv = codelist.versions.order_by("id").last()
+    if set(codes) == set(prev_clv.codes):
+        raise ValueError("No difference to previous version")
+
+    next_clv = codelist.versions.create(is_draft=prev_clv.is_draft, tag=tag)
+
+    if definition is None:
+        hierarchy = Hierarchy.from_codes(codelist.coding_system, codes)
+        definition = Definition2.from_codes(codes, hierarchy)
+
+    CodeObj.objects.bulk_create(
+        CodeObj(
+            version=next_clv,
+            code=node,
+            status=hierarchy.node_status(
+                node, definition.explicitly_included, definition.explicitly_excluded
+            ),
+        )
+        for node in hierarchy.nodes
+        if node in codes
+    )
+
+    return next_clv
+
+
+def create_version_from_ecl_expr(*, codelist, expr, tag=None):
+    """Create a new version of a codelist from given ECL expression.
+
+    Raises ValueError if expression is empty or gives the same as the codelist's
+    previous version.
+    """
+
+    try:
+        parsed_ecl = ecl_parser.handle(expr)
+    except ecl_parser.ParseError as e:
+        raise ValueError(str(e))
+
+    included = set(parsed_ecl["included"])
+    excluded = set(parsed_ecl["excluded"])
+    definition = Definition2(included, excluded)
+    hierarchy = Hierarchy.from_codes(codelist.coding_system, included | excluded)
+    return create_version_with_codes(
+        codelist=codelist,
+        codes=definition.codes(hierarchy),
+        tag=tag,
+        hierarchy=hierarchy,
+        definition=definition,
+    )
 
 
 @transaction.atomic

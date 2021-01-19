@@ -66,6 +66,8 @@ INSTALLED_APPS = [
     "django_extensions",
     "debug_toolbar",
     "markdown_filter",
+    "rest_framework",
+    "rest_framework.authtoken",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",

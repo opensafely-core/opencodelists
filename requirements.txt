@@ -71,6 +71,9 @@ django==3.1.5
     #   django-debug-toolbar
     #   django-markdown-filter
     #   django-structlog
+    #   djangorestframework
+djangorestframework==3.12.2
+    # via -r requirements.in
 et-xmlfile==1.0.1
     # via openpyxl
 fabric3==1.14.post1

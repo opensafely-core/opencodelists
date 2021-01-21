@@ -245,7 +245,7 @@ class CodelistVersion(models.Model):
             return self._new_style_codes()
 
     def _old_style_codes(self):
-        if self.coding_system_id in ["ctv3", "ctv3tpp", "snomedct"]:
+        if self.coding_system_id in ["ctv3", "ctv3tpp", "icd10", "snomedct"]:
             headers, *rows = self.table
 
             for header in ["CTV3ID", "CTV3Code", "ctv3_id", "snomedct_id", "id"]:

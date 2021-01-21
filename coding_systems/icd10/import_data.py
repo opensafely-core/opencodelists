@@ -20,6 +20,14 @@ def load_concepts(doc):
     root = doc.getroot()
 
     for e in root.findall("Class"):
+        code = e.get("code")
+        kind = e.get("kind")
+
+        if kind == "category":
+            if len(code) == 5:
+                assert code[3] == "."
+                code = code.replace(".", "")
+
         label = e.find("Rubric[@kind='preferredLong']/Label")
         if label is None:
             label = e.find("Rubric[@kind='preferred']/Label")
@@ -32,8 +40,8 @@ def load_concepts(doc):
             parent_id = None
 
         yield {
-            "code": e.get("code"),
-            "kind": e.get("kind"),
+            "code": code,
+            "kind": kind,
             "term": term,
             "parent_id": parent_id,
         }

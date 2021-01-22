@@ -370,3 +370,15 @@ class Reference(models.Model):
     )
     text = models.CharField(max_length=255)
     url = models.URLField()
+
+
+class Collaboration(models.Model):
+    codelist = models.ForeignKey(
+        "Codelist", on_delete=models.CASCADE, related_name="collaborations"
+    )
+    collaborator = models.ForeignKey(
+        "opencodelists.User", on_delete=models.CASCADE, related_name="collaborations"
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)

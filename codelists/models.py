@@ -112,6 +112,12 @@ class Codelist(models.Model):
     def is_new_style(self):
         return self.versions.filter(csv_data__isnull=True).exists()
 
+    def can_be_edited_by(self, user):
+        if self.codelist_type == "user":
+            return user == self.user
+        else:
+            return user.is_member(self.organisation)
+
 
 class CodelistVersion(models.Model):
     codelist = models.ForeignKey(
@@ -300,12 +306,6 @@ class CodelistVersion(models.Model):
             return "{}-{}-{}".format(
                 self.codelist.organisation_id, self.codelist.slug, self.tag_or_hash
             )
-
-    def can_be_edited_by(self, user):
-        if self.codelist_type == "user":
-            return user == self.user
-        else:
-            return user.is_member(self.organisation)
 
 
 class CodeObj(models.Model):

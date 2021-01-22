@@ -99,14 +99,20 @@ def require_permission(view_fn):
 
     @wraps(view_fn)
     def wrapped_view(request, obj, *args, **kwargs):
-        if obj.organisation:
-            assert not obj.user
-            if not request.user.is_member(obj.organisation):
-                return redirect("/")
+        if isinstance(obj, CodelistVersion):
+            test = obj.codelist.can_be_edited_by
+        elif isinstance(obj, Codelist):
+            test = obj.can_be_edited_by
+        elif isinstance(obj, User):
+            test = lambda user: user == obj  # noqa
+        elif isinstance(obj, Organisation):
+            test = lambda user: user.is_member(obj)  # noqa
         else:
-            assert obj.user
-            if request.user != obj.user:
-                return redirect("/")
-        return view_fn(request, obj, *args, **kwargs)
+            assert False, obj
+
+        if test(request.user):
+            return view_fn(request, obj, *args, **kwargs)
+        else:
+            return redirect("/")
 
     return wrapped_view

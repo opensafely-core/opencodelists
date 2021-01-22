@@ -62,6 +62,7 @@ from django.db.models import Model
 
 from builder.actions import create_search, save, update_code_statuses
 from codelists.actions import (
+    add_collaborator,
     create_codelist,
     create_codelist_from_scratch,
     create_codelist_with_codes,
@@ -188,13 +189,22 @@ def build_fixtures():
     # - an alias for organisation_user
     user = organisation_user
 
+    # collaborator
+    # - is collaborator on new_style_codelist
+    collaborator = create_user(
+        username="charlie",
+        name="Charlie",
+        email="charlie@example.co.uk",
+        is_active=True,
+    )
+
     # user_without_organisation
     # - does not belong to an organisation
     # - has no codelists
     user_without_organisation = create_user(
-        username="charlie",
-        name="Charlie",
-        email="charlie@example.co.uk",
+        username="dave",
+        name="Dave",
+        email="dave@example.co.uk",
         is_active=True,
     )
     set_api_token(user=user_without_organisation)
@@ -225,6 +235,7 @@ def build_fixtures():
 
     # new_style_codelist
     # - belongs to organisation
+    # - is collaborated on by collaborator
     # - has four versions:
     #   - version_with_no_searches
     #   - version_with_some_searches
@@ -322,6 +333,11 @@ def build_fixtures():
     # Check that this version has the expected codes
     check_expected_codes(version_with_complete_searches, disorder_of_elbow_codes)
 
+    # codelist_with_collaborator
+    # - an alias for new_style_codelist
+    codelist_with_collaborator = new_style_codelist
+    add_collaborator(codelist=codelist_with_collaborator, collaborator=collaborator)
+
     # codelist_from_scratch
     # - belongs to organisation
     # - has single version, being edited:
@@ -415,6 +431,7 @@ disorder_of_elbow_excl_arthritis_csv_data_no_header = build_fixture(
 organisation = build_fixture("organisation")
 organisation_admin = build_fixture("organisation_admin")
 organisation_user = build_fixture("organisation_user")
+collaborator = build_fixture("collaborator")
 user_without_organisation = build_fixture("user_without_organisation")
 user = build_fixture("user")
 old_style_codelist = build_fixture("old_style_codelist")
@@ -424,6 +441,7 @@ version_with_no_searches = build_fixture("version_with_no_searches")
 version_with_some_searches = build_fixture("version_with_some_searches")
 version_with_complete_searches = build_fixture("version_with_complete_searches")
 version_with_excluded_codes = build_fixture("version_with_excluded_codes")
+codelist_with_collaborator = build_fixture("codelist_with_collaborator")
 codelist_from_scratch = build_fixture("codelist_from_scratch")
 version_from_scratch = build_fixture("version_from_scratch")
 user_codelist = build_fixture("user_codelist")

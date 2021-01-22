@@ -114,16 +114,6 @@ class User(AbstractBaseUser):
         membership = self.get_organisation_membership(organisation)
         return membership and membership.is_admin
 
-    @property
-    def organisation(self):
-        # Required for duck-typing in codelists.views.decorators.require_permission.
-        return None
-
-    @property
-    def user(self):
-        # Required for duck-typing in codelists.views.decorators.require_permission.
-        return self
-
     def get_codelist_create_url(self):
         return reverse("codelists:user_codelist_create", kwargs=self.url_kwargs)
 
@@ -164,11 +154,6 @@ class Organisation(models.Model):
     def organisation(self):
         # Required for duck-typing in codelists.views.decorators.require_permission.
         return self
-
-    @property
-    def user(self):
-        # Required for duck-typing in codelists.views.decorators.require_permission.
-        return None
 
     def get_codelist_create_url(self):
         return reverse("codelists:organisation_codelist_create", kwargs=self.url_kwargs)

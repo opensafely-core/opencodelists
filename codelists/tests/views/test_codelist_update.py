@@ -142,3 +142,24 @@ def test_post_invalid(client):
 
     # confirm we have errors from the signoff formset
     assert response.context_data["signoff_formset"].errors
+
+
+def test_collaborator_can_post(client, codelist_with_collaborator, collaborator):
+    data = {
+        "description": "This is a test CHANGED",
+        "methodology": "This is how we did it",
+        "reference-TOTAL_FORMS": "3",
+        "reference-INITIAL_FORMS": "0",
+        "reference-MIN_NUM_FORMS": "0",
+        "reference-MAX_NUM_FORMS": "1000",
+        "signoff-TOTAL_FORMS": "3",
+        "signoff-INITIAL_FORMS": "0",
+        "signoff-MIN_NUM_FORMS": "0",
+        "signoff-MAX_NUM_FORMS": "1000",
+    }
+
+    client.force_login(collaborator)
+    response = client.post(codelist_with_collaborator.get_update_url(), data=data)
+
+    assert response.status_code == 302
+    assert response.url == codelist_with_collaborator.get_absolute_url()

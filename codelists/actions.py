@@ -291,3 +291,9 @@ def export_to_builder(*, version, owner):
     assert not draft.code_objs.filter(status="?").exists()
 
     return draft
+
+
+def add_collaborator(*, codelist, collaborator):
+    """Add collaborator to codelist."""
+
+    codelist.collaborations.create(collaborator=collaborator)

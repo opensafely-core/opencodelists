@@ -112,6 +112,15 @@ class Codelist(models.Model):
     def is_new_style(self):
         return self.versions.filter(csv_data__isnull=True).exists()
 
+    def can_be_edited_by(self, user):
+        if self.collaborations.filter(collaborator=user).exists():
+            return True
+
+        if self.codelist_type == "user":
+            return user == self.user
+        else:
+            return user.is_member(self.organisation)
+
 
 class CodelistVersion(models.Model):
     codelist = models.ForeignKey(
@@ -301,12 +310,6 @@ class CodelistVersion(models.Model):
                 self.codelist.organisation_id, self.codelist.slug, self.tag_or_hash
             )
 
-    def can_be_edited_by(self, user):
-        if self.codelist_type == "user":
-            return user == self.user
-        else:
-            return user.is_member(self.organisation)
-
 
 class CodeObj(models.Model):
     STATUS_CHOICES = [
@@ -370,3 +373,15 @@ class Reference(models.Model):
     )
     text = models.CharField(max_length=255)
     url = models.URLField()
+
+
+class Collaboration(models.Model):
+    codelist = models.ForeignKey(
+        "Codelist", on_delete=models.CASCADE, related_name="collaborations"
+    )
+    collaborator = models.ForeignKey(
+        "opencodelists.User", on_delete=models.CASCADE, related_name="collaborations"
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)

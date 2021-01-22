@@ -12,7 +12,7 @@ def test_get_for_organisation_user(client, organisation_user):
 
 def test_get_for_user_without_organisation(client, user_without_organisation):
     client.force_login(user_without_organisation)
-    response = client.get("/users/charlie/new-codelist/")
+    response = client.get("/users/dave/new-codelist/")
     assert response.status_code == 200
 
 

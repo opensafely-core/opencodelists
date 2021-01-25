@@ -47,6 +47,7 @@ for subpath, view in [
     ("<codelist_slug>/<tag_or_hash>/", views.version),
     ("<codelist_slug>/<tag_or_hash>/create-new-version/", views.version_create),
     ("<codelist_slug>/<tag_or_hash>/publish/", views.version_publish),
+    ("<codelist_slug>/<tag_or_hash>/diff/<other_tag_or_hash>", views.version_diff),
     ("<codelist_slug>/<tag_or_hash>/download.csv", views.version_download),
     ("<codelist_slug>/<tag_or_hash>/definition.csv", views.version_download_definition),
     ("<codelist_slug>/<tag_or_hash>/dmd-download.csv", views.version_dmd_download),

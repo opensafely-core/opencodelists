@@ -202,6 +202,11 @@ class CodelistVersion(models.Model):
     def get_builder_url(self, view_name, *args):
         return reverse(f"builder:{view_name}", args=[self.hash] + list(args))
 
+    def get_diff_url(self, other_clv):
+        kwargs = self.url_kwargs
+        kwargs["other_tag_or_hash"] = other_clv.tag_or_hash
+        return reverse(f"codelists:{self.codelist_type}_version_diff", kwargs=kwargs)
+
     @property
     def url_kwargs(self):
         kwargs = self.codelist.url_kwargs
@@ -227,6 +232,9 @@ class CodelistVersion(models.Model):
     @property
     def codelist_type(self):
         return self.codelist.codelist_type
+
+    def full_slug(self):
+        return f"{self.codelist.full_slug()}/{self.tag_or_hash}"
 
     @cached_property
     def table(self):

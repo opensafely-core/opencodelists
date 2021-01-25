@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<h1>Diff view</h1>
+
+<div class="row">
+        <div class="col-md-3 col-lg-2">
+                <dl>
+                        <dt>LHS</dt>
+                        <dd>{{ lhs.full_slug }}</dd>
+                        <dt>RHS</dt>
+                        <dd>{{ rhs.full_slug }}</dd>
+                        <dt>Codes in LHS</dt>
+                        <dd>{{ lhs_codes|length }}</dd>
+                        <dt>Codes in LHS only</dt>
+                        <dd>{{ lhs_only_codes|length }}</dd>
+                        <dt>Codes in RHS</dt>
+                        <dd>{{ rhs_codes|length }}</dd>
+                        <dt>Codes in RHS only</dt>
+                        <dd>{{ rhs_only_codes|length }}</dd>
+                        <dt>Codes in common</dt>
+                        <dd>{{ common_codes|length }}</dd>
+                </dl>
+        </div>
+        <div class="col">
+                {% if lhs_only_codes %}
+                <h2>Codes in LHS only</h2>
+                <ul>
+                {% for record in lhs_only_summary %}
+                <li>
+                        {{ record.term }} (<code>{{ record.code }}</code>)
+                        {% if record.descendants %}with these descendants{% endif %}
+                </li>
+                <ul>
+                {% for descendant in record.descendants %}
+                <li>{{ descendant.term }} (<code>{{ descendant.code }}</code>)</li>
+                {% endfor %}
+                </ul>
+                {% endfor %}
+                </ul>
+                {% endif %}
+
+                {% if rhs_only_codes %}
+                <h2>Codes in RHS only</h2>
+                <ul>
+                {% for record in rhs_only_summary %}
+                <li>
+                        {{ record.term }} (<code>{{ record.code }}</code>)
+                        {% if record.descendants %}with these descendants{% endif %}
+                </li>
+                <ul>
+                {% for descendant in record.descendants %}
+                <li>{{ descendant.term }} (<code>{{ descendant.code }}</code>)</li>
+                {% endfor %}
+                </ul>
+                {% endfor %}
+                </ul>
+                {% endif %}
+
+                <h2>Codes in common</h2>
+                <ul>
+                {% for record in common_summary %}
+                <li>
+                        {{ record.term }} (<code>{{ record.code }}</code>)
+                        {% if record.descendants %}with these descendants{% endif %}
+                </li>
+                <ul>
+                {% for descendant in record.descendants %}
+                <li>{{ descendant.term }} (<code>{{ descendant.code }}</code>)</li>
+                {% endfor %}
+                </ul>
+                {% endfor %}
+                </ul>
+        </div>
+</div>
+
+
+{% endblock %}

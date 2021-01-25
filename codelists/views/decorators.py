@@ -66,14 +66,15 @@ def load_version(view_fn):
         tag_or_hash,
         organisation_slug=None,
         username=None,
+        **view_kwargs,
     ):
-        kwargs = {"codelist__slug": codelist_slug}
+        query_kwargs = {"codelist__slug": codelist_slug}
         if organisation_slug:
             assert not username
-            kwargs["codelist__organisation_id"] = organisation_slug
+            query_kwargs["codelist__organisation_id"] = organisation_slug
         else:
             assert username
-            kwargs["codelist__user_id"] = username
+            query_kwargs["codelist__user_id"] = username
 
         q = Q(tag=tag_or_hash)
         try:
@@ -83,13 +84,13 @@ def load_version(view_fn):
         else:
             q |= Q(id=id)
 
-        clv = get_object_or_404(CodelistVersion.objects.filter(q), **kwargs)
+        clv = get_object_or_404(CodelistVersion.objects.filter(q), **query_kwargs)
 
         if clv.draft_owner:
             # TODO test this properly
             return redirect(clv.get_builder_url("draft"))
         else:
-            return view_fn(request, clv)
+            return view_fn(request, clv, **view_kwargs)
 
     return wrapped_view
 

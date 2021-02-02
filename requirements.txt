@@ -159,7 +159,7 @@ pyparsing==2.4.7
     # via packaging
 pysqlite3-binary==0.4.5
     # via -r requirements.in
-pytest-cov==2.11.0
+pytest-cov==2.11.1
     # via -r requirements.in
 pytest-django==4.1.0
     # via -r requirements.in

@@ -140,6 +140,21 @@ def test_create_version_from_ecl_expr(new_style_codelist):
     assert clv.codes == ("202855006", "429554009", "439656005")
     assert clv.tag == "test"
 
+    clv = actions.create_version_from_ecl_expr(
+        codelist=new_style_codelist, expr="<429554009"
+    )
+    assert clv.codes == ("202855006", "439656005")
+
+    clv = actions.create_version_from_ecl_expr(
+        codelist=new_style_codelist, expr="429554009"
+    )
+    assert clv.codes == ("429554009",)
+
+    clv = actions.create_version_from_ecl_expr(
+        codelist=new_style_codelist, expr="<<429554009 MINUS 202855006"
+    )
+    assert clv.codes == ("429554009", "439656005")
+
 
 def test_update_draft_version():
     clv = factories.create_draft_version()

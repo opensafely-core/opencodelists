@@ -14,9 +14,6 @@ where concept_ref of the form:
 and operator is one of < (ie include all descendants) or << (ie include self and all
 descendants).
 
-We cannot handle < properly yet, but in all cases seen so far, the self that is not
-included is for something that will never be coded.
-
 The parser will accept more complex expressions, but these are likely to be meaningless
 (eg (a MINUS b) MINUS (c MINUS d)) and will trigger an exception in `handle()`.
 """
@@ -52,9 +49,7 @@ def handle_expr_or_or(node):
 
 def handle_expr(node):
     assert node["operator"] in [None, "<<", "<"]
-    if node["operator"] == "<":
-        print(f"Warning: handling descendantof token for {node['value']}")
-    return {node["value"]}
+    return {(node["operator"], node["value"])}
 
 
 def handle_or(node):

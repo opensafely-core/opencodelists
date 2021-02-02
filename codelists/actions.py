@@ -177,10 +177,45 @@ def create_version_from_ecl_expr(*, codelist, expr, tag=None):
     except ecl_parser.ParseError as e:
         raise ValueError(str(e))
 
-    included = set(parsed_ecl["included"])
-    excluded = set(parsed_ecl["excluded"])
-    definition = Definition2(included, excluded)
-    hierarchy = Hierarchy.from_codes(codelist.coding_system, included | excluded)
+    codes = {item[1] for item in parsed_ecl["included"]} | {
+        item[1] for item in parsed_ecl["excluded"]
+    }
+    hierarchy = Hierarchy.from_codes(codelist.coding_system, codes)
+
+    explicitly_included = set()
+    explicitly_excluded = set()
+
+    for operator, code in parsed_ecl["included"]:
+        if operator == "<<":
+            # code is included with all descendants
+            explicitly_included.add(code)
+        elif operator == "<":
+            # code is not included, but all children are
+            for child in hierarchy.child_map.get(code, []):
+                explicitly_included.add(child)
+        else:
+            assert operator is None
+            # code is included, but children are not
+            explicitly_included.add(code)
+            for child in hierarchy.child_map.get(code, []):
+                explicitly_excluded.add(child)
+
+    for operator, code in parsed_ecl["excluded"]:
+        if operator == "<<":
+            # code is excluded with all descendants
+            explicitly_excluded.add(code)
+        elif operator == "<":
+            # code is not excluded, but all children are
+            for child in hierarchy.child_map.get(code, []):
+                explicitly_excluded.add(child)
+        else:
+            assert operator is None
+            # code is excluded, but children are not
+            explicitly_excluded.add(code)
+            for child in hierarchy.child_map.get(code, []):
+                explicitly_included.add(child)
+
+    definition = Definition2(explicitly_included, explicitly_excluded)
     return create_version_with_codes(
         codelist=codelist,
         codes=definition.codes(hierarchy),

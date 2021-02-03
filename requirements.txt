@@ -20,7 +20,7 @@ bcrypt==3.1.7
     # via paramiko
 black==20.8b1
     # via -r requirements.in
-bleach==3.1.4
+bleach==3.3.0
     # via django-markdown-filter
 certifi==2020.4.5.1
     # via sentry-sdk
@@ -128,7 +128,9 @@ nodeenv==1.4.0
 openpyxl==3.0.6
     # via -r requirements.in
 packaging==20.4
-    # via pytest
+    # via
+    #   bleach
+    #   pytest
 paramiko==2.7.1
     # via fabric3
 pathspec==0.8.0

@@ -139,7 +139,7 @@ pip-tools==5.5.0
     # via -r requirements.in
 pluggy==0.13.1
     # via pytest
-pre-commit==2.9.3
+pre-commit==2.10.0
     # via -r requirements.in
 prompt-toolkit==3.0.5
     # via litecli

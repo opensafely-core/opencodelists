@@ -26,9 +26,12 @@ def version(request, clv):
         hierarchy = Hierarchy.from_codes(coding_system, clv.all_related_codes)
         parent_map = {p: list(cc) for p, cc in hierarchy.parent_map.items()}
         child_map = {c: list(pp) for c, pp in hierarchy.child_map.items()}
-        code_to_term = coding_system.code_to_term(hierarchy.nodes)
+        code_to_term = coding_system.code_to_term(
+            hierarchy.nodes | set(clv.all_related_codes)
+        )
         code_to_status = {
-            code: "+" if code in clv.codes else "-" for code in hierarchy.nodes
+            code: "+" if code in clv.codes else "-"
+            for code in hierarchy.nodes | set(clv.all_related_codes)
         }
         ancestor_codes = hierarchy.filter_to_ultimate_ancestors(
             set(clv.codes) & hierarchy.nodes

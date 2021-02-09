@@ -1,6 +1,3 @@
-from .definition import Definition
-
-
 class Codeset:
     r"""A Codeset represents a set of codes within the context of part of a coding system
     hierarchy.
@@ -52,10 +49,40 @@ class Codeset:
     def from_codes(cls, codes, hierarchy):
         """Build Codeset from set of codes and hierarchy."""
 
-        definition = Definition.from_codes(codes, hierarchy)
-        codeset = cls.from_definition(
-            definition.explicitly_included, definition.explicitly_excluded, hierarchy
-        )
+        directly_included = set()
+        directly_excluded = set()
+
+        def including_helper(included_codes):
+            """Add ancestors of included_codes to directly_included, and pass off
+            handling excluded descendants of these ancestors to excluding_helper.
+            """
+
+            for ancestor in hierarchy.filter_to_ultimate_ancestors(included_codes):
+                directly_included.add(ancestor)
+                descendants = hierarchy.descendants(ancestor)
+
+                if not descendants < included_codes:
+                    # Some of this ancestor's descendants are to be excluded (with their
+                    # descendants).
+                    excluding_helper(descendants - included_codes)
+
+        def excluding_helper(excluded_codes):
+            """Add ancestors of excluded_codes to directly_excluded, and pass off
+            handling included descendants of these ancestors to including_helper.
+            """
+
+            for ancestor in hierarchy.filter_to_ultimate_ancestors(excluded_codes):
+                directly_excluded.add(ancestor)
+                descendants = hierarchy.descendants(ancestor)
+
+                if not descendants < excluded_codes:
+                    # Some of this ancestor's descendants are to be included (with their
+                    # descendants).
+                    including_helper(descendants - excluded_codes)
+
+        including_helper(codes)
+
+        codeset = cls.from_definition(directly_included, directly_excluded, hierarchy)
         assert sorted(codeset.codes()) == sorted(codes)
         return codeset
 
@@ -80,8 +107,29 @@ class Codeset:
         TODO: rename to `defining_tree`.
         """
 
-        definition = Definition.from_codes(self.codes(), self.hierarchy)
-        return definition.tree(self.hierarchy)
+        def including_helper(directly_included, directly_excluded):
+            tree = {}
+            for ancestor in self.hierarchy.filter_to_ultimate_ancestors(
+                directly_included
+            ):
+                descendants = self.hierarchy.descendants(ancestor)
+                tree[(ancestor, "+")] = excluding_helper(
+                    descendants & directly_included, descendants & directly_excluded
+                )
+            return tree
+
+        def excluding_helper(directly_included, directly_excluded):
+            tree = {}
+            for ancestor in self.hierarchy.filter_to_ultimate_ancestors(
+                directly_excluded
+            ):
+                descendants = self.hierarchy.descendants(ancestor)
+                tree[(ancestor, "-")] = including_helper(
+                    descendants & directly_included, descendants & directly_excluded
+                )
+            return tree
+
+        return including_helper(self.codes("+"), self.codes("-"))
 
     def walk_tree(self, sort_key):
         """Yield tuples of (code, status) found by visiting the defining codes in the
@@ -92,5 +140,15 @@ class Codeset:
         TODO: rename to `walk_defining_tree`.
         """
 
-        definition = Definition.from_codes(self.codes(), self.hierarchy)
-        yield from definition.walk_tree(self.hierarchy, sort_key)
+        def helper(tree):
+            if not tree:
+                return
+
+            codes = sorted((code for (code, _) in tree), key=sort_key)
+            _, status = list(tree)[0]
+
+            for code in codes:
+                yield (code, status)
+                yield from helper(tree[(code, status)])
+
+        yield from helper(self.tree())

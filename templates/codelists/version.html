@@ -145,20 +145,20 @@
     </ul>
 
     <div class="tab-content">
-      {% include "./_about_tab.html" %}
+      {% include "./_tab_pane.html" with tabname="about" partial="codelists/_about_tab.html" %}
 
       {% if definition_rows %}
-      {% include "./_definition_tab.html" %}
+      {% include "./_tab_pane.html" with tabname="definition" partial="codelists/_definition_tab.html" %}
       {% endif %}
 
-      {% include "./_full_list_tab.html" %}
+      {% include "./_tab_pane.html" with tabname="full-list" partial="codelists/_full_list_tab.html" %}
 
       {% if tree_tables %}
-      {% include "./_tree_tables_tab.html" %}
+      {% include "./_tab_pane.html" with tabname="tree" partial="codelists/_tree_tables_tab.html" %}
       {% endif %}
 
       {% if search_results %}
-      {% include "./_search_results_tab.html" %}
+      {% include "./_tab_pane.html" with tabname="search-results" partial="codelists/_search_results_tab.html" %}
       {% endif %}
     </div>
   </div>

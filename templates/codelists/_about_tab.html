@@ -1,48 +1,41 @@
 {% load markdown_filter %}
 
-<div
-  class="tab-pane fade show active p-4"
-  id="about"
-  role="tabpanel"
-  aria-labelledby="about-tab"
->
-  {% if codelist.description %}
-  <h4>Description</h4>
-  <p>{{ codelist.description|markdown_filter|safe }}</p>
-  {% endif %}
+{% if codelist.description %}
+<h4>Description</h4>
+<p>{{ codelist.description|markdown_filter|safe }}</p>
+{% endif %}
 
-  {% if codelist.methodology %}
-  <h4>Methodology</h4>
-  <p>{{ codelist.methodology|markdown_filter|safe }}</p>
-  {% endif %}
+{% if codelist.methodology %}
+<h4>Methodology</h4>
+<p>{{ codelist.methodology|markdown_filter|safe }}</p>
+{% endif %}
 
-  {% if references %}
-  <h4>References</h4>
-  <ul>
-    {% for reference in references %}
-    <li><a href="{{ reference.url }}">{{ reference.text }}</a></li>
-    {% empty %}
-    <li>...</li>
-    {% endfor %}
-  </ul>
-  {% endif %}
+{% if references %}
+<h4>References</h4>
+<ul>
+  {% for reference in references %}
+  <li><a href="{{ reference.url }}">{{ reference.text }}</a></li>
+  {% empty %}
+  <li>...</li>
+  {% endfor %}
+</ul>
+{% endif %}
 
-  {% if signoffs %}
-  <h4>Signed off by</h4>
-  <ul>
-    {% for signoff in signoffs %}
-    <li>
-      {{ signoff.user.name }},
-      {{ signoff.user.organisation.name }}
-      ({{ signoff.date }})
-    </li>
-    {% empty %}
-    <li>...</li>
-    {% endfor %}
-  </ul>
-  {% endif %}
+{% if signoffs %}
+<h4>Signed off by</h4>
+<ul>
+  {% for signoff in signoffs %}
+  <li>
+    {{ signoff.user.name }},
+    {{ signoff.user.organisation.name }}
+    ({{ signoff.date }})
+  </li>
+  {% empty %}
+  <li>...</li>
+  {% endfor %}
+</ul>
+{% endif %}
 
-  {% if not codelist.description and not codelist.methodology and not references and not signoffs %}
-  <p>No metadata has been provided for this codelist.</p>
-  {% endif %}
-</div>
+{% if not codelist.description and not codelist.methodology and not references and not signoffs %}
+<p>No metadata has been provided for this codelist.</p>
+{% endif %}

@@ -1,23 +1,16 @@
-<div
-  class="tab-pane fade p-4"
-  id="full-list"
-  role="tabpanel"
-  aria-labelledby="full-list-tab"
->
-  <table id="js-codelist-table" class="table table-sm">
-    <thead>
-      {% for v in headers %}
-      <th>{{ v }}</th>
-      {% endfor %}
-    </thead>
-    <tbody>
-      {% for row in rows %}
-        <tr>
-          {% for v in row %}
-          <td>{{ v }}</td>
-          {% endfor %}
-        </tr>
+<table id="js-codelist-table" class="table table-sm">
+  <thead>
+    {% for v in headers %}
+    <th>{{ v }}</th>
+    {% endfor %}
+  </thead>
+  <tbody>
+    {% for row in rows %}
+      <tr>
+        {% for v in row %}
+        <td>{{ v }}</td>
         {% endfor %}
-    </tbody>
-  </table>
-</div>
+      </tr>
+      {% endfor %}
+  </tbody>
+</table>

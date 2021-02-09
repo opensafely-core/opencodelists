@@ -1,4 +1,4 @@
-from .definition import Definition
+from .codeset import Codeset
 from .hierarchy import Hierarchy
 
 
@@ -33,13 +33,13 @@ def present_definition_for_download(clv):
     """Return rows for CSV download of a definition."""
 
     hierarchy = Hierarchy.from_codes(clv.coding_system, clv.codes)
-    definition = Definition.from_codes(set(clv.codes), hierarchy)
+    codeset = Codeset.from_codes(set(clv.codes), hierarchy)
     code_to_term = clv.coding_system.code_to_term(
         hierarchy.nodes | set(clv.all_related_codes)
     )
     rows = [
         (code, code_to_term[code], status)
-        for code, status in definition.walk_tree(hierarchy, code_to_term.__getitem__)
+        for code, status in codeset.walk_tree(code_to_term.__getitem__)
     ]
     headers = ["code", "term", "is_included"]
     return [headers] + rows

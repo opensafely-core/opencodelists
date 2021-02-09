@@ -1,6 +1,5 @@
 {% extends 'base.html' %}
 
-{% load markdown_filter %}
 {% load static %}
 
 {% block title_extra %}: {{ codelist.name }}{% endblock %}
@@ -128,198 +127,30 @@
 
   <div class="col-md-9 col-lg-10">
     <ul id="tab-list" class="nav nav-tabs" role="tablist">
-      <li class="nav-item">
-        <a
-          class="nav-link active"
-          id="about-tab"
-          data-toggle="tab"
-          href="#about"
-          role="tab"
-          aria-controls="about"
-          aria-selected="true"
-          >About</a
-        >
-      </li>
-      {% if definition_rows %}
-      <li class="nav-item">
-        <a
-          class="nav-link"
-          id="definition-tab"
-          data-toggle="tab"
-          href="#definition"
-          role="tab"
-          aria-controls="definition"
-          aria-selected="false"
-          >Definition</a
-        >
-      </li>
-      {% endif %}
-      <li class="nav-item">
-        <a
-          class="nav-link"
-          id="full-list-tab"
-          data-toggle="tab"
-          href="#full-list"
-          role="tab"
-          aria-controls="full-list"
-          aria-selected="false"
-          >Full list</a
-        >
-      </li>
+      {% include "./_tab_nav.html" with label="About" tabname="about" active=True %}
+
+      {% include "./_tab_nav.html" with label="Full list" tabname="full-list" active=False %}
+
       {% if tree_tables %}
-      <li class="nav-item">
-        <a
-          class="nav-link"
-          id="tree-tab"
-          data-toggle="tab"
-          href="#tree"
-          role="tab"
-          aria-controls="tree"
-          aria-selected="false"
-          >Tree</a
-        >
-      </li>
+      {% include "./_tab_nav.html" with label="Tree" tabname="tree" active=False %}
       {% endif %}
+
       {% if search_results %}
-      <li class="nav-item">
-        <a
-          class="nav-link"
-          id="search-results-tab"
-          data-toggle="tab"
-          href="#search-results"
-          role="tab"
-          aria-controls="search-results"
-          aria-selected="false"
-          >Searches</a
-        >
-      </li>
+      {% include "./_tab_nav.html" with label="Searches" tabname="search-results" active=False %}
       {% endif %}
     </ul>
 
     <div class="tab-content">
-      <div
-        class="tab-pane fade show active p-4"
-        id="about"
-        role="tabpanel"
-        aria-labelledby="about-tab"
-      >
-        {% if codelist.description %}
-        <h4>Description</h4>
-        <p>{{ codelist.description|markdown_filter|safe }}</p>
-        {% endif %}
+      {% include "./_tab_pane.html" with tabname="about" partial="codelists/_about_tab.html" %}
 
-        {% if codelist.methodology %}
-        <h4>Methodology</h4>
-        <p>{{ codelist.methodology|markdown_filter|safe }}</p>
-        {% endif %}
-
-        {% if references %}
-        <h4>References</h4>
-        <ul>
-          {% for reference in references %}
-          <li><a href="{{ reference.url }}">{{ reference.text }}</a></li>
-          {% empty %}
-          <li>...</li>
-          {% endfor %}
-        </ul>
-        {% endif %}
-
-        {% if signoffs %}
-        <h4>Signed off by</h4>
-        <ul>
-          {% for signoff in signoffs %}
-          <li>
-            {{ signoff.user.name }},
-            {{ signoff.user.organisation.name }}
-	    ({{ signoff.date }})
-          </li>
-          {% empty %}
-          <li>...</li>
-          {% endfor %}
-        </ul>
-        {% endif %}
-
-        {% if not codelist.description and not codelist.methodology and not references and not signoffs %}
-        <p>No metadata has been provided for this codelist.</p>
-        {% endif %}
-
-      </div>
-
-      {% if definition_rows %}
-      <div
-        class="tab-pane fade p-4"
-        id="definition"
-        role="tabpanel"
-        aria-labelledby="definition-tab"
-      >
-
-        <p>
-          This definition has been computed by taking the manually created
-          <a href="#full-list">full codelist</a> and converting it to a list of
-          rules that define the codelist.
-        </p>
-
-        {% if codelist.coding_system_id == "snomedct" %}
-        {% if definition_rows.active %}
-        <strong>Active Concepts</strong>
-        {% include "codelists/_definition_rows.html" with rows=definition_rows.active %}
-
-        <hr />
-        {% endif %}
-
-        {% if definition_rows.inactive %}
-        <strong>Inactive Concepts</strong>
-        {% include "codelists/_definition_rows.html" with rows=definition_rows.inactive %}
-        {% endif %}
-
-        {% else %}
-        {% include "codelists/_definition_rows.html" with rows=definition_rows.active %}
-        {% endif %}
-
-      </div>
-      {% endif %}
-
-      <div
-        class="tab-pane fade p-4"
-        id="full-list"
-        role="tabpanel"
-        aria-labelledby="full-list-tab"
-      >
-        <table id="js-codelist-table" class="table table-sm">
-          <thead>
-            {% for v in headers %}
-            <th>{{ v }}</th>
-            {% endfor %}
-          </thead>
-          <tbody>
-            {% for row in rows %}
-              <tr>
-                {% for v in row %}
-                <td>{{ v }}</td>
-                {% endfor %}
-              </tr>
-              {% endfor %}
-          </tbody>
-        </table>
-      </div>
+      {% include "./_tab_pane.html" with tabname="full-list" partial="codelists/_full_list_tab.html" %}
 
       {% if tree_tables %}
-      <div
-        class="tab-pane fade p-4"
-        id="tree"
-        role="tabpanel"
-        aria-labelledby="tree-tab"
-      >
-
-      <p>
-        Codes not in the <a href="#full-list">full codelist</a> are in faint grey.
-      </p>
-        <div id="codelist-tree"></div>
-      </div>
+      {% include "./_tab_pane.html" with tabname="tree" partial="codelists/_tree_tables_tab.html" %}
       {% endif %}
 
       {% if search_results %}
-      {% include "./_search_results.html" %}
+      {% include "./_tab_pane.html" with tabname="search-results" partial="codelists/_search_results_tab.html" %}
       {% endif %}
     </div>
   </div>

@@ -5,7 +5,6 @@ from django.db import transaction
 from django.db.models import Count
 from django.utils.text import slugify
 
-from codelists.hierarchy import Hierarchy
 from codelists.models import CodeObj, SearchResult
 
 logger = structlog.get_logger()
@@ -59,12 +58,10 @@ def delete_search(*, search):
 
 @transaction.atomic
 def update_code_statuses(*, draft, updates):
-    code_to_status = dict(draft.code_objs.values_list("code", "status"))
-    h = Hierarchy.from_codes(draft.coding_system, list(code_to_status))
-    new_code_to_status = h.update_node_to_status(code_to_status, updates)
+    new_codeset = draft.codeset.update(updates)
 
     status_to_new_code = defaultdict(list)
-    for code, status in new_code_to_status.items():
+    for code, status in new_codeset.code_to_status.items():
         status_to_new_code[status].append(code)
 
     for status, codes in status_to_new_code.items():

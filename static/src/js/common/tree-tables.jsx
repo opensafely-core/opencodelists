@@ -152,10 +152,6 @@ function TreeRow(props) {
         />
       </div>
 
-      {showMoreInfoModal && (
-        <MoreInfoButton code={code} showMoreInfoModal={showMoreInfoModal} />
-      )}
-
       <div className="pl-2" style={{ whiteSpace: "nowrap" }}>
         <Pipes pipes={pipes} />
         {hasDescendants ? (
@@ -170,6 +166,10 @@ function TreeRow(props) {
           (<code>{code}</code>)
         </span>
       </div>
+
+      {showMoreInfoModal && (
+        <MoreInfoButton code={code} showMoreInfoModal={showMoreInfoModal} />
+      )}
     </div>
   );
 }
@@ -205,9 +205,9 @@ function MoreInfoButton(props) {
       <Button
         variant="outline-secondary"
         onClick={showMoreInfoModal.bind(null, code)}
-        className="py-0"
+        className="py-0 border-0"
       >
-        ?
+        ...
       </Button>
     </div>
   );

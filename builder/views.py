@@ -6,7 +6,6 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_http_methods
 
-from codelists.hierarchy import Hierarchy
 from codelists.search import do_search
 
 from . import actions
@@ -54,16 +53,12 @@ def no_search_term(request, draft):
 
 def _draft(request, draft, search_slug):
     coding_system = draft.coding_system
-
-    code_to_status = dict(draft.code_objs.values_list("code", "status"))
-    all_codes = list(code_to_status)
-
-    included_codes = [c for c in all_codes if code_to_status[c] == "+"]
-    excluded_codes = [c for c in all_codes if code_to_status[c] == "-"]
+    codeset = draft.codeset
+    hierarchy = codeset.hierarchy
 
     if search_slug is None:
         search = None
-        displayed_codes = list(code_to_status)
+        displayed_codes = list(codeset.all_codes())
     elif search_slug is NO_SEARCH_TERM:
         search = NO_SEARCH_TERM
         displayed_codes = list(
@@ -92,20 +87,20 @@ def _draft(request, draft, search_slug):
         )
 
     filter = request.GET.get("filter")
-    if filter == "included":
-        displayed_codes = [c for c in displayed_codes if "+" in code_to_status[c]]
-    elif filter == "excluded":
-        displayed_codes = [c for c in displayed_codes if "-" in code_to_status[c]]
-    elif filter == "unresolved":
-        displayed_codes = [c for c in displayed_codes if code_to_status[c] == "?"]
-    elif filter == "in-conflict":
-        displayed_codes = [c for c in displayed_codes if code_to_status[c] == "!"]
+    if filter == "in-conflict":
         filter = "in conflict"
 
-    hierarchy = Hierarchy.from_codes(coding_system, all_codes)
+    if filter:
+        statuses = {
+            "included": ["+", "(+)"],
+            "excluded": ["-", "(-)"],
+            "unresolved": ["?"],
+            "in conflict": ["!"],
+        }[filter]
+        displayed_codes = [c for c in displayed_codes if c in codeset.codes(statuses)]
 
     ancestor_codes = hierarchy.filter_to_ultimate_ancestors(set(displayed_codes))
-    code_to_term = coding_system.code_to_term(hierarchy.nodes | set(all_codes))
+    code_to_term = coding_system.code_to_term(codeset.all_codes())
     tree_tables = sorted(
         (type, sorted(codes, key=code_to_term.__getitem__))
         for type, codes in coding_system.codes_by_type(
@@ -130,13 +125,13 @@ def _draft(request, draft, search_slug):
         "searches": searches,
         "filter": filter,
         "tree_tables": tree_tables,
-        "all_codes": all_codes,
-        "included_codes": included_codes,
-        "excluded_codes": excluded_codes,
+        "all_codes": list(codeset.all_codes()),
+        "included_codes": list(codeset.codes("+")),
+        "excluded_codes": list(codeset.codes("-")),
         "parent_map": {p: list(cc) for p, cc in hierarchy.parent_map.items()},
         "child_map": {c: list(pp) for c, pp in hierarchy.child_map.items()},
         "code_to_term": code_to_term,
-        "code_to_status": code_to_status,
+        "code_to_status": codeset.code_to_status,
         "is_editable": request.user == draft.draft_owner,
         "update_url": update_url,
         "search_url": search_url,

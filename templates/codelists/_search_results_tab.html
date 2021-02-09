@@ -1,0 +1,17 @@
+<p>This page shows the search terms that were used to build the codelist.  Concepts
+that match the search terms, but which were excluded, are in faint grey.</p>
+{% for results in search_results %}
+<h4>{{ results.term }}</h4>
+<p>Included {{ results.num_included }} out of {{ results.total }} matching concepts.</p>
+<details>
+  <summary>Show matching concepts</summary>
+  <ul>
+    {% for row in results.rows %}
+    <li style="color: {{ row.included|yesno:'black,gray'}}">
+      {{ row.term }} (<code>{{ row.code }}</code>)
+    </li>
+    {% endfor %}
+  </ul>
+</details>
+<hr />
+{% endfor %}

@@ -31,6 +31,15 @@ class Hierarchy:
         ancestor_relationships = set(coding_system.ancestor_relationships(codes))
         descendant_relationships = set(coding_system.descendant_relationships(codes))
         edges = ancestor_relationships | descendant_relationships
+
+        # We add an edge from the root node to each code that does not appear in
+        # ancestor_relationships or descendant_relationships (eg inactive SNOMED
+        # concepts, or certain TPP Y-Codes).
+        codes_in_edges = set(chain(*edges))
+        for code in codes:
+            if code not in codes_in_edges:
+                edges.add((coding_system.root, code))
+
         return cls(coding_system.root, edges)
 
     @cached_property
@@ -88,58 +97,9 @@ class Hierarchy:
 
         return {node for node in nodes if not self.ancestors(node) & nodes}
 
-    def update_node_to_status(self, node_to_status, updates):
-        """Given a mapping from each node to its status and a list of updates, return an
-        updated mapping.
-
-        Each status is one of:
-
-        * +   included directly
-        * -   excluded directly
-        * (+) included indirectly by one or more ancestors
-        * (-) excluded indirectly by one or more ancestors
-        * ?   neither included nor excluded
-        * !   in conflict: has some ancestors which are directly included and some which are
-                directly excluded, and neither set overrides the other
-
-        Updates are tuples of (node, new_status), where new_status is one of:
-
-        * +   include this node, and all descendants that are not otherwise excluded
-        * -   exclude this node, and all descendants that are not otherwise included
-        * ?   clear this node's status, and do so for all descendants that are not otherwise
-                included or excluded
-        """
-
-        included = {node for node, status in node_to_status.items() if status == "+"}
-        excluded = {node for node, status in node_to_status.items() if status == "-"}
-
-        assert included & excluded == set()
-
-        for node, status in updates:
-            if node in included:
-                included.remove(node)
-            if node in excluded:
-                excluded.remove(node)
-
-            if status == "+":
-                included.add(node)
-            if status == "-":
-                excluded.add(node)
-
-        assert included & excluded == set()
-
-        nodes_to_update = set()
-        for node, status in updates:
-            nodes_to_update.add(node)
-            nodes_to_update |= self.descendants(node)
-
-        return {
-            node: self.node_status(node, included, excluded) for node in nodes_to_update
-        }
-
     def node_status(self, node, included, excluded):
-        r"""Return status of node.  See the docstring for update_node_to_status() for
-        possible status values.
+        r"""Return status of node.  See the docstring for Codeset for possible status
+        values.
 
         For example, for this graph:
 

@@ -1,0 +1,12 @@
+<li class="nav-item">
+  <a
+    class="nav-link{% if active %} active{% endif %}"
+    id="{{ tabname }}-tab"
+    data-toggle="tab"
+    href="#{{ tabname }}"
+    role="tab"
+    aria-controls="{{ tabname }}"
+    aria-selected={{ active|yesno:"true,false" }}
+    >{{ label }}</a
+  >
+</li>

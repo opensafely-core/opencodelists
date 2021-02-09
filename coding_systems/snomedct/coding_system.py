@@ -20,18 +20,16 @@ def lookup_names(codes):
     return {
         description.concept_id: description.term
         for description in Description.objects.filter(
-            concept__in=codes, type=FULLY_SPECIFIED_NAME
+            concept__in=codes, type=FULLY_SPECIFIED_NAME, active=True
         )
     }
 
 
 def search(term):
     return set(
-        Concept.objects.filter(active=True)
-        .filter(
+        Concept.objects.filter(
             Q(descriptions__term__contains=term, descriptions__active=True) | Q(id=term)
-        )
-        .values_list("id", flat=True)
+        ).values_list("id", flat=True)
     )
 
 

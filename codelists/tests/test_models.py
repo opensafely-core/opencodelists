@@ -30,6 +30,7 @@ def test_codelist_must_belong_to_user_or_organisation():
 def test_old_style_codes(old_style_version):
     assert old_style_version.codes == (
         "128133004",
+        "156659008",
         "202855006",
         "239964003",
         "35185008",
@@ -49,12 +50,17 @@ def test_old_style_table(old_style_version):
         ["73583000", "Epicondylitis (disorder)"],
         ["35185008", "Enthesopathy of elbow region (disorder)"],
         ["239964003", "Soft tissue lesion of elbow region (disorder)"],
+        [
+            "156659008",
+            "(Epicondylitis &/or tennis elbow) or (golfers' elbow) (disorder)",
+        ],
     ]
 
 
 def test_new_style_codes(version_with_some_searches):
     assert version_with_some_searches.codes == (
         "128133004",
+        "156659008",
         "202855006",
         "239964003",
         "35185008",
@@ -68,6 +74,7 @@ def test_new_style_table(version_with_some_searches):
     assert version_with_some_searches.table == [
         ["code", "term"],
         ["128133004", "Disorder of elbow"],
+        ["156659008", "(Epicondylitis &/or tennis elbow) or (golfers' elbow)"],
         ["202855006", "Lateral epicondylitis"],
         ["239964003", "Soft tissue lesion of elbow region"],
         ["35185008", "Enthesopathy of elbow region"],

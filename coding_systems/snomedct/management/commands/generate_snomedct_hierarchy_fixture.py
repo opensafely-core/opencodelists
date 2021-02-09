@@ -5,6 +5,8 @@ these Concepts.
 
 The generated fixture can be loaded with `loaddata`.
 """
+from operator import attrgetter
+
 from django.core import serializers
 from django.core.management import BaseCommand
 
@@ -64,7 +66,11 @@ class Command(BaseCommand):
         print(f"{len(relationships)} relationships")
         print(f"{len(descriptions)} descriptions")
 
-        records = list(concepts) + list(relationships) + list(descriptions)
+        records = (
+            sorted(concepts, key=attrgetter("pk"))
+            + sorted(relationships, key=attrgetter("pk"))
+            + sorted(descriptions, key=attrgetter("pk"))
+        )
 
         with open(path, "w") as f:
             serializers.serialize("json", records, stream=f, indent=2)

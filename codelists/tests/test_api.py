@@ -4,7 +4,7 @@ from opencodelists.tests.assertions import assert_difference, assert_no_differen
 
 
 def test_versions_post(client, user, user_codelist):
-    data = {"ecl": "<<128133004"}
+    data = {"ecl": "<<128133004 OR 156659008"}
     headers = {"HTTP_AUTHORIZATION": f"Token {user.api_token}"}
 
     with assert_difference(user_codelist.versions.count, expected_difference=1):
@@ -14,7 +14,7 @@ def test_versions_post(client, user, user_codelist):
 
 
 def test_versions_post_no_difference(client, user, user_codelist):
-    data = {"ecl": "<<128133004 MINUS <<439656005"}
+    data = {"ecl": "(<<128133004 OR 156659008) MINUS <<439656005"}
     headers = {"HTTP_AUTHORIZATION": f"Token {user.api_token}"}
 
     with assert_no_difference(user_codelist.versions.count):

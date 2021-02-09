@@ -6,6 +6,9 @@ from django.core.management import call_command
 
 from codelists import actions
 from codelists.tests.factories import CodelistFactory
+
+# This register_assert_rewrite must appear before the module is imported.
+pytest.register_assert_rewrite("opencodelists.tests.fixtures")
 from opencodelists.tests.fixtures import *  # noqa
 
 pytest.register_assert_rewrite("codelists.tests.views.assertions")

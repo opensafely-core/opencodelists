@@ -1,5 +1,5 @@
 class Codeset:
-    r"""A Codeset represents a set of codes within the context of part of a coding system
+    """A Codeset represents a set of codes within the context of part of a coding system
     hierarchy.
 
     Each code in a Codeset has a status, which is one of the following:
@@ -18,9 +18,6 @@ class Codeset:
 
     See examples in codeset_test_data.py and test_hierarchy.py (especially
     test_node_status) for examples.
-
-    Note to reviewers: for now, this is a wrapper around functionality in Definition
-    (which will go away) and Hierarchy (which will lose some methods).
     """
 
     def __init__(self, code_to_status, hierarchy):

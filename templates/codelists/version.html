@@ -129,10 +129,6 @@
     <ul id="tab-list" class="nav nav-tabs" role="tablist">
       {% include "./_tab_nav.html" with label="About" tabname="about" active=True %}
 
-      {% if definition_rows %}
-      {% include "./_tab_nav.html" with label="Definition" tabname="definition" active=False %}
-      {% endif %}
-
       {% include "./_tab_nav.html" with label="Full list" tabname="full-list" active=False %}
 
       {% if tree_tables %}
@@ -146,10 +142,6 @@
 
     <div class="tab-content">
       {% include "./_tab_pane.html" with tabname="about" partial="codelists/_about_tab.html" %}
-
-      {% if definition_rows %}
-      {% include "./_tab_pane.html" with tabname="definition" partial="codelists/_definition_tab.html" %}
-      {% endif %}
 
       {% include "./_tab_pane.html" with tabname="full-list" partial="codelists/_full_list_tab.html" %}
 

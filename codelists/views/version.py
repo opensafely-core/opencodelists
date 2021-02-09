@@ -1,17 +1,13 @@
 from django.shortcuts import render
 
-from coding_systems.snomedct.models import Concept as SnomedConcept
-
 from ..coding_systems import CODING_SYSTEMS
-from ..definition import Definition
 from ..hierarchy import Hierarchy
-from ..presenters import build_definition_rows, present_search_results
+from ..presenters import present_search_results
 from .decorators import load_version
 
 
 @load_version
 def version(request, clv):
-    definition_rows = {}
     child_map = None
     code_to_status = None
     code_to_term = None
@@ -43,20 +39,6 @@ def version(request, clv):
             ).items()
         )
 
-        definition = Definition.from_codes(set(clv.codes), hierarchy)
-        rows = build_definition_rows(coding_system, hierarchy, definition)
-
-        if clv.coding_system_id == "snomedct":
-            inactive_codes = SnomedConcept.objects.filter(
-                id__in=clv.codes, active=False
-            ).values_list("id", flat=True)
-            definition_rows = {
-                "active": [r for r in rows if r["code"] not in inactive_codes],
-                "inactive": [r for r in rows if r["code"] in inactive_codes],
-            }
-        else:
-            definition_rows = {"active": rows, "inactive": []}
-
     headers, *rows = clv.table
 
     user_can_edit = False
@@ -80,7 +62,6 @@ def version(request, clv):
         "child_map": child_map,
         "code_to_term": code_to_term,
         "code_to_status": code_to_status,
-        "definition_rows": definition_rows,
         "search_results": present_search_results(clv, code_to_term),
         "user_can_edit": user_can_edit,
     }

@@ -31,6 +31,15 @@ class Hierarchy:
         ancestor_relationships = set(coding_system.ancestor_relationships(codes))
         descendant_relationships = set(coding_system.descendant_relationships(codes))
         edges = ancestor_relationships | descendant_relationships
+
+        # We add an edge from the root node to each code that does not appear in
+        # ancestor_relationships or descendant_relationships (eg inactive SNOMED
+        # concepts, or certain TPP Y-Codes).
+        codes_in_edges = set(chain(*edges))
+        for code in codes:
+            if code not in codes_in_edges:
+                edges.add((coding_system.root, code))
+
         return cls(coding_system.root, edges)
 
     @cached_property

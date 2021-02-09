@@ -101,6 +101,7 @@ def test_create_codelist_with_codes(user, disorder_of_elbow_excl_arthritis_codes
         "239964003": "(+)",  # Soft tissue lesion of elbow region
         "439656005": "-",  # Arthritis of elbow
         "202855006": "(-)",  # Lateral epicondylitis
+        "156659008": "+",  # (Epicondylitis &/or tennis elbow) ...
     }
 
 

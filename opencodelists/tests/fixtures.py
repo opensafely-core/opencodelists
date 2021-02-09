@@ -49,6 +49,7 @@ A.   │   └ Lateral epicondylitis (202855006)
 A.     └ Arthritis of elbow (439656005)
 A.       └ Lateral epicondylitis (202855006)
 .. Tennis toe (238484001)
+AB (Epicondylitis &/or tennis elbow) or (golfers' elbow) (156659008) [inactive]
 """
 
 import csv
@@ -322,6 +323,10 @@ def build_fixtures():
     update_code_statuses(
         draft=version_with_complete_searches,
         updates=[("116309007", "-")],  # exclude "Finding of elbow region"
+    )
+    update_code_statuses(
+        draft=version_with_complete_searches,
+        updates=[("156659008", "+")],  # include "(Epicondylitis &/or tennis elbow) ..."
     )
     save(draft=version_with_complete_searches)
 

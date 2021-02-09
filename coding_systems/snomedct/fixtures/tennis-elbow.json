@@ -181,6 +181,16 @@
 },
 {
   "model": "snomedct.concept",
+  "pk": "156659008",
+  "fields": {
+    "effective_time": "2002-01-31",
+    "active": false,
+    "module": "900000000000207008",
+    "definition_status": "900000000000074008"
+  }
+},
+{
+  "model": "snomedct.concept",
   "pk": "19660004",
   "fields": {
     "effective_time": "2002-01-31",
@@ -6575,6 +6585,90 @@
 },
 {
   "model": "snomedct.description",
+  "pk": "244431013",
+  "fields": {
+    "effective_time": "2017-07-31",
+    "active": true,
+    "module": "900000000000207008",
+    "concept": "156659008",
+    "language_code": "en",
+    "type": "900000000000013009",
+    "term": "Golfers' elbow",
+    "case_significance": "900000000000448009"
+  }
+},
+{
+  "model": "snomedct.description",
+  "pk": "244432018",
+  "fields": {
+    "effective_time": "2017-07-31",
+    "active": true,
+    "module": "900000000000207008",
+    "concept": "156659008",
+    "language_code": "en",
+    "type": "900000000000013009",
+    "term": "Golfer's elbow",
+    "case_significance": "900000000000448009"
+  }
+},
+{
+  "model": "snomedct.description",
+  "pk": "244433011",
+  "fields": {
+    "effective_time": "2017-07-31",
+    "active": true,
+    "module": "900000000000207008",
+    "concept": "156659008",
+    "language_code": "en",
+    "type": "900000000000013009",
+    "term": "Tennis elbow",
+    "case_significance": "900000000000448009"
+  }
+},
+{
+  "model": "snomedct.description",
+  "pk": "244434017",
+  "fields": {
+    "effective_time": "2017-07-31",
+    "active": true,
+    "module": "900000000000207008",
+    "concept": "156659008",
+    "language_code": "en",
+    "type": "900000000000013009",
+    "term": "Epicondylitis",
+    "case_significance": "900000000000448009"
+  }
+},
+{
+  "model": "snomedct.description",
+  "pk": "244435016",
+  "fields": {
+    "effective_time": "2017-07-31",
+    "active": true,
+    "module": "900000000000207008",
+    "concept": "156659008",
+    "language_code": "en",
+    "type": "900000000000013009",
+    "term": "Tennis elbow - epicondylitis",
+    "case_significance": "900000000000448009"
+  }
+},
+{
+  "model": "snomedct.description",
+  "pk": "244436015",
+  "fields": {
+    "effective_time": "2008-07-31",
+    "active": true,
+    "module": "900000000000207008",
+    "concept": "156659008",
+    "language_code": "en",
+    "type": "900000000000013009",
+    "term": "(Epicondylitis &/or tennis elbow) or (golfers' elbow)",
+    "case_significance": "900000000000020002"
+  }
+},
+{
+  "model": "snomedct.description",
   "pk": "2459851000000118",
   "fields": {
     "effective_time": "2019-06-01",
@@ -7172,6 +7266,20 @@
     "language_code": "en",
     "type": "900000000000013009",
     "term": "23.0.0_20170401000001 UK clinical extension",
+    "case_significance": "900000000000017005"
+  }
+},
+{
+  "model": "snomedct.description",
+  "pk": "2714892019",
+  "fields": {
+    "effective_time": "2008-07-31",
+    "active": true,
+    "module": "900000000000207008",
+    "concept": "156659008",
+    "language_code": "en",
+    "type": "900000000000003001",
+    "term": "(Epicondylitis &/or tennis elbow) or (golfers' elbow) (disorder)",
     "case_significance": "900000000000017005"
   }
 },
@@ -8726,6 +8834,20 @@
     "language_code": "en",
     "type": "900000000000003001",
     "term": "SNOMED CT Concept (SNOMED RT+CTV3)",
+    "case_significance": "900000000000017005"
+  }
+},
+{
+  "model": "snomedct.description",
+  "pk": "537124018",
+  "fields": {
+    "effective_time": "2008-07-31",
+    "active": false,
+    "module": "900000000000207008",
+    "concept": "156659008",
+    "language_code": "en",
+    "type": "900000000000003001",
+    "term": "(Epicondylitis &/or tennis elbow) or (golfers' elbow)",
     "case_significance": "900000000000017005"
   }
 },

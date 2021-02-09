@@ -18,6 +18,7 @@ def test_do_search(tennis_elbow):
         "439656005",  # Arthritis of elbow
         "298869002",  # Finding of elbow joint
         "298163003",  # Elbow joint inflamed
+        "156659008",  # (Epicondylitis &/or tennis elbow) ...
     }
 
     assert search_results["matching_codes"] == {
@@ -31,6 +32,10 @@ def test_do_search(tennis_elbow):
         "439656005",
         "298869002",
         "298163003",
+        "156659008",
     }
 
-    assert search_results["ancestor_codes"] == {"116309007"}  # Finding of elbow region
+    assert search_results["ancestor_codes"] == {
+        "116309007",  # Finding of elbow region
+        "156659008",  # (Epicondylitis &/or tennis elbow) ...
+    }

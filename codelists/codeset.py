@@ -83,6 +83,11 @@ class Codeset:
         assert sorted(codeset.codes()) == sorted(codes)
         return codeset
 
+    def all_codes(self):
+        """Return all codes in the codeset."""
+
+        return set(self.code_to_status)
+
     def codes(self, statuses=None):
         """Return set of codes with given status(es).
 

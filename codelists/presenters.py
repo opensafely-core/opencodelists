@@ -1,7 +1,3 @@
-from .codeset import Codeset
-from .hierarchy import Hierarchy
-
-
 def present_search_results(clv, code_to_term):
     results = []
     for search in clv.searches.prefetch_related(
@@ -32,11 +28,8 @@ def present_search_results(clv, code_to_term):
 def present_definition_for_download(clv):
     """Return rows for CSV download of a definition."""
 
-    hierarchy = Hierarchy.from_codes(clv.coding_system, clv.codes)
-    codeset = Codeset.from_codes(set(clv.codes), hierarchy)
-    code_to_term = clv.coding_system.code_to_term(
-        hierarchy.nodes | set(clv.all_related_codes)
-    )
+    codeset = clv.codeset
+    code_to_term = clv.coding_system.code_to_term(codeset.all_codes())
     rows = [
         (code, code_to_term[code], status)
         for code, status in codeset.walk_defining_tree(code_to_term.__getitem__)

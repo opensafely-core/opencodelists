@@ -10,7 +10,9 @@ from opencodelists.csv_utils import (
 )
 from opencodelists.hash_utils import hash, unhash
 
+from .codeset import Codeset
 from .coding_systems import CODING_SYSTEMS
+from .hierarchy import Hierarchy
 from .presenters import present_definition_for_download
 
 
@@ -240,7 +242,19 @@ class CodelistVersion(models.Model):
     def in_progress(self):
         return self.draft_owner
 
-    @cached_property
+    @property
+    def codeset(self):
+        """Return Codeset for the codes related to this CodelistVersion."""
+
+        if self.csv_data:
+            # We don't need a Codeset for an old-style codelist
+            return None
+
+        code_to_status = dict(self.code_objs.values_list("code", "status"))
+        hierarchy = Hierarchy.from_codes(self.coding_system, list(code_to_status))
+        return Codeset(code_to_status, hierarchy)
+
+    @property
     def table(self):
         if self.csv_data:
             return self._old_style_table()
@@ -256,14 +270,15 @@ class CodelistVersion(models.Model):
         rows.extend([code, code_to_term.get(code, "[Unknown]")] for code in self.codes)
         return rows
 
-    @cached_property
+    @property
     def all_related_codes(self):
+        # TODO do we need this?
         if self.csv_data:
             return self._old_style_codes()
         else:
             return self.code_objs.values_list("code", flat=True)
 
-    @cached_property
+    @property
     def codes(self):
         if self.csv_data:
             return self._old_style_codes()
@@ -287,13 +302,7 @@ class CodelistVersion(models.Model):
             return tuple(sorted({row[ix] for row in rows}))
 
     def _new_style_codes(self):
-        return tuple(
-            sorted(
-                self.code_objs.filter(status__in=["+", "(+)"]).values_list(
-                    "code", flat=True
-                )
-            )
-        )
+        return tuple(sorted(self.codeset.codes()))
 
     def csv_data_for_download(self):
         if self.csv_data:

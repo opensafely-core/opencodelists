@@ -19,7 +19,7 @@ class Codeset:
     of all other codes can be determined from the defining codes.  The defining codes
     are together called the definition.
 
-    See examples in definition_test_data.py and test_hierarchy.py (especially
+    See examples in codeset_test_data.py and test_hierarchy.py (especially
     test_node_status) for examples.
 
     Note to reviewers: for now, this is a wrapper around functionality in Definition

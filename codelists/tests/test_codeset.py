@@ -3,7 +3,7 @@ from hypothesis import strategies as st
 
 from codelists.codeset import Codeset
 
-from .definition_test_data import examples
+from .codeset_test_data import examples
 from .helpers import build_hierarchy, hierarchies
 
 # build_hierarchy returns a hierarchy with the following structure:

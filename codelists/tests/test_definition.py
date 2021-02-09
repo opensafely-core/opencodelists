@@ -1,7 +1,7 @@
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from codelists.definition import Definition
+from codelists.codeset import Codeset
 
 from .definition_test_data import examples
 from .helpers import build_hierarchy, hierarchies
@@ -22,10 +22,10 @@ def test_from_codes(subtests):
 
     for example in examples:
         with subtests.test(example["description"]):
-            definition = Definition.from_codes(example["codes"], hierarchy)
-            assert definition.explicitly_included == example["explicitly_included"]
-            assert definition.explicitly_excluded == example["explicitly_excluded"]
-            assert definition.codes(hierarchy) == example["codes"]
+            codeset = Codeset.from_codes(example["codes"], hierarchy)
+            assert codeset.codes("+") == example["explicitly_included"]
+            assert codeset.codes("-") == example["explicitly_excluded"]
+            assert codeset.codes() == example["codes"]
 
 
 def test_codes(subtests):
@@ -33,12 +33,14 @@ def test_codes(subtests):
 
     for example in examples:
         with subtests.test(example["description"]):
-            definition = Definition(
-                example["explicitly_included"], example["explicitly_excluded"]
+            codeset = Codeset.from_definition(
+                example["explicitly_included"],
+                example["explicitly_excluded"],
+                hierarchy,
             )
-            assert definition.explicitly_included == example["explicitly_included"]
-            assert definition.explicitly_excluded == example["explicitly_excluded"]
-            assert definition.codes(hierarchy) == example["codes"]
+            assert codeset.codes("+") == example["explicitly_included"]
+            assert codeset.codes("-") == example["explicitly_excluded"]
+            assert codeset.codes() == example["codes"]
 
 
 def test_tree(subtests):
@@ -46,10 +48,12 @@ def test_tree(subtests):
 
     for example in examples:
         with subtests.test(example["description"]):
-            definition = Definition(
-                example["explicitly_included"], example["explicitly_excluded"]
+            codeset = Codeset.from_definition(
+                example["explicitly_included"],
+                example["explicitly_excluded"],
+                hierarchy,
             )
-            assert definition.tree(hierarchy) == example["tree"]
+            assert codeset.tree() == example["tree"]
 
 
 def test_walk_tree(subtests):
@@ -57,32 +61,16 @@ def test_walk_tree(subtests):
 
     for example in examples:
         with subtests.test(example["description"]):
-            definition = Definition(
-                example["explicitly_included"], example["explicitly_excluded"]
+            codeset = Codeset.from_definition(
+                example["explicitly_included"],
+                example["explicitly_excluded"],
+                hierarchy,
             )
-            assert (
-                list(definition.walk_tree(hierarchy, lambda x: x))
-                == example["tree_rows"]
-            )
+            assert list(codeset.walk_tree(lambda x: x)) == example["tree_rows"]
 
 
 @settings(deadline=None)
 @given(hierarchies(24), st.sets(st.sampled_from(range(16))))
 def test_roundtrip(hierarchy, codes):
-    definition = Definition.from_codes(codes, hierarchy)
-    assert definition.codes(hierarchy) == codes
-
-
-@settings(deadline=None)
-@given(hierarchies(24), st.sets(st.sampled_from(range(16))))
-def test_code_to_status(hierarchy, codes):
-    definition = Definition.from_codes(codes, hierarchy)
-    code_to_status = definition.code_to_status(hierarchy)
-    explicitly_included = {
-        code for code, status in code_to_status.items() if status == "+"
-    }
-    assert explicitly_included == definition.explicitly_included
-    explicitly_excluded = {
-        code for code, status in code_to_status.items() if status == "-"
-    }
-    assert explicitly_excluded == definition.explicitly_excluded
+    codeset = Codeset.from_codes(codes, hierarchy)
+    assert codeset.codes() == codes

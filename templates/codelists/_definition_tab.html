@@ -1,0 +1,30 @@
+<div
+  class="tab-pane fade p-4"
+  id="definition"
+  role="tabpanel"
+  aria-labelledby="definition-tab"
+>
+
+  <p>
+    This definition has been computed by taking the manually created
+    <a href="#full-list">full codelist</a> and converting it to a list of
+    rules that define the codelist.
+  </p>
+
+  {% if codelist.coding_system_id == "snomedct" %}
+  {% if definition_rows.active %}
+  <strong>Active Concepts</strong>
+  {% include "codelists/_definition_rows.html" with rows=definition_rows.active %}
+
+  <hr />
+  {% endif %}
+
+  {% if definition_rows.inactive %}
+  <strong>Inactive Concepts</strong>
+  {% include "codelists/_definition_rows.html" with rows=definition_rows.inactive %}
+  {% endif %}
+
+  {% else %}
+  {% include "codelists/_definition_rows.html" with rows=definition_rows.active %}
+  {% endif %}
+</div>

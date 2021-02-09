@@ -43,7 +43,7 @@ def test_codes(subtests):
             assert codeset.codes() == example["codes"]
 
 
-def test_tree(subtests):
+def test_defining_tree(subtests):
     hierarchy = build_hierarchy()
 
     for example in examples:
@@ -53,10 +53,10 @@ def test_tree(subtests):
                 example["explicitly_excluded"],
                 hierarchy,
             )
-            assert codeset.tree() == example["tree"]
+            assert codeset.defining_tree() == example["tree"]
 
 
-def test_walk_tree(subtests):
+def test_walk_defining_tree(subtests):
     hierarchy = build_hierarchy()
 
     for example in examples:
@@ -66,7 +66,7 @@ def test_walk_tree(subtests):
                 example["explicitly_excluded"],
                 hierarchy,
             )
-            assert list(codeset.walk_tree(lambda x: x)) == example["tree_rows"]
+            assert list(codeset.walk_defining_tree(lambda x: x)) == example["tree_rows"]
 
 
 @settings(deadline=None)

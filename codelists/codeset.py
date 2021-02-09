@@ -101,11 +101,8 @@ class Codeset:
             code for code, status in self.code_to_status.items() if status in statuses
         }
 
-    def tree(self):
-        """Return a tree structure containing the defining codes.
-
-        TODO: rename to `defining_tree`.
-        """
+    def defining_tree(self):
+        """Return a tree structure containing the defining codes."""
 
         def including_helper(directly_included, directly_excluded):
             tree = {}
@@ -131,13 +128,11 @@ class Codeset:
 
         return including_helper(self.codes("+"), self.codes("-"))
 
-    def walk_tree(self, sort_key):
+    def walk_defining_tree(self, sort_key):
         """Yield tuples of (code, status) found by visiting the defining codes in the
         hierarchy depth first.
 
         Children are visted in the order of whatever sort_key returns.
-
-        TODO: rename to `walk_defining_tree`.
         """
 
         def helper(tree):
@@ -151,4 +146,4 @@ class Codeset:
                 yield (code, status)
                 yield from helper(tree[(code, status)])
 
-        yield from helper(self.tree())
+        yield from helper(self.defining_tree())

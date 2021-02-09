@@ -61,52 +61,6 @@ def test_descendants():
         assert hierarchy.descendants(node) == descendants
 
 
-def test_update_node_to_status():
-    hierarchy = build_hierarchy()
-
-    node_to_status = {
-        #        ?
-        #       / \
-        #      +   -
-        #     / \ / \
-        #   (+)  !  (-)
-        #   / \ / \ / \
-        # (+)  !   !  (-)
-        "a": "?",
-        "b": "+",
-        "c": "-",
-        "d": "(+)",
-        "e": "!",
-        "f": "(-)",
-        "g": "(+)",
-        "h": "!",
-        "i": "!",
-        "j": "(-)",
-    }
-
-    assert hierarchy.update_node_to_status(
-        node_to_status, [("a", "-"), ("f", "+"), ("b", "?"), ("a", "+")]
-    ) == {
-        #        +
-        #       / \
-        #     (+)  -
-        #     / \ / \
-        #   (+) (-)  +
-        #   / \ / \ / \
-        # (+) (-) (+) (+)
-        "a": "+",
-        "b": "(+)",
-        "c": "-",
-        "d": "(+)",
-        "e": "(-)",
-        "f": "+",
-        "g": "(+)",
-        "h": "(-)",
-        "i": "(+)",
-        "j": "(+)",
-    }
-
-
 def test_node_status():
     hierarchy = build_hierarchy()
 

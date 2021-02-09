@@ -147,3 +147,45 @@ class Codeset:
                 yield from helper(tree[(code, status)])
 
         yield from helper(self.defining_tree())
+
+    def update(self, updates):
+        """Build new Codeset with given updates applied in turn to self's code_to_status.
+
+        Updates are tuples of (node, new_status), where new_status is one of:
+
+        * +   include this node, and all descendants that are not otherwise excluded
+        * -   exclude this node, and all descendants that are not otherwise included
+        * ?   clear this node's status, and do so for all descendants that are not otherwise
+                included or excluded
+        """
+
+        directly_included = self.codes("+")
+        directly_excluded = self.codes("-")
+
+        assert directly_included & directly_excluded == set()
+
+        for node, status in updates:
+            if node in directly_included:
+                directly_included.remove(node)
+            if node in directly_excluded:
+                directly_excluded.remove(node)
+
+            if status == "+":
+                directly_included.add(node)
+            if status == "-":
+                directly_excluded.add(node)
+
+        assert directly_included & directly_excluded == set()
+
+        codes_to_update = set()
+        for node, status in updates:
+            codes_to_update.add(node)
+            codes_to_update |= self.hierarchy.descendants(node)
+
+        code_to_status_updates = {
+            code: self.hierarchy.node_status(code, directly_included, directly_excluded)
+            for code in self.code_to_status
+        }
+
+        updated_code_to_status = {**self.code_to_status, **code_to_status_updates}
+        return type(self)(updated_code_to_status, self.hierarchy)

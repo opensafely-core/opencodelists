@@ -69,6 +69,53 @@ def test_walk_defining_tree(subtests):
             assert list(codeset.walk_defining_tree(lambda x: x)) == example["tree_rows"]
 
 
+def test_update():
+    hierarchy = build_hierarchy()
+    codeset = Codeset(
+        {
+            #        ?
+            #       / \
+            #      +   -
+            #     / \ / \
+            #   (+)  !  (-)
+            #   / \ / \ / \
+            # (+)  !   !  (-)
+            "a": "?",
+            "b": "+",
+            "c": "-",
+            "d": "(+)",
+            "e": "!",
+            "f": "(-)",
+            "g": "(+)",
+            "h": "!",
+            "i": "!",
+            "j": "(-)",
+        },
+        hierarchy,
+    )
+
+    updated_codeset = codeset.update([("a", "-"), ("f", "+"), ("b", "?"), ("a", "+")])
+    assert updated_codeset.code_to_status == {
+        #        +
+        #       / \
+        #     (+)  -
+        #     / \ / \
+        #   (+) (-)  +
+        #   / \ / \ / \
+        # (+) (-) (+) (+)
+        "a": "+",
+        "b": "(+)",
+        "c": "-",
+        "d": "(+)",
+        "e": "(-)",
+        "f": "+",
+        "g": "(+)",
+        "h": "(-)",
+        "i": "(+)",
+        "j": "(+)",
+    }
+
+
 @settings(deadline=None)
 @given(hierarchies(24), st.sets(st.sampled_from(range(16))))
 def test_roundtrip(hierarchy, codes):

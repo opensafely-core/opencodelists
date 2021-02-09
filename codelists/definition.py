@@ -1,5 +1,5 @@
-class Definition2:
-    r"""A Definition2 is a compact way to define a list of codes.
+class Definition:
+    r"""A Definition is a compact way to define a list of codes.
 
     It consists of a set of codes that are included with their descendants, and a set of
     codes that are excluded with their descendants.  This matches the structure used to
@@ -32,9 +32,6 @@ class Definition2:
     This is different to the existing Definition class, which does not allow for
     excluding a concept and all of its descendents.  We need this, in order to be able
     to allow codelists to be edited in the builder.
-
-    The existing Definition class may go away, in which case we'll rename this to
-    Definition.
     """
 
     def __init__(self, explicitly_included, explicitly_excluded):
@@ -43,7 +40,7 @@ class Definition2:
 
     @classmethod
     def from_codes(cls, codes, hierarchy):
-        """Build a Definition2 from a set of codes."""
+        """Build a Definition from a set of codes."""
 
         explicitly_included = set()
         explicitly_excluded = set()
@@ -81,7 +78,7 @@ class Definition2:
         return cls(explicitly_included, explicitly_excluded)
 
     def codes(self, hierarchy):
-        """Return the codes defined by this Definition2."""
+        """Return the codes defined by this Definition."""
 
         return {
             node

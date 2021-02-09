@@ -7,7 +7,7 @@ from coding_systems.snomedct import ecl_parser
 from opencodelists.dict_utils import invert_dict
 from opencodelists.models import User
 
-from .definition2 import Definition2
+from .definition import Definition
 from .hierarchy import Hierarchy
 from .models import CodeObj
 from .search import do_search
@@ -74,7 +74,7 @@ def create_codelist_with_codes(*, owner, name, coding_system_id, codes, slug=Non
 
     version = codelist.versions.create()
     hierarchy = Hierarchy.from_codes(codelist.coding_system, codes)
-    definition = Definition2.from_codes(codes, hierarchy)
+    definition = Definition.from_codes(codes, hierarchy)
 
     CodeObj.objects.bulk_create(
         CodeObj(version=version, code=code, status=status)
@@ -148,7 +148,7 @@ def create_version_with_codes(
 
     if definition is None:
         hierarchy = Hierarchy.from_codes(codelist.coding_system, codes)
-        definition = Definition2.from_codes(codes, hierarchy)
+        definition = Definition.from_codes(codes, hierarchy)
 
     CodeObj.objects.bulk_create(
         CodeObj(
@@ -274,7 +274,7 @@ def convert_codelist_to_new_style(*, codelist):
 
     codes = set(prev_clv.codes)
     hierarchy = Hierarchy.from_codes(codelist.coding_system, codes)
-    definition = Definition2.from_codes(codes, hierarchy)
+    definition = Definition.from_codes(codes, hierarchy)
 
     CodeObj.objects.bulk_create(
         CodeObj(

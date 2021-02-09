@@ -1,4 +1,4 @@
-from .definition2 import Definition2
+from .definition import Definition
 from .hierarchy import Hierarchy
 
 
@@ -33,7 +33,7 @@ def present_definition_for_download(clv):
     """Return rows for CSV download of a definition."""
 
     hierarchy = Hierarchy.from_codes(clv.coding_system, clv.codes)
-    definition = Definition2.from_codes(set(clv.codes), hierarchy)
+    definition = Definition.from_codes(set(clv.codes), hierarchy)
     code_to_term = clv.coding_system.code_to_term(
         hierarchy.nodes | set(clv.all_related_codes)
     )

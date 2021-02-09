@@ -236,6 +236,10 @@ class CodelistVersion(models.Model):
     def full_slug(self):
         return f"{self.codelist.full_slug()}/{self.tag_or_hash}"
 
+    @property
+    def in_progress(self):
+        return self.draft_owner
+
     @cached_property
     def table(self):
         if self.csv_data:
@@ -281,10 +285,6 @@ class CodelistVersion(models.Model):
                     ix = 0
 
             return tuple(sorted({row[ix] for row in rows}))
-
-    @property
-    def in_progress(self):
-        return self.draft_owner
 
     def _new_style_codes(self):
         return tuple(

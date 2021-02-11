@@ -278,7 +278,7 @@ class CodelistVersion(models.Model):
         else:
             return self.code_objs.values_list("code", flat=True)
 
-    @property
+    @cached_property
     def codes(self):
         if self.csv_data:
             return self._old_style_codes()

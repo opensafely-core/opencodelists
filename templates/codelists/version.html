@@ -129,19 +129,19 @@
     <ul id="tab-list" class="nav nav-tabs" role="tablist">
       {% include "./_tab_nav.html" with label="About" tabname="about" active=True %}
 
-      {% include "./_tab_nav.html" with label="Full list" tabname="full-list" active=False %}
+      {% include "./_tab_nav.html" with label="Full list" tabname="full-list" %}
 
       {% if tree_tables %}
-      {% include "./_tab_nav.html" with label="Tree" tabname="tree" active=False %}
+      {% include "./_tab_nav.html" with label="Tree" tabname="tree" %}
       {% endif %}
 
       {% if search_results %}
-      {% include "./_tab_nav.html" with label="Searches" tabname="search-results" active=False %}
+      {% include "./_tab_nav.html" with label="Searches" tabname="search-results" %}
       {% endif %}
     </ul>
 
     <div class="tab-content">
-      {% include "./_tab_pane.html" with tabname="about" partial="codelists/_about_tab.html" %}
+      {% include "./_tab_pane.html" with tabname="about" partial="codelists/_about_tab.html" active=True %}
 
       {% include "./_tab_pane.html" with tabname="full-list" partial="codelists/_full_list_tab.html" %}
 

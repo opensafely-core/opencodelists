@@ -44,7 +44,7 @@ configobj==5.0.6
     #   litecli
 coverage==5.2.1
     # via pytest-cov
-cryptography==3.2
+cryptography==3.3.2
     # via paramiko
 dataclasses==0.7
     # via black

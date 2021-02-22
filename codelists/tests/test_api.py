@@ -3,6 +3,65 @@ import json
 from opencodelists.tests.assertions import assert_difference, assert_no_difference
 
 
+def test_codelists(client, organisation):
+    rsp = client.get(f"/api/v1/codelist/{organisation.slug}/")
+    data = json.loads(rsp.content)
+    assert rsp.status_code == 200
+    assert data == [
+        {
+            "full_slug": "test-university/old-style-codelist",
+            "slug": "old-style-codelist",
+            "name": "Old-style Codelist",
+            "versions": [
+                {
+                    "hash": "66f08cca",
+                    "tag": None,
+                    "full_slug": "test-university/old-style-codelist/66f08cca",
+                },
+                {
+                    "hash": "4de11995",
+                    "tag": None,
+                    "full_slug": "test-university/old-style-codelist/4de11995",
+                },
+            ],
+        },
+        {
+            "full_slug": "test-university/new-style-codelist",
+            "slug": "new-style-codelist",
+            "name": "New-style Codelist",
+            "versions": [
+                {
+                    "hash": "34d1a660",
+                    "tag": None,
+                    "full_slug": "test-university/new-style-codelist/34d1a660",
+                },
+                {
+                    "hash": "1bc2332b",
+                    "tag": None,
+                    "full_slug": "test-university/new-style-codelist/1bc2332b",
+                },
+                {
+                    "hash": "02b2bff6",
+                    "tag": None,
+                    "full_slug": "test-university/new-style-codelist/02b2bff6",
+                },
+            ],
+        },
+        {
+            "full_slug": "test-university/codelist-from-scratch",
+            "slug": "codelist-from-scratch",
+            "name": "Codelist From Scratch",
+            "versions": [
+                {
+                    "hash": "69a34cc0",
+                    "tag": None,
+                    "full_slug": "test-university/codelist-from-scratch/69a34cc0",
+                }
+            ],
+        },
+    ]
+
+
 def test_versions_post(client, user, user_codelist):
     data = {"ecl": "<<128133004 OR 156659008"}
     headers = {"HTTP_AUTHORIZATION": f"Token {user.api_token}"}

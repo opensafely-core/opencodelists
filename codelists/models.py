@@ -389,7 +389,7 @@ class Reference(models.Model):
         "Codelist", on_delete=models.CASCADE, related_name="references"
     )
     text = models.CharField(max_length=255)
-    url = models.URLField()
+    url = models.URLField(max_length=1000)
 
 
 class Collaboration(models.Model):

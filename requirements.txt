@@ -135,7 +135,7 @@ paramiko==2.7.1
     # via fabric3
 pathspec==0.8.0
     # via black
-pip-tools==5.5.0
+pip-tools==6.0.0
     # via -r requirements.in
 pluggy==0.13.1
     # via pytest

@@ -84,7 +84,7 @@ faker==4.1.1
     # via factory-boy
 filelock==3.0.12
     # via virtualenv
-flake8==3.8.4
+flake8==3.9.0
     # via -r requirements.in
 freezegun==0.3.15
     # via pytest-freezegun
@@ -145,11 +145,11 @@ prompt-toolkit==3.0.5
     # via litecli
 py==1.9.0
     # via pytest
-pycodestyle==2.6.0
+pycodestyle==2.7.0
     # via flake8
 pycparser==2.20
     # via cffi
-pyflakes==2.2.0
+pyflakes==2.3.0
     # via flake8
 pygments==2.6.1
     # via

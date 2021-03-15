@@ -119,10 +119,17 @@ def codes_by_type(codes, hierarchy):
         code: type.title() for code, (_, type) in code_to_term_and_type(codes).items()
     }
 
+    code_to_active = {
+        concept.id: concept.active for concept in Concept.objects.filter(id__in=codes)
+    }
+
     lookup = collections.defaultdict(list)
 
     for code in codes:
         type = code_to_type[code]
-        lookup[type].append(code)
+        if code_to_active[code]:
+            lookup[type].append(code)
+        else:
+            lookup[f"[inactive] {type}"].append(code)
 
     return dict(lookup)

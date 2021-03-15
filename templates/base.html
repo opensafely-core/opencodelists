@@ -29,8 +29,14 @@
     />
 
     <style>
+      html {
+        position: relative;
+        min-height: 100%;
+      }
+
       body {
         font-family: "Roboto";
+        margin-bottom: 120px;
       }
 
       h1,
@@ -43,6 +49,20 @@
       th,
       .navbar-brand {
         font-family: "Roboto Mono";
+      }
+
+      .footer {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        height: 80px;
+        padding-top: 20px;
+        line-height: 20px;
+        background-color: #f5f5f5;
+      }
+
+      .footer p {
+        margin-bottom: 0;
       }
     </style>
 
@@ -78,8 +98,7 @@
       {% endif %}
     </nav>
 
-    <div class="container">
-
+    <main role="main" class="container">
       {% for message in messages %}
       <div class="alert {{ message.tags }} alert-dismissible mt-3" role="alert">
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -122,6 +141,13 @@
       ></script>
 
       {% block extra_js %}{% endblock %}
-    </div>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <p class="small text-muted">SNOMED Clinical Terms® content © International Health Terminology Standards Development Organisation.</p>
+        <p class="small text-muted">ICD-10 codes, terms and text © World Health Organization, Third Edition. 2007.</p>
+      </div>
+    </footer>
   </body>
 </html>

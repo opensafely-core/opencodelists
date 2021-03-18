@@ -3,11 +3,12 @@ upstream opencodelists {
     keepalive 60;
 }
 
-
 server {
-    listen 80;
-    listen [::]:80;
+    listen 443 ssl;
     server_name codelists.opensafely.org;
+
+    ssl_certificate /etc/ssl/opensafely.org.pem;
+    ssl_certificate_key /etc/ssl/opensafely.org.key;
 
     resolver 8.8.8.8 8.8.4.4 valid=300s;
     resolver_timeout 5s;

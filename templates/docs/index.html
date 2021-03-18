@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load markdown_filter %}
+
+{% block content %}
+<div class="mt-3">
+        <h1>Documentation</h1>
+
+        <p>Welcome to the documentation for <a href="https://codelists.opensafely.org/">OpenSAFELY Codelists</a>.</p>
+
+        <p>OpenSAFELY Codelists is an open platform for creating and sharing codelists of clinical terms and drugs.</p>
+
+        <ul>
+        {% for page in pages %}
+        <li><a href="#{{ page.section }}">{{ page.title }}</a></li>
+        {% endfor %}
+        </ul>
+
+        {% for page in pages %}
+        <hr />
+        <h2 id="{{ page.section }}">{{ page.title }}</h2>
+        {{ page.content|markdown_filter|safe }}
+        {% endfor %}
+
+</div>
+{% endblock %}

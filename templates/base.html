@@ -81,6 +81,9 @@
         >OpenSAFELY Codelists</a
       >
 
+      <div class="navbar-nav nav-item">
+        <a class="nav-link text-white" href="{% url 'docs:index' %}">Docs</a>
+      </div>
       {% if request.user.is_authenticated %}
         <div class="navbar-nav nav-item">
           <a class="nav-link text-white" href="{% url 'user' user.username %}">My codelists</a>

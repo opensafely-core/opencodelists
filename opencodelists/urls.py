@@ -25,6 +25,7 @@ urlpatterns = [
     path("accounts/register/", views.register, name="register"),
     path("builder/", include("builder.urls")),
     path("conversions/", include("conversions.urls")),
+    path("docs/", include("docs.urls")),
     path("ctv3/", include("coding_systems.ctv3.urls")),
     path("snomedct/", include("coding_systems.snomedct.urls")),
     path("__debug__/", include(debug_toolbar.urls)),

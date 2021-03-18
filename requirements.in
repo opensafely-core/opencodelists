@@ -1,14 +1,15 @@
 antlr4-python3-runtime
+bleach
 fabric3
 django
 djangorestframework
 django-crispy-forms
 django-cors-headers
 django-debug-toolbar
-django-markdown-filter
 django-structlog
 gunicorn
 lxml
+markdown2
 openpyxl
 pysqlite3-binary
 whitenoise

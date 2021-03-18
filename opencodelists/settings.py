@@ -65,7 +65,6 @@ INSTALLED_APPS = [
     "crispy_forms",
     "django_extensions",
     "debug_toolbar",
-    "markdown_filter",
     "rest_framework",
     "rest_framework.authtoken",
     "django.contrib.admin",
@@ -213,7 +212,17 @@ MARKDOWN_FILTER_WHITELIST_TAGS = [
     "code",
     "em",
     "strong",
+    "img",
+    "hr",
 ]
+
+MARKDOWN_FILTER_WHITELIST_ATTRIBUTES = [
+    "class",
+    "src",
+    "href",
+]
+
+MARKDOWN_FILTER_WHITELIST_STYLES = []
 
 
 # Login/logout config

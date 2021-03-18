@@ -20,7 +20,9 @@ def index(request, organisation_slug=None):
         organisation = None
         # For now, we only want to show codelists that were created as part of the
         # OpenSAFELY organisation.
-        codelists = codelists.filter(organisation_id="opensafely")
+        codelists = codelists.filter(
+            organisation_id__in=["opensafely", "primis-covid19-vacc-uptake"]
+        )
 
     codelists = codelists.order_by("name")
     ctx = {"codelists": codelists, "organisation": organisation, "q": q}

@@ -1,6 +1,33 @@
 {% extends 'base.html' %}
 {% load markdown_filter %}
 
+{% block extra_styles %}
+<style>
+@media (max-width: 768px) {
+  .video-container {
+    margin: 0 1rem 1rem 1rem;
+    overflow: hidden;
+    position: relative;
+    width:100%;
+  }
+
+  .video-container::after {
+    content: '';
+    display: block;
+    padding-top: 56.25%;
+  }
+
+  .video-container iframe {
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+  }
+}
+</style>
+{% endblock %}
+
 {% block content %}
 
 <h1>OpenSAFELY Codelists</h1>
@@ -12,10 +39,10 @@
 </div>
 
 <div class="row my-2">
-  <div class="col-md-6">
+  <div class="col-md-6 video-container">
     <iframe width="550px" height="300px" src="https://www.youtube.com/embed/ayRtpbcPFLA?list=PLE66rRIHuZxzSkFz8CthPQngqXIZiPlwq" title="YouTube video player" frameborder="0" allowfullscreen></iframe>
   </div>
-  <div class="col-md-6">
+  <div class="col-md-6 video-container">
     <iframe width="550px" height="300px" src="https://www.youtube.com/embed/t-A2kWHZ5lA?list=PLE66rRIHuZxzSkFz8CthPQngqXIZiPlwq" title="YouTube video player" frameborder="0" allowfullscreen></iframe>
   </div>
 </div>

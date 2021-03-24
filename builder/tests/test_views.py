@@ -35,7 +35,7 @@ def test_search(client, draft_with_some_searches):
     rsp = client.get(draft_with_some_searches.get_builder_url("search", "arthritis"))
 
     assert rsp.status_code == 200
-    assert b'Search term: "arthritis"' in rsp.content
+    assert rsp.context["results_heading"] == 'Showing concepts matching "arthritis"'
 
 
 def test_no_search_term(client, draft_with_some_searches):
@@ -43,4 +43,7 @@ def test_no_search_term(client, draft_with_some_searches):
     rsp = client.get(draft_with_some_searches.get_builder_url("no-search-term"))
 
     assert rsp.status_code == 200
-    assert b"No search term" in rsp.content
+    assert (
+        rsp.context["results_heading"]
+        == "Showing concepts with no matching search term"
+    )

@@ -2,7 +2,7 @@
 
 As well as creating a codelist from scratch, you can create one by uploading a CSV file.
 
-From the *My codelists* page, click *Create a codelist*.
+From the _My codelists_ page, click _Create a codelist_.
 
 Choose a name for the codelist, select a coding system from the dropdown,
 and choose a file to upload from your hard drive.
@@ -13,7 +13,7 @@ Note that the CSV file should not have a header,
 and its first column must contain valid codes in the chosen coding system.
 (This limitation will be lifted.)
 
-When you click *Create* the codelist will be created and you will be taken to the codelist homepage.
+When you click _Create_ the codelist will be created and you will be taken to the codelist homepage.
 
 From here, you can edit any metadata.
 You can also edit the codelist.

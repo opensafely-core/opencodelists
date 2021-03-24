@@ -108,6 +108,15 @@ def _draft(request, draft, search_slug):
         ).items()
     )
 
+    if search_slug == NO_SEARCH_TERM:
+        results_heading = "Showing concepts with no matching search term"
+    elif search_slug is not None:
+        results_heading = f'Showing concepts matching "{search.term}"'
+    elif codeset.all_codes():
+        results_heading = "Showing all matching concepts"
+    else:
+        results_heading = "Start building your codelist by searching for a term"
+
     update_url = draft.get_builder_url("update")
     search_url = draft.get_builder_url("new-search")
 
@@ -116,12 +125,11 @@ def _draft(request, draft, search_slug):
         "draft": draft,
         "draft_url": draft.get_builder_url("draft"),
         "codelist_name": draft.codelist.name,
-        "search": search,
-        "NO_SEARCH_TERM": NO_SEARCH_TERM,
         # The following values are passed to the CodelistBuilder component.
         # When any of these chage, use generate_builder_fixture to update
         # static/test/js/fixtures/elbow.json.
         # {
+        "results_heading": results_heading,
         "searches": searches,
         "filter": filter,
         "tree_tables": tree_tables,
@@ -156,9 +164,10 @@ def update(request, draft):
 def new_search(request, draft):
     term = request.POST["term"]
     codes = do_search(draft.coding_system, term)["all_codes"]
-    if not codes:
-        # TODO message about no hits
-        return redirect(draft)
 
     search = actions.create_search(draft=draft, term=term, codes=codes)
+
+    if not codes:
+        messages.info(request, f'There are no results for "{term}"')
+
     return redirect(draft.get_builder_url("search", search.slug))

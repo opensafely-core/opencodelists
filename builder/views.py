@@ -164,9 +164,10 @@ def update(request, draft):
 def new_search(request, draft):
     term = request.POST["term"]
     codes = do_search(draft.coding_system, term)["all_codes"]
-    if not codes:
-        messages.info(request, f'There are no results for "{term}"')
-        return redirect(draft)
 
     search = actions.create_search(draft=draft, term=term, codes=codes)
+
+    if not codes:
+        messages.info(request, f'There are no results for "{term}"')
+
     return redirect(draft.get_builder_url("search", search.slug))

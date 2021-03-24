@@ -155,7 +155,8 @@ class CodelistBuilder extends React.Component {
           </div>
 
           <div className="col-9 pl-5">
-            <h3 className="mb-4">Results</h3>
+            <h3 className="mb-4">{this.props.resultsHeading}</h3>
+            <hr />
             <TreeTables
               codeToStatus={this.state.codeToStatus}
               hierarchy={this.props.hierarchy}

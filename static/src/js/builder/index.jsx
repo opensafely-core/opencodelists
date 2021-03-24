@@ -27,6 +27,7 @@ const visiblePaths = hierarchy.initiallyVisiblePaths(
 
 ReactDOM.render(
   <CodelistBuilder
+    resultsHeading={readValueFromPage("results-heading")}
     searches={readValueFromPage("searches")}
     filter={readValueFromPage("filter")}
     hierarchy={hierarchy}

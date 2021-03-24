@@ -1,4 +1,4 @@
-##  Using a codelist in OpenSAFELY research
+## Using a codelist in OpenSAFELY research
 
 Codelists are central to the research that is carried out in
 [OpenSAFELY](https://opensafely.org/).

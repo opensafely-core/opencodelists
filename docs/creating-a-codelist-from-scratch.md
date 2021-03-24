@@ -3,23 +3,23 @@
 Our codelist builder tool helps you create a codelist from scratch,
 by searching terms and choosing which matching concepts should be included.
 
-When signed in, click *My codelists* in the top right of any page.
+When signed in, click _My codelists_ in the top right of any page.
 
         my-codelists.png
 
-Then click *Create a codelist*.
+Then click _Create a codelist_.
 
         create-a-codelist-1.png
 
 Choose a name for the codelist, and select a coding system from the dropdown.
 We currently support codelists using the following coding systems:
 
-* SNOMED-CT
-* ICD-10
-* CTV3 (Read V3)
-* BNF (British National Formulary codes)
+- SNOMED-CT
+- ICD-10
+- CTV3 (Read V3)
+- BNF (British National Formulary codes)
 
-Then click *Create*.
+Then click _Create_.
 
         create-form-1.png
 
@@ -49,14 +49,14 @@ their descendants have buttons highlighted grey.
 
 If you have included or excluded a result by mistake, you can undo this by clicking on the include or exclude button again.
 
-Sometimes a code can be *in conflict*.
+Sometimes a code can be _in conflict_.
 This happens when one of its ancestors in included and another is excluded.
-For instance, *Acute severe exacerbation of mild persistent allergic asthma*
-is a descendant of both *Mild asthma* and *Acute asthma*.
+For instance, _Acute severe exacerbation of mild persistent allergic asthma_
+is a descendant of both _Mild asthma_ and _Acute asthma_.
 
         conflict-1.png
 
-You can click on the *...* to the right of the term to see more details.
+You can click on the _..._ to the right of the term to see more details.
 
         conflict-2.png
 

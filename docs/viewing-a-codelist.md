@@ -5,17 +5,17 @@ as well as links to any references and details of who created the codelist.
 
         codelist-homepage.png
 
-The *Full list* tab shows a searchable list of codes and terms.
+The _Full list_ tab shows a searchable list of codes and terms.
 
         full-list.png
 
-Most codelists have a *Tree* tab, showing all of the codes in the codelist in the context of other codes in the coding system.
+Most codelists have a _Tree_ tab, showing all of the codes in the codelist in the context of other codes in the coding system.
 Codes that are not in the codelist are shown greyed out.
 This is helpful for seeing whether there are any accidental gaps in the codelist.
 
         tree.png
 
-For codelists that were created with the builder, there will also be a *Searches* tab,
+For codelists that were created with the builder, there will also be a _Searches_ tab,
 showing the search terms that were used to create the codelist.
 
         searches.png

@@ -77,44 +77,47 @@
 
   <body>
     <nav
-      class="navbar navbar-expand-lg navbar-dark bg-secondary justify-content-between align-items-baseline"
+      class="navbar navbar-expand-sm navbar-dark bg-secondary justify-content-between align-items-baseline"
     >
-      <a class="navbar-brand" href="{% url 'codelists:index' %}"
-        >OpenSAFELY Codelists</a
-      >
+      <div class="mr-auto">
+        <a class="navbar-brand" href="{% url 'codelists:index' %}"
+          >OpenSAFELY Codelists</a
+        >
 
-      <button
-        class="navbar-toggler"
-        type="button"
-        data-toggle="collapse"
-        data-target="#navbarSupportedContent"
-        aria-controls="navbarSupportedContent"
-        aria-expanded="false"
-        aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <div class="navbar-nav nav-item">
-          <a class="nav-link text-white" href="{% url 'docs:index' %}">Docs</a>
-        </div>
-        {% if request.user.is_authenticated %}
-          <div class="navbar-nav nav-item">
-            <a class="nav-link text-white" href="{% url 'user' user.username %}">My codelists</a>
-          </div>
-          <div class="navbar-nav nav-item">
-            <a class="nav-link text-white" href="{% url 'logout' %}">Sign out</a>
-          </div>
-        {% else %}
-          <div class="navbar-nav nav-item">
-            <a class="nav-link text-white" href="{% url 'register' %}">Sign up</a>
-          </div>
-          <div class="navbar-nav nav-item">
-            <a class="nav-link text-white" href="{% url 'login' %}">Sign in</a>
-          </div>
-        {% endif %}
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-toggle="collapse"
+          data-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent"
+          aria-expanded="false"
+          aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
       </div>
 
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ml-auto">
+          <li class="navbar-nav nav-item">
+            <a class="nav-link text-white" href="{% url 'docs:index' %}">Docs</a>
+          </li>
+          {% if request.user.is_authenticated %}
+            <li class="navbar-nav nav-item">
+              <a class="nav-link text-white" href="{% url 'user' user.username %}">My codelists</a>
+            </li>
+            <li class="navbar-nav nav-item">
+              <a class="nav-link text-white" href="{% url 'logout' %}">Sign out</a>
+            </li>
+          {% else %}
+            <li class="navbar-nav nav-item">
+              <a class="nav-link text-white" href="{% url 'register' %}">Sign up</a>
+            </li>
+            <li class="navbar-nav nav-item">
+              <a class="nav-link text-white" href="{% url 'login' %}">Sign in</a>
+            </li>
+          {% endif %}
+        </ul>
+      </div>
     </nav>
 
     <main role="main" class="container">

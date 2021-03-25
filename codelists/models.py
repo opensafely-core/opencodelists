@@ -247,9 +247,15 @@ class CodelistVersion(models.Model):
         """Return Codeset for the codes related to this CodelistVersion."""
 
         if self.csv_data:
-            # We don't need a Codeset for an old-style codelist
-            return None
+            return self._old_style_codeset()
+        else:
+            return self._new_style_codeset()
 
+    def _old_style_codeset(self):
+        hierarchy = Hierarchy.from_codes(self.coding_system, self.codes)
+        return Codeset.from_codes(set(self.codes), hierarchy)
+
+    def _new_style_codeset(self):
         code_to_status = dict(self.code_objs.values_list("code", "status"))
         hierarchy = Hierarchy.from_codes(self.coding_system, list(code_to_status))
         return Codeset(code_to_status, hierarchy)

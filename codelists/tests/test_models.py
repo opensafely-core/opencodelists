@@ -57,6 +57,10 @@ def test_old_style_table(old_style_version):
     ]
 
 
+def test_old_style_codeset(old_style_version):
+    assert old_style_version.codeset.codes() == set(old_style_version.codes)
+
+
 def test_new_style_codes(version_with_some_searches):
     assert version_with_some_searches.codes == (
         "128133004",
@@ -82,6 +86,12 @@ def test_new_style_table(version_with_some_searches):
         ["439656005", "Arthritis of elbow"],
         ["73583000", "Epicondylitis"],
     ]
+
+
+def test_new_style_codeset(version_with_some_searches):
+    assert version_with_some_searches.codeset.codes() == set(
+        version_with_some_searches.codes
+    )
 
 
 def test_old_style_is_new_style(old_style_codelist):

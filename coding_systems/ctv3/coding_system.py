@@ -114,6 +114,12 @@ def codes_by_type(codes, hierarchy):
 
     lookup = collections.defaultdict(list)
     for code in codes:
+        if code in types:
+            # This code is one of the top-level types, and so will not be captured
+            # below.
+            lookup[terms_by_type[code]].append(code)
+            continue
+
         # get groups for this
         groups = hierarchy.ancestors(code) & types
 

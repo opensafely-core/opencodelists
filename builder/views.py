@@ -97,7 +97,8 @@ def _draft(request, draft, search_slug):
             "unresolved": ["?"],
             "in conflict": ["!"],
         }[filter]
-        displayed_codes = [c for c in displayed_codes if c in codeset.codes(statuses)]
+        codes_with_status = codeset.codes(statuses)
+        displayed_codes = [c for c in displayed_codes if c in codes_with_status]
 
     ancestor_codes = hierarchy.filter_to_ultimate_ancestors(set(displayed_codes))
     code_to_term = coding_system.code_to_term(codeset.all_codes())

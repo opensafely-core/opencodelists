@@ -56,8 +56,13 @@
       <dt>Codelist ID</dt>
       <dd>{{ codelist.full_slug }}</dd>
 
-      <dt>Version</dt>
-      <dd>{{ clv.tag_or_hash }}</dd>
+      {% if clv.tag %}
+      <dt>Tag</dt>
+      <dd>{{ clv.tag }}</dd>
+      {% endif %}
+
+      <dt>ID</dt>
+      <dd>{{ clv.hash }}</dd>
     </dl>
 
     {% if user_can_edit %}

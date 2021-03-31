@@ -85,7 +85,7 @@ flake8==3.9.0
     # via -r requirements.in
 freezegun==0.3.15
     # via pytest-freezegun
-gunicorn==20.0.4
+gunicorn==20.1.0
     # via -r requirements.in
 hypothesis==6.8.3
     # via -r requirements.in

@@ -1,4 +1,5 @@
 from collections import defaultdict
+from functools import lru_cache
 
 from django.db.models import Q
 
@@ -76,7 +77,19 @@ lookup_names = code_to_term
 
 
 def codes_by_type(codes, hierarchy):
-    """Return mapping from a chapter name (ICD-10 types) to those codes in that chapter.
+    """Return mapping from chapter name to codes in that chapter."""
+
+    codes_by_type = defaultdict(list)
+    for code in codes:
+        chapter_code = category_to_chapter()[code]
+        chapter_name = chapter_code_to_chapter_name()[chapter_code]
+        codes_by_type[chapter_name].append(code)
+    return dict(codes_by_type)
+
+
+@lru_cache()
+def category_to_chapter():
+    """Return mapping from a category code to chapter code.
 
     Each concept belongs exactly one chapter.
 
@@ -90,37 +103,32 @@ def codes_by_type(codes, hierarchy):
     block a category belongs to by its prefix (eg A00.0 belongs to A00-A09).
     """
 
-    block_code_to_chapter_code = {
+    block_to_chapter = {
         block_concept.code: block_concept.parent_id
-        for block_concept in Concept.objects.filter(kind="block")
+        for block_concept in Concept.objects.filter(
+            kind="block", parent__kind="chapter"
+        )
     }
-    chapter_codes = set(block_code_to_chapter_code.values())
 
-    codes_by_chapter_code = defaultdict(list)
+    category_to_chapter = {}
 
-    for code in codes:
-        if code in chapter_codes:
-            codes_by_chapter_code[code].append(code)
-        elif code in block_code_to_chapter_code:
-            codes_by_chapter_code[block_code_to_chapter_code[code]].append(code)
+    for code in Concept.objects.filter(kind="category").values_list("code", flat=True):
+        for block in block_to_chapter:
+            lower, upper = block.split("-")
+            if (lower <= code <= upper) or code.startswith(upper):
+                category_to_chapter[code] = block_to_chapter[block]
+                break
         else:
-            for block_code in block_code_to_chapter_code:
-                lower, upper = block_code.split("-")
-                if lower <= code <= upper:
-                    codes_by_chapter_code[
-                        block_code_to_chapter_code[block_code]
-                    ].append(code)
-                    break
-            else:
-                assert False, code
+            assert False, code
 
-    chapter_code_to_chapter_name = dict(
-        Concept.objects.filter(
-            kind="chapter", code__in=codes_by_chapter_code
-        ).values_list("code", "term")
-    )
+    return category_to_chapter
+
+
+@lru_cache()
+def chapter_code_to_chapter_name():
+    """Return mapping from a chapter code to its name."""
 
     return {
-        f"{chapter_code}: {chapter_code_to_chapter_name[chapter_code]}": codes
-        for chapter_code, codes in codes_by_chapter_code.items()
+        concept.code: f"{concept.code}: {concept.term}"
+        for concept in Concept.objects.filter(kind="chapter")
     }

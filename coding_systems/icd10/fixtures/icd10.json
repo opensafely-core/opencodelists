@@ -1,0 +1,191 @@
+[
+  {
+    "model": "icd10.concept",
+    "pk": "A75-A79",
+    "fields": {
+      "kind": "block",
+      "term": "Rickettsioses",
+      "parent": "I"
+    }
+  },
+  {
+    "model": "icd10.concept",
+    "pk": "A77",
+    "fields": {
+      "kind": "category",
+      "term": "Spotted fever [tick-borne rickettsioses]",
+      "parent": "A75-A79"
+    }
+  },
+  {
+    "model": "icd10.concept",
+    "pk": "A770",
+    "fields": {
+      "kind": "category",
+      "term": "Spotted fever due to Rickettsia rickettsii",
+      "parent": "A77"
+    }
+  },
+  {
+    "model": "icd10.concept",
+    "pk": "A771",
+    "fields": {
+      "kind": "category",
+      "term": "Spotted fever due to Rickettsia conorii",
+      "parent": "A77"
+    }
+  },
+  {
+    "model": "icd10.concept",
+    "pk": "A772",
+    "fields": {
+      "kind": "category",
+      "term": "Spotted fever due to Rickettsia sibirica",
+      "parent": "A77"
+    }
+  },
+  {
+    "model": "icd10.concept",
+    "pk": "A773",
+    "fields": {
+      "kind": "category",
+      "term": "Spotted fever due to Rickettsia australis",
+      "parent": "A77"
+    }
+  },
+  {
+    "model": "icd10.concept",
+    "pk": "A778",
+    "fields": {
+      "kind": "category",
+      "term": "Other spotted fevers",
+      "parent": "A77"
+    }
+  },
+  {
+    "model": "icd10.concept",
+    "pk": "A779",
+    "fields": {
+      "kind": "category",
+      "term": "Spotted fever, unspecified",
+      "parent": "A77"
+    }
+  },
+  {
+    "model": "icd10.concept",
+    "pk": "I",
+    "fields": {
+      "kind": "chapter",
+      "term": "Certain infectious and parasitic diseases",
+      "parent": null
+    }
+  },
+  {
+    "model": "icd10.concept",
+    "pk": "M60-M79",
+    "fields": {
+      "kind": "block",
+      "term": "Soft tissue disorders",
+      "parent": "XIII"
+    }
+  },
+  {
+    "model": "icd10.concept",
+    "pk": "M70-M79",
+    "fields": {
+      "kind": "block",
+      "term": "Other soft tissue disorders",
+      "parent": "M60-M79"
+    }
+  },
+  {
+    "model": "icd10.concept",
+    "pk": "M77",
+    "fields": {
+      "kind": "category",
+      "term": "Other enthesopathies",
+      "parent": "M70-M79"
+    }
+  },
+  {
+    "model": "icd10.concept",
+    "pk": "M770",
+    "fields": {
+      "kind": "category",
+      "term": "Medial epicondylitis",
+      "parent": "M77"
+    }
+  },
+  {
+    "model": "icd10.concept",
+    "pk": "M771",
+    "fields": {
+      "kind": "category",
+      "term": "Lateral epicondylitis",
+      "parent": "M77"
+    }
+  },
+  {
+    "model": "icd10.concept",
+    "pk": "M772",
+    "fields": {
+      "kind": "category",
+      "term": "Periarthritis of wrist",
+      "parent": "M77"
+    }
+  },
+  {
+    "model": "icd10.concept",
+    "pk": "M773",
+    "fields": {
+      "kind": "category",
+      "term": "Calcaneal spur",
+      "parent": "M77"
+    }
+  },
+  {
+    "model": "icd10.concept",
+    "pk": "M774",
+    "fields": {
+      "kind": "category",
+      "term": "Metatarsalgia",
+      "parent": "M77"
+    }
+  },
+  {
+    "model": "icd10.concept",
+    "pk": "M775",
+    "fields": {
+      "kind": "category",
+      "term": "Other enthesopathy of foot",
+      "parent": "M77"
+    }
+  },
+  {
+    "model": "icd10.concept",
+    "pk": "M778",
+    "fields": {
+      "kind": "category",
+      "term": "Other enthesopathies, not elsewhere classified",
+      "parent": "M77"
+    }
+  },
+  {
+    "model": "icd10.concept",
+    "pk": "M779",
+    "fields": {
+      "kind": "category",
+      "term": "Enthesopathy, unspecified",
+      "parent": "M77"
+    }
+  },
+  {
+    "model": "icd10.concept",
+    "pk": "XIII",
+    "fields": {
+      "kind": "chapter",
+      "term": "Diseases of the musculoskeletal system and connective tissue",
+      "parent": null
+    }
+  }
+]

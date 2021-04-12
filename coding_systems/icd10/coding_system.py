@@ -1,8 +1,6 @@
 from collections import defaultdict
 from functools import lru_cache
 
-from django.db.models import Q
-
 from opencodelists.db_utils import query
 
 from .models import Concept
@@ -13,12 +11,27 @@ short_name = "ICD-10"
 root = ""
 
 
-def search(term):
+def search_by_term(term):
     return set(
         Concept.objects.filter(kind="category")
-        .filter(Q(term__contains=term) | Q(code=term))
+        .filter(term__contains=term)
         .values_list("code", flat=True)
     )
+
+
+def search_by_code(code):
+    try:
+        concept = Concept.objects.get(code__iexact=code)
+    except Concept.ObjectDoesNotExist:
+        return set()
+
+    # The UI does not support top-level concepts being included/excluded (and in any
+    # case, they cannot appear on a patient record) so if a user searches for a chapter
+    # code, we instead return the codes for all children of that chapter.
+    if concept.kind == "chapter":
+        return {child.code for child in concept.children.all()}
+    else:
+        return {code}
 
 
 def ancestor_relationships(codes):
@@ -81,15 +94,15 @@ def codes_by_type(codes, hierarchy):
 
     codes_by_type = defaultdict(list)
     for code in codes:
-        chapter_code = category_to_chapter()[code]
+        chapter_code = code_to_chapter()[code]
         chapter_name = chapter_code_to_chapter_name()[chapter_code]
         codes_by_type[chapter_name].append(code)
     return dict(codes_by_type)
 
 
 @lru_cache()
-def category_to_chapter():
-    """Return mapping from a category code to chapter code.
+def code_to_chapter():
+    """Return mapping from a concept's code to the code of its chapter.
 
     Each concept belongs exactly one chapter.
 
@@ -99,29 +112,39 @@ def category_to_chapter():
         * blocks (A00-A09, A15-A19, etc)
         * categories (A00, A01, etc, and also A00.0, A00.1, etc)
 
-    We have to look up the mapping from blocks to chapters, but we can calculate what
-    block a category belongs to by its prefix (eg A00.0 belongs to A00-A09).
+    Some blocks are children of chapters, while others are children of other blocks.
+    And some categories are children of blocks, while others are children of other
+    categories.
+
+    If a block is a child of another block, that parent block will be the child of a
+    chapter.  And if a category is a child of another category, that parent category
+    will be the child of a block.
     """
 
-    block_to_chapter = {
-        block_concept.code: block_concept.parent_id
-        for block_concept in Concept.objects.filter(
-            kind="block", parent__kind="chapter"
-        )
+    # Start with mappings from chapter code to chapter code.
+    code_to_chapter = {
+        chapter.code: chapter.code for chapter in Concept.objects.filter(kind="chapter")
     }
 
-    category_to_chapter = {}
+    # Add mappings from blocks that are children of chapters.
+    for block in Concept.objects.filter(kind="block", parent__kind="chapter"):
+        code_to_chapter[block.code] = code_to_chapter[block.parent_id]
 
-    for code in Concept.objects.filter(kind="category").values_list("code", flat=True):
-        for block in block_to_chapter:
-            lower, upper = block.split("-")
-            if (lower <= code <= upper) or code.startswith(upper):
-                category_to_chapter[code] = block_to_chapter[block]
-                break
-        else:
-            assert False, code
+    # Add mappings from blocks that are children of other blocks.
+    for block in Concept.objects.filter(kind="block", parent__kind="block"):
+        code_to_chapter[block.code] = code_to_chapter[block.parent_id]
 
-    return category_to_chapter
+    # Add mappings from categories that are children of blocks.
+    for category in Concept.objects.filter(kind="category", parent__kind="block"):
+        code_to_chapter[category.code] = code_to_chapter[category.parent_id]
+
+    # Add mappings from categories that are children of other categories.
+    for category in Concept.objects.filter(kind="category", parent__kind="category"):
+        code_to_chapter[category.code] = code_to_chapter[category.parent_id]
+
+    assert len(code_to_chapter) == Concept.objects.count()
+
+    return code_to_chapter
 
 
 @lru_cache()

@@ -1,8 +1,14 @@
 from .hierarchy import Hierarchy
 
 
-def do_search(coding_system, term):
-    matching_codes = coding_system.search(term)
+def do_search(coding_system, term=None, code=None):
+    assert bool(code) != bool(term)
+
+    if term is not None:
+        matching_codes = coding_system.search_by_term(term)
+    else:
+        matching_codes = coding_system.search_by_code(code)
+
     hierarchy = Hierarchy.from_codes(coding_system, matching_codes)
     ancestor_codes = hierarchy.filter_to_ultimate_ancestors(matching_codes)
 

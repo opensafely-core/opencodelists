@@ -1,8 +1,6 @@
 import collections
 import re
 
-from django.db.models import Q
-
 from opencodelists.db_utils import query
 
 from .models import FULLY_SPECIFIED_NAME, IS_A, Concept, Description
@@ -25,12 +23,19 @@ def lookup_names(codes):
     }
 
 
-def search(term):
+def search_by_term(term):
     return set(
         Concept.objects.filter(
-            Q(descriptions__term__contains=term, descriptions__active=True) | Q(id=term)
+            descriptions__term__contains=term, descriptions__active=True
         ).values_list("id", flat=True)
     )
+
+
+def search_by_code(code):
+    if Concept.objects.filter(id=code).exists():
+        return {code}
+    else:
+        return set()
 
 
 def ancestor_relationships(codes):

@@ -1,7 +1,5 @@
 from collections import defaultdict
 
-from django.db.models import Q
-
 from opencodelists.db_utils import query
 
 from .models import Concept
@@ -12,12 +10,25 @@ short_name = "BNF"
 root = ""
 
 
-def search(term):
+def search_by_term(term):
     return set(
-        Concept.objects.filter(Q(name__contains=term) | Q(code=term)).values_list(
-            "code", flat=True
-        )
+        Concept.objects.filter(name__contains=term).values_list("code", flat=True)
     )
+
+
+def search_by_code(code):
+    try:
+        concept = Concept.objects.get(code__iexact=code)
+    except Concept.ObjectDoesNotExist:
+        return set()
+
+    # The UI does not support top-level concepts being included/excluded (and in any
+    # case, they cannot appear on a patient record) so if a user searches for a chapter
+    # code, we instead return the codes for all children of that chapter.
+    if concept.type == "Chapter":
+        return {child.code for child in concept.children.all()}
+    else:
+        return {code}
 
 
 def ancestor_relationships(codes):

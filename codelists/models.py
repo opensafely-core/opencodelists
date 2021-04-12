@@ -363,11 +363,25 @@ class Search(models.Model):
     version = models.ForeignKey(
         "CodelistVersion", related_name="searches", on_delete=models.CASCADE
     )
-    term = models.CharField(max_length=255)
+    term = models.CharField(max_length=255, null=True)
+    code = models.CharField(max_length=18, null=True)
     slug = models.SlugField()
 
     class Meta:
         unique_together = ("version", "slug")
+        constraints = [
+            models.CheckConstraint(
+                name="%(app_label)s_%(class)s_term_xor_code",
+                check=(
+                    models.Q(term__isnull=False, code__isnull=True)
+                    | models.Q(code__isnull=False, term__isnull=True)
+                ),
+            )
+        ]
+
+    @property
+    def term_or_code(self):
+        return self.term or self.code
 
 
 class SearchResult(models.Model):

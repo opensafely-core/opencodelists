@@ -70,7 +70,7 @@ def _draft(request, draft, search_slug):
 
     searches = [
         {
-            "term": s.term,
+            "term_or_code": s.term_or_code,
             "url": draft.get_builder_url("search", s.slug),
             "active": s == search,
         }
@@ -112,7 +112,7 @@ def _draft(request, draft, search_slug):
     if search_slug == NO_SEARCH_TERM:
         results_heading = "Showing concepts with no matching search term"
     elif search_slug is not None:
-        results_heading = f'Showing concepts matching "{search.term}"'
+        results_heading = f'Showing concepts matching "{search.term_or_code}"'
     elif codeset.all_codes():
         results_heading = "Showing all matching concepts"
     else:
@@ -163,10 +163,18 @@ def update(request, draft):
 @require_http_methods(["POST"])
 @load_draft
 def new_search(request, draft):
-    term = request.POST["term"]
-    codes = do_search(draft.coding_system, term)["all_codes"]
+    if request.POST["field"] == "term":
+        term = request.POST["search"]
+        code = None
+    elif request.POST["field"] == "code":
+        term = None
+        code = request.POST["search"]
+    else:
+        assert False, request.POST["field"]
 
-    search = actions.create_search(draft=draft, term=term, codes=codes)
+    codes = do_search(draft.coding_system, term=term, code=code)["all_codes"]
+
+    search = actions.create_search(draft=draft, term=term, code=code, codes=codes)
 
     if not codes:
         messages.info(request, f'There are no results for "{term}"')

@@ -488,3 +488,9 @@ def new_style_version(universe, request):
     version = universe[request.param]
     version.refresh_from_db()
     return version
+
+
+@pytest.fixture
+def icd10_data():
+    path = Path(settings.BASE_DIR, "coding_systems", "icd10", "fixtures", "icd10.json")
+    call_command("loaddata", path)

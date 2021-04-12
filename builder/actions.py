@@ -17,8 +17,9 @@ def create_draft(*, codelist, owner):
 
 
 @transaction.atomic
-def create_search(*, draft, term, codes):
-    search = draft.searches.create(term=term, slug=slugify(term))
+def create_search(*, draft, term=None, code=None, codes):
+    assert bool(term) != bool(code)
+    search = draft.searches.create(term=term, code=code, slug=slugify(term or code))
 
     # Ensure that there is a CodeObj object linked to this draft for each code.
     codes_with_existing_code_objs = set(

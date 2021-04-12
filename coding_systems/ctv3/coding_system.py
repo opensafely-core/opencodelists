@@ -20,9 +20,9 @@ def lookup_names(codes):
     )
 
 
-def search(term):
+def search_by_term(term):
     tpp_read_codes = set(
-        TPPConcept.objects.filter(Q(description__contains=term) | Q(read_code=term))
+        TPPConcept.objects.filter(description__contains=term)
         .values_list("read_code", flat=True)
         .distinct()
     )
@@ -31,8 +31,21 @@ def search(term):
             Q(term__name_1__contains=term)
             | Q(term__name_2__contains=term)
             | Q(term__name_3__contains=term)
-            | Q(concept_id=term)
         )
+        .values_list("concept_id", flat=True)
+        .distinct()
+    )
+    return tpp_read_codes | raw_read_codes
+
+
+def search_by_code(code):
+    tpp_read_codes = set(
+        TPPConcept.objects.filter(read_code=code)
+        .values_list("read_code", flat=True)
+        .distinct()
+    )
+    raw_read_codes = set(
+        RawConceptTermMapping.objects.filter(concept_id=code)
         .values_list("concept_id", flat=True)
         .distinct()
     )

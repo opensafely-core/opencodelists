@@ -140,17 +140,17 @@ class CodelistBuilder extends React.Component {
 
             {this.props.searches.length > 0 && (
               <>
-                <h3 className="mb-4">Term searches</h3>
+                <h3 className="mb-4">Searches</h3>
                 <ul className="list-group">
                   {this.props.searches.map((search) => (
-                    <TermSearch key={search.url} search={search} />
+                    <Search key={search.url} search={search} />
                   ))}
                 </ul>
                 <hr />
               </>
             )}
 
-            <h3 className="mb-4">New term search</h3>
+            <h3 className="mb-4">New search</h3>
             <SearchForm searchURL={this.props.searchURL} />
           </div>
 
@@ -265,7 +265,7 @@ function Filter(props) {
   ) : null;
 }
 
-function TermSearch(props) {
+function Search(props) {
   const { search } = props;
 
   return (
@@ -277,7 +277,7 @@ function TermSearch(props) {
           : "list-group-item list-group-item-action"
       }
     >
-      {search.term}
+      {search.term_or_code}
     </a>
   );
 }
@@ -296,13 +296,28 @@ function SearchForm(props) {
         <input
           type="search"
           className="form-control"
-          name="term"
-          placeholder="Search term"
+          name="search"
+          placeholder="Search term or code"
         />
       </div>
-      <button type="submit" name="search" className="btn btn-primary">
-        Search
-      </button>
+      <div>
+        <button
+          type="submit"
+          name="field"
+          value="term"
+          className="btn btn-sm btn-primary mr-1"
+        >
+          Search by term
+        </button>
+        <button
+          type="submit"
+          name="field"
+          value="code"
+          className="btn btn-sm btn-primary ml-1"
+        >
+          Search by code
+        </button>
+      </div>
     </form>
   );
 }

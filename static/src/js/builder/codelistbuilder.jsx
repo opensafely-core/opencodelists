@@ -354,8 +354,8 @@ function Summary(props) {
   return (
     <ul>
       <li>
-        Found <span id="summary-total">{props.counts.total}</span> active
-        matching concepts (including descendants).
+        Found <span id="summary-total">{props.counts.total}</span> matching
+        concepts (including descendants).
       </li>
       {props.counts["+"] > 0 && (
         <li>

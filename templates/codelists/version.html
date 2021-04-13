@@ -25,6 +25,7 @@
       >
         Download CSV
       </a>
+      {% if clv.codeset %}
       <a
         href="{{ clv.get_download_definition_url }}"
         role="button"
@@ -32,6 +33,7 @@
       >
         Download definition
       </a>
+      {% endif %}
       {% if clv.coding_system_id == "bnf" %}
       <a
         href="{{ clv.get_dmd_download_url }}"

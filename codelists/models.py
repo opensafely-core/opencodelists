@@ -252,6 +252,11 @@ class CodelistVersion(models.Model):
             return self._new_style_codeset()
 
     def _old_style_codeset(self):
+        if not hasattr(self.coding_system, "ancestor_relationships"):
+            # If coding system does not define relationships, then we cannot build a
+            # hierarchy, and so it's not clear what a codeset is for.
+            return
+
         hierarchy = Hierarchy.from_codes(self.coding_system, self.codes)
         return Codeset.from_codes(set(self.codes), hierarchy)
 

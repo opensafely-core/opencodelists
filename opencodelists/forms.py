@@ -66,7 +66,7 @@ class CodelistCreateForm(forms.Form):
     )
 
     owner = forms.ChoiceField()
-    name = forms.CharField(max_length=255, label="Codlist name")
+    name = forms.CharField(max_length=255, label="Codelist name")
     coding_system_id = forms.ChoiceField(
         choices=CODING_SYSTEM_CHOICES, label="Coding system"
     )

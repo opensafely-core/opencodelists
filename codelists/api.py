@@ -6,7 +6,7 @@ from rest_framework.response import Response
 
 from opencodelists.models import Organisation
 
-from .actions import create_version_from_ecl_expr
+from .actions import create_version_from_ecl_expr, create_version_with_codes
 from .views.decorators import load_codelist
 
 
@@ -76,13 +76,29 @@ def versions(request, codelist):
         if request.user != codelist.user:
             raise PermissionDenied
 
-    if "ecl" not in request.data:
-        return error("Missing `ecl` key")
+    if ("codes" in request.data and "ecl" in request.data) or (
+        "codes" not in request.data and "ecl" not in request.data
+    ):
+        return error("Provide exactly one of `codes` or `ecl`")
 
     try:
-        clv = create_version_from_ecl_expr(
-            codelist=codelist, expr=request.data["ecl"], tag=request.data.get("tag")
-        )
+        if "codes" in request.data:
+            clv = create_version_with_codes(
+                codelist=codelist,
+                codes=set(request.data.getlist("codes")),
+                tag=request.data.get("tag"),
+            )
+
+        elif "ecl" in request.data:
+            clv = create_version_from_ecl_expr(
+                codelist=codelist,
+                expr=request.data["ecl"],
+                tag=request.data.get("tag"),
+            )
+
+        else:
+            assert False
+
     except ValueError as e:
         return error(str(e))
 

@@ -1,6 +1,7 @@
 import pytest
 from django.db.utils import IntegrityError
 
+from codelists.actions import export_to_builder
 from codelists.models import Codelist, CodelistVersion
 from opencodelists.tests.factories import OrganisationFactory, UserFactory
 
@@ -100,6 +101,23 @@ def test_old_style_is_new_style(old_style_codelist):
 
 def test_new_style_is_new_style(new_style_codelist):
     assert new_style_codelist.is_new_style()
+
+
+def test_latest_version(
+    new_style_codelist, version_with_complete_searches, organisation_user
+):
+    # Check that the latest version is the last created version
+    assert new_style_codelist.latest_version() == version_with_complete_searches
+
+    # Create a new draft version
+    export_to_builder(version=version_with_complete_searches, owner=organisation_user)
+
+    # Check that the latest version is unchanged
+    assert new_style_codelist.latest_version() == version_with_complete_searches
+
+
+def test_latest_version_for_new_codelist(codelist_from_scratch, organisation_user):
+    assert codelist_from_scratch.latest_version() is None
 
 
 def test_get_by_hash(new_style_version):

@@ -123,6 +123,12 @@ class Codelist(models.Model):
         else:
             return user.is_member(self.organisation)
 
+    def latest_version(self):
+        """Return latest version that's not being edited, or None if no such version
+        exists."""
+
+        return self.versions.filter(draft_owner__isnull=True).order_by("id").last()
+
 
 class CodelistVersion(models.Model):
     codelist = models.ForeignKey(

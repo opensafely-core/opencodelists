@@ -1,9 +1,9 @@
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 
 from .actions import create_version_from_ecl_expr, create_version_with_codes
+from .api_decorators import require_permission
 from .views.decorators import load_codelist, load_owner
 
 
@@ -59,16 +59,8 @@ def codelists(request, owner):
 
 @api_view(["POST"])
 @load_codelist
+@require_permission
 def versions(request, codelist):
-    if codelist.organisation:
-        assert not codelist.user
-        if not request.user.is_member(codelist.organisation):
-            raise PermissionDenied
-    else:
-        assert codelist.user
-        if request.user != codelist.user:
-            raise PermissionDenied
-
     if ("codes" in request.data and "ecl" in request.data) or (
         "codes" not in request.data and "ecl" not in request.data
     ):

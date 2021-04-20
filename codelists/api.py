@@ -1,14 +1,12 @@
-from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.response import Response
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
 
 from .actions import create_version_from_ecl_expr, create_version_with_codes
-from .api_decorators import require_permission
+from .api_decorators import require_authentication, require_permission
 from .views.decorators import load_codelist, load_owner
 
 
-@api_view(["GET"])
-@permission_classes([])
+@require_http_methods(["GET"])
 @load_owner
 def codelists(request, owner):
     """Endpoint to return information about the codelists owned by an organisation.
@@ -54,31 +52,32 @@ def codelists(request, owner):
             )
 
         records.append(record)
-    return Response(records)
+    return JsonResponse({"codelists": records})
 
 
-@api_view(["POST"])
+@require_http_methods(["POST"])
+@require_authentication
 @load_codelist
 @require_permission
 def versions(request, codelist):
-    if ("codes" in request.data and "ecl" in request.data) or (
-        "codes" not in request.data and "ecl" not in request.data
+    if ("codes" in request.POST and "ecl" in request.POST) or (
+        "codes" not in request.POST and "ecl" not in request.POST
     ):
         return error("Provide exactly one of `codes` or `ecl`")
 
     try:
-        if "codes" in request.data:
+        if "codes" in request.POST:
             clv = create_version_with_codes(
                 codelist=codelist,
-                codes=set(request.data.getlist("codes")),
-                tag=request.data.get("tag"),
+                codes=set(request.POST.getlist("codes")),
+                tag=request.POST.get("tag"),
             )
 
-        elif "ecl" in request.data:
+        elif "ecl" in request.POST:
             clv = create_version_from_ecl_expr(
                 codelist=codelist,
-                expr=request.data["ecl"],
-                tag=request.data.get("tag"),
+                expr=request.POST["ecl"],
+                tag=request.POST.get("tag"),
             )
 
         else:
@@ -87,8 +86,8 @@ def versions(request, codelist):
     except ValueError as e:
         return error(str(e))
 
-    return Response({"codelist_version": clv.get_absolute_url()})
+    return JsonResponse({"codelist_version": clv.get_absolute_url()})
 
 
 def error(msg):
-    return Response({"error": msg}, status=status.HTTP_400_BAD_REQUEST)
+    return JsonResponse({"error": msg}, status=400)

@@ -7,7 +7,7 @@ def test_codelists(client, organisation):
     rsp = client.get(f"/api/v1/codelist/{organisation.slug}/")
     data = json.loads(rsp.content)
     assert rsp.status_code == 200
-    assert data == [
+    assert data["codelists"] == [
         {
             "full_slug": "test-university/old-style-codelist",
             "slug": "old-style-codelist",

@@ -62,7 +62,17 @@ def test_codelists(client, organisation):
     ]
 
 
-def test_versions_post(client, user, user_codelist):
+def test_versions_post_codes(client, user, user_codelist):
+    data = {"codes": ["128133004", "156659008"]}
+    headers = {"HTTP_AUTHORIZATION": f"Token {user.api_token}"}
+
+    with assert_difference(user_codelist.versions.count, expected_difference=1):
+        rsp = client.post(user_codelist.get_versions_api_url(), data, **headers)
+
+    assert rsp.status_code == 200
+
+
+def test_versions_post_ecl(client, user, user_codelist):
     data = {"ecl": "<<128133004 OR 156659008"}
     headers = {"HTTP_AUTHORIZATION": f"Token {user.api_token}"}
 
@@ -94,7 +104,7 @@ def test_versions_post_bad_ecl(client, user, user_codelist):
     assert json.loads(rsp.content)["error"].startswith("InputMismatchException")
 
 
-def test_versions_post_missing_ecl(client, user, user_codelist):
+def test_versions_post_missing_data(client, user, user_codelist):
     data = {}
     headers = {"HTTP_AUTHORIZATION": f"Token {user.api_token}"}
 
@@ -102,7 +112,9 @@ def test_versions_post_missing_ecl(client, user, user_codelist):
         rsp = client.post(user_codelist.get_versions_api_url(), data, **headers)
 
     assert rsp.status_code == 400
-    assert json.loads(rsp.content) == {"error": "Missing `ecl` key"}
+    assert json.loads(rsp.content) == {
+        "error": "Provide exactly one of `codes` or `ecl`"
+    }
 
 
 def test_versions_post_no_auth(client, user_codelist):

@@ -117,6 +117,9 @@ class User(AbstractBaseUser):
     def get_codelist_create_url(self):
         return reverse("codelists:user_codelist_create", kwargs=self.url_kwargs)
 
+    def get_codelists_api_url(self):
+        return reverse("codelists_api:user_codelists", kwargs=self.url_kwargs)
+
     @property
     def url_kwargs(self):
         return {"username": self.username}

@@ -62,6 +62,47 @@ def test_codelists(client, organisation):
     ]
 
 
+def test_codelists_post(client, user):
+    data = {
+        "name": "New codelist",
+        "coding_system_id": "snomedct",
+        "codes": ["128133004", "156659008"],
+    }
+    headers = {"HTTP_AUTHORIZATION": f"Token {user.api_token}"}
+
+    with assert_difference(user.codelists.count, expected_difference=1):
+        rsp = client.post(user.get_codelists_api_url(), data, **headers)
+
+    assert rsp.status_code == 200
+
+
+def test_codelists_post_no_auth(client, user):
+    data = {
+        "name": "New codelist",
+        "coding_system_id": "snomedct",
+        "codes": ["128133004", "156659008"],
+    }
+
+    with assert_no_difference(user.codelists.count):
+        rsp = client.post(user.get_codelists_api_url(), data)
+
+    assert rsp.status_code == 401
+
+
+def test_codelists_post_permission_denied(client, user, user_without_organisation):
+    data = {
+        "name": "New codelist",
+        "coding_system_id": "snomedct",
+        "codes": ["128133004", "156659008"],
+    }
+    headers = {"HTTP_AUTHORIZATION": f"Token {user_without_organisation.api_token}"}
+
+    with assert_no_difference(user.codelists.count):
+        rsp = client.post(user.get_codelists_api_url(), data, **headers)
+
+    assert rsp.status_code == 403
+
+
 def test_versions_post_codes(client, user, user_codelist):
     data = {"codes": ["128133004", "156659008"]}
     headers = {"HTTP_AUTHORIZATION": f"Token {user.api_token}"}

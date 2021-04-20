@@ -5,11 +5,10 @@ from . import api
 app_name = "codelists_api"
 
 
-urlpatterns = [
-    path("codelist/<organisation_slug>/", api.codelists, name="codelists"),
-]
+urlpatterns = []
 
 for subpath, view in [
+    ("", api.codelists),
     ("<codelist_slug>/versions/", api.versions),
 ]:
     urlpatterns.append(

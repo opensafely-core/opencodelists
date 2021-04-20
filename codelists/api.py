@@ -1,18 +1,16 @@
-from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 
-from opencodelists.models import Organisation
-
 from .actions import create_version_from_ecl_expr, create_version_with_codes
-from .views.decorators import load_codelist
+from .views.decorators import load_codelist, load_owner
 
 
 @api_view(["GET"])
 @permission_classes([])
-def codelists(request, organisation_slug):
+@load_owner
+def codelists(request, owner):
     """Endpoint to return information about the codelists owned by an organisation.
 
     HTPP response contains JSON array with one item for each codelist owned by the
@@ -37,14 +35,9 @@ def codelists(request, organisation_slug):
     ]
     """
 
-    organisation = get_object_or_404(
-        Organisation.objects.prefetch_related("codelists__versions"),
-        slug=organisation_slug,
-    )
-
     records = []
 
-    for cl in organisation.codelists.all():
+    for cl in owner.codelists.prefetch_related("versions").all():
         record = {
             "full_slug": cl.full_slug(),
             "slug": cl.slug,

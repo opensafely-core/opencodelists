@@ -37,10 +37,6 @@ def install_python_requirements():
         run("pip install --quiet --requirement requirements.txt")
 
 
-def chown_everything():
-    run(f"chown -R {env.user}:www-data {env.path}")
-
-
 def run_migrations():
     with prefix("source venv/bin/activate"):
         run("python manage.py migrate")
@@ -110,7 +106,6 @@ def deploy():
             run_migrations()
             install_js_requirements()
             build_static_assets()
-            chown_everything()
             set_up_nginx()
             set_up_systemd()
             set_up_cron()

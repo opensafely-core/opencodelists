@@ -64,6 +64,7 @@ def create_codelist_with_codes(
     coding_system_id,
     codes,
     slug=None,
+    tag=None,
     description=None,
     methodology=None,
     references=None,
@@ -95,7 +96,7 @@ def create_codelist_with_codes(
     code_to_term = coding_system.code_to_term(codes)
     assert codes == set(code_to_term)
 
-    version = codelist.versions.create()
+    version = codelist.versions.create(tag=tag)
     hierarchy = Hierarchy.from_codes(codelist.coding_system, codes)
     codeset = Codeset.from_codes(codes, hierarchy)
 

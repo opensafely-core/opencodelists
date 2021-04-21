@@ -5,6 +5,7 @@ def test_require_authentication_success(client, user, user_codelist):
     rsp = client.post(
         user_codelist.get_versions_api_url(),
         {"codes": ["128133004", "156659008"]},
+        content_type="application/json",
         HTTP_AUTHORIZATION=f"Token {user.api_token}".encode("utf8"),
     )
     assert rsp.status_code == 200

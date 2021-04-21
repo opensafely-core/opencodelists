@@ -322,9 +322,12 @@ def export_to_builder(*, version, owner):
     # In future, we should be able to short-circuit this by keeping track of the release
     # that version was created with.
     for search in version.searches.all():
-        term = search.term
-        codes = do_search(version.coding_system, term)["all_codes"]
-        builder_actions.create_search(draft=draft, term=term, codes=codes)
+        codes = do_search(version.coding_system, term=search.term, code=search.code)[
+            "all_codes"
+        ]
+        builder_actions.create_search(
+            draft=draft, term=search.term, code=search.code, codes=codes
+        )
 
     # Update each code status.
     code_to_status = dict(version.code_objs.values_list("code", "status"))

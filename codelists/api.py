@@ -90,6 +90,10 @@ def codelists_post(request, owner):
         coding_system_id=request.POST["coding_system_id"],
         codes=request.POST.getlist("codes"),
         slug=request.POST.get("slug"),
+        description=request.POST.get("description"),
+        methodology=request.POST.get("methodology"),
+        references=request.POST.get("references"),
+        signoffs=request.POST.get("signoffs"),
     )
 
     return JsonResponse({"codelist": cl.get_absolute_url()})

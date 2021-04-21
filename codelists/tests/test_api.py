@@ -68,10 +68,9 @@ def test_codelists_post(client, user):
         "coding_system_id": "snomedct",
         "codes": ["128133004", "156659008"],
     }
-    headers = {"HTTP_AUTHORIZATION": f"Token {user.api_token}"}
 
     with assert_difference(user.codelists.count, expected_difference=1):
-        rsp = client.post(user.get_codelists_api_url(), data, **headers)
+        rsp = post(client, user.get_codelists_api_url(), data, user)
 
     assert rsp.status_code == 200
 
@@ -84,7 +83,7 @@ def test_codelists_post_no_auth(client, user):
     }
 
     with assert_no_difference(user.codelists.count):
-        rsp = client.post(user.get_codelists_api_url(), data)
+        rsp = post(client, user.get_codelists_api_url(), data, None)
 
     assert rsp.status_code == 401
 
@@ -95,40 +94,38 @@ def test_codelists_post_permission_denied(client, user, user_without_organisatio
         "coding_system_id": "snomedct",
         "codes": ["128133004", "156659008"],
     }
-    headers = {"HTTP_AUTHORIZATION": f"Token {user_without_organisation.api_token}"}
 
     with assert_no_difference(user.codelists.count):
-        rsp = client.post(user.get_codelists_api_url(), data, **headers)
+        rsp = post(
+            client, user.get_codelists_api_url(), data, user_without_organisation
+        )
 
     assert rsp.status_code == 403
 
 
 def test_versions_post_codes(client, user, user_codelist):
     data = {"codes": ["128133004", "156659008"]}
-    headers = {"HTTP_AUTHORIZATION": f"Token {user.api_token}"}
 
     with assert_difference(user_codelist.versions.count, expected_difference=1):
-        rsp = client.post(user_codelist.get_versions_api_url(), data, **headers)
+        rsp = post(client, user_codelist.get_versions_api_url(), data, user)
 
     assert rsp.status_code == 200
 
 
 def test_versions_post_ecl(client, user, user_codelist):
     data = {"ecl": "<<128133004 OR 156659008"}
-    headers = {"HTTP_AUTHORIZATION": f"Token {user.api_token}"}
 
     with assert_difference(user_codelist.versions.count, expected_difference=1):
-        rsp = client.post(user_codelist.get_versions_api_url(), data, **headers)
+        rsp = post(client, user_codelist.get_versions_api_url(), data, user)
 
     assert rsp.status_code == 200
 
 
 def test_versions_post_no_difference(client, user, user_codelist):
     data = {"ecl": "(<<128133004 OR 156659008) MINUS <<439656005"}
-    headers = {"HTTP_AUTHORIZATION": f"Token {user.api_token}"}
 
     with assert_no_difference(user_codelist.versions.count):
-        rsp = client.post(user_codelist.get_versions_api_url(), data, **headers)
+        rsp = post(client, user_codelist.get_versions_api_url(), data, user)
 
     assert rsp.status_code == 400
     assert json.loads(rsp.content) == {"error": "No difference to previous version"}
@@ -136,10 +133,9 @@ def test_versions_post_no_difference(client, user, user_codelist):
 
 def test_versions_post_bad_ecl(client, user, user_codelist):
     data = {"ecl": "<<128133004 MIN"}
-    headers = {"HTTP_AUTHORIZATION": f"Token {user.api_token}"}
 
     with assert_no_difference(user_codelist.versions.count):
-        rsp = client.post(user_codelist.get_versions_api_url(), data, **headers)
+        rsp = post(client, user_codelist.get_versions_api_url(), data, user)
 
     assert rsp.status_code == 400
     assert json.loads(rsp.content)["error"].startswith("InputMismatchException")
@@ -147,10 +143,9 @@ def test_versions_post_bad_ecl(client, user, user_codelist):
 
 def test_versions_post_missing_data(client, user, user_codelist):
     data = {}
-    headers = {"HTTP_AUTHORIZATION": f"Token {user.api_token}"}
 
     with assert_no_difference(user_codelist.versions.count):
-        rsp = client.post(user_codelist.get_versions_api_url(), data, **headers)
+        rsp = post(client, user_codelist.get_versions_api_url(), data, user)
 
     assert rsp.status_code == 400
     assert json.loads(rsp.content) == {
@@ -162,7 +157,7 @@ def test_versions_post_no_auth(client, user_codelist):
     data = {"ecl": "<<128133004"}
 
     with assert_no_difference(user_codelist.versions.count):
-        rsp = client.post(user_codelist.get_versions_api_url(), data)
+        rsp = post(client, user_codelist.get_versions_api_url(), data, None)
 
     assert rsp.status_code == 401
 
@@ -171,9 +166,21 @@ def test_versions_post_permission_denied(
     client, user_without_organisation, user_codelist
 ):
     data = {"ecl": "<<128133004"}
-    headers = {"HTTP_AUTHORIZATION": f"Token {user_without_organisation.api_token}"}
 
     with assert_no_difference(user_codelist.versions.count):
-        rsp = client.post(user_codelist.get_versions_api_url(), data, **headers)
+        rsp = post(
+            client,
+            user_codelist.get_versions_api_url(),
+            data,
+            user_without_organisation,
+        )
 
     assert rsp.status_code == 403
+
+
+def post(client, url, data, user):
+    if user is None:
+        headers = {}
+    else:
+        headers = {"HTTP_AUTHORIZATION": f"Token {user.api_token}"}
+    return client.post(url, data, content_type="application/json", **headers)

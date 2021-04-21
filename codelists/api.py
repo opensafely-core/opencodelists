@@ -1,4 +1,7 @@
+import json
+
 from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
 from .actions import (
@@ -11,6 +14,7 @@ from .views.decorators import load_codelist, load_owner
 
 
 @require_http_methods(["GET", "POST"])
+@csrf_exempt
 @load_owner
 def codelists(request, owner):
     if request.method == "GET":
@@ -71,57 +75,74 @@ def codelists_get(request, owner):
 def codelists_post(request, owner):
     """Create new codelist for owner.
 
-    request.POST should contain:
+    request.body should contain:
 
         * name
         * coding_system_id
         * codes
         * slug (optional)
+        * tag (optional)
+        * description (optional)
+        * methodology (optional)
+        * references (optional)
+        * signoffs (optional)
     """
 
-    param_keys = ["name", "coding_system_id", "codes"]
-    missing_keys = [k for k in param_keys if k not in request.POST]
+    try:
+        data = json.loads(request.body)
+    except json.decoder.JSONDecodeError:
+        return error("Invalid JSON")
+
+    required_keys = ["name", "coding_system_id", "codes"]
+    optional_keys = [
+        "slug",
+        "tag",
+        "description",
+        "methodology",
+        "references",
+        "signoffs",
+    ]
+    missing_keys = [k for k in required_keys if k not in data]
     if missing_keys:
         return error(f"Missing keys: {', '.join(f'`{k}`' for k in missing_keys)}")
+    extra_keys = [k for k in data if k not in required_keys + optional_keys]
+    if extra_keys:
+        return error(f"Extra keys: {', '.join(f'`{k}`' for k in extra_keys)}")
 
-    cl = create_codelist_with_codes(
-        owner=owner,
-        name=request.POST["name"],
-        coding_system_id=request.POST["coding_system_id"],
-        codes=request.POST.getlist("codes"),
-        slug=request.POST.get("slug"),
-        description=request.POST.get("description"),
-        methodology=request.POST.get("methodology"),
-        references=request.POST.get("references"),
-        signoffs=request.POST.get("signoffs"),
-    )
+    cl = create_codelist_with_codes(owner=owner, **data)
 
     return JsonResponse({"codelist": cl.get_absolute_url()})
 
 
 @require_http_methods(["POST"])
+@csrf_exempt
 @require_authentication
 @load_codelist
 @require_permission
 def versions(request, codelist):
-    if ("codes" in request.POST and "ecl" in request.POST) or (
-        "codes" not in request.POST and "ecl" not in request.POST
+    try:
+        data = json.loads(request.body)
+    except json.decoder.JSONDecodeError:
+        return error("Invalid JSON")
+
+    if ("codes" in data and "ecl" in data) or (
+        "codes" not in data and "ecl" not in data
     ):
         return error("Provide exactly one of `codes` or `ecl`")
 
     try:
-        if "codes" in request.POST:
+        if "codes" in data:
             clv = create_version_with_codes(
                 codelist=codelist,
-                codes=set(request.POST.getlist("codes")),
-                tag=request.POST.get("tag"),
+                codes=set(data["codes"]),
+                tag=data.get("tag"),
             )
 
-        elif "ecl" in request.POST:
+        elif "ecl" in data:
             clv = create_version_from_ecl_expr(
                 codelist=codelist,
-                expr=request.POST["ecl"],
-                tag=request.POST.get("tag"),
+                expr=data["ecl"],
+                tag=data.get("tag"),
             )
 
         else:

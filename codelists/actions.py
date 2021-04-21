@@ -57,7 +57,18 @@ def create_codelist(
 
 
 @transaction.atomic
-def create_codelist_with_codes(*, owner, name, coding_system_id, codes, slug=None):
+def create_codelist_with_codes(
+    *,
+    owner,
+    name,
+    coding_system_id,
+    codes,
+    slug=None,
+    description=None,
+    methodology=None,
+    references=None,
+    signoffs=None,
+):
     """Create a new Codelist with a CodelistVersion with given codes."""
 
     codes = set(codes)
@@ -65,8 +76,20 @@ def create_codelist_with_codes(*, owner, name, coding_system_id, codes, slug=Non
         slug = slugify(name)
 
     codelist = owner.codelists.create(
-        slug=slug, name=name, coding_system_id=coding_system_id
+        slug=slug,
+        name=name,
+        coding_system_id=coding_system_id,
+        description=description,
+        methodology=methodology,
     )
+
+    if references is not None:
+        for reference in references:
+            create_reference(codelist=codelist, **reference)
+
+    if signoffs is not None:
+        for signoff in signoffs:
+            create_signoff(codelist=codelist, **signoff)
 
     coding_system = codelist.coding_system
     code_to_term = coding_system.code_to_term(codes)

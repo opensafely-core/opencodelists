@@ -105,6 +105,25 @@ def test_create_codelist_with_codes(user, disorder_of_elbow_excl_arthritis_codes
     }
 
 
+def test_create_codelist_with_codes_with_metadata(
+    user, disorder_of_elbow_excl_arthritis_codes
+):
+    cl = actions.create_codelist_with_codes(
+        owner=user,
+        name="Test",
+        coding_system_id="snomedct",
+        codes=disorder_of_elbow_excl_arthritis_codes,
+        description="This is a test",
+        methodology="This is how we did it",
+        references=[{"text": "Some reference", "url": "http://example.com"}],
+        signoffs=[{"user": user.username, "date": "2021-04-21"}],
+    )
+    assert cl.description == "This is a test"
+    assert cl.methodology == "This is how we did it"
+    assert cl.references.count() == 1
+    assert cl.signoffs.count() == 1
+
+
 def test_create_codelist_from_scratch():
     user = UserFactory()
     organisation = OrganisationFactory()

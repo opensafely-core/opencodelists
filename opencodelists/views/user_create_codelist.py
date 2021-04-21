@@ -83,7 +83,7 @@ def handle_post_valid(request, form, user, owner_choices):
         )
         return handle_post_invalid(request, form, user)
 
-    return redirect(codelist)
+    return redirect(codelist.versions.get())
 
 
 def handle_post_invalid(request, form, user):

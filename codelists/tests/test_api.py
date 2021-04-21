@@ -7,7 +7,7 @@ def test_codelists(client, organisation):
     rsp = client.get(f"/api/v1/codelist/{organisation.slug}/")
     data = json.loads(rsp.content)
     assert rsp.status_code == 200
-    assert data == [
+    assert data["codelists"] == [
         {
             "full_slug": "test-university/old-style-codelist",
             "slug": "old-style-codelist",
@@ -62,7 +62,58 @@ def test_codelists(client, organisation):
     ]
 
 
-def test_versions_post(client, user, user_codelist):
+def test_codelists_post(client, user):
+    data = {
+        "name": "New codelist",
+        "coding_system_id": "snomedct",
+        "codes": ["128133004", "156659008"],
+    }
+    headers = {"HTTP_AUTHORIZATION": f"Token {user.api_token}"}
+
+    with assert_difference(user.codelists.count, expected_difference=1):
+        rsp = client.post(user.get_codelists_api_url(), data, **headers)
+
+    assert rsp.status_code == 200
+
+
+def test_codelists_post_no_auth(client, user):
+    data = {
+        "name": "New codelist",
+        "coding_system_id": "snomedct",
+        "codes": ["128133004", "156659008"],
+    }
+
+    with assert_no_difference(user.codelists.count):
+        rsp = client.post(user.get_codelists_api_url(), data)
+
+    assert rsp.status_code == 401
+
+
+def test_codelists_post_permission_denied(client, user, user_without_organisation):
+    data = {
+        "name": "New codelist",
+        "coding_system_id": "snomedct",
+        "codes": ["128133004", "156659008"],
+    }
+    headers = {"HTTP_AUTHORIZATION": f"Token {user_without_organisation.api_token}"}
+
+    with assert_no_difference(user.codelists.count):
+        rsp = client.post(user.get_codelists_api_url(), data, **headers)
+
+    assert rsp.status_code == 403
+
+
+def test_versions_post_codes(client, user, user_codelist):
+    data = {"codes": ["128133004", "156659008"]}
+    headers = {"HTTP_AUTHORIZATION": f"Token {user.api_token}"}
+
+    with assert_difference(user_codelist.versions.count, expected_difference=1):
+        rsp = client.post(user_codelist.get_versions_api_url(), data, **headers)
+
+    assert rsp.status_code == 200
+
+
+def test_versions_post_ecl(client, user, user_codelist):
     data = {"ecl": "<<128133004 OR 156659008"}
     headers = {"HTTP_AUTHORIZATION": f"Token {user.api_token}"}
 
@@ -94,7 +145,7 @@ def test_versions_post_bad_ecl(client, user, user_codelist):
     assert json.loads(rsp.content)["error"].startswith("InputMismatchException")
 
 
-def test_versions_post_missing_ecl(client, user, user_codelist):
+def test_versions_post_missing_data(client, user, user_codelist):
     data = {}
     headers = {"HTTP_AUTHORIZATION": f"Token {user.api_token}"}
 
@@ -102,7 +153,9 @@ def test_versions_post_missing_ecl(client, user, user_codelist):
         rsp = client.post(user_codelist.get_versions_api_url(), data, **headers)
 
     assert rsp.status_code == 400
-    assert json.loads(rsp.content) == {"error": "Missing `ecl` key"}
+    assert json.loads(rsp.content) == {
+        "error": "Provide exactly one of `codes` or `ecl`"
+    }
 
 
 def test_versions_post_no_auth(client, user_codelist):

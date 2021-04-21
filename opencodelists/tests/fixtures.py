@@ -328,6 +328,13 @@ def build_fixtures():
         draft=version_with_complete_searches,
         updates=[("156659008", "+")],  # include "(Epicondylitis &/or tennis elbow) ..."
     )
+    # This search does not find any new codes, but we need a search with a code for
+    # tests.
+    create_search(
+        draft=version_with_complete_searches,
+        code="439656005",
+        codes=codes_for_search_code("439656005"),
+    )
     save(draft=version_with_complete_searches)
 
     # Check that all code_objs are linked to searches
@@ -412,7 +419,14 @@ def codes_for_search_term(term):
     """Return codes matching search term."""
 
     coding_system = CODING_SYSTEMS["snomedct"]
-    return do_search(coding_system, term)["all_codes"]
+    return do_search(coding_system, term=term)["all_codes"]
+
+
+def codes_for_search_code(code):
+    """Return codes matching search code."""
+
+    coding_system = CODING_SYSTEMS["snomedct"]
+    return do_search(coding_system, code=code)["all_codes"]
 
 
 def check_expected_codes(version, codes):

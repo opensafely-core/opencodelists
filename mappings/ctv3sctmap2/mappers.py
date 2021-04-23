@@ -2,6 +2,7 @@ from collections import defaultdict
 
 from coding_systems.ctv3 import coding_system as ctv3
 from coding_systems.ctv3.models import RawConcept as CTV3Concept
+from coding_systems.ctv3.models import TPPConcept
 from coding_systems.snomedct import coding_system as snomedct
 from coding_systems.snomedct.models import Concept as SCTConcept
 from coding_systems.snomedct.models import QueryTableRecord
@@ -22,6 +23,12 @@ def get_mappings(ctv3_ids=None, snomedct_ids=None, include_unassured=False):
         mappings = mappings.filter(sct_concept_id__in=snomedct_ids)
     if not include_unassured:
         mappings = mappings.exclude(is_assured=False)
+
+    # Remove any mappings that map CTV3 concepts that are not in TPP's database.
+    present_ctv3_ids = TPPConcept.objects.filter(
+        read_code__in=mappings.values_list("ctv3_concept_id", flat=True)
+    ).values_list("read_code", flat=True)
+    mappings = mappings.filter(ctv3_concept_id__in=present_ctv3_ids)
 
     return [
         {

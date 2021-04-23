@@ -6,10 +6,9 @@ from codelists.coding_systems import CODING_SYSTEMS
 
 
 class ConvertForm(forms.Form):
-    FROM_CODING_SYSTEMS_CHOICES = [
+    CODING_SYSTEMS_CHOICES = [
+        ("", ""),
         ("snomedct", CODING_SYSTEMS["snomedct"].name),
-    ]
-    TO_CODING_SYSTEMS_CHOICES = [
         ("ctv3", CODING_SYSTEMS["ctv3"].name),
     ]
     TYPE_CHOICES = [
@@ -18,10 +17,10 @@ class ConvertForm(forms.Form):
     ]
 
     from_coding_system_id = forms.ChoiceField(
-        choices=FROM_CODING_SYSTEMS_CHOICES, label="Convert from"
+        choices=CODING_SYSTEMS_CHOICES, label="Convert from"
     )
     to_coding_system_id = forms.ChoiceField(
-        choices=TO_CODING_SYSTEMS_CHOICES, label="Convert to"
+        choices=CODING_SYSTEMS_CHOICES, label="Convert to"
     )
     csv_data = forms.FileField(
         label="CSV data",
@@ -36,3 +35,12 @@ class ConvertForm(forms.Form):
         self.helper = FormHelper()
         self.helper.add_input(Submit("submit", "Submit"))
         super().__init__(*args, **kwargs)
+
+    def clean_to_coding_system_id(self):
+        to_coding_system_id = self.cleaned_data.get("to_coding_system_id")
+        from_coding_system_id = self.cleaned_data.get("from_coding_system_id")
+
+        if to_coding_system_id == from_coding_system_id:
+            raise forms.ValidationError("Coding systems should not match")
+
+        return to_coding_system_id

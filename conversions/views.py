@@ -19,19 +19,24 @@ class ConvertView(FormView):
     def form_valid(self, form):
         from_coding_system_id = form.cleaned_data["from_coding_system_id"]
         to_coding_system_id = form.cleaned_data["to_coding_system_id"]
-        assert from_coding_system_id == "snomedct"
-        assert to_coding_system_id == "ctv3"
+        assert from_coding_system_id != to_coding_system_id
         from_coding_system = CODING_SYSTEMS[from_coding_system_id]
         to_coding_system = CODING_SYSTEMS[to_coding_system_id]
 
         base_filename, _ = os.path.splitext(form.cleaned_data["csv_data"].name)
         csv_data = form.cleaned_data["csv_data"].read().decode("utf-8-sig")
-        include_unassured = form.cleaned_data["include_unassured"]
 
-        snomedct_ids = [row[0] for row in csv.reader(StringIO(csv_data))]
-        mappings = get_mappings(
-            snomedct_ids=snomedct_ids, include_unassured=include_unassured
-        )
+        from_codes = [row[0] for row in csv.reader(StringIO(csv_data))]
+        kwargs = {"include_unassured": form.cleaned_data["include_unassured"]}
+        if from_coding_system_id == "snomedct":
+            assert to_coding_system_id == "ctv3"
+            kwargs["snomedct_ids"] = from_codes
+        else:
+            assert from_coding_system_id == "ctv3"
+            assert to_coding_system_id == "snomedct"
+            kwargs["ctv3_ids"] = from_codes
+
+        mappings = get_mappings(**kwargs)
 
         if form.cleaned_data["type"] == "full":
             return _build_csv_response_for_full_mapping(
@@ -82,9 +87,9 @@ def _build_csv_response_for_full_mapping(
     data = [
         [
             from_code,
-            from_coding_system_lookup_names.get(from_code, "Unknown"),
+            from_coding_system_lookup_names[from_code],
             to_code,
-            to_coding_system_lookup_names.get(to_code, "Unknown"),
+            to_coding_system_lookup_names[to_code],
             is_assured,
         ]
         for (from_code, to_code), is_assured in pair_to_is_assured.items()

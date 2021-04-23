@@ -163,14 +163,12 @@ def update(request, draft):
 @require_http_methods(["POST"])
 @load_draft
 def new_search(request, draft):
-    if request.POST["field"] == "term":
-        term = request.POST["search"]
-        code = None
-    elif request.POST["field"] == "code":
+    term = request.POST["search"].strip()
+    if term.startswith("code:"):
+        code = term[5:].strip()
         term = None
-        code = request.POST["search"]
     else:
-        assert False, request.POST["field"]
+        code = None
 
     codes = do_search(draft.coding_system, term=term, code=code)["all_codes"]
 

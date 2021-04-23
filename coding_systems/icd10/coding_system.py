@@ -20,18 +20,17 @@ def search_by_term(term):
 
 
 def search_by_code(code):
-    try:
-        concept = Concept.objects.get(code__iexact=code)
-    except Concept.ObjectDoesNotExist:
-        return set()
-
-    # The UI does not support top-level concepts being included/excluded (and in any
-    # case, they cannot appear on a patient record) so if a user searches for a chapter
-    # code, we instead return the codes for all children of that chapter.
-    if concept.kind == "chapter":
-        return {child.code for child in concept.children.all()}
+    code = code.upper()
+    if code.endswith("*"):
+        kwargs = {"code__startswith": code.rstrip("*")}
     else:
-        return {code}
+        kwargs = {"code": code}
+
+    return set(
+        Concept.objects.exclude(kind="chapter")
+        .filter(**kwargs)
+        .values_list("code", flat=True)
+    )
 
 
 def ancestor_relationships(codes):

@@ -392,7 +392,7 @@ class Search(models.Model):
 
     @property
     def term_or_code(self):
-        return self.term or self.code
+        return self.term or f"code: {self.code}"
 
 
 class SearchResult(models.Model):

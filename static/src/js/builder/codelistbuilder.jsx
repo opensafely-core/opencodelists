@@ -304,19 +304,24 @@ function SearchForm(props) {
         <button
           type="submit"
           name="field"
-          value="term"
           className="btn btn-sm btn-primary mr-1"
         >
-          Search by term
+          Search
         </button>
-        <button
-          type="submit"
-          name="field"
-          value="code"
-          className="btn btn-sm btn-primary ml-1"
-        >
-          Search by code
-        </button>
+      </div>
+      <div>
+        <small className="form-text text-muted">
+          <p>
+            To search by code, prefix your search with <code>code:</code>. For
+            instance, use <code>code:xyz</code> to find the concept with code{" "}
+            <code>xyz</code>, or <code>code:xyz*</code> to find all concepts
+            with codes beginning <code>xyz</code>.
+          </p>
+          <p>
+            Otherwise, searching will return all concepts with a description
+            containing the search term.
+          </p>
+        </small>
       </div>
     </form>
   );

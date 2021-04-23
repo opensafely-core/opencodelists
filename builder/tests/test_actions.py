@@ -28,13 +28,14 @@ def test_create_search():
 
     # Act: create a first search
     s = actions.create_search(
-        draft=draft, term="swimming", codes=["1067731000000107", "1068181000000106"]
+        draft=draft, term="Swimming", codes=["1067731000000107", "1068181000000106"]
     )
 
     # Assert...
     # that the search's attributes have been set
     assert s.version == draft
-    assert s.term == "swimming"
+    assert s.term == "Swimming"
+    assert s.code is None
     assert s.slug == "swimming"
 
     # that the newly created search has 2 results
@@ -46,10 +47,16 @@ def test_create_search():
 
     # Act: create another search
     s = actions.create_search(
-        draft=draft, term="synchronised", codes=["1068181000000106"]
+        draft=draft, code="1068181000000106", codes=["1068181000000106"]
     )
 
     # Assert...
+    # that the search's attributes have been set
+    assert s.version == draft
+    assert s.term is None
+    assert s.code == "1068181000000106"
+    assert s.slug == "code:1068181000000106"
+
     # that the newly created search has 1 result
     assert s.results.count() == 1
     # that the codelist has 2 searches

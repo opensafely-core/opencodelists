@@ -18,7 +18,7 @@ class DummyCTV3:
 
 
 def test_snomedct_to_ctv3():
-    """ Test snomedct_to_ctv3 returns the correct format."""
+    """Test snomedct_to_ctv3 returns the correct format."""
     effective_time = datetime.datetime(2020, 1, 1)
 
     # construct a mapping between a pair of SNOMED and CTV3 codes

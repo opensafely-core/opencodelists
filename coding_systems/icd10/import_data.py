@@ -1,6 +1,8 @@
 """Import ICD-10 data from
 https://apps.who.int/classifications/apps/icd/ClassificationDownload/DLArea/Download.aspx"""
 
+from collections import defaultdict
+
 from django.db import transaction
 from lxml import etree
 
@@ -17,7 +19,66 @@ def import_data(release_path):
 
 
 def load_concepts(doc):
+    """Yield dicts with `code`, `kind`, `term` and `parent_id` attributes of all
+    concepts.
+
+    Concepts are defined in `Class` elements, which have `code` and `kind` attributes.
+    They have one or more `Rubric` elements as children, and we choose one of them for
+    the term.  Additionally, non-chapter `Class` elements have a single `SuperClass`
+    child, which contains the `parent_id`.
+
+    Several `Class` elements also have a `ModifiedBy` child, which references a number
+    of `ModifierClass` elements.  For instance, we have:
+
+    <ClaML version="2.0.0">
+        <Class code="E13" kind="category">
+            <SuperClass code="E10-E14"/>
+            <ModifiedBy code="S04E10_4"/>
+            <Rubric kind="preferred">
+                <Label>Other specified diabetes mellitus</Label>
+            </Rubric>
+        </Class>
+        ...
+        <ModifierClass code=".0" modifier="S04E10_4">
+            <SuperClass code="S04E10_4"/>
+            <Rubric kind="preferred">
+                    <Label>With coma</Label>
+            </Rubric>
+        </ModifierClass>
+        <ModifierClass code=".1" modifier="S04E10_4">
+            <SuperClass code="S04E10_4"/>
+            <Rubric kind="preferred">
+                <Label>With ketoacidosis</Label>
+            </Rubric>
+        </ModifierClass>
+        ...
+    </ClaML>
+
+    This means that category E13 has descendants E13.0 and E13.1, which we label as
+    "Other specified diabetes mellitus : With coma" and "Other specified diabetes
+    mellitus : With ketoacidosis".
+
+    Note that in order to match the format the ICD-10 codes are recorded in SUS and
+    elsewhere, we strip the `.` from codes.  So eg `E13.0` is recorded as `E130`.  We
+    don't think that this ever introduces ambiguity!
+    """
+
     root = doc.getroot()
+
+    modifiers = defaultdict(list)
+
+    for e in root.findall("ModifierClass"):
+        modifier = e.get("modifier")
+        code = e.get("code")
+        if code[0] != ".":
+            continue
+
+        label = e.find("Rubric[@kind='preferredLong']/Label")
+        if label is None:
+            label = e.find("Rubric[@kind='preferred']/Label")
+        term = " ".join(label.itertext())
+
+        modifiers[modifier].append((code[1:], term))
 
     for e in root.findall("Class"):
         code = e.get("code")
@@ -45,6 +106,22 @@ def load_concepts(doc):
             "term": term,
             "parent_id": parent_id,
         }
+
+        for modified_by in e.findall("ModifiedBy"):
+            modifier_code = modified_by.get("code")
+            modifier = modifiers[modifier_code]
+            if not modifier:
+                continue
+
+            assert kind == "category"
+
+            for modifier_code, modifier_term in modifier:
+                yield {
+                    "code": code + modifier_code,
+                    "kind": kind,
+                    "term": term + " : " + modifier_term,
+                    "parent_id": code,
+                }
 
 
 if __name__ == "__main__":

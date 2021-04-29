@@ -42,7 +42,7 @@ def test_post_unauthorised_for_user(client):
 
 def test_get_for_organisation(client):
     organisation = OrganisationFactory()
-    client.force_login(organisation.regular_user)
+    client.force_login(organisation.users.get())
 
     response = client.get(organisation.get_codelist_create_url())
 
@@ -85,7 +85,7 @@ def test_post_success(client):
         "signoff-0-date": "2020-01-23",
     }
 
-    client.force_login(organisation.regular_user)
+    client.force_login(organisation.users.get())
     response = client.post(organisation.get_codelist_create_url(), data=data)
 
     assert response.status_code == 302
@@ -134,7 +134,7 @@ def test_post_invalid(client):
         "signoff-0-user": signoff_user.username,
     }
 
-    client.force_login(organisation.regular_user)
+    client.force_login(organisation.users.get())
     response = client.post(organisation.get_codelist_create_url(), data=data)
 
     # we're returning an HTML response when there are errors so check we don't
@@ -176,7 +176,7 @@ def test_post_with_duplicate_name(client):
         "signoff-MAX_NUM_FORMS": "1000",
     }
 
-    client.force_login(organisation.regular_user)
+    client.force_login(organisation.users.get())
     response = client.post(organisation.get_codelist_create_url(), data=data)
 
     assert organisation.codelists.count() == 1

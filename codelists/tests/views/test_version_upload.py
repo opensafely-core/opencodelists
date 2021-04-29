@@ -44,7 +44,7 @@ def test_post_unauthorised_for_user(client):
 
 def test_get_unknown_codelist(client):
     codelist = CodelistFactory()
-    client.force_login(codelist.organisation.regular_user)
+    client.force_login(codelist.organisation.users.get())
     url = codelist.get_version_upload_url().replace(codelist.slug, "test")
     response = client.get(url, data={})
     assert response.status_code == 404
@@ -52,7 +52,7 @@ def test_get_unknown_codelist(client):
 
 def test_post_success(client):
     codelist = create_published_version().codelist
-    client.force_login(codelist.organisation.regular_user)
+    client.force_login(codelist.organisation.users.get())
 
     assert codelist.versions.count() == 1
 
@@ -71,7 +71,7 @@ def test_post_success(client):
 
 def test_post_missing_field(client):
     codelist = create_published_version().codelist
-    client.force_login(codelist.organisation.regular_user)
+    client.force_login(codelist.organisation.users.get())
 
     response = client.post(codelist.get_version_upload_url(), data={})
 

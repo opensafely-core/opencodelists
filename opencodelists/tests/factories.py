@@ -19,9 +19,9 @@ class OrganisationFactory(factory.django.DjangoModelFactory):
         # Create a user that belongs to the organisation, and assign this user to an
         # instance attribute.  This is useful in tests where we need to log a user in to
         # access an organisation's resources.
-        organisation.regular_user = UserFactory()
+        user = UserFactory()
         actions.add_user_to_organisation(
-            user=organisation.regular_user,
+            user=user,
             organisation=organisation,
             date_joined="2020-11-12",
         )

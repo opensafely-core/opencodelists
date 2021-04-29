@@ -38,7 +38,7 @@ def test_get_success(client):
     ReferenceFactory(codelist=codelist)
     ReferenceFactory(codelist=codelist)
 
-    client.force_login(codelist.organisation.regular_user)
+    client.force_login(codelist.organisation.users.get())
     response = client.get(codelist.get_update_url())
 
     assert response.status_code == 200
@@ -92,7 +92,7 @@ def test_post_success(client):
         "signoff-2-date": "2000-01-01",
     }
 
-    client.force_login(codelist.organisation.regular_user)
+    client.force_login(codelist.organisation.users.get())
     response = client.post(codelist.get_update_url(), data=data)
 
     assert response.status_code == 302
@@ -133,7 +133,7 @@ def test_post_invalid(client):
         "signoff-0-user": signoff_1.user.username,
     }
 
-    client.force_login(codelist.organisation.regular_user)
+    client.force_login(codelist.organisation.users.get())
     response = client.post(codelist.get_update_url(), data=data)
 
     # we're returning an HTML response when there are errors so check we don't

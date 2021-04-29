@@ -130,6 +130,42 @@ class Codelist(models.Model):
         return self.versions.filter(draft_owner__isnull=True).order_by("id").last()
 
 
+class Handle(models.Model):
+    codelist = models.ForeignKey(
+        "Codelist", on_delete=models.CASCADE, related_name="handles"
+    )
+    name = models.CharField(max_length=255)
+    slug = models.SlugField()
+    organisation = models.ForeignKey(
+        "opencodelists.Organisation",
+        null=True,
+        related_name="handles",
+        on_delete=models.CASCADE,
+    )
+    user = models.ForeignKey(
+        "opencodelists.User",
+        null=True,
+        related_name="handles",
+        on_delete=models.CASCADE,
+    )
+    is_current = models.BooleanField()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = [("organisation", "name", "slug"), ("user", "name", "slug")]
+        constraints = [
+            models.CheckConstraint(
+                name="%(app_label)s_%(class)s_organisation_xor_user",
+                check=(
+                    models.Q(organisation_id__isnull=False, user_id__isnull=True)
+                    | models.Q(user_id__isnull=False, organisation_id__isnull=True)
+                ),
+            )
+        ]
+
+
 class CodelistVersion(models.Model):
     codelist = models.ForeignKey(
         "Codelist", on_delete=models.CASCADE, related_name="versions"

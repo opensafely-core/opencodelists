@@ -11,8 +11,10 @@ def user(request, username):
 
     ctx = {
         "user": user,
-        "codelists": codelists.order_by("name"),
-        "drafts": user.drafts.select_related("codelist").order_by("codelist__name"),
+        "codelists": codelists.order_by("handles__name"),
+        "drafts": user.drafts.select_related("codelist").order_by(
+            "codelist__handles__name"
+        ),
     }
 
     if user == request.user:

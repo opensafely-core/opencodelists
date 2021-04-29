@@ -2,29 +2,23 @@ import pytest
 from django.db.utils import IntegrityError
 
 from codelists.actions import export_to_builder
-from codelists.models import Codelist, CodelistVersion
+from codelists.models import CodelistVersion, Handle
 from opencodelists.tests.factories import OrganisationFactory, UserFactory
 
 
-def test_codelist_cannot_belong_to_user_and_organisation():
+def test_handle_cannot_belong_to_user_and_organisation():
     with pytest.raises(IntegrityError):
-        Codelist.objects.create(
+        Handle.objects.create(
             name="Test",
-            coding_system_id="snomedct",
-            description="blah",
-            methodology="blah",
             user=UserFactory(),
             organisation=OrganisationFactory(),
         )
 
 
-def test_codelist_must_belong_to_user_or_organisation():
+def test_handle_must_belong_to_user_or_organisation():
     with pytest.raises(IntegrityError):
-        Codelist.objects.create(
+        Handle.objects.create(
             name="Test",
-            coding_system_id="snomedct",
-            description="blah",
-            methodology="blah",
         )
 
 

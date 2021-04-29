@@ -9,15 +9,16 @@ from opencodelists.models import User
 
 from .codeset import Codeset
 from .hierarchy import Hierarchy
-from .models import CodeObj
+from .models import Codelist, CodeObj
 from .search import do_search
 
 logger = structlog.get_logger()
 
 
+@transaction.atomic
 def create_codelist(
     *,
-    owner,  # Can be an Organisation or a User
+    owner,
     name,
     coding_system_id,
     description,
@@ -27,32 +28,20 @@ def create_codelist(
     references=None,
     signoffs=None,
 ):
-    """Create a new codelist with a version."""
+    """Create a new codelist with an old-style version with given csv_data."""
 
-    if not slug:
-        slug = slugify(name)
-
-    with transaction.atomic():
-        codelist = owner.codelists.create(
-            slug=slug,
-            name=name,
-            coding_system_id=coding_system_id,
-            description=description,
-            methodology=methodology,
-        )
-
-        create_version(codelist=codelist, csv_data=csv_data)
-
-        if references is not None:
-            for reference in references:
-                create_reference(codelist=codelist, **reference)
-
-        if signoffs is not None:
-            for signoff in signoffs:
-                create_signoff(codelist=codelist, **signoff)
-
+    codelist = _create_codelist_with_handle(
+        owner=owner,
+        name=name,
+        coding_system_id=coding_system_id,
+        description=description,
+        methodology=methodology,
+        slug=slug,
+        references=references,
+        signoffs=signoffs,
+    )
+    create_version(codelist=codelist, csv_data=csv_data)
     logger.info("Created Codelist", codelist_pk=codelist.pk)
-
     return codelist
 
 
@@ -70,28 +59,19 @@ def create_codelist_with_codes(
     references=None,
     signoffs=None,
 ):
-    """Create a new Codelist with a CodelistVersion with given codes."""
+    """Create a new Codelist with a new-style version with given codes."""
 
-    codes = set(codes)
-    if not slug:
-        slug = slugify(name)
-
-    codelist = owner.codelists.create(
-        slug=slug,
+    codelist = _create_codelist_with_handle(
+        owner=owner,
         name=name,
         coding_system_id=coding_system_id,
         description=description,
         methodology=methodology,
+        slug=slug,
+        references=references,
+        signoffs=signoffs,
     )
-
-    if references is not None:
-        for reference in references:
-            create_reference(codelist=codelist, **reference)
-
-    if signoffs is not None:
-        for signoff in signoffs:
-            create_signoff(codelist=codelist, **signoff)
-
+    codes = set(codes)
     coding_system = codelist.coding_system
     code_to_term = coding_system.code_to_term(codes)
     assert codes == set(code_to_term)
@@ -110,17 +90,60 @@ def create_codelist_with_codes(
 
 @transaction.atomic
 def create_codelist_from_scratch(
-    *, owner, name, coding_system_id, draft_owner, slug=None
+    *,
+    owner,
+    draft_owner,  # The User who can edit the draft CodelistVersion
+    name,
+    coding_system_id,
+    slug=None,
+    tag=None,
+    description=None,
+    methodology=None,
+    references=None,
+    signoffs=None,
 ):
-    """Create a new Codelist with a draft CodelistVersion."""
+    """Create a new Codelist with a draft new-style version."""
 
+    codelist = _create_codelist_with_handle(
+        owner=owner,
+        name=name,
+        coding_system_id=coding_system_id,
+        description=description,
+        methodology=methodology,
+        slug=slug,
+        references=references,
+        signoffs=signoffs,
+    )
+    codelist.versions.create(draft_owner=draft_owner)
+    return codelist
+
+
+def _create_codelist_with_handle(
+    owner,  # Can be an Organisation or a User
+    name,
+    coding_system_id,
+    description,
+    methodology,
+    slug=None,
+    references=None,
+    signoffs=None,
+):
     if not slug:
         slug = slugify(name)
 
-    codelist = owner.codelists.create(
-        slug=slug, name=name, coding_system_id=coding_system_id
+    codelist = Codelist.objects.create(
+        coding_system_id=coding_system_id,
+        description=description,
+        methodology=methodology,
     )
-    codelist.versions.create(draft_owner=draft_owner)
+    owner.handles.create(codelist=codelist, slug=slug, name=name, is_current=True)
+
+    for reference in references or []:
+        create_reference(codelist=codelist, **reference)
+
+    for signoff in signoffs or []:
+        create_signoff(codelist=codelist, **signoff)
+
     return codelist
 
 

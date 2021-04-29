@@ -76,7 +76,7 @@ def test_create_codelist_with_duplicate_name():
             csv_data="code,description\n1067731000000107,Injury whilst swimming (disorder)",
         )
 
-    assert Codelist.objects.filter(name="Test").count() == 1
+    assert Codelist.objects.filter(handles__name="Test").count() == 1
 
 
 def test_create_codelist_with_codes(user, disorder_of_elbow_excl_arthritis_codes):

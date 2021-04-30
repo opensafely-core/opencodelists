@@ -16,7 +16,7 @@ def test_post_unauthorised(client):
 
 def test_post_success(client):
     version = create_draft_version()
-    client.force_login(version.codelist.organisation.regular_user)
+    client.force_login(version.codelist.organisation.users.get())
 
     response = client.post(version.get_publish_url())
     version.refresh_from_db()
@@ -28,7 +28,7 @@ def test_post_success(client):
 
 def test_post_unknown_version(client):
     codelist = CodelistFactory()
-    client.force_login(codelist.organisation.regular_user)
+    client.force_login(codelist.organisation.users.get())
 
     kwargs = dict(
         organisation_slug=codelist.organisation.slug,

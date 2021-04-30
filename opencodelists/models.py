@@ -8,6 +8,8 @@ from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.text import slugify
 
+from codelists.models import Codelist
+
 SET_PASSWORD_SALT = "set-password"
 
 
@@ -114,6 +116,10 @@ class User(AbstractBaseUser):
         membership = self.get_organisation_membership(organisation)
         return membership and membership.is_admin
 
+    @property
+    def codelists(self):
+        return Codelist.objects.filter(handles__user=self)
+
     def get_codelist_create_url(self):
         return reverse("codelists:user_codelist_create", kwargs=self.url_kwargs)
 
@@ -157,6 +163,10 @@ class Organisation(models.Model):
     def organisation(self):
         # Required for duck-typing in codelists.views.decorators.require_permission.
         return self
+
+    @property
+    def codelists(self):
+        return Codelist.objects.filter(handles__organisation=self)
 
     def get_codelist_create_url(self):
         return reverse("codelists:organisation_codelist_create", kwargs=self.url_kwargs)

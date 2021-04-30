@@ -1,6 +1,5 @@
 from functools import wraps
 
-from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect
 
 from opencodelists.hash_utils import unhash
@@ -18,12 +17,7 @@ def load_owner(view_fn):
 
     @wraps(view_fn)
     def wrapped_view(request, organisation_slug=None, username=None):
-        if organisation_slug:
-            assert not username
-            owner = get_object_or_404(Organisation, slug=organisation_slug)
-        else:
-            assert username
-            owner = get_object_or_404(User, username=username)
+        owner = _load_owner_or_404(organisation_slug, username)
         return view_fn(request, owner)
 
     return wrapped_view
@@ -38,16 +32,9 @@ def load_codelist(view_fn):
 
     @wraps(view_fn)
     def wrapped_view(request, codelist_slug, organisation_slug=None, username=None):
-        kwargs = {"slug": codelist_slug}
-        if organisation_slug:
-            assert not username
-            kwargs["organisation_id"] = organisation_slug
-        else:
-            assert username
-            kwargs["user_id"] = username
-
-        cl = get_object_or_404(Codelist, **kwargs)
-        return view_fn(request, cl)
+        owner = _load_owner_or_404(organisation_slug, username)
+        codelist = _load_codelist_or_404(owner, codelist_slug)
+        return view_fn(request, codelist)
 
     return wrapped_view
 
@@ -68,31 +55,39 @@ def load_version(view_fn):
         username=None,
         **view_kwargs,
     ):
-        query_kwargs = {"codelist__slug": codelist_slug}
-        if organisation_slug:
-            assert not username
-            query_kwargs["codelist__organisation_id"] = organisation_slug
-        else:
-            assert username
-            query_kwargs["codelist__user_id"] = username
+        owner = _load_owner_or_404(organisation_slug, username)
+        codelist = _load_codelist_or_404(owner, codelist_slug)
+        version = _load_version_or_404(codelist, tag_or_hash)
 
-        q = Q(tag=tag_or_hash)
-        try:
-            id = unhash(tag_or_hash, "CodelistVersion")
-        except ValueError:
-            pass
-        else:
-            q |= Q(id=id)
-
-        clv = get_object_or_404(CodelistVersion.objects.filter(q), **query_kwargs)
-
-        if clv.draft_owner:
+        if version.draft_owner:
             # TODO test this properly
-            return redirect(clv.get_builder_url("draft"))
+            return redirect(version.get_builder_url("draft"))
         else:
-            return view_fn(request, clv, **view_kwargs)
+            return view_fn(request, version, **view_kwargs)
 
     return wrapped_view
+
+
+def _load_owner_or_404(organisation_slug=None, username=None):
+    if organisation_slug:
+        assert not username
+        return get_object_or_404(Organisation, slug=organisation_slug)
+    else:
+        assert username
+        return get_object_or_404(User, username=username)
+
+
+def _load_codelist_or_404(owner, codelist_slug):
+    handle = get_object_or_404(owner.handles, slug=codelist_slug)
+    return handle.codelist
+
+
+def _load_version_or_404(codelist, tag_or_hash):
+    try:
+        id = unhash(tag_or_hash, "CodelistVersion")
+        return get_object_or_404(codelist.versions, id=id)
+    except ValueError:
+        return get_object_or_404(codelist.versions, tag=tag_or_hash)
 
 
 def require_permission(view_fn):

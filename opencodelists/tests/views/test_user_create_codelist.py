@@ -28,7 +28,7 @@ def test_post_with_csv(client, organisation_user, disorder_of_elbow_csv_data_no_
     with assert_difference(Codelist.objects.count, expected_difference=1):
         response = client.post("/users/bob/new-codelist/", data, follow=True)
 
-    codelist = organisation_user.codelists.get(name="Test")
+    codelist = organisation_user.codelists.get(handles__name="Test")
     version = codelist.versions.get()
 
     assert response.redirect_chain[-1][0] == version.get_absolute_url()
@@ -46,7 +46,7 @@ def test_post_without_csv(client, organisation_user):
     with assert_difference(Codelist.objects.count, expected_difference=1):
         response = client.post("/users/bob/new-codelist/", data, follow=True)
 
-    codelist = organisation_user.codelists.get(name="Test")
+    codelist = organisation_user.codelists.get(handles__name="Test")
     version = codelist.versions.get()
 
     assert response.redirect_chain[-1][0] == version.get_builder_url("draft")
@@ -64,7 +64,7 @@ def test_post_create_organisation_codelist(client, organisation_user, organisati
     with assert_difference(Codelist.objects.count, expected_difference=1):
         response = client.post("/users/bob/new-codelist/", data, follow=True)
 
-    codelist = organisation.codelists.get(name="Test")
+    codelist = organisation.codelists.get(handles__name="Test")
     version = codelist.versions.get()
 
     assert response.redirect_chain[-1][0] == version.get_builder_url("draft")

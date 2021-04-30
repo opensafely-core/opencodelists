@@ -6,7 +6,7 @@ from crispy_forms.layout import Submit
 from django import forms
 from django.forms.models import fields_for_model
 
-from .models import Codelist, CodelistVersion, Reference, SignOff
+from .models import Codelist, CodelistVersion, Handle, Reference, SignOff
 
 
 def data_without_delete(cleaned_data):
@@ -78,7 +78,7 @@ class CSVValidationMixin:
 
 
 class CodelistCreateForm(forms.Form, CSVValidationMixin):
-    name = model_field(Codelist, "name")
+    name = model_field(Handle, "name")
     coding_system_id = model_field(Codelist, "coding_system_id")
     description = model_field(Codelist, "description")
     methodology = model_field(Codelist, "methodology")

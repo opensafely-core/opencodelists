@@ -11,7 +11,9 @@ def index(request, organisation_slug=None):
 
     q = request.GET.get("q")
     if q:
-        handles = handles.filter(Q(name__contains=q) | Q(description__contains=q))
+        handles = handles.filter(
+            Q(name__contains=q) | Q(codelist__description__contains=q)
+        )
 
     if organisation_slug:
         organisation = get_object_or_404(Organisation, slug=organisation_slug)

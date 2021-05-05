@@ -248,6 +248,10 @@ def build_fixtures():
         codes=disorder_of_elbow_excl_arthritis_codes,
     )
 
+    # organisation_codelist
+    # - an alias for new_style_codelist
+    organisation_codelist = new_style_codelist
+
     # version_with_no_searches
     # - belongs to new_style_codelist
     # - has no searches
@@ -456,6 +460,7 @@ user = build_fixture("user")
 old_style_codelist = build_fixture("old_style_codelist")
 old_style_version = build_fixture("old_style_version")
 new_style_codelist = build_fixture("new_style_codelist")
+organisation_codelist = build_fixture("organisation_codelist")
 version_with_no_searches = build_fixture("version_with_no_searches")
 version_with_some_searches = build_fixture("version_with_some_searches")
 version_with_complete_searches = build_fixture("version_with_complete_searches")

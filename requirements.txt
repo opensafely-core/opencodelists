@@ -10,7 +10,7 @@ appdirs==1.4.3
     # via
     #   black
     #   virtualenv
-asgiref==3.2.10
+asgiref==3.3.4
     # via django
 attrs==19.3.0
     # via
@@ -62,7 +62,7 @@ django-ipware==3.0.1
     # via django-structlog
 django-structlog==2.1.0
     # via -r requirements.in
-django==3.1.8
+django==3.2.1
     # via
     #   -r requirements.in
     #   django-cors-headers
@@ -225,6 +225,7 @@ typed-ast==1.4.3
     # via black
 typing-extensions==3.7.4.3
     # via
+    #   asgiref
     #   black
     #   structlog
 urllib3==1.25.9

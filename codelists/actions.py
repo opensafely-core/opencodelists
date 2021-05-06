@@ -282,16 +282,6 @@ def update_codelist(*, codelist, description, methodology):
     return codelist
 
 
-def update_version(*, version, csv_data):
-    """Update a version."""
-
-    assert version.is_draft
-    version.csv_data = csv_data
-    version.save()
-
-    logger.info("Updated Version", version_pk=version.pk)
-
-
 def publish_version(*, version):
     """Publish a version."""
 

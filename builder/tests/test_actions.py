@@ -6,20 +6,6 @@ from codelists.tests.factories import CodelistFactory
 from opencodelists.tests.factories import UserFactory
 
 
-def test_create_draft():
-    # Arrange: create a codelist and a user
-    codelist = CodelistFactory()
-    owner = UserFactory()
-
-    # Act: create a codelist
-    draft = actions.create_draft(codelist=codelist, owner=owner)
-
-    # Assert...
-    # that a codelist's attributes have been set
-    assert draft.codelist == codelist
-    assert draft.draft_owner == owner
-
-
 def test_create_search():
     # Arrange: create a draft
     codelist = CodelistFactory()

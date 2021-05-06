@@ -176,26 +176,6 @@ def test_create_version_from_ecl_expr(new_style_codelist):
     assert clv.codes == ("429554009", "439656005")
 
 
-def test_update_draft_version():
-    clv = factories.create_draft_version()
-    actions.update_version(
-        version=clv,
-        csv_data="code,description\n1068181000000106, Injury whilst synchronised swimming (disorder)",
-    )
-    clv.refresh_from_db()
-    assert "whilst synchronised swimming" in clv.csv_data
-    assert clv.codelist.versions.count() == 1
-
-
-def test_update_published_version():
-    clv = factories.create_published_version()
-    with pytest.raises(AssertionError):
-        actions.update_version(
-            version=clv,
-            csv_data="code,description\n1068181000000106, Injury whilst synchronised swimming (disorder)",
-        )
-
-
 def test_publish_draft_version():
     clv = factories.create_draft_version()
     actions.publish_version(version=clv)

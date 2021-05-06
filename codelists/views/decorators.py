@@ -1,5 +1,6 @@
 from functools import wraps
 
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect
 
 from opencodelists.hash_utils import unhash
@@ -83,11 +84,15 @@ def _load_codelist_or_404(owner, codelist_slug):
 
 
 def _load_version_or_404(codelist, tag_or_hash):
+    q = Q(tag=tag_or_hash)
     try:
         id = unhash(tag_or_hash, "CodelistVersion")
-        return get_object_or_404(codelist.versions, id=id)
     except ValueError:
-        return get_object_or_404(codelist.versions, tag=tag_or_hash)
+        pass
+    else:
+        q |= Q(id=id)
+
+    return get_object_or_404(codelist.versions.filter(q))
 
 
 def require_permission(view_fn):

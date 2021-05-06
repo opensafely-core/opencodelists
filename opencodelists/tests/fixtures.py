@@ -50,6 +50,33 @@ A.     └ Arthritis of elbow (439656005)
 A.       └ Lateral epicondylitis (202855006)
 .. Tennis toe (238484001)
 AB (Epicondylitis &/or tennis elbow) or (golfers' elbow) (156659008) [inactive]
+
+And in a DAG:
+
+ ..──────────────┐              ..──────────────┐
+ │   Arthritis   │              │  Finding of   │
+ │               │              │ elbow region  │
+ └──────▲────────┘              └──────▲────────┘
+        │                              │
+        │            ..──────────────┐ │ AB──────────────┐
+        │            │  Finding of   ├─┴─┤   Disorder    ◂────────────────────┐
+        │            │  elbow joint  │   │   of elbow    │                    │
+        │            └────────▲──────┘   └────────▲──────┘                    │
+        │                     │                   │                           │
+        │   ..──────────────┐ │ AB──────────────┐ │ AB──────────────┐   AB────┴──────┐
+        │   │  Elbow joint  ├─┴─┤  Arthropathy  ├─┴─┤ Enthesopathy  │   │Soft tissue │
+        │   │   inflamed    │   │   of elbow    │   │of elbow region│   │ lesion of  │
+        │   └──────▲────────┘   └──────▲────────┘   └──────▲────────┘   │elbow region│
+        │          │                   │                   │            └────────────┘
+        │          │ A.──────────────┐ │            AB─────┴────────┐
+        └──────────┴─┤   Arthritis   ├─┘            │ Epicondylitis │
+                     │   of elbow    │              │               │
+                     └────────▲──────┘              └──────▲────────┘
+                              │                            │
+                              │ A.──────────────┐          │
+                              └─┤    Lateral    ├──────────┘
+                                │ epicondylitis │
+                                └───────────────┘
 """
 
 import csv

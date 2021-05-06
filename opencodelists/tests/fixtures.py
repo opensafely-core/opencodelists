@@ -27,7 +27,7 @@ There are fixtures for CodelistVersions with two different lists of codes:
 The fixtures also create searches for "arthritis", "tennis", and "elbow".
 
 The concepts returned by these searches are shown below, along with which of the two
-list of codes they belong two.
+lists of codes they belong to.
 
 .. Arthritis (3723001)
 A. └ Arthritis of elbow (439656005)

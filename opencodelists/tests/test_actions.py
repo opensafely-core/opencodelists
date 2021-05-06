@@ -1,16 +1,12 @@
 from opencodelists import actions
 
-from .factories import OrganisationFactory, UserFactory
 
-
-def test_activate_user():
-    user = UserFactory(is_active=False)
-
-    user = actions.activate_user(user=user, password="test")
+def test_activate_user(inactive_user):
+    actions.activate_user(user=inactive_user, password="test")
 
     # user has been activated and has a password set
-    assert user.is_active
-    assert user.has_usable_password()
+    assert inactive_user.is_active
+    assert inactive_user.has_usable_password()
 
 
 def test_create_organisation():
@@ -34,9 +30,8 @@ def test_create_user():
     assert user.email == "test@example.com"
 
 
-def test_add_user_to_organisation():
-    user = UserFactory()
-    organisation = OrganisationFactory()
+def test_add_user_to_organisation(organisation, user_without_organisation):
+    user = user_without_organisation
 
     membership = actions.add_user_to_organisation(
         user=user, organisation=organisation, date_joined="2020-11-12"
@@ -51,12 +46,8 @@ def test_add_user_to_organisation():
     assert organisation.get_user_membership(user) is not None
 
 
-def test_remove_user_from_organisation():
-    user = UserFactory()
-    organisation = OrganisationFactory()
-    actions.add_user_to_organisation(
-        user=user, organisation=organisation, date_joined="2020-11-12"
-    )
+def test_remove_user_from_organisation(organisation, organisation_user):
+    user = organisation_user
 
     actions.remove_user_from_organisation(user=user, organisation=organisation)
 
@@ -64,12 +55,8 @@ def test_remove_user_from_organisation():
     assert organisation.get_user_membership(user) is None
 
 
-def test_make_user_admin_for_organisation():
-    user = UserFactory()
-    organisation = OrganisationFactory()
-    actions.add_user_to_organisation(
-        user=user, organisation=organisation, date_joined="2020-11-12"
-    )
+def test_make_user_admin_for_organisation(organisation, organisation_user):
+    user = organisation_user
 
     actions.make_user_admin_for_organisation(user=user, organisation=organisation)
 
@@ -77,13 +64,8 @@ def test_make_user_admin_for_organisation():
     assert membership.is_admin
 
 
-def test_make_user_nonadmin_for_organisation():
-    user = UserFactory()
-    organisation = OrganisationFactory()
-    actions.add_user_to_organisation(
-        user=user, organisation=organisation, date_joined="2020-11-12"
-    )
-    actions.make_user_admin_for_organisation(user=user, organisation=organisation)
+def test_make_user_nonadmin_for_organisation(organisation, organisation_admin):
+    user = organisation_admin
 
     actions.make_user_nonadmin_for_organisation(user=user, organisation=organisation)
 

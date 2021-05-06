@@ -1,4 +1,4 @@
-from opencodelists.tests.factories import UserFactory
+from opencodelists.actions import create_user
 
 
 def assert_unauthenticated(client, method, url):
@@ -18,7 +18,10 @@ def assert_post_unauthenticated(client, url):
 
 
 def assert_unauthorised(client, method, url):
-    client.force_login(UserFactory())
+    user = create_user(
+        username="ursula", name="Ursula", email="ursula@test.ac.uk", is_active=True
+    )
+    client.force_login(user)
     response = getattr(client, method)(url)
     assert (
         response.status_code == 302

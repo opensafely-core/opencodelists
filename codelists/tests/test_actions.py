@@ -3,15 +3,12 @@ from django.db import IntegrityError
 
 from codelists import actions
 from codelists.models import Codelist
-from opencodelists.tests.factories import OrganisationFactory, UserFactory
-
-from . import factories
+from opencodelists.tests.assertions import assert_difference
 
 pytestmark = pytest.mark.freeze_time("2020-07-23")
 
 
-def test_create_codelist():
-    organisation = OrganisationFactory()
+def test_create_codelist(organisation):
     cl = actions.create_codelist(
         owner=organisation,
         name="Test Codelist",
@@ -32,8 +29,7 @@ def test_create_codelist():
     assert "whilst swimming" in clv.csv_data
 
 
-def test_create_codelist_for_user():
-    user = UserFactory()
+def test_create_codelist_for_user(user):
     cl = actions.create_codelist(
         owner=user,
         name="Test Codelist",
@@ -54,9 +50,7 @@ def test_create_codelist_for_user():
     assert "whilst swimming" in clv.csv_data
 
 
-def test_create_codelist_with_duplicate_name():
-    organisation = OrganisationFactory()
-
+def test_create_codelist_with_duplicate_name(organisation):
     actions.create_codelist(
         owner=organisation,
         name="Test",
@@ -124,10 +118,7 @@ def test_create_codelist_with_codes_with_metadata(
     assert cl.signoffs.count() == 1
 
 
-def test_create_codelist_from_scratch():
-    user = UserFactory()
-    organisation = OrganisationFactory()
-
+def test_create_codelist_from_scratch(organisation, user):
     cl = actions.create_codelist_from_scratch(
         owner=organisation, name="Test", coding_system_id="snomedct", draft_owner=user
     )
@@ -176,35 +167,34 @@ def test_create_version_from_ecl_expr(new_style_codelist):
     assert clv.codes == ("429554009", "439656005")
 
 
-def test_publish_draft_version():
-    clv = factories.create_draft_version()
-    actions.publish_version(version=clv)
-    clv.refresh_from_db()
-    assert not clv.is_draft
+def test_publish_draft_version(version):
+    actions.publish_version(version=version)
+    version.refresh_from_db()
+    assert not version.is_draft
 
 
-def test_publish_published_version():
-    clv = factories.create_published_version()
+def test_publish_published_version(version):
+    actions.publish_version(version=version)
     with pytest.raises(AssertionError):
-        actions.publish_version(version=clv)
+        actions.publish_version(version=version)
 
 
-def test_convert_codelist_to_new_style(tennis_elbow_codelist):
-    cl = tennis_elbow_codelist
-    original_clv = cl.versions.get()
+def test_convert_codelist_to_new_style(old_style_codelist, old_style_version):
+    with assert_difference(old_style_codelist.versions.count, expected_difference=1):
+        actions.convert_codelist_to_new_style(codelist=old_style_codelist)
 
-    actions.convert_codelist_to_new_style(codelist=cl)
-
-    assert cl.versions.count() == 2
-    converted_clv = cl.versions.last()
-    assert converted_clv.csv_data is None
-    assert original_clv.codes == converted_clv.codes
+    converted_version = old_style_codelist.versions.order_by("id").last()
+    assert converted_version.csv_data is None
+    assert old_style_version.codes == converted_version.codes
 
 
 def test_export_to_builder(organisation_user, new_style_version):
-    draft = actions.export_to_builder(
-        version=new_style_version, owner=organisation_user
-    )
+    with assert_difference(
+        new_style_version.codelist.versions.count, expected_difference=1
+    ):
+        draft = actions.export_to_builder(
+            version=new_style_version, owner=organisation_user
+        )
 
     assert draft.draft_owner == organisation_user
     assert draft.codes == new_style_version.codes

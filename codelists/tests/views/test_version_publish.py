@@ -1,22 +1,19 @@
 from django.urls import reverse
 
-from ..factories import CodelistFactory, create_draft_version
 from .assertions import assert_post_unauthenticated, assert_post_unauthorised
+from .helpers import force_login
 
 
-def test_post_unauthenticated(client):
-    version = create_draft_version()
+def test_post_unauthenticated(client, version):
     assert_post_unauthenticated(client, version.get_publish_url())
 
 
-def test_post_unauthorised(client):
-    version = create_draft_version()
+def test_post_unauthorised(client, version):
     assert_post_unauthorised(client, version.get_publish_url())
 
 
-def test_post_success(client):
-    version = create_draft_version()
-    client.force_login(version.codelist.organisation.users.get())
+def test_post_success(client, version):
+    force_login(version, client)
 
     response = client.post(version.get_publish_url())
     version.refresh_from_db()
@@ -26,9 +23,8 @@ def test_post_success(client):
     assert not version.is_draft
 
 
-def test_post_unknown_version(client):
-    codelist = CodelistFactory()
-    client.force_login(codelist.organisation.users.get())
+def test_post_unknown_version(client, codelist):
+    force_login(codelist, client)
 
     kwargs = dict(
         organisation_slug=codelist.organisation.slug,

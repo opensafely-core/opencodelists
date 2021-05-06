@@ -1,53 +1,48 @@
 import pytest
 
 from builder import actions
-from codelists import actions as codelists_actions
-from codelists.tests.factories import CodelistFactory
-from opencodelists.tests.factories import UserFactory
 
 
-def test_create_search():
-    # Arrange: create a draft
-    codelist = CodelistFactory()
-    owner = UserFactory()
-    draft = actions.create_draft(codelist=codelist, owner=owner)
+def test_create_search(version_from_scratch):
+    draft = version_from_scratch
 
-    # Act: create a first search
+    # Act: create a term search
     s = actions.create_search(
-        draft=draft, term="Swimming", codes=["1067731000000107", "1068181000000106"]
+        draft=draft,
+        term="epicondylitis",
+        codes={"73583000", "202855006"},
     )
 
     # Assert...
     # that the search's attributes have been set
     assert s.version == draft
-    assert s.term == "Swimming"
+    assert s.term == "epicondylitis"
     assert s.code is None
-    assert s.slug == "swimming"
+    assert s.slug == "epicondylitis"
 
     # that the newly created search has 2 results
     assert s.results.count() == 2
-    # that the codelist has 1 search
+    # that the draft has 1 search
     assert draft.searches.count() == 1
-    # that the codelist has 2 codes
+    # that the draft has 2 codes
     assert draft.code_objs.count() == 2
 
-    # Act: create another search
-    s = actions.create_search(
-        draft=draft, code="1068181000000106", codes=["1068181000000106"]
-    )
+    # Act: create a code search
+    s = actions.create_search(draft=draft, code="73583000", codes=["73583000"])
 
     # Assert...
     # that the search's attributes have been set
     assert s.version == draft
     assert s.term is None
-    assert s.code == "1068181000000106"
-    assert s.slug == "code:1068181000000106"
+    assert s.code == "73583000"
+    assert s.slug == "code:73583000"
 
     # that the newly created search has 1 result
     assert s.results.count() == 1
     # that the codelist has 2 searches
     assert draft.searches.count() == 2
-    # that the codelist still has 2 codes
+    # that the codelist still has 2 codes, since the code search returns a code that was
+    # returned by the term search
     assert draft.code_objs.count() == 2
 
 
@@ -107,91 +102,56 @@ def test_delete_search():
     # assert draft.code_objs.count() == 2
 
 
-def test_update_code_statuses(tennis_elbow):
-    # Arrange: load fixtures and create a draft with a search
-    codelist = CodelistFactory()
-    owner = UserFactory()
-    draft = actions.create_draft(codelist=codelist, owner=owner)
-
-    # Search results have this structure in hierarchy
-    #
-    # 116309007 Finding of elbow region
-    #     128133004 Disorder of elbow
-    #         239964003 Soft tissue lesion of elbow region
-    #         35185008 Enthesopathy of elbow region
-    #             73583000 Epicondylitis
-    #                 202855006 Lateral epicondylitis
-    #         429554009 Arthropathy of elbow
-    #             439656005 Arthritis of elbow
-    #                 202855006 Lateral epicondylitis
-    #     298869002 Finding of elbow joint
-    #         298163003 Elbow joint inflamed
-    #             439656005 Arthritis of elbow
-    #                 202855006 Lateral epicondylitis
-    #         429554009 Arthropathy of elbow
-    #             439656005 Arthritis of elbow
-    #                 202855006 Lateral epicondylitis
-    actions.create_search(
-        draft=draft,
-        term="elbow",
-        codes=[
-            "116309007",  # Finding of elbow region
-            "128133004",  # Disorder of elbow
-            "239964003",  # Soft tissue lesion of elbow region
-            "35185008",  # Enthesopathy of elbow region
-            "73583000",  # Epicondylitis
-            "202855006",  # Lateral epicondylitis
-            "429554009",  # Arthropathy of elbow
-            "439656005",  # Arthritis of elbow
-            "298869002",  # Finding of elbow joint
-            "298163003",  # Elbow joint inflamed
-        ],
-    )
+def test_update_code_statuses(draft_with_no_searches):
+    draft = draft_with_no_searches
+    # Double check that codes and statuses are as expected
+    assert dict(draft.code_objs.values_list("code", "status")) == {
+        "128133004": "+",  # Disorder of elbow
+        "429554009": "(+)",  # Arthropathy of elbow
+        "35185008": "(+)",  # Enthesopathy of elbow region
+        "73583000": "(+)",  # Epicondylitis
+        "239964003": "(+)",  # Soft tissue lesion of elbow region
+        "439656005": "-",  # Arthritis of elbow
+        "202855006": "(-)",  # Lateral epicondylitis
+        "156659008": "+",  # (Epicondylitis &/or ...
+    }
 
     # Act: process single update from the client
-    actions.update_code_statuses(draft=draft, updates=[("35185008", "+")])
+    actions.update_code_statuses(draft=draft, updates=[("156659008", "?")])
 
     # Assert that results have the expected status
     assert dict(draft.code_objs.values_list("code", "status")) == {
-        "116309007": "?",  # Finding of elbow region
-        "128133004": "?",  # Disorder of elbow
-        "239964003": "?",  # Soft tissue lesion of elbow region
-        "35185008": "+",  # Enthesopathy of elbow region
+        "128133004": "+",  # Disorder of elbow
+        "429554009": "(+)",  # Arthropathy of elbow
+        "35185008": "(+)",  # Enthesopathy of elbow region
         "73583000": "(+)",  # Epicondylitis
-        "202855006": "(+)",  # Lateral epicondylitis
-        "429554009": "?",  # Arthropathy of elbow
-        "439656005": "?",  # Arthritis of elbow
-        "298869002": "?",  # Finding of elbow joint
-        "298163003": "?",  # Elbow joint inflamed
+        "239964003": "(+)",  # Soft tissue lesion of elbow region
+        "439656005": "-",  # Arthritis of elbow
+        "202855006": "(-)",  # Lateral epicondylitis
+        "156659008": "?",  # (Epicondylitis &/or ...
     }
 
     # Act: process multiple updates from the client
     actions.update_code_statuses(
-        draft=draft, updates=[("35185008", "-"), ("116309007", "+"), ("35185008", "?")]
+        draft=draft,
+        updates=[("439656005", "?"), ("128133004", "-"), ("156659008", "-")],
     )
 
     # Assert that results have the expected status
     assert dict(draft.code_objs.values_list("code", "status")) == {
-        "116309007": "+",  # Finding of elbow region
-        "128133004": "(+)",  # Disorder of elbow
-        "239964003": "(+)",  # Soft tissue lesion of elbow region
-        "35185008": "(+)",  # Enthesopathy of elbow region
-        "73583000": "(+)",  # Epicondylitis
-        "202855006": "(+)",  # Lateral epicondylitis
-        "429554009": "(+)",  # Arthropathy of elbow
-        "439656005": "(+)",  # Arthritis of elbow
-        "298869002": "(+)",  # Finding of elbow joint
-        "298163003": "(+)",  # Elbow joint inflamed
+        "128133004": "-",  # Disorder of elbow
+        "429554009": "(-)",  # Arthropathy of elbow
+        "35185008": "(-)",  # Enthesopathy of elbow region
+        "73583000": "(-)",  # Epicondylitis
+        "239964003": "(-)",  # Soft tissue lesion of elbow region
+        "439656005": "(-)",  # Arthritis of elbow
+        "202855006": "(-)",  # Lateral epicondylitis
+        "156659008": "-",  # (Epicondylitis &/or ...
     }
 
 
-def test_save(tennis_elbow_codelist):
-    user = UserFactory()
-    cl = tennis_elbow_codelist
-    converted_clv = codelists_actions.convert_codelist_to_new_style(codelist=cl)
-    draft = codelists_actions.export_to_builder(version=converted_clv, owner=user)
-
+def test_save(draft_with_no_searches):
+    draft = draft_with_no_searches
     actions.save(draft=draft)
-
     draft.refresh_from_db()
     assert draft.draft_owner is None

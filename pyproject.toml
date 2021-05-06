@@ -32,7 +32,7 @@ line_length = 88
 multi_line_output = 3
 use_parentheses = true
 skip_glob = [".direnv", "*migrations*", "tmp", ".venv", "coding_systems/snomedct/parser_utils/*"]
-known_third_party = ["antlr4", "bleach", "crispy_forms", "debug_toolbar", "django", "fabric", "factory", "hypothesis", "lxml", "markdown2", "openpyxl", "pytest", "rest_framework", "sentry_sdk", "structlog"]
+known_third_party = ["antlr4", "bleach", "crispy_forms", "debug_toolbar", "django", "fabric", "hypothesis", "lxml", "markdown2", "openpyxl", "pytest", "rest_framework", "sentry_sdk", "structlog"]
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "opencodelists.settings"

@@ -5,8 +5,6 @@ from codelists import actions
 from codelists.models import Codelist
 from opencodelists.tests.assertions import assert_difference
 
-pytestmark = pytest.mark.freeze_time("2020-07-23")
-
 
 def test_create_codelist(organisation):
     cl = actions.create_codelist(

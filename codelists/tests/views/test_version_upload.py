@@ -1,5 +1,3 @@
-import pytest
-
 from opencodelists.tests.assertions import assert_difference, assert_no_difference
 
 from ..helpers import csv_builder
@@ -10,8 +8,6 @@ from .assertions import (
     assert_post_unauthorised,
 )
 from .helpers import force_login
-
-pytestmark = pytest.mark.freeze_time("2020-07-23")
 
 
 def test_get_unauthenticated(client, old_style_codelist):

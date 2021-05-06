@@ -3,15 +3,14 @@ from django.db.utils import IntegrityError
 
 from codelists.actions import export_to_builder
 from codelists.models import CodelistVersion, Handle
-from opencodelists.tests.factories import OrganisationFactory, UserFactory
 
 
-def test_handle_cannot_belong_to_user_and_organisation():
+def test_handle_cannot_belong_to_user_and_organisation(user, organisation):
     with pytest.raises(IntegrityError):
         Handle.objects.create(
             name="Test",
-            user=UserFactory(),
-            organisation=OrganisationFactory(),
+            user=user,
+            organisation=organisation,
         )
 
 

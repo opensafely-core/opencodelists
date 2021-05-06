@@ -10,12 +10,6 @@ from codelists.models import CodeObj, SearchResult
 logger = structlog.get_logger()
 
 
-def create_draft(*, codelist, owner):
-    draft = owner.drafts.create(codelist=codelist)
-    logger.info("Create draft", draft_pk=draft.pk)
-    return draft
-
-
 @transaction.atomic
 def create_search(*, draft, term=None, code=None, codes):
     assert bool(term) != bool(code)

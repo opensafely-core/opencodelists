@@ -17,11 +17,9 @@ sentry-sdk
 structlog
 
 # test
-factory_boy
 hypothesis
 pytest-cov
 pytest-django
-pytest-freezegun
 pytest-subtests
 
 # dev

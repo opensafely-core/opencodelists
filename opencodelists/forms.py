@@ -11,21 +11,6 @@ from codelists.coding_systems import CODING_SYSTEMS
 from .models import User
 
 
-class UserForm(forms.ModelForm):
-    class Meta:
-        fields = [
-            "username",
-            "email",
-            "name",
-        ]
-        model = User
-
-    def __init__(self, *args, **kwargs):
-        self.helper = FormHelper()
-        self.helper.add_input(Submit("submit", "Submit"))
-        super().__init__(*args, **kwargs)
-
-
 class UserPasswordForm(forms.Form):
     """
     A form to let a user set their password without entering their old one.

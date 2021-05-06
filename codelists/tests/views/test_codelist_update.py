@@ -1,44 +1,32 @@
 import datetime
 
-from opencodelists.tests.factories import UserFactory
-
-from ..factories import CodelistFactory, ReferenceFactory, SignOffFactory
 from .assertions import (
     assert_get_unauthenticated,
     assert_get_unauthorised,
     assert_post_unauthenticated,
     assert_post_unauthorised,
 )
+from .helpers import force_login
 
 
-def test_get_unauthenticated(client):
-    codelist = CodelistFactory()
+def test_get_unauthenticated(client, codelist):
     assert_get_unauthenticated(client, codelist.get_update_url())
 
 
-def test_post_unauthenticated(client):
-    codelist = CodelistFactory()
+def test_post_unauthenticated(client, codelist):
     assert_post_unauthenticated(client, codelist.get_update_url())
 
 
-def test_get_unauthorised(client):
-    codelist = CodelistFactory()
+def test_get_unauthorised(client, codelist):
     assert_get_unauthorised(client, codelist.get_update_url())
 
 
-def test_post_unauthorised(client):
-    codelist = CodelistFactory()
+def test_post_unauthorised(client, codelist):
     assert_post_unauthorised(client, codelist.get_update_url())
 
 
-def test_get_success(client):
-    codelist = CodelistFactory()
-    SignOffFactory(codelist=codelist)
-    SignOffFactory(codelist=codelist)
-    ReferenceFactory(codelist=codelist)
-    ReferenceFactory(codelist=codelist)
-
-    client.force_login(codelist.organisation.users.get())
+def test_get_success(client, codelist):
+    force_login(codelist, client)
     response = client.get(codelist.get_update_url())
 
     assert response.status_code == 200
@@ -49,17 +37,14 @@ def test_get_success(client):
     assert form.data["methodology"] == codelist.methodology
 
 
-def test_post_success(client):
-    codelist = CodelistFactory()
-    signoff_1 = SignOffFactory(codelist=codelist)
-    signoff_2 = SignOffFactory(codelist=codelist)
-    reference_1 = ReferenceFactory(codelist=codelist)
-    reference_2 = ReferenceFactory(codelist=codelist)
+def test_post_success(client, codelist, organisation_admin):
+    signoff_1 = codelist.signoffs.first()
+    signoff_2 = codelist.signoffs.last()
+    reference_1 = codelist.references.first()
+    reference_2 = codelist.references.last()
 
     assert codelist.references.count() == 2
     assert codelist.signoffs.count() == 2
-
-    new_signoff_user = UserFactory()
 
     data = {
         "description": "This is a test CHANGED",
@@ -88,11 +73,11 @@ def test_post_success(client):
         "signoff-1-user": signoff_2.user.username,
         "signoff-1-date": signoff_2.date + datetime.timedelta(days=2),
         "signoff-1-id": signoff_2.id,
-        "signoff-2-user": new_signoff_user.username,
+        "signoff-2-user": organisation_admin.username,
         "signoff-2-date": "2000-01-01",
     }
 
-    client.force_login(codelist.organisation.users.get())
+    force_login(codelist, client)
     response = client.post(codelist.get_update_url(), data=data)
 
     assert response.status_code == 302
@@ -108,13 +93,12 @@ def test_post_success(client):
     # while the second is new.
     assert codelist.signoffs.count() == 2
     assert codelist.signoffs.first().date == signoff_2.date + datetime.timedelta(days=2)
-    assert codelist.signoffs.last().user == new_signoff_user
+    assert codelist.signoffs.last().user == organisation_admin
 
 
-def test_post_invalid(client):
-    codelist = CodelistFactory()
-    signoff_1 = SignOffFactory(codelist=codelist)
-    reference_1 = ReferenceFactory(codelist=codelist)
+def test_post_invalid(client, codelist):
+    signoff_1 = codelist.signoffs.first()
+    reference_1 = codelist.references.first()
 
     # missing signoff-0-date
     data = {
@@ -133,7 +117,7 @@ def test_post_invalid(client):
         "signoff-0-user": signoff_1.user.username,
     }
 
-    client.force_login(codelist.organisation.users.get())
+    force_login(codelist, client)
     response = client.post(codelist.get_update_url(), data=data)
 
     # we're returning an HTML response when there are errors so check we don't

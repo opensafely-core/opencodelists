@@ -3,12 +3,9 @@ from django.core.signing import Signer
 
 from ...models import SET_PASSWORD_SALT
 from ...views import user_set_password
-from ..factories import UserFactory
 
 
-def test_invalid_form(rf):
-    user = UserFactory()
-
+def test_invalid_form(rf, user):
     data = {
         "new_password1": "test-test-test-1234",
         "new_password2": "",
@@ -32,9 +29,7 @@ def test_invalid_token(client):
     assert str(messages[0]) == "Invalid User confirmation URL"
 
 
-def test_renders_form(rf):
-    user = UserFactory()
-
+def test_renders_form(rf, user):
     request = rf.get("/")
     response = user_set_password(request, user.signed_username)
 
@@ -42,9 +37,7 @@ def test_renders_form(rf):
     assert "form" in response.context_data
 
 
-def test_success(client):
-    user = UserFactory()
-
+def test_success(client, user):
     data = {
         "new_password1": "test-test-test-1234",
         "new_password2": "test-test-test-1234",

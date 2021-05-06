@@ -27,7 +27,7 @@ There are fixtures for CodelistVersions with two different lists of codes:
 The fixtures also create searches for "arthritis", "tennis", and "elbow".
 
 The concepts returned by these searches are shown below, along with which of the two
-list of codes they belong two.
+lists of codes they belong to.
 
 .. Arthritis (3723001)
 A. └ Arthritis of elbow (439656005)
@@ -50,6 +50,33 @@ A.     └ Arthritis of elbow (439656005)
 A.       └ Lateral epicondylitis (202855006)
 .. Tennis toe (238484001)
 AB (Epicondylitis &/or tennis elbow) or (golfers' elbow) (156659008) [inactive]
+
+And in a DAG:
+
+ ..──────────────┐              ..──────────────┐
+ │   Arthritis   │              │  Finding of   │
+ │               │              │ elbow region  │
+ └──────▲────────┘              └──────▲────────┘
+        │                              │
+        │            ..──────────────┐ │ AB──────────────┐
+        │            │  Finding of   ├─┴─┤   Disorder    ◂────────────────────┐
+        │            │  elbow joint  │   │   of elbow    │                    │
+        │            └────────▲──────┘   └────────▲──────┘                    │
+        │                     │                   │                           │
+        │   ..──────────────┐ │ AB──────────────┐ │ AB──────────────┐   AB────┴──────┐
+        │   │  Elbow joint  ├─┴─┤  Arthropathy  ├─┴─┤ Enthesopathy  │   │Soft tissue │
+        │   │   inflamed    │   │   of elbow    │   │of elbow region│   │ lesion of  │
+        │   └──────▲────────┘   └──────▲────────┘   └──────▲────────┘   │elbow region│
+        │          │                   │                   │            └────────────┘
+        │          │ A.──────────────┐ │            AB─────┴────────┐
+        └──────────┴─┤   Arthritis   ├─┘            │ Epicondylitis │
+                     │   of elbow    │              │               │
+                     └────────▲──────┘              └──────▲────────┘
+                              │                            │
+                              │ A.──────────────┐          │
+                              └─┤    Lateral    ├──────────┘
+                                │ epicondylitis │
+                                └───────────────┘
 """
 
 import csv
@@ -105,7 +132,16 @@ def build_fixture(fixture_name):
 
 
 @pytest.fixture(scope="session")
-def universe(django_db_setup, django_db_blocker):
+def snomedct_data(django_db_setup, django_db_blocker):
+    with django_db_blocker.unblock():
+        # load enough of the SNOMED hierarchy to be useful
+        call_command("loaddata", SNOMED_FIXTURES_PATH / "core-model-components.json")
+        call_command("loaddata", SNOMED_FIXTURES_PATH / "tennis-elbow.json")
+        call_command("loaddata", SNOMED_FIXTURES_PATH / "tennis-toe.json")
+
+
+@pytest.fixture(scope="session")
+def universe(snomedct_data, django_db_setup, django_db_blocker):
     """Create universe of fixture objects.
 
     This fixture will be loaded exactly once per session.  It is not expected that it is
@@ -113,11 +149,6 @@ def universe(django_db_setup, django_db_blocker):
     build_fixtures below.
     """
     with django_db_blocker.unblock():
-        # load enough of the SNOMED hierarchy to be useful
-        call_command("loaddata", SNOMED_FIXTURES_PATH / "core-model-components.json")
-        call_command("loaddata", SNOMED_FIXTURES_PATH / "tennis-elbow.json")
-        call_command("loaddata", SNOMED_FIXTURES_PATH / "tennis-toe.json")
-
         return build_fixtures()
 
 
@@ -210,6 +241,14 @@ def build_fixtures():
     )
     set_api_token(user=user_without_organisation)
 
+    # inactive_user
+    inactive_user = create_user(
+        username="eve",
+        name="Eve",
+        email="eve@example.co.uk",
+        is_active=False,
+    )
+
     # old_style_codelist
     # - owned by organisation
     # - has one version:
@@ -246,11 +285,23 @@ def build_fixtures():
         name="New-style Codelist",
         coding_system_id="snomedct",
         codes=disorder_of_elbow_excl_arthritis_codes,
+        references=[
+            {"text": "Reference 1", "url": "https://example.com/reference1"},
+            {"text": "Reference 2", "url": "https://example.com/reference2"},
+        ],
+        signoffs=[
+            {"user": organisation_user, "date": "2020-02-29"},
+            {"user": collaborator, "date": "2020-02-29"},
+        ],
     )
 
     # organisation_codelist
     # - an alias for new_style_codelist
     organisation_codelist = new_style_codelist
+
+    # codelist
+    # - an alias for new_style_codelist
+    codelist = new_style_codelist
 
     # version_with_no_searches
     # - belongs to new_style_codelist
@@ -272,7 +323,7 @@ def build_fixtures():
 
     # version_with_some_searches
     # - belongs to new_style_codelist
-    # - has some searches, but not all codes covered
+    # - has single search, but not all codes covered
     # - includes Disorder of elbow
     version_with_some_searches = export_to_builder(
         version=version_with_no_searches, owner=organisation_user
@@ -348,6 +399,10 @@ def build_fixtures():
 
     # Check that this version has the expected codes
     check_expected_codes(version_with_complete_searches, disorder_of_elbow_codes)
+
+    # version
+    # - an alias for version_with_complete_searches
+    version = version_with_complete_searches
 
     # codelist_with_collaborator
     # - an alias for new_style_codelist
@@ -457,14 +512,17 @@ organisation_user = build_fixture("organisation_user")
 collaborator = build_fixture("collaborator")
 user_without_organisation = build_fixture("user_without_organisation")
 user = build_fixture("user")
+inactive_user = build_fixture("inactive_user")
 old_style_codelist = build_fixture("old_style_codelist")
 old_style_version = build_fixture("old_style_version")
 new_style_codelist = build_fixture("new_style_codelist")
 organisation_codelist = build_fixture("organisation_codelist")
+codelist = build_fixture("codelist")
 version_with_no_searches = build_fixture("version_with_no_searches")
 version_with_some_searches = build_fixture("version_with_some_searches")
 version_with_complete_searches = build_fixture("version_with_complete_searches")
 version_with_excluded_codes = build_fixture("version_with_excluded_codes")
+version = build_fixture("version")
 codelist_with_collaborator = build_fixture("codelist_with_collaborator")
 codelist_from_scratch = build_fixture("codelist_from_scratch")
 version_from_scratch = build_fixture("version_from_scratch")
@@ -487,6 +545,13 @@ def draft_with_some_searches(version_with_some_searches, organisation_user):
 
 @pytest.fixture(scope="function")
 def draft_with_complete_searches(version_with_complete_searches, organisation_user):
+    return export_to_builder(
+        version=version_with_complete_searches, owner=organisation_user
+    )
+
+
+@pytest.fixture(scope="function")
+def draft_from_scratch(version_with_complete_searches, organisation_user):
     return export_to_builder(
         version=version_with_complete_searches, owner=organisation_user
     )

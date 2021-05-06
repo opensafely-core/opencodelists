@@ -1,6 +1,5 @@
 from ...models import User
 from ..assertions import assert_difference, assert_no_difference
-from ..factories import UserFactory
 
 
 def test_get(client):
@@ -8,8 +7,7 @@ def test_get(client):
     assert rsp.status_code == 200
 
 
-def test_get_when_authenticated(client):
-    user = UserFactory()
+def test_get_when_authenticated(client, user):
     client.force_login(user)
     rsp = client.get("/accounts/register/")
     assert rsp.status_code == 302
@@ -52,11 +50,9 @@ def test_post_failure_pasword_mismatch(client):
     assert b"The two password fields didn&#x27;t match." in rsp.content
 
 
-def test_post_failure_duplicate_username(client):
-    u = UserFactory()
-
+def test_post_failure_duplicate_username(client, user):
     data = {
-        "username": u.username,
+        "username": user.username,
         "name": "Prof User",
         "email": "user@example.com",
         "password1": "password",
@@ -69,13 +65,11 @@ def test_post_failure_duplicate_username(client):
     assert b"A user with this username already exists." in rsp.content
 
 
-def test_post_failure_duplicate_email(client):
-    u = UserFactory()
-
+def test_post_failure_duplicate_email(client, user):
     data = {
         "username": "user",
         "name": "Prof User",
-        "email": u.email,
+        "email": user.email,
         "password1": "password",
         "password2": "wordpass",
     }

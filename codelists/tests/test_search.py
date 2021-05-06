@@ -2,7 +2,7 @@ from codelists.coding_systems import CODING_SYSTEMS
 from codelists.search import do_search
 
 
-def test_do_search(tennis_elbow):
+def test_do_search(snomedct_data):
     coding_system = CODING_SYSTEMS["snomedct"]
 
     search_results = do_search(coding_system, "elbow")

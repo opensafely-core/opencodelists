@@ -78,7 +78,7 @@ fabric3==1.14.post1
     # via -r requirements.in
 filelock==3.0.12
     # via virtualenv
-flake8==3.9.1
+flake8==3.9.2
     # via -r requirements.in
 gunicorn==20.1.0
     # via -r requirements.in

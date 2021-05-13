@@ -18,44 +18,6 @@ class TreeTables extends React.Component {
     });
   }
 
-  shouldComponentUpdate(nextProps) {
-    // Clicking an include or exclude button triggers three re-renders.  For large
-    // codelists, this wastes a lot of time.  We can avoid this by only rending a
-    // TreeTables component if any code's status has changed, or if a code has changed
-    // visibility.
-
-    const { codeToStatus, visiblePaths } = this.props;
-
-    if (
-      Object.keys(codeToStatus).some(
-        (code) => codeToStatus[code] !== nextProps.codeToStatus[code]
-      )
-    ) {
-      // If any code's status has changed, we should re-render the tree
-      return true;
-    }
-
-    if (
-      [...visiblePaths].some((path) => {
-        !nextProps.visiblePaths.has(path);
-      })
-    ) {
-      // If any code is now not visible, we should re-render the tree
-      return true;
-    }
-
-    if (
-      [...nextProps.visiblePaths].some((path) => {
-        !visiblePaths.has(path);
-      })
-    ) {
-      // If any code is now visible, we should re-render the tree
-      return true;
-    }
-
-    return false;
-  }
-
   render() {
     const {
       hierarchy,

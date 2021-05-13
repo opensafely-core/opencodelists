@@ -60,15 +60,12 @@ class Hierarchy {
       excluded.push(code);
     }
 
-    const updatedCodeToStatus = {};
-    this.nodes.forEach((code1) => {
-      if (code1 === code || this.getDescendants(code).includes(code1)) {
-        updatedCodeToStatus[code1] = this.codeStatus(code1, included, excluded);
-      } else {
-        updatedCodeToStatus[code1] = codeToStatus[code1];
-      }
-    });
-    return updatedCodeToStatus;
+    return Object.fromEntries(
+      [...this.nodes].map((code) => [
+        code,
+        this.codeStatus(code, included, excluded),
+      ])
+    );
   }
 
   codeStatus(code, included, excluded) {

@@ -72,6 +72,18 @@
       src="https://kit.fontawesome.com/7e05304e34.js"
       crossorigin="anonymous"
     ></script>
+
+    <script>
+      if (document.location.hostname === "www.opencodelists.org") {
+        var script = document.createElement("script");
+        script.async = true;
+        script.defer = true;
+        script.setAttribute("data-domain", "opencodelists.org");
+        script.src = "https://pa.opencodelists.org/js/index.js";
+        document.head.appendChild(script);
+      }
+    </script>
+
     <title>OpenCodelists{% block title_extra %}{% endblock %}</title>
   </head>
 

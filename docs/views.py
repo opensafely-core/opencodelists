@@ -60,7 +60,7 @@ def load_pages():
         content = "\n".join(content.splitlines()[2:])
 
         # Add number of codelists
-        if section == "status-of-project":
+        if section == "status-of-the-project":
             content = content.replace("{numcodelists}", str(Codelist.objects.count()))
 
         # Insert img tags

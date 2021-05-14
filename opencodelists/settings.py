@@ -33,7 +33,7 @@ IN_PRODUCTION = bool(os.environ.get("IN_PRODUCTION"))
 if IN_PRODUCTION:
     SECRET_KEY = os.environ["SECRET_KEY"]
     DEBUG = False
-    ALLOWED_HOSTS = [os.environ["ALLOWED_HOSTS"].split(",")]
+    ALLOWED_HOSTS = os.environ["ALLOWED_HOSTS"].split(",")
 
     # This setting causes infinite redirects
     # SECURE_SSL_REDIRECT = True

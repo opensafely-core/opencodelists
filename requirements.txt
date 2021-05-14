@@ -62,7 +62,7 @@ django-ipware==3.0.1
     # via django-structlog
 django-structlog==2.1.0
     # via -r requirements.in
-django==3.2.2
+django==3.2.3
     # via
     #   -r requirements.in
     #   django-cors-headers

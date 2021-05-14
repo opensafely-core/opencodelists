@@ -5,7 +5,7 @@ upstream opencodelists {
 
 server {
     listen 443 ssl;
-    server_name codelists.opensafely.org;
+    server_name www.opencodelists.org opencodelists.org codelists.opensafely.org;
 
     ssl_certificate /etc/ssl/opensafely.org.pem;
     ssl_certificate_key /etc/ssl/opensafely.org.key;

@@ -91,10 +91,10 @@ from django.db.models import Model
 from builder.actions import create_search, save, update_code_statuses
 from codelists.actions import (
     add_collaborator,
-    create_codelist,
     create_codelist_from_scratch,
     create_codelist_with_codes,
-    create_version,
+    create_old_style_codelist,
+    create_old_style_version,
     export_to_builder,
 )
 from codelists.coding_systems import CODING_SYSTEMS
@@ -253,7 +253,7 @@ def build_fixtures():
     # - owned by organisation
     # - has one version:
     #   - old_style_version
-    old_style_codelist = create_codelist(
+    old_style_codelist = create_old_style_codelist(
         owner=organisation,
         name="Old-style Codelist",
         coding_system_id="snomedct",
@@ -265,7 +265,7 @@ def build_fixtures():
     # old_style_version
     # - belongs to old_style_codelist
     # - includes Disorder of elbow
-    old_style_version = create_version(
+    old_style_version = create_old_style_version(
         codelist=old_style_codelist,
         csv_data=disorder_of_elbow_csv_data,
     )

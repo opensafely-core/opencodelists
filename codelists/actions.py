@@ -16,7 +16,7 @@ logger = structlog.get_logger()
 
 
 @transaction.atomic
-def create_codelist(
+def create_old_style_codelist(
     *,
     owner,
     name,
@@ -40,7 +40,7 @@ def create_codelist(
         references=references,
         signoffs=signoffs,
     )
-    create_version(codelist=codelist, csv_data=csv_data)
+    create_old_style_version(codelist=codelist, csv_data=csv_data)
     logger.info("Created Codelist", codelist_pk=codelist.pk)
     return codelist
 
@@ -148,7 +148,7 @@ def _create_codelist_with_handle(
     return codelist
 
 
-def create_version(*, codelist, csv_data):
+def create_old_style_version(*, codelist, csv_data):
     version = codelist.versions.create(csv_data=csv_data)
     logger.info("Created Version", version_pk=version.pk)
     return version

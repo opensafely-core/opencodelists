@@ -32,7 +32,7 @@ def handle_post(request, codelist):
 
 
 def handle_valid(request, codelist, form):
-    version = actions.create_version(
+    version = actions.create_old_style_version(
         codelist=codelist, csv_data=form.cleaned_data["csv_data"]
     )
     return redirect(version)

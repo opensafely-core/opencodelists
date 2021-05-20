@@ -7,7 +7,7 @@ from opencodelists.tests.assertions import assert_difference
 
 
 def test_create_codelist(organisation):
-    cl = actions.create_codelist(
+    cl = actions.create_old_style_codelist(
         owner=organisation,
         name="Test Codelist",
         coding_system_id="snomedct",
@@ -28,7 +28,7 @@ def test_create_codelist(organisation):
 
 
 def test_create_codelist_for_user(user):
-    cl = actions.create_codelist(
+    cl = actions.create_old_style_codelist(
         owner=user,
         name="Test Codelist",
         coding_system_id="snomedct",
@@ -49,7 +49,7 @@ def test_create_codelist_for_user(user):
 
 
 def test_create_codelist_with_duplicate_name(organisation):
-    actions.create_codelist(
+    actions.create_old_style_codelist(
         owner=organisation,
         name="Test",
         coding_system_id="snomedct",
@@ -59,7 +59,7 @@ def test_create_codelist_with_duplicate_name(organisation):
     )
 
     with pytest.raises(IntegrityError):
-        actions.create_codelist(
+        actions.create_old_style_codelist(
             owner=organisation,
             name="Test",
             coding_system_id="snomedct",

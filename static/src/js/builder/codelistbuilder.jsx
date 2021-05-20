@@ -272,6 +272,8 @@ function ManagementForm(props) {
             type="button"
             className="disabled btn btn-outline-secondary btn-block"
             aria-disabled="true"
+            data-toggle="tooltip"
+            title="You cannot save for review until all search results are included or excluded"
           >
             Save for review
           </button>

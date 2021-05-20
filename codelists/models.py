@@ -209,9 +209,6 @@ class CodelistVersion(models.Model):
     tag = models.CharField(max_length=12, null=True)
     csv_data = models.TextField(verbose_name="CSV data", null=True)
 
-    # Indicates whether a CodelistVersion was edited in the builder, and then discarded.
-    discarded = models.BooleanField(default=False)
-
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

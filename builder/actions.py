@@ -81,7 +81,6 @@ def save(*, draft):
 
 
 def discard_draft(*, draft):
-    """Mark draft as discarded."""
+    """Delete draft."""
 
-    draft.discarded = True
-    draft.save()
+    draft.delete()

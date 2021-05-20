@@ -115,7 +115,9 @@ def _draft(request, draft, search_slug):
     elif codeset.all_codes():
         results_heading = "Showing all matching concepts"
     else:
-        results_heading = "Start building your codelist by searching for a term"
+        results_heading = (
+            "Start building your codelist by searching for a term or a code"
+        )
 
     update_url = draft.get_builder_url("update")
     search_url = draft.get_builder_url("new-search")

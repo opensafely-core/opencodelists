@@ -130,8 +130,12 @@ class CodelistBuilder extends React.Component {
       <>
         <div className="row">
           <div className="col-3">
-            <ManagementForm complete={this.complete()} />
-            <hr />
+            {this.props.isEditable && (
+              <>
+                <ManagementForm complete={this.complete()} />
+                <hr />
+              </>
+            )}
 
             <h3 className="mb-4">Summary</h3>
             <Filter filter={this.props.filter} />
@@ -150,8 +154,12 @@ class CodelistBuilder extends React.Component {
               </>
             )}
 
-            <h3 className="mb-4">New search</h3>
-            <SearchForm searchURL={this.props.searchURL} />
+            {this.props.isEditable && (
+              <>
+                <h3 className="mb-4">New search</h3>
+                <SearchForm searchURL={this.props.searchURL} />
+              </>
+            )}
           </div>
 
           <div className="col-9 pl-5">

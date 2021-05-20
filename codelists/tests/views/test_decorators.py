@@ -75,6 +75,19 @@ def test_load_version_with_tag_by_hash(version):
     )
 
 
+def test_load_draft_version(draft_with_some_searches):
+    draft = draft_with_some_searches
+
+    rsp = version_view(
+        request,
+        organisation_slug=draft.codelist.organisation.slug,
+        codelist_slug=draft.codelist.slug,
+        tag_or_hash=draft.hash,
+    )
+    assert rsp.status_code == 302
+    assert rsp.url == draft.get_builder_url("draft")
+
+
 @load_owner
 def owner_view(request, owner):
     return owner

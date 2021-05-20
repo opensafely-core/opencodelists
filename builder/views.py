@@ -9,19 +9,20 @@ from django.views.decorators.http import require_http_methods
 from codelists.search import do_search
 
 from . import actions
-from .decorators import load_draft
+from .decorators import load_draft, require_permission
 
 NO_SEARCH_TERM = object()
 
 
-@login_required
 @load_draft
 def draft(request, draft):
-    if request.POST:
+    if request.method == "POST":
         return _handle_post(request, draft)
     return _draft(request, draft, None)
 
 
+@login_required
+@require_permission
 def _handle_post(request, draft):
     action = request.POST["action"]
     if action == "save":
@@ -39,13 +40,11 @@ def _handle_post(request, draft):
         return redirect(draft.codelist)
 
 
-@login_required
 @load_draft
 def search(request, draft, search_slug):
     return _draft(request, draft, search_slug)
 
 
-@login_required
 @load_draft
 def no_search_term(request, draft):
     return _draft(request, draft, NO_SEARCH_TERM)
@@ -153,6 +152,7 @@ def _draft(request, draft, search_slug):
 @login_required
 @require_http_methods(["POST"])
 @load_draft
+@require_permission
 def update(request, draft):
     updates = json.loads(request.body)["updates"]
     actions.update_code_statuses(draft=draft, updates=updates)
@@ -162,6 +162,7 @@ def update(request, draft):
 @login_required
 @require_http_methods(["POST"])
 @load_draft
+@require_permission
 def new_search(request, draft):
     term = request.POST["search"].strip()
     if term.startswith("code:"):

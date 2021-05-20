@@ -20,3 +20,16 @@ def load_draft(view_fn):
             return redirect(draft)
 
     return wrapped_view
+
+
+def require_permission(view_fn):
+    """Ensure the user has permission to edit the draft codelist."""
+
+    @wraps(view_fn)
+    def wrapped_view(request, draft):
+        if request.user == draft.draft_owner:
+            return view_fn(request, draft)
+        else:
+            return redirect("/")
+
+    return wrapped_view

@@ -557,6 +557,11 @@ def draft_from_scratch(version_with_complete_searches, organisation_user):
     )
 
 
+@pytest.fixture(scope="function")
+def draft(draft_with_complete_searches):
+    return draft_with_complete_searches
+
+
 # This is a parameterized fixture.  When used in a test, the test will be run once for
 # each of version_with_no_searches, version_with_some_searches,
 # version_with_complete_searches.

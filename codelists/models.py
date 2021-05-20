@@ -172,6 +172,13 @@ class CodelistVersion(models.Model):
     codelist = models.ForeignKey(
         "Codelist", on_delete=models.CASCADE, related_name="versions"
     )
+
+    # Can be one of:
+    # - "draft" -- the version is being edited in the builder
+    # - "under review" -- the version is being reviewed
+    # - "published" -- the version has been published and cannot be deleted
+    status = models.CharField(max_length=len("under review"))
+
     # If set, indicates that a CodelistVersion is a draft that's being edited in the
     # builder.
     draft_owner = models.ForeignKey(
@@ -179,9 +186,6 @@ class CodelistVersion(models.Model):
     )
     tag = models.CharField(max_length=12, null=True)
     csv_data = models.TextField(verbose_name="CSV data", null=True)
-    # This field indicates whether a CodelistVersion is published or not.  This doesn't
-    # have much practical meaning at the moment and should be revisited.
-    is_draft = models.BooleanField(default=True)
 
     # Indicates whether a CodelistVersion was edited in the builder, and then discarded.
     discarded = models.BooleanField(default=False)

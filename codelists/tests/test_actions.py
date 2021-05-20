@@ -170,10 +170,17 @@ def test_create_version_from_ecl_expr(new_style_codelist):
     assert clv.codes == ("429554009", "439656005")
 
 
-def test_publish_draft_version(version):
-    actions.publish_version(version=version)
-    version.refresh_from_db()
-    assert version.status == "published"
+def test_publish(version_under_review):
+    # The codelist has one published version and two versions under review.  When we
+    # publish one of the versions under review, we expect the other one to be deleted.
+
+    codelist = version_under_review.codelist
+
+    with assert_difference(codelist.versions.count, expected_difference=-1):
+        actions.publish_version(version=version_under_review)
+
+    version_under_review.refresh_from_db()
+    assert version_under_review.status == "published"
 
 
 def test_convert_codelist_to_new_style(old_style_codelist, old_style_version):

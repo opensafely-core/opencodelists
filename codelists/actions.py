@@ -270,12 +270,17 @@ def update_codelist(*, codelist, description, methodology):
     return codelist
 
 
+@transaction.atomic
 def publish_version(*, version):
-    """Publish a version."""
+    """Publish a version.
+
+    This deletes all other non-published versions belonging to the codelist.
+    """
 
     assert version.status == "under review"
     version.status = "published"
     version.save()
+    version.codelist.versions.exclude(status="published").delete()
     logger.info("Published Version", version_pk=version.pk)
 
 

@@ -164,7 +164,8 @@
         <form method="POST" action="{{ clv.get_publish_url }}">
           {% csrf_token %}
 
-          <p>Are you sure you want to publish this version?</p>
+          <p>Publishing a version is irreversible, and will delete any other draft versions or versions under review.</p>
+          <p>Are you sure you want to continue?</p>
 
           <div class="d-flex justify-content-between">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>

@@ -408,6 +408,10 @@ def build_fixtures():
     # - an alias for version_with_complete_searches
     version = version_with_complete_searches
 
+    # version_under_review
+    # - an alias for version_with_complete_searches
+    version_under_review = version_with_complete_searches
+
     # new_style_codelist_latest_version
     # - an alias for version_with_complete_searches
     new_style_codelist_latest_version = version_with_complete_searches
@@ -535,6 +539,7 @@ new_style_codelist_latest_published_version = build_fixture(
 )
 new_style_codelist_latest_version = build_fixture("new_style_codelist_latest_version")
 version = build_fixture("version")
+version_under_review = build_fixture("version_under_review")
 codelist_with_collaborator = build_fixture("codelist_with_collaborator")
 codelist_from_scratch = build_fixture("codelist_from_scratch")
 version_from_scratch = build_fixture("version_from_scratch")

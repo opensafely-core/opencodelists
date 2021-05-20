@@ -129,7 +129,7 @@ class CodelistBuilder extends React.Component {
     return (
       <>
         <div className="row">
-          <div className="col-3">
+          <div className="col-md-3 col-lg-2">
             {this.props.isEditable && (
               <>
                 <ManagementForm complete={this.complete()} />
@@ -137,33 +137,36 @@ class CodelistBuilder extends React.Component {
               </>
             )}
 
-            <h3 className="mb-4">Summary</h3>
+            <h6>Summary</h6>
             <Filter filter={this.props.filter} />
             <Summary counts={this.counts()} />
             <hr />
 
             {this.props.searches.length > 0 && (
               <>
-                <h3 className="mb-4">Searches</h3>
-                <ul className="list-group">
+                <h6>Searches</h6>
+                <div className="list-group">
                   {this.props.searches.map((search) => (
                     <Search key={search.url} search={search} />
                   ))}
-                </ul>
+                </div>
                 <hr />
               </>
             )}
 
             {this.props.isEditable && (
               <>
-                <h3 className="mb-4">New search</h3>
+                <h6>New search</h6>
                 <SearchForm searchURL={this.props.searchURL} />
+                <hr />
+              </>
+            )}
               </>
             )}
           </div>
 
           <div className="col-9 pl-5">
-            <h3 className="mb-4">{this.props.resultsHeading}</h3>
+            <h4>{this.props.resultsHeading}</h4>
             <hr />
             <TreeTables
               codeToStatus={this.state.codeToStatus}
@@ -281,8 +284,8 @@ function Search(props) {
       href={search.url}
       className={
         search.active
-          ? "list-group-item list-group-item-action active"
-          : "list-group-item list-group-item-action"
+          ? "list-group-item list-group-item-action active py-1"
+          : "list-group-item list-group-item-action py-1"
       }
     >
       {search.term_or_code}
@@ -305,7 +308,7 @@ function SearchForm(props) {
           type="search"
           className="form-control"
           name="search"
-          placeholder="Search term or code"
+          placeholder="Term or code"
         />
       </div>
       <div>
@@ -380,40 +383,40 @@ function MoreInfoModal(props) {
 
 function Summary(props) {
   return (
-    <ul>
-      <li>
+    <>
+      <p>
         Found <span id="summary-total">{props.counts.total}</span> matching
         concepts (including descendants).
-      </li>
+      </p>
       {props.counts["+"] > 0 && (
-        <li>
+        <p>
           <span id="summary-included">
             {props.counts["+"] + props.counts["(+)"]}
           </span>{" "}
           have been <a href="?filter=included">included</a> in the codelist.
-        </li>
+        </p>
       )}
       {props.counts["-"] > 0 && (
-        <li>
+        <p>
           <span id="summary-excluded">
             {props.counts["-"] + props.counts["(-)"]}
           </span>{" "}
           have been <a href="?filter=excluded">excluded</a> from the codelist.
-        </li>
+        </p>
       )}
       {props.counts["?"] > 0 && (
-        <li>
+        <p>
           <span id="summary-unresolved">{props.counts["?"]}</span> are{" "}
           <a href="?filter=unresolved">unresolved</a>.
-        </li>
+        </p>
       )}
       {props.counts["!"] > 0 && (
-        <li>
+        <p>
           <span id="summary-in-conflict">{props.counts["!"]}</span> are{" "}
           <a href="?filter=in-conflict">in conflict</a>.
-        </li>
+        </p>
       )}
-    </ul>
+    </>
   );
 }
 

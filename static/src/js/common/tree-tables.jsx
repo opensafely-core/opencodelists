@@ -60,7 +60,7 @@ function TreeTable(props) {
 
   return (
     <div className="mb-4">
-      <h4>{heading}</h4>
+      <h5>{heading}</h5>
 
       {ancestorCodes.map((ancestorCode) => (
         <Tree

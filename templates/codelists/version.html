@@ -5,11 +5,11 @@
 {% block title_extra %}: {{ codelist.name }}{% endblock %}
 
 {% block content %}
-<br />
-<h3>
-  {{ codelist.name }}
-</h3>
-<br />
+<h3 class="mt-4">{{ codelist.name }}</h3>
+{% if clv.status == "under review" %}
+<p class="text-muted">This version is under review</p>
+{% endif %}
+<hr />
 
 <div class="row">
   <div class="col-md-3 col-lg-2">

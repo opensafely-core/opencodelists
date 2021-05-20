@@ -123,8 +123,10 @@ def _draft(request, draft, search_slug):
             "Start building your codelist by searching for a term or a code"
         )
 
+    draft_url = draft.get_builder_url("draft")
     update_url = draft.get_builder_url("update")
     search_url = draft.get_builder_url("new-search")
+
     versions = [
         {
             "tag_or_hash": v.tag_or_hash,
@@ -147,7 +149,6 @@ def _draft(request, draft, search_slug):
     ctx = {
         "user": draft.draft_owner,
         "draft": draft,
-        "draft_url": draft.get_builder_url("draft"),
         "codelist_name": codelist.name,
         # The following values are passed to the CodelistBuilder component.
         # When any of these chage, use generate_builder_fixture to update
@@ -165,6 +166,7 @@ def _draft(request, draft, search_slug):
         "code_to_term": code_to_term,
         "code_to_status": codeset.code_to_status,
         "is_editable": request.user == draft.draft_owner,
+        "draft_url": draft_url,
         "update_url": update_url,
         "search_url": search_url,
         "versions": versions,

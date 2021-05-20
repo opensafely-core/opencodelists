@@ -149,6 +149,14 @@ class CodelistBuilder extends React.Component {
                   {this.props.searches.map((search) => (
                     <Search key={search.url} search={search} />
                   ))}
+                  {this.props.searches.some((search) => search.active) ? (
+                    <a
+                      href={this.props.draftURL}
+                      className="list-group-item list-group-item-action py-1 font-italic"
+                    >
+                      show all
+                    </a>
+                  ) : null}
                 </div>
                 <hr />
               </>

@@ -4,13 +4,10 @@
 {% block content %}
 <h2 class="my-4"><a href="{{ draft_url }}">{{ codelist_name }}</a></h2>
 {% if search == NO_SEARCH_TERM %}
-<h4 class="mb-4"></h4>
 {% elif search %}
 <h2 class="my-4"><a href="{{ draft_url }}">{{ codelist_name }}</a></h2>
-<h4 class="mb-4">Showing concepts matching: "{{ search.term }}"</h4>
 {% else %}
 <h2 class="my-4">{{ codelist_name }}</h2>
-<h4 class="mb-4">Showing all matching concepts</h4>
 {% endif %}
 <hr />
 

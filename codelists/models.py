@@ -117,6 +117,15 @@ class Codelist(models.Model):
         return self.versions.filter(csv_data__isnull=True).exists()
 
     def can_be_edited_by(self, user):
+        """Return whether codelist can be edited by given user.
+
+        A codelist can be edited by a user if:
+
+            * the user is a collaborator on the codelist
+            * the codelist is owned by the user
+            * the codelist is owned by one of the organisations the user is a member of
+        """
+
         if self.collaborations.filter(collaborator=user).exists():
             return True
 

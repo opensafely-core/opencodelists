@@ -71,20 +71,7 @@ def create_codelist_with_codes(
         references=references,
         signoffs=signoffs,
     )
-    codes = set(codes)
-    coding_system = codelist.coding_system
-    code_to_term = coding_system.code_to_term(codes)
-    assert codes == set(code_to_term)
-
-    version = codelist.versions.create(tag=tag)
-    hierarchy = Hierarchy.from_codes(codelist.coding_system, codes)
-    codeset = Codeset.from_codes(codes, hierarchy)
-
-    CodeObj.objects.bulk_create(
-        CodeObj(version=version, code=code, status=status)
-        for code, status in codeset.code_to_status.items()
-    )
-
+    _create_version_with_codes(codelist=codelist, codes=codes, tag=tag)
     return codelist
 
 
@@ -173,19 +160,9 @@ def create_version_with_codes(
     if set(codes) == set(prev_clv.codes):
         raise ValueError("No difference to previous version")
 
-    next_clv = codelist.versions.create(tag=tag)
-
-    if codeset is None:
-        hierarchy = Hierarchy.from_codes(codelist.coding_system, codes)
-        codeset = Codeset.from_codes(codes, hierarchy)
-
-    CodeObj.objects.bulk_create(
-        CodeObj(version=next_clv, code=node, status=codeset.code_to_status[node])
-        for node in hierarchy.nodes
-        if node in codes
+    return _create_version_with_codes(
+        codelist=codelist, codes=codes, tag=tag, hierarchy=hierarchy, codeset=codeset
     )
-
-    return next_clv
 
 
 def create_version_from_ecl_expr(*, codelist, expr, tag=None):
@@ -250,6 +227,28 @@ def create_version_from_ecl_expr(*, codelist, expr, tag=None):
     )
 
 
+def _create_version_with_codes(
+    *, codelist, codes, tag=None, hierarchy=None, codeset=None
+):
+    codes = set(codes)
+    coding_system = codelist.coding_system
+    code_to_term = coding_system.code_to_term(codes)
+    assert codes == set(code_to_term)
+
+    clv = codelist.versions.create(tag=tag)
+
+    if codeset is None:
+        hierarchy = Hierarchy.from_codes(codelist.coding_system, codes)
+        codeset = Codeset.from_codes(codes, hierarchy)
+
+    CodeObj.objects.bulk_create(
+        CodeObj(version=clv, code=code, status=status)
+        for code, status in codeset.code_to_status.items()
+    )
+
+    return clv
+
+
 @transaction.atomic
 def update_codelist(*, codelist, description, methodology):
     """Update a Codelist."""
@@ -282,19 +281,7 @@ def convert_codelist_to_new_style(*, codelist):
     assert prev_clv.csv_data is not None
     assert prev_clv.code_objs.count() == 0
 
-    next_clv = codelist.versions.create()
-
-    codes = set(prev_clv.codes)
-    hierarchy = Hierarchy.from_codes(codelist.coding_system, codes)
-    codeset = Codeset.from_codes(codes, hierarchy)
-
-    CodeObj.objects.bulk_create(
-        CodeObj(version=next_clv, code=node, status=codeset.code_to_status[node])
-        for node in hierarchy.nodes
-        if node in codes
-    )
-
-    return next_clv
+    return _create_version_with_codes(codelist=codelist, codes=set(prev_clv.codes))
 
 
 @transaction.atomic

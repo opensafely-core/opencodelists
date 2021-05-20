@@ -17,7 +17,7 @@
       <a
         href="{{ clv.get_download_url }}"
         role="button"
-        class="btn btn-outline-info btn-block"
+        class="btn btn-outline-primary btn-block"
       >
         Download CSV
       </a>
@@ -25,7 +25,7 @@
       <a
         href="{{ clv.get_download_definition_url }}"
         role="button"
-        class="btn btn-outline-info btn-block"
+        class="btn btn-outline-primary btn-block"
       >
         Download definition
       </a>
@@ -34,7 +34,7 @@
       <a
         href="{{ clv.get_dmd_download_url }}"
         role="button"
-        class="btn btn-outline-info btn-block"
+        class="btn btn-outline-primary btn-block"
       >
         Download dm+d
       </a>
@@ -64,36 +64,55 @@
     </dl>
 
     {% if user_can_edit %}
-    <hr />
+      <hr />
 
-    <div class="btn-group-vertical btn-block" role="group">
-      <a
-        class="btn btn-outline-info btn-block"
-        href="{{ codelist.get_update_url }}">
-        Edit metadata
-      </a>
-    </div>
-
-    <hr />
-
-    <form method="POST" action={{ clv.get_create_url }}>
       <div class="btn-group-vertical btn-block" role="group">
-        {% if codelist.is_new_style %}
-          {% csrf_token %}
-          <button
-            type="submit"
-            class="btn btn-outline-info btn-block">
-            Create new version
-          </button>
-        {% else %}
         <a
-          class="btn btn-outline-info btn-block"
-          href="{{ codelist.get_version_upload_url }}">
-          Upload new version
+          class="btn btn-outline-primary btn-block"
+          href="{{ codelist.get_update_url }}">
+          Edit metadata
         </a>
-        {% endif %}
       </div>
-    </form>
+
+      <hr />
+
+      <form method="POST" action={{ clv.get_create_url }}>
+        {% csrf_token %}
+        <div class="btn-group-vertical btn-block" role="group">
+          {% if codelist.is_new_style %}
+            <button
+              type="submit"
+              class="btn btn-outline-primary btn-block">
+              Create new version
+            </button>
+          {% else %}
+          <a
+            class="btn btn-outline-primary btn-block"
+            href="{{ codelist.get_version_upload_url }}">
+            Upload new version
+          </a>
+          {% endif %}
+
+          {% if clv.is_under_review %}
+            <button
+              type="button"
+              class="btn btn-outline-primary btn-block"
+              data-toggle="modal"
+              data-target="#js-publish-version-form">
+              Publish version
+            </button>
+          {% else %}
+            <button
+              type="button"
+              class="disabled btn btn-outline-secondary btn-block"
+              aria-disabled="true"
+              data-toggle="tooltip"
+              title="This version has already been published">
+              Publish version
+            </button>
+          {% endif %}
+        </div>
+      </form>
     {% endif %}
 
     <hr />

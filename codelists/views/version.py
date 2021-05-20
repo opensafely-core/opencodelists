@@ -37,14 +37,8 @@ def version(request, clv):
         )
 
     headers, *rows = clv.table
-
-    user_can_edit = False
-    if request.user.is_authenticated:
-        user_can_edit = clv.codelist.can_be_edited_by(request.user)
-
-    visible_versions = clv.codelist.versions.filter(draft_owner=None).order_by(
-        "-created_at"
-    )
+    user_can_edit = clv.codelist.can_be_edited_by(request.user)
+    visible_versions = clv.codelist.visible_versions(request.user)
 
     ctx = {
         "clv": clv,

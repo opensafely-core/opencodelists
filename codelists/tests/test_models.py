@@ -1,7 +1,6 @@
 import pytest
 from django.db.utils import IntegrityError
 
-from codelists.actions import export_to_builder
 from codelists.models import CodelistVersion, Handle
 
 
@@ -96,21 +95,48 @@ def test_new_style_is_new_style(new_style_codelist):
     assert new_style_codelist.is_new_style()
 
 
-def test_latest_version(
-    new_style_codelist, version_with_complete_searches, organisation_user
+def test_visible_versions_user_has_edit_permissions(
+    new_style_codelist,
+    user,
 ):
-    # Check that the latest version is the last created version
-    assert new_style_codelist.latest_version() == version_with_complete_searches
-
-    # Create a new draft version
-    export_to_builder(version=version_with_complete_searches, owner=organisation_user)
-
-    # Check that the latest version is unchanged
-    assert new_style_codelist.latest_version() == version_with_complete_searches
+    assert len(new_style_codelist.visible_versions(user)) == 3
 
 
-def test_latest_version_for_new_codelist(codelist_from_scratch, organisation_user):
-    assert codelist_from_scratch.latest_version() is None
+def test_visible_versions_user_doesnt_have_edit_permissions(
+    new_style_codelist,
+    user_without_organisation,
+):
+    assert len(new_style_codelist.visible_versions(user_without_organisation)) == 1
+
+
+def test_latest_visible_version_user_has_edit_permissions(
+    new_style_codelist,
+    new_style_codelist_latest_version,
+    user,
+):
+    assert (
+        new_style_codelist.latest_visible_version(user)
+        == new_style_codelist_latest_version
+    )
+
+
+def test_latest_visible_version_user_doesnt_have_edit_permissions(
+    new_style_codelist,
+    new_style_codelist_latest_published_version,
+    user_without_organisation,
+):
+    assert (
+        new_style_codelist.latest_visible_version(user_without_organisation)
+        == new_style_codelist_latest_published_version
+    )
+
+
+def test_latest_visible_version_no_versions_visible(
+    codelist_from_scratch, user_without_organisation
+):
+    assert (
+        codelist_from_scratch.latest_visible_version(user_without_organisation) is None
+    )
 
 
 def test_get_by_hash(new_style_version):

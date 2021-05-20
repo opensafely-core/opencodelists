@@ -61,6 +61,8 @@ class Command(BaseCommand):
                     "is_editable",
                     "update_url",
                     "search_url",
+                    "versions",
+                    "metadata",
                 ]
             }
 
@@ -97,8 +99,8 @@ def set_up_db():
     databases = connections.databases
     assert databases["default"]["ENGINE"] == "django.db.backends.sqlite3"
     databases["default"]["NAME"] = ":memory:"
-    del connections.databases
-    connections.__init__(databases=databases)
+    del connections.settings
+    connections.__init__(settings=databases)
     call_command("migrate")
 
     # This is a belt-and-braces check to ensure that the above hackery has worked.

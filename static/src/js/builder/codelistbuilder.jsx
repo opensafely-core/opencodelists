@@ -161,6 +161,16 @@ class CodelistBuilder extends React.Component {
                 <hr />
               </>
             )}
+
+            {this.props.searches.length > 0 && (
+              <>
+                <h6>Versions</h6>
+                <ul className="pl-3">
+                  {this.props.versions.map((version) => (
+                    <Version key={version.hash} version={version} />
+                  ))}
+                </ul>
+                <hr />
               </>
             )}
           </div>
@@ -290,6 +300,34 @@ function Search(props) {
     >
       {search.term_or_code}
     </a>
+  );
+}
+
+function Version(props) {
+  const { version } = props;
+
+  return (
+    <li>
+      {version.current ? (
+        version.tag_or_hash
+      ) : (
+        <a href={version.url}>{version.tag_or_hash}</a>
+      )}
+
+      {version.status === "draft" ? (
+        <>
+          {" "}
+          <span className="badge badge-primary">Draft</span>
+        </>
+      ) : null}
+
+      {version.status === "under review" ? (
+        <>
+          {" "}
+          <span className="badge badge-primary">Review</span>
+        </>
+      ) : null}
+    </li>
   );
 }
 

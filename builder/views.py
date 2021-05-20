@@ -124,6 +124,15 @@ def _draft(request, draft, search_slug):
 
     update_url = draft.get_builder_url("update")
     search_url = draft.get_builder_url("new-search")
+    versions = [
+        {
+            "tag_or_hash": v.tag_or_hash,
+            "url": v.get_absolute_url(),
+            "status": v.status,
+            "current": v == draft,
+        }
+        for v in draft.codelist.visible_versions(request.user)
+    ]
 
     ctx = {
         "user": draft.draft_owner,
@@ -148,6 +157,7 @@ def _draft(request, draft, search_slug):
         "is_editable": request.user == draft.draft_owner,
         "update_url": update_url,
         "search_url": search_url,
+        "versions": versions,
         # }
     }
 

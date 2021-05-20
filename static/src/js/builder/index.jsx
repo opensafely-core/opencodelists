@@ -41,6 +41,7 @@ ReactDOM.render(
     isEditable={readValueFromPage("is-editable")}
     updateURL={readValueFromPage("update-url")}
     searchURL={readValueFromPage("search-url")}
+    versions={readValueFromPage("versions")}
   />,
   document.querySelector("#codelist-builder-container")
 );

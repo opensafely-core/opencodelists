@@ -231,10 +231,10 @@ function ManagementForm(props) {
           <button
             type="submit"
             name="action"
-            value="save"
+            value="save-for-review"
             className="btn btn-outline-primary btn-block"
           >
-            Save changes
+            Save for review
           </button>
         ) : (
           <button
@@ -242,7 +242,7 @@ function ManagementForm(props) {
             className="disabled btn btn-outline-secondary btn-block"
             aria-disabled="true"
           >
-            Save changes
+            Save for review
           </button>
         )}
         <button

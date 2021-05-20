@@ -58,10 +58,12 @@ def test_post_unauthenticated(client, draft):
     assert_post_unauthenticated(client, draft.get_builder_url("draft"))
 
 
-def test_post_save(client, draft):
+def test_post_save_for_review(client, draft):
     client.force_login(draft.draft_owner)
 
-    rsp = client.post(draft.get_builder_url("draft"), {"action": "save"}, follow=True)
+    rsp = client.post(
+        draft.get_builder_url("draft"), {"action": "save-for-review"}, follow=True
+    )
     assert rsp.redirect_chain[-1][0] == draft.get_absolute_url()
 
     draft.refresh_from_db()

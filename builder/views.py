@@ -2,7 +2,7 @@ import json
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_http_methods
 
@@ -33,19 +33,21 @@ def no_search_term(request, draft):
 @require_permission
 def _handle_post(request, draft):
     action = request.POST["action"]
-    if action == "save":
+    if action == "save-for-review":
         actions.save(draft=draft)
-        messages.add_message(request, messages.INFO, "A new version has been saved")
+        messages.add_message(
+            request, messages.INFO, "A new version has been saved for review"
+        )
         return redirect(draft)
     elif action == "save-draft":
-        messages.add_message(
-            request, messages.INFO, "Your changes have been saved as draft"
-        )
+        messages.add_message(request, messages.INFO, "Your changes have been saved")
         return redirect(draft.codelist)
     elif action == "discard":
         messages.add_message(request, messages.INFO, "Your changes have been discarded")
         actions.discard_draft(draft=draft)
         return redirect(draft.codelist)
+    else:
+        return HttpResponse(status=400)
 
 
 def _draft(request, draft, search_slug):

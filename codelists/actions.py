@@ -139,31 +139,13 @@ def _create_codelist_with_handle(
     owner.handles.create(codelist=codelist, slug=slug, name=name, is_current=True)
 
     for reference in references or []:
-        create_reference(codelist=codelist, **reference)
+        codelist.references.create(text=reference["text"], url=reference["url"])
 
     for signoff in signoffs or []:
-        create_signoff(codelist=codelist, **signoff)
+        user = User.objects.get(username=signoff["user"])
+        signoff = codelist.signoffs.create(user=user, date=signoff["date"])
 
     return codelist
-
-
-def create_reference(*, codelist, text, url):
-    """Create a new Reference for the given Codelist."""
-    ref = codelist.references.create(text=text, url=url)
-
-    logger.info("Created Reference", reference_pk=ref.pk, codelist_pk=codelist.pk)
-
-    return ref
-
-
-def create_signoff(*, codelist, user, date):
-    """Create a new SignOff for the given Codelist."""
-    user = User.objects.get(username=user)
-    signoff = codelist.signoffs.create(user=user, date=date)
-
-    logger.info("Created SignOff", signoff_pk=signoff.pk, codelist_pk=codelist.pk)
-
-    return signoff
 
 
 def create_version(*, codelist, csv_data):

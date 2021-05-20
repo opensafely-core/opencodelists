@@ -11,67 +11,67 @@ def test_load_owner_for_user(user):
     assert owner_view(request, username=user.username) == user
 
 
-def test_load_organisation_codelist(organisation, organisation_codelist):
+def test_load_organisation_codelist(organisation_codelist):
     assert (
         codelist_view(
             request,
-            organisation_slug=organisation.slug,
+            organisation_slug=organisation_codelist.organisation.slug,
             codelist_slug=organisation_codelist.slug,
         )
         == organisation_codelist
     )
 
 
-def test_load_user_codelist(user, user_codelist):
+def test_load_user_codelist(user_codelist):
     assert (
         codelist_view(
             request,
-            username=user.username,
+            username=user_codelist.user.username,
             codelist_slug=user_codelist.slug,
         )
         == user_codelist
     )
 
 
-def test_load_version_by_hash(user, user_codelist, user_version):
+def test_load_version_by_hash(version):
     assert (
         version_view(
             request,
-            username=user.username,
-            codelist_slug=user_codelist.slug,
-            tag_or_hash=user_version.hash,
+            organisation_slug=version.codelist.organisation.slug,
+            codelist_slug=version.codelist.slug,
+            tag_or_hash=version.hash,
         )
-        == user_version
+        == version
     )
 
 
-def test_load_version_by_tag(user, user_codelist, user_version):
-    user_version.tag = "20210127"  # This tag looks like a hash
-    user_version.save()
+def test_load_version_by_tag(version):
+    version.tag = "20210127"  # This tag looks like a hash
+    version.save()
 
     assert (
         version_view(
             request,
-            username=user.username,
-            codelist_slug=user_codelist.slug,
-            tag_or_hash=user_version.tag,
+            organisation_slug=version.codelist.organisation.slug,
+            codelist_slug=version.codelist.slug,
+            tag_or_hash=version.tag,
         )
-        == user_version
+        == version
     )
 
 
-def test_load_version_with_tag_by_hash(user, user_codelist, user_version):
-    user_version.tag = "20210127"  # This tag looks like a hash
-    user_version.save()
+def test_load_version_with_tag_by_hash(version):
+    version.tag = "20210127"  # This tag looks like a hash
+    version.save()
 
     assert (
         version_view(
             request,
-            username=user.username,
-            codelist_slug=user_codelist.slug,
-            tag_or_hash=user_version.hash,
+            organisation_slug=version.codelist.organisation.slug,
+            codelist_slug=version.codelist.slug,
+            tag_or_hash=version.hash,
         )
-        == user_version
+        == version
     )
 
 

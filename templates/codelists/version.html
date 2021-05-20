@@ -8,10 +8,6 @@
 <br />
 <h3>
   {{ codelist.name }}
-
-  {% if clv.is_draft %}
-  <span class="badge badge-primary">Draft</span>
-  {% endif %}
 </h3>
 <br />
 
@@ -96,16 +92,6 @@
           Upload new version
         </a>
         {% endif %}
-
-        {% if clv.is_draft %}
-        <button
-          type="button"
-          class="btn btn-outline-info btn-block"
-          data-toggle="modal"
-          data-target="#js-publish-version-form">
-          Publish version
-        </button>
-        {% endif %}
       </div>
     </form>
     {% endif %}
@@ -116,17 +102,11 @@
     <ul class="pl-3">
       {% for version in versions %}
       <li>
-
         {% if version == clv %}
         {{ version.tag_or_hash }}
         {% else %}
         <a href="{{ version.get_absolute_url }}">{{ version.tag_or_hash }}</a>
         {% endif %}
-
-        {% if version.is_draft %}
-        <span class="badge badge-primary">Draft</span>
-        {% endif %}
-
       </li>
       {% endfor %}
     </ul>

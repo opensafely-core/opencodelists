@@ -191,7 +191,7 @@ def create_version_with_codes(
     if set(codes) == set(prev_clv.codes):
         raise ValueError("No difference to previous version")
 
-    next_clv = codelist.versions.create(is_draft=prev_clv.is_draft, tag=tag)
+    next_clv = codelist.versions.create(tag=tag)
 
     if codeset is None:
         hierarchy = Hierarchy.from_codes(codelist.coding_system, codes)
@@ -285,10 +285,7 @@ def update_codelist(*, codelist, description, methodology):
 def publish_version(*, version):
     """Publish a version."""
 
-    assert version.is_draft
-    version.is_draft = False
-    version.save()
-
+    # This is a no-op... we'll fix that soon.
     logger.info("Published Version", version_pk=version.pk)
 
 
@@ -303,7 +300,7 @@ def convert_codelist_to_new_style(*, codelist):
     assert prev_clv.csv_data is not None
     assert prev_clv.code_objs.count() == 0
 
-    next_clv = codelist.versions.create(is_draft=prev_clv.is_draft)
+    next_clv = codelist.versions.create()
 
     codes = set(prev_clv.codes)
     hierarchy = Hierarchy.from_codes(codelist.coding_system, codes)

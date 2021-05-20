@@ -20,7 +20,6 @@ def test_post_success(client, version):
 
     assert response.status_code == 302
     assert response.url == version.get_absolute_url()
-    assert not version.is_draft
 
 
 def test_post_unknown_version(client, codelist):

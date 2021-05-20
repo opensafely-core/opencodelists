@@ -168,13 +168,6 @@ def test_create_version_from_ecl_expr(new_style_codelist):
 def test_publish_draft_version(version):
     actions.publish_version(version=version)
     version.refresh_from_db()
-    assert not version.is_draft
-
-
-def test_publish_published_version(version):
-    actions.publish_version(version=version)
-    with pytest.raises(AssertionError):
-        actions.publish_version(version=version)
 
 
 def test_convert_codelist_to_new_style(old_style_codelist, old_style_version):

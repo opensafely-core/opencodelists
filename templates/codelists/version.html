@@ -80,11 +80,22 @@
         {% csrf_token %}
         <div class="btn-group-vertical btn-block" role="group">
           {% if codelist.is_new_style %}
-            <button
-              type="submit"
-              class="btn btn-outline-primary btn-block">
-              Create new version
-            </button>
+            {% if can_create_new_version %}
+              <button
+                type="submit"
+                class="btn btn-outline-primary btn-block">
+                Create new version
+              </button>
+            {% else %}
+              <button
+                type="button"
+                class="disabled btn btn-outline-secondary btn-block"
+                aria-disabled="true"
+                data-toggle="tooltip"
+                title="This codelist already has a draft version">
+                Create new version
+              </button>
+            {% endif %}
           {% else %}
           <a
             class="btn btn-outline-primary btn-block"

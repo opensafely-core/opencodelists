@@ -39,6 +39,7 @@ def version(request, clv):
     headers, *rows = clv.table
     user_can_edit = clv.codelist.can_be_edited_by(request.user)
     visible_versions = clv.codelist.visible_versions(request.user)
+    can_create_new_version = not clv.codelist.versions.filter(status="draft").exists()
 
     ctx = {
         "clv": clv,
@@ -55,5 +56,6 @@ def version(request, clv):
         "code_to_status": code_to_status,
         "search_results": present_search_results(clv, code_to_term),
         "user_can_edit": user_can_edit,
+        "can_create_new_version": can_create_new_version,
     }
     return render(request, "codelists/version.html", ctx)

@@ -408,6 +408,18 @@ class CodelistVersion(models.Model):
                 self.codelist.organisation_id, self.codelist.slug, self.tag_or_hash
             )
 
+    @property
+    def is_draft(self):
+        return self.status == "draft"
+
+    @property
+    def is_under_review(self):
+        return self.status == "under review"
+
+    @property
+    def is_published(self):
+        return self.status == "published"
+
 
 class CodeObj(models.Model):
     STATUS_CHOICES = [

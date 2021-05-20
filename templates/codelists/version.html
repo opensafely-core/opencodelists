@@ -107,6 +107,11 @@
         {% else %}
         <a href="{{ version.get_absolute_url }}">{{ version.tag_or_hash }}</a>
         {% endif %}
+        {% if version.is_under_review %}
+        <span class="badge badge-primary">Review</span>
+        {% elif version.is_draft %}
+        <span class="badge badge-primary">Draft</span>
+        {% endif %}
       </li>
       {% endfor %}
     </ul>

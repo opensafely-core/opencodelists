@@ -1,3 +1,6 @@
+import pytest
+from django.http import Http404
+
 from codelists.views.decorators import load_codelist, load_owner, load_version
 
 request = object()
@@ -86,6 +89,31 @@ def test_load_draft_version(draft_with_some_searches):
     )
     assert rsp.status_code == 302
     assert rsp.url == draft.get_builder_url("draft")
+
+
+def test_load_owner_for_organisation_404():
+    with pytest.raises(Http404):
+        owner_view(request, organisation_slug="no-such-organisation")
+
+
+def test_load_owner_for_user_404():
+    with pytest.raises(Http404):
+        owner_view(request, username="no-such-user")
+
+
+def test_load_codelist_404(user):
+    with pytest.raises(Http404):
+        codelist_view(request, username=user.username, codelist_slug="no-such-codelist")
+
+
+def test_version_codelist_404(user_codelist):
+    with pytest.raises(Http404):
+        version_view(
+            request,
+            username=user_codelist.user.username,
+            codelist_slug=user_codelist.slug,
+            tag_or_hash="no-such-tag",
+        )
 
 
 @load_owner

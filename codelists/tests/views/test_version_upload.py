@@ -26,15 +26,6 @@ def test_post_unauthorised(client, old_style_codelist):
     assert_post_unauthorised(client, old_style_codelist.get_version_upload_url())
 
 
-def test_get_unknown_codelist(client, old_style_codelist):
-    force_login(old_style_codelist, client)
-    url = old_style_codelist.get_version_upload_url().replace(
-        old_style_codelist.slug, "test"
-    )
-    response = client.get(url, data={})
-    assert response.status_code == 404
-
-
 def test_post_success(client, old_style_codelist):
     force_login(old_style_codelist, client)
 

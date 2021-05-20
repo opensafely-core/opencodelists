@@ -121,10 +121,14 @@ class Codelist(models.Model):
 
         A codelist can be edited by a user if:
 
+            * the user is authenticated
             * the user is a collaborator on the codelist
             * the codelist is owned by the user
             * the codelist is owned by one of the organisations the user is a member of
         """
+
+        if not user.is_authenticated:
+            return False
 
         if self.collaborations.filter(collaborator=user).exists():
             return True

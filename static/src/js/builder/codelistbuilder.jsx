@@ -162,6 +162,25 @@ class CodelistBuilder extends React.Component {
               </>
             )}
 
+            <dl>
+              <dt>Coding system</dt>
+              <dd>{this.props.metadata.coding_system_name}</dd>
+
+              {this.props.metadata.organisation_name ? (
+                <>
+                  <dt>Organisation</dt>
+                  <dd>{this.props.metadata.organisation_name}</dd>
+                </>
+              ) : null}
+
+              <dt>Codelist ID</dt>
+              <dd>{this.props.metadata.codelist_full_slug}</dd>
+
+              <dt>ID</dt>
+              <dd>{this.props.metadata.hash}</dd>
+            </dl>
+            <hr />
+
             {this.props.searches.length > 0 && (
               <>
                 <h6>Versions</h6>
@@ -170,7 +189,6 @@ class CodelistBuilder extends React.Component {
                     <Version key={version.hash} version={version} />
                   ))}
                 </ul>
-                <hr />
               </>
             )}
           </div>

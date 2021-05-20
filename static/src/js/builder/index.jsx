@@ -42,6 +42,7 @@ ReactDOM.render(
     updateURL={readValueFromPage("update-url")}
     searchURL={readValueFromPage("search-url")}
     versions={readValueFromPage("versions")}
+    metadata={readValueFromPage("metadata")}
   />,
   document.querySelector("#codelist-builder-container")
 );

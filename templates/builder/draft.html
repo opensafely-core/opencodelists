@@ -25,6 +25,7 @@
 {{ update_url|json_script:"update-url" }}
 {{ search_url|json_script:"search-url" }}
 {{ versions|json_script:"versions" }}
+{{ metadata|json_script:"metadata" }}
 
 <script src="{% static 'js/builder.bundle.js' %}"></script>
 {% endblock %}

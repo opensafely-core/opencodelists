@@ -54,6 +54,7 @@ def _draft(request, draft, search_slug):
     if request.method == "POST":
         return _handle_post(request, draft)
 
+    codelist = draft.codelist
     coding_system = draft.coding_system
     codeset = draft.codeset
     hierarchy = codeset.hierarchy
@@ -131,14 +132,23 @@ def _draft(request, draft, search_slug):
             "status": v.status,
             "current": v == draft,
         }
-        for v in draft.codelist.visible_versions(request.user)
+        for v in codelist.visible_versions(request.user)
     ]
+
+    metadata = {
+        "coding_system_name": codelist.coding_system.name,
+        "organisation_name": codelist.organisation.name
+        if codelist.organisation
+        else None,
+        "codelist_full_slug": codelist.full_slug(),
+        "hash": draft.hash,
+    }
 
     ctx = {
         "user": draft.draft_owner,
         "draft": draft,
         "draft_url": draft.get_builder_url("draft"),
-        "codelist_name": draft.codelist.name,
+        "codelist_name": codelist.name,
         # The following values are passed to the CodelistBuilder component.
         # When any of these chage, use generate_builder_fixture to update
         # static/test/js/fixtures/elbow.json.
@@ -158,6 +168,7 @@ def _draft(request, draft, search_slug):
         "update_url": update_url,
         "search_url": search_url,
         "versions": versions,
+        "metadata": metadata,
         # }
     }
 

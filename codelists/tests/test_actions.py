@@ -25,6 +25,7 @@ def test_create_codelist(organisation):
     assert cl.versions.count() == 1
     clv = cl.versions.get()
     assert "whilst swimming" in clv.csv_data
+    assert clv.status == "under review"
 
 
 def test_create_codelist_for_user(user):
@@ -79,6 +80,7 @@ def test_create_codelist_with_codes(user, disorder_of_elbow_excl_arthritis_codes
         codes=disorder_of_elbow_excl_arthritis_codes,
     )
     clv = cl.versions.get()
+    assert clv.status == "published"
     assert len(clv.codes) == len(disorder_of_elbow_excl_arthritis_codes)
 
     code_to_status = {
@@ -122,6 +124,7 @@ def test_create_codelist_from_scratch(organisation, user):
     )
     clv = cl.versions.get()
     assert clv.draft_owner == user
+    assert clv.status == "draft"
 
 
 def test_create_version_with_codes(new_style_codelist):
@@ -132,6 +135,7 @@ def test_create_version_with_codes(new_style_codelist):
     )
     assert clv.codes == ("128133004",)
     assert clv.tag == "test"
+    assert clv.status == "under review"
 
     with pytest.raises(ValueError):
         actions.create_version_with_codes(
@@ -148,6 +152,7 @@ def test_create_version_from_ecl_expr(new_style_codelist):
     )
     assert clv.codes == ("202855006", "429554009", "439656005")
     assert clv.tag == "test"
+    assert clv.status == "under review"
 
     clv = actions.create_version_from_ecl_expr(
         codelist=new_style_codelist, expr="<429554009"
@@ -168,6 +173,7 @@ def test_create_version_from_ecl_expr(new_style_codelist):
 def test_publish_draft_version(version):
     actions.publish_version(version=version)
     version.refresh_from_db()
+    assert version.status == "published"
 
 
 def test_convert_codelist_to_new_style(old_style_codelist, old_style_version):

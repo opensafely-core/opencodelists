@@ -71,7 +71,9 @@ def create_codelist_with_codes(
         references=references,
         signoffs=signoffs,
     )
-    _create_version_with_codes(codelist=codelist, codes=codes, tag=tag)
+    _create_version_with_codes(
+        codelist=codelist, codes=codes, status="published", tag=tag
+    )
     return codelist
 
 
@@ -101,7 +103,7 @@ def create_codelist_from_scratch(
         references=references,
         signoffs=signoffs,
     )
-    codelist.versions.create(draft_owner=draft_owner)
+    codelist.versions.create(draft_owner=draft_owner, status="draft")
     return codelist
 
 
@@ -136,14 +138,14 @@ def _create_codelist_with_handle(
 
 
 def create_old_style_version(*, codelist, csv_data):
-    version = codelist.versions.create(csv_data=csv_data)
+    version = codelist.versions.create(csv_data=csv_data, status="under review")
     logger.info("Created Version", version_pk=version.pk)
     return version
 
 
 @transaction.atomic
 def create_version_with_codes(
-    *, codelist, codes, tag=None, hierarchy=None, codeset=None
+    *, codelist, codes, tag=None, status="under review", hierarchy=None, codeset=None
 ):
     """Create a new version of a codelist with given codes.
 
@@ -161,7 +163,12 @@ def create_version_with_codes(
         raise ValueError("No difference to previous version")
 
     return _create_version_with_codes(
-        codelist=codelist, codes=codes, tag=tag, hierarchy=hierarchy, codeset=codeset
+        codelist=codelist,
+        codes=codes,
+        status=status,
+        tag=tag,
+        hierarchy=hierarchy,
+        codeset=codeset,
     )
 
 
@@ -228,14 +235,14 @@ def create_version_from_ecl_expr(*, codelist, expr, tag=None):
 
 
 def _create_version_with_codes(
-    *, codelist, codes, tag=None, hierarchy=None, codeset=None
+    *, codelist, codes, status, tag=None, hierarchy=None, codeset=None
 ):
     codes = set(codes)
     coding_system = codelist.coding_system
     code_to_term = coding_system.code_to_term(codes)
     assert codes == set(code_to_term)
 
-    clv = codelist.versions.create(tag=tag)
+    clv = codelist.versions.create(tag=tag, status=status)
 
     if codeset is None:
         hierarchy = Hierarchy.from_codes(codelist.coding_system, codes)
@@ -266,7 +273,9 @@ def update_codelist(*, codelist, description, methodology):
 def publish_version(*, version):
     """Publish a version."""
 
-    # This is a no-op... we'll fix that soon.
+    assert version.status == "under review"
+    version.status = "published"
+    version.save()
     logger.info("Published Version", version_pk=version.pk)
 
 
@@ -281,7 +290,9 @@ def convert_codelist_to_new_style(*, codelist):
     assert prev_clv.csv_data is not None
     assert prev_clv.code_objs.count() == 0
 
-    return _create_version_with_codes(codelist=codelist, codes=set(prev_clv.codes))
+    return _create_version_with_codes(
+        codelist=codelist, codes=set(prev_clv.codes), status="under review"
+    )
 
 
 @transaction.atomic
@@ -289,7 +300,7 @@ def export_to_builder(*, version, owner):
     """Create a new CodelistVersion for editing in the builder."""
 
     # Create a new CodelistVersion and CodeObjs.
-    draft = owner.drafts.create(codelist=version.codelist)
+    draft = owner.drafts.create(codelist=version.codelist, status="draft")
     CodeObj.objects.bulk_create(
         CodeObj(version=draft, code=code_obj.code, status=code_obj.status)
         for code_obj in version.code_objs.all()

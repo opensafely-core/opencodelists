@@ -72,11 +72,10 @@ def update_code_statuses(*, draft, updates):
 def save(*, draft):
     """Convert CodelistVersion from something that's in the builder to something that's
     shown on the site.
-
-    All this does is unset the draft_owner attribute.
     """
 
     assert not draft.code_objs.filter(status__in=["?", "!"]).exists()
+    draft.status = "under review"
     draft.draft_owner = None
     draft.save()
 

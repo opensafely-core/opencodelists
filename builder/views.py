@@ -16,9 +16,17 @@ NO_SEARCH_TERM = object()
 
 @load_draft
 def draft(request, draft):
-    if request.method == "POST":
-        return _handle_post(request, draft)
     return _draft(request, draft, None)
+
+
+@load_draft
+def search(request, draft, search_slug):
+    return _draft(request, draft, search_slug)
+
+
+@load_draft
+def no_search_term(request, draft):
+    return _draft(request, draft, NO_SEARCH_TERM)
 
 
 @login_required
@@ -40,17 +48,10 @@ def _handle_post(request, draft):
         return redirect(draft.codelist)
 
 
-@load_draft
-def search(request, draft, search_slug):
-    return _draft(request, draft, search_slug)
-
-
-@load_draft
-def no_search_term(request, draft):
-    return _draft(request, draft, NO_SEARCH_TERM)
-
-
 def _draft(request, draft, search_slug):
+    if request.method == "POST":
+        return _handle_post(request, draft)
+
     coding_system = draft.coding_system
     codeset = draft.codeset
     hierarchy = codeset.hierarchy

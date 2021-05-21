@@ -7,57 +7,77 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Chapter',
+            name="Chapter",
             fields=[
-                ('code', models.CharField(max_length=15, primary_key=True, serialize=False)),
-                ('name', models.CharField(max_length=100)),
+                (
+                    "code",
+                    models.CharField(max_length=15, primary_key=True, serialize=False),
+                ),
+                ("name", models.CharField(max_length=100)),
             ],
         ),
         migrations.CreateModel(
-            name='ChemicalSubstance',
+            name="ChemicalSubstance",
             fields=[
-                ('code', models.CharField(max_length=15, primary_key=True, serialize=False)),
-                ('name', models.CharField(max_length=100)),
+                (
+                    "code",
+                    models.CharField(max_length=15, primary_key=True, serialize=False),
+                ),
+                ("name", models.CharField(max_length=100)),
             ],
         ),
         migrations.CreateModel(
-            name='Paragraph',
+            name="Paragraph",
             fields=[
-                ('code', models.CharField(max_length=15, primary_key=True, serialize=False)),
-                ('name', models.CharField(max_length=100)),
+                (
+                    "code",
+                    models.CharField(max_length=15, primary_key=True, serialize=False),
+                ),
+                ("name", models.CharField(max_length=100)),
             ],
         ),
         migrations.CreateModel(
-            name='Presentation',
+            name="Presentation",
             fields=[
-                ('code', models.CharField(max_length=15, primary_key=True, serialize=False)),
-                ('name', models.CharField(max_length=100)),
+                (
+                    "code",
+                    models.CharField(max_length=15, primary_key=True, serialize=False),
+                ),
+                ("name", models.CharField(max_length=100)),
             ],
         ),
         migrations.CreateModel(
-            name='Product',
+            name="Product",
             fields=[
-                ('code', models.CharField(max_length=15, primary_key=True, serialize=False)),
-                ('name', models.CharField(max_length=100)),
+                (
+                    "code",
+                    models.CharField(max_length=15, primary_key=True, serialize=False),
+                ),
+                ("name", models.CharField(max_length=100)),
             ],
         ),
         migrations.CreateModel(
-            name='Section',
+            name="Section",
             fields=[
-                ('code', models.CharField(max_length=15, primary_key=True, serialize=False)),
-                ('name', models.CharField(max_length=100)),
+                (
+                    "code",
+                    models.CharField(max_length=15, primary_key=True, serialize=False),
+                ),
+                ("name", models.CharField(max_length=100)),
             ],
         ),
         migrations.CreateModel(
-            name='Subparagraph',
+            name="Subparagraph",
             fields=[
-                ('code', models.CharField(max_length=15, primary_key=True, serialize=False)),
-                ('name', models.CharField(max_length=100)),
+                (
+                    "code",
+                    models.CharField(max_length=15, primary_key=True, serialize=False),
+                ),
+                ("name", models.CharField(max_length=100)),
             ],
         ),
     ]

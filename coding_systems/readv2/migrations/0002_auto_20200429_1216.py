@@ -6,36 +6,36 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('readv2', '0001_initial'),
+        ("readv2", "0001_initial"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='concepthierarchy',
-            name='child',
+            model_name="concepthierarchy",
+            name="child",
         ),
         migrations.RemoveField(
-            model_name='concepthierarchy',
-            name='parent',
+            model_name="concepthierarchy",
+            name="parent",
         ),
         migrations.RemoveField(
-            model_name='concepttermmapping',
-            name='concept',
+            model_name="concepttermmapping",
+            name="concept",
         ),
         migrations.RemoveField(
-            model_name='concepttermmapping',
-            name='term',
+            model_name="concepttermmapping",
+            name="term",
         ),
         migrations.DeleteModel(
-            name='Concept',
+            name="Concept",
         ),
         migrations.DeleteModel(
-            name='ConceptHierarchy',
+            name="ConceptHierarchy",
         ),
         migrations.DeleteModel(
-            name='ConceptTermMapping',
+            name="ConceptTermMapping",
         ),
         migrations.DeleteModel(
-            name='Term',
+            name="Term",
         ),
     ]

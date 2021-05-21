@@ -1,16 +1,3 @@
-[tool.black]
-exclude = '''
-(
-  /(
-      \.git         # exclude a few common directories in the
-    | migrations    # root of the project
-    | \.direnv
-    | \.venv
-    | coding_systems/snomedct/parser_utils/*
-  )/
-)
-'''
-
 [tool.coverage.run]
 branch = true
 omit = [

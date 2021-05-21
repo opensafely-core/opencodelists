@@ -22,7 +22,7 @@ def set_created_at(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('codelists', '0020_auto_20201119_0932'),
+        ("codelists", "0020_auto_20201119_0932"),
     ]
 
     operations = [migrations.RunPython(set_created_at)]

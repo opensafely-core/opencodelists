@@ -6,13 +6,25 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('codelists', '0002_auto_20200424_0943'),
+        ("codelists", "0002_auto_20200424_0943"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='codelist',
-            name='coding_system_id',
-            field=models.CharField(choices=[('bnf', 'Pseudo BNF'), ('ctv3', 'CTV3 (Read V3)'), ('ctv3tpp', 'CTV3 (Read V3) with TPP extensions'), ('dmd', 'Dictionary of Medicines and Devices'), ('icd10', 'ICD-10'), ('readv2', 'Read V2'), ('snomedct', 'SNOMED CT')], max_length=32, verbose_name='Coding system'),
+            model_name="codelist",
+            name="coding_system_id",
+            field=models.CharField(
+                choices=[
+                    ("bnf", "Pseudo BNF"),
+                    ("ctv3", "CTV3 (Read V3)"),
+                    ("ctv3tpp", "CTV3 (Read V3) with TPP extensions"),
+                    ("dmd", "Dictionary of Medicines and Devices"),
+                    ("icd10", "ICD-10"),
+                    ("readv2", "Read V2"),
+                    ("snomedct", "SNOMED CT"),
+                ],
+                max_length=32,
+                verbose_name="Coding system",
+            ),
         ),
     ]

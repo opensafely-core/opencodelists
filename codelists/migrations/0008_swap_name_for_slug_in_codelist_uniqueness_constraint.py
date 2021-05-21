@@ -12,6 +12,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AlterUniqueTogether(
-            name="codelist", unique_together={("project", "name", "slug")},
+            name="codelist",
+            unique_together={("project", "name", "slug")},
         ),
     ]

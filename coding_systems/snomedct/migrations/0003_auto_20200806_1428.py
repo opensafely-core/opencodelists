@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('snomedct', '0002_historysubstitution_querytablerecord'),
+        ("snomedct", "0002_historysubstitution_querytablerecord"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='description',
-            name='effective_time',
+            model_name="description",
+            name="effective_time",
             field=models.DateField(),
         ),
         migrations.AlterField(
-            model_name='relationship',
-            name='effective_time',
+            model_name="relationship",
+            name="effective_time",
             field=models.DateField(),
         ),
     ]

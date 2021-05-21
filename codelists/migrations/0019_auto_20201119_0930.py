@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('codelists', '0018_auto_20201119_0927'),
+        ("codelists", "0018_auto_20201119_0927"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='codelistversion',
-            name='tag',
+            model_name="codelistversion",
+            name="tag",
             field=models.CharField(max_length=12, null=True),
         ),
     ]

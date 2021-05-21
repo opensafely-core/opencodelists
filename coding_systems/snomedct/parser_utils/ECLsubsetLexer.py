@@ -5,7 +5,6 @@ from typing.io import TextIO
 import sys
 
 
-
 def serializedATN():
     with StringIO() as buf:
         buf.write("\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\2e")
@@ -14,8 +13,8 @@ def serializedATN():
         buf.write("\4\16\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22\4\23")
         buf.write("\t\23\4\24\t\24\4\25\t\25\4\26\t\26\4\27\t\27\4\30\t\30")
         buf.write("\4\31\t\31\4\32\t\32\4\33\t\33\4\34\t\34\4\35\t\35\4\36")
-        buf.write("\t\36\4\37\t\37\4 \t \4!\t!\4\"\t\"\4#\t#\4$\t$\4%\t%")
-        buf.write("\4&\t&\4\'\t\'\4(\t(\4)\t)\4*\t*\4+\t+\4,\t,\4-\t-\4.")
+        buf.write('\t\36\4\37\t\37\4 \t \4!\t!\4"\t"\4#\t#\4$\t$\4%\t%')
+        buf.write("\4&\t&\4'\t'\4(\t(\4)\t)\4*\t*\4+\t+\4,\t,\4-\t-\4.")
         buf.write("\t.\4/\t/\4\60\t\60\4\61\t\61\4\62\t\62\4\63\t\63\4\64")
         buf.write("\t\64\4\65\t\65\4\66\t\66\4\67\t\67\48\t8\49\t9\4:\t:")
         buf.write("\4;\t;\4<\t<\4=\t=\4>\t>\4?\t?\4@\t@\4A\tA\4B\tB\4C\t")
@@ -28,7 +27,7 @@ def serializedATN():
         buf.write("\3\20\3\21\3\21\3\22\3\22\3\23\3\23\3\24\3\24\3\25\3\25")
         buf.write("\3\26\3\26\3\27\3\27\3\30\3\30\3\31\3\31\3\32\3\32\3\33")
         buf.write("\3\33\3\34\3\34\3\35\3\35\3\36\3\36\3\37\3\37\3 \3 \3")
-        buf.write("!\3!\3\"\3\"\3#\3#\3$\3$\3%\3%\3&\3&\3\'\3\'\3(\3(\3)")
+        buf.write("!\3!\3\"\3\"\3#\3#\3$\3$\3%\3%\3&\3&\3'\3'\3(\3(\3)")
         buf.write("\3)\3*\3*\3+\3+\3,\3,\3-\3-\3.\3.\3/\3/\3\60\3\60\3\61")
         buf.write("\3\61\3\62\3\62\3\63\3\63\3\64\3\64\3\65\3\65\3\66\3\66")
         buf.write("\3\67\3\67\38\38\39\39\3:\3:\3;\3;\3<\3<\3=\3=\3>\3>\3")
@@ -37,9 +36,9 @@ def serializedATN():
         buf.write("Q\3Q\3R\3R\3S\3S\3T\3T\3U\3U\3V\3V\3W\3W\3X\3X\3Y\3Y\3")
         buf.write("Z\3Z\3[\3[\3\\\3\\\3]\3]\3^\3^\3_\3_\3`\3`\3a\3a\3b\3")
         buf.write("b\3c\3c\3d\3d\2\2e\3\3\5\4\7\5\t\6\13\7\r\b\17\t\21\n")
-        buf.write("\23\13\25\f\27\r\31\16\33\17\35\20\37\21!\22#\23%\24\'")
+        buf.write("\23\13\25\f\27\r\31\16\33\17\35\20\37\21!\22#\23%\24'")
         buf.write("\25)\26+\27-\30/\31\61\32\63\33\65\34\67\359\36;\37= ")
-        buf.write("?!A\"C#E$G%I&K\'M(O)Q*S+U,W-Y.[/]\60_\61a\62c\63e\64g")
+        buf.write("?!A\"C#E$G%I&K'M(O)Q*S+U,W-Y.[/]\60_\61a\62c\63e\64g")
         buf.write("\65i\66k\67m8o9q:s;u<w=y>{?}@\177A\u0081B\u0083C\u0085")
         buf.write("D\u0087E\u0089F\u008bG\u008dH\u008fI\u0091J\u0093K\u0095")
         buf.write("L\u0097M\u0099N\u009bO\u009dP\u009fQ\u00a1R\u00a3S\u00a5")
@@ -51,7 +50,7 @@ def serializedATN():
         buf.write("\3\2\2\2\2\t\3\2\2\2\2\13\3\2\2\2\2\r\3\2\2\2\2\17\3\2")
         buf.write("\2\2\2\21\3\2\2\2\2\23\3\2\2\2\2\25\3\2\2\2\2\27\3\2\2")
         buf.write("\2\2\31\3\2\2\2\2\33\3\2\2\2\2\35\3\2\2\2\2\37\3\2\2\2")
-        buf.write("\2!\3\2\2\2\2#\3\2\2\2\2%\3\2\2\2\2\'\3\2\2\2\2)\3\2\2")
+        buf.write("\2!\3\2\2\2\2#\3\2\2\2\2%\3\2\2\2\2'\3\2\2\2\2)\3\2\2")
         buf.write("\2\2+\3\2\2\2\2-\3\2\2\2\2/\3\2\2\2\2\61\3\2\2\2\2\63")
         buf.write("\3\2\2\2\2\65\3\2\2\2\2\67\3\2\2\2\29\3\2\2\2\2;\3\2\2")
         buf.write("\2\2=\3\2\2\2\2?\3\2\2\2\2A\3\2\2\2\2C\3\2\2\2\2E\3\2")
@@ -76,7 +75,7 @@ def serializedATN():
         buf.write("\u00d3\3\2\2\2\17\u00d5\3\2\2\2\21\u00d7\3\2\2\2\23\u00d9")
         buf.write("\3\2\2\2\25\u00db\3\2\2\2\27\u00dd\3\2\2\2\31\u00df\3")
         buf.write("\2\2\2\33\u00e1\3\2\2\2\35\u00e3\3\2\2\2\37\u00e5\3\2")
-        buf.write("\2\2!\u00e7\3\2\2\2#\u00e9\3\2\2\2%\u00eb\3\2\2\2\'\u00ed")
+        buf.write("\2\2!\u00e7\3\2\2\2#\u00e9\3\2\2\2%\u00eb\3\2\2\2'\u00ed")
         buf.write("\3\2\2\2)\u00ef\3\2\2\2+\u00f1\3\2\2\2-\u00f3\3\2\2\2")
         buf.write("/\u00f5\3\2\2\2\61\u00f7\3\2\2\2\63\u00f9\3\2\2\2\65\u00fb")
         buf.write("\3\2\2\2\67\u00fd\3\2\2\29\u00ff\3\2\2\2;\u0101\3\2\2")
@@ -105,14 +104,14 @@ def serializedATN():
         buf.write("\3\2\2\2\u00c7\u018d\3\2\2\2\u00c9\u00ca\t\2\2\2\u00ca")
         buf.write("\4\3\2\2\2\u00cb\u00cc\7\13\2\2\u00cc\6\3\2\2\2\u00cd")
         buf.write("\u00ce\7\f\2\2\u00ce\b\3\2\2\2\u00cf\u00d0\7\17\2\2\u00d0")
-        buf.write("\n\3\2\2\2\u00d1\u00d2\7\"\2\2\u00d2\f\3\2\2\2\u00d3\u00d4")
+        buf.write('\n\3\2\2\2\u00d1\u00d2\7"\2\2\u00d2\f\3\2\2\2\u00d3\u00d4')
         buf.write("\7#\2\2\u00d4\16\3\2\2\2\u00d5\u00d6\7$\2\2\u00d6\20\3")
         buf.write("\2\2\2\u00d7\u00d8\7%\2\2\u00d8\22\3\2\2\2\u00d9\u00da")
-        buf.write("\7&\2\2\u00da\24\3\2\2\2\u00db\u00dc\7\'\2\2\u00dc\26")
+        buf.write("\7&\2\2\u00da\24\3\2\2\2\u00db\u00dc\7'\2\2\u00dc\26")
         buf.write("\3\2\2\2\u00dd\u00de\7(\2\2\u00de\30\3\2\2\2\u00df\u00e0")
         buf.write("\7)\2\2\u00e0\32\3\2\2\2\u00e1\u00e2\7*\2\2\u00e2\34\3")
         buf.write("\2\2\2\u00e3\u00e4\7+\2\2\u00e4\36\3\2\2\2\u00e5\u00e6")
-        buf.write("\7,\2\2\u00e6 \3\2\2\2\u00e7\u00e8\7-\2\2\u00e8\"\3\2")
+        buf.write('\7,\2\2\u00e6 \3\2\2\2\u00e7\u00e8\7-\2\2\u00e8"\3\2')
         buf.write("\2\2\u00e9\u00ea\7.\2\2\u00ea$\3\2\2\2\u00eb\u00ec\7/")
         buf.write("\2\2\u00ec&\3\2\2\2\u00ed\u00ee\7\60\2\2\u00ee(\3\2\2")
         buf.write("\2\u00ef\u00f0\7\61\2\2\u00f0*\3\2\2\2\u00f1\u00f2\7\62")
@@ -176,7 +175,7 @@ class ECLsubsetLexer(Lexer):
 
     atn = ATNDeserializer().deserialize(serializedATN())
 
-    decisionsToDFA = [ DFA(ds, i) for i, ds in enumerate(atn.decisionToState) ]
+    decisionsToDFA = [DFA(ds, i) for i, ds in enumerate(atn.decisionToState)]
 
     UTF8_LETTER = 1
     TAB = 2
@@ -278,63 +277,324 @@ class ECLsubsetLexer(Lexer):
     RIGHT_CURLY_BRACE = 98
     TILDE = 99
 
-    channelNames = [ u"DEFAULT_TOKEN_CHANNEL", u"HIDDEN" ]
+    channelNames = [u"DEFAULT_TOKEN_CHANNEL", u"HIDDEN"]
 
-    modeNames = [ "DEFAULT_MODE" ]
+    modeNames = ["DEFAULT_MODE"]
 
-    literalNames = [ "<INVALID>",
-            "'\u0009'", "'\u000A'", "'\u000D'", "' '", "'!'", "'\"'", "'#'", 
-            "'$'", "'%'", "'&'", "'''", "'('", "')'", "'*'", "'+'", "','", 
-            "'-'", "'.'", "'/'", "'0'", "'1'", "'2'", "'3'", "'4'", "'5'", 
-            "'6'", "'7'", "'8'", "'9'", "':'", "';'", "'<'", "'='", "'>'", 
-            "'?'", "'@'", "'A'", "'B'", "'C'", "'D'", "'E'", "'F'", "'G'", 
-            "'H'", "'I'", "'J'", "'K'", "'L'", "'M'", "'N'", "'O'", "'P'", 
-            "'Q'", "'R'", "'S'", "'T'", "'U'", "'V'", "'W'", "'X'", "'Y'", 
-            "'Z'", "'['", "'\\'", "']'", "'^'", "'_'", "'`'", "'a'", "'b'", 
-            "'c'", "'d'", "'e'", "'f'", "'g'", "'h'", "'i'", "'j'", "'k'", 
-            "'l'", "'m'", "'n'", "'o'", "'p'", "'q'", "'r'", "'s'", "'t'", 
-            "'u'", "'v'", "'w'", "'x'", "'y'", "'z'", "'{'", "'|'", "'}'", 
-            "'~'" ]
+    literalNames = [
+        "<INVALID>",
+        "'\u0009'",
+        "'\u000A'",
+        "'\u000D'",
+        "' '",
+        "'!'",
+        "'\"'",
+        "'#'",
+        "'$'",
+        "'%'",
+        "'&'",
+        "'''",
+        "'('",
+        "')'",
+        "'*'",
+        "'+'",
+        "','",
+        "'-'",
+        "'.'",
+        "'/'",
+        "'0'",
+        "'1'",
+        "'2'",
+        "'3'",
+        "'4'",
+        "'5'",
+        "'6'",
+        "'7'",
+        "'8'",
+        "'9'",
+        "':'",
+        "';'",
+        "'<'",
+        "'='",
+        "'>'",
+        "'?'",
+        "'@'",
+        "'A'",
+        "'B'",
+        "'C'",
+        "'D'",
+        "'E'",
+        "'F'",
+        "'G'",
+        "'H'",
+        "'I'",
+        "'J'",
+        "'K'",
+        "'L'",
+        "'M'",
+        "'N'",
+        "'O'",
+        "'P'",
+        "'Q'",
+        "'R'",
+        "'S'",
+        "'T'",
+        "'U'",
+        "'V'",
+        "'W'",
+        "'X'",
+        "'Y'",
+        "'Z'",
+        "'['",
+        "'\\'",
+        "']'",
+        "'^'",
+        "'_'",
+        "'`'",
+        "'a'",
+        "'b'",
+        "'c'",
+        "'d'",
+        "'e'",
+        "'f'",
+        "'g'",
+        "'h'",
+        "'i'",
+        "'j'",
+        "'k'",
+        "'l'",
+        "'m'",
+        "'n'",
+        "'o'",
+        "'p'",
+        "'q'",
+        "'r'",
+        "'s'",
+        "'t'",
+        "'u'",
+        "'v'",
+        "'w'",
+        "'x'",
+        "'y'",
+        "'z'",
+        "'{'",
+        "'|'",
+        "'}'",
+        "'~'",
+    ]
 
-    symbolicNames = [ "<INVALID>",
-            "UTF8_LETTER", "TAB", "LF", "CR", "SPACE", "EXCLAMATION", "QUOTE", 
-            "POUND", "DOLLAR", "PERCENT", "AMPERSAND", "APOSTROPHE", "LEFT_PAREN", 
-            "RIGHT_PAREN", "ASTERISK", "PLUS", "COMMA", "DASH", "PERIOD", 
-            "SLASH", "ZERO", "ONE", "TWO", "THREE", "FOUR", "FIVE", "SIX", 
-            "SEVEN", "EIGHT", "NINE", "COLON", "SEMICOLON", "LESS_THAN", 
-            "EQUALS", "GREATER_THAN", "QUESTION", "AT", "CAP_A", "CAP_B", 
-            "CAP_C", "CAP_D", "CAP_E", "CAP_F", "CAP_G", "CAP_H", "CAP_I", 
-            "CAP_J", "CAP_K", "CAP_L", "CAP_M", "CAP_N", "CAP_O", "CAP_P", 
-            "CAP_Q", "CAP_R", "CAP_S", "CAP_T", "CAP_U", "CAP_V", "CAP_W", 
-            "CAP_X", "CAP_Y", "CAP_Z", "LEFT_BRACE", "BACKSLASH", "RIGHT_BRACE", 
-            "CARAT", "UNDERSCORE", "ACCENT", "A", "B", "C", "D", "E", "F", 
-            "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", 
-            "S", "T", "U", "V", "W", "X", "Y", "Z", "LEFT_CURLY_BRACE", 
-            "PIPE", "RIGHT_CURLY_BRACE", "TILDE" ]
+    symbolicNames = [
+        "<INVALID>",
+        "UTF8_LETTER",
+        "TAB",
+        "LF",
+        "CR",
+        "SPACE",
+        "EXCLAMATION",
+        "QUOTE",
+        "POUND",
+        "DOLLAR",
+        "PERCENT",
+        "AMPERSAND",
+        "APOSTROPHE",
+        "LEFT_PAREN",
+        "RIGHT_PAREN",
+        "ASTERISK",
+        "PLUS",
+        "COMMA",
+        "DASH",
+        "PERIOD",
+        "SLASH",
+        "ZERO",
+        "ONE",
+        "TWO",
+        "THREE",
+        "FOUR",
+        "FIVE",
+        "SIX",
+        "SEVEN",
+        "EIGHT",
+        "NINE",
+        "COLON",
+        "SEMICOLON",
+        "LESS_THAN",
+        "EQUALS",
+        "GREATER_THAN",
+        "QUESTION",
+        "AT",
+        "CAP_A",
+        "CAP_B",
+        "CAP_C",
+        "CAP_D",
+        "CAP_E",
+        "CAP_F",
+        "CAP_G",
+        "CAP_H",
+        "CAP_I",
+        "CAP_J",
+        "CAP_K",
+        "CAP_L",
+        "CAP_M",
+        "CAP_N",
+        "CAP_O",
+        "CAP_P",
+        "CAP_Q",
+        "CAP_R",
+        "CAP_S",
+        "CAP_T",
+        "CAP_U",
+        "CAP_V",
+        "CAP_W",
+        "CAP_X",
+        "CAP_Y",
+        "CAP_Z",
+        "LEFT_BRACE",
+        "BACKSLASH",
+        "RIGHT_BRACE",
+        "CARAT",
+        "UNDERSCORE",
+        "ACCENT",
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H",
+        "I",
+        "J",
+        "K",
+        "L",
+        "M",
+        "N",
+        "O",
+        "P",
+        "Q",
+        "R",
+        "S",
+        "T",
+        "U",
+        "V",
+        "W",
+        "X",
+        "Y",
+        "Z",
+        "LEFT_CURLY_BRACE",
+        "PIPE",
+        "RIGHT_CURLY_BRACE",
+        "TILDE",
+    ]
 
-    ruleNames = [ "UTF8_LETTER", "TAB", "LF", "CR", "SPACE", "EXCLAMATION", 
-                  "QUOTE", "POUND", "DOLLAR", "PERCENT", "AMPERSAND", "APOSTROPHE", 
-                  "LEFT_PAREN", "RIGHT_PAREN", "ASTERISK", "PLUS", "COMMA", 
-                  "DASH", "PERIOD", "SLASH", "ZERO", "ONE", "TWO", "THREE", 
-                  "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE", "COLON", 
-                  "SEMICOLON", "LESS_THAN", "EQUALS", "GREATER_THAN", "QUESTION", 
-                  "AT", "CAP_A", "CAP_B", "CAP_C", "CAP_D", "CAP_E", "CAP_F", 
-                  "CAP_G", "CAP_H", "CAP_I", "CAP_J", "CAP_K", "CAP_L", 
-                  "CAP_M", "CAP_N", "CAP_O", "CAP_P", "CAP_Q", "CAP_R", 
-                  "CAP_S", "CAP_T", "CAP_U", "CAP_V", "CAP_W", "CAP_X", 
-                  "CAP_Y", "CAP_Z", "LEFT_BRACE", "BACKSLASH", "RIGHT_BRACE", 
-                  "CARAT", "UNDERSCORE", "ACCENT", "A", "B", "C", "D", "E", 
-                  "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", 
-                  "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "LEFT_CURLY_BRACE", 
-                  "PIPE", "RIGHT_CURLY_BRACE", "TILDE" ]
+    ruleNames = [
+        "UTF8_LETTER",
+        "TAB",
+        "LF",
+        "CR",
+        "SPACE",
+        "EXCLAMATION",
+        "QUOTE",
+        "POUND",
+        "DOLLAR",
+        "PERCENT",
+        "AMPERSAND",
+        "APOSTROPHE",
+        "LEFT_PAREN",
+        "RIGHT_PAREN",
+        "ASTERISK",
+        "PLUS",
+        "COMMA",
+        "DASH",
+        "PERIOD",
+        "SLASH",
+        "ZERO",
+        "ONE",
+        "TWO",
+        "THREE",
+        "FOUR",
+        "FIVE",
+        "SIX",
+        "SEVEN",
+        "EIGHT",
+        "NINE",
+        "COLON",
+        "SEMICOLON",
+        "LESS_THAN",
+        "EQUALS",
+        "GREATER_THAN",
+        "QUESTION",
+        "AT",
+        "CAP_A",
+        "CAP_B",
+        "CAP_C",
+        "CAP_D",
+        "CAP_E",
+        "CAP_F",
+        "CAP_G",
+        "CAP_H",
+        "CAP_I",
+        "CAP_J",
+        "CAP_K",
+        "CAP_L",
+        "CAP_M",
+        "CAP_N",
+        "CAP_O",
+        "CAP_P",
+        "CAP_Q",
+        "CAP_R",
+        "CAP_S",
+        "CAP_T",
+        "CAP_U",
+        "CAP_V",
+        "CAP_W",
+        "CAP_X",
+        "CAP_Y",
+        "CAP_Z",
+        "LEFT_BRACE",
+        "BACKSLASH",
+        "RIGHT_BRACE",
+        "CARAT",
+        "UNDERSCORE",
+        "ACCENT",
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H",
+        "I",
+        "J",
+        "K",
+        "L",
+        "M",
+        "N",
+        "O",
+        "P",
+        "Q",
+        "R",
+        "S",
+        "T",
+        "U",
+        "V",
+        "W",
+        "X",
+        "Y",
+        "Z",
+        "LEFT_CURLY_BRACE",
+        "PIPE",
+        "RIGHT_CURLY_BRACE",
+        "TILDE",
+    ]
 
     grammarFileName = "ECLsubset.g4"
 
-    def __init__(self, input=None, output:TextIO = sys.stdout):
+    def __init__(self, input=None, output: TextIO = sys.stdout):
         super().__init__(input, output)
         self.checkVersion("4.9.1")
-        self._interp = LexerATNSimulator(self, self.atn, self.decisionsToDFA, PredictionContextCache())
+        self._interp = LexerATNSimulator(
+            self, self.atn, self.decisionsToDFA, PredictionContextCache()
+        )
         self._actions = None
         self._predicates = None
-
-

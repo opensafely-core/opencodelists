@@ -25,7 +25,7 @@ def backwards(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('codelists', '0005_codelistversion'),
+        ("codelists", "0005_codelistversion"),
     ]
 
     operations = [migrations.RunPython(forwards, backwards)]

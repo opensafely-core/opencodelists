@@ -18,7 +18,7 @@ attrs==19.3.0
     #   pytest
 bcrypt==3.1.7
     # via paramiko
-black==21.5b0
+black==21.5b1
     # via -r requirements.in
 bleach==3.3.0
     # via -r requirements.in

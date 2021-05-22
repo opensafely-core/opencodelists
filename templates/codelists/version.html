@@ -5,15 +5,11 @@
 {% block title_extra %}: {{ codelist.name }}{% endblock %}
 
 {% block content %}
-<br />
-<h3>
-  {{ codelist.name }}
-
-  {% if clv.is_draft %}
-  <span class="badge badge-primary">Draft</span>
-  {% endif %}
-</h3>
-<br />
+<h3 class="mt-4">{{ codelist.name }}</h3>
+{% if clv.is_under_review %}
+<p class="text-muted">This version is under review</p>
+{% endif %}
+<hr />
 
 <div class="row">
   <div class="col-md-3 col-lg-2">
@@ -21,7 +17,7 @@
       <a
         href="{{ clv.get_download_url }}"
         role="button"
-        class="btn btn-outline-info btn-block"
+        class="btn btn-outline-primary btn-block"
       >
         Download CSV
       </a>
@@ -29,7 +25,7 @@
       <a
         href="{{ clv.get_download_definition_url }}"
         role="button"
-        class="btn btn-outline-info btn-block"
+        class="btn btn-outline-primary btn-block"
       >
         Download definition
       </a>
@@ -38,7 +34,7 @@
       <a
         href="{{ clv.get_dmd_download_url }}"
         role="button"
-        class="btn btn-outline-info btn-block"
+        class="btn btn-outline-primary btn-block"
       >
         Download dm+d
       </a>
@@ -68,46 +64,66 @@
     </dl>
 
     {% if user_can_edit %}
-    <hr />
+      <hr />
 
-    <div class="btn-group-vertical btn-block" role="group">
-      <a
-        class="btn btn-outline-info btn-block"
-        href="{{ codelist.get_update_url }}">
-        Edit metadata
-      </a>
-    </div>
-
-    <hr />
-
-    <form method="POST" action={{ clv.get_create_url }}>
       <div class="btn-group-vertical btn-block" role="group">
-        {% if codelist.is_new_style %}
-          {% csrf_token %}
-          <button
-            type="submit"
-            class="btn btn-outline-info btn-block">
-            Create new version
-          </button>
-        {% else %}
         <a
-          class="btn btn-outline-info btn-block"
-          href="{{ codelist.get_version_upload_url }}">
-          Upload new version
+          class="btn btn-outline-primary btn-block"
+          href="{{ codelist.get_update_url }}">
+          Edit metadata
         </a>
-        {% endif %}
-
-        {% if clv.is_draft %}
-        <button
-          type="button"
-          class="btn btn-outline-info btn-block"
-          data-toggle="modal"
-          data-target="#js-publish-version-form">
-          Publish version
-        </button>
-        {% endif %}
       </div>
-    </form>
+
+      <hr />
+
+      <form method="POST" action={{ clv.get_create_url }}>
+        {% csrf_token %}
+        <div class="btn-group-vertical btn-block" role="group">
+          {% if codelist.is_new_style %}
+            {% if can_create_new_version %}
+              <button
+                type="submit"
+                class="btn btn-outline-primary btn-block">
+                Create new version
+              </button>
+            {% else %}
+              <button
+                type="button"
+                class="disabled btn btn-outline-secondary btn-block"
+                aria-disabled="true"
+                data-toggle="tooltip"
+                title="This codelist already has a draft version">
+                Create new version
+              </button>
+            {% endif %}
+          {% else %}
+          <a
+            class="btn btn-outline-primary btn-block"
+            href="{{ codelist.get_version_upload_url }}">
+            Upload new version
+          </a>
+          {% endif %}
+
+          {% if clv.is_under_review %}
+            <button
+              type="button"
+              class="btn btn-outline-primary btn-block"
+              data-toggle="modal"
+              data-target="#js-publish-version-form">
+              Publish version
+            </button>
+          {% else %}
+            <button
+              type="button"
+              class="disabled btn btn-outline-secondary btn-block"
+              aria-disabled="true"
+              data-toggle="tooltip"
+              title="This version has already been published">
+              Publish version
+            </button>
+          {% endif %}
+        </div>
+      </form>
     {% endif %}
 
     <hr />
@@ -116,17 +132,16 @@
     <ul class="pl-3">
       {% for version in versions %}
       <li>
-
         {% if version == clv %}
         {{ version.tag_or_hash }}
         {% else %}
         <a href="{{ version.get_absolute_url }}">{{ version.tag_or_hash }}</a>
         {% endif %}
-
-        {% if version.is_draft %}
+        {% if version.is_under_review %}
+        <span class="badge badge-primary">Review</span>
+        {% elif version.is_draft %}
         <span class="badge badge-primary">Draft</span>
         {% endif %}
-
       </li>
       {% endfor %}
     </ul>
@@ -179,7 +194,8 @@
         <form method="POST" action="{{ clv.get_publish_url }}">
           {% csrf_token %}
 
-          <p>Are you sure you want to publish this version?</p>
+          <p>Publishing a version is irreversible, and will delete any other draft versions or versions under review.</p>
+          <p>Are you sure you want to continue?</p>
 
           <div class="d-flex justify-content-between">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>

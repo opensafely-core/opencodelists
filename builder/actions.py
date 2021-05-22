@@ -5,7 +5,7 @@ from django.db import transaction
 from django.db.models import Count
 from django.utils.text import slugify
 
-from codelists.models import CodeObj, SearchResult
+from codelists.models import CodeObj, SearchResult, Status
 
 logger = structlog.get_logger()
 
@@ -72,17 +72,15 @@ def update_code_statuses(*, draft, updates):
 def save(*, draft):
     """Convert CodelistVersion from something that's in the builder to something that's
     shown on the site.
-
-    All this does is unset the draft_owner attribute.
     """
 
     assert not draft.code_objs.filter(status__in=["?", "!"]).exists()
+    draft.status = Status.UNDER_REVIEW
     draft.draft_owner = None
     draft.save()
 
 
 def discard_draft(*, draft):
-    """Mark draft as discarded."""
+    """Delete draft."""
 
-    draft.discarded = True
-    draft.save()
+    draft.delete()

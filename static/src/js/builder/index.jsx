@@ -39,8 +39,11 @@ ReactDOM.render(
     includedCodes={readValueFromPage("included-codes")}
     excludedCodes={readValueFromPage("excluded-codes")}
     isEditable={readValueFromPage("is-editable")}
+    draftURL={readValueFromPage("draft-url")}
     updateURL={readValueFromPage("update-url")}
     searchURL={readValueFromPage("search-url")}
+    versions={readValueFromPage("versions")}
+    metadata={readValueFromPage("metadata")}
   />,
   document.querySelector("#codelist-builder-container")
 );

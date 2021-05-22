@@ -11,6 +11,5 @@ from .decorators import load_version, require_permission
 @load_version
 @require_permission
 def version_publish(request, version):
-    if version.is_draft:
-        actions.publish_version(version=version)
+    actions.publish_version(version=version)
     return redirect(version)

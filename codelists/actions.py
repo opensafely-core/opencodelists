@@ -9,14 +9,14 @@ from opencodelists.models import User
 
 from .codeset import Codeset
 from .hierarchy import Hierarchy
-from .models import Codelist, CodeObj
+from .models import Codelist, CodeObj, Status
 from .search import do_search
 
 logger = structlog.get_logger()
 
 
 @transaction.atomic
-def create_codelist(
+def create_old_style_codelist(
     *,
     owner,
     name,
@@ -40,7 +40,7 @@ def create_codelist(
         references=references,
         signoffs=signoffs,
     )
-    create_version(codelist=codelist, csv_data=csv_data)
+    create_old_style_version(codelist=codelist, csv_data=csv_data)
     logger.info("Created Codelist", codelist_pk=codelist.pk)
     return codelist
 
@@ -71,20 +71,9 @@ def create_codelist_with_codes(
         references=references,
         signoffs=signoffs,
     )
-    codes = set(codes)
-    coding_system = codelist.coding_system
-    code_to_term = coding_system.code_to_term(codes)
-    assert codes == set(code_to_term)
-
-    version = codelist.versions.create(tag=tag)
-    hierarchy = Hierarchy.from_codes(codelist.coding_system, codes)
-    codeset = Codeset.from_codes(codes, hierarchy)
-
-    CodeObj.objects.bulk_create(
-        CodeObj(version=version, code=code, status=status)
-        for code, status in codeset.code_to_status.items()
+    _create_version_with_codes(
+        codelist=codelist, codes=codes, status=Status.PUBLISHED, tag=tag
     )
-
     return codelist
 
 
@@ -114,7 +103,7 @@ def create_codelist_from_scratch(
         references=references,
         signoffs=signoffs,
     )
-    codelist.versions.create(draft_owner=draft_owner)
+    codelist.versions.create(draft_owner=draft_owner, status=Status.DRAFT)
     return codelist
 
 
@@ -139,42 +128,30 @@ def _create_codelist_with_handle(
     owner.handles.create(codelist=codelist, slug=slug, name=name, is_current=True)
 
     for reference in references or []:
-        create_reference(codelist=codelist, **reference)
+        codelist.references.create(text=reference["text"], url=reference["url"])
 
     for signoff in signoffs or []:
-        create_signoff(codelist=codelist, **signoff)
+        user = User.objects.get(username=signoff["user"])
+        signoff = codelist.signoffs.create(user=user, date=signoff["date"])
 
     return codelist
 
 
-def create_reference(*, codelist, text, url):
-    """Create a new Reference for the given Codelist."""
-    ref = codelist.references.create(text=text, url=url)
-
-    logger.info("Created Reference", reference_pk=ref.pk, codelist_pk=codelist.pk)
-
-    return ref
-
-
-def create_signoff(*, codelist, user, date):
-    """Create a new SignOff for the given Codelist."""
-    user = User.objects.get(username=user)
-    signoff = codelist.signoffs.create(user=user, date=date)
-
-    logger.info("Created SignOff", signoff_pk=signoff.pk, codelist_pk=codelist.pk)
-
-    return signoff
-
-
-def create_version(*, codelist, csv_data):
-    version = codelist.versions.create(csv_data=csv_data)
+def create_old_style_version(*, codelist, csv_data):
+    version = codelist.versions.create(csv_data=csv_data, status=Status.UNDER_REVIEW)
     logger.info("Created Version", version_pk=version.pk)
     return version
 
 
 @transaction.atomic
 def create_version_with_codes(
-    *, codelist, codes, tag=None, hierarchy=None, codeset=None
+    *,
+    codelist,
+    codes,
+    tag=None,
+    status=Status.UNDER_REVIEW,
+    hierarchy=None,
+    codeset=None,
 ):
     """Create a new version of a codelist with given codes.
 
@@ -191,19 +168,14 @@ def create_version_with_codes(
     if set(codes) == set(prev_clv.codes):
         raise ValueError("No difference to previous version")
 
-    next_clv = codelist.versions.create(is_draft=prev_clv.is_draft, tag=tag)
-
-    if codeset is None:
-        hierarchy = Hierarchy.from_codes(codelist.coding_system, codes)
-        codeset = Codeset.from_codes(codes, hierarchy)
-
-    CodeObj.objects.bulk_create(
-        CodeObj(version=next_clv, code=node, status=codeset.code_to_status[node])
-        for node in hierarchy.nodes
-        if node in codes
+    return _create_version_with_codes(
+        codelist=codelist,
+        codes=codes,
+        status=status,
+        tag=tag,
+        hierarchy=hierarchy,
+        codeset=codeset,
     )
-
-    return next_clv
 
 
 def create_version_from_ecl_expr(*, codelist, expr, tag=None):
@@ -268,6 +240,28 @@ def create_version_from_ecl_expr(*, codelist, expr, tag=None):
     )
 
 
+def _create_version_with_codes(
+    *, codelist, codes, status, tag=None, hierarchy=None, codeset=None
+):
+    codes = set(codes)
+    coding_system = codelist.coding_system
+    code_to_term = coding_system.code_to_term(codes)
+    assert codes == set(code_to_term)
+
+    clv = codelist.versions.create(tag=tag, status=status)
+
+    if codeset is None:
+        hierarchy = Hierarchy.from_codes(codelist.coding_system, codes)
+        codeset = Codeset.from_codes(codes, hierarchy)
+
+    CodeObj.objects.bulk_create(
+        CodeObj(version=clv, code=code, status=status)
+        for code, status in codeset.code_to_status.items()
+    )
+
+    return clv
+
+
 @transaction.atomic
 def update_codelist(*, codelist, description, methodology):
     """Update a Codelist."""
@@ -282,13 +276,17 @@ def update_codelist(*, codelist, description, methodology):
     return codelist
 
 
+@transaction.atomic
 def publish_version(*, version):
-    """Publish a version."""
+    """Publish a version.
 
-    assert version.is_draft
-    version.is_draft = False
+    This deletes all other non-published versions belonging to the codelist.
+    """
+
+    assert version.is_under_review
+    version.status = Status.PUBLISHED
     version.save()
-
+    version.codelist.versions.exclude(status=Status.PUBLISHED).delete()
     logger.info("Published Version", version_pk=version.pk)
 
 
@@ -303,19 +301,9 @@ def convert_codelist_to_new_style(*, codelist):
     assert prev_clv.csv_data is not None
     assert prev_clv.code_objs.count() == 0
 
-    next_clv = codelist.versions.create(is_draft=prev_clv.is_draft)
-
-    codes = set(prev_clv.codes)
-    hierarchy = Hierarchy.from_codes(codelist.coding_system, codes)
-    codeset = Codeset.from_codes(codes, hierarchy)
-
-    CodeObj.objects.bulk_create(
-        CodeObj(version=next_clv, code=node, status=codeset.code_to_status[node])
-        for node in hierarchy.nodes
-        if node in codes
+    return _create_version_with_codes(
+        codelist=codelist, codes=set(prev_clv.codes), status=Status.UNDER_REVIEW
     )
-
-    return next_clv
 
 
 @transaction.atomic
@@ -323,7 +311,7 @@ def export_to_builder(*, version, owner):
     """Create a new CodelistVersion for editing in the builder."""
 
     # Create a new CodelistVersion and CodeObjs.
-    draft = owner.drafts.create(codelist=version.codelist)
+    draft = owner.drafts.create(codelist=version.codelist, status=Status.DRAFT)
     CodeObj.objects.bulk_create(
         CodeObj(version=draft, code=code_obj.code, status=code_obj.status)
         for code_obj in version.code_objs.all()

@@ -6,7 +6,8 @@ from .decorators import load_codelist
 
 @load_codelist
 def codelist(request, codelist):
-    clv = codelist.latest_version()
+    clv = codelist.latest_visible_version(request.user)
+
     if clv is not None:
         return redirect(clv)
     else:

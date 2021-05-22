@@ -61,7 +61,6 @@ def load_version(view_fn):
         version = _load_version_or_404(codelist, tag_or_hash)
 
         if version.draft_owner:
-            # TODO test this properly
             return redirect(version.get_builder_url("draft"))
         else:
             return view_fn(request, version, **view_kwargs)

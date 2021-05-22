@@ -60,6 +60,8 @@ const testRender = (data) => {
         isEditable={data.is_editable}
         updateURL={data.update_url}
         searchURL={data.search_url}
+        versions={data.versions}
+        metadata={data.metadata}
         hierarchy={hierarchy}
       />,
       container
@@ -105,12 +107,13 @@ it("does the right thing when clicking around", () => {
     429554009: "(+)", // Arthropathy of elbow
     439656005: "+", // Arthritis of elbow
     3723001: "-", // Arthritis
+    156659008: "+", // (Epicondylitis &/or tennis elbow) or (golfers' elbow)
   };
 
   // Keep track of how many concepts we expect to have each status
   const summaryCounts = {
-    total: 8,
-    included: 7,
+    total: 9,
+    included: 8,
     excluded: 1,
     unresolved: 0,
     "in-conflict": 0,
@@ -196,6 +199,8 @@ it("does the right thing when clicking around", () => {
         isEditable={data.is_editable}
         updateURL={data.update_url}
         searchURL={data.search_url}
+        versions={data.versions}
+        metadata={data.metadata}
         hierarchy={hierarchy}
       />,
       container

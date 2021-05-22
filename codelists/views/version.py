@@ -2,6 +2,7 @@ from django.shortcuts import render
 
 from ..coding_systems import CODING_SYSTEMS
 from ..hierarchy import Hierarchy
+from ..models import Status
 from ..presenters import present_search_results
 from .decorators import load_version
 
@@ -37,14 +38,11 @@ def version(request, clv):
         )
 
     headers, *rows = clv.table
-
-    user_can_edit = False
-    if request.user.is_authenticated:
-        user_can_edit = clv.codelist.can_be_edited_by(request.user)
-
-    visible_versions = clv.codelist.versions.filter(draft_owner=None).order_by(
-        "-created_at"
-    )
+    user_can_edit = clv.codelist.can_be_edited_by(request.user)
+    visible_versions = clv.codelist.visible_versions(request.user)
+    can_create_new_version = not clv.codelist.versions.filter(
+        status=Status.DRAFT
+    ).exists()
 
     ctx = {
         "clv": clv,
@@ -61,5 +59,6 @@ def version(request, clv):
         "code_to_status": code_to_status,
         "search_results": present_search_results(clv, code_to_term),
         "user_can_edit": user_can_edit,
+        "can_create_new_version": can_create_new_version,
     }
     return render(request, "codelists/version.html", ctx)

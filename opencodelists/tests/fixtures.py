@@ -91,10 +91,10 @@ from django.db.models import Model
 from builder.actions import create_search, save, update_code_statuses
 from codelists.actions import (
     add_collaborator,
-    create_codelist,
     create_codelist_from_scratch,
     create_codelist_with_codes,
-    create_version,
+    create_old_style_codelist,
+    create_old_style_version,
     export_to_builder,
 )
 from codelists.coding_systems import CODING_SYSTEMS
@@ -253,7 +253,7 @@ def build_fixtures():
     # - owned by organisation
     # - has one version:
     #   - old_style_version
-    old_style_codelist = create_codelist(
+    old_style_codelist = create_old_style_codelist(
         owner=organisation,
         name="Old-style Codelist",
         coding_system_id="snomedct",
@@ -265,7 +265,7 @@ def build_fixtures():
     # old_style_version
     # - belongs to old_style_codelist
     # - includes Disorder of elbow
-    old_style_version = create_version(
+    old_style_version = create_old_style_version(
         codelist=old_style_codelist,
         csv_data=disorder_of_elbow_csv_data,
     )
@@ -316,6 +316,10 @@ def build_fixtures():
     check_expected_codes(
         version_with_no_searches, disorder_of_elbow_excl_arthritis_codes
     )
+
+    # new_style_codelist_latest_published_version
+    # - an alias for version_with_no_searches
+    new_style_codelist_latest_published_version = version_with_no_searches
 
     # version_with_excluded_codes
     # - an alias for version_with_no_searches
@@ -403,6 +407,14 @@ def build_fixtures():
     # version
     # - an alias for version_with_complete_searches
     version = version_with_complete_searches
+
+    # version_under_review
+    # - an alias for version_with_complete_searches
+    version_under_review = version_with_complete_searches
+
+    # new_style_codelist_latest_version
+    # - an alias for version_with_complete_searches
+    new_style_codelist_latest_version = version_with_complete_searches
 
     # codelist_with_collaborator
     # - an alias for new_style_codelist
@@ -522,7 +534,12 @@ version_with_no_searches = build_fixture("version_with_no_searches")
 version_with_some_searches = build_fixture("version_with_some_searches")
 version_with_complete_searches = build_fixture("version_with_complete_searches")
 version_with_excluded_codes = build_fixture("version_with_excluded_codes")
+new_style_codelist_latest_published_version = build_fixture(
+    "new_style_codelist_latest_published_version"
+)
+new_style_codelist_latest_version = build_fixture("new_style_codelist_latest_version")
 version = build_fixture("version")
+version_under_review = build_fixture("version_under_review")
 codelist_with_collaborator = build_fixture("codelist_with_collaborator")
 codelist_from_scratch = build_fixture("codelist_from_scratch")
 version_from_scratch = build_fixture("version_from_scratch")
@@ -555,6 +572,11 @@ def draft_from_scratch(version_with_complete_searches, organisation_user):
     return export_to_builder(
         version=version_with_complete_searches, owner=organisation_user
     )
+
+
+@pytest.fixture(scope="function")
+def draft(draft_with_complete_searches):
+    return draft_with_complete_searches
 
 
 # This is a parameterized fixture.  When used in a test, the test will be run once for

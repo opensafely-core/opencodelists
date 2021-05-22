@@ -7,10 +7,17 @@
       [
         "128133004"
       ]
+    ],
+    [
+      "[inactive] Disorder",
+      [
+        "156659008"
+      ]
     ]
   ],
   "all_codes": [
     "128133004",
+    "156659008",
     "202855006",
     "239964003",
     "35185008",
@@ -19,7 +26,8 @@
     "73583000"
   ],
   "included_codes": [
-    "128133004"
+    "128133004",
+    "156659008"
   ],
   "excluded_codes": [
     "439656005"
@@ -70,6 +78,9 @@
     "128605003": [
       "123946008",
       "302293008"
+    ],
+    "156659008": [
+      "138875005"
     ],
     "19660004": [
       "123946008",
@@ -294,6 +305,7 @@
       "363175000"
     ],
     "138875005": [
+      "156659008",
       "404684003"
     ],
     "19660004": [
@@ -431,58 +443,18 @@
     ]
   },
   "code_to_term": {
-    "105969002": "Disorder of connective tissue",
-    "106028002": "Musculoskeletal finding",
-    "116307009": "Finding of upper limb",
-    "116309007": "Finding of elbow region",
-    "118234003": "Finding by site",
-    "118947000": "Disorder of upper extremity",
-    "118952005": "Joint finding",
-    "118953000": "Bone finding",
-    "123946008": "Disorder by body site",
-    "128131002": "Disorder of upper arm",
     "128133004": "Disorder of elbow",
-    "128139000": "Inflammatory disorder",
-    "128605003": "Disorder of extremity",
-    "138875005": "SNOMED CT Concept (SNOMED RT+CTV3)",
-    "19660004": "Disorder of soft tissue",
+    "156659008": "(Epicondylitis &/or tennis elbow) or (golfers' elbow)",
     "202855006": "Lateral epicondylitis",
-    "23680005": "Enthesopathy",
-    "239953001": "Soft tissue lesion",
     "239964003": "Soft tissue lesion of elbow region",
-    "248402002": "General finding of soft tissue",
-    "274144001": "Bone inflammatory disease",
-    "280134004": "Disorder of soft tissue of limb",
-    "280135003": "Disorder of soft tissue of upper limb",
-    "298160000": "Inflamed joint",
-    "298163003": "Elbow joint inflamed",
-    "298756009": "Finding of bone of upper limb",
-    "298869002": "Finding of elbow joint",
-    "301857004": "Finding of body region",
-    "302293008": "Finding of limb structure",
-    "312225001": "Musculoskeletal and connective tissue disorder",
     "35185008": "Enthesopathy of elbow region",
-    "359643005": "Enthesitis",
-    "362965005": "Disorder of body system",
-    "363169009": "Inflammation of specific body organs",
-    "363170005": "Inflammation of specific body structures or tissue",
-    "363171009": "Inflammation of specific body systems",
-    "363175000": "Inflammatory disorder of extremity",
-    "363179006": "Inflammatory disorder of musculoskeletal system",
-    "3723001": "Arthritis",
-    "399269003": "Arthropathy",
-    "404684003": "Clinical finding",
     "429554009": "Arthropathy of elbow",
     "439656005": "Arthritis of elbow",
-    "44462005": "Osteitis",
-    "64572001": "Disease",
-    "73583000": "Epicondylitis",
-    "76069003": "Disorder of bone",
-    "88230002": "Disorder of skeletal system",
-    "928000": "Disorder of musculoskeletal system"
+    "73583000": "Epicondylitis"
   },
   "code_to_status": {
     "128133004": "+",
+    "156659008": "+",
     "202855006": "(-)",
     "239964003": "(+)",
     "35185008": "(+)",
@@ -492,5 +464,37 @@
   },
   "is_editable": true,
   "update_url": "/builder/37846656/update/",
-  "search_url": "/builder/37846656/search/"
+  "search_url": "/builder/37846656/search/",
+  "versions": [
+    {
+      "tag_or_hash": "37846656",
+      "url": "/codelist/test-university/new-style-codelist/37846656/",
+      "status": "draft",
+      "current": true
+    },
+    {
+      "tag_or_hash": "02b2bff6",
+      "url": "/codelist/test-university/new-style-codelist/02b2bff6/",
+      "status": "under review",
+      "current": false
+    },
+    {
+      "tag_or_hash": "1bc2332b",
+      "url": "/codelist/test-university/new-style-codelist/1bc2332b/",
+      "status": "under review",
+      "current": false
+    },
+    {
+      "tag_or_hash": "34d1a660",
+      "url": "/codelist/test-university/new-style-codelist/34d1a660/",
+      "status": "published",
+      "current": false
+    }
+  ],
+  "metadata": {
+    "coding_system_name": "SNOMED CT",
+    "organisation_name": "Test University",
+    "codelist_full_slug": "test-university/new-style-codelist",
+    "hash": "37846656"
+  }
 }

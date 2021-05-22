@@ -117,6 +117,19 @@ class Codelist(models.Model):
         return self.versions.filter(csv_data__isnull=True).exists()
 
     def can_be_edited_by(self, user):
+        """Return whether codelist can be edited by given user.
+
+        A codelist can be edited by a user if:
+
+            * the user is authenticated
+            * the user is a collaborator on the codelist
+            * the codelist is owned by the user
+            * the codelist is owned by one of the organisations the user is a member of
+        """
+
+        if not user.is_authenticated:
+            return False
+
         if self.collaborations.filter(collaborator=user).exists():
             return True
 
@@ -125,11 +138,20 @@ class Codelist(models.Model):
         else:
             return user.is_member(self.organisation)
 
-    def latest_version(self):
-        """Return latest version that's not being edited, or None if no such version
+    def visible_versions(self, user):
+        """Return all versions visible to the user, with newest first."""
+
+        versions = self.versions.order_by("-id")
+        if not self.can_be_edited_by(user):
+            versions = versions.filter(status=Status.PUBLISHED)
+
+        return versions
+
+    def latest_visible_version(self, user):
+        """Return latest version visible to the user, or None if no such version
         exists."""
 
-        return self.versions.filter(draft_owner__isnull=True).order_by("id").last()
+        return self.visible_versions(user).first()
 
 
 class Handle(models.Model):
@@ -168,10 +190,19 @@ class Handle(models.Model):
         ]
 
 
+class Status(models.TextChoices):
+    DRAFT = "draft"  # the version is being edited in the builder
+    UNDER_REVIEW = "under review"  # the version is being reviewed
+    PUBLISHED = "published"  # the version has been published and cannot be deleted
+
+
 class CodelistVersion(models.Model):
     codelist = models.ForeignKey(
         "Codelist", on_delete=models.CASCADE, related_name="versions"
     )
+
+    status = models.CharField(max_length=len("under review"), choices=Status.choices)
+
     # If set, indicates that a CodelistVersion is a draft that's being edited in the
     # builder.
     draft_owner = models.ForeignKey(
@@ -179,12 +210,6 @@ class CodelistVersion(models.Model):
     )
     tag = models.CharField(max_length=12, null=True)
     csv_data = models.TextField(verbose_name="CSV data", null=True)
-    # This field indicates whether a CodelistVersion is published or not.  This doesn't
-    # have much practical meaning at the moment and should be revisited.
-    is_draft = models.BooleanField(default=True)
-
-    # Indicates whether a CodelistVersion was edited in the builder, and then discarded.
-    discarded = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -381,6 +406,18 @@ class CodelistVersion(models.Model):
             return "{}-{}-{}".format(
                 self.codelist.organisation_id, self.codelist.slug, self.tag_or_hash
             )
+
+    @property
+    def is_draft(self):
+        return self.status == Status.DRAFT
+
+    @property
+    def is_under_review(self):
+        return self.status == Status.UNDER_REVIEW
+
+    @property
+    def is_published(self):
+        return self.status == Status.PUBLISHED
 
 
 class CodeObj(models.Model):

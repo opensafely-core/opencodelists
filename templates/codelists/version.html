@@ -6,7 +6,7 @@
 
 {% block content %}
 <h3 class="mt-4">{{ codelist.name }}</h3>
-{% if clv.status == "under review" %}
+{% if clv.is_under_review %}
 <p class="text-muted">This version is under review</p>
 {% endif %}
 <hr />

@@ -2,6 +2,7 @@ from django.shortcuts import render
 
 from ..coding_systems import CODING_SYSTEMS
 from ..hierarchy import Hierarchy
+from ..models import Status
 from ..presenters import present_search_results
 from .decorators import load_version
 
@@ -39,7 +40,9 @@ def version(request, clv):
     headers, *rows = clv.table
     user_can_edit = clv.codelist.can_be_edited_by(request.user)
     visible_versions = clv.codelist.visible_versions(request.user)
-    can_create_new_version = not clv.codelist.versions.filter(status="draft").exists()
+    can_create_new_version = not clv.codelist.versions.filter(
+        status=Status.DRAFT
+    ).exists()
 
     ctx = {
         "clv": clv,

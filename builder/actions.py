@@ -5,7 +5,7 @@ from django.db import transaction
 from django.db.models import Count
 from django.utils.text import slugify
 
-from codelists.models import CodeObj, SearchResult
+from codelists.models import CodeObj, SearchResult, Status
 
 logger = structlog.get_logger()
 
@@ -75,7 +75,7 @@ def save(*, draft):
     """
 
     assert not draft.code_objs.filter(status__in=["?", "!"]).exists()
-    draft.status = "under review"
+    draft.status = Status.UNDER_REVIEW
     draft.draft_owner = None
     draft.save()
 

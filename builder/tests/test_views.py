@@ -67,7 +67,7 @@ def test_post_save_for_review(client, draft):
     assert rsp.redirect_chain[-1][0] == draft.get_absolute_url()
 
     draft.refresh_from_db()
-    assert draft.status == "under review"
+    assert draft.is_under_review
 
 
 def test_update_unauthorised(client, draft):

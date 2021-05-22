@@ -143,7 +143,7 @@ class Codelist(models.Model):
 
         versions = self.versions.order_by("-id")
         if not self.can_be_edited_by(user):
-            versions = versions.filter(status="published")
+            versions = versions.filter(status=Status.PUBLISHED)
 
         return versions
 
@@ -190,16 +190,18 @@ class Handle(models.Model):
         ]
 
 
+class Status(models.TextChoices):
+    DRAFT = "draft"  # the version is being edited in the builder
+    UNDER_REVIEW = "under review"  # the version is being reviewed
+    PUBLISHED = "published"  # the version has been published and cannot be deleted
+
+
 class CodelistVersion(models.Model):
     codelist = models.ForeignKey(
         "Codelist", on_delete=models.CASCADE, related_name="versions"
     )
 
-    # Can be one of:
-    # - "draft" -- the version is being edited in the builder
-    # - "under review" -- the version is being reviewed
-    # - "published" -- the version has been published and cannot be deleted
-    status = models.CharField(max_length=len("under review"))
+    status = models.CharField(max_length=len("under review"), choices=Status.choices)
 
     # If set, indicates that a CodelistVersion is a draft that's being edited in the
     # builder.
@@ -407,15 +409,15 @@ class CodelistVersion(models.Model):
 
     @property
     def is_draft(self):
-        return self.status == "draft"
+        return self.status == Status.DRAFT
 
     @property
     def is_under_review(self):
-        return self.status == "under review"
+        return self.status == Status.UNDER_REVIEW
 
     @property
     def is_published(self):
-        return self.status == "published"
+        return self.status == Status.PUBLISHED
 
 
 class CodeObj(models.Model):

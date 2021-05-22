@@ -9,7 +9,7 @@ from opencodelists.models import User
 
 from .codeset import Codeset
 from .hierarchy import Hierarchy
-from .models import Codelist, CodeObj
+from .models import Codelist, CodeObj, Status
 from .search import do_search
 
 logger = structlog.get_logger()
@@ -72,7 +72,7 @@ def create_codelist_with_codes(
         signoffs=signoffs,
     )
     _create_version_with_codes(
-        codelist=codelist, codes=codes, status="published", tag=tag
+        codelist=codelist, codes=codes, status=Status.PUBLISHED, tag=tag
     )
     return codelist
 
@@ -103,7 +103,7 @@ def create_codelist_from_scratch(
         references=references,
         signoffs=signoffs,
     )
-    codelist.versions.create(draft_owner=draft_owner, status="draft")
+    codelist.versions.create(draft_owner=draft_owner, status=Status.DRAFT)
     return codelist
 
 
@@ -138,14 +138,20 @@ def _create_codelist_with_handle(
 
 
 def create_old_style_version(*, codelist, csv_data):
-    version = codelist.versions.create(csv_data=csv_data, status="under review")
+    version = codelist.versions.create(csv_data=csv_data, status=Status.UNDER_REVIEW)
     logger.info("Created Version", version_pk=version.pk)
     return version
 
 
 @transaction.atomic
 def create_version_with_codes(
-    *, codelist, codes, tag=None, status="under review", hierarchy=None, codeset=None
+    *,
+    codelist,
+    codes,
+    tag=None,
+    status=Status.UNDER_REVIEW,
+    hierarchy=None,
+    codeset=None,
 ):
     """Create a new version of a codelist with given codes.
 
@@ -277,10 +283,10 @@ def publish_version(*, version):
     This deletes all other non-published versions belonging to the codelist.
     """
 
-    assert version.status == "under review"
-    version.status = "published"
+    assert version.is_under_review
+    version.status = Status.PUBLISHED
     version.save()
-    version.codelist.versions.exclude(status="published").delete()
+    version.codelist.versions.exclude(status=Status.PUBLISHED).delete()
     logger.info("Published Version", version_pk=version.pk)
 
 
@@ -296,7 +302,7 @@ def convert_codelist_to_new_style(*, codelist):
     assert prev_clv.code_objs.count() == 0
 
     return _create_version_with_codes(
-        codelist=codelist, codes=set(prev_clv.codes), status="under review"
+        codelist=codelist, codes=set(prev_clv.codes), status=Status.UNDER_REVIEW
     )
 
 
@@ -305,7 +311,7 @@ def export_to_builder(*, version, owner):
     """Create a new CodelistVersion for editing in the builder."""
 
     # Create a new CodelistVersion and CodeObjs.
-    draft = owner.drafts.create(codelist=version.codelist, status="draft")
+    draft = owner.drafts.create(codelist=version.codelist, status=Status.DRAFT)
     CodeObj.objects.bulk_create(
         CodeObj(version=draft, code=code_obj.code, status=code_obj.status)
         for code_obj in version.code_objs.all()

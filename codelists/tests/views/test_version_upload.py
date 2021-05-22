@@ -37,7 +37,7 @@ def test_post_success(client, old_style_codelist):
     with assert_difference(old_style_codelist.versions.count, expected_difference=1):
         response = client.post(old_style_codelist.get_version_upload_url(), data=data)
 
-    clv = old_style_codelist.versions.filter().last()
+    clv = old_style_codelist.versions.last()
     assert response.status_code == 302
     assert response.url == clv.get_absolute_url()
 

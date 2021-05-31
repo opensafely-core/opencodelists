@@ -25,9 +25,9 @@ def import_data(release_dir):
                     parent_code = code
 
     with transaction.atomic():
-        Concept.objects.all().delete()
         for type in TYPES:
-            Concept.objects.bulk_create(
-                Concept(code=code, name=name, type=type, parent_id=parent_code)
-                for code, name, parent_code in sorted(records[type])
-            )
+            for code, name, parent_code in sorted(records[type]):
+                Concept.objects.get_or_create(
+                    code=code,
+                    defaults={"name": name, "type": type, "parent_id": parent_code},
+                )

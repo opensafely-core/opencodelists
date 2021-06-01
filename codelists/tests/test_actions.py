@@ -137,10 +137,10 @@ def test_create_version_with_codes(new_style_codelist):
     assert clv.tag == "test"
     assert clv.is_under_review
 
-    with pytest.raises(ValueError):
-        actions.create_version_with_codes(
-            codelist=new_style_codelist, codes={"128133004"}
-        )
+    clv = actions.create_version_with_codes(
+        codelist=new_style_codelist, codes={"128133004"}
+    )
+    assert clv is None
 
     with pytest.raises(ValueError):
         actions.create_version_with_codes(codelist=new_style_codelist, codes=set())

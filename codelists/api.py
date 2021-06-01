@@ -151,6 +151,9 @@ def versions(request, codelist):
     except ValueError as e:
         return error(str(e))
 
+    if clv is None:
+        return error("No difference to previous version")
+
     return JsonResponse({"codelist_version": clv.get_absolute_url()})
 
 

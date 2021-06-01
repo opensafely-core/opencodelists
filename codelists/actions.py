@@ -155,8 +155,8 @@ def create_version_with_codes(
 ):
     """Create a new version of a codelist with given codes.
 
-    Raises ValueError if codes is empty or is the same as the codelist's previous
-    version.
+    Returns the new version, or None if no version is created because the codes are the
+    same as the previous version.  (Future work could allow a force_create parameter.)
 
     `hierarchy` and `codeset` may be passed in if they have already been calculated.
     """
@@ -166,7 +166,7 @@ def create_version_with_codes(
 
     prev_clv = codelist.versions.order_by("id").last()
     if set(codes) == set(prev_clv.codes):
-        raise ValueError("No difference to previous version")
+        return None
 
     return _create_version_with_codes(
         codelist=codelist,

@@ -3,7 +3,7 @@ from django.db import IntegrityError
 
 from codelists import actions
 from codelists.models import Codelist
-from opencodelists.tests.assertions import assert_difference
+from opencodelists.tests.assertions import assert_difference, assert_no_difference
 
 
 def test_create_codelist(organisation):
@@ -116,6 +116,64 @@ def test_create_codelist_with_codes_with_metadata(
     assert cl.methodology == "This is how we did it"
     assert cl.references.count() == 1
     assert cl.signoffs.count() == 1
+
+
+def test_create_or_update_codelist_create(user, disorder_of_elbow_excl_arthritis_codes):
+    cl = actions.create_or_update_codelist(
+        owner=user,
+        name="Test",
+        coding_system_id="snomedct",
+        codes=disorder_of_elbow_excl_arthritis_codes,
+        description="This is a test",
+        methodology="This is how we did it",
+        references=[{"text": "Some reference", "url": "http://example.com"}],
+        signoffs=[{"user": user.username, "date": "2021-04-21"}],
+    )
+    assert cl.description == "This is a test"
+    assert cl.methodology == "This is how we did it"
+    assert cl.references.count() == 1
+    assert cl.signoffs.count() == 1
+    assert cl.versions.count() == 1
+    clv = cl.versions.get()
+    assert clv.codes == tuple(sorted(disorder_of_elbow_excl_arthritis_codes))
+
+
+def test_create_or_update_codelist_update(
+    organisation, codelist, disorder_of_elbow_excl_arthritis_codes
+):
+    with assert_difference(codelist.versions.count, expected_difference=1):
+        actions.create_or_update_codelist(
+            owner=organisation,
+            name=codelist.name,
+            coding_system_id="snomedct",
+            codes=disorder_of_elbow_excl_arthritis_codes,
+            description="This is a test (updated)",
+            methodology="This is how we did it (updated)",
+        )
+
+    codelist.refresh_from_db()
+    assert codelist.description == "This is a test (updated)"
+    assert codelist.methodology == "This is how we did it (updated)"
+    clv = codelist.versions.order_by("id").last()
+    assert clv.codes == tuple(sorted(disorder_of_elbow_excl_arthritis_codes))
+
+
+def test_create_or_update_codelist_update_no_change_to_codes(
+    organisation, codelist, disorder_of_elbow_codes
+):
+    with assert_no_difference(codelist.versions.count):
+        actions.create_or_update_codelist(
+            owner=organisation,
+            name=codelist.name,
+            coding_system_id="snomedct",
+            codes=disorder_of_elbow_codes,
+            description="This is a test (updated)",
+            methodology="This is how we did it (updated)",
+        )
+
+    codelist.refresh_from_db()
+    assert codelist.description == "This is a test (updated)"
+    assert codelist.methodology == "This is how we did it (updated)"
 
 
 def test_create_codelist_from_scratch(organisation, user):

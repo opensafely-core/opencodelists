@@ -9,7 +9,7 @@ from opencodelists.models import User
 
 from .codeset import Codeset
 from .hierarchy import Hierarchy
-from .models import Codelist, CodeObj, Status
+from .models import Codelist, CodeObj, Handle, Status
 from .search import do_search
 
 logger = structlog.get_logger()
@@ -43,6 +43,60 @@ def create_old_style_codelist(
     create_old_style_version(codelist=codelist, csv_data=csv_data)
     logger.info("Created Codelist", codelist_pk=codelist.pk)
     return codelist
+
+
+@transaction.atomic
+def create_or_update_codelist(
+    *,
+    owner,
+    name,
+    coding_system_id,
+    codes,
+    slug=None,
+    tag=None,
+    description=None,
+    methodology=None,
+    references=None,
+    signoffs=None,
+):
+    if not slug:
+        slug = slugify(name)
+
+    try:
+        handle = owner.handles.get(slug=slug)
+        codelist = handle.codelist
+
+        # We don't yet handle updating a codelist's references/signoffs except via a
+        # ModelForm.  TODO fix this.
+        assert references is None
+        assert signoffs is None
+
+        update_codelist(
+            codelist=codelist,
+            description=description,
+            methodology=methodology,
+        )
+        create_version_with_codes(
+            codelist=codelist,
+            codes=codes,
+            tag=tag,
+        )
+
+        return codelist
+
+    except Handle.DoesNotExist:
+        return create_codelist_with_codes(
+            owner=owner,
+            name=name,
+            coding_system_id=coding_system_id,
+            codes=codes,
+            slug=slug,
+            tag=tag,
+            description=description,
+            methodology=methodology,
+            references=references,
+            signoffs=signoffs,
+        )
 
 
 @transaction.atomic

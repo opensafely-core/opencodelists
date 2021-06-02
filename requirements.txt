@@ -42,7 +42,7 @@ configobj==5.0.6
     # via
     #   cli-helpers
     #   litecli
-coverage[toml]==5.2.1
+coverage==5.2.1
     # via pytest-cov
 cryptography==3.3.2
     # via paramiko
@@ -154,7 +154,7 @@ pyparsing==2.4.7
     # via packaging
 pysqlite3-binary==0.4.6
     # via -r requirements.in
-pytest-cov==2.12.0
+pytest-cov==2.12.1
     # via -r requirements.in
 pytest-django==4.3.0
     # via -r requirements.in
@@ -201,10 +201,10 @@ terminaltables==3.1.0
 toml==0.10.1
     # via
     #   black
-    #   coverage
     #   pep517
     #   pre-commit
     #   pytest
+    #   pytest-cov
 typed-ast==1.4.3
     # via black
 typing-extensions==3.7.4.3

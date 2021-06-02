@@ -2,7 +2,7 @@ def present_search_results(clv, code_to_term):
     results = []
     for search in clv.searches.prefetch_related(
         "results", "results__code_obj"
-    ).order_by("term"):
+    ).order_by("code", "term"):
         rows = [
             {
                 "code": result.code_obj.code,
@@ -15,7 +15,7 @@ def present_search_results(clv, code_to_term):
         num_included = len([r for r in rows if r["included"]])
         results.append(
             {
-                "term": search.term,
+                "term_or_code": search.term_or_code,
                 "rows": rows,
                 "num_included": num_included,
                 "total": len(rows),

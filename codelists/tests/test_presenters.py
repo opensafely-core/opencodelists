@@ -1,4 +1,4 @@
-from codelists.presenters import present_search_results
+from codelists.presenters import present_definition_for_download, present_search_results
 
 
 def test_present_search_results(version_with_complete_searches):
@@ -21,3 +21,12 @@ def test_present_search_results(version_with_complete_searches):
             {"code": "202855006", "included": True, "term": "Lateral epicondylitis"},
         ],
     }
+
+
+def test_present_definition_for_download(version):
+    rows = present_definition_for_download(version)
+    assert rows == [
+        ("code", "term", "is_included"),
+        ("156659008", "(Epicondylitis &/or tennis elbow) or (golfers' elbow)", "+"),
+        ("128133004", "Disorder of elbow", "+"),
+    ]

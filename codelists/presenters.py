@@ -34,5 +34,5 @@ def present_definition_for_download(clv):
         (code, code_to_term[code], status)
         for code, status in codeset.walk_defining_tree(code_to_term.__getitem__)
     ]
-    headers = ["code", "term", "is_included"]
+    headers = ("code", "term", "is_included")
     return [headers] + rows

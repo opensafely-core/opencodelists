@@ -5,7 +5,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
 from .actions import (
-    create_codelist_with_codes,
+    create_or_update_codelist,
     create_version_from_ecl_expr,
     create_version_with_codes,
 )
@@ -109,7 +109,7 @@ def codelists_post(request, owner):
     if extra_keys:
         return error(f"Extra keys: {', '.join(f'`{k}`' for k in extra_keys)}")
 
-    cl = create_codelist_with_codes(owner=owner, **data)
+    cl = create_or_update_codelist(owner=owner, **data)
 
     return JsonResponse({"codelist": cl.get_absolute_url()})
 
@@ -150,6 +150,9 @@ def versions(request, codelist):
 
     except ValueError as e:
         return error(str(e))
+
+    if clv is None:
+        return error("No difference to previous version")
 
     return JsonResponse({"codelist_version": clv.get_absolute_url()})
 

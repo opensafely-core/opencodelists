@@ -19,7 +19,7 @@ def search_by_term(term):
 def search_by_code(code):
     try:
         concept = Concept.objects.get(code__iexact=code)
-    except Concept.ObjectDoesNotExist:
+    except Concept.DoesNotExist:
         return set()
 
     # The UI does not support top-level concepts being included/excluded (and in any

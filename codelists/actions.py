@@ -4,7 +4,6 @@ from django.utils.text import slugify
 
 from builder import actions as builder_actions
 from coding_systems.snomedct import ecl_parser
-from opencodelists.dict_utils import invert_dict
 from opencodelists.models import User
 
 from .codeset import Codeset
@@ -384,12 +383,6 @@ def export_to_builder(*, version, owner):
         builder_actions.create_search(
             draft=draft, term=search.term, code=search.code, codes=codes
         )
-
-    # Update each code status.
-    code_to_status = dict(version.code_objs.values_list("code", "status"))
-    status_to_code = invert_dict(code_to_status)
-    for status, codes in status_to_code.items():
-        draft.code_objs.filter(code__in=codes).update(status=status)
 
     # This assert will fire if new matching concepts have been imported.  At the moment,
     # the builder frontend cannot deal with a CodeObj with status ?  if any of its

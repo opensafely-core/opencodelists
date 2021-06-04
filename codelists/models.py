@@ -308,6 +308,27 @@ class CodelistVersion(models.Model):
         return f"{self.codelist.full_slug()}/{self.tag_or_hash}"
 
     @property
+    def hierarchy(self):
+        """Return Hierarchy of codes related to this CodelistVersion."""
+
+        if self.csv_data:
+            return self._old_style_hierarchy()
+        else:
+            return self._new_style_hierarchy()
+
+    def _old_style_hierarchy(self):
+        if not hasattr(self.coding_system, "ancestor_relationships"):
+            # If coding system does not define relationships, then we cannot build a
+            # hierarchy, and so it's not clear what a hierarchy is for.
+            return
+
+        return Hierarchy.from_codes(self.coding_system, self.codes)
+
+    def _new_style_hierarchy(self):
+        code_to_status = dict(self.code_objs.values_list("code", "status"))
+        return Hierarchy.from_codes(self.coding_system, list(code_to_status))
+
+    @property
     def codeset(self):
         """Return Codeset for the codes related to this CodelistVersion."""
 
@@ -322,13 +343,11 @@ class CodelistVersion(models.Model):
             # hierarchy, and so it's not clear what a codeset is for.
             return
 
-        hierarchy = Hierarchy.from_codes(self.coding_system, self.codes)
-        return Codeset.from_codes(set(self.codes), hierarchy)
+        return Codeset.from_codes(set(self.codes), self.hierarchy)
 
     def _new_style_codeset(self):
         code_to_status = dict(self.code_objs.values_list("code", "status"))
-        hierarchy = Hierarchy.from_codes(self.coding_system, list(code_to_status))
-        return Codeset(code_to_status, hierarchy)
+        return Codeset(code_to_status, self.hierarchy)
 
     @property
     def table(self):

@@ -1,7 +1,6 @@
 from django.shortcuts import render
 
 from ..coding_systems import CODING_SYSTEMS
-from ..hierarchy import Hierarchy
 from ..models import Status
 from ..presenters import present_search_results
 from .decorators import load_version
@@ -17,15 +16,12 @@ def version(request, clv):
     if clv.coding_system_id in ["bnf", "ctv3", "icd10", "snomedct"]:
         coding_system = CODING_SYSTEMS[clv.coding_system_id]
 
-        hierarchy = Hierarchy.from_codes(coding_system, clv.all_related_codes)
+        hierarchy = clv.codeset.hierarchy
         parent_map = {p: list(cc) for p, cc in hierarchy.parent_map.items()}
         child_map = {c: list(pp) for c, pp in hierarchy.child_map.items()}
-        code_to_term = coding_system.code_to_term(
-            hierarchy.nodes | set(clv.all_related_codes)
-        )
+        code_to_term = coding_system.code_to_term(hierarchy.nodes)
         code_to_status = {
-            code: "+" if code in clv.codes else "-"
-            for code in hierarchy.nodes | set(clv.all_related_codes)
+            code: "+" if code in clv.codes else "-" for code in hierarchy.nodes
         }
         ancestor_codes = hierarchy.filter_to_ultimate_ancestors(
             set(clv.codes) & hierarchy.nodes

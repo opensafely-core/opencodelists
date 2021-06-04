@@ -346,14 +346,6 @@ class CodelistVersion(models.Model):
         rows.extend([code, code_to_term.get(code, "[Unknown]")] for code in self.codes)
         return rows
 
-    @property
-    def all_related_codes(self):
-        # TODO do we need this?
-        if self.csv_data:
-            return self._old_style_codes()
-        else:
-            return self.code_objs.values_list("code", flat=True)
-
     @cached_property
     def codes(self):
         if self.csv_data:

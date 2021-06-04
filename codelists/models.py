@@ -308,10 +308,6 @@ class CodelistVersion(models.Model):
         return f"{self.codelist.full_slug()}/{self.tag_or_hash}"
 
     @property
-    def in_progress(self):
-        return self.draft_owner
-
-    @property
     def codeset(self):
         """Return Codeset for the codes related to this CodelistVersion."""
 

@@ -1,3 +1,4 @@
+import json
 from collections import defaultdict
 from itertools import chain
 
@@ -13,7 +14,6 @@ class Hierarchy:
         """
 
         self.root = root
-        self.edges = edges
 
         self.nodes = set()
         child_map = defaultdict(set)
@@ -54,6 +54,49 @@ class Hierarchy:
                 edges.add((coding_system.root, code))
 
         return cls(coding_system.root, edges)
+
+    @classmethod
+    def from_cache(cls, data):
+        instance = cls.__new__(cls)
+        data = json.loads(data)
+        instance.root = data["root"]
+        instance.nodes = set(data["nodes"])
+        instance.child_map = {
+            parent: set(children) for parent, children in data["child_map"].items()
+        }
+        instance.parent_map = {
+            child: set(parents) for child, parents in data["parent_map"].items()
+        }
+        instance._descendants_cache = {
+            ancestor: set(descendants)
+            for ancestor, descendants in data["_descendants_cache"].items()
+        }
+        instance._ancestors_cache = {
+            descendant: set(ancestors)
+            for descendant, ancestors in data["_ancestors_cache"].items()
+        }
+        return instance
+
+    def data_for_cache(self):
+        data = {
+            "root": self.root,
+            "nodes": list(self.nodes),
+            "child_map": {
+                parent: list(children) for parent, children in self.child_map.items()
+            },
+            "parent_map": {
+                child: list(parents) for child, parents in self.parent_map.items()
+            },
+            "_descendants_cache": {
+                ancestor: list(descendants)
+                for ancestor, descendants in self._descendants_cache.items()
+            },
+            "_ancestors_cache": {
+                descendant: list(ancestors)
+                for descendant, ancestors in self._ancestors_cache.items()
+            },
+        }
+        return json.dumps(data)
 
     def descendants(self, node):
         """Return set of descendants of node.

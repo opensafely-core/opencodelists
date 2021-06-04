@@ -34,6 +34,10 @@ def create_search(*, draft, term=None, code=None, codes):
         SearchResult(search=search, code_obj_id=id) for id in code_obj_ids
     )
 
+    from codelists.actions import cache_hierarchy  # avoid circular imports
+
+    cache_hierarchy(version=draft)
+
     logger.info("Created Search", search_pk=search.pk)
 
     return search

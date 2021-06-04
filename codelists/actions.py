@@ -8,7 +8,7 @@ from opencodelists.models import User
 
 from .codeset import Codeset
 from .hierarchy import Hierarchy
-from .models import Codelist, CodeObj, Handle, Status
+from .models import CachedHierarchy, Codelist, CodeObj, Handle, Status
 from .search import do_search
 
 logger = structlog.get_logger()
@@ -156,7 +156,8 @@ def create_codelist_from_scratch(
         references=references,
         signoffs=signoffs,
     )
-    codelist.versions.create(draft_owner=draft_owner, status=Status.DRAFT)
+    version = codelist.versions.create(draft_owner=draft_owner, status=Status.DRAFT)
+    cache_hierarchy(version=version)
     return codelist
 
 
@@ -192,6 +193,7 @@ def _create_codelist_with_handle(
 
 def create_old_style_version(*, codelist, csv_data):
     version = codelist.versions.create(csv_data=csv_data, status=Status.UNDER_REVIEW)
+    cache_hierarchy(version=version)
     logger.info("Created Version", version_pk=version.pk)
     return version
 
@@ -312,6 +314,8 @@ def _create_version_with_codes(
         for code, status in codeset.code_to_status.items()
     )
 
+    cache_hierarchy(version=clv, hierarchy=hierarchy)
+
     return clv
 
 
@@ -390,6 +394,8 @@ def export_to_builder(*, version, owner):
     # now fail loudly.
     assert not draft.code_objs.filter(status="?").exists()
 
+    cache_hierarchy(version=draft)
+
     return draft
 
 
@@ -397,3 +403,17 @@ def add_collaborator(*, codelist, collaborator):
     """Add collaborator to codelist."""
 
     codelist.collaborations.create(collaborator=collaborator)
+
+
+def cache_hierarchy(*, version, hierarchy=None):
+    """Cache the version's hierarchy.
+
+    This should be called by every action that creates a version or updates a version's
+    hierarchy.
+    """
+
+    if hierarchy is None:
+        hierarchy = version.calculate_hierarchy()
+    cached_hierarchy, _ = CachedHierarchy.objects.get_or_create(version=version)
+    cached_hierarchy.data = hierarchy.data_for_cache()
+    cached_hierarchy.save()

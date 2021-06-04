@@ -2,6 +2,7 @@ from functools import wraps
 
 from django.shortcuts import get_object_or_404, redirect
 
+from codelists.actions import cache_hierarchy
 from codelists.models import CodelistVersion
 from opencodelists.hash_utils import unhash
 
@@ -14,7 +15,10 @@ def load_draft(view_fn):
         id = unhash(hash, "CodelistVersion")
         draft = get_object_or_404(CodelistVersion, id=id)
         if draft.draft_owner:
-            return view_fn(request, draft, **kwargs)
+            rsp = view_fn(request, draft, **kwargs)
+            if draft.hierarchy.dirty:
+                cache_hierarchy(version=draft)
+            return rsp
         else:
             # TODO test this properly
             return redirect(draft)

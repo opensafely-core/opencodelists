@@ -75,6 +75,7 @@ class Hierarchy:
             descendant: set(ancestors)
             for descendant, ancestors in data["_ancestors_cache"].items()
         }
+        instance.dirty = False
         return instance
 
     def data_for_cache(self):
@@ -111,6 +112,7 @@ class Hierarchy:
                 descendants.add(child)
                 descendants |= self.descendants(child)
             self._descendants_cache[node] = descendants
+            self.dirty = True
 
         return self._descendants_cache[node]
 
@@ -126,6 +128,7 @@ class Hierarchy:
                 ancestors.add(parent)
                 ancestors |= self.ancestors(parent)
             self._ancestors_cache[node] = ancestors
+            self.dirty = True
 
         return self._ancestors_cache[node]
 

@@ -156,7 +156,7 @@ pysqlite3-binary==0.4.6
     # via -r requirements.in
 pytest-cov==2.12.1
     # via -r requirements.in
-pytest-django==4.3.0
+pytest-django==4.4.0
     # via -r requirements.in
 pytest-subtests==0.5.0
     # via -r requirements.in

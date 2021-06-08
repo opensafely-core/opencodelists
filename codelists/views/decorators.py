@@ -65,7 +65,7 @@ def load_version(view_fn):
             return redirect(version.get_builder_url("draft"))
         else:
             rsp = view_fn(request, version, **view_kwargs)
-            if version.hierarchy.dirty:
+            if version.has_hierarchy and version.hierarchy.dirty:
                 cache_hierarchy(version=version)
             return rsp
 

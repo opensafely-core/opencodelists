@@ -186,7 +186,7 @@ class Codeset:
 
         code_to_status_updates = {
             code: self.hierarchy.node_status(code, directly_included, directly_excluded)
-            for code in self.code_to_status
+            for code in codes_to_update
         }
 
         updated_code_to_status = {**self.code_to_status, **code_to_status_updates}

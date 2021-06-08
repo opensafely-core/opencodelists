@@ -32,7 +32,7 @@ def test_post_with_csv(client, organisation_user, disorder_of_elbow_csv_data_no_
     version = codelist.versions.get()
 
     assert response.redirect_chain[-1][0] == version.get_absolute_url()
-    assert not version.in_progress
+    assert version.is_published
 
 
 def test_post_without_csv(client, organisation_user):
@@ -50,7 +50,7 @@ def test_post_without_csv(client, organisation_user):
     version = codelist.versions.get()
 
     assert response.redirect_chain[-1][0] == version.get_builder_url("draft")
-    assert version.in_progress
+    assert version.is_draft
 
 
 def test_post_create_organisation_codelist(client, organisation_user, organisation):
@@ -68,7 +68,7 @@ def test_post_create_organisation_codelist(client, organisation_user, organisati
     version = codelist.versions.get()
 
     assert response.redirect_chain[-1][0] == version.get_builder_url("draft")
-    assert version.in_progress
+    assert version.is_draft
 
 
 def test_post_invalid_with_csv(client, organisation_user):

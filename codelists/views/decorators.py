@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404, redirect
 from opencodelists.hash_utils import unhash
 from opencodelists.models import Organisation, User
 
+from ..actions import cache_hierarchy
 from ..models import Codelist, CodelistVersion
 
 
@@ -63,7 +64,10 @@ def load_version(view_fn):
         if version.draft_owner:
             return redirect(version.get_builder_url("draft"))
         else:
-            return view_fn(request, version, **view_kwargs)
+            rsp = view_fn(request, version, **view_kwargs)
+            if version.hierarchy.dirty:
+                cache_hierarchy(version=version)
+            return rsp
 
     return wrapped_view
 

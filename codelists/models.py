@@ -307,9 +307,34 @@ class CodelistVersion(models.Model):
     def full_slug(self):
         return f"{self.codelist.full_slug()}/{self.tag_or_hash}"
 
-    @property
-    def in_progress(self):
-        return self.draft_owner
+    def calculate_hierarchy(self):
+        """Return Hierarchy of codes related to this CodelistVersion."""
+
+        if self.csv_data:
+            return self._calculate_old_style_hierarchy()
+        else:
+            return self._calculate_new_style_hierarchy()
+
+    def _calculate_old_style_hierarchy(self):
+        if not hasattr(self.coding_system, "ancestor_relationships"):
+            # If coding system does not define relationships, then we cannot build a
+            # hierarchy, and so it's not clear what a hierarchy is for.
+            return
+
+        return Hierarchy.from_codes(self.coding_system, self.codes)
+
+    def _calculate_new_style_hierarchy(self):
+        code_to_status = dict(self.code_objs.values_list("code", "status"))
+        return Hierarchy.from_codes(self.coding_system, list(code_to_status))
+
+    @cached_property
+    def hierarchy(self):
+        """Return Hierarchy of codes related to this CodelistVersion.
+
+        It is expected that this version will already have a corresponding
+        cached_hierarchy object.
+        """
+        return Hierarchy.from_cache(self.cached_hierarchy.data)
 
     @property
     def codeset(self):
@@ -326,13 +351,11 @@ class CodelistVersion(models.Model):
             # hierarchy, and so it's not clear what a codeset is for.
             return
 
-        hierarchy = Hierarchy.from_codes(self.coding_system, self.codes)
-        return Codeset.from_codes(set(self.codes), hierarchy)
+        return Codeset.from_codes(set(self.codes), self.hierarchy)
 
     def _new_style_codeset(self):
         code_to_status = dict(self.code_objs.values_list("code", "status"))
-        hierarchy = Hierarchy.from_codes(self.coding_system, list(code_to_status))
-        return Codeset(code_to_status, hierarchy)
+        return Codeset(code_to_status, self.hierarchy)
 
     @property
     def table(self):
@@ -349,14 +372,6 @@ class CodelistVersion(models.Model):
         rows = [["code", "term"]]
         rows.extend([code, code_to_term.get(code, "[Unknown]")] for code in self.codes)
         return rows
-
-    @property
-    def all_related_codes(self):
-        # TODO do we need this?
-        if self.csv_data:
-            return self._old_style_codes()
-        else:
-            return self.code_objs.values_list("code", flat=True)
 
     @cached_property
     def codes(self):
@@ -418,6 +433,20 @@ class CodelistVersion(models.Model):
     @property
     def is_published(self):
         return self.status == Status.PUBLISHED
+
+
+class CachedHierarchy(models.Model):
+    """A model to store a JSON representation of a version's hierarchy.
+
+    There is no technical reason why data is not a column on CodelistVersion.  However,
+    putting it in a separate table makes it easier to do "select * from
+    codelistversion" in a terminal.
+    """
+
+    version = models.OneToOneField(
+        "CodelistVersion", related_name="cached_hierarchy", on_delete=models.CASCADE
+    )
+    data = models.TextField()
 
 
 class CodeObj(models.Model):

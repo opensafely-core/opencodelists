@@ -1,3 +1,5 @@
+from codelists.hierarchy import Hierarchy
+
 from .helpers import build_hierarchy, build_small_hierarchy
 
 
@@ -209,3 +211,23 @@ def test_node_status():
         "i": "(+)",
         "j": "(-)",
     }
+
+
+def test_cache_roundtrip():
+    hierarchy = build_hierarchy()
+
+    # populate parts of _descendants_cache and _ancestors_cache
+    hierarchy.descendants("d")
+    hierarchy.ancestors("d")
+
+    hierarchy1 = Hierarchy.from_cache(hierarchy.data_for_cache())
+
+    for name in [
+        "root",
+        "nodes",
+        "child_map",
+        "parent_map",
+        "_descendants_cache",
+        "_ancestors_cache",
+    ]:
+        assert getattr(hierarchy, name) == getattr(hierarchy1, name)

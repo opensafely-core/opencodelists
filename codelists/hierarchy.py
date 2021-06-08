@@ -1,8 +1,6 @@
+import json
 from collections import defaultdict
-from functools import lru_cache
 from itertools import chain
-
-from django.utils.functional import cached_property
 
 
 class Hierarchy:
@@ -16,7 +14,22 @@ class Hierarchy:
         """
 
         self.root = root
-        self.edges = edges
+
+        self.nodes = set()
+        child_map = defaultdict(set)
+        parent_map = defaultdict(set)
+
+        for parent, child in edges:
+            self.nodes.add(parent)
+            self.nodes.add(child)
+            child_map[parent].add(child)
+            parent_map[child].add(parent)
+
+        self.child_map = dict(child_map)
+        self.parent_map = dict(parent_map)
+
+        self._descendants_cache = {}
+        self._ancestors_cache = {}
 
     @classmethod
     def from_codes(cls, coding_system, codes):
@@ -42,30 +55,50 @@ class Hierarchy:
 
         return cls(coding_system.root, edges)
 
-    @cached_property
-    def nodes(self):
-        """Set of nodes in graph."""
-        return set(chain.from_iterable(self.edges))
+    @classmethod
+    def from_cache(cls, data):
+        instance = cls.__new__(cls)
+        data = json.loads(data)
+        instance.root = data["root"]
+        instance.nodes = set(data["nodes"])
+        instance.child_map = {
+            parent: set(children) for parent, children in data["child_map"].items()
+        }
+        instance.parent_map = {
+            child: set(parents) for child, parents in data["parent_map"].items()
+        }
+        instance._descendants_cache = {
+            ancestor: set(descendants)
+            for ancestor, descendants in data["_descendants_cache"].items()
+        }
+        instance._ancestors_cache = {
+            descendant: set(ancestors)
+            for descendant, ancestors in data["_ancestors_cache"].items()
+        }
+        instance.dirty = False
+        return instance
 
-    @cached_property
-    def child_map(self):
-        """Dict mapping each node to the set of its immediate children."""
+    def data_for_cache(self):
+        data = {
+            "root": self.root,
+            "nodes": list(self.nodes),
+            "child_map": {
+                parent: list(children) for parent, children in self.child_map.items()
+            },
+            "parent_map": {
+                child: list(parents) for child, parents in self.parent_map.items()
+            },
+            "_descendants_cache": {
+                ancestor: list(descendants)
+                for ancestor, descendants in self._descendants_cache.items()
+            },
+            "_ancestors_cache": {
+                descendant: list(ancestors)
+                for descendant, ancestors in self._ancestors_cache.items()
+            },
+        }
+        return json.dumps(data)
 
-        m = defaultdict(set)
-        for parent, child in self.edges:
-            m[parent].add(child)
-        return dict(m)
-
-    @cached_property
-    def parent_map(self):
-        """Dict mapping each node to the set of its immediate parents."""
-
-        m = defaultdict(set)
-        for parent, child in self.edges:
-            m[child].add(parent)
-        return dict(m)
-
-    @lru_cache(maxsize=None)
     def descendants(self, node):
         """Return set of descendants of node.
 
@@ -73,24 +106,31 @@ class Hierarchy:
         descendants.
         """
 
-        descendants = set()
-        for child in self.child_map.get(node, []):
-            descendants.add(child)
-            descendants |= self.descendants(child)
-        return descendants
+        if node not in self._descendants_cache:
+            descendants = set()
+            for child in self.child_map.get(node, []):
+                descendants.add(child)
+                descendants |= self.descendants(child)
+            self._descendants_cache[node] = descendants
+            self.dirty = True
 
-    @lru_cache(maxsize=None)
+        return self._descendants_cache[node]
+
     def ancestors(self, node):
         """Return set of ancestors of node.
 
         A node's ancestors are the node's parents, plus all the parents' ancestors.
         """
 
-        ancestors = set()
-        for parent in self.parent_map.get(node, []):
-            ancestors.add(parent)
-            ancestors |= self.ancestors(parent)
-        return ancestors
+        if node not in self._ancestors_cache:
+            ancestors = set()
+            for parent in self.parent_map.get(node, []):
+                ancestors.add(parent)
+                ancestors |= self.ancestors(parent)
+            self._ancestors_cache[node] = ancestors
+            self.dirty = True
+
+        return self._ancestors_cache[node]
 
     def filter_to_ultimate_ancestors(self, nodes):
         """Given a set of nodes, return subset which have no ancestors in the set."""

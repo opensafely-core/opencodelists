@@ -307,6 +307,10 @@ class CodelistVersion(models.Model):
     def full_slug(self):
         return f"{self.codelist.full_slug()}/{self.tag_or_hash}"
 
+    @property
+    def has_hierarchy(self):
+        return hasattr(self.coding_system, "ancestor_relationships")
+
     def calculate_hierarchy(self):
         """Return Hierarchy of codes related to this CodelistVersion."""
 
@@ -316,7 +320,7 @@ class CodelistVersion(models.Model):
             return self._calculate_new_style_hierarchy()
 
     def _calculate_old_style_hierarchy(self):
-        if not hasattr(self.coding_system, "ancestor_relationships"):
+        if not self.has_hierarchy:
             # If coding system does not define relationships, then we cannot build a
             # hierarchy, and so it's not clear what a hierarchy is for.
             return
@@ -346,7 +350,7 @@ class CodelistVersion(models.Model):
             return self._new_style_codeset()
 
     def _old_style_codeset(self):
-        if not hasattr(self.coding_system, "ancestor_relationships"):
+        if not self.has_hierarchy:
             # If coding system does not define relationships, then we cannot build a
             # hierarchy, and so it's not clear what a codeset is for.
             return

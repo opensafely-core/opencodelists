@@ -228,6 +228,35 @@ def test_create_version_from_ecl_expr(new_style_codelist):
     assert clv.codes == ("429554009", "439656005")
 
 
+def test_update_codelist(new_style_codelist, organisation_user, organisation_admin):
+    updated_references = [
+        {"text": "Reference 1 updated", "url": "https://example.com/reference1"},
+        {"text": "Reference 3", "url": "https://example.com/reference3"},
+    ]
+    updated_signoffs = [
+        {"user": organisation_user, "date": "2020-03-29"},
+        {"user": organisation_admin, "date": "2020-03-30"},
+    ]
+    actions.update_codelist(
+        codelist=new_style_codelist,
+        description="updated description",
+        methodology="updated methodology",
+        references=updated_references,
+        signoffs=updated_signoffs,
+    )
+
+    assert new_style_codelist.description == "updated description"
+    assert new_style_codelist.methodology == "updated methodology"
+    assert (
+        list(new_style_codelist.references.order_by("url").values("text", "url"))
+        == updated_references
+    )
+    assert [
+        {"user": signoff.user, "date": str(signoff.date)}
+        for signoff in new_style_codelist.signoffs.order_by("date")
+    ] == updated_signoffs
+
+
 def test_publish(version_under_review):
     # The codelist has one published version and two versions under review.  When we
     # publish one of the versions under review, we expect the other one to be deleted.

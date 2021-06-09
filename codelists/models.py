@@ -522,6 +522,9 @@ class SignOff(models.Model):
     user = models.ForeignKey("opencodelists.User", on_delete=models.CASCADE)
     date = models.DateField()
 
+    class Meta:
+        unique_together = [("codelist", "user")]
+
 
 class Reference(models.Model):
     codelist = models.ForeignKey(
@@ -529,6 +532,9 @@ class Reference(models.Model):
     )
     text = models.CharField(max_length=255)
     url = models.URLField(max_length=1000)
+
+    class Meta:
+        unique_together = [("codelist", "url")]
 
 
 class Collaboration(models.Model):

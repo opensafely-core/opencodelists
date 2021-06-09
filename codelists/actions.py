@@ -58,22 +58,19 @@ def create_or_update_codelist(
     references=None,
     signoffs=None,
 ):
-    if not slug:
-        slug = slugify(name)
+    slug = slug or slugify(name)
+    references = references or []
+    signoffs = signoffs or []
 
     try:
-        handle = owner.handles.get(slug=slug)
-        codelist = handle.codelist
-
-        # We don't yet handle updating a codelist's references/signoffs except via a
-        # ModelForm.  TODO fix this.
-        assert references is None
-        assert signoffs is None
+        codelist = owner.handles.get(slug=slug).codelist
 
         update_codelist(
             codelist=codelist,
             description=description,
             methodology=methodology,
+            references=references,
+            signoffs=signoffs,
         )
         create_version_with_codes(
             codelist=codelist,
@@ -320,13 +317,40 @@ def _create_version_with_codes(
 
 
 @transaction.atomic
-def update_codelist(*, codelist, description, methodology):
-    """Update a Codelist."""
+def update_codelist(*, codelist, description, methodology, references, signoffs):
+    """Update a Codelist.
+
+        codelist: the codelist to update
+        description: the codelist's description
+        description: the codelist's methodology
+        references: a list of dicts with keys `text` and `url`
+        signoffs: a list of dicts with keys `user` and `date`
+
+    Any existing references or signoffs not provided in parameters will be deleted.
+    Other references or signoffs will be created or updated as necessary.
+    """
 
     codelist.description = description
     codelist.methodology = methodology
-
     codelist.save()
+
+    existing_reference_urls = {reference.url for reference in codelist.references.all()}
+    updated_reference_urls = {reference["url"] for reference in references}
+
+    for url in existing_reference_urls - updated_reference_urls:
+        codelist.references.get(url=url).delete()
+
+    for reference in references:
+        codelist.references.update_or_create(url=reference["url"], defaults=reference)
+
+    existing_signoff_users = {signoff.user for signoff in codelist.signoffs.all()}
+    updated_signoff_users = {signoff["user"] for signoff in signoffs}
+
+    for user in existing_signoff_users - updated_signoff_users:
+        codelist.signoffs.get(user=user).delete()
+
+    for signoff in signoffs:
+        codelist.signoffs.update_or_create(user=signoff["user"], defaults=signoff)
 
     logger.info("Updated Codelist", codelist_pk=codelist.pk)
 

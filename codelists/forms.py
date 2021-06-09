@@ -38,8 +38,22 @@ class ReferenceForm(forms.ModelForm):
         ]
 
 
+class BaseReferenceFormset(forms.BaseModelFormSet):
+    def clean(self):
+        """Checks that no two references have the same URL."""
+
+        urls = [
+            form.cleaned_data.get("url")
+            for form in self.forms
+            if not self._should_delete_form(form)
+        ]
+
+        if len(urls) != len(set(urls)):
+            raise forms.ValidationError("References must have distinct URLs.")
+
+
 ReferenceFormSet = forms.modelformset_factory(
-    Reference, form=ReferenceForm, can_delete=True
+    Reference, form=ReferenceForm, formset=BaseReferenceFormset, can_delete=True
 )
 
 
@@ -54,7 +68,23 @@ class SignOffForm(forms.ModelForm):
         ]
 
 
-SignOffFormSet = forms.modelformset_factory(SignOff, form=SignOffForm, can_delete=True)
+class BaseSignoffFormset(forms.BaseModelFormSet):
+    def clean(self):
+        """Checks that no two signoffs have the same user."""
+
+        users = [
+            form.cleaned_data.get("user")
+            for form in self.forms
+            if not self._should_delete_form(form)
+        ]
+
+        if len(users) != len(set(users)):
+            raise forms.ValidationError("Signoffs must have distinct users.")
+
+
+SignOffFormSet = forms.modelformset_factory(
+    SignOff, form=SignOffForm, formset=BaseSignoffFormset, can_delete=True
+)
 
 
 class CSVValidationMixin:

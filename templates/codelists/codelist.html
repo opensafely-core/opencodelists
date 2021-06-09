@@ -18,6 +18,14 @@
 
     <h4 class="mb-3">References</h4>
 
+    {% if reference_formset.non_form_errors %}
+    <ul class="list-unstyled my-2">
+      {% for error in reference_formset.non_form_errors %}
+      <li class="text-danger">{{ error }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+
     {{ reference_formset.management_form }}
 
     <div class="d-none template">
@@ -35,6 +43,14 @@
   <div id="signoff-forms" class="mb-5">
 
     <h4 class="mb-3">Sign Offs</h4>
+
+    {% if signoff_formset.non_form_errors %}
+    <ul class="list-unstyled my-2">
+      {% for error in signoff_formset.non_form_errors %}
+      <li class="text-danger">{{ error }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
 
     {{ signoff_formset.management_form }}
 

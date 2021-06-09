@@ -128,15 +128,62 @@ def test_post_invalid(client, codelist):
     assert response.context_data["signoff_formset"].errors
 
 
+def test_post_invalid_with_duplicates(client, codelist):
+    signoff_1 = codelist.signoffs.first()
+    signoff_2 = codelist.signoffs.last()
+    reference_1 = codelist.references.first()
+    reference_2 = codelist.references.last()
+
+    data = {
+        "description": "This is what we did",
+        "methodology": "This is how we did it",
+        "reference-TOTAL_FORMS": "2",
+        "reference-INITIAL_FORMS": "2",
+        "reference-MIN_NUM_FORMS": "0",
+        "reference-MAX_NUM_FORMS": "1000",
+        "reference-0-url": reference_1.url,
+        "reference-0-text": reference_1.text,
+        "reference-0-id": reference_1.id,
+        "reference-1-url": reference_1.url,  # this duplicates references-0-url
+        "reference-1-text": reference_2.text,
+        "reference-1-id": reference_2.id,
+        "signoff-TOTAL_FORMS": "2",
+        "signoff-INITIAL_FORMS": "2",
+        "signoff-MIN_NUM_FORMS": "0",
+        "signoff-MAX_NUM_FORMS": "1000",
+        "signoff-0-user": signoff_1.user.username,
+        "signoff-0-date": signoff_1.date,
+        "signoff-0-id": signoff_1.id,
+        "signoff-1-user": signoff_1.user.username,  # this duplicates signoff-0-user
+        "signoff-1-date": signoff_2.date,
+        "signoff-1-id": signoff_2.id,
+    }
+
+    force_login(codelist, client)
+    response = client.post(codelist.get_update_url(), data=data)
+
+    # we're returning an HTML response when there are errors so check we don't
+    # receive a redirect code
+    assert response.status_code == 200
+
+    # confirm we have errors from the formsets
+    assert response.context_data["signoff_formset"].non_form_errors() == [
+        "Signoffs must have distinct users."
+    ]
+    assert response.context_data["reference_formset"].non_form_errors() == [
+        "References must have distinct URLs."
+    ]
+
+
 def test_collaborator_can_post(client, codelist_with_collaborator, collaborator):
     data = {
         "description": "This is a test CHANGED",
         "methodology": "This is how we did it",
-        "reference-TOTAL_FORMS": "3",
+        "reference-TOTAL_FORMS": "0",
         "reference-INITIAL_FORMS": "0",
         "reference-MIN_NUM_FORMS": "0",
         "reference-MAX_NUM_FORMS": "1000",
-        "signoff-TOTAL_FORMS": "3",
+        "signoff-TOTAL_FORMS": "0",
         "signoff-INITIAL_FORMS": "0",
         "signoff-MIN_NUM_FORMS": "0",
         "signoff-MAX_NUM_FORMS": "1000",

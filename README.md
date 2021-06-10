@@ -98,3 +98,11 @@ On the server, use `with_environment.sh` to run a management command in the virt
 ```
 ./with_environment.sh ./manage.py shell
 ```
+
+# About the OpenSAFELY framework
+
+The OpenSAFELY framework is a Trusted Research Environment (TRE) for electronic
+health records research in the NHS, with a focus on public accountability and
+research quality.
+
+Read more at [OpenSAFELY.org](https://opensafely.org).

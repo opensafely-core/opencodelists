@@ -1,6 +1,6 @@
 # OpenCodelists
 
-OpenCodelists is a rapidly-changing work in progress.  It will be a platform for the development and dissemination of codelists for use in medical research.
+OpenCodelists is a platform for the development and dissemination of codelists for use in medical research.
 
 It is part of the [OpenSAFELY](https://opensafely.org) project, and is currently served from [www.opencodelists.org](https://www.opencodelists.org).
 

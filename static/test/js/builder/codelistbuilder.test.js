@@ -1,3 +1,7 @@
+/**
+ * @jest-environment jsdom
+ */
+
 "use strict";
 
 import React from "react";

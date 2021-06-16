@@ -29,7 +29,7 @@ def create_venv():
 
 def update_from_git():
     run("git fetch --all --quiet")
-    run("git checkout --force origin/master")
+    run("git checkout --force origin/main")
 
 
 def install_python_requirements():

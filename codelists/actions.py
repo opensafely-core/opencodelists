@@ -436,6 +436,8 @@ def cache_hierarchy(*, version, hierarchy=None):
     hierarchy.
     """
 
+    if not version.has_hierarchy:
+        return
     if hierarchy is None:
         hierarchy = version.calculate_hierarchy()
     cached_hierarchy, _ = CachedHierarchy.objects.get_or_create(version=version)

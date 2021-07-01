@@ -50,6 +50,14 @@ dataclasses==0.7
     # via black
 distlib==0.3.1
     # via virtualenv
+django==3.2.5
+    # via
+    #   -r requirements.in
+    #   django-cors-headers
+    #   django-debug-toolbar
+    #   django-extensions
+    #   django-structlog
+    #   djangorestframework
 django-cors-headers==3.7.0
     # via -r requirements.in
 django-crispy-forms==1.12.0
@@ -62,14 +70,6 @@ django-ipware==3.0.1
     # via django-structlog
 django-structlog==2.1.1
     # via -r requirements.in
-django==3.2.4
-    # via
-    #   -r requirements.in
-    #   django-cors-headers
-    #   django-debug-toolbar
-    #   django-extensions
-    #   django-structlog
-    #   djangorestframework
 djangorestframework==3.12.4
     # via -r requirements.in
 et-xmlfile==1.0.1
@@ -154,17 +154,17 @@ pyparsing==2.4.7
     # via packaging
 pysqlite3-binary==0.4.6
     # via -r requirements.in
+pytest==6.0.1
+    # via
+    #   pytest-cov
+    #   pytest-django
+    #   pytest-subtests
 pytest-cov==2.12.1
     # via -r requirements.in
 pytest-django==4.4.0
     # via -r requirements.in
 pytest-subtests==0.5.0
     # via -r requirements.in
-pytest==6.0.1
-    # via
-    #   pytest-cov
-    #   pytest-django
-    #   pytest-subtests
 pytz==2020.1
     # via django
 pyyaml==5.4

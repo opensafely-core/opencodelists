@@ -100,7 +100,7 @@ importlib-resources==3.3.0
     #   virtualenv
 iniconfig==1.0.1
     # via pytest
-isort==5.8.0
+isort==5.9.1
     # via -r requirements.in
 litecli==1.6.0
     # via -r requirements.in

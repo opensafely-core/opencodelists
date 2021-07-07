@@ -1,6 +1,8 @@
 import pytest
+from django.core.exceptions import ObjectDoesNotExist
 
 from builder import actions
+from opencodelists.tests.assertions import assert_difference
 
 
 def test_create_search(version_from_scratch):
@@ -156,3 +158,18 @@ def test_save(draft_with_no_searches):
     draft.refresh_from_db()
     assert draft.draft_owner is None
     assert draft.is_under_review
+
+
+def test_discard_draft(draft_with_complete_searches):
+    codelist = draft_with_complete_searches.codelist
+    with assert_difference(codelist.versions.count, expected_difference=-1):
+        actions.discard_draft(draft=draft_with_complete_searches)
+    with pytest.raises(ObjectDoesNotExist):
+        draft_with_complete_searches.refresh_from_db()
+
+
+def test_discard_draft_from_scratch(version_from_scratch):
+    codelist = version_from_scratch.codelist
+    actions.discard_draft(draft=version_from_scratch)
+    with pytest.raises(ObjectDoesNotExist):
+        codelist.refresh_from_db()

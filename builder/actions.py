@@ -84,7 +84,11 @@ def save(*, draft):
     draft.save()
 
 
+@transaction.atomic
 def discard_draft(*, draft):
     """Delete draft."""
 
-    draft.delete()
+    if draft.codelist.versions.count() == 1:
+        draft.codelist.delete()
+    else:
+        draft.delete()

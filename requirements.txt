@@ -18,7 +18,7 @@ attrs==19.3.0
     #   pytest
 bcrypt==3.1.7
     # via paramiko
-black==21.6b0
+black==21.7b0
     # via -r requirements.in
 bleach==3.3.1
     # via -r requirements.in
@@ -200,11 +200,12 @@ terminaltables==3.1.0
     # via cli-helpers
 toml==0.10.1
     # via
-    #   black
     #   pep517
     #   pre-commit
     #   pytest
     #   pytest-cov
+tomli==1.2.0
+    # via black
 typed-ast==1.4.3
     # via black
 typing-extensions==3.7.4.3

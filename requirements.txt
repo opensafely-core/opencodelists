@@ -224,7 +224,7 @@ webencodings==0.5.1
     # via bleach
 wheel==0.36.2
     # via pip-tools
-whitenoise==5.2.0
+whitenoise==5.3.0
     # via -r requirements.in
 zipp==3.4.0
     # via

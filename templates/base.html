@@ -89,10 +89,10 @@
     <script>
       if (document.location.hostname === "www.opencodelists.org") {
         var script = document.createElement("script");
-        script.async = true;
         script.defer = true;
         script.setAttribute("data-domain", "opencodelists.org");
-        script.src = "https://pa.opencodelists.org/js/index.js";
+        script.id = "plausible";
+        script.src = "https://plausible.io/js/plausible.compat.js";
         document.head.appendChild(script);
       }
     </script>

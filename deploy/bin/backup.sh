@@ -3,7 +3,7 @@
 set -euo pipefail
 
 REPO_ROOT=$(dirname "$(dirname "$(dirname "$0")")")
-BACKUP_PATH="/mnt/volume-lon1-01/opencodelists-backups/core-data-$(date +%F).json.gz"
+BACKUP_DIR="/mnt/volume-lon1-01/opencodelists-backups"
 
 "$REPO_ROOT"/with_environment.sh \
         python \
@@ -12,7 +12,7 @@ BACKUP_PATH="/mnt/volume-lon1-01/opencodelists-backups/core-data-$(date +%F).jso
         builder codelists opencodelists \
         --indent 2 \
         --verbosity 0 \
-        --output "$BACKUP_PATH"
+        --output "${BACKUP_DIR}/core-data-$(date +%F).json.gz"
 
 # Keep only the last 30 backups
-find "$BACKUP_PATH" -name "core-data-*.json.gz" | sort | head -n -30 | xargs rm
+find "$BACKUP_DIR" -name "core-data-*.json.gz" | sort | head -n -30 | xargs rm

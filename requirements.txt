@@ -18,7 +18,7 @@ bcrypt==3.1.7
     # via paramiko
 black==21.8b0
     # via -r requirements.in
-bleach==4.0.0
+bleach==4.1.0
     # via -r requirements.in
 certifi==2020.4.5.1
     # via sentry-sdk

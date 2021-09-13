@@ -80,7 +80,7 @@ flake8==3.9.2
     # via -r requirements.in
 gunicorn==20.1.0
     # via -r requirements.in
-hypothesis==6.17.4
+hypothesis==6.21.1
     # via -r requirements.in
 identify==1.4.25
     # via pre-commit

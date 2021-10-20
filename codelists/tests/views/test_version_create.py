@@ -17,4 +17,4 @@ def test_post_success(client, version):
 
     draft = version.codelist.versions.get(draft_owner__isnull=False)
     assert response.status_code == 302
-    assert response.url == draft.get_builder_url("draft")
+    assert response.url == draft.get_builder_draft_url()

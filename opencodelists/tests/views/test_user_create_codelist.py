@@ -49,7 +49,7 @@ def test_post_without_csv(client, organisation_user):
     codelist = organisation_user.codelists.get(handles__name="Test")
     version = codelist.versions.get()
 
-    assert response.redirect_chain[-1][0] == version.get_builder_url("draft")
+    assert response.redirect_chain[-1][0] == version.get_builder_draft_url()
     assert version.is_draft
 
 
@@ -67,7 +67,7 @@ def test_post_create_organisation_codelist(client, organisation_user, organisati
     codelist = organisation.codelists.get(handles__name="Test")
     version = codelist.versions.get()
 
-    assert response.redirect_chain[-1][0] == version.get_builder_url("draft")
+    assert response.redirect_chain[-1][0] == version.get_builder_draft_url()
     assert version.is_draft
 
 

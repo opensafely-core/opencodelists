@@ -74,7 +74,7 @@ def _draft(request, draft, search_slug):
     searches = [
         {
             "term_or_code": s.term_or_code,
-            "url": draft.get_builder_url("search", s.slug),
+            "url": draft.get_builder_search_url(s.slug),
             "active": s == search,
         }
         for s in draft.searches.order_by("term")
@@ -84,7 +84,7 @@ def _draft(request, draft, search_slug):
         searches.append(
             {
                 "term": "[no search term]",
-                "url": draft.get_builder_url("no-search-term"),
+                "url": draft.get_builder_no_search_term_url(),
                 "active": search_slug == NO_SEARCH_TERM,
             }
         )
@@ -123,9 +123,9 @@ def _draft(request, draft, search_slug):
             "Start building your codelist by searching for a term or a code"
         )
 
-    draft_url = draft.get_builder_url("draft")
-    update_url = draft.get_builder_url("update")
-    search_url = draft.get_builder_url("new-search")
+    draft_url = draft.get_builder_draft_url()
+    update_url = draft.get_builder_update_url()
+    search_url = draft.get_builder_new_search_url()
 
     versions = [
         {
@@ -206,4 +206,4 @@ def new_search(request, draft):
     if not codes:
         messages.info(request, f'There are no results for "{term}"')
 
-    return redirect(draft.get_builder_url("search", search.slug))
+    return redirect(draft.get_builder_search_url(search.slug))

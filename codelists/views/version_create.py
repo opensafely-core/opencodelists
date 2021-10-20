@@ -12,4 +12,4 @@ from .decorators import load_version, require_permission
 @require_permission
 def version_create(request, version):
     draft = actions.export_to_builder(version=version, owner=request.user)
-    return redirect(draft.get_builder_url("draft"))
+    return redirect(draft.get_builder_draft_url())

@@ -44,7 +44,7 @@ class Command(BaseCommand):
             if version_key != "version_from_scratch":
                 draft = export_to_builder(version=version, owner=organisation_user)
 
-            rsp = client.get(draft.get_builder_url("draft"))
+            rsp = client.get(draft.get_builder_draft_url())
             data = {
                 context_key: rsp.context[context_key]
                 for context_key in [

@@ -88,7 +88,7 @@ def test_load_draft_version(draft_with_some_searches):
         tag_or_hash=draft.hash,
     )
     assert rsp.status_code == 302
-    assert rsp.url == draft.get_builder_url("draft")
+    assert rsp.url == draft.get_builder_draft_url()
 
 
 def test_load_owner_for_organisation_404():

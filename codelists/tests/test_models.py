@@ -4,19 +4,25 @@ from django.db.utils import IntegrityError
 from codelists.models import CodelistVersion, Handle
 
 
-def test_handle_cannot_belong_to_user_and_organisation(user, organisation):
-    with pytest.raises(IntegrityError):
+def test_handle_cannot_belong_to_user_and_organisation(codelist, user, organisation):
+    with pytest.raises(IntegrityError, match="codelists_handle_organisation_xor_user"):
         Handle.objects.create(
+            codelist=codelist,
             name="Test",
+            slug="test",
+            is_current=True,
             user=user,
             organisation=organisation,
         )
 
 
-def test_handle_must_belong_to_user_or_organisation():
-    with pytest.raises(IntegrityError):
+def test_handle_must_belong_to_user_or_organisation(codelist):
+    with pytest.raises(IntegrityError, match="codelists_handle_organisation_xor_user"):
         Handle.objects.create(
+            codelist=codelist,
             name="Test",
+            slug="test",
+            is_current=True,
         )
 
 

@@ -26,6 +26,84 @@ def test_handle_must_belong_to_user_or_organisation(codelist):
         )
 
 
+def test_handle_slug_and_name_can_be_reused_by_different_organisation(
+    codelist, another_organisation
+):
+    Handle.objects.create(
+        codelist=codelist,
+        name=codelist.name,
+        slug=codelist.slug,
+        is_current=True,
+        organisation=another_organisation,
+    )
+
+
+def test_handle_slug_and_name_can_be_reused_by_different_user(codelist, user):
+    Handle.objects.create(
+        codelist=codelist,
+        name=codelist.name,
+        slug=codelist.slug,
+        is_current=True,
+        user=user,
+    )
+
+
+def test_handle_slug_cannot_be_reused_by_organisation(codelist):
+    with pytest.raises(
+        IntegrityError,
+        match="UNIQUE constraint failed: codelists_handle.organisation_id, codelists_handle.slug",
+    ):
+        Handle.objects.create(
+            codelist=codelist,
+            name="New name",
+            slug=codelist.slug,
+            is_current=True,
+            organisation=codelist.organisation,
+        )
+
+
+def test_handle_name_cannot_be_reused_by_organisation(codelist):
+    with pytest.raises(
+        IntegrityError,
+        match="UNIQUE constraint failed: codelists_handle.organisation_id, codelists_handle.name",
+    ):
+        Handle.objects.create(
+            codelist=codelist,
+            name=codelist.name,
+            slug="new-slug",
+            is_current=True,
+            organisation=codelist.organisation,
+        )
+
+
+def test_handle_slug_cannot_be_reused_by_user(user_codelist):
+    with pytest.raises(
+        IntegrityError,
+        match="UNIQUE constraint failed: codelists_handle.user_id, codelists_handle.slug",
+    ):
+        Handle.objects.create(
+            codelist=user_codelist,
+            name="New name",
+            slug=user_codelist.slug,
+            is_current=True,
+            user=user_codelist.user,
+        )
+
+
+def test_handle_name_cannot_be_reused_by_user(user_codelist):
+    with pytest.raises(
+        IntegrityError,
+        match="UNIQUE constraint failed: codelists_handle.user_id, codelists_handle.name",
+    ):
+        Handle.objects.create(
+            codelist=user_codelist,
+            name=user_codelist.name,
+            slug="new-slug",
+            is_current=True,
+            user=user_codelist.user,
+        )
+
+
 def test_old_style_codes(old_style_version):
     assert old_style_version.codes == (
         "128133004",

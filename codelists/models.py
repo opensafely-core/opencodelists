@@ -178,7 +178,12 @@ class Handle(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = [("organisation", "name", "slug"), ("user", "name", "slug")]
+        unique_together = [
+            ("organisation", "slug"),
+            ("organisation", "name"),
+            ("user", "slug"),
+            ("user", "name"),
+        ]
         constraints = [
             models.CheckConstraint(
                 name="%(app_label)s_%(class)s_organisation_xor_user",

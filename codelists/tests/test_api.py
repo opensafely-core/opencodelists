@@ -9,20 +9,15 @@ def test_codelists(client, organisation):
     assert rsp.status_code == 200
     assert data["codelists"] == [
         {
-            "full_slug": "test-university/old-style-codelist",
-            "slug": "old-style-codelist",
-            "name": "Old-style Codelist",
+            "full_slug": "test-university/codelist-from-scratch",
+            "slug": "codelist-from-scratch",
+            "name": "Codelist From Scratch",
             "versions": [
                 {
-                    "hash": "66f08cca",
+                    "hash": "69a34cc0",
                     "tag": None,
-                    "full_slug": "test-university/old-style-codelist/66f08cca",
-                },
-                {
-                    "hash": "4de11995",
-                    "tag": None,
-                    "full_slug": "test-university/old-style-codelist/4de11995",
-                },
+                    "full_slug": "test-university/codelist-from-scratch/69a34cc0",
+                }
             ],
         },
         {
@@ -48,15 +43,20 @@ def test_codelists(client, organisation):
             ],
         },
         {
-            "full_slug": "test-university/codelist-from-scratch",
-            "slug": "codelist-from-scratch",
-            "name": "Codelist From Scratch",
+            "full_slug": "test-university/old-style-codelist",
+            "slug": "old-style-codelist",
+            "name": "Old-style Codelist",
             "versions": [
                 {
-                    "hash": "69a34cc0",
+                    "hash": "66f08cca",
                     "tag": None,
-                    "full_slug": "test-university/codelist-from-scratch/69a34cc0",
-                }
+                    "full_slug": "test-university/old-style-codelist/66f08cca",
+                },
+                {
+                    "hash": "4de11995",
+                    "tag": None,
+                    "full_slug": "test-university/old-style-codelist/4de11995",
+                },
             ],
         },
     ]

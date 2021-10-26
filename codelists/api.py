@@ -50,7 +50,9 @@ def codelists_get(request, owner):
 
     records = []
 
-    for cl in owner.codelists.prefetch_related("versions").all():
+    for cl in sorted(
+        owner.codelists.prefetch_related("handles", "versions"), key=lambda cl: cl.slug
+    ):
         record = {
             "full_slug": cl.full_slug(),
             "slug": cl.slug,

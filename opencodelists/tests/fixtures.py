@@ -194,6 +194,11 @@ def build_fixtures():
     #   - codelist_from_scratch
     organisation = create_organisation(name="Test University", url="https://test.ac.uk")
 
+    # another_organisation
+    another_organisation = create_organisation(
+        name="Another University", url="https://another.ac.uk"
+    )
+
     # organisation_admin
     # - is admin for organisation
     organisation_admin = create_user(
@@ -519,6 +524,7 @@ disorder_of_elbow_excl_arthritis_csv_data_no_header = build_fixture(
     "disorder_of_elbow_excl_arthritis_csv_data_no_header"
 )
 organisation = build_fixture("organisation")
+another_organisation = build_fixture("another_organisation")
 organisation_admin = build_fixture("organisation_admin")
 organisation_user = build_fixture("organisation_user")
 collaborator = build_fixture("collaborator")

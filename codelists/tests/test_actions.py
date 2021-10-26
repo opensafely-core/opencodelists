@@ -228,7 +228,12 @@ def test_create_version_from_ecl_expr(new_style_codelist):
     assert clv.codes == ("429554009", "439656005")
 
 
-def test_update_codelist(new_style_codelist, organisation_user, organisation_admin):
+def test_update_codelist_unchanged_handle(
+    codelist, organisation_user, organisation_admin
+):
+    # This test verifies that we can update a codelist without changing its handle.  It
+    # verifies that all other fields are updated as expected.
+
     updated_references = [
         {"text": "Reference 1 updated", "url": "https://example.com/reference1"},
         {"text": "Reference 3", "url": "https://example.com/reference3"},
@@ -238,23 +243,132 @@ def test_update_codelist(new_style_codelist, organisation_user, organisation_adm
         {"user": organisation_admin, "date": "2020-03-30"},
     ]
     actions.update_codelist(
-        codelist=new_style_codelist,
+        codelist=codelist,
+        owner=codelist.owner,
+        name=codelist.name,
+        slug=codelist.slug,
         description="updated description",
         methodology="updated methodology",
         references=updated_references,
         signoffs=updated_signoffs,
     )
 
-    assert new_style_codelist.description == "updated description"
-    assert new_style_codelist.methodology == "updated methodology"
+    assert codelist.handles.count() == 1
+    assert codelist.description == "updated description"
+    assert codelist.methodology == "updated methodology"
     assert (
-        list(new_style_codelist.references.order_by("url").values("text", "url"))
+        list(codelist.references.order_by("url").values("text", "url"))
         == updated_references
     )
     assert [
         {"user": signoff.user, "date": str(signoff.date)}
-        for signoff in new_style_codelist.signoffs.order_by("date")
+        for signoff in codelist.signoffs.order_by("date")
     ] == updated_signoffs
+
+
+def test_update_codelist_new_handle(codelist, user):
+    # This test verifies that we can update a codelist's owner, name, and slug.  Doing
+    # so creates a new handle.
+    actions.update_codelist(
+        codelist=codelist,
+        owner=user,
+        name="New name",
+        slug="new-slug",
+        description=codelist.description,
+        methodology=codelist.methodology,
+        references=[],
+        signoffs=[],
+    )
+
+    # codelist.refresh_from_db() isn't enough here -- we need to clear the cached
+    # current_handle property.
+    codelist = Codelist.objects.get(pk=codelist.pk)
+
+    assert codelist.handles.count() == 2
+    assert codelist.owner == user
+    assert codelist.name == "New name"
+    assert codelist.slug == "new-slug"
+
+
+def test_update_codelist_old_handle(codelist, user):
+    # This test verifies that we can revert a codelist's owner, name, and slug to
+    # earlier values.  Doing so does not create a new handle.
+    orig_owner = codelist.owner
+    orig_name = codelist.name
+    orig_slug = codelist.slug
+
+    actions.update_codelist(
+        codelist=codelist,
+        owner=user,
+        name="New name",
+        slug="new-slug",
+        description=codelist.description,
+        methodology=codelist.methodology,
+        references=[],
+        signoffs=[],
+    )
+
+    # codelist.refresh_from_db() isn't enough here -- we need to clear the cached
+    # current_handle property.
+    codelist = Codelist.objects.get(pk=codelist.pk)
+
+    actions.update_codelist(
+        codelist=codelist,
+        owner=orig_owner,
+        name=orig_name,
+        slug=orig_slug,
+        description=codelist.description,
+        methodology=codelist.methodology,
+        references=[],
+        signoffs=[],
+    )
+
+    codelist = Codelist.objects.get(pk=codelist.pk)
+
+    assert codelist.handles.count() == 2
+    assert codelist.owner == orig_owner
+    assert codelist.name == orig_name
+    assert codelist.slug == orig_slug
+
+
+def test_update_codelist_duplicate_slug(new_style_codelist, old_style_codelist):
+    # This test verifies that the correct error is raised when trying to update
+    # the slug of a codelist to the slug of another codelist with the same
+    # owner.
+
+    with pytest.raises(actions.DuplicateHandleError) as e:
+        actions.update_codelist(
+            codelist=new_style_codelist,
+            owner=new_style_codelist.owner,
+            name=new_style_codelist.name,
+            slug=old_style_codelist.slug,
+            description=new_style_codelist.description,
+            methodology=new_style_codelist.methodology,
+            references=[],
+            signoffs=[],
+        )
+
+    assert e._excinfo[1].field == "slug"
+
+
+def test_update_codelist_duplicate_name(new_style_codelist, old_style_codelist):
+    # This test verifies that the correct error is raised when trying to update
+    # the name of a codelist to the name of another codelist with the same
+    # owner.
+
+    with pytest.raises(actions.DuplicateHandleError) as e:
+        actions.update_codelist(
+            codelist=new_style_codelist,
+            owner=new_style_codelist.owner,
+            name=old_style_codelist.name,
+            slug=new_style_codelist.slug,
+            description=new_style_codelist.description,
+            methodology=new_style_codelist.methodology,
+            references=[],
+            signoffs=[],
+        )
+
+    assert e._excinfo[1].field == "name"
 
 
 def test_publish(version_under_review):

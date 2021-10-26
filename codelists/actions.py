@@ -1,5 +1,6 @@
 import structlog
 from django.db import transaction
+from django.db.utils import IntegrityError
 from django.utils.text import slugify
 
 from builder import actions as builder_actions
@@ -66,6 +67,9 @@ def create_or_update_codelist(
         codelist = owner.handles.get(slug=slug).codelist
 
         update_codelist(
+            owner=owner,
+            name=name,
+            slug=slug,
             codelist=codelist,
             description=description,
             methodology=methodology,
@@ -317,7 +321,9 @@ def _create_version_with_codes(
 
 
 @transaction.atomic
-def update_codelist(*, codelist, description, methodology, references, signoffs):
+def update_codelist(
+    *, codelist, owner, name, slug, description, methodology, references, signoffs
+):
     """Update a Codelist.
 
         codelist: the codelist to update
@@ -329,6 +335,63 @@ def update_codelist(*, codelist, description, methodology, references, signoffs)
     Any existing references or signoffs not provided in parameters will be deleted.
     Other references or signoffs will be created or updated as necessary.
     """
+
+    current_handle = codelist.current_handle
+    if (
+        current_handle.owner != owner
+        or current_handle.name != name
+        or current_handle.slug != slug
+    ):
+        try:
+            handle, created = owner.handles.get_or_create(
+                codelist=codelist,
+                slug=slug,
+                defaults={"name": name, "is_current": True},
+            )
+        except IntegrityError as e:
+            assert "UNIQUE constraint failed" in str(e)
+
+            # The extra error handling here and below is necessary because when
+            # an IntegrityError is raised, we cannot tell whether the
+            # IntegrityError was caused by a duplicate slug or by a duplicate
+            # name.
+            #
+            # Specifically, consider two existing handles for different
+            # codelists belonging to the same owner:
+            #
+            #  * h1 = Handle(owner=O, codelist=C1, name="n1", slug="s1")
+            #  * h2 = Handle(owner=O, codelist=C2, name="n2", slug="s2")
+            #
+            # If a user tries to change h1's slug to "s2", then the above
+            # get_or_create will create a new handle, h3:
+            #
+            #  * h3 = Handle(owner=O, codelist=C1, name="n1", slug="s2")
+            #
+            # There will now be two handles with the same name ("n1") and two
+            # with the same slug ("s2").  So both of the unique_together
+            # constraints are violated, but we are only notified about one,
+            # chosen apparently non-deterministically.
+            #
+            # If the get_or_create() above raises an IntegrityError, then it
+            # will be because the user is trying to reuse a slug.
+            #
+            # If the save() below raises an IntegrityError, then it will be
+            # because the user is trying to reuse a name.
+            raise DuplicateHandleError("slug")
+
+        if not created:
+            handle.name = name
+            handle.is_current = True
+            try:
+                handle.save()
+            except IntegrityError as e:
+                # See comment above.
+                assert "UNIQUE constraint failed" in str(e)
+                raise DuplicateHandleError("name")
+
+        codelist.handles.exclude(pk=handle.pk).update(is_current=False)
+        # current_handle is a cached property, so we want to clear it when it changes.
+        del codelist.current_handle
 
     codelist.description = description
     codelist.methodology = methodology
@@ -443,3 +506,14 @@ def cache_hierarchy(*, version, hierarchy=None):
     cached_hierarchy, _ = CachedHierarchy.objects.get_or_create(version=version)
     cached_hierarchy.data = hierarchy.data_for_cache()
     cached_hierarchy.save()
+
+
+class DuplicateHandleError(IntegrityError):
+    """Indicates an attempt to save a Handle whose slug or name duplicates that
+    of another Handle with the same owner.
+
+    See comment block in update_codelist for details of why this is necessary.
+    """
+
+    def __init__(self, field):
+        self.field = field

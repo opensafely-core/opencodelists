@@ -84,6 +84,10 @@ class User(AbstractBaseUser):
     def is_staff(self):
         return self.is_admin
 
+    @property
+    def owner_identifier(self):
+        return f"user:{self.pk}"
+
     def has_perm(self, perm, obj=None):
         return True
 
@@ -155,6 +159,10 @@ class Organisation(models.Model):
 
     def __str__(self):
         return self.name
+
+    @property
+    def owner_identifier(self):
+        return f"organisation:{self.pk}"
 
     @property
     def organisation(self):

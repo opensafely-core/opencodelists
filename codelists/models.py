@@ -50,6 +50,10 @@ class Codelist(models.Model):
     def current_handle(self):
         return self.handles.filter(is_current=True).get()
 
+    @cached_property
+    def owner(self):
+        return self.current_handle.owner
+
     @property
     def name(self):
         return self.current_handle.name
@@ -193,6 +197,10 @@ class Handle(models.Model):
                 ),
             )
         ]
+
+    @cached_property
+    def owner(self):
+        return self.organisation or self.user
 
 
 class Status(models.TextChoices):

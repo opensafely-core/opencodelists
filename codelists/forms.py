@@ -6,6 +6,8 @@ from crispy_forms.layout import Submit
 from django import forms
 from django.forms.models import fields_for_model
 
+from opencodelists.models import Organisation, User
+
 from .models import Codelist, CodelistVersion, Handle, Reference, SignOff
 
 
@@ -121,13 +123,27 @@ class CodelistCreateForm(forms.Form, CSVValidationMixin):
 
 
 class CodelistUpdateForm(forms.Form):
+    name = model_field(Handle, "name")
+    slug = model_field(Handle, "slug")
+    owner = forms.ChoiceField()  # The choices are set in __init__
     description = model_field(Codelist, "description")
     methodology = model_field(Codelist, "methodology")
 
     def __init__(self, *args, **kwargs):
         self.helper = FormHelper()
         self.helper.form_tag = False
+        owner_choices = kwargs.pop("owner_choices")
         super().__init__(*args, **kwargs)
+        self.fields["owner"].choices = owner_choices
+
+    def clean_owner(self):
+        owner_identifier = self.cleaned_data["owner"]
+        if owner_identifier.startswith("user:"):
+            return User.objects.get(username=owner_identifier[5:])
+        elif owner_identifier.startswith("organisation:"):
+            return Organisation.objects.get(slug=owner_identifier[13:])
+        else:
+            assert False, owner_identifier
 
 
 class CodelistVersionForm(forms.Form, CSVValidationMixin):

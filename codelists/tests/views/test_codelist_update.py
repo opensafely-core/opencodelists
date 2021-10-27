@@ -1,5 +1,8 @@
 import datetime
 
+from codelists.models import Codelist
+from codelists.views.codelist_update import get_owner_choices
+
 from .assertions import (
     assert_get_unauthenticated,
     assert_get_unauthorised,
@@ -25,14 +28,16 @@ def test_post_unauthorised(client, codelist):
     assert_post_unauthorised(client, codelist.get_update_url())
 
 
-def test_get_success(client, codelist):
+def test_get_success(client, codelist, organisation):
     force_login(codelist, client)
     response = client.get(codelist.get_update_url())
 
     assert response.status_code == 200
 
     form = response.context_data["codelist_form"]
-    assert form.data["coding_system_id"] == codelist.coding_system_id
+    assert form.data["name"] == codelist.name
+    assert form.data["slug"] == codelist.slug
+    assert form.data["owner"] == f"organisation:{organisation.pk}"
     assert form.data["description"] == codelist.description
     assert form.data["methodology"] == codelist.methodology
 
@@ -47,8 +52,11 @@ def test_post_success(client, codelist, organisation_admin):
     assert codelist.signoffs.count() == 2
 
     data = {
-        "description": "This is a test CHANGED",
-        "methodology": "This is how we did it",
+        "name": "Updated name",
+        "slug": "updated-slug",
+        "owner": f"user:{organisation_admin.username}",
+        "description": "Updated description",
+        "methodology": "Updated methodology",
         "reference-TOTAL_FORMS": "3",
         "reference-INITIAL_FORMS": "2",
         "reference-MIN_NUM_FORMS": "0",
@@ -81,7 +89,19 @@ def test_post_success(client, codelist, organisation_admin):
     response = client.post(codelist.get_update_url(), data=data)
 
     assert response.status_code == 302
-    assert response.url == f"/codelist/{codelist.organisation.slug}/{codelist.slug}/"
+    assert response.url == f"/codelist/user/{organisation_admin.username}/updated-slug/"
+
+    # codelist.refresh_from_db() isn't enough here -- we need to clear the cached
+    # current_handle property.
+    codelist = Codelist.objects.get(pk=codelist.pk)
+
+    assert codelist.handles.count() == 2
+    assert codelist.name == "Updated name"
+    assert codelist.slug == "updated-slug"
+    assert codelist.owner == organisation_admin
+
+    assert codelist.description == "Updated description"
+    assert codelist.methodology == "Updated methodology"
 
     # we should have still have 2 references but the first should be changed
     # while the second is new.
@@ -96,7 +116,77 @@ def test_post_success(client, codelist, organisation_admin):
     assert codelist.signoffs.last().user == organisation_admin
 
 
-def test_post_invalid(client, codelist):
+def test_post_invalid_duplicate_slug(new_style_codelist, old_style_codelist, client):
+    force_login(new_style_codelist, client)
+    data = {
+        "name": new_style_codelist.name,
+        "slug": old_style_codelist.slug,
+        "owner": new_style_codelist.owner.owner_identifier,
+        "description": "Updated description",
+        "methodology": "Updated methodology",
+        "reference-TOTAL_FORMS": "0",
+        "reference-INITIAL_FORMS": "0",
+        "reference-MIN_NUM_FORMS": "0",
+        "reference-MAX_NUM_FORMS": "1000",
+        "signoff-TOTAL_FORMS": "0",
+        "signoff-INITIAL_FORMS": "0",
+        "signoff-MIN_NUM_FORMS": "0",
+        "signoff-MAX_NUM_FORMS": "1000",
+    }
+
+    response = client.post(new_style_codelist.get_update_url(), data=data)
+    assert response.context_data["codelist_form"].errors == {"slug": ["Duplicate slug"]}
+
+
+def test_post_invalid_duplicate_name(new_style_codelist, old_style_codelist, client):
+    force_login(new_style_codelist, client)
+    data = {
+        "name": old_style_codelist.name,
+        "slug": new_style_codelist.slug,
+        "owner": new_style_codelist.owner.owner_identifier,
+        "description": "Updated description",
+        "methodology": "Updated methodology",
+        "reference-TOTAL_FORMS": "0",
+        "reference-INITIAL_FORMS": "0",
+        "reference-MIN_NUM_FORMS": "0",
+        "reference-MAX_NUM_FORMS": "1000",
+        "signoff-TOTAL_FORMS": "0",
+        "signoff-INITIAL_FORMS": "0",
+        "signoff-MIN_NUM_FORMS": "0",
+        "signoff-MAX_NUM_FORMS": "1000",
+    }
+
+    response = client.post(new_style_codelist.get_update_url(), data=data)
+    assert response.context_data["codelist_form"].errors == {"name": ["Duplicate name"]}
+
+
+def test_post_invalid_bad_owner(codelist, another_organisation, client):
+    force_login(codelist, client)
+    data = {
+        "name": codelist.name,
+        "slug": codelist.slug,
+        "owner": another_organisation.owner_identifier,
+        "description": "Updated description",
+        "methodology": "Updated methodology",
+        "reference-TOTAL_FORMS": "0",
+        "reference-INITIAL_FORMS": "0",
+        "reference-MIN_NUM_FORMS": "0",
+        "reference-MAX_NUM_FORMS": "1000",
+        "signoff-TOTAL_FORMS": "0",
+        "signoff-INITIAL_FORMS": "0",
+        "signoff-MIN_NUM_FORMS": "0",
+        "signoff-MAX_NUM_FORMS": "1000",
+    }
+
+    response = client.post(codelist.get_update_url(), data=data)
+    assert (
+        response.context_data["codelist_form"]
+        .errors["owner"][0]
+        .startswith("Select a valid choice")
+    )
+
+
+def test_post_invalid_missing_data(client, codelist):
     signoff_1 = codelist.signoffs.first()
     reference_1 = codelist.references.first()
 
@@ -175,10 +265,16 @@ def test_post_invalid_with_duplicates(client, codelist):
     ]
 
 
-def test_collaborator_can_post(client, codelist_with_collaborator, collaborator):
+def test_collaborator_can_post(
+    client, codelist_with_collaborator, organisation, collaborator
+):
+    codelist = codelist_with_collaborator
     data = {
-        "description": "This is a test CHANGED",
-        "methodology": "This is how we did it",
+        "name": "Updated name",
+        "slug": "updated-slug",
+        "owner": f"organisation:{organisation.slug}",
+        "description": "Updated description",
+        "methodology": "Updated methodology",
         "reference-TOTAL_FORMS": "0",
         "reference-INITIAL_FORMS": "0",
         "reference-MIN_NUM_FORMS": "0",
@@ -193,4 +289,28 @@ def test_collaborator_can_post(client, codelist_with_collaborator, collaborator)
     response = client.post(codelist_with_collaborator.get_update_url(), data=data)
 
     assert response.status_code == 302
-    assert response.url == codelist_with_collaborator.get_absolute_url()
+    assert response.url == f"/codelist/{organisation.slug}/updated-slug/"
+
+    # codelist.refresh_from_db() isn't enough here -- we need to clear the cached
+    # current_handle property.
+    codelist = Codelist.objects.get(pk=codelist.pk)
+
+    assert codelist.handles.count() == 2
+    assert codelist.name == "Updated name"
+    assert codelist.slug == "updated-slug"
+    assert codelist.owner == organisation
+
+    assert codelist.description == "Updated description"
+    assert codelist.methodology == "Updated methodology"
+
+
+def test_get_owner_choices(codelist, user, collaborator):
+    assert get_owner_choices(codelist, user) == [
+        ("user:bob", "Me"),
+        ("organisation:test-university", "Test University"),
+    ]
+
+    assert get_owner_choices(codelist, collaborator) == [
+        ("user:charlie", "Me"),
+        ("organisation:test-university", "Test University"),
+    ]

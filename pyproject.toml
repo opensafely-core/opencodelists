@@ -23,4 +23,4 @@ known_third_party = ["antlr4", "bleach", "crispy_forms", "debug_toolbar", "djang
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "opencodelists.settings"
-addopts = "--tb=native --ignore=node_modules"
+addopts = "--tb=native --ignore=node_modules --no-migrations"

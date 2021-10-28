@@ -1,0 +1,48 @@
+{% load tree_helpers %}
+
+<div
+  data-code="{{ node.code }}"
+  {% if node.expandable %}
+    data-expandable
+    {% if node.expanded %}
+      data-expanded
+    {% endif %}
+  {% endif %}
+  class="tree-node mt-0"
+>
+  <div class="tree-item d-flex">
+    <div class="tree-buttons btn-group btn-group-sm" role="group">
+      {% include_exclude_button "+" node.status %}
+      {% include_exclude_button "-" node.status %}
+    </div>
+
+    <div class="tree-pipes pl-2">
+      {% for pipe in node.pipes %}
+      <span class="tree-pipe" style="display: inline-block; text-align: center; padding-left: 3px; padding-right: 6px; width 20px">
+        {{ pipe }}
+      </span>
+      {% endfor %}
+    </div>
+
+    {% if node.expandable %}
+      <div class="tree-visibility-toggle" style="cursor: pointer; margin-left: 2px; margin-right: 4px;">
+        {% if node.expanded %}⊟{% else %}⊞{% endif %}
+      </div>
+    {% endif %}
+
+    <div class="tree-term-and-code" style="white-space: nowrap;">
+      <span class="tree-term">{{ node.term }}</span>
+      <span class="tree-code ml-1">(<code>{{ node.code }}</code>)</span>
+    </div>
+  </div>
+
+  {% if node.children %}
+    <div class="tree-children">
+      {% for child in node.children %}
+        {% include "builder/_node.html" with node=child %}
+      {% endfor %}
+    </div>
+  {% elif node.expandable %}
+    <div class="tree-children-go-here"></div>
+  {% endif %}
+</div>

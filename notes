@@ -1,0 +1,13 @@
+* Replicate functionality
+  * Save for review
+  * Save draft
+  * Filters
+  * Editable
+  * Normal tree view
+  * Disable Save for review when no changes made
+  * Prevent navigating away
+* Name things right
+* Test JS
+* Use TS
+* Test with Selenium?
+* Clean up package.json

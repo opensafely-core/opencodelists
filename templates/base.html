@@ -77,6 +77,65 @@
       .footer p {
         margin-bottom: 0;
       }
+
+      .tree-term-and-code {
+        white-space: nowrap;
+      }
+
+      .tree-visibility-toggle {
+        cursor: pointer;
+        margin-left: 2px;
+        margin-right: 4px;
+      }
+
+      .tree-pipe {
+        display: inline-block;
+        text-align: center;
+        padding-left: 3px;
+        padding-right: 6px;
+        width: 20px;
+      }
+
+      .tree-status-toggle {
+        color: #6c757d;
+        border-color: #6c757d;
+      }
+
+      .tree-node[data-status='+'] > .tree-item .tree-status-toggle[data-symbol='+'] {
+        color: #fff;
+        background-color: #007bff;
+        border-color: #007bff;
+      }
+
+      .tree-node[data-status='(+)'] > .tree-item .tree-status-toggle[data-symbol='+'] {
+        color: #fff;
+        background-color: #5a6268;
+        border-color: #545b62;
+      }
+
+      .tree-node[data-status='-'] > .tree-item .tree-status-toggle[data-symbol='-'] {
+        color: #fff;
+        background-color: #007bff;
+        border-color: #007bff;
+      }
+
+      .tree-node[data-status='(-)'] > .tree-item .tree-status-toggle[data-symbol='-'] {
+        color: #fff;
+        background-color: #5a6268;
+        border-color: #545b62;
+      }
+
+      .tree-node[data-status='-'] > .tree-item .tree-term {
+        color: gray;
+      }
+
+      .tree-node[data-status='(-)'] > .tree-item .tree-term {
+        color: gray;
+      }
+
+      .tree-node[data-status='!'] > .tree-item .tree-term {
+        color: red;
+      }
     </style>
 
     {% block extra_styles %}{% endblock %}

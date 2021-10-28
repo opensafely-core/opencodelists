@@ -2,31 +2,167 @@
 {% load static %}
 
 {% block content %}
-<h3 class="mt-4">{{ codelist_name }}</h3>
+<h3 class="mt-4">{{ codelist.name }}</h3>
 <p class="text-muted">This version is a draft</p>
 <hr />
 
-<div id="codelist-builder-container"></div>
+<div class="row">
+  <div class="col-md-3 col-lg-2">
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="definition">
+      <div class="btn-group-vertical btn-block" role="group">
+        <button
+          id="save-button"
+          type="button"
+          name="action"
+          value="save-for-review"
+          class="btn btn-outline-secondary btn-block disabled"
+          aria-disabled="true"
+          data-toggle="tooltip"
+          title="You cannot save for review until all search results are included or excluded"
+        >
+          Save for review
+        </button>
+        <button
+          type="submit"
+          name="action"
+          value="save-draft"
+          class="btn btn-outline-primary btn-block"
+        >
+          Save draft
+        </button>
+        <button
+          type="submit"
+          name="action"
+          value="discard"
+          class="btn btn-outline-primary btn-block"
+        >
+          Discard
+        </button>
+      </div>
+    </form>
+    <hr/>
+
+    <h6>Summary</h6>
+    <div id="summary"></div>
+    <hr/>
+
+    {% if searches %}
+    <h6>Searches</h6>
+    <div class="list-group">
+      {% for search in searches %}
+      <a href="{{ search.url }}" class="list-group-item list-group-item-action py-1{% if search.active %} active{% endif %}">
+        {{ search.term_or_code }}
+      </a>
+      {% endfor %}
+    </div>
+    <hr />
+    {% endif %}
+
+    <h6>New search</h6>
+    <form method="post" action="{{ draft.get_builder_new_search_url }}">
+      <div class="form-group">
+        {% csrf_token %}
+        <input
+          type="search"
+          class="form-control"
+          name="search"
+          placeholder="Term or code"
+        />
+      </div>
+      <div>
+        <button
+          type="submit"
+          name="field"
+          class="btn btn-sm btn-primary mr-1"
+        >
+          Search
+        </button>
+      </div>
+      <div>
+        <small class="form-text text-muted">
+          <p>
+            To search by code, prefix your search with <code>code:</code>. For
+            instance, use <code>code:xyz</code> to find the concept with code{" "}
+            <code>xyz</code>, or <code>code:xyz*</code> to find all concepts
+            with codes beginning <code>xyz</code>.
+          </p>
+          <p>
+            Otherwise, searching will return all concepts with a description
+            containing the search term.
+          </p>
+        </small>
+      </div>
+    </form>
+
+    <hr />
+
+    <dl>
+      <dt>Coding system</dt>
+      <dd>{{ codelist.coding_system.name }}</dd>
+
+      {% if codelist.organisation %}
+      <dt>Organisation</dt>
+      <dd>{{ codelist.organisation.name }}</dd>
+      {% endif %}
+
+      <dt>Codelist ID</dt>
+      <dd>{{ codelist.full_slug }}</dd>
+
+      {% if draft.tag %}
+      <dt>Tag</dt>
+      <dd>{{ draft.tag }}</dd>
+      {% endif %}
+
+      <dt>ID</dt>
+      <dd>{{ draft.hash }}</dd>
+    </dl>
+
+    <hr />
+
+    <h6>Versions</h6>
+    <ul class="pl-3">
+      {% for version in versions %}
+      <li>
+        {% if version == draft %}
+        {{ version.tag_or_hash }}
+        {% else %}
+        <a href="{{ version.get_absolute_url }}">{{ version.tag_or_hash }}</a>
+        {% endif %}
+        {% if version.is_under_review %}
+        <span class="badge badge-primary">Review</span>
+        {% elif version.is_draft %}
+        <span class="badge badge-primary">Draft</span>
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="col-9 pl-5">
+    <h4>{{ results_heading }}</h4>
+    <hr />
+    {% for group in tree_ancestors %}
+    <div class="mb-4">
+      <h5>{{ group.heading }}</h5>
+
+      {% for code in group.ancestor_codes %}
+      <div class="tree-root mt-2" data-code="{{ code }}">
+      </div>
+      {% endfor %}
+    </div>
+    {% endfor %}
+  </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
-{{ results_heading|json_script:"results-heading" }}
-{{ searches|json_script:"searches" }}
-{{ filter|json_script:"filter" }}
-{{ tree_tables|json_script:"tree-tables" }}
 {{ code_to_term|json_script:"code-to-term" }}
 {{ code_to_status|json_script:"code-to-status" }}
-{{ all_codes|json_script:"all-codes" }}
-{{ included_codes|json_script:"included-codes" }}
-{{ excluded_codes|json_script:"excluded-codes" }}
 {{ parent_map|json_script:"parent-map" }}
 {{ child_map|json_script:"child-map" }}
 {{ is_editable|json_script:"is-editable" }}
-{{ draft_url|json_script:"draft-url" }}
-{{ update_url|json_script:"update-url" }}
-{{ search_url|json_script:"search-url" }}
-{{ versions|json_script:"versions" }}
-{{ metadata|json_script:"metadata" }}
 
-<script src="{% static 'js/builder.bundle.js' %}"></script>
+<script src="{% static 'js/forest.bundle.js' %}"></script>
 {% endblock %}

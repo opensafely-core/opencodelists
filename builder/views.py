@@ -6,6 +6,7 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_http_methods
 
+from codelists.presenters import present_tree_ancestors
 from codelists.search import do_search
 
 from . import actions
@@ -34,7 +35,7 @@ def no_search_term(request, draft):
 def _handle_post(request, draft):
     action = request.POST["action"]
     if action == "save-for-review":
-        actions.save(draft=draft)
+        actions.save(draft=draft, data=json.loads(request.POST["code_to_status"]))
         messages.add_message(
             request, messages.INFO, "A new version has been saved for review"
         )
@@ -83,9 +84,18 @@ def _draft(request, draft, search_slug):
     if searches and draft.code_objs.filter(results=None).exists():
         searches.append(
             {
-                "term": "[no search term]",
+                "term_or_code": "[no search term]",
                 "url": draft.get_builder_no_search_term_url(),
                 "active": search_slug == NO_SEARCH_TERM,
+            }
+        )
+
+    if search:
+        searches.append(
+            {
+                "term_or_code": "show all",
+                "url": draft.get_builder_draft_url(),
+                "active": False,
             }
         )
 
@@ -103,13 +113,9 @@ def _draft(request, draft, search_slug):
         codes_with_status = codeset.codes(statuses)
         displayed_codes = [c for c in displayed_codes if c in codes_with_status]
 
-    ancestor_codes = hierarchy.filter_to_ultimate_ancestors(set(displayed_codes))
     code_to_term = coding_system.code_to_term(codeset.all_codes())
-    tree_tables = sorted(
-        (type, sorted(codes, key=code_to_term.__getitem__))
-        for type, codes in coding_system.codes_by_type(
-            ancestor_codes, hierarchy
-        ).items()
+    tree_ancestors = present_tree_ancestors(
+        displayed_codes, coding_system, hierarchy, code_to_term
     )
 
     if search_slug == NO_SEARCH_TERM:
@@ -123,54 +129,26 @@ def _draft(request, draft, search_slug):
             "Start building your codelist by searching for a term or a code"
         )
 
-    draft_url = draft.get_builder_draft_url()
-    update_url = draft.get_builder_update_url()
-    search_url = draft.get_builder_new_search_url()
-
-    versions = [
-        {
-            "tag_or_hash": v.tag_or_hash,
-            "url": v.get_absolute_url(),
-            "status": v.status,
-            "current": v == draft,
-        }
-        for v in codelist.visible_versions(request.user)
-    ]
-
-    metadata = {
-        "coding_system_name": codelist.coding_system.name,
-        "organisation_name": codelist.organisation.name
-        if codelist.organisation
-        else None,
-        "codelist_full_slug": codelist.full_slug(),
-        "hash": draft.hash,
-    }
+    visible_versions = draft.codelist.visible_versions(request.user)
 
     ctx = {
         "user": draft.draft_owner,
+        "codelist": codelist,
+        "versions": visible_versions,
         "draft": draft,
-        "codelist_name": codelist.name,
-        # The following values are passed to the CodelistBuilder component.
-        # When any of these chage, use generate_builder_fixture to update
+        "results_heading": results_heading,
+        "filter": filter,  # TODO
+        "searches": searches,
+        "is_editable": request.user == draft.draft_owner,
+        "tree_ancestors": tree_ancestors,
+        # The following values are passed to the Forest component.  When any of these
+        # chage, use generate_builder_fixture to update
         # static/test/js/fixtures/elbow.json.
         # {
-        "results_heading": results_heading,
-        "searches": searches,
-        "filter": filter,
-        "tree_tables": tree_tables,
-        "all_codes": list(codeset.all_codes()),
-        "included_codes": list(codeset.codes("+")),
-        "excluded_codes": list(codeset.codes("-")),
         "parent_map": {p: list(cc) for p, cc in hierarchy.parent_map.items()},
         "child_map": {c: list(pp) for c, pp in hierarchy.child_map.items()},
         "code_to_term": code_to_term,
         "code_to_status": codeset.code_to_status,
-        "is_editable": request.user == draft.draft_owner,
-        "draft_url": draft_url,
-        "update_url": update_url,
-        "search_url": search_url,
-        "versions": versions,
-        "metadata": metadata,
         # }
     }
 

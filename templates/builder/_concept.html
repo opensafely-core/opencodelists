@@ -1,0 +1,9 @@
+{% load basics %}
+
+<div data-code="{{ code }}">
+        <div style="white-space: nowrap;">
+                <span style="cursor: pointer; margin-left: 2px; margin-right: 4px;"> ⊟</span>
+                <span>{{ code_to_term|getitem:code }}</span>
+                <span class="ml-1">(<code>{{ code }}</code>)</span>
+        </div>
+</div>

@@ -16,7 +16,7 @@ backports.entry-points-selectable==1.1.0
     # via virtualenv
 bcrypt==3.2.0
     # via paramiko
-black==21.9b0
+black==21.10b0
     # via -r requirements.in
 bleach==4.1.0
     # via -r requirements.in

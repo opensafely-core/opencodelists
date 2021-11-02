@@ -195,23 +195,20 @@ def test_visible_versions_user_doesnt_have_edit_permissions(
 
 def test_latest_visible_version_user_has_edit_permissions(
     new_style_codelist,
-    new_style_codelist_latest_version,
+    latest_version,
     user,
 ):
-    assert (
-        new_style_codelist.latest_visible_version(user)
-        == new_style_codelist_latest_version
-    )
+    assert new_style_codelist.latest_visible_version(user) == latest_version
 
 
 def test_latest_visible_version_user_doesnt_have_edit_permissions(
     new_style_codelist,
-    new_style_codelist_latest_published_version,
+    latest_published_version,
     user_without_organisation,
 ):
     assert (
         new_style_codelist.latest_visible_version(user_without_organisation)
-        == new_style_codelist_latest_published_version
+        == latest_published_version
     )
 
 

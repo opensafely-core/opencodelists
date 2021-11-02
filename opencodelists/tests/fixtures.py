@@ -322,9 +322,10 @@ def build_fixtures():
         version_with_no_searches, disorder_of_elbow_excl_arthritis_codes
     )
 
-    # new_style_codelist_latest_published_version
+    # latest_published_version
     # - an alias for version_with_no_searches
-    new_style_codelist_latest_published_version = version_with_no_searches
+    latest_published_version = version_with_no_searches
+    assert latest_published_version.is_published
 
     # version_with_excluded_codes
     # - an alias for version_with_no_searches
@@ -417,9 +418,9 @@ def build_fixtures():
     # - an alias for version_with_complete_searches
     version_under_review = version_with_complete_searches
 
-    # new_style_codelist_latest_version
+    # latest_version
     # - an alias for version_with_complete_searches
-    new_style_codelist_latest_version = version_with_complete_searches
+    latest_version = version_with_complete_searches
 
     # codelist_with_collaborator
     # - an alias for new_style_codelist
@@ -540,10 +541,8 @@ version_with_no_searches = build_fixture("version_with_no_searches")
 version_with_some_searches = build_fixture("version_with_some_searches")
 version_with_complete_searches = build_fixture("version_with_complete_searches")
 version_with_excluded_codes = build_fixture("version_with_excluded_codes")
-new_style_codelist_latest_published_version = build_fixture(
-    "new_style_codelist_latest_published_version"
-)
-new_style_codelist_latest_version = build_fixture("new_style_codelist_latest_version")
+latest_published_version = build_fixture("latest_published_version")
+latest_version = build_fixture("latest_version")
 version = build_fixture("version")
 version_under_review = build_fixture("version_under_review")
 codelist_with_collaborator = build_fixture("codelist_with_collaborator")

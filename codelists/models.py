@@ -261,6 +261,11 @@ class CodelistVersion(models.Model):
             f"codelists:{self.codelist_type}_version_publish", kwargs=self.url_kwargs
         )
 
+    def get_delete_url(self):
+        return reverse(
+            f"codelists:{self.codelist_type}_version_delete", kwargs=self.url_kwargs
+        )
+
     def get_download_url(self):
         return reverse(
             f"codelists:{self.codelist_type}_version_download", kwargs=self.url_kwargs

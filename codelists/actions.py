@@ -439,6 +439,8 @@ def delete_version(*, version):
     """Delete a version.
 
     If this is the only version, the codelist will also be deleted.
+
+    Returns a boolean indicating whether the codelist was deleted.
     """
 
     assert version.is_under_review
@@ -450,9 +452,14 @@ def delete_version(*, version):
             codelist_pk=codelist.pk,
             version_pk=version.pk,
         )
+        # We clear the pk so that we can check (eg in the load_version decorator)
+        # whether the version is still in the database.
+        version.pk = None
+        return True
     else:
         version.delete()
         logger.info("Deleted Version", version_pk=version.pk)
+        return False
 
 
 @transaction.atomic

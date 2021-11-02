@@ -392,10 +392,12 @@ def test_delete_version(old_style_codelist):
     codelist_pk = codelist.pk
     version1, version2 = codelist.versions.order_by("id")
 
-    actions.delete_version(version=version2)
+    codelist_was_deleted = actions.delete_version(version=version2)
+    assert not codelist_was_deleted
     assert codelist.versions.count() == 1
 
-    actions.delete_version(version=version1)
+    codelist_was_deleted = actions.delete_version(version=version1)
+    assert codelist_was_deleted
     assert not CodelistVersion.objects.filter(codelist_id=codelist_pk).exists()
     assert not Codelist.objects.filter(pk=codelist_pk).exists()
 

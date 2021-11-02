@@ -112,6 +112,13 @@
               data-target="#js-publish-version-form">
               Publish version
             </button>
+            <button
+              type="button"
+              class="btn btn-outline-primary btn-block"
+              data-toggle="modal"
+              data-target="#js-delete-version-form">
+              Delete version
+            </button>
           {% else %}
             <button
               type="button"
@@ -120,6 +127,14 @@
               data-toggle="tooltip"
               title="This version has already been published">
               Publish version
+            </button>
+            <button
+              type="button"
+              class="disabled btn btn-outline-secondary btn-block"
+              aria-disabled="true"
+              data-toggle="tooltip"
+              title="This version has already been published, so cannot be deleted">
+              Delete version
             </button>
           {% endif %}
         </div>
@@ -179,6 +194,8 @@
 </div>
 
 {% include "./_are_you_sure_modal.html" with action="publish" title="Publish Version" url=clv.get_publish_url message="Publishing a version is irreversible, and will delete any other draft versions or versions under review." submit_text="Publish" %}
+
+{% include "./_are_you_sure_modal.html" with action="delete" title="Delete Version" url=clv.get_delete_url message="Deleting a version is irreversible." submit_text="Delete" %}
 
 {% endblock %}
 

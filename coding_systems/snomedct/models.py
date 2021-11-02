@@ -37,6 +37,22 @@ class Concept(models.Model):
 
     @property
     def fully_specified_name(self):
+        """Return fully specified name of this concept.
+
+        The FSN is "a term unique among active descriptions in SNOMED CT that names the
+        meaning of a concept code in a manner that is intended to be unambiguous and
+        stable across multiple contexts".
+
+        For almost every concept, there is exactly one active description whose type is
+        FULLY_SPECIFIED_NAME.  However, there are a handful of exceptions, where the
+        same concept has FSN descriptions from both the International release and the UK
+        extension release.  When this happens, we choose arbitrarily, by taking the
+        first.
+
+        Only a handful of concepts have duplicate FSNs, and (as of October 2021) in all
+        but two cases the FSNs are identical.
+        """
+
         if self._fully_specified_name is None:
             if "descriptions" in getattr(self, "_prefetched_objects_cache", {}):
                 descriptions = [
@@ -44,13 +60,12 @@ class Concept(models.Model):
                     for d in self._prefetched_objects_cache["descriptions"]
                     if d.active and d.type_id == FULLY_SPECIFIED_NAME
                 ]
-                assert len(descriptions) == 1
                 self._fully_specified_name = descriptions[0].term
 
             else:
                 self._fully_specified_name = (
                     self.descriptions.filter(active=True, type_id=FULLY_SPECIFIED_NAME)
-                    .get()
+                    .first()
                     .term
                 )
 

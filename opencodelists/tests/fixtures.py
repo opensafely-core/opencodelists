@@ -80,6 +80,7 @@ And in a DAG:
 """
 
 import csv
+from copy import deepcopy
 from io import StringIO
 from pathlib import Path
 
@@ -116,15 +117,20 @@ def build_fixture(fixture_name):
     def fixture(universe):
         """The actual pytest fixture.
 
-        Finds the member of the universe with the given name, reloads it from the
-        database if necessary, and returns it.
+        Returns a copy of the member of the universe with the given name.
         """
         obj = universe[fixture_name]
         if isinstance(obj, Model):
-            # Some fixtures (eg disorder_of_elbow_codes) are not instances of Django
-            # models.
-            obj.refresh_from_db()
-        return obj
+            # Return instance of fixture loaded from the database.  We cannot use
+            # obj.refresh_from_db(), because it does not work if the object has been
+            # deleted in a test (because obj.pk is set to None when obj is deleted), and
+            # because it does not reset any non-field attributes such as cached
+            # properties.
+            return type(obj).objects.get(pk=obj.pk)
+        else:
+            # Return a deep copy of the fixture.  This allows the fixture to be safely
+            # mutated in tests.
+            return deepcopy(obj)
 
     # This docstring is used in the output of `pytest --fixtures`
     fixture.__doc__ = f"Return {fixture_name} from the universe fixture"
@@ -322,9 +328,10 @@ def build_fixtures():
         version_with_no_searches, disorder_of_elbow_excl_arthritis_codes
     )
 
-    # new_style_codelist_latest_published_version
+    # latest_published_version
     # - an alias for version_with_no_searches
-    new_style_codelist_latest_published_version = version_with_no_searches
+    latest_published_version = version_with_no_searches
+    assert latest_published_version.is_published
 
     # version_with_excluded_codes
     # - an alias for version_with_no_searches
@@ -417,9 +424,9 @@ def build_fixtures():
     # - an alias for version_with_complete_searches
     version_under_review = version_with_complete_searches
 
-    # new_style_codelist_latest_version
+    # latest_version
     # - an alias for version_with_complete_searches
-    new_style_codelist_latest_version = version_with_complete_searches
+    latest_version = version_with_complete_searches
 
     # codelist_with_collaborator
     # - an alias for new_style_codelist
@@ -540,10 +547,8 @@ version_with_no_searches = build_fixture("version_with_no_searches")
 version_with_some_searches = build_fixture("version_with_some_searches")
 version_with_complete_searches = build_fixture("version_with_complete_searches")
 version_with_excluded_codes = build_fixture("version_with_excluded_codes")
-new_style_codelist_latest_published_version = build_fixture(
-    "new_style_codelist_latest_published_version"
-)
-new_style_codelist_latest_version = build_fixture("new_style_codelist_latest_version")
+latest_published_version = build_fixture("latest_published_version")
+latest_version = build_fixture("latest_version")
 version = build_fixture("version")
 version_under_review = build_fixture("version_under_review")
 codelist_with_collaborator = build_fixture("codelist_with_collaborator")
@@ -598,8 +603,7 @@ def draft(draft_with_complete_searches):
 )
 def new_style_version(universe, request):
     version = universe[request.param]
-    version.refresh_from_db()
-    return version
+    return type(version).objects.get(pk=version.pk)
 
 
 @pytest.fixture

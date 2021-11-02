@@ -2,7 +2,7 @@ import pytest
 from django.db import IntegrityError
 
 from codelists import actions
-from codelists.models import Codelist
+from codelists.models import Codelist, CodelistVersion
 from opencodelists.tests.assertions import assert_difference, assert_no_difference
 
 
@@ -382,6 +382,22 @@ def test_publish(version_under_review):
 
     version_under_review.refresh_from_db()
     assert version_under_review.is_published
+
+
+def test_delete_version(old_style_codelist):
+    # Verify that delete_version deletes the given version, and that when the last
+    # remaining version is deleted, the codelist is too.
+
+    codelist = old_style_codelist
+    codelist_pk = codelist.pk
+    version1, version2 = codelist.versions.order_by("id")
+
+    actions.delete_version(version=version2)
+    assert codelist.versions.count() == 1
+
+    actions.delete_version(version=version1)
+    assert not CodelistVersion.objects.filter(codelist_id=codelist_pk).exists()
+    assert not Codelist.objects.filter(pk=codelist_pk).exists()
 
 
 def test_convert_codelist_to_new_style(old_style_codelist, old_style_version):

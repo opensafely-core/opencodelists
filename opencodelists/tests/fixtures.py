@@ -217,7 +217,7 @@ def build_fixtures():
 
     # organisation_user
     # - is non-admin for organisation
-    # - is editing version_from_scratch
+    # - is editing draft_from_scratch
     # - has one codelist:
     #   - user_codelist
     organisation_user = create_user(
@@ -436,7 +436,7 @@ def build_fixtures():
     # codelist_from_scratch
     # - belongs to organisation
     # - has single version, being edited:
-    #   - version_from_scratch
+    #   - draft_from_scratch
     codelist_from_scratch = create_codelist_from_scratch(
         owner=organisation,
         name="Codelist From Scratch",
@@ -444,13 +444,13 @@ def build_fixtures():
         draft_owner=organisation_user,
     )
 
-    # version_from_scratch
+    # draft_from_scratch
     # - belongs to codelist_from_scratch
     # - being edited by organisation_user
-    version_from_scratch = codelist_from_scratch.versions.get()
+    draft_from_scratch = codelist_from_scratch.versions.get()
 
     # Check that this version has no codes
-    assert version_from_scratch.codes == ()
+    assert draft_from_scratch.codes == ()
 
     # user_codelist
     # - belongs to organisation_user
@@ -553,7 +553,7 @@ version = build_fixture("version")
 version_under_review = build_fixture("version_under_review")
 codelist_with_collaborator = build_fixture("codelist_with_collaborator")
 codelist_from_scratch = build_fixture("codelist_from_scratch")
-version_from_scratch = build_fixture("version_from_scratch")
+draft_from_scratch = build_fixture("draft_from_scratch")
 user_codelist = build_fixture("user_codelist")
 user_version = build_fixture("user_version")
 
@@ -573,13 +573,6 @@ def draft_with_some_searches(version_with_some_searches, organisation_user):
 
 @pytest.fixture(scope="function")
 def draft_with_complete_searches(version_with_complete_searches, organisation_user):
-    return export_to_builder(
-        version=version_with_complete_searches, owner=organisation_user
-    )
-
-
-@pytest.fixture(scope="function")
-def draft_from_scratch(version_with_complete_searches, organisation_user):
     return export_to_builder(
         version=version_with_complete_searches, owner=organisation_user
     )

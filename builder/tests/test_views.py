@@ -26,8 +26,8 @@ def test_draft_with_complete_searches(client, draft_with_complete_searches):
     assert b"New-style Codelist" in rsp.content
 
 
-def test_version_from_scratch(client, version_from_scratch):
-    rsp = client.get(version_from_scratch.get_builder_draft_url())
+def test_draft_from_scratch(client, draft_from_scratch):
+    rsp = client.get(draft_from_scratch.get_builder_draft_url())
 
     assert rsp.status_code == 200
     assert b"Codelist From Scratch" in rsp.content

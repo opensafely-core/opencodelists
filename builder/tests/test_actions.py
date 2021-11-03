@@ -5,8 +5,8 @@ from builder import actions
 from opencodelists.tests.assertions import assert_difference
 
 
-def test_create_search(version_from_scratch):
-    draft = version_from_scratch
+def test_create_search(draft_from_scratch):
+    draft = draft_from_scratch
 
     # Act: create a term search
     s = actions.create_search(
@@ -168,8 +168,8 @@ def test_discard_draft(draft_with_complete_searches):
         draft_with_complete_searches.refresh_from_db()
 
 
-def test_discard_draft_from_scratch(version_from_scratch):
-    codelist = version_from_scratch.codelist
-    actions.discard_draft(draft=version_from_scratch)
+def test_discard_draft_from_scratch(draft_from_scratch):
+    codelist = draft_from_scratch.codelist
+    actions.discard_draft(draft=draft_from_scratch)
     with pytest.raises(ObjectDoesNotExist):
         codelist.refresh_from_db()

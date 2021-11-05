@@ -48,60 +48,63 @@ def test_create_search(draft_from_scratch):
     assert draft.code_objs.count() == 2
 
 
-@pytest.mark.xfail
-def test_delete_search():
-    pass
-    # # Arrange: create a draft with codes and a search
-    # codelist = CodelistFactory()
-    # owner = UserFactory()
-    # draft = actions.create_draft_with_codes(
-    #     codelist=codelist,
-    #     owner=owner,
-    #     codes=["1067731000000107", "1068181000000106"],
-    # )
-    # s = actions.create_search(
-    #     draft=draft, term="synchronised", codes=["1068181000000106"]
-    # )
+def test_delete_search_1(draft_with_complete_searches):
+    # In this test, we delete the searches belonging to a draft one by one, and check
+    # that the number of remaining searches and code objects belonging to the draft are
+    # as expected.
+    #
+    # Refer to the table in the module docstring of fixtures.py to understand where
+    # the magic numbers below come from.
 
-    # # Act: delete the search
-    # actions.delete_search(search=s)
+    draft = draft_with_complete_searches
 
-    # # Assert...
-    # # that the codelist has 0 searches
-    # assert draft.searches.count() == 0
-    # # that the still codelist has 1 code which doesn't belong to a search
-    # assert draft.code_objs.count() == 1
+    assert draft.searches.count() == 4
+    assert draft.code_objs.count() == 13
 
-    # # Arrange: create new searches
-    # s1 = actions.create_search(
-    #     draft=draft, term="synchronised", codes=["1068181000000106"]
-    # )
-    # s2 = actions.create_search(
-    #     draft=draft, term="swimming", codes=["1067731000000107", "1068181000000106"]
-    # )
+    actions.delete_search(search=draft.searches.get(code="439656005"))
+    assert draft.searches.count() == 3
+    assert draft.code_objs.count() == 13
 
-    # # Act: delete the search for "swimming"
-    # actions.delete_search(search=s2)
+    actions.delete_search(search=draft.searches.get(term="arthritis"))
+    assert draft.searches.count() == 2
+    assert draft.code_objs.count() == 12
 
-    # # Assert...
-    # # that the codelist has only 1 search
-    # assert draft.searches.count() == 1
-    # # that the codelist has only 1 code
-    # assert draft.code_objs.count() == 1
+    actions.delete_search(search=draft.searches.get(term="elbow"))
+    assert draft.searches.count() == 1
+    assert draft.code_objs.count() == 3
 
-    # # Arrange: recreate the search for "swimming"
-    # actions.create_search(
-    #     draft=draft, term="swimming", codes=["1067731000000107", "1068181000000106"]
-    # )
+    actions.delete_search(search=draft.searches.get(term="tennis"))
+    assert draft.searches.count() == 0
+    assert draft.code_objs.count() == 0
 
-    # # Act: delete the search for "synchronised"
-    # actions.delete_search(search=s1)
 
-    # # Assert...
-    # # that the codelist has only 1 search
-    # assert draft.searches.count() == 1
-    # # that the codelist still has both codes
-    # assert draft.code_objs.count() == 2
+def test_delete_search_2(draft_with_some_searches):
+    from django.db.models import Count
+    from django.db.models.query import QuerySet
+    from django_tabulate import tabulate_qs
+
+    QuerySet.__repr__ = tabulate_qs
+
+    draft = draft_with_some_searches
+    print("A", "-" * 80)
+    print(draft.code_objs.annotate(num_results=Count("results")))
+
+    codes1 = set(co.code for co in draft.code_objs.all())
+
+    assert draft.searches.count() == 1
+    assert draft.code_objs.count() == 9
+
+    actions.delete_search(search=draft.searches.get(term="arthritis"))
+    assert draft.searches.count() == 0
+    # assert draft.code_objs.count() == 6
+
+    print("B", "-" * 80)
+    print(draft.code_objs.annotate(num_results=Count("results")))
+
+    codes2 = set(co.code for co in draft.code_objs.all())
+
+    print(codes1 - codes2)
+    assert draft.code_objs.filter(code="202855006").exists()
 
 
 def test_update_code_statuses(draft_with_no_searches):

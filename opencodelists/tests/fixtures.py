@@ -29,54 +29,73 @@ The fixtures also create searches for "arthritis", "tennis", and "elbow".
 The concepts returned by these searches are shown below, along with which of the two
 lists of codes they belong to.
 
-.. Arthritis (3723001)
-A. └ Arthritis of elbow (439656005)
-A.   └ Lateral epicondylitis (202855006)
-.. Finding of elbow region (116309007)
-AB ├ Disorder of elbow (128133004)
-AB │ ├ Arthropathy of elbow (429554009)
-A. │ │ └ Arthritis of elbow (439656005)
-A. │ │   └ Lateral epicondylitis (202855006)
-AB │ ├ Enthesopathy of elbow region (35185008)
-AB │ │ └ Epicondylitis (73583000)
-A. │ │   └ Lateral epicondylitis (202855006)
-AB │ └ Soft tissue lesion of elbow region (239964003)
-.. └ Finding of elbow joint (298869002)
-AB   ├ Arthropathy of elbow (429554009)
-A.   │ └ Arthritis of elbow (439656005)
-A.   │   └ Lateral epicondylitis (202855006)
-..   └ Elbow joint inflamed (298163003)
-A.     └ Arthritis of elbow (439656005)
-A.       └ Lateral epicondylitis (202855006)
-.. Tennis toe (238484001)
-AB (Epicondylitis &/or tennis elbow) or (golfers' elbow) (156659008) [inactive]
 
-And in a DAG:
+..  3723001    Arthritis
+A.  439656005  └ Arthritis of elbow
+A.  202855006    └ Lateral epicondylitis
+..  116309007  Finding of elbow region
+AB  128133004  ├ Disorder of elbow
+AB  429554009  │ ├ Arthropathy of elbow
+A.  439656005  │ │ └ Arthritis of elbow
+A.  202855006  │ │   └ Lateral epicondylitis
+AB  35185008   │ ├ Enthesopathy of elbow region
+AB  73583000   │ │ └ Epicondylitis
+A.  202855006  │ │   └ Lateral epicondylitis
+AB  239964003  │ └ Soft tissue lesion of elbow region
+..  298869002  └ Finding of elbow joint
+AB  429554009    ├ Arthropathy of elbow
+A.  439656005    │ └ Arthritis of elbow
+A.  202855006    │   └ Lateral epicondylitis
+..  298163003    └ Elbow joint inflamed
+A.  439656005      └ Arthritis of elbow
+A.  202855006        └ Lateral epicondylitis
+..  238484001  Tennis toe
+AB  156659008  (Epicondylitis &/or tennis elbow) or (golfers' elbow) [inactive]
 
- ..──────────────┐              ..──────────────┐
+And in a DAG (Tennis toe and (Epicondylitis &/or ...) not shown):
+
+ ..──3723001─────┐              ..──116309007───┐
  │   Arthritis   │              │  Finding of   │
  │               │              │ elbow region  │
  └──────▲────────┘              └──────▲────────┘
         │                              │
-        │            ..──────────────┐ │ AB──────────────┐
+        │            ..──298869002───┐ │ AB──128133004───┐
         │            │  Finding of   ├─┴─┤   Disorder    ◂────────────────────┐
         │            │  elbow joint  │   │   of elbow    │                    │
         │            └────────▲──────┘   └────────▲──────┘                    │
         │                     │                   │                           │
-        │   ..──────────────┐ │ AB──────────────┐ │ AB──────────────┐   AB────┴──────┐
-        │   │  Elbow joint  ├─┴─┤  Arthropathy  ├─┴─┤ Enthesopathy  │   │Soft tissue │
-        │   │   inflamed    │   │   of elbow    │   │of elbow region│   │ lesion of  │
-        │   └──────▲────────┘   └──────▲────────┘   └──────▲────────┘   │elbow region│
-        │          │                   │                   │            └────────────┘
-        │          │ A.──────────────┐ │            AB─────┴────────┐
+        │   ..──298163003───┐ │ AB──429554009───┐ │ AB──35185008────┐   AB──239964003──┐
+        │   │  Elbow joint  ├─┴─┤  Arthropathy  ├─┴─┤ Enthesopathy  │   │ Soft tissue  │
+        │   │   inflamed    │   │   of elbow    │   │of elbow region│   │  lesion of   │
+        │   └──────▲────────┘   └──────▲────────┘   └──────▲────────┘   │ elbow region │
+        │          │                   │                   │            └──────────────┘
+        │          │ A.──439656005───┐ │            AB──73583000────┐
         └──────────┴─┤   Arthritis   ├─┘            │ Epicondylitis │
                      │   of elbow    │              │               │
                      └────────▲──────┘              └──────▲────────┘
                               │                            │
-                              │ A.──────────────┐          │
+                              │ A.──202855006───┐          │
                               └─┤    Lateral    ├──────────┘
                                 │ epicondylitis │
                                 └───────────────┘
+
+And here's a table of which codes are returned by searches for the terms "arthritis",
+"tennis", and "elbow", and for the code "439656005":
+
+                                                   arthritis  tennis  elbow  439656005
+AB  156659008  (Epicondylitis &/or ...)                         X       X
+..  3723001    Arthritis                               X
+A.  439656005  Arthritis of elbow                      X                X       X
+AB  429554009  Arthropathy of elbow                                     X
+AB  128133004  Disorder of elbow                                        X
+..  298163003  Elbow joint inflamed                                     X
+AB  35185008   Enthesopathy of elbow region                             X
+AB  73583000   Epicondylitis                                            X
+..  298869002  Finding of elbow joint                                   X
+..  116309007  Finding of elbow region                                  X
+A.  202855006  Lateral epicondylitis                   X        X       X       X
+AB  239964003  Soft tissue lesion of elbow region                       X
+..  238484001  Tennis toe                                       X
 """
 
 import csv

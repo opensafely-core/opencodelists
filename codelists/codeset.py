@@ -191,3 +191,17 @@ class Codeset:
 
         updated_code_to_status = {**self.code_to_status, **code_to_status_updates}
         return type(self)(updated_code_to_status, self.hierarchy)
+
+    def remove(self, codes):
+        """Build new Codeset with any defining codes in given codes.
+
+        ...
+        """
+
+        codes = set(codes)
+        directly_included = self.codes("+") - codes
+        directly_excluded = self.codes("-") - codes
+
+        return type(self).from_definition(
+            directly_included, directly_excluded, self.hierarchy
+        )

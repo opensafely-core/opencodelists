@@ -45,17 +45,27 @@ def create_search(*, draft, term=None, code=None, codes):
 
 @transaction.atomic
 def delete_search(*, search):
-    # Grab the PK before we delete the instance
+    """Delete the search, and any code objects that only belong to the draft because of
+    the search.
+
+    """
+
+    draft = search.version
+
+    codes_belonging_only_to_this_search = set(
+        draft.code_objs.annotate(num_results=Count("results"))
+        .filter(results__search=search, num_results=1)
+        .values_list("code", flat=True)
+    )
+
+    ...
+
+    from codelists.actions import cache_hierarchy  # avoid circular imports
+
+    cache_hierarchy(version=draft)
+
     search_pk = search.pk
-
-    # Delete any codes that only belong to this search
-    search.version.code_objs.annotate(num_results=Count("results")).filter(
-        results__search=search, num_results=1
-    ).delete()
-
-    # Delete the search
     search.delete()
-
     logger.info("Deleted Search", search_pk=search_pk)
 
 

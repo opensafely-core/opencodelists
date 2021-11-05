@@ -174,7 +174,7 @@ WHITENOISE_USE_FINDERS = True
 
 
 # Logging
-LOGGING = logging_config_dict
+# LOGGING = logging_config_dict
 
 
 # Tests

@@ -81,4 +81,4 @@ def hierarchies(draw, size):
     for child_id in range(1, size):
         for parent_id in draw(st.sets(st.sampled_from(range(child_id)), min_size=1)):
             edges.append((parent_id, child_id))
-    return Hierarchy("0", edges)
+    return Hierarchy(0, edges)

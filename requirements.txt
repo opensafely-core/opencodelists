@@ -190,7 +190,7 @@ sqlparse==0.4.2
     #   django
     #   django-debug-toolbar
     #   litecli
-structlog==21.2.0
+structlog==21.4.0
     # via
     #   -r requirements.in
     #   django-structlog

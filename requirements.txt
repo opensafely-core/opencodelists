@@ -104,7 +104,7 @@ isort==5.9.3
     # via -r requirements.in
 litecli==1.6.0
     # via -r requirements.in
-lxml==4.6.3
+lxml==4.7.1
     # via -r requirements.in
 markdown2==2.4.1
     # via -r requirements.in

@@ -163,7 +163,7 @@ class Handle(models.Model):
         "Codelist", on_delete=models.CASCADE, related_name="handles"
     )
     name = models.CharField(max_length=255)
-    slug = models.SlugField()
+    slug = models.SlugField(max_length=255)
     organisation = models.ForeignKey(
         "opencodelists.Organisation",
         null=True,
@@ -514,7 +514,7 @@ class Search(models.Model):
     )
     term = models.CharField(max_length=255, null=True)
     code = models.CharField(max_length=18, null=True)
-    slug = models.SlugField()
+    slug = models.SlugField(max_length=255)
 
     class Meta:
         unique_together = ("version", "slug")

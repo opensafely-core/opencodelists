@@ -16,7 +16,7 @@ backports.entry-points-selectable==1.1.0
     # via virtualenv
 bcrypt==3.2.0
     # via paramiko
-black==21.9b0
+black==22.1.0
     # via -r requirements.in
 bleach==4.1.0
     # via -r requirements.in
@@ -171,8 +171,6 @@ pytz==2021.3
     # via django
 pyyaml==6.0
     # via pre-commit
-regex==2021.10.8
-    # via black
 sentry-sdk==1.4.3
     # via -r requirements.in
 six==1.16.0

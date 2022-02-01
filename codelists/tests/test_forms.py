@@ -63,6 +63,5 @@ def test_codelistform_header_stripping():
     form.cleaned_data = {"csv_data": uploaded_file}
 
     cleaned_data = form.clean_csv_data()
-    for column in cleaned_data.split("\n")[0].split(","):
-        assert column[0] != " "
-        assert column[-1] != " "
+    header_line = cleaned_data.splitlines()[0]
+    assert header_line == "code,description"

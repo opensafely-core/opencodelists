@@ -112,7 +112,7 @@ class CSVValidationMixin:
         ]
         if header != cleaned_header:
             headersplit = data.split("\n", maxsplit=1)
-            data = ",".join(cleaned_header) + headersplit[1]
+            data = ",".join(cleaned_header) + "\n" + headersplit[1]
 
         return data
 

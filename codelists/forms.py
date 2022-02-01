@@ -94,8 +94,7 @@ class CSVValidationMixin:
         data = self.cleaned_data["csv_data"].read().decode("utf-8-sig")
 
         reader = csv.reader(StringIO(data))
-        header = next(reader)  # expected to be headers
-        num_columns = len(header)
+        num_columns = len(next(reader))  # expected to be headers
         errors = [i for i, row in enumerate(reader) if len(row) != num_columns]
 
         if errors:
@@ -106,10 +105,6 @@ class CSVValidationMixin:
                     for i in errors
                 ]
             )
-
-        cleaned_header = [h.strip() for h in header]
-        if header != cleaned_header:
-            data = data.replace(",".join(header), ",".join(cleaned_header), 1)
 
         return data
 

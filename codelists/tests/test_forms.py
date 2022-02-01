@@ -65,3 +65,20 @@ def test_codelistform_header_stripping():
     cleaned_data = form.clean_csv_data()
     header_line = cleaned_data.splitlines()[0]
     assert header_line == "code,description"
+
+
+def test_codelistform_header_stripping_quoted():
+    form = CSVValidationMixin()
+
+    # wrap CSV up in SimpleUploadedFile to mirror how a Django view would
+    # handle it
+    csv_data = (
+        '"code "," description"\n"1067731000000107","Injury whilst swimming (disorder)"'
+    )
+    upload_file = csv_builder(csv_data)
+    uploaded_file = SimpleUploadedFile("our csv", upload_file.read())
+    form.cleaned_data = {"csv_data": uploaded_file}
+
+    cleaned_data = form.clean_csv_data()
+    header_line = cleaned_data.splitlines()[0]
+    assert header_line == '"code","description"'

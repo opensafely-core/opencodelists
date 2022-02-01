@@ -1,6 +1,6 @@
 import csv
-from io import StringIO
 import re
+from io import StringIO
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit

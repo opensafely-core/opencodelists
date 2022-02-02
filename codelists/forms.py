@@ -1,5 +1,4 @@
 import csv
-import re
 from io import StringIO
 
 from crispy_forms.helper import FormHelper
@@ -107,8 +106,10 @@ class CSVValidationMixin:
                     for i in errors
                 ]
             )
+
         cleaned_header = [
-            "".join(re.match(r"(\"?)\s*(\w+)\s*(\"?)", h).groups()) for h in header
+            '"' + h.strip('" ') + '"' if h[0] == '"' and h[-1] == '"' else h.strip()
+            for h in header
         ]
         if header != cleaned_header:
             headersplit = data.split("\n", maxsplit=1)

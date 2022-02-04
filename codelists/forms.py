@@ -108,7 +108,7 @@ class CSVValidationMixin:
             )
 
         cleaned_header = [
-            '"' + h.strip('" ') + '"' if h[0] == '"' and h[-1] == '"' else h.strip()
+            '"' + h[1:-1].strip() + '"' if h[0] == '"' and h[-1] == '"' else h.strip()
             for h in header
         ]
         if header != cleaned_header:

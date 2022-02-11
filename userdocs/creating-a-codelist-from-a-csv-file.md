@@ -22,5 +22,5 @@ When you click _Create_ the codelist will be created and you will be taken to th
 From here, you can edit any metadata.
 You can also edit the codelist.
 
-**OPCS-4 codelists**:OPCS-4 codelists can not currently be created using the form described above. To add an OPCS-4 codelist, you can navigate to https://www.opencodelists.org/codelist/user/{USERNAME}/add/, replacing {USERNAME} with your OpenCodelists username. Note that the decimal point in the OPCS-4 codes you upload should be excluded.
+Note:OPCS-4 codelists can not currently be created using the form described above. To add an OPCS-4 codelist, you can navigate to https://www.opencodelists.org/codelist/user/{USERNAME}/add/, replacing {USERNAME} with your OpenCodelists username. Note that the decimal point in the OPCS-4 codes you upload should be excluded.
 

@@ -83,4 +83,6 @@ def test_codelistform_header_stripping_quoted():
 
     cleaned_data = form.clean_csv_data()
     header_line = cleaned_data.splitlines()[0]
-    assert header_line == '"code","description"'
+    assert header_line == "code,description"
+    data_line = cleaned_data.splitlines()[1]
+    assert data_line == '"1067731000000107","Injury whilst swimming (disorder)"'

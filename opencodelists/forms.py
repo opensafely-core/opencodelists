@@ -146,3 +146,36 @@ class RegisterForm(forms.ModelForm):
         if commit:
             user.save()
         return user
+
+
+class MembershipCreateForm(forms.Form):
+    email = forms.EmailField(
+        help_text="Enter an email address for an existing user",
+        widget=forms.TextInput(
+            attrs={"class": "form-control", "placeholder": "Email address"}
+        ),
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.organisation = kwargs.pop("organisation")
+        self.user = None
+        super().__init__(*args, **kwargs)
+
+        if "email" in self.errors:
+            self.fields["email"].widget.attrs.update(
+                {"class": "form-control border-danger"}
+            )
+
+    def clean_email(self):
+        email = self.cleaned_data["email"]
+        try:
+            self.user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            self.add_error("email", f"User with email address {email} does not exist")
+
+        if self.user and self.user.is_member(self.organisation):
+            self.add_error(
+                "email", f"User with email address {email} is already a member"
+            )
+        else:
+            return email

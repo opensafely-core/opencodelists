@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block title_extra %}: {{ organisation.name }}{% endblock %}
+
+{% block content %}
+<br />
+<h3>{{ organisation.name }} Users</h3>
+<br />
+
+<h5>Add a user</h5>
+<form method='POST'>
+    {% csrf_token %}
+    <div class="form-group">
+        {{ form.email }}
+        <small id="email_help" class="form-text text-muted">
+            {{ form.email.help_text|safe }}
+        </small>
+
+        {% if form.email.errors %}
+          <ul class="list-unstyled my-2">
+            {% for error in form.email.errors %}
+            <li class="text-danger">{{ error }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+    </div>
+    <button type="submit" class="btn btn-primary">Add user</button>
+</form>
+<br />
+
+<br />
+<table class="table table-sm pt-4">
+    <thead>
+      <tr>
+        <th scope="col">Name</th>
+        <th scope="col">Email</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% if just_added %}
+        <tr class="table-success">
+            <td>{{ just_added.name }}</td>
+            <td>{{ just_added.email }}</td>
+        </tr>
+        {% endif %}
+
+        {% for member in organisation_members %}
+            <tr>
+                <td>{{ member.name }}</td>
+                <td>{{ member.email }}</td>
+            </tr>
+        {% endfor %}
+
+
+    </tbody>
+</table>
+
+{% endblock %}

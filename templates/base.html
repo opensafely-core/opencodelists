@@ -135,6 +135,11 @@
             <li class="navbar-nav nav-item">
               <a class="nav-link text-white" href="{% url 'user' user.username %}">My codelists</a>
             </li>
+            {% if user.memberships.exists %}
+            <li class="navbar-nav nav-item">
+              <a class="nav-link text-white" href="{% url 'organisations' %}">My organisations</a>
+            </li>
+            {% endif %}
             <li class="navbar-nav nav-item">
               <a class="nav-link text-white" href="{% url 'logout' %}">Sign out</a>
             </li>

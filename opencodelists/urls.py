@@ -15,10 +15,21 @@ users_patterns = [
     ),
 ]
 
+organisations_patterns = [
+    # list users for an organisation (admins only)
+    path(
+        "<organisation_slug>/users",
+        views.organisation_members,
+        name="organisation_members",
+    ),
+    path("", views.organisations, name="organisations"),
+]
+
 urlpatterns = [
     path("", include("codelists.urls")),
     path("api/v1/", include("codelists.api_urls")),
     path("users/", include(users_patterns)),
+    path("organisations/", include(organisations_patterns)),
     path("admin/", admin.site.urls),
     path("accounts/", include("django.contrib.auth.urls")),
     path("accounts/register/", views.register, name="register"),

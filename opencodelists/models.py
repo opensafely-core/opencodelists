@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.core.exceptions import ObjectDoesNotExist
@@ -32,11 +34,12 @@ class UserManager(BaseUserManager):
             )
 
         email = self.normalize_email(email)
-        user = self.model(
-            username=username, email=email, organisation=org, **extra_fields
-        )
+        user = self.model(username=username, email=email, **extra_fields)
         user.set_password(password)
         user.save()
+        user.memberships.create(
+            organisation=org, date_joined=datetime.today(), is_admin=False
+        )
 
         return user
 
@@ -199,3 +202,6 @@ class Membership(models.Model):
 
     class Meta:
         unique_together = ("user", "organisation")
+
+    def get_absolute_url(self):
+        return reverse("organisation", args=(self.organisation.slug,))

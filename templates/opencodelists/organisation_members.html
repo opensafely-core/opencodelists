@@ -13,14 +13,14 @@
 <form method='POST'>
     {% csrf_token %}
     <div class="form-group">
-        {{ form.email }}
-        <small id="email_help" class="form-text text-muted">
-            {{ form.email.help_text|safe }}
+        {{ form.user_idenitfier }}
+        <small id="user_idenitfier_help" class="form-text text-muted">
+            {{ form.user_idenitfier.help_text|safe }}
         </small>
 
-        {% if form.email.errors %}
+        {% if form.user_idenitfier.errors %}
           <ul class="list-unstyled my-2">
-            {% for error in form.email.errors %}
+            {% for error in form.user_idenitfier.errors %}
             <li class="text-danger">{{ error }}</li>
             {% endfor %}
           </ul>
@@ -35,6 +35,7 @@
     <thead>
       <tr>
         <th scope="col">Name</th>
+        <th scope="col">Username</th>
         <th scope="col">Email</th>
       </tr>
     </thead>
@@ -42,6 +43,7 @@
         {% if just_added %}
         <tr class="table-success">
             <td>{{ just_added.name }}</td>
+            <td>{{ just_added.username }}</td>
             <td>{{ just_added.email }}</td>
         </tr>
         {% endif %}
@@ -49,6 +51,7 @@
         {% for member in organisation_members %}
             <tr>
                 <td>{{ member.name }}</td>
+                <td>{{ member.username }}</td>
                 <td>{{ member.email }}</td>
             </tr>
         {% endfor %}

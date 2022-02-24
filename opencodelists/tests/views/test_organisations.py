@@ -76,17 +76,31 @@ def test_add_member(
     )
     client.force_login(organisation_admin)
 
-    response = client.post(organisation_members_url, data={"email": "unknown@test.com"})
-    assert response.context["form"].is_valid() is False
-
     response = client.post(
-        organisation_members_url, data={"email": organisation_user.email}
+        organisation_members_url, data={"user_idenitfier": "unknown@test.com"}
     )
     assert response.context["form"].is_valid() is False
 
+    response = client.post(
+        organisation_members_url, data={"user_idenitfier": organisation_user.email}
+    )
+    assert response.context["form"].is_valid() is False
+
+    # add user by email address
     assert user_without_organisation.organisations.exists() is False
     response = client.post(
-        organisation_members_url, data={"email": user_without_organisation.email}
+        organisation_members_url,
+        data={"user_idenitfier": user_without_organisation.email},
+    )
+    assert user_without_organisation.organisations.exists() is True
+    assert user_without_organisation.organisations.first() == organisation
+
+    # add user by username
+    user_without_organisation.memberships.all().delete()
+    assert user_without_organisation.organisations.exists() is False
+    response = client.post(
+        organisation_members_url,
+        data={"user_idenitfier": user_without_organisation.username},
     )
     assert user_without_organisation.organisations.exists() is True
     assert user_without_organisation.organisations.first() == organisation

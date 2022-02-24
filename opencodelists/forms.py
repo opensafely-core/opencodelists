@@ -149,10 +149,11 @@ class RegisterForm(forms.ModelForm):
 
 
 class MembershipCreateForm(forms.Form):
-    email = forms.EmailField(
-        help_text="Enter an email address for an existing user",
+    user_idenitfier = forms.CharField(
+        max_length=255,
+        help_text="Enter a username or email address for an existing user",
         widget=forms.TextInput(
-            attrs={"class": "form-control", "placeholder": "Email address"}
+            attrs={"class": "form-control", "placeholder": "Username/Email"}
         ),
     )
 
@@ -161,21 +162,26 @@ class MembershipCreateForm(forms.Form):
         self.user = None
         super().__init__(*args, **kwargs)
 
-        if "email" in self.errors:
-            self.fields["email"].widget.attrs.update(
+        if "user_idenitfier" in self.errors:
+            self.fields["user_idenitfier"].widget.attrs.update(
                 {"class": "form-control border-danger"}
             )
 
-    def clean_email(self):
-        email = self.cleaned_data["email"]
+    def clean_user_idenitfier(self):
+        user_idenitfier = self.cleaned_data["user_idenitfier"]
         try:
-            self.user = User.objects.get(email=email)
+            self.user = User.objects.get(username=user_idenitfier)
         except User.DoesNotExist:
-            self.add_error("email", f"User with email address {email} does not exist")
+            try:
+                self.user = User.objects.get(email=user_idenitfier)
+            except User.DoesNotExist:
+                self.add_error(
+                    "user_idenitfier", f"User {user_idenitfier} does not exist"
+                )
 
         if self.user and self.user.is_member(self.organisation):
             self.add_error(
-                "email", f"User with email address {email} is already a member"
+                "user_idenitfier", f"User {user_idenitfier} is already a member"
             )
         else:
-            return email
+            return user_idenitfier

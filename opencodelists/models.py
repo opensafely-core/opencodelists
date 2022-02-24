@@ -25,19 +25,10 @@ class UserManager(BaseUserManager):
         if not email:
             raise ValueError("The Email must be set")
 
-        org = Organisation.objects.first()
-        if not org:
-            org = Organisation.objects.create(
-                name="DataLab", slug="datalab", url="https://ebmdatalab.net/"
-            )
-
         email = self.normalize_email(email)
-        user = self.model(
-            username=username, email=email, organisation=org, **extra_fields
-        )
+        user = self.model(username=username, email=email, **extra_fields)
         user.set_password(password)
         user.save()
-
         return user
 
     def create_superuser(self, username, email, password, **extra_fields):
@@ -199,3 +190,6 @@ class Membership(models.Model):
 
     class Meta:
         unique_together = ("user", "organisation")
+
+    def get_absolute_url(self):
+        return reverse("organisation", args=(self.organisation.slug,))

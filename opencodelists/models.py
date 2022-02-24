@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.core.exceptions import ObjectDoesNotExist
@@ -27,20 +25,10 @@ class UserManager(BaseUserManager):
         if not email:
             raise ValueError("The Email must be set")
 
-        org = Organisation.objects.first()
-        if not org:
-            org = Organisation.objects.create(
-                name="DataLab", slug="datalab", url="https://ebmdatalab.net/"
-            )
-
         email = self.normalize_email(email)
         user = self.model(username=username, email=email, **extra_fields)
         user.set_password(password)
         user.save()
-        user.memberships.create(
-            organisation=org, date_joined=datetime.today(), is_admin=False
-        )
-
         return user
 
     def create_superuser(self, username, email, password, **extra_fields):

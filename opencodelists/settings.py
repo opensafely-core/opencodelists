@@ -41,9 +41,9 @@ SECRET_KEY = env.str("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool("DEBUG", False)
 
-BASE_URL = env.str("BASE_URL", default="http://localhost:8000")
+BASE_URLS = env.list("BASE_URLS", default=["http://localhost:8000"])
 
-ALLOWED_HOSTS = [furl(BASE_URL).host]
+ALLOWED_HOSTS = [furl(base_url).host for base_url in BASE_URLS]
 
 IN_PRODUCTION = env.bool("IN_PRODUCTION", False)
 
@@ -55,7 +55,7 @@ if IN_PRODUCTION:
     CSRF_COOKIE_SECURE = True
 
 # https://docs.djangoproject.com/en/4.0/ref/settings/#std:setting-CSRF_TRUSTED_ORIGINS
-CSRF_TRUSTED_ORIGINS = [BASE_URL]
+CSRF_TRUSTED_ORIGINS = BASE_URLS
 
 
 # Application definition

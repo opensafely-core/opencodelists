@@ -61,11 +61,16 @@ prodenv: requirements-prod
     touch $VIRTUAL_ENV/.prod
 
 
+_env:
+    #!/usr/bin/env bash
+    test -f .env || cp dotenv-sample .env
+
+
 # && dependencies are run after the recipe has run. Needs just>=0.9.9. This is
 # a killer feature over Makefiles.
 #
 # ensure dev requirements installed and up to date
-devenv: prodenv requirements-dev && install-precommit
+devenv: _env prodenv requirements-dev && install-precommit
     # exit if .txt file has not changed since we installed them (-nt == "newer than', but we negate with || to avoid error exit code)
     test requirements.dev.txt -nt $VIRTUAL_ENV/.dev || exit 0
 
@@ -156,12 +161,12 @@ check-fnm:
 
 
 # build docker image env=dev|prod
-docker-build env="dev":
+docker-build env="dev": _env
     {{ just_executable() }} docker/build {{ env }}
 
 
 # run python tests in docker container
-docker-test-py *args="":
+docker-test-py *args="": _env
     {{ just_executable() }} docker/test-py {{ args }}
 
 
@@ -171,20 +176,20 @@ docker-test-js:
 
 
 # run tests in docker container
-docker-test:
+docker-test: _env
     {{ just_executable() }} docker/test
 
 
 # run dev server in docker container
-docker-serve:
+docker-serve: _env
     {{ just_executable() }} docker/serve
 
 
 # run cmd in dev docker continer
-docker-run *args="bash":
+docker-run *args="bash": _env
     {{ just_executable() }} docker/run {{ args }}
 
 
 # exec command in an existing dev docker container
-docker-exec *args="bash":
+docker-exec *args="bash": _env
     {{ just_executable() }} docker/exec {{ args }}

@@ -15,35 +15,48 @@ from pathlib import Path
 
 import sentry_sdk
 from django.contrib.messages import constants as messages
+from environs import Env
+from furl import furl
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.logging import ignore_logger
 
 from services.logging import logging_config_dict
 
+
 # Patch sqlite3 to ensure recent version
 __import__("pysqlite3")
 sys.modules["sqlite3"] = sys.modules.pop("pysqlite3")
 
+
+# Read env file/vars
+env = Env()
+env.read_env()
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-IN_PRODUCTION = bool(os.environ.get("IN_PRODUCTION"))
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = env.str("SECRET_KEY")
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = env.bool("DEBUG", False)
+
+BASE_URL = env.str("BASE_URL", default="http://localhost:8000")
+
+ALLOWED_HOSTS = [furl(BASE_URL).host]
+
+IN_PRODUCTION = env.bool("IN_PRODUCTION", False)
 
 
 if IN_PRODUCTION:
-    SECRET_KEY = os.environ["SECRET_KEY"]
-    DEBUG = False
-    ALLOWED_HOSTS = os.environ["ALLOWED_HOSTS"].split(",")
-
     # This setting causes infinite redirects
     # SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
 
-else:
-    SECRET_KEY = "secret"
-    DEBUG = not os.environ.get("NO_DEBUG")
-    ALLOWED_HOSTS = ["*"]
+# https://docs.djangoproject.com/en/4.0/ref/settings/#std:setting-CSRF_TRUSTED_ORIGINS
+CSRF_TRUSTED_ORIGINS = [BASE_URL]
 
 
 # Application definition
@@ -89,7 +102,7 @@ MIDDLEWARE = [
     "django_structlog.middlewares.RequestMiddleware",
 ]
 
-if not os.environ.get("DDT_ENABLED"):
+if not env.bool("DDT_ENABLED", False):
     # Django Debug Toolbar adds 77s to the load time of a large codelist!
     INSTALLED_APPS.remove("debug_toolbar")
     MIDDLEWARE.remove("debug_toolbar.middleware.DebugToolbarMiddleware")
@@ -118,12 +131,8 @@ WSGI_APPLICATION = "opencodelists.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
-}
+DATABASES = {"default": env.dj_db_url("DATABASE_URL", "sqlite:///db.sqlite3")}
+
 
 # Default type for auto-created primary keys
 # https://docs.djangoproject.com/en/3.2/releases/3.2/#customizing-type-of-auto-created-primary-keys

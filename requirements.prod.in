@@ -12,6 +12,8 @@ django-crispy-forms
 django-cors-headers
 django-debug-toolbar
 django-structlog
+environs[django]
+furl
 gunicorn
 lxml
 markdown2

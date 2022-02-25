@@ -1,0 +1,6 @@
+IN_PRODUCTION=False
+DEBUG=True
+BASE_URL=http://localhost:8000
+SECRET_KEY=dummy-secret
+DDT_ENABLED=False
+SENTRY_DSN=

@@ -1,0 +1,59 @@
+# note: we do not run prod service with docker-compose, we use it just for
+# configuring the production build
+services:
+  prod:
+    # image name, both locally and public
+    image: opencodelists
+    build:
+      context: ..
+      # path relative to context
+      dockerfile: docker/Dockerfile
+      # the prod stage in the Dockerfile
+      target: opencodelists-prod
+      # should speed up the build in CI, where we have a cold cache
+      cache_from:  # should speed up the build in CI, where we have a cold cache
+        - ghcr.io/opensafely-core/base-docker
+        - ghcr.io/opensafely-core/opencodelists
+      args:
+        # this makes the image work for later cache_from: usage
+        - BUILDKIT_INLINE_CACHE=1
+        # env vars supplied by just
+        - BUILD_DATE
+        - GITREF
+    # use dockers builitin PID daemon
+    init: true
+    ports:
+      - "8000:8000"
+
+  node-assets:
+    extends:
+      service: prod
+    image: opencodelists-node-assets
+    build:
+      # the node-builder stage in the Dockerfile
+      target: node-builder
+    volumes:
+      - ..:/app
+
+  # main development service
+  dev:
+    extends:
+      service: prod
+    image: opencodelists-dev
+    container_name: opencodelists-dev
+    build:
+      # the dev stage in the Dockerfile
+      target: opencodelists-dev
+    # paths relative to docker-compose.yaml file
+    volumes:
+      - ..:/app
+    # override command
+    command: python manage.py runserver 0.0.0.0:8000
+
+  # test runner service - uses dev-image with a different entrypoint commnd
+  test:
+    extends:
+      service: dev
+    container_name: opencodelists-test
+    # override command
+    command: python -m pytest --cov=. --cov-report html --cov-report term-missing:skip-covered

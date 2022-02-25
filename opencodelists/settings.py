@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 import os
 import sys
+from pathlib import Path
 
 import sentry_sdk
 from django.contrib.messages import constants as messages
@@ -23,9 +24,8 @@ from services.logging import logging_config_dict
 __import__("pysqlite3")
 sys.modules["sqlite3"] = sys.modules.pop("pysqlite3")
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 IN_PRODUCTION = bool(os.environ.get("IN_PRODUCTION"))
 
@@ -99,7 +99,7 @@ ROOT_URLCONF = "opencodelists.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [os.path.join(BASE_DIR, "templates")],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -121,7 +121,7 @@ WSGI_APPLICATION = "opencodelists.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
+        "NAME": BASE_DIR / "db.sqlite3",
     }
 }
 
@@ -168,8 +168,10 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
-STATICFILES_DIRS = [os.path.join(BASE_DIR, "static", "dist")]
+STATICFILES_DIRS = [BASE_DIR / "static" / "dist"]
+STATIC_ROOT = BASE_DIR / "staticfiles"
 STATIC_URL = "/static/"
+
 WHITENOISE_USE_FINDERS = True
 
 

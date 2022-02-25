@@ -1,0 +1,51 @@
+export DOCKER_USERID := `id -u`
+export DOCKER_GROUPID := `id -g`
+
+# Load .env files by default
+set dotenv-load := true
+
+# enable modern docker build features
+export DOCKER_BUILDKIT := "1"
+export COMPOSE_DOCKER_CLI_BUILD := "1"
+
+
+build env="dev":
+    #!/usr/bin/env bash
+
+    # set build args for prod builds
+    export BUILD_DATE=$(date -u +'%y-%m-%dT%H:%M:%SZ')
+    export GITREF=$(git rev-parse --short HEAD)
+
+    # build the thing
+    docker-compose build --pull {{ env }}
+
+
+# run tests in docker container
+test-py *args="":
+    docker-compose run --rm test python -m pytest \
+    --cov=builder \
+    --cov=codelists \
+    --cov=coding_systems \
+    --cov=mappings \
+    --cov=opencodelists \
+    --cov-report html \
+    --cov-report term-missing:skip-covered {{ args }}
+
+test-js:
+    docker-compose run --rm node-assets npm run test
+
+test: test-js test-py
+
+# run dev server in docker container
+serve:
+    docker-compose up dev
+
+
+# run command in dev container
+run *args="bash":
+    docker-compose run dev {{ args }}
+
+
+# exec command in existing dev container
+exec *args="bash":
+    docker-compose exec dev {{ args }}

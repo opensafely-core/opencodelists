@@ -8,3 +8,4 @@ __pycache__/
 htmlcov
 node_modules
 static/dist/js
+staticfiles/

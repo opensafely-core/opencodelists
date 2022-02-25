@@ -26,44 +26,115 @@ Templates.
 
 #### `deploy/`
 
-Resources for deployment. Deployment is via Fabric.
+Resources for deployment. Deployment is via dokku (see [deployment notes](DEPLOYMENT.md)).
 
 #### `scripts/`
 
 A place to put scripts to be run via [runscript](https://django-extensions.readthedocs.io/en/latest/runscript.html).
 
-## Development
 
-To install dependencies:
+# Notes for developers
 
-- Run `pip install -r requirements.txt`
-- Run `npm install`
+## Local development
 
-To update dependencies:
+### Prerequisites:
 
-- Edit `requirements.in` and run `pip-compile`
-- Run `npm --save[-dev] ...`
+- **Python v3.8.x**
+- **Pip**
+- **[fnm](#install-fnm)**
+- **[Just](#install-just)**
 
-To build JS:
+### Install just
 
-- Run `npm run watch`
+```sh
+# macOS
+brew install just
 
-To run tests:
+# Linux
+# Install from https://github.com/casey/just/releases
 
-- `pytest` (or `./manage.py test`)
-- `npm run test`
+# Add completion for your shell. E.g. for bash:
+source <(just --completions bash)
 
-To check formatting:
+# Show all available commands
+just #  shortcut for just --list
+```
 
-- `make format lint sort`
+### Install fnm
 
-To fix formatting:
+See https://github.com/Schniz/fnm#installation.
 
-- `make fix`
+### Run local development server
 
-To set up tooling via a pre-commit hook:
+The development server can be run locally, as described below, or in [docker](#using-docker-for-development-and-tests).
 
-- `pre-commit install`
+#### Set up/update local dev environment
 
-To use Django Debug Toolbar in development, set `DDT_ENABLED`.
-It is not enabled by default because it adds tens of seconds to the load time of some pages.
+```sh
+just dev-setup
+```
+
+#### Run local django server
+
+```sh
+just run
+```
+
+Access at http://localhost:8000
+
+
+#### Run tests
+
+```sh
+# python tests and coverage
+just test-py
+
+# run specific test with usual pytest syntax
+just test-py <path/to/test>::<test name>
+
+# js tests
+just test-js
+
+# all tests
+just test
+```
+
+#### Check/Fix formatting, linting, sorting
+```sh
+# check python files (black, isort, flake8)
+just check
+
+# fix black and isort
+just fix
+
+# js linting
+just check-js
+```
+
+### Using docker for development and tests
+
+Run a local development server in docker:
+
+```sh
+just docker-serve
+```
+
+Run the python tests in docker
+```sh
+just docker-test-py
+```
+
+To run named test(s) or pass additional args, pass paths and args as you normally would to pytest:
+```sh
+just docker-test-py tests/reports/test_models.py::test_report_model_validation -k some-mark --pdb
+```
+
+Run the JS tests in docker
+```sh
+just docker-test-js
+```
+
+Run a command in the dev docker containter
+```sh
+just docker-run <command>
+```

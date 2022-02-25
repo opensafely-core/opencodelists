@@ -69,14 +69,14 @@ ENV VIRTUAL_ENV=/opt/venv/ PATH="/opt/venv/bin:$PATH"
 
 # The cache mount means a) /root/.cache is not in the image, and b) it's preserved
 # between docker builds locally, for faster dev rebuild.
-COPY requirements.txt /tmp/requirements.txt
+COPY requirements.prod.txt /tmp/requirements.prod.txt
 
 # DL3042: using cache mount instead
 # DL3013: we always want latest pip/setuptools/wheel, at least for now
 # hadolint ignore=DL3042,DL3013
 RUN --mount=type=cache,target=/root/.cache \
     python -m pip install -U pip setuptools wheel && \
-    python -m pip install --require-hashes --requirement /tmp/requirements.txt
+    python -m pip install --require-hashes --requirement /tmp/requirements.prod.txt
 
 
 ##################################################
@@ -129,7 +129,7 @@ COPY . /app
 
 # copy node assets over from node-builder image. These will have root:root ownership, but
 # are readable by all.
-COPY --from=node-builder /usr/src/app/assets/dist /app/assets/dist
+COPY --from=node-builder /usr/src/app/static/dist/js /app/static/dist/js
 
 # We set command rather than entrypoint, to make it easier to run different
 # things from the cli
@@ -151,6 +151,13 @@ LABEL org.opencontainers.image.revision=$GITREF
 # installing dev dependencies and changing the entrypoint
 #
 FROM opencodelists-base as opencodelists-dev
+
+# install development requirements
+COPY requirements.dev.txt /tmp/requirements.dev.txt
+# using cache mount instead
+# hadolint ignore=DL3042
+RUN --mount=type=cache,target=/root/.cache \
+    python -m pip install --require-hashes --requirement /tmp/requirements.dev.txt
 
 # Override ENTRYPOINT rather than CMD so we can pass arbitrary commands to the entrypoint script
 ENTRYPOINT ["/app/docker/entrypoints/dev.sh"]

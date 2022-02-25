@@ -2,6 +2,7 @@ db.sqlite3
 environment
 tmp
 venv
+.venv
 __pycache__/
 .coverage
 .hypothesis

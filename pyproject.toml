@@ -1,3 +1,15 @@
+[tool.black]
+exclude = '''
+(
+  /(
+      \.git         # exclude a few common directories in the
+    | \.direnv
+    | \.venv
+    | venv
+  )/
+)
+'''
+
 [tool.coverage.run]
 branch = true
 omit = [
@@ -13,14 +25,15 @@ skip_covered = true
 [tool.coverage.html]
 
 [tool.isort]
-force_grid_wrap = 0
-include_trailing_comma = true
-line_length = 88
-multi_line_output = 3
-use_parentheses = true
+profile = "black"
+lines_after_imports = 2
 skip_glob = [".direnv", "*migrations*", "tmp", ".venv", "coding_systems/snomedct/parser_utils/*"]
 known_third_party = ["antlr4", "bleach", "crispy_forms", "debug_toolbar", "django", "fabric", "hypothesis", "lxml", "markdown2", "openpyxl", "pytest", "rest_framework", "sentry_sdk", "structlog"]
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "opencodelists.settings"
 addopts = "--tb=native --ignore=node_modules --no-migrations"
+
+filterwarnings = [
+    "ignore::django.utils.deprecation.RemovedInDjango41Warning:social_django",
+]

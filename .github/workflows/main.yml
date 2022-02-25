@@ -41,7 +41,7 @@ jobs:
         run: npm ci
 
       - name: Build assets
-        run: npm run build
+        run: npm run build-dev
 
       - name: Store assets
         uses: actions/upload-artifact@v2
@@ -49,7 +49,7 @@ jobs:
           name: node-assets
           path: static/dist/js
 
-  check:
+  check-py:
     needs: [build]
     runs-on: ubuntu-latest
 
@@ -71,11 +71,18 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: extractions/setup-just@aa5d15c144db4585980a44ebfdd2cf337c4f14cb  # v1.4.0
+
+      - name: Retrieve assets
+        uses: actions/download-artifact@v2
+        with:
+          name: node-assets
+          path: static/dist/js
+
       - name: Check js linting
-        run: just check-js
+        run: just check-js-ci
 
   test-py:
-    needs: [check]
+    needs: [check-py]
     runs-on: ubuntu-latest
 
     steps:
@@ -111,7 +118,7 @@ jobs:
           path: static/dist/js
 
       - name: Run js tests
-        run: just test-js
+        run: just test-js-ci
 
   lint-dockerfile:
     runs-on: ubuntu-latest

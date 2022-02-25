@@ -110,6 +110,11 @@ test-js: npm-install
     npm run test
 
 
+# Run the js tests without npm-install in CI
+test-js-ci:
+    npm run test
+
+
 # Run all the tests
 test: test-js test-py
 
@@ -126,6 +131,11 @@ fix: devenv
 
 # Runs the linter on JS files
 check-js: npm-install
+    npx eslint static/src/js/builder/* static/src/js/hierarchy.js
+
+
+# Run linter without npm-install on CI
+check-js-ci:
     npx eslint static/src/js/builder/* static/src/js/hierarchy.js
 
 

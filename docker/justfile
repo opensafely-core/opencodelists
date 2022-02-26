@@ -8,6 +8,7 @@ set dotenv-load := true
 export DOCKER_BUILDKIT := "1"
 export COMPOSE_DOCKER_CLI_BUILD := "1"
 
+export BIN := "/opt/venv/bin"
 
 build env="dev":
     #!/usr/bin/env bash
@@ -25,6 +26,17 @@ copy-assets: build
     #!/usr/bin/env bash
     docker-compose build --pull node-assets
     docker-compose run --rm --no-deps --entrypoint /usr/bin/env node-assets rsync --delete -r /usr/src/app/static/dist/js /app/static/dist/js
+
+
+# run JS linter
+check-js: copy-assets
+    docker-compose run --rm node-assets \
+    npx eslint static/src/js/builder/* static/src/js/hierarchy.js
+
+
+# run python checks
+check-py: build
+    docker-compose run --rm dev /app/docker/entrypoints/check.sh
 
 
 # run tests in docker container

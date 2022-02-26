@@ -6,6 +6,7 @@ exclude = '''
     | \.direnv
     | \.venv
     | venv
+    | staticfiles
   )/
 )
 '''
@@ -17,6 +18,7 @@ omit = [
   "opencodelists/django_test_runner.py",
   "opencodelists/settings.py",
   "opencodelists/wsgi.py",
+  "staticfiles"
 ]
 
 [tool.coverage.report]
@@ -26,7 +28,7 @@ skip_covered = true
 
 [tool.isort]
 profile = "black"
-skip_glob = [".direnv", "*migrations*", "tmp", ".venv", "coding_systems/snomedct/parser_utils/*"]
+skip_glob = [".direnv", "*migrations*", "tmp", ".venv", "coding_systems/snomedct/parser_utils/*", "staticfiles"]
 known_third_party = ["antlr4", "bleach", "crispy_forms", "debug_toolbar", "django", "environs", "furl", "hypothesis", "lxml", "markdown2", "openpyxl", "pytest", "rest_framework", "sentry_sdk", "structlog"]
 
 [tool.pytest.ini_options]

@@ -13,182 +13,192 @@ on:
 concurrency: ci-${{ github.ref }}
 
 jobs:
-  build:
+  # build:
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #     - uses: actions/checkout@v2
+
+  #     # Node.js
+  #     - name: Cache node_modules
+  #       uses: actions/cache@v2
+  #       env:
+  #         cache-name: cache-node-modules
+  #       with:
+  #         path: ~/.npm
+  #         key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+  #         restore-keys: |
+  #           ${{ runner.os }}-build-${{ env.cache-name }}-
+  #           ${{ runner.os }}-build-
+  #           ${{ runner.os }}-
+
+  #     - name: Install Node.js
+  #       uses: actions/setup-node@v2
+  #       with:
+  #         node-version: "16"
+
+  #     - name: Install node_modules
+  #       run: npm ci
+
+  #     - name: Build assets
+  #       run: npm run build-dev
+
+  #     - name: Store assets
+  #       uses: actions/upload-artifact@v2
+  #       with:
+  #         name: node-assets
+  #         path: static/dist/js
+
+  # check-py:
+  #   needs: [build]
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - uses: "actions/setup-python@v2"
+  #       with:
+  #         python-version: "3.8"
+  #         cache: pip
+  #         cache-dependency-path: requirements.*.txt
+  #     - uses: extractions/setup-just@aa5d15c144db4585980a44ebfdd2cf337c4f14cb  # v1.4.0
+  #     - name: Check formatting, linting and import sorting
+  #       run: just check
+
+  check-js:
+    # needs: [build]
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v2
+      - uses: extractions/setup-just@aa5d15c144db4585980a44ebfdd2cf337c4f14cb  # v1.4.0
 
-      # Node.js
-      - name: Cache node_modules
-        uses: actions/cache@v2
-        env:
-          cache-name: cache-node-modules
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
-
+      # - name: Retrieve assets
+      #   uses: actions/download-artifact@v2
+      #   with:
+      #     name: node-assets
+      #     path: static/dist/js
       - name: Install Node.js
         uses: actions/setup-node@v2
         with:
           node-version: "16"
 
       - name: Install node_modules
-        run: npm ci
+        run: npm install
 
       - name: Build assets
         run: npm run build-dev
 
-      - name: Store assets
-        uses: actions/upload-artifact@v2
-        with:
-          name: node-assets
-          path: static/dist/js
-
-  check-py:
-    needs: [build]
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v2
-      - uses: "actions/setup-python@v2"
-        with:
-          python-version: "3.8"
-          cache: pip
-          cache-dependency-path: requirements.*.txt
-      - uses: extractions/setup-just@aa5d15c144db4585980a44ebfdd2cf337c4f14cb  # v1.4.0
-      - name: Check formatting, linting and import sorting
-        run: just check
-
-  check-js:
-    needs: [build]
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v2
-      - uses: extractions/setup-just@aa5d15c144db4585980a44ebfdd2cf337c4f14cb  # v1.4.0
-
-      - name: Retrieve assets
-        uses: actions/download-artifact@v2
-        with:
-          name: node-assets
-          path: static/dist/js
-
       - name: Check js linting
         run: just check-js-ci
 
-  test-py:
-    needs: [check-py]
-    runs-on: ubuntu-latest
+  # test-py:
+  #   needs: [check-py]
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v2
-      - uses: "actions/setup-python@v2"
-        with:
-          python-version: "3.8"
-          cache: pip
-          cache-dependency-path: requirements.*.txt
-      - uses: extractions/setup-just@aa5d15c144db4585980a44ebfdd2cf337c4f14cb  # v1.4.0
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - uses: "actions/setup-python@v2"
+  #       with:
+  #         python-version: "3.8"
+  #         cache: pip
+  #         cache-dependency-path: requirements.*.txt
+  #     - uses: extractions/setup-just@aa5d15c144db4585980a44ebfdd2cf337c4f14cb  # v1.4.0
 
-      - name: Retrieve assets
-        uses: actions/download-artifact@v2
-        with:
-          name: node-assets
-          path: static/dist/js
+  #     - name: Retrieve assets
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: node-assets
+  #         path: static/dist/js
 
-      - name: Run python tests
-        run: just test-py
+  #     - name: Run python tests
+  #       run: just test-py
 
-  test-js:
-    needs: [check-js]
-    runs-on: ubuntu-latest
+  # test-js:
+  #   needs: [check-js]
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v2
-      - uses: extractions/setup-just@aa5d15c144db4585980a44ebfdd2cf337c4f14cb  # v1.4.0
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - uses: extractions/setup-just@aa5d15c144db4585980a44ebfdd2cf337c4f14cb  # v1.4.0
 
-      - name: Retrieve assets
-        uses: actions/download-artifact@v2
-        with:
-          name: node-assets
-          path: static/dist/js
+  #     - name: Retrieve assets
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: node-assets
+  #         path: static/dist/js
 
-      - name: Run js tests
-        run: just test-js-ci
+  #     - name: Run js tests
+  #       run: just test-js-ci
 
-  lint-dockerfile:
-    runs-on: ubuntu-latest
+  # lint-dockerfile:
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v2
-      - uses: hadolint/hadolint-action@v1.4.0
-        with:
-          dockerfile: docker/Dockerfile
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - uses: hadolint/hadolint-action@v1.4.0
+  #       with:
+  #         dockerfile: docker/Dockerfile
 
-  docker-test:
-    needs: [test-py, test-js]
-    runs-on: ubuntu-latest
+  # docker-test:
+  #   needs: [test-py, test-js]
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v2
-      - uses: extractions/setup-just@aa5d15c144db4585980a44ebfdd2cf337c4f14cb  # v1.4.0
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - uses: extractions/setup-just@aa5d15c144db4585980a44ebfdd2cf337c4f14cb  # v1.4.0
 
-      - name: Build docker image and run tests in it
-        run: |
-          # build docker and run test
-          just docker-test
+  #     - name: Build docker image and run tests in it
+  #       run: |
+  #         # build docker and run test
+  #         just docker-test
 
-  deploy:
-    needs: [docker-test, lint-dockerfile]
+  # deploy:
+  #   needs: [docker-test, lint-dockerfile]
 
-    runs-on: ubuntu-latest
+  #   runs-on: ubuntu-latest
 
-    permissions:
-      contents: read
-      packages: write
+  #   permissions:
+  #     contents: read
+  #     packages: write
 
-    if: github.ref == 'refs/heads/main'
+  #   if: github.ref == 'refs/heads/main'
 
-    steps:
-      - uses: actions/checkout@v2
-      - uses: extractions/setup-just@aa5d15c144db4585980a44ebfdd2cf337c4f14cb  # v1.4.0
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - uses: extractions/setup-just@aa5d15c144db4585980a44ebfdd2cf337c4f14cb  # v1.4.0
 
-      - name: Build docker image
-        run: |
-          # docker-test step will build the dev image by default, so build the prod image
-          just docker-build prod
+  #     - name: Build docker image
+  #       run: |
+  #         # docker-test step will build the dev image by default, so build the prod image
+  #         just docker-build prod
 
-      - name: Login to Packages Container registry
-        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9  # v1.10.0
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+  #     - name: Login to Packages Container registry
+  #       uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9  # v1.10.0
+  #       with:
+  #         registry: ${{ env.REGISTRY }}
+  #         username: ${{ github.actor }}
+  #         password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: publish docker image
-        run: |
-            docker tag $IMAGE_NAME $PUBLIC_IMAGE_NAME:latest
-            docker push $PUBLIC_IMAGE_NAME:latest
+  #     - name: publish docker image
+  #       run: |
+  #           docker tag $IMAGE_NAME $PUBLIC_IMAGE_NAME:latest
+  #           docker push $PUBLIC_IMAGE_NAME:latest
 
-      - name: Setup SSH Agent
-        run: |
-            ssh-agent -a $SSH_AUTH_SOCK > /dev/null
-            ssh-add - <<< "${{ secrets.DOKKU2_DEPLOY_SSH_KEY }}"
+  #     - name: Setup SSH Agent
+  #       run: |
+  #           ssh-agent -a $SSH_AUTH_SOCK > /dev/null
+  #           ssh-add - <<< "${{ secrets.DOKKU2_DEPLOY_SSH_KEY }}"
 
-      - name: Deploy
-        run: |
-            SHA=$(docker inspect --format='{{index .RepoDigests 0}}' $PUBLIC_IMAGE_NAME:latest)
-            ssh -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" dokku@dokku2.ebmdatalab.net git:from-image opencodelists $SHA
+  #     - name: Deploy
+  #       run: |
+  #           SHA=$(docker inspect --format='{{index .RepoDigests 0}}' $PUBLIC_IMAGE_NAME:latest)
+  #           ssh -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" dokku@dokku2.ebmdatalab.net git:from-image opencodelists $SHA
 
-      - name: Create Sentry release
-        uses: getsentry/action-release@744e4b262278339b79fb39c8922efcae71e98e39
-        env:
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
-          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
-        with:
-          environment: production
+  #     - name: Create Sentry release
+  #       uses: getsentry/action-release@744e4b262278339b79fb39c8922efcae71e98e39
+  #       env:
+  #         SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+  #         SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+  #         SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+  #       with:
+  #         environment: production

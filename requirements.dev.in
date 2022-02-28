@@ -12,7 +12,6 @@ pytest-subtests
 
 # dev
 black
-django-extensions
 flake8
 isort
 litecli

@@ -11,6 +11,7 @@ djangorestframework
 django-crispy-forms
 django-cors-headers
 django-debug-toolbar
+django-extensions
 django-structlog
 environs[django]
 furl

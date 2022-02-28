@@ -122,7 +122,7 @@ FROM opencodelists-base as opencodelists-prod
 # some basic metadata.
 LABEL org.opencontainers.image.title="opencodelists" \
       org.opencontainers.image.description="OpenCodelists" \
-      org.opencontainers.image.source="https://github.com/ebmdatalab/opencodelists"
+      org.opencontainers.image.source="https://github.com/opensafely-core/opencodelists"
 
 # copy application code
 COPY . /app

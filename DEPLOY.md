@@ -27,11 +27,15 @@ dokku$ dokku storage:mount opencodelists /var/lib/dokku/data/storage/opencodelis
 ### Configure app
 
 ```sh
+# set environment variables
 dokku$ dokku config:set opencodelists IN_PRODUCTION=True
 dokku$ dokku config:set opencodelists BASE_URLS='https://opencodelists.org,https://opencodelists.opensafely.org'
 dokku$ dokku config:set opencodelists DATABASE_URL='sqlite:////storage/db.sqlite3'
 dokku$ dokku config:set opencodelists SECRET_KEY='xxx'
 dokku$ dokku config:set opencodelists SENTRY_DSN='https://xxx@xxx.ingest.sentry.io/xxx'
+
+# Set the container port (as defined in deploy/gunicorn/conf.py)
+dokku$ dokku proxy:ports-set opencodelists http:80:7000
 ```
 
 ### Backups
@@ -70,7 +74,11 @@ dokku$ dokku git:from-image opencodelists <SHA>
 ### extras
 
 ```sh
-dokku$ dokku letsencrypt:enable opencodelists
+# enable letsencrypt (must be run as root)
+root$ dokku config:set --no-restart opencodelists DOKKU_LETSENCRYPT_EMAIL=<e-mail>
+root$ dokku letsencrypt:enable opencodelists
+
+# install sentry plugin if not available
 dokku$ dokku plugin:install sentry-webhook
 
 # turn on/off HTTP auth (also requires restarting the app)

@@ -1,16 +1,17 @@
 ## Deployment
 
 Deployment uses `dokku` and requires the environment variables defined in `dotenv-sample`.
-It is deployed to our `dokku2` instance.
+It is deployed to our `dokku1` instance.
 
 ## Deployment instructions
 
 ### Create app
 
+On dokku1, as the `dokku` user:
+
 ```sh
 dokku$ dokku apps:create opencodelists
 dokku$ dokku domains:add opencodelists opencodelists.org opencodelists.opensafely.org
-dokku$ dokku git:set opencodelists deploy-branch main
 ```
 
 ### Create storage for sqlite db and backups and load db into it
@@ -26,11 +27,11 @@ dokku$ dokku storage:mount opencodelists /var/lib/dokku/data/storage/opencodelis
 ### Configure app
 
 ```sh
+dokku$ dokku config:set opencodelists IN_PRODUCTION=True
 dokku$ dokku config:set opencodelists BASE_URLS='https://opencodelists.org,https://opencodelists.opensafely.org'
 dokku$ dokku config:set opencodelists DATABASE_URL='sqlite:////storage/db.sqlite3'
 dokku$ dokku config:set opencodelists SECRET_KEY='xxx'
 dokku$ dokku config:set opencodelists SENTRY_DSN='https://xxx@xxx.ingest.sentry.io/xxx'
-dokku$ dokku config:set opencodelists SENTRY_ENVIRONMENT='production'
 ```
 
 ### Backups
@@ -41,12 +42,30 @@ Check cron tasks:
 dokku$ dokku cron:list opencodelists
 ```
 
-### Manually pushing
+### Manually deploying
 
 Merges to the `main` branch will trigger an auto-deploy via GitHub actions.
 
 Note this deploys by building the prod docker image (see `docker/docker-compose.yaml`) and using the dokku [git:from-image](https://dokku.com/docs/deployment/methods/git/#initializing-an-app-repository-from-a-docker-image) command.
 
+To deploy manually:
+
+```
+# build prod image locally
+just docker-build prod
+
+# tag image and push
+docker tag opencodelists ghcr.io/opensafely-core/opencodelists:latest
+docker push ghcr.io/opensafely-core/opencodelists:latest
+
+# get the SHA for the latest image
+SHA=$(docker inspect --format='{{index .RepoDigests 0}}' ghcr.io/opensafely-core/opencodelists:latest)
+```
+
+On dokku1, as the `dokku` user:
+```
+dokku$ dokku git:from-image opencodelists <SHA>
+```
 
 ### extras
 

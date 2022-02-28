@@ -26,7 +26,7 @@ Templates.
 
 #### `deploy/`
 
-Resources for deployment. Deployment is via dokku (see [deployment notes](DEPLOYMENT.md)).
+Resources for deployment. Deployment is via dokku (see [deployment notes](DEPLOY.md)).
 
 #### `scripts/`
 
@@ -67,6 +67,9 @@ See https://github.com/Schniz/fnm#installation.
 ### Run local development server
 
 The development server can be run locally, as described below, or in [docker](#using-docker-for-development-and-tests).
+
+To use Django Debug Toolbar in development, set `DDT_ENABLED`.
+It is not enabled by default because it adds tens of seconds to the load time of some pages.
 
 #### Set up/update local dev environment
 

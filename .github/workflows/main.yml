@@ -48,7 +48,6 @@ jobs:
           just docker-check-js
 
   test:
-    needs: [check-py, check-js]
     runs-on: ubuntu-latest
 
     steps:
@@ -61,7 +60,7 @@ jobs:
           just docker-test
 
   deploy:
-    needs: [test, lint-dockerfile]
+    needs: [check-py, check-js, test, lint-dockerfile]
 
     runs-on: ubuntu-latest
 

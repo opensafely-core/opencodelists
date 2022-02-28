@@ -3,7 +3,7 @@ name: CI
 
 env:
     IMAGE_NAME: opencodelists
-    PUBLIC_IMAGE_NAME: ghcr.io/ebmdatalab/opencodelists
+    PUBLIC_IMAGE_NAME: ghcr.io/opensafely-core/opencodelists
     REGISTRY: ghcr.io
     SSH_AUTH_SOCK: /tmp/agent.sock
 
@@ -47,20 +47,32 @@ jobs:
           # build docker and run checks
           just docker-check-js
 
-  test:
+  test-py:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v2
       - uses: extractions/setup-just@aa5d15c144db4585980a44ebfdd2cf337c4f14cb  # v1.4.0
 
-      - name: Build docker image and run tests in it
+      - name: Build docker image and run Python tests in it
         run: |
           # build docker and run test
-          just docker-test
+          just docker-test-py
+
+  test-js:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: extractions/setup-just@aa5d15c144db4585980a44ebfdd2cf337c4f14cb  # v1.4.0
+
+      - name: Build docker image and run JS tests in it
+        run: |
+          # build docker and run test
+          just docker-test-js
 
   deploy:
-    needs: [check-py, check-js, test, lint-dockerfile]
+    needs: [check-py, check-js, test-py, test-js, lint-dockerfile]
 
     runs-on: ubuntu-latest
 
@@ -94,12 +106,12 @@ jobs:
       - name: Setup SSH Agent
         run: |
             ssh-agent -a $SSH_AUTH_SOCK > /dev/null
-            ssh-add - <<< "${{ secrets.DOKKU2_DEPLOY_SSH_KEY }}"
+            ssh-add - <<< "${{ secrets.DOKKU_DEPLOY_SSH_KEY }}"
 
       - name: Deploy
         run: |
             SHA=$(docker inspect --format='{{index .RepoDigests 0}}' $PUBLIC_IMAGE_NAME:latest)
-            ssh -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" dokku@dokku2.ebmdatalab.net git:from-image opencodelists $SHA
+            ssh -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" dokku@dokku.ebmdatalab.net git:from-image opencodelists $SHA
 
       - name: Create Sentry release
         uses: getsentry/action-release@744e4b262278339b79fb39c8922efcae71e98e39

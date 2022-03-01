@@ -35,6 +35,11 @@ A place to put scripts to be run via [runscript](https://django-extensions.readt
 
 # Notes for developers
 
+## Production database and backups
+
+The production database and backups are located at  `/var/lib/dokku/data/storage/opencodelists` on dokku1 (see also [deployment notes](DEPLOY.md)).
+
+
 ## Local development
 
 ### Prerequisites:

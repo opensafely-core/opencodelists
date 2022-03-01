@@ -46,6 +46,8 @@ Check cron tasks:
 dokku$ dokku cron:list opencodelists
 ```
 
+Backups are saved to `/var/lib/dokku/data/storage/opencodelists` on dokku1.
+
 ### Manually deploying
 
 Merges to the `main` branch will trigger an auto-deploy via GitHub actions.

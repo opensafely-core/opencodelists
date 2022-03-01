@@ -106,7 +106,7 @@ jobs:
       - name: Setup SSH Agent
         run: |
             ssh-agent -a $SSH_AUTH_SOCK > /dev/null
-            ssh-add - <<< "${{ secrets.DOKKU_DEPLOY_SSH_KEY }}"
+            ssh-add - <<< "${{ secrets.DOKKU1_DEPLOY_SSH_KEY }}"
 
       - name: Deploy
         run: |

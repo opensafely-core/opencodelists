@@ -73,13 +73,16 @@ dokku$ dokku git:from-image opencodelists <SHA>
 
 ### extras
 
+Requires the `sentry-webhook` and `letsencrypt` plugins.
+
+
 ```sh
+# Check plugins installed:
+dokku$ dokku plugin:list
+
 # enable letsencrypt (must be run as root)
 root$ dokku config:set --no-restart opencodelists DOKKU_LETSENCRYPT_EMAIL=<e-mail>
 root$ dokku letsencrypt:enable opencodelists
-
-# install sentry plugin if not available
-dokku$ dokku plugin:install sentry-webhook
 
 # turn on/off HTTP auth (also requires restarting the app)
 dokku$ dokku http-auth:on opencodelists <user> <password>

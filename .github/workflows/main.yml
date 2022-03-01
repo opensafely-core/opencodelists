@@ -9,6 +9,7 @@ env:
 
 on:
   push:
+  workflow_dispatch:
 
 concurrency: ci-${{ github.ref }}
 
@@ -92,11 +93,8 @@ jobs:
           just docker-build prod
 
       - name: Login to Packages Container registry
-        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9  # v1.10.0
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+            docker login $REGISTRY -u ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN }}
 
       - name: publish docker image
         run: |

@@ -1,6 +1,7 @@
 from services.logging import logging_config_dict
 
-bind = "unix:/tmp/gunicorn-opencodelists.sock"
+bind = "0.0.0.0:7000"
+
 workers = 2
 timeout = 60
 

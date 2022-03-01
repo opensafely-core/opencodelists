@@ -1,22 +1,92 @@
-# Deployment
+## Deployment
 
-OpenCodelists is currently deployed to smallweb1.  Deployment is with fabric:
+Deployment uses `dokku` and requires the environment variables defined in `dotenv-sample`.
+It is deployed to our `dokku1` instance.
+
+## Deployment instructions
+
+### Create app
+
+On dokku1, as the `dokku` user:
+
+```sh
+dokku$ dokku apps:create opencodelists
+dokku$ dokku domains:add opencodelists opencodelists.org opencodelists.opensafely.org
+```
+
+### Create storage for sqlite db and backups and load db into it
+```sh
+dokku$ mkdir /var/lib/dokku/data/storage/opencodelists
+dokku$ chown dokku:dokku /var/lib/dokku/data/storage/opencodelists
+# If we have an existing db to load in
+dokku$ cp ./opencodelists-db.sqlite3 /var/lib/dokku/data/storage/opencodelists/db.sqlite3
+dokku$ chown dokku:dokku /var/lib/dokku/data/storage/opencodelists/*
+dokku$ dokku storage:mount opencodelists /var/lib/dokku/data/storage/opencodelists/:/storage
+```
+
+### Configure app
+
+```sh
+# set environment variables
+dokku$ dokku config:set opencodelists IN_PRODUCTION=True
+dokku$ dokku config:set opencodelists BASE_URLS='https://opencodelists.org,https://opencodelists.opensafely.org'
+dokku$ dokku config:set opencodelists DATABASE_URL='sqlite:////storage/db.sqlite3'
+dokku$ dokku config:set opencodelists SECRET_KEY='xxx'
+dokku$ dokku config:set opencodelists SENTRY_DSN='https://xxx@xxx.ingest.sentry.io/xxx'
+
+# Set the container port (as defined in deploy/gunicorn/conf.py)
+dokku$ dokku proxy:ports-set opencodelists http:80:7000
+```
+
+### Backups
+Backups are defined as cron jobs in app.json, and managed by dokku
+
+Check cron tasks:
+```sh
+dokku$ dokku cron:list opencodelists
+```
+
+Backups are saved to `/var/lib/dokku/data/storage/opencodelists` on dokku1.
+
+### Manually deploying
+
+Merges to the `main` branch will trigger an auto-deploy via GitHub actions.
+
+Note this deploys by building the prod docker image (see `docker/docker-compose.yaml`) and using the dokku [git:from-image](https://dokku.com/docs/deployment/methods/git/#initializing-an-app-repository-from-a-docker-image) command.
+
+To deploy manually:
 
 ```
-fab deploy
+# build prod image locally
+just docker-build prod
+
+# tag image and push
+docker tag opencodelists ghcr.io/opensafely-core/opencodelists:latest
+docker push ghcr.io/opensafely-core/opencodelists:latest
+
+# get the SHA for the latest image
+SHA=$(docker inspect --format='{{index .RepoDigests 0}}' ghcr.io/opensafely-core/opencodelists:latest)
 ```
 
-You will need to configure SSH agent forwarding in your `~/.ssh/config`, e.g.
-
-    Host smallweb1.ebmdatalab.net
-    ForwardAgent yes
-    User <your user on smallweb1>
-
-
-macOS users will need to configure their SSH Agent to add their key by default as per [GitHub's Docs](https://docs.github.com/en/github/authenticating-to-github/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent#adding-your-ssh-key-to-the-ssh-agent).
-
-On the server, use `with_environment.sh` to run a management command in the virtual environment with the correct settings:
-
+On dokku1, as the `dokku` user:
 ```
-./with_environment.sh ./manage.py shell
+dokku$ dokku git:from-image opencodelists <SHA>
+```
+
+### extras
+
+Requires the `sentry-webhook` and `letsencrypt` plugins.
+
+
+```sh
+# Check plugins installed:
+dokku$ dokku plugin:list
+
+# enable letsencrypt (must be run as root)
+root$ dokku config:set --no-restart opencodelists DOKKU_LETSENCRYPT_EMAIL=<e-mail>
+root$ dokku letsencrypt:enable opencodelists
+
+# turn on/off HTTP auth (also requires restarting the app)
+dokku$ dokku http-auth:on opencodelists <user> <password>
+dokku$ dokku http-auth:off opencodelists
 ```

@@ -1,0 +1,8 @@
+{
+    "cron": [
+      {
+        "command": "/app/deploy/bin/backup.sh",
+        "schedule": "00 01 * * *"
+      }
+    ]
+  }

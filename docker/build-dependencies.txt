@@ -1,0 +1,2 @@
+# list ubuntu packges needed to build dependencies, one per line
+sqlite3

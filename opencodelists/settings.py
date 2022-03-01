@@ -11,9 +11,12 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 import os
 import sys
+from pathlib import Path
 
 import sentry_sdk
 from django.contrib.messages import constants as messages
+from environs import Env
+from furl import furl
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.logging import ignore_logger
 
@@ -23,27 +26,36 @@ from services.logging import logging_config_dict
 __import__("pysqlite3")
 sys.modules["sqlite3"] = sys.modules.pop("pysqlite3")
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Read env file/vars
+env = Env()
+env.read_env()
 
 
-IN_PRODUCTION = bool(os.environ.get("IN_PRODUCTION"))
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = env.str("SECRET_KEY")
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = env.bool("DEBUG", False)
+
+BASE_URLS = env.list("BASE_URLS", default=["http://localhost:8000"])
+
+ALLOWED_HOSTS = [furl(base_url).host for base_url in BASE_URLS]
+
+IN_PRODUCTION = env.bool("IN_PRODUCTION", False)
 
 
 if IN_PRODUCTION:
-    SECRET_KEY = os.environ["SECRET_KEY"]
-    DEBUG = False
-    ALLOWED_HOSTS = os.environ["ALLOWED_HOSTS"].split(",")
-
     # This setting causes infinite redirects
     # SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
 
-else:
-    SECRET_KEY = "secret"
-    DEBUG = not os.environ.get("NO_DEBUG")
-    ALLOWED_HOSTS = ["*"]
+# https://docs.djangoproject.com/en/4.0/ref/settings/#std:setting-CSRF_TRUSTED_ORIGINS
+CSRF_TRUSTED_ORIGINS = BASE_URLS
 
 
 # Application definition
@@ -89,7 +101,7 @@ MIDDLEWARE = [
     "django_structlog.middlewares.RequestMiddleware",
 ]
 
-if not os.environ.get("DDT_ENABLED"):
+if not env.bool("DDT_ENABLED", False):
     # Django Debug Toolbar adds 77s to the load time of a large codelist!
     INSTALLED_APPS.remove("debug_toolbar")
     MIDDLEWARE.remove("debug_toolbar.middleware.DebugToolbarMiddleware")
@@ -99,7 +111,7 @@ ROOT_URLCONF = "opencodelists.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [os.path.join(BASE_DIR, "templates")],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -118,12 +130,8 @@ WSGI_APPLICATION = "opencodelists.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
-    }
-}
+DATABASES = {"default": env.dj_db_url("DATABASE_URL", "sqlite:///db.sqlite3")}
+
 
 # Default type for auto-created primary keys
 # https://docs.djangoproject.com/en/3.2/releases/3.2/#customizing-type-of-auto-created-primary-keys
@@ -168,8 +176,10 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
-STATICFILES_DIRS = [os.path.join(BASE_DIR, "static", "dist")]
+STATICFILES_DIRS = [BASE_DIR / "static" / "dist"]
+STATIC_ROOT = BASE_DIR / "staticfiles"
 STATIC_URL = "/static/"
+
 WHITENOISE_USE_FINDERS = True
 
 

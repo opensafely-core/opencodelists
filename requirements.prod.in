@@ -1,12 +1,19 @@
+# Main prod requirements
+
+# To generate requirements file, run:
+# pip-compile --generate-hashes --output-file=requirements.prod.txt requirements.prod.in
+
 antlr4-python3-runtime
 bleach
-fabric3
 django
 djangorestframework
 django-crispy-forms
 django-cors-headers
 django-debug-toolbar
+django-extensions
 django-structlog
+environs[django]
+furl
 gunicorn
 lxml
 markdown2
@@ -15,18 +22,3 @@ pysqlite3-binary
 whitenoise
 sentry-sdk
 structlog
-
-# test
-hypothesis
-pytest-cov
-pytest-django
-pytest-subtests
-
-# dev
-black
-django-extensions
-flake8
-isort
-litecli
-pip-tools
-pre-commit

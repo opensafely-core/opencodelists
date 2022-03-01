@@ -277,7 +277,7 @@ class ECLsubsetLexer(Lexer):
     RIGHT_CURLY_BRACE = 98
     TILDE = 99
 
-    channelNames = [u"DEFAULT_TOKEN_CHANNEL", u"HIDDEN"]
+    channelNames = ["DEFAULT_TOKEN_CHANNEL", "HIDDEN"]
 
     modeNames = ["DEFAULT_MODE"]
 

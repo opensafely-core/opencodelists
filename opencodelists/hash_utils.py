@@ -32,7 +32,7 @@ See https://en.wikipedia.org/wiki/Modular_multiplicative_inverse for more.
 
 # Do not change this value!  Doing so will invalidate any hashes that have been recorded
 # elsewhere (eg in URLs).
-N = 2 ** 31 - 1
+N = 2**31 - 1
 
 
 def hash(m, key):

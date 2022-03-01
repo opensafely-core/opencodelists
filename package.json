@@ -28,7 +28,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ebmdatalab/opencodelists.git"
+    "url": "git+https://github.com/opensafely-core/opencodelists.git"
   },
   "license": "GPL-3.0-or-later"
 }

@@ -1,225 +1,123 @@
 ---
 name: CI
 
+env:
+    IMAGE_NAME: opencodelists
+    PUBLIC_IMAGE_NAME: ghcr.io/opensafely-core/opencodelists
+    REGISTRY: ghcr.io
+    SSH_AUTH_SOCK: /tmp/agent.sock
+
 on:
   push:
 
+concurrency: ci-${{ github.ref }}
+
 jobs:
-  install-py:
+
+  lint-dockerfile:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v2
-      - uses: "actions/setup-python@v2"
+      - uses: hadolint/hadolint-action@v1.4.0
         with:
-          python-version: "3.6"
-      - name: "Install dependencies"
-        run: |
-          set -xe
-          python -m pip install --upgrade pip
-          python -m venv venv
-          venv/bin/pip install --progress-bar=off --requirement requirements.txt
-      - name: Cache the venv
-        uses: actions/cache@v2
-        with:
-          path: ${{ github.workspace }}/venv
-          key: venv-${{ github.ref }}-${{ hashFiles('requirements.txt') }}
+          dockerfile: docker/Dockerfile
 
-  format-py:
-    needs: install-py
+  check-py:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v2
-      - uses: "actions/setup-python@v2"
-        with:
-          python-version: "3.6"
-      - name: Use the cached venv
-        uses: actions/cache@v2
-        with:
-          path: ${{ github.workspace }}/venv
-          key: venv-${{ github.ref }}-${{ hashFiles('requirements.txt') }}
-      - run: ls -lah ${{ github.workspace }}
-      - name: Check formatting
-        run: |
-          source ${{ github.workspace }}/venv/bin/activate
-          make format-py
+      - uses: extractions/setup-just@aa5d15c144db4585980a44ebfdd2cf337c4f14cb  # v1.4.0
 
-  lint-py:
-    needs: install-py
+      - name: Build docker image and run checks in it
+        run: |
+          # build docker and run checks
+          just docker-check-py
+
+  check-js:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v2
-      - uses: "actions/setup-python@v2"
-        with:
-          python-version: "3.6"
-      - name: Use the cached venv
-        uses: actions/cache@v2
-        with:
-          path: ${{ github.workspace }}/venv
-          key: venv-${{ github.ref }}-${{ hashFiles('requirements.txt') }}
-      - name: Check linting
-        run: |
-          source ${{ github.workspace }}/venv/bin/activate
-          make lint-py
+      - uses: extractions/setup-just@aa5d15c144db4585980a44ebfdd2cf337c4f14cb  # v1.4.0
 
-  sort:
-    needs: install-py
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v2
-      - uses: "actions/setup-python@v2"
-        with:
-          python-version: "3.6"
-      - name: Use the cached venv
-        uses: actions/cache@v2
-        with:
-          path: ${{ github.workspace }}/venv
-          key: venv-${{ github.ref }}-${{ hashFiles('requirements.txt') }}
-      - name: Check import sorting
+      - name: Build docker image and run checks in it
         run: |
-          source ${{ github.workspace }}/venv/bin/activate
-          make sort
+          # build docker and run checks
+          just docker-check-js
 
   test-py:
-    needs: [format-py, lint-py, sort]
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v2
-      - uses: "actions/setup-python@v2"
-        with:
-          python-version: "3.6"
-      - name: Use the cached venv
-        uses: actions/cache@v2
-        with:
-          path: ${{ github.workspace }}/venv
-          key: venv-${{ github.ref }}-${{ hashFiles('requirements.txt') }}
-      - name: Run tests
+      - uses: extractions/setup-just@aa5d15c144db4585980a44ebfdd2cf337c4f14cb  # v1.4.0
+
+      - name: Build docker image and run Python tests in it
         run: |
-          source ${{ github.workspace }}/venv/bin/activate
-          make test-py
-
-  install-js:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v2
-      - name: Cache node modules
-        uses: actions/cache@v2
-        env:
-          cache-name: cache-node-modules
-        with:
-          path: ./node_modules
-          key: install-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            install-${{ env.cache-name }}-
-            install-
-      - name: Install dependencies
-        run: npm install
-
-  format-js:
-    needs: [install-js]
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v2
-      - name: Setup node
-        uses: actions/setup-node@v1
-        with:
-          node-version: '12'
-      - name: Cache node modules
-        uses: actions/cache@v2
-        env:
-          cache-name: cache-node-modules
-        with:
-          path: ./node_modules
-          key: install-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-      - run: make format-js
-
-  lint-js:
-    needs: [install-js]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Setup node
-        uses: actions/setup-node@v1
-        with:
-          node-version: '12'
-      - name: Cache node modules
-        uses: actions/cache@v2
-        env:
-          cache-name: cache-node-modules
-        with:
-          path: ./node_modules
-          key: install-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-      - run: make lint-js
+          # build docker and run test
+          just docker-test-py
 
   test-js:
-    needs: [format-js, lint-js]
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v2
-      - name: Setup node
-        uses: actions/setup-node@v1
-        with:
-          node-version: '12'
-      - name: Cache node modules
-        uses: actions/cache@v2
-        env:
-          cache-name: cache-node-modules
-        with:
-          path: ./node_modules
-          key: install-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-      - run: make test-js
+      - uses: extractions/setup-just@aa5d15c144db4585980a44ebfdd2cf337c4f14cb  # v1.4.0
 
-  build-js:
-    needs: [format-js, lint-js]
+      - name: Build docker image and run JS tests in it
+        run: |
+          # build docker and run test
+          just docker-test-js
+
+  deploy:
+    needs: [check-py, check-js, test-py, test-js, lint-dockerfile]
+
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    if: github.ref == 'refs/heads/main'
 
     steps:
       - uses: actions/checkout@v2
-      - name: Setup node
-        uses: actions/setup-node@v1
+      - uses: extractions/setup-just@aa5d15c144db4585980a44ebfdd2cf337c4f14cb  # v1.4.0
+
+      - name: Build docker image
+        run: |
+          # docker-test step will build the dev image by default, so build the prod image
+          just docker-build prod
+
+      - name: Login to Packages Container registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9  # v1.10.0
         with:
-          node-version: '12'
-      - name: Cache node modules
-        uses: actions/cache@v2
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: publish docker image
+        run: |
+            docker tag $IMAGE_NAME $PUBLIC_IMAGE_NAME:latest
+            docker push $PUBLIC_IMAGE_NAME:latest
+
+      - name: Setup SSH Agent
+        run: |
+            ssh-agent -a $SSH_AUTH_SOCK > /dev/null
+            ssh-add - <<< "${{ secrets.DOKKU1_DEPLOY_SSH_KEY }}"
+
+      - name: Deploy
+        run: |
+            SHA=$(docker inspect --format='{{index .RepoDigests 0}}' $PUBLIC_IMAGE_NAME:latest)
+            ssh -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" dokku@dokku.ebmdatalab.net git:from-image opencodelists $SHA
+
+      - name: Create Sentry release
+        uses: getsentry/action-release@744e4b262278339b79fb39c8922efcae71e98e39
         env:
-          cache-name: cache-node-modules
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_RELEASE_INTEGRATION_TOKEN }}
+          SENTRY_ORG: ebm-datalab
+          SENTRY_PROJECT: opencodelists
         with:
-          path: ./node_modules
-          key: install-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-      - run: make build-js
-
-  build-dev-js:
-    needs: [format-js, lint-js]
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v2
-      - name: Setup node
-        uses: actions/setup-node@v1
-        with:
-          node-version: '12'
-      - name: Cache node modules
-        uses: actions/cache@v2
-        env:
-          cache-name: cache-node-modules
-        with:
-          path: ./node_modules
-          key: install-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-      - run: make build-dev-js
-
-  lint-sh:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    - name: Run ShellCheck
-      uses: ludeeus/action-shellcheck@master
-      with:
-        scandir: './scripts'
+          environment: production

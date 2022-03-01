@@ -119,3 +119,4 @@ jobs:
           SENTRY_PROJECT: opencodelists
         with:
           environment: production
+          ignore_empty: true

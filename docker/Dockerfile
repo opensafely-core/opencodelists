@@ -117,6 +117,10 @@ ENV PYTHONPATH=/app
 # Copy code in, add proper metadata
 FROM opencodelists-base as opencodelists-prod
 
+# Dokku is using port 7000 rather than the default 5000
+# We need to expose it here so that the dokku checks will use the correct port
+EXPOSE 7000
+
 # Adjust this metadata to fit project. Note that the base-docker image does set
 # some basic metadata.
 LABEL org.opencontainers.image.title="opencodelists" \

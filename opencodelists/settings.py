@@ -41,12 +41,13 @@ SECRET_KEY = env.str("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool("DEBUG", False)
 
-BASE_URLS = env.list("BASE_URLS", default=["http://localhost:8000"])
+BASE_URLS = env.list("BASE_URLS", [])
+# note localhost is required on production for dokku checks
+BASE_URLS += ["http://localhost:8000"]
 
 ALLOWED_HOSTS = [furl(base_url).host for base_url in BASE_URLS]
 
 IN_PRODUCTION = env.bool("IN_PRODUCTION", False)
-
 
 if IN_PRODUCTION:
     # This setting causes infinite redirects

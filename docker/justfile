@@ -30,8 +30,7 @@ copy-assets: build
 
 # run JS linter
 check-js: copy-assets
-    docker-compose run --rm node-assets \
-    npx eslint static/src/js/builder/* static/src/js/hierarchy.js
+    docker-compose run --rm node-assets /app/docker/entrypoints/check-js.sh
 
 
 # run python checks

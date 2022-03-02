@@ -11,7 +11,7 @@ On dokku1, as the `dokku` user:
 
 ```sh
 dokku$ dokku apps:create opencodelists
-dokku$ dokku domains:add opencodelists opencodelists.org www.opencodelists.org codelists.opensafely.org
+dokku$ dokku domains:add opencodelists www.opencodelists.org
 ```
 
 ### Create storage for sqlite db and backups and load db into it
@@ -29,7 +29,7 @@ dokku$ dokku storage:mount opencodelists /var/lib/dokku/data/storage/opencodelis
 ```sh
 # set environment variables
 dokku$ dokku config:set opencodelists IN_PRODUCTION=True
-dokku$ dokku config:set opencodelists BASE_URLS='https://opencodelists.org,https://www.opencodelists.org,https://codelists.opensafely.org'
+dokku$ dokku config:set opencodelists BASE_URLS='https://www.opencodelists.org'
 dokku$ dokku config:set opencodelists DATABASE_URL='sqlite:////storage/db.sqlite3'
 dokku$ dokku config:set opencodelists SECRET_KEY='xxx'
 dokku$ dokku config:set opencodelists SENTRY_DSN='https://xxx@xxx.ingest.sentry.io/xxx'

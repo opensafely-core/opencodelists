@@ -33,9 +33,6 @@ dokku$ dokku config:set opencodelists BASE_URLS='https://www.opencodelists.org'
 dokku$ dokku config:set opencodelists DATABASE_URL='sqlite:////storage/db.sqlite3'
 dokku$ dokku config:set opencodelists SECRET_KEY='xxx'
 dokku$ dokku config:set opencodelists SENTRY_DSN='https://xxx@xxx.ingest.sentry.io/xxx'
-
-# Set the container port (as defined in deploy/gunicorn/conf.py)
-dokku$ dokku proxy:ports-set opencodelists http:80:7000
 ```
 
 ### Backups

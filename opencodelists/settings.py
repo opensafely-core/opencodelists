@@ -271,5 +271,5 @@ ANYMAIL = {
 EMAIL_BACKEND = env.str(
     "EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend"
 )
-DEFAULT_FROM_EMAIL = "you@example.com"
-SERVER_EMAIL = "your-server@example.com"
+DEFAULT_FROM_EMAIL = "no-reply@opencodelists.org"
+SERVER_EMAIL = "tech@opensafely.org"

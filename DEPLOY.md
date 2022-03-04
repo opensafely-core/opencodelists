@@ -33,6 +33,8 @@ dokku$ dokku config:set opencodelists BASE_URLS='https://www.opencodelists.org'
 dokku$ dokku config:set opencodelists DATABASE_URL='sqlite:////storage/db.sqlite3'
 dokku$ dokku config:set opencodelists SECRET_KEY='xxx'
 dokku$ dokku config:set opencodelists SENTRY_DSN='https://xxx@xxx.ingest.sentry.io/xxx'
+dokku config:set opencodelists EMAIL_BACKEND='anymail.backends.mailgun.EmailBackend'
+dokku config:set opencodelists MAILGUN_API_KEY='xxx'
 ```
 
 ### Backups

@@ -80,6 +80,7 @@ INSTALLED_APPS = [
     "debug_toolbar",
     "rest_framework",
     "rest_framework.authtoken",
+    "anymail",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -259,3 +260,16 @@ MESSAGE_TAGS = {
     messages.WARNING: "alert-warning",
     messages.ERROR: "alert-danger",
 }
+
+# EMAIL
+# Anymail
+ANYMAIL = {
+    "MAILGUN_API_KEY": env.str("MAILGUN_API_KEY", default=None),
+    "MAILGUN_API_URL": "https://api.eu.mailgun.net/v3",
+    "MAILGUN_SENDER_DOMAIN": "mg.opencodelists.org",
+}
+EMAIL_BACKEND = env.str(
+    "EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend"
+)
+DEFAULT_FROM_EMAIL = "you@example.com"
+SERVER_EMAIL = "your-server@example.com"

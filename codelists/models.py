@@ -157,6 +157,9 @@ class Codelist(models.Model):
 
         return self.visible_versions(user).first()
 
+    def has_published_versions(self):
+        return self.versions.filter(status="published").exists()
+
 
 class Handle(models.Model):
     codelist = models.ForeignKey(

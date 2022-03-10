@@ -224,3 +224,15 @@ def test_get_by_hash(new_style_version):
     assert (
         CodelistVersion.objects.get_by_hash(new_style_version.hash) == new_style_version
     )
+
+
+def test_codelist_has_published_versions_returns_true_when_published(
+    new_style_codelist,
+):
+    assert new_style_codelist.has_published_versions()
+
+
+def test_codelist_has_published_versions_returns_false_when_not_published(
+    old_style_codelist,
+):
+    assert not old_style_codelist.has_published_versions()

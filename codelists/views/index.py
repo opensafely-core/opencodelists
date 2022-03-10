@@ -27,6 +27,14 @@ def index(request, organisation_slug=None):
         )
 
     handles = handles.order_by("name")
-    codelists = [handle.codelist for handle in handles]
+    codelists = _all_published_codelists(handles)
     ctx = {"codelists": codelists, "organisation": organisation, "q": q}
     return render(request, "codelists/index.html", ctx)
+
+
+def _all_published_codelists(handles):
+    return [
+        handle.codelist
+        for handle in handles
+        if handle.codelist.has_published_versions()
+    ]

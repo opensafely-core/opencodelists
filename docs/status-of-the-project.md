@@ -5,4 +5,4 @@ It's still rough around the edges, but has been used to create {numcodelists} co
 
 **Anybody** can use OpenSAFELY Codelists to create and share codelists.
 
-See the section on future plans for upcoming features.
+See the section on [future plans](#future-plans) for upcoming features.

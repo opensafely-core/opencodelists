@@ -26,6 +26,16 @@
 </ul>
 {% endif %}
 
+{% if under_review %}
+<h4>Your codelists under review</h4>
+
+<ul>
+        {% for draft in under_review %}
+        <li><a href="{{ draft.get_absolute_url }}">{{ draft.codelist.name }}</a></li>
+        {% endfor %}
+</ul>
+{% endif %}
+
 {% if drafts %}
 <h4>Your drafts</h4>
 

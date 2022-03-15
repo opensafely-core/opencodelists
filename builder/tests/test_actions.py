@@ -156,7 +156,7 @@ def test_save(draft_with_no_searches):
     draft = draft_with_no_searches
     actions.save(draft=draft)
     draft.refresh_from_db()
-    assert draft.draft_owner is None
+    assert draft.draft_owner == draft.draft_owner
     assert draft.is_under_review
 
 

@@ -48,6 +48,48 @@ def test_create_search(version_from_scratch):
     assert draft.code_objs.count() == 2
 
 
+def test_duplicate_search(version_from_scratch):
+    # Test that a user can search for the same term again without error
+
+    draft = version_from_scratch
+
+    # Act: create a term search
+    s = actions.create_search(
+        draft=draft,
+        term="epicondylitis",
+        codes={"73583000", "202855006"},
+    )
+
+    # Assert...
+    # that the search's attributes have been set
+    assert s.version == draft
+    assert s.term == "epicondylitis"
+    assert s.code is None
+    assert s.slug == "epicondylitis"
+
+    # that the newly created search has 2 results
+    assert s.results.count() == 2
+    # that the draft has 1 search
+    assert draft.searches.count() == 1
+    # that the draft has 2 codes
+    assert draft.code_objs.count() == 2
+
+    # try to repeat the same search
+    s1 = actions.create_search(
+        draft=draft,
+        term="epicondylitis",
+        codes={"73583000", "202855006"},
+    )
+
+    # Assert...
+    # that the initally created search was returned
+    assert s1.id == s.id
+
+    # that the draft still has the same search and code counts
+    assert draft.searches.count() == 1
+    assert draft.code_objs.count() == 2
+
+
 @pytest.mark.xfail
 def test_delete_search():
     pass

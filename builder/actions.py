@@ -17,7 +17,10 @@ def create_search(*, draft, term=None, code=None, codes):
         slug = slugify(term)
     else:
         slug = f"code:{code}"
-    search = draft.searches.create(term=term, code=code, slug=slug)
+    search, new = draft.searches.get_or_create(term=term, code=code, slug=slug)
+    if not new:
+        logger.info("Returned existing Search", search_pk=search.pk)
+        return search
 
     # Ensure that there is a CodeObj object linked to this draft for each code.
     codes_with_existing_code_objs = set(

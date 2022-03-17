@@ -110,11 +110,27 @@ class User(AbstractBaseUser):
 
     @property
     def codelists(self):
-        return Codelist.objects.filter(handles__user=self)
+        """Codelists owned by user"""
+        return Codelist.objects.filter(handles__is_current=True, handles__user=self)
 
     @property
     def drafts(self):
+        """Codelist versions authored by user and in draft"""
         return self.versions.filter(status=Status.DRAFT)
+
+    @property
+    def reviews(self):
+        """Codelist versions authored by user and under review"""
+        return self.versions.filter(status=Status.UNDER_REVIEW)
+
+    @property
+    def authored_for_organisation(self):
+        """Codelist versions authored by user but owned by an organisation"""
+        return Codelist.objects.filter(
+            versions__author=self,
+            handles__user__isnull=True,
+            versions__status=Status.PUBLISHED,
+        )
 
     def get_codelist_create_url(self):
         return reverse("codelists:user_codelist_create", kwargs=self.url_kwargs)

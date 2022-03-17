@@ -7,7 +7,7 @@ from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.text import slugify
 
-from codelists.models import Codelist
+from codelists.models import Codelist, Status
 
 SET_PASSWORD_SALT = "set-password"
 
@@ -111,6 +111,10 @@ class User(AbstractBaseUser):
     @property
     def codelists(self):
         return Codelist.objects.filter(handles__user=self)
+
+    @property
+    def drafts(self):
+        return self.versions.filter(status=Status.DRAFT)
 
     def get_codelist_create_url(self):
         return reverse("codelists:user_codelist_create", kwargs=self.url_kwargs)

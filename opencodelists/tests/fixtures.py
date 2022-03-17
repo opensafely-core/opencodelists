@@ -441,7 +441,7 @@ def build_fixtures():
         owner=organisation,
         name="Codelist From Scratch",
         coding_system_id="snomedct",
-        draft_owner=organisation_user,
+        author=organisation_user,
     )
 
     # version_from_scratch

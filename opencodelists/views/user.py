@@ -7,7 +7,7 @@ def user(request, username):
     user = get_object_or_404(User, username=username)
 
     # Find all of the codelists with at least one non-draft version.
-    codelists = user.codelists.filter(versions__draft_owner__isnull=True).distinct()
+    codelists = user.codelists.filter(versions__author__isnull=True).distinct()
 
     ctx = {
         "user": user,

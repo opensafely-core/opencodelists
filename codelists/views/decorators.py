@@ -61,7 +61,7 @@ def load_version(view_fn):
         codelist = _load_codelist_or_404(owner, codelist_slug)
         version = _load_version_or_404(codelist, tag_or_hash)
 
-        if version.draft_owner:
+        if version.is_draft:
             return redirect(version.get_builder_draft_url())
         else:
             rsp = view_fn(request, version, **view_kwargs)

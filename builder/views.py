@@ -147,7 +147,7 @@ def _draft(request, draft, search_slug):
     }
 
     ctx = {
-        "user": draft.draft_owner,
+        "user": draft.author,
         "draft": draft,
         "codelist_name": codelist.name,
         # The following values are passed to the CodelistBuilder component.
@@ -165,7 +165,7 @@ def _draft(request, draft, search_slug):
         "child_map": {c: list(pp) for c, pp in hierarchy.child_map.items()},
         "code_to_term": code_to_term,
         "code_to_status": codeset.code_to_status,
-        "is_editable": request.user == draft.draft_owner,
+        "is_editable": request.user == draft.author,
         "draft_url": draft_url,
         "update_url": update_url,
         "search_url": search_url,

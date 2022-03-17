@@ -479,11 +479,11 @@ def convert_codelist_to_new_style(*, codelist):
 
 
 @transaction.atomic
-def export_to_builder(*, version, owner):
+def export_to_builder(*, version, author):
     """Create a new CodelistVersion for editing in the builder."""
 
     # Create a new CodelistVersion and CodeObjs.
-    draft = owner.versions.create(codelist=version.codelist, status=Status.DRAFT)
+    draft = author.versions.create(codelist=version.codelist, status=Status.DRAFT)
     CodeObj.objects.bulk_create(
         CodeObj(version=draft, code=code_obj.code, status=code_obj.status)
         for code_obj in version.code_objs.all()

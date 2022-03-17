@@ -11,5 +11,5 @@ from .decorators import load_version, require_permission
 @load_version
 @require_permission
 def version_create(request, version):
-    draft = actions.export_to_builder(version=version, owner=request.user)
+    draft = actions.export_to_builder(version=version, author=request.user)
     return redirect(draft.get_builder_draft_url())

@@ -342,7 +342,7 @@ def build_fixtures():
     # - has single search, but not all codes covered
     # - includes Disorder of elbow
     version_with_some_searches = export_to_builder(
-        version=version_with_no_searches, owner=organisation_user
+        version=version_with_no_searches, author=organisation_user
     )
     create_search(
         draft=version_with_some_searches,
@@ -375,7 +375,7 @@ def build_fixtures():
     # - has some searches, and all codes covered
     # - includes Disorder of elbow
     version_with_complete_searches = export_to_builder(
-        version=version_with_some_searches, owner=organisation_user
+        version=version_with_some_searches, author=organisation_user
     )
     create_search(
         draft=version_with_complete_searches,
@@ -561,27 +561,27 @@ user_version = build_fixture("user_version")
 # These extra fixtures make modifications to those built in build_fixtures
 @pytest.fixture(scope="function")
 def draft_with_no_searches(version_with_no_searches, organisation_user):
-    return export_to_builder(version=version_with_no_searches, owner=organisation_user)
+    return export_to_builder(version=version_with_no_searches, author=organisation_user)
 
 
 @pytest.fixture(scope="function")
 def draft_with_some_searches(version_with_some_searches, organisation_user):
     return export_to_builder(
-        version=version_with_some_searches, owner=organisation_user
+        version=version_with_some_searches, author=organisation_user
     )
 
 
 @pytest.fixture(scope="function")
 def draft_with_complete_searches(version_with_complete_searches, organisation_user):
     return export_to_builder(
-        version=version_with_complete_searches, owner=organisation_user
+        version=version_with_complete_searches, author=organisation_user
     )
 
 
 @pytest.fixture(scope="function")
 def draft_from_scratch(version_with_complete_searches, organisation_user):
     return export_to_builder(
-        version=version_with_complete_searches, owner=organisation_user
+        version=version_with_complete_searches, author=organisation_user
     )
 
 

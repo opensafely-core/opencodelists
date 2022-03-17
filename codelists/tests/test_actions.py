@@ -416,7 +416,7 @@ def test_export_to_builder(organisation_user, new_style_version):
         new_style_version.codelist.versions.count, expected_difference=1
     ):
         draft = actions.export_to_builder(
-            version=new_style_version, owner=organisation_user
+            version=new_style_version, author=organisation_user
         )
 
     assert draft.author == organisation_user

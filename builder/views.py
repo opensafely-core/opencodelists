@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 
 from codelists.search import do_search
@@ -45,7 +46,10 @@ def _handle_post(request, draft):
     elif action == "discard":
         messages.add_message(request, messages.INFO, "Your changes have been discarded")
         actions.discard_draft(draft=draft)
-        return redirect(draft.codelist)
+        # check if the discarded draft's codelist still exists (i.e. this was not the only version)
+        if draft.codelist.id is not None:
+            return redirect(draft.codelist)
+        return redirect(reverse("user", args=(request.user.username,)))
     else:
         return HttpResponse(status=400)
 

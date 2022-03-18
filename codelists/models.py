@@ -313,6 +313,13 @@ class CodelistVersion(models.Model):
         kwargs["other_tag_or_hash"] = other_clv.tag_or_hash
         return reverse(f"codelists:{self.codelist_type}_version_diff", kwargs=kwargs)
 
+    def exists(self):
+        """
+        Check that a CodelistVersion exists.  It may not, in the event that it's just
+        been discarded
+        """
+        return CodelistVersion.objects.filter(id=self.id).exists()
+
     @property
     def url_kwargs(self):
         kwargs = self.codelist.url_kwargs

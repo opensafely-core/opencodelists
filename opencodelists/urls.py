@@ -5,8 +5,6 @@ from django.urls import include, path
 from . import views
 
 users_patterns = [
-    path("activate/<token>/", views.user_set_password, name="user-set-password"),
-    path("added/<username>/", views.user_activation_url, name="user-activation-url"),
     path("<username>/", views.user, name="user"),
     path(
         "<username>/new-codelist/",

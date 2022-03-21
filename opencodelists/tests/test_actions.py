@@ -10,18 +10,6 @@ def test_create_organisation():
     assert o.url == "https://another-test.ac.uk"
 
 
-def test_create_user():
-    user = actions.create_user(
-        username="testym",
-        name="Testy McTesterson",
-        email="test@example.com",
-    )
-
-    assert user.username == "testym"
-    assert user.name == "Testy McTesterson"
-    assert user.email == "test@example.com"
-
-
 def test_add_user_to_organisation(organisation, user_without_organisation):
     user = user_without_organisation
 

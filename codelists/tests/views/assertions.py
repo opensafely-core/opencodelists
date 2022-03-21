@@ -1,4 +1,4 @@
-from opencodelists.actions import create_user
+from opencodelists.models import User
 
 
 def assert_unauthenticated(client, method, url):
@@ -18,8 +18,8 @@ def assert_post_unauthenticated(client, url):
 
 
 def assert_unauthorised(client, method, url):
-    user = create_user(
-        username="ursula", name="Ursula", email="ursula@test.ac.uk", is_active=True
+    user = User.objects.create_user(
+        username="ursula", password="test", email="ursula@test.ac.uk", name="Ursula"
     )
     client.force_login(user)
     response = getattr(client, method)(url)

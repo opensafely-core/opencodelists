@@ -1,3 +1,7 @@
+from django.urls import reverse
+
+from codelists.actions import create_codelist_from_scratch
+from codelists.models import Codelist
 from codelists.tests.views.assertions import (
     assert_post_unauthenticated,
     assert_post_unauthorised,
@@ -140,3 +144,40 @@ def test_new_search_no_results(client, draft):
 
     assert rsp.status_code == 200
     assert b"bananas" in rsp.content
+
+
+def test_discard_only_draft_version(client, organisation_user):
+    new_codelist = create_codelist_from_scratch(
+        owner=organisation_user,
+        author=organisation_user,
+        name="foo",
+        coding_system_id="snomedct",
+    )
+    assert new_codelist.versions.count() == 1
+    draft = new_codelist.versions.first()
+
+    client.force_login(organisation_user)
+
+    rsp = client.post(draft.get_builder_draft_url(), {"action": "discard"}, follow=True)
+    assert rsp.status_code == 200
+
+    # Codelist was deleted along with its only draft; redirects to user's codelists page
+    assert Codelist.objects.filter(id=new_codelist.id).exists() is False
+    assert rsp.redirect_chain[-1][0] == reverse(
+        "user", args=(organisation_user.username,)
+    )
+
+
+def test_discard_one_draft_version(client, draft):
+    assert draft.codelist.versions.count() > 1
+    client.force_login(draft.author)
+
+    rsp = client.post(draft.get_builder_draft_url(), {"action": "discard"}, follow=True)
+    assert rsp.status_code == 200
+    # As more than one version existed, the codelist still exists; redirects to the codelist's
+    # absolute url, which in turn redirects to the latest visible version
+    assert rsp.redirect_chain[-2][0] == draft.codelist.get_absolute_url()
+    assert (
+        rsp.redirect_chain[-1][0]
+        == draft.codelist.latest_visible_version(draft.author).get_absolute_url()
+    )

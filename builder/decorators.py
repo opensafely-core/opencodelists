@@ -16,7 +16,8 @@ def load_draft(view_fn):
         version = get_object_or_404(CodelistVersion, id=id)
         if version.is_draft:
             rsp = view_fn(request, version, **kwargs)
-            if version.hierarchy.dirty:
+            # make sure the draft version has not just been discarded
+            if version.exists() and version.hierarchy.dirty:
                 cache_hierarchy(version=version)
             return rsp
         else:

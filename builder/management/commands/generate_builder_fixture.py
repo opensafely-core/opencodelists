@@ -42,7 +42,7 @@ class Command(BaseCommand):
         ]:
             version = fixtures[version_key]
             if version_key != "version_from_scratch":
-                draft = export_to_builder(version=version, owner=organisation_user)
+                draft = export_to_builder(version=version, author=organisation_user)
 
             rsp = client.get(draft.get_builder_draft_url())
             data = {

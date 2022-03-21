@@ -135,7 +135,7 @@ def create_codelist_with_codes(
 def create_codelist_from_scratch(
     *,
     owner,
-    draft_owner,  # The User who can edit the draft CodelistVersion
+    author,  # The User who can edit the draft CodelistVersion
     name,
     coding_system_id,
     slug=None,
@@ -157,7 +157,7 @@ def create_codelist_from_scratch(
         references=references,
         signoffs=signoffs,
     )
-    version = codelist.versions.create(draft_owner=draft_owner, status=Status.DRAFT)
+    version = codelist.versions.create(author=author, status=Status.DRAFT)
     cache_hierarchy(version=version)
     return codelist
 
@@ -479,11 +479,11 @@ def convert_codelist_to_new_style(*, codelist):
 
 
 @transaction.atomic
-def export_to_builder(*, version, owner):
+def export_to_builder(*, version, author):
     """Create a new CodelistVersion for editing in the builder."""
 
     # Create a new CodelistVersion and CodeObjs.
-    draft = owner.drafts.create(codelist=version.codelist, status=Status.DRAFT)
+    draft = author.versions.create(codelist=version.codelist, status=Status.DRAFT)
     CodeObj.objects.bulk_create(
         CodeObj(version=draft, code=code_obj.code, status=code_obj.status)
         for code_obj in version.code_objs.all()

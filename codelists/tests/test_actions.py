@@ -178,10 +178,10 @@ def test_create_or_update_codelist_update_no_change_to_codes(
 
 def test_create_codelist_from_scratch(organisation, user):
     cl = actions.create_codelist_from_scratch(
-        owner=organisation, name="Test", coding_system_id="snomedct", draft_owner=user
+        owner=organisation, name="Test", coding_system_id="snomedct", author=user
     )
     clv = cl.versions.get()
-    assert clv.draft_owner == user
+    assert clv.author == user
     assert clv.is_draft
 
 
@@ -416,10 +416,10 @@ def test_export_to_builder(organisation_user, new_style_version):
         new_style_version.codelist.versions.count, expected_difference=1
     ):
         draft = actions.export_to_builder(
-            version=new_style_version, owner=organisation_user
+            version=new_style_version, author=organisation_user
         )
 
-    assert draft.draft_owner == organisation_user
+    assert draft.author == organisation_user
     assert draft.codes == new_style_version.codes
     assert draft.code_objs.count() == new_style_version.code_objs.count()
     assert draft.searches.count() == new_style_version.searches.count()

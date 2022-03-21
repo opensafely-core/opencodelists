@@ -26,12 +26,35 @@
 </ul>
 {% endif %}
 
+
+{% if authored_for_organisation %}
+<h4>Your organisation codelists</h4>
+
+<ul>
+        {% for codelist in authored_for_organisation %}
+        <li><a href="{{ codelist.get_absolute_url }}">{{ codelist.name }} (owned by {{ codelist.owner }})</a></li>
+        {% endfor %}
+</ul>
+{% endif %}
+
+
+{% if under_review %}
+<h4>Your codelists under review</h4>
+
+<ul>
+        {% for version in under_review %}
+        <li><a href="{{ version.get_absolute_url }}">{{ version.codelist.name }} {% if user.organisations.exists %}(owned by {{ version.codelist.owner }}){% endif %}</a></li>
+        {% endfor %}
+</ul>
+{% endif %}
+
+
 {% if drafts %}
 <h4>Your drafts</h4>
 
 <ul>
         {% for draft in drafts %}
-        <li><a href="{{ draft.get_absolute_url }}">{{ draft.codelist.name }}</a></li>
+        <li><a href="{{ draft.get_absolute_url }}">{{ draft.codelist.name }} {% if user.organisations.exists %}(owned by {{ draft.codelist.owner }}){% endif %}</a></li>
         {% endfor %}
 </ul>
 {% endif %}

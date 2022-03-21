@@ -13,15 +13,15 @@ def load_draft(view_fn):
     @wraps(view_fn)
     def wrapped_view(request, hash, **kwargs):
         id = unhash(hash, "CodelistVersion")
-        draft = get_object_or_404(CodelistVersion, id=id)
-        if draft.draft_owner:
-            rsp = view_fn(request, draft, **kwargs)
-            if draft.hierarchy.dirty:
-                cache_hierarchy(version=draft)
+        version = get_object_or_404(CodelistVersion, id=id)
+        if version.is_draft:
+            rsp = view_fn(request, version, **kwargs)
+            if version.hierarchy.dirty:
+                cache_hierarchy(version=version)
             return rsp
         else:
             # TODO test this properly
-            return redirect(draft)
+            return redirect(version)
 
     return wrapped_view
 
@@ -31,7 +31,7 @@ def require_permission(view_fn):
 
     @wraps(view_fn)
     def wrapped_view(request, draft):
-        if request.user == draft.draft_owner:
+        if request.user == draft.author:
             return view_fn(request, draft)
         else:
             return redirect("/")

@@ -59,7 +59,7 @@ def test_post_unauthenticated(client, draft):
 
 
 def test_post_save_for_review(client, draft):
-    client.force_login(draft.draft_owner)
+    client.force_login(draft.author)
 
     rsp = client.post(
         draft.get_builder_draft_url(), {"action": "save-for-review"}, follow=True
@@ -79,7 +79,7 @@ def test_update_unauthenticated(client, draft):
 
 
 def test_update(client, draft):
-    client.force_login(draft.draft_owner)
+    client.force_login(draft.author)
 
     rsp = client.post(
         draft.get_builder_update_url(),
@@ -101,7 +101,7 @@ def test_new_search_unauthenticated(client, draft):
 
 
 def test_new_search_for_term(client, draft):
-    client.force_login(draft.draft_owner)
+    client.force_login(draft.author)
 
     with assert_difference(draft.searches.count, expected_difference=1):
         rsp = client.post(
@@ -115,7 +115,7 @@ def test_new_search_for_term(client, draft):
 
 
 def test_new_search_for_code(client, draft):
-    client.force_login(draft.draft_owner)
+    client.force_login(draft.author)
 
     with assert_difference(draft.searches.count, expected_difference=1):
         rsp = client.post(
@@ -129,7 +129,7 @@ def test_new_search_for_code(client, draft):
 
 
 def test_new_search_no_results(client, draft):
-    client.force_login(draft.draft_owner)
+    client.force_login(draft.author)
 
     with assert_difference(draft.searches.count, expected_difference=1):
         rsp = client.post(

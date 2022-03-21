@@ -219,10 +219,12 @@ class CodelistVersion(models.Model):
 
     status = models.CharField(max_length=len("under review"), choices=Status.choices)
 
-    # If set, indicates that a CodelistVersion is a draft that's being edited in the
-    # builder.
-    draft_owner = models.ForeignKey(
-        "opencodelists.User", related_name="drafts", on_delete=models.CASCADE, null=True
+    # The user who created this version
+    author = models.ForeignKey(
+        "opencodelists.User",
+        related_name="versions",
+        on_delete=models.CASCADE,
+        null=True,
     )
     tag = models.CharField(max_length=12, null=True)
     csv_data = models.TextField(verbose_name="CSV data", null=True)

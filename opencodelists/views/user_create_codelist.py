@@ -73,7 +73,7 @@ def handle_post_valid(request, form, user, owner_choices):
                 owner=owner,
                 name=name,
                 coding_system_id=coding_system_id,
-                draft_owner=user,
+                author=user,
             )
     except IntegrityError as e:
         assert "UNIQUE constraint failed" in str(e)

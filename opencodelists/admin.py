@@ -4,8 +4,8 @@ from .models import Organisation, User
 
 
 class UserAdmin(admin.ModelAdmin):
-    fields = ["username", "name", "email", "is_admin", "full_set_password_url"]
-    readonly_fields = ["username", "full_set_password_url"]
+    fields = ["username", "name", "email", "is_admin"]
+    readonly_fields = ["username"]
 
 
 admin.site.register(User, UserAdmin)

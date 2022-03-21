@@ -1,14 +1,6 @@
 from opencodelists import actions
 
 
-def test_activate_user(inactive_user):
-    actions.activate_user(user=inactive_user, password="test")
-
-    # user has been activated and has a password set
-    assert inactive_user.is_active
-    assert inactive_user.has_usable_password()
-
-
 def test_create_organisation():
     o = actions.create_organisation(
         name="Another Test University", url="https://another-test.ac.uk"

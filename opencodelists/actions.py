@@ -1,7 +1,7 @@
 import structlog
 from rest_framework.authtoken.models import Token
 
-from .models import Organisation, User
+from .models import Organisation
 
 logger = structlog.get_logger()
 
@@ -12,29 +12,6 @@ def create_organisation(*, name, url, slug=None):
     logger.info("Created Organisation", organisation_pk=org.pk)
 
     return org
-
-
-def activate_user(*, user, password):
-    user.is_active = True
-    user.set_password(password)
-    user.save()
-
-    logger.info("Activated User", user_pk=user.pk)
-
-    return user
-
-
-def create_user(*, username, name, email, is_active=False):
-    user = User.objects.create(
-        username=username,
-        name=name,
-        email=email,
-        is_active=is_active,
-    )
-
-    logger.info("Created User", user_pk=user.pk)
-
-    return user
 
 
 def add_user_to_organisation(*, user, organisation, date_joined):

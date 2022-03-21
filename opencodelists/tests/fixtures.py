@@ -103,10 +103,10 @@ from codelists.search import do_search
 from opencodelists.actions import (
     add_user_to_organisation,
     create_organisation,
-    create_user,
     make_user_admin_for_organisation,
     set_api_token,
 )
+from opencodelists.models import User
 
 SNOMED_FIXTURES_PATH = Path(settings.BASE_DIR, "coding_systems", "snomedct", "fixtures")
 
@@ -207,8 +207,8 @@ def build_fixtures():
 
     # organisation_admin
     # - is admin for organisation
-    organisation_admin = create_user(
-        username="alice", name="Alice", email="alice@test.ac.uk", is_active=True
+    organisation_admin = User.objects.create_user(
+        username="alice", password="test", email="alice@test.ac.uk", name="Alice"
     )
     add_user_to_organisation(
         user=organisation_admin, organisation=organisation, date_joined="2020-02-29"
@@ -220,8 +220,8 @@ def build_fixtures():
     # - is editing version_from_scratch
     # - has one codelist:
     #   - user_codelist
-    organisation_user = create_user(
-        username="bob", name="Bob", email="bob@test.ac.uk", is_active=True
+    organisation_user = User.objects.create_user(
+        username="bob", password="test", email="bob@test.ac.uk", name="Bob"
     )
     add_user_to_organisation(
         user=organisation_user, organisation=organisation, date_joined="2020-02-29"
@@ -234,30 +234,30 @@ def build_fixtures():
 
     # collaborator
     # - is collaborator on new_style_codelist
-    collaborator = create_user(
+    collaborator = User.objects.create_user(
         username="charlie",
-        name="Charlie",
+        password="test",
         email="charlie@example.co.uk",
-        is_active=True,
+        name="Charlie",
     )
 
     # user_without_organisation
     # - does not belong to an organisation
     # - has no codelists
-    user_without_organisation = create_user(
+    user_without_organisation = User.objects.create_user(
         username="dave",
-        name="Dave",
+        password="test",
         email="dave@example.co.uk",
-        is_active=True,
+        name="Dave",
     )
     set_api_token(user=user_without_organisation)
 
     # inactive_user
-    inactive_user = create_user(
+    inactive_user = User.objects.create_user(
         username="eve",
-        name="Eve",
+        password="test",
         email="eve@example.co.uk",
-        is_active=False,
+        name="Eve",
     )
 
     # old_style_codelist

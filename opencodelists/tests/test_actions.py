@@ -1,14 +1,6 @@
 from opencodelists import actions
 
 
-def test_activate_user(inactive_user):
-    actions.activate_user(user=inactive_user, password="test")
-
-    # user has been activated and has a password set
-    assert inactive_user.is_active
-    assert inactive_user.has_usable_password()
-
-
 def test_create_organisation():
     o = actions.create_organisation(
         name="Another Test University", url="https://another-test.ac.uk"
@@ -16,18 +8,6 @@ def test_create_organisation():
     assert o.name == "Another Test University"
     assert o.slug == "another-test-university"
     assert o.url == "https://another-test.ac.uk"
-
-
-def test_create_user():
-    user = actions.create_user(
-        username="testym",
-        name="Testy McTesterson",
-        email="test@example.com",
-    )
-
-    assert user.username == "testym"
-    assert user.name == "Testy McTesterson"
-    assert user.email == "test@example.com"
 
 
 def test_add_user_to_organisation(organisation, user_without_organisation):

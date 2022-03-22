@@ -444,6 +444,17 @@ def build_fixtures():
         author=organisation_user,
     )
 
+    # user_codelist_from_scratch
+    # - belongs to user
+    # - has single version, being edited:
+    #   - version_from_scratch
+    user_codelist_from_scratch = create_codelist_from_scratch(
+        owner=organisation_user,
+        name="User Codelist From Scratch",
+        coding_system_id="snomedct",
+        author=organisation_user,
+    )
+
     # version_from_scratch
     # - belongs to codelist_from_scratch
     # - being edited by organisation_user
@@ -553,6 +564,7 @@ version = build_fixture("version")
 version_under_review = build_fixture("version_under_review")
 codelist_with_collaborator = build_fixture("codelist_with_collaborator")
 codelist_from_scratch = build_fixture("codelist_from_scratch")
+user_codelist_from_scratch = build_fixture("user_codelist_from_scratch")
 version_from_scratch = build_fixture("version_from_scratch")
 user_codelist = build_fixture("user_codelist")
 user_version = build_fixture("user_version")

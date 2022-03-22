@@ -104,7 +104,7 @@ class User(AbstractBaseUser):
         return self.versions.filter(status=Status.DRAFT)
 
     @property
-    def reviews(self):
+    def versions_under_review(self):
         """Codelist versions authored by user and under review"""
         return self.versions.filter(status=Status.UNDER_REVIEW)
 

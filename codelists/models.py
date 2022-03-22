@@ -315,7 +315,7 @@ class CodelistVersion(models.Model):
 
     def exists(self):
         """
-        Check that a CodelistVersion exists.  It may not, in the event that it's just
+        Check that this CodelistVersion exists in the database.  It may not, in the event that it's just
         been discarded
         """
         return CodelistVersion.objects.filter(id=self.id).exists()

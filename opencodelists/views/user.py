@@ -22,7 +22,7 @@ def user(request, username):
         "codelists": owned_codelists.order_by("handles__name"),
         # note that name is a property on a codelist, not an attribute, and it comes from the current handle.
         # If we want to order codelists or versions by codelist name, we actually need to order them by handle name.
-        # We can't use a queryset order_by in the following cases (where reviews/versions are querysets of
+        # We can't use a queryset order_by in the following cases (where versions_under_review/drafts are querysets of
         # CodelistVersion instances), as a codelist can have multiple versions and multiple handles,
         # and this results in duplicates in the returned queryset.
         # See https://code.djangoproject.com/ticket/18165
@@ -31,7 +31,8 @@ def user(request, username):
             authored_for_organisation, key=lambda x: (x.owner.name, x.name)
         ),
         "under_review": sorted(
-            user.reviews.select_related("codelist"), key=lambda x: x.codelist.name
+            user.versions_under_review.select_related("codelist"),
+            key=lambda x: x.codelist.name,
         ),
         "drafts": sorted(
             user.drafts.select_related("codelist"), key=lambda x: x.codelist.name

@@ -1,24 +1,18 @@
 from datetime import datetime
 
+from django.urls import reverse
+
 from builder.actions import save as save_for_review
-from codelists.actions import (
-    create_codelist_from_scratch,
-    publish_version,
-    update_codelist,
-)
+from codelists.actions import publish_version, update_codelist
 from opencodelists.actions import add_user_to_organisation
-from opencodelists.models import User
 
 
-def test_get(client, organisation_user):
-    user = User.objects.create(
-        username="test", name="test", email="test@test.com", password="test"
-    )
-    client.force_login(user)
-    response = client.get("/users/test/")
+def test_get(client, user_without_organisation):
+    client.force_login(user_without_organisation)
+    response = client.get(reverse("user", args=(user_without_organisation.username,)))
     assert response.status_code == 200
 
-    # user has no codelists
+    # user_without_organisation has no codelists
     for codelist_category in [
         "codelists",
         "authored_for_organisation",
@@ -28,56 +22,56 @@ def test_get(client, organisation_user):
         assert not response.context[codelist_category]
 
 
-def test_user_codelists(client, organisation):
-    # Create 2 users, both in the same organisation
-    user = User.objects.create(
-        username="test", name="test", email="test@test.com", password="test"
-    )
-    other_user = User.objects.create(
-        username="test1", name="test1", email="test1@test.com", password="test"
-    )
-    for org_user in [user, other_user]:
-        add_user_to_organisation(
-            user=org_user, organisation=organisation, date_joined=datetime.today()
-        )
-    client.force_login(user)
+def test_user_codelists(
+    client,
+    organisation,
+    organisation_user,
+    user_without_organisation,
+    codelist_from_scratch,
+    user_codelist_from_scratch,
+):
+    test_user = user_without_organisation
+    # Add test_user to same organisation as organisation_user
 
-    # Create a user-owned codelist and an org-owned codelist authored by this user
-    # At this stage both are draft
-    codelist = create_codelist_from_scratch(
-        owner=user, author=user, name="foo1", coding_system_id="snomedct"
+    add_user_to_organisation(
+        user=test_user, organisation=organisation, date_joined=datetime.today()
     )
-    organisation_codelist = create_codelist_from_scratch(
-        owner=organisation,
-        author=user,
-        name="org codelist1",
-        coding_system_id="snomedct",
-    )
+    client.force_login(test_user)
 
-    # codelists owned/authored by another user; these should never appear
-    create_codelist_from_scratch(
-        owner=other_user, author=other_user, name="foo", coding_system_id="snomedct"
-    )
-    create_codelist_from_scratch(
-        owner=organisation,
-        author=other_user,
-        name="org codelist",
-        coding_system_id="snomedct",
-    )
+    user_url = reverse("user", args=(test_user.username,))
 
-    response = client.get("/users/test/")
+    # Ensure we have a user-owned codelist and an org-owned codelist authored by this user
+    # Both of these are currently in draft
+    organisation_codelist = codelist_from_scratch
+    org_cl_version = organisation_codelist.versions.first()
+    org_cl_version.author = test_user
+    org_cl_version.save()
+
+    codelist = user_codelist_from_scratch
+    cl_handle = codelist.handles.first()
+    cl_handle.user = test_user
+    cl_handle.organisation = None
+    cl_handle.save()
+    cl_version = codelist.versions.first()
+    cl_version.author = test_user
+    cl_version.save()
+
+    # organisation_user also has codelists; these should never appear for our test user
+    assert organisation_user.codelists.count() >= 1
+
+    response = client.get(user_url)
     for codelist_category in ["codelists", "authored_for_organisation", "under_review"]:
         assert not response.context[codelist_category]
 
     assert [cl.id for cl in response.context["drafts"]] == [
-        codelist.versions.first().id,
         organisation_codelist.versions.first().id,
+        codelist.versions.first().id,
     ]
 
     # make org codelist under-review
     save_for_review(draft=organisation_codelist.versions.first())
 
-    response = client.get("/users/test/")
+    response = client.get(user_url)
     assert [cl.id for cl in response.context["drafts"]] == [
         codelist.versions.first().id
     ]
@@ -89,7 +83,7 @@ def test_user_codelists(client, organisation):
     save_for_review(draft=codelist.versions.first())
     publish_version(version=codelist.versions.last())
     publish_version(version=organisation_codelist.versions.last())
-    response = client.get("/users/test/")
+    response = client.get(user_url)
     for codelist_category in ["under_review", "drafts"]:
         assert not response.context[codelist_category]
     assert [cl.id for cl in response.context["codelists"]] == [codelist.id]
@@ -108,11 +102,11 @@ def test_user_codelists(client, organisation):
         references={},
         signoffs={},
     )
-    response = client.get("/users/test/")
+    response = client.get(user_url)
     # the previously user-owned codelist now appears under "authored_for_organisation"
     for codelist_category in ["codelists", "under_review", "drafts"]:
         assert not response.context[codelist_category]
     assert [cl.id for cl in response.context["authored_for_organisation"]] == [
-        codelist.id,
         organisation_codelist.id,
+        codelist.id,
     ]

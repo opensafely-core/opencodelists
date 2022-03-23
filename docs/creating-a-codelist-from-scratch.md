@@ -11,7 +11,8 @@ Then click _Create a codelist_.
 
         create-a-codelist-1.png
 
-Choose a name for the codelist, and select a coding system from the dropdown.
+Choose a name for the codelist, and select a coding system from the dropdown.  If you are a member of an organisation, you can also choose an owner for the codelist (your own account or an organisation account).
+
 We currently support codelists using the following coding systems:
 
 - SNOMED-CT
@@ -27,7 +28,7 @@ You'll be taken to a page that is nearly blank.
 
         blank.png
 
-You build your codelist by searching for terms, and then choosing which of the matching concepts should be included in the codelist.
+You build your codelist by searching for terms or codes, and then choosing which of the matching concepts should be included in the codelist.  To search for a code, prefix it with "code:" in the search field.
 
         search.png
 
@@ -64,8 +65,28 @@ There is a link to see just the concepts that are unresolved or in conflict.
 
         summary.png
 
+All the searches used to build the codelist are displayed, and you can view the results of specific searches again by clicking on them.  _Show all_ returns to the combined results of all searches.
+
+        search-list.png
+
+You can also delete a search by clicking the __x__ next to it.  If you have already included some concepts from that search, they will not be removed.
+
 Once you have included or excluded every search result, you are able to save your changes.
+If you are not done with building your codelists, you can _Save draft_ and come back to finish editing it later.
 
         save-changes.png
 
-This takes you to the codelist's homepage, where you can edit metadata to provide a description, methodology, and links to references.
+If you're done building the codelist, you can save it for review. Note that the __Save for review__ button will be disabled if you have unresolved or conflicting codes in the codelist.  __Save for review__  takes you to the codelist's homepage, where you can edit metadata to provide a description, methodology, links to references, and sign offs.
+
+
+The codelist is still not publicly available to allow for it to be reviewed and signed off.  You can copy its URL and send it to a another OpenCodelists user to review. The reviewer signs off by editing the codelist's metadata and adding their user and the date in the sign offs section.
+
+        signoffs.png
+
+Procedures for reviewing and signing off codelists may vary between organisations.  For more
+information on procedures for building codelists to use in OpenSAFELY research, see the
+[OpenSAFELY documentation](https://docs.opensafely.org/en/latest/codelist-intro/).
+
+Once the codelist is reviewed, it can be published, using the __Publish version__ link from the codelist's homepage.  Publishing a codelist version will make that version permanent, and will delete any other draft or in-review versions.
+
+        publish.png

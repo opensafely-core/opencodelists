@@ -1,3 +1,4 @@
+import pytest
 from django.urls import reverse
 
 from codelists.actions import create_codelist_from_scratch
@@ -144,6 +145,37 @@ def test_new_search_no_results(client, draft):
 
     assert rsp.status_code == 200
     assert b"bananas" in rsp.content
+
+
+@pytest.mark.parametrize(
+    "term,slug,valid",
+    [
+        # standard characters with case
+        ("Foo", "foo", True),
+        # spaces and non-slug characters allowed, removed/replaced in slug
+        ("foo 123", "foo-123", True),
+        ("foo_123", "foo_123", True),
+        ("&123", "123", True),
+        # code: prefixed terms are not slugified
+        ("code:*", "code:*", True),
+        ("code:&£%^", "code:&£%^", True),
+        # search terms that result in an empty slug are not allowed
+        ("*", "", False),
+        ("&£%^", "", False),
+    ],
+)
+def test_new_search_check_slugified_terms(client, draft, term, valid, slug):
+    client.force_login(draft.author)
+
+    rsp = client.post(
+        draft.get_builder_new_search_url(),
+        {"search": term},
+    )
+    assert rsp.status_code == 302
+    if valid:
+        assert rsp.url == draft.get_builder_search_url(slug)
+    else:
+        assert rsp.url == draft.get_absolute_url()
 
 
 def test_discard_only_draft_version(client, organisation_user):

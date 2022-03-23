@@ -131,9 +131,12 @@ WSGI_APPLICATION = "opencodelists.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
-
-DATABASES = {"default": env.dj_db_url("DATABASE_URL", "sqlite:///db.sqlite3")}
-
+# Increase timeout from the default 15s to minimise "database is locked" errors
+# see https://docs.djangoproject.com/en/4.0/ref/databases/#database-is-locked-errors
+DATABASES = {
+    "default": env.dj_db_url("DATABASE_URL", "sqlite:///db.sqlite3"),
+    "OPTIONS": {"timeout": 30},
+}
 
 # Default type for auto-created primary keys
 # https://docs.djangoproject.com/en/3.2/releases/3.2/#customizing-type-of-auto-created-primary-keys

@@ -182,7 +182,9 @@ class CodelistBuilder extends React.Component {
               ) : null}
 
               <dt>Codelist ID</dt>
-              <dd>{this.props.metadata.codelist_full_slug}</dd>
+              <dd className="text-break">
+                {this.props.metadata.codelist_full_slug}
+              </dd>
 
               <dt>ID</dt>
               <dd>{this.props.metadata.hash}</dd>

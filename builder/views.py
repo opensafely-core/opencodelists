@@ -202,7 +202,7 @@ def new_search(request, draft):
     # (e.g. if the user entered "*" as a search term)
     if not slugify(term):
         messages.info(request, f'"{term}" is not a valid search term')
-        return redirect(draft)
+        return redirect(draft.get_builder_draft_url())
     if term.startswith("code:"):
         code = term[5:].strip()
         term = None

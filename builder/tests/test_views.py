@@ -175,7 +175,7 @@ def test_new_search_check_slugified_terms(client, draft, term, valid, slug):
     if valid:
         assert rsp.url == draft.get_builder_search_url(slug)
     else:
-        assert rsp.url == draft.get_absolute_url()
+        assert rsp.url == draft.get_builder_draft_url()
 
 
 def test_discard_only_draft_version(client, organisation_user):

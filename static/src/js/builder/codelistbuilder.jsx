@@ -319,13 +319,40 @@ function Filter(props) {
 function Search(props) {
   const { search } = props;
 
-  return (
+  return search.delete_url ? (
+    <form method="post" action={search.delete_url} className="mt-0 pt-0">
+      <input
+        type="hidden"
+        name="csrfmiddlewaretoken"
+        value={getCookie("csrftoken")}
+      />
+
+      <a
+        href={search.url}
+        className={
+          search.active
+            ? "list-group-item list-group-item-action active py-1 px-2"
+            : "list-group-item list-group-item-action py-1 px-2 "
+        }
+      >
+        {search.term_or_code}
+
+        <button
+          type="submit"
+          name="delete-search"
+          className="btn badge badge-secondary float-right"
+        >
+          x
+        </button>
+      </a>
+    </form>
+  ) : (
     <a
       href={search.url}
       className={
         search.active
-          ? "list-group-item list-group-item-action active py-1"
-          : "list-group-item list-group-item-action py-1"
+          ? "list-group-item list-group-item-action active py-1 px-2"
+          : "list-group-item list-group-item-action py-1 px-2 "
       }
     >
       {search.term_or_code}

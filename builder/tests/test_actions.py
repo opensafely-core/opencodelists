@@ -119,27 +119,37 @@ def test_delete_search(version_from_scratch):
     s2 = actions.create_search(
         draft=draft, term="Soft tissue lesion", codes={"239964003"}
     )
+    # This search also returns the codes from s1
+    s3 = actions.create_search(
+        draft=draft,
+        term="Enthesopathy of elbow region",
+        codes={"35185008", "73583000", "202855006"},
+    )
 
     # Act: delete the search for "Soft tissue lesion"
     actions.delete_search(search=s2)
 
     # Assert...
-    # that the codelist has only 1 search
-    assert draft.searches.count() == 1
-    # that the codelist has 2 codes
-    assert draft.code_objs.count() == 2
+    # that the codelist has 2 searches
+    assert draft.searches.count() == 2
+    # that the codelist has 3 codes
+    assert draft.code_objs.count() == 3
 
-    # Arrange: recreate the search for "Soft tissue lesion"
-    actions.create_search(draft=draft, term="Soft tissue lesion", codes=["239964003"])
-
-    # Act: delete the search for "epicondylitis"
-    actions.delete_search(search=s1)
+    # Act: delete the search for "Enthesopathy of elbow region"
+    actions.delete_search(search=s3)
 
     # Assert...
     # that the codelist has only 1 search
     assert draft.searches.count() == 1
-    # that the codelist now has only 1 code
-    assert draft.code_objs.count() == 1
+    # that the codelist now has 2 codes; although codes 73583000 and 202855006 are
+    # in the search for "Enthesopathy of elbow region", they are not deleted because
+    # the are also in the search for "epicondylitis"
+    assert draft.code_objs.count() == 2
+
+    # Act: delete the remainng search for "epicondylitis"
+    actions.delete_search(search=s1)
+    assert draft.searches.count() == 0
+    assert draft.code_objs.count() == 0
 
 
 def test_delete_search_codelist_with_codes(version_with_no_searches):

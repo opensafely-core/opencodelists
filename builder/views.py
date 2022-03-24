@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils.text import slugify
 from django.views.decorators.http import require_http_methods
 
 from codelists.search import do_search
@@ -197,6 +198,11 @@ def update(request, draft):
 @require_permission
 def new_search(request, draft):
     term = request.POST["search"].strip()
+    # Ensure that the term is not an empty string after slugifying
+    # (e.g. if the user entered "*" as a search term)
+    if not slugify(term):
+        messages.info(request, f'"{term}" is not a valid search term')
+        return redirect(draft.get_builder_draft_url())
     if term.startswith("code:"):
         code = term[5:].strip()
         term = None

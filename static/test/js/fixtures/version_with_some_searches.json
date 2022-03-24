@@ -2,12 +2,13 @@
   "searches": [
     {
       "term_or_code": "arthritis",
-      "url": "/builder/1e74f321/search/arthritis/",
+      "url": "/builder/05657fec/search/arthritis/",
+      "delete_url": "/builder/05657fec/search/arthritis/delete/",
       "active": false
     },
     {
-      "term": "[no search term]",
-      "url": "/builder/1e74f321/no-search-term/",
+      "term_or_code": "[no search term]",
+      "url": "/builder/05657fec/no-search-term/",
       "active": false
     }
   ],
@@ -479,18 +480,18 @@
     "73583000": "(+)"
   },
   "is_editable": true,
-  "update_url": "/builder/1e74f321/update/",
-  "search_url": "/builder/1e74f321/search/",
+  "update_url": "/builder/05657fec/update/",
+  "search_url": "/builder/05657fec/search/",
   "versions": [
     {
-      "tag_or_hash": "1e74f321",
-      "url": "/codelist/test-university/new-style-codelist/1e74f321/",
+      "tag_or_hash": "05657fec",
+      "url": "/codelist/test-university/new-style-codelist/05657fec/",
       "status": "draft",
       "current": true
     },
     {
-      "tag_or_hash": "37846656",
-      "url": "/codelist/test-university/new-style-codelist/37846656/",
+      "tag_or_hash": "1e74f321",
+      "url": "/codelist/test-university/new-style-codelist/1e74f321/",
       "status": "draft",
       "current": false
     },
@@ -517,6 +518,6 @@
     "coding_system_name": "SNOMED CT",
     "organisation_name": "Test University",
     "codelist_full_slug": "test-university/new-style-codelist",
-    "hash": "1e74f321"
+    "hash": "05657fec"
   }
 }

@@ -9,6 +9,7 @@ from pathlib import Path
 from django.conf import settings
 from django.core.management import BaseCommand, CommandError, call_command
 from django.db import connections
+from django.test import override_settings
 from django.test.client import Client
 
 from codelists.actions import export_to_builder
@@ -44,7 +45,8 @@ class Command(BaseCommand):
             if version_key != "version_from_scratch":
                 draft = export_to_builder(version=version, author=organisation_user)
 
-            rsp = client.get(draft.get_builder_draft_url())
+            with override_settings(ALLOWED_HOSTS="*"):
+                rsp = client.get(draft.get_builder_draft_url())
             data = {
                 context_key: rsp.context[context_key]
                 for context_key in [

@@ -3,10 +3,11 @@ from django.shortcuts import get_object_or_404, render
 
 from opencodelists.models import Organisation
 
-from ..models import Handle
+from ..list_utils import flatten
+from ..models import Handle, Status
 
 
-def index(request, organisation_slug=None):
+def index(request, organisation_slug=None, status=Status.PUBLISHED):
     handles = Handle.objects.filter(is_current=True)
 
     q = request.GET.get("q")
@@ -27,9 +28,15 @@ def index(request, organisation_slug=None):
         )
 
     handles = handles.order_by("name")
-    codelists = _all_published_codelists(handles)
-    ctx = {"codelists": codelists, "organisation": organisation, "q": q}
-    return render(request, "codelists/index.html", ctx)
+    if status == Status.PUBLISHED:
+        codelists = _all_published_codelists(handles)
+        ctx = {"codelists": codelists, "organisation": organisation, "q": q}
+        return render(request, "codelists/index.html", ctx)
+    else:
+        assert status == Status.UNDER_REVIEW
+        versions = _all_under_review_codelist_versions(handles)
+        ctx = {"versions": versions, "organisation": organisation, "q": q}
+        return render(request, "codelists/under_review_index.html", ctx)
 
 
 def _all_published_codelists(handles):
@@ -38,3 +45,12 @@ def _all_published_codelists(handles):
         for handle in handles
         if handle.codelist.has_published_versions()
     ]
+
+
+def _all_under_review_codelist_versions(handles):
+    return flatten(
+        [
+            list(handle.codelist.versions.filter(status=Status.UNDER_REVIEW))
+            for handle in handles
+        ]
+    )

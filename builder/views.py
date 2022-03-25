@@ -228,5 +228,8 @@ def new_search(request, draft):
 def delete_search(request, draft, search_slug):
     search = get_object_or_404(Search, version=draft, slug=search_slug)
     actions.delete_search(search=search)
-    messages.info(request, f'Search for "{search_slug}" (and associated codes) deleted')
+    messages.info(
+        request,
+        f'Search for "{search_slug}" deleted.  Any included codes and their descendants have been maintained.',
+    )
     return redirect(draft.get_builder_draft_url())

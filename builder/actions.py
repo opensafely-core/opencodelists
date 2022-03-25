@@ -51,10 +51,37 @@ def delete_search(*, search):
     # Grab the PK before we delete the instance
     search_pk = search.pk
 
-    # Delete any codes that only belong to this search
-    search.version.code_objs.annotate(num_results=Count("results")).filter(
-        results__search=search, num_results=1
-    ).delete()
+    # Delete any codes that:
+    # - only belong to this search
+    # - are not included
+    # - are not descendants of an included code
+
+    # Find all code objs that belong to this search and no others
+    search_only_code_objs = search.version.code_objs.annotate(
+        num_results=Count("results")
+    ).filter(results__search=search, num_results=1)
+    # Get all explicitly included codes on the codelist
+    all_included_codes = search.version.codeset.codes()
+
+    # Build a set of codes_to_keep from this search, consisting of any included codes, their descendants,
+    # and any codes with ancestor that is included
+    hierarchy = search.version.hierarchy
+    codes_to_keep = set()
+
+    for code_obj in search_only_code_objs:
+        # Keep a code if it is explicitly included or a descendant of an explicitly included code
+        if code_obj.code in all_included_codes:
+            codes_to_keep.add(code_obj.code)
+            codes_to_keep = codes_to_keep | hierarchy.descendants(code_obj.code)
+        else:
+            # if it's not explicitly included, we still need to keep it if any of its parents are included
+            ancestors = hierarchy.ancestors(code_obj.code)
+            ancestors_in_included = ancestors & all_included_codes
+            if ancestors_in_included:
+                codes_to_keep.add(code_obj.code)
+
+    # Delete any code objs that belong to this search only, and are not in the codes_to_keep set
+    search_only_code_objs.exclude(code__in=codes_to_keep).delete()
 
     # Delete the search
     search.delete()

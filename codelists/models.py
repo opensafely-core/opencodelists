@@ -522,6 +522,9 @@ class CodeObj(models.Model):
     def is_excluded(self):
         return self.status in ["-", "(-)"]
 
+    def __str__(self):
+        return f"{self.code} {self.status}"
+
 
 class Search(models.Model):
     version = models.ForeignKey(

@@ -68,17 +68,12 @@ def delete_search(*, search):
     hierarchy = search.version.hierarchy
     codes_to_keep = set()
 
+    codes_to_keep = []
     for code_obj in search_only_code_objs:
-        # Keep a code if it is explicitly included or a descendant of an explicitly included code
-        if code_obj.code in all_included_codes:
-            codes_to_keep.add(code_obj.code)
-            codes_to_keep = codes_to_keep | hierarchy.descendants(code_obj.code)
-        else:
-            # if it's not explicitly included, we still need to keep it if any of its parents are included
-            ancestors = hierarchy.ancestors(code_obj.code)
-            ancestors_in_included = ancestors & all_included_codes
-            if ancestors_in_included:
-                codes_to_keep.add(code_obj.code)
+        ancestors = hierarchy.ancestors(code_obj.code)
+        ancestors_in_included = ancestors & all_included_codes
+        if ancestors_in_included or code_obj.code in all_included_codes:
+            codes_to_keep.append(code_obj.code)
 
     # Delete any code objs that belong to this search only, and are not in the codes_to_keep set
     search_only_code_objs.exclude(code__in=codes_to_keep).delete()

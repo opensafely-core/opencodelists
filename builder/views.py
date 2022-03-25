@@ -230,6 +230,7 @@ def delete_search(request, draft, search_slug):
     actions.delete_search(search=search)
     messages.info(
         request,
-        f'Search for "{search_slug}" deleted.  Any included codes and their descendants have been maintained.',
+        f'Search for "{search_slug}" deleted. Any codes matching "{search_slug}" that '
+        "do not match any other search term and which are not included in the codelist have been removed",
     )
     return redirect(draft.get_builder_draft_url())

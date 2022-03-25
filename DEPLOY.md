@@ -37,6 +37,26 @@ dokku config:set opencodelists EMAIL_BACKEND='anymail.backends.mailgun.EmailBack
 dokku config:set opencodelists MAILGUN_API_KEY='xxx'
 ```
 
+### Configure nginx
+Dokku does most of the nginx configuration for us, however specific config can be updated
+with the `nginx:set` command.
+
+To allow uploads of CSV files that are larger than the default allowed by nginx, run:
+
+```sh
+dokku$ dokku nginx:set opencodelists client-max-body-size 20m
+```
+
+Restart the app to regenerate the nginx config:
+```sh
+dokku$ dokku ps:restart opencodelists
+```
+
+View nginx config:
+```sh
+dokku$ dokku nginx:show-config opencodelists
+```
+
 ### Backups
 Backups are defined as cron jobs in app.json, and managed by dokku
 

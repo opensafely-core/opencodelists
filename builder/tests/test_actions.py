@@ -154,25 +154,52 @@ def test_delete_search(version_from_scratch):
 
 def test_delete_search_codelist_with_codes(version_with_no_searches):
     draft = version_with_no_searches
-    starting_code_count = draft.code_objs.count()
-    assert starting_code_count > 0
+    codelist_codes = draft.codeset.all_codes()
+    included_codes = draft.codeset.codes()
+    assert len(codelist_codes) == 8
+    assert len(included_codes) == 6
 
     # This codelist has all the codes for disorder of elbow excluding arthritis
-    # Epicondylitis codes are already on the codelist
-    epicondylitis_codes = {"73583000", "202855006"}
+    # 8 codes, 6 included
+    """
+                        + 128133004 Disorder of elbow
+                                        |
+         --------------- --------------- ----------------------- -------------------
+        |                               |                       |                   |
+    + 429554009                     + 35185008              + 239964003           + 156659008
+    Arthropathy of elbow          Enthesopathy of       Soft tissue lesion     (Epicondylitis &/or tennis elbow)
+        |                           elbow region          of elbow region       or (golfers' elbow) [inactive]
+        |                               |
+    - 439656005                     + 73583000
+    Arthritis of elbow            Epicondylitis
+        |                               |
+        -----------202855006-------------
+              - Lateral epicondylitis
+    """
+    # Epicondylitis codes are already included on the codelist; one is included, one is not
+    epicondylitis_included_code = "73583000"
+    epicondylitis_excluded_code = "202855006"
+    epicondylitis_codes = {epicondylitis_included_code, epicondylitis_excluded_code}
     # Tennis toe code is not on the codelist
-    tennis_toe_codes = {"238484001"}
-    starting_codes = draft.code_objs.values_list("code", flat=True)
+    tennis_toe_code = "238484001"
+
+    # Arthritis of elbow is on the codelist, but not included
+    arthritis_of_elbow_code = "439656005"
+
+    assert epicondylitis_included_code in included_codes
+    assert epicondylitis_excluded_code not in included_codes
     for code in epicondylitis_codes:
-        assert code in starting_codes
-    for code in tennis_toe_codes:
-        assert code not in starting_codes
+        assert code in codelist_codes
+    assert tennis_toe_code not in codelist_codes
+    assert tennis_toe_code not in included_codes
+    assert arthritis_of_elbow_code in codelist_codes
+    assert arthritis_of_elbow_code not in included_codes
 
     # Act: create a term search
     s = actions.create_search(
         draft=draft,
-        term="Tennis tow",
-        codes=tennis_toe_codes,
+        term="Tennis toe",
+        codes={tennis_toe_code},
     )
 
     # Act: delete the search
@@ -181,8 +208,8 @@ def test_delete_search_codelist_with_codes(version_with_no_searches):
     # Assert...
     # that the codelist has 0 searches
     assert draft.searches.count() == 0
-    # that the codelist still has the starting codes that were not associated with the search
-    assert draft.code_objs.count() == starting_code_count
+    # that the codelist still has the codes that were not associated with the search
+    assert draft.code_objs.count() == len(codelist_codes)
 
     # Arrange: create new searches
     s1 = actions.create_search(
@@ -190,7 +217,13 @@ def test_delete_search_codelist_with_codes(version_with_no_searches):
         term="epicondylitis",
         codes=epicondylitis_codes,
     )
-    s2 = actions.create_search(draft=draft, term="Tennis toe", codes=tennis_toe_codes)
+    s2 = actions.create_search(draft=draft, term="Tennis toe", codes={tennis_toe_code})
+
+    # Assert...
+    # that the codelist now has 2 searches
+    assert draft.searches.count() == 2
+    # and one extra code obj
+    assert draft.code_objs.count() == len(codelist_codes) + 1
 
     # Act: delete the search for "Tennis toe"
     actions.delete_search(search=s2)
@@ -199,7 +232,7 @@ def test_delete_search_codelist_with_codes(version_with_no_searches):
     # that the codelist has only 1 search
     assert draft.searches.count() == 1
     # that the codelist still has the starting codes that were not associated with the search
-    assert draft.code_objs.count() == starting_code_count
+    assert draft.code_objs.count() == len(codelist_codes)
 
     # Act: delete the search for "epicondylitis"
     actions.delete_search(search=s1)
@@ -207,9 +240,25 @@ def test_delete_search_codelist_with_codes(version_with_no_searches):
     # Assert...
     # that the codelist has no searches
     assert draft.searches.count() == 0
-    # This search matched 2 starting codes which are now deleted.  Others codes that were not
-    # associated with the search remain
-    assert draft.code_objs.count() == starting_code_count - 2
+    # This search matched 2 codes, one included, one not included, but a descendant of an included
+    # code, they are not deleted
+    assert draft.code_objs.count() == len(codelist_codes)
+
+    # Arrange: create new search for not-included code
+    s3 = actions.create_search(
+        draft=draft,
+        term="arthritis of elbow",
+        codes={arthritis_of_elbow_code},
+    )
+
+    # Act: delete the search for "arthritis of elbow"
+    actions.delete_search(search=s3)
+
+    # Assert...
+    # that the codelist has no searches
+    assert draft.searches.count() == 0
+    # The code is not included, but it is a descendant of an included search, so it is kept
+    assert draft.code_objs.count() == len(codelist_codes)
 
 
 def test_update_code_statuses(draft_with_no_searches):

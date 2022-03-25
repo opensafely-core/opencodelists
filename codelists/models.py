@@ -1,3 +1,4 @@
+from django.contrib.auth.models import AnonymousUser
 from django.db import models
 from django.urls import reverse
 from django.utils.functional import cached_property
@@ -83,6 +84,16 @@ class Codelist(models.Model):
             f"codelists:{self.codelist_type}_codelist", kwargs=self.url_kwargs
         )
 
+    def get_latest_published_url(self):
+        """
+        Return the URL for the latest published version, or if no such version exists,
+        return the absolute URL for this codelist, which will redirect to the user's latest
+        visible version
+        """
+        if self.latest_published_version():
+            return self.latest_published_version().get_absolute_url()
+        return self.get_absolute_url()
+
     def get_update_url(self):
         return reverse(
             f"codelists:{self.codelist_type}_codelist_update", kwargs=self.url_kwargs
@@ -156,6 +167,12 @@ class Codelist(models.Model):
         exists."""
 
         return self.visible_versions(user).first()
+
+    def latest_published_version(self):
+        """Return URL latest published version, or None if no such version exists."""
+        # the lastest visible version for an anonymous user will be the latest published one
+        published = self.visible_versions(user=AnonymousUser())
+        return published.first()
 
     def has_published_versions(self):
         return self.versions.filter(status="published").exists()

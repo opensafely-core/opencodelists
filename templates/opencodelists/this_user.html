@@ -21,7 +21,7 @@
 
 <ul>
         {% for codelist in codelists %}
-        <li><a href="{{ codelist.get_absolute_url }}">{{ codelist.name }}</a></li>
+        <li><a href="{{ codelist.get_latest_published_url }}">{{ codelist.name }}</a></li>
         {% endfor %}
 </ul>
 {% endif %}
@@ -32,7 +32,7 @@
 
 <ul>
         {% for codelist in authored_for_organisation %}
-        <li><a href="{{ codelist.get_absolute_url }}">{{ codelist.name }} (owned by {{ codelist.owner }})</a></li>
+        <li><a href="{{ codelist.get_latest_published_url }}">{{ codelist.name }} (owned by {{ codelist.owner }})</a></li>
         {% endfor %}
 </ul>
 {% endif %}

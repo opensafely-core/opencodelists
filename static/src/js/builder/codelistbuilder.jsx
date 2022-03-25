@@ -191,16 +191,12 @@ class CodelistBuilder extends React.Component {
             </dl>
             <hr />
 
-            {this.props.searches.length > 0 && (
-              <>
-                <h6>Versions</h6>
-                <ul className="pl-3">
-                  {this.props.versions.map((version) => (
-                    <Version key={version.hash} version={version} />
-                  ))}
-                </ul>
-              </>
-            )}
+            <h6>Versions</h6>
+            <ul className="pl-3">
+              {this.props.versions.map((version) => (
+                <Version key={version.hash} version={version} />
+              ))}
+            </ul>
           </div>
 
           <div className="col-9 pl-5">

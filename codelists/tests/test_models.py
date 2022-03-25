@@ -236,3 +236,27 @@ def test_codelist_has_published_versions_returns_false_when_not_published(
     old_style_codelist,
 ):
     assert not old_style_codelist.has_published_versions()
+
+
+def test_latest_published_version_no_versions_published(codelist_from_scratch):
+    assert codelist_from_scratch.latest_published_version() is None
+
+
+def test_latest_published_version_with_version_published(
+    new_style_codelist, latest_published_version
+):
+    assert new_style_codelist.latest_published_version() == latest_published_version
+
+
+def test_get_latest_published_url(new_style_codelist, latest_published_version):
+    assert (
+        new_style_codelist.get_latest_published_url()
+        == latest_published_version.get_absolute_url()
+    )
+
+
+def test_get_latest_published_url_no_published_version(codelist_from_scratch):
+    assert (
+        codelist_from_scratch.get_latest_published_url()
+        == codelist_from_scratch.get_absolute_url()
+    )

@@ -90,60 +90,194 @@ def test_duplicate_search(version_from_scratch):
     assert draft.code_objs.count() == 2
 
 
-@pytest.mark.xfail
-def test_delete_search():
-    pass
-    # # Arrange: create a draft with codes and a search
-    # codelist = CodelistFactory()
-    # owner = UserFactory()
-    # draft = actions.create_draft_with_codes(
-    #     codelist=codelist,
-    #     owner=owner,
-    #     codes=["1067731000000107", "1068181000000106"],
-    # )
-    # s = actions.create_search(
-    #     draft=draft, term="synchronised", codes=["1068181000000106"]
-    # )
+def test_delete_search(version_from_scratch):
 
-    # # Act: delete the search
-    # actions.delete_search(search=s)
+    draft = version_from_scratch
 
-    # # Assert...
-    # # that the codelist has 0 searches
-    # assert draft.searches.count() == 0
-    # # that the still codelist has 1 code which doesn't belong to a search
-    # assert draft.code_objs.count() == 1
+    # Act: create a term search
+    s = actions.create_search(
+        draft=draft,
+        term="epicondylitis",
+        codes={"73583000", "202855006"},
+    )
 
-    # # Arrange: create new searches
-    # s1 = actions.create_search(
-    #     draft=draft, term="synchronised", codes=["1068181000000106"]
-    # )
-    # s2 = actions.create_search(
-    #     draft=draft, term="swimming", codes=["1067731000000107", "1068181000000106"]
-    # )
+    # Act: delete the search
+    actions.delete_search(search=s)
 
-    # # Act: delete the search for "swimming"
-    # actions.delete_search(search=s2)
+    # Assert...
+    # that the codelist has 0 searches
+    assert draft.searches.count() == 0
+    # that the codelist has no codes
+    assert draft.code_objs.count() == 0
 
-    # # Assert...
-    # # that the codelist has only 1 search
-    # assert draft.searches.count() == 1
-    # # that the codelist has only 1 code
-    # assert draft.code_objs.count() == 1
+    # Arrange: create new searches
+    s1 = actions.create_search(
+        draft=draft,
+        term="epicondylitis",
+        codes={"73583000", "202855006"},
+    )
+    s2 = actions.create_search(
+        draft=draft, term="Soft tissue lesion", codes={"239964003"}
+    )
+    # This search also returns the codes from s1
+    s3 = actions.create_search(
+        draft=draft,
+        term="Enthesopathy of elbow region",
+        codes={"35185008", "73583000", "202855006"},
+    )
 
-    # # Arrange: recreate the search for "swimming"
-    # actions.create_search(
-    #     draft=draft, term="swimming", codes=["1067731000000107", "1068181000000106"]
-    # )
+    # Act: delete the search for "Soft tissue lesion"
+    actions.delete_search(search=s2)
 
-    # # Act: delete the search for "synchronised"
-    # actions.delete_search(search=s1)
+    # Assert...
+    # that the codelist has 2 searches
+    assert draft.searches.count() == 2
+    # that the codelist has 3 codes
+    assert draft.code_objs.count() == 3
 
-    # # Assert...
-    # # that the codelist has only 1 search
-    # assert draft.searches.count() == 1
-    # # that the codelist still has both codes
-    # assert draft.code_objs.count() == 2
+    # Act: delete the search for "Enthesopathy of elbow region"
+    actions.delete_search(search=s3)
+
+    # Assert...
+    # that the codelist has only 1 search
+    assert draft.searches.count() == 1
+    # that the codelist now has 2 codes; although codes 73583000 and 202855006 are
+    # in the search for "Enthesopathy of elbow region", they are not deleted because
+    # the are also in the search for "epicondylitis"
+    assert draft.code_objs.count() == 2
+
+    # Act: delete the remainng search for "epicondylitis"
+    actions.delete_search(search=s1)
+    assert draft.searches.count() == 0
+    assert draft.code_objs.count() == 0
+
+
+def test_delete_search_codelist_with_codes(version_with_no_searches):
+    draft = version_with_no_searches
+    codelist_codes = draft.codeset.all_codes()
+    included_codes = draft.codeset.codes()
+    assert len(codelist_codes) == 8
+    assert len(included_codes) == 6
+
+    # This codelist has all the codes for disorder of elbow excluding arthritis
+    # 8 codes, 6 included
+    """
+                        + 128133004 Disorder of elbow
+                                        |
+         --------------- --------------- ----------------------- -------------------
+        |                               |                       |                   |
+    + 429554009                     + 35185008              + 239964003           + 156659008
+    Arthropathy of elbow          Enthesopathy of       Soft tissue lesion     (Epicondylitis &/or tennis elbow)
+        |                           elbow region          of elbow region       or (golfers' elbow) [inactive]
+        |                               |
+    - 439656005                     + 73583000
+    Arthritis of elbow            Epicondylitis
+        |                               |
+        -----------202855006-------------
+              - Lateral epicondylitis
+    """
+    # Epicondylitis codes are already included on the codelist; one is included, one is not
+    epicondylitis_included_code = "73583000"
+    epicondylitis_excluded_code = "202855006"
+    epicondylitis_codes = {epicondylitis_included_code, epicondylitis_excluded_code}
+    # Tennis toe code is not on the codelist
+    tennis_toe_code = "238484001"
+
+    # Arthritis of elbow is on the codelist, but not included
+    arthritis_of_elbow_codes = {"439656005", "202855006"}
+
+    assert epicondylitis_included_code in included_codes
+    assert epicondylitis_excluded_code not in included_codes
+    for code in epicondylitis_codes:
+        assert code in codelist_codes
+    assert tennis_toe_code not in codelist_codes
+    assert tennis_toe_code not in included_codes
+    for code in arthritis_of_elbow_codes:
+        assert code in codelist_codes
+        assert code not in included_codes
+
+    # Act: create a term search
+    s = actions.create_search(
+        draft=draft,
+        term="Tennis toe",
+        codes={tennis_toe_code},
+    )
+
+    # Act: delete the search
+    actions.delete_search(search=s)
+
+    # Assert...
+    # that the codelist has 0 searches
+    assert draft.searches.count() == 0
+    # that the codelist still has the codes that were not associated with the search
+    assert draft.code_objs.count() == len(codelist_codes)
+
+    # Arrange: create new searches
+    s1 = actions.create_search(
+        draft=draft,
+        term="epicondylitis",
+        codes=epicondylitis_codes,
+    )
+    s2 = actions.create_search(draft=draft, term="Tennis toe", codes={tennis_toe_code})
+
+    # Assert...
+    # that the codelist now has 2 searches
+    assert draft.searches.count() == 2
+    # and one extra code obj
+    assert draft.code_objs.count() == len(codelist_codes) + 1
+
+    # Act: include the Tennis toe code; this has no ancestors on the codelist
+    actions.update_code_statuses(draft=draft, updates=[(tennis_toe_code, "+")])
+
+    # Act: delete the search for "Tennis toe"
+    actions.delete_search(search=s2)
+
+    # Assert...
+    # that the codelist has only 1 search
+    assert draft.searches.count() == 1
+    # that the codelist still has the starting codes that were not associated with the search
+    # AND the tennis toe code that was included
+    assert draft.code_objs.count() == len(codelist_codes) + 1
+
+    # Arrange
+    # Recreate the search for tennis toe and make it unresolved
+    actions.update_code_statuses(draft=draft, updates=[(tennis_toe_code, "?")])
+    s2 = actions.create_search(draft=draft, term="Tennis toe", codes={tennis_toe_code})
+
+    # Act: delete the search for "Tennis toe"
+    actions.delete_search(search=s2)
+    # Assert...
+    # that the codelist has only 1 search
+    assert draft.searches.count() == 1
+    # that the codelist still has the starting codes that were not associated with the search
+    # but this time the tennis toe code was deleted because it wasn't included
+    assert draft.code_objs.count() == len(codelist_codes)
+
+    # Act: delete the search for "epicondylitis"
+    actions.delete_search(search=s1)
+
+    # Assert...
+    # that the codelist has no searches
+    assert draft.searches.count() == 0
+    # This search matched 2 codes, one included, one not included, but a descendant of an included
+    # code, they are not deleted
+    assert draft.code_objs.count() == len(codelist_codes)
+
+    # Arrange: create new search for not-included code
+    s3 = actions.create_search(
+        draft=draft,
+        term="arthritis of elbow",
+        codes=arthritis_of_elbow_codes,
+    )
+
+    # Act: delete the search for "arthritis of elbow"
+    actions.delete_search(search=s3)
+
+    # Assert...
+    # that the codelist has no searches
+    assert draft.searches.count() == 0
+    # The code is not included, but it is a descendant of an included search, so it is kept
+    assert draft.code_objs.count() == len(codelist_codes)
 
 
 def test_update_code_statuses(draft_with_no_searches):

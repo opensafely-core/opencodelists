@@ -31,9 +31,9 @@ def require_permission(view_fn):
     """Ensure the user has permission to edit the draft codelist."""
 
     @wraps(view_fn)
-    def wrapped_view(request, draft):
+    def wrapped_view(request, draft, **kwargs):
         if request.user == draft.author:
-            return view_fn(request, draft)
+            return view_fn(request, draft, **kwargs)
         else:
             return redirect("/")
 

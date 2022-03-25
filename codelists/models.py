@@ -322,6 +322,9 @@ class CodelistVersion(models.Model):
     def get_builder_search_url(self, search_slug):
         return reverse("builder:search", args=[self.hash, search_slug])
 
+    def get_builder_delete_search_url(self, search_slug):
+        return reverse("builder:delete-search", args=[self.hash, search_slug])
+
     def get_builder_no_search_term_url(self):
         return reverse("builder:no-search-term", args=[self.hash])
 
@@ -535,6 +538,9 @@ class CodeObj(models.Model):
 
     def is_excluded(self):
         return self.status in ["-", "(-)"]
+
+    def __str__(self):
+        return f"{self.code} {self.status}"
 
 
 class Search(models.Model):

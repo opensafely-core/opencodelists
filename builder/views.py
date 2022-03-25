@@ -8,6 +8,7 @@ from django.urls import reverse
 from django.utils.text import slugify
 from django.views.decorators.http import require_http_methods
 
+from codelists.models import Search
 from codelists.search import do_search
 
 from . import actions
@@ -80,6 +81,7 @@ def _draft(request, draft, search_slug):
         {
             "term_or_code": s.term_or_code,
             "url": draft.get_builder_search_url(s.slug),
+            "delete_url": draft.get_builder_delete_search_url(s.slug),
             "active": s == search,
         }
         for s in draft.searches.order_by("term")
@@ -88,7 +90,7 @@ def _draft(request, draft, search_slug):
     if searches and draft.code_objs.filter(results=None).exists():
         searches.append(
             {
-                "term": "[no search term]",
+                "term_or_code": "[no search term]",
                 "url": draft.get_builder_no_search_term_url(),
                 "active": search_slug == NO_SEARCH_TERM,
             }
@@ -217,3 +219,18 @@ def new_search(request, draft):
         messages.info(request, f'There are no results for "{term}"')
 
     return redirect(draft.get_builder_search_url(search.slug))
+
+
+@login_required
+@require_http_methods(["POST"])
+@load_draft
+@require_permission
+def delete_search(request, draft, search_slug):
+    search = get_object_or_404(Search, version=draft, slug=search_slug)
+    actions.delete_search(search=search)
+    messages.info(
+        request,
+        f'Search for "{search_slug}" deleted. Any codes matching "{search_slug}" that '
+        "do not match any other search term and which are not included in the codelist have been removed",
+    )
+    return redirect(draft.get_builder_draft_url())

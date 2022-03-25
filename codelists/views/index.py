@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404, render
 
 from opencodelists.models import Organisation
 
+from ..list_utils import flatten
 from ..models import Handle, Status
 
 
@@ -33,8 +34,8 @@ def index(request, organisation_slug=None, status=Status.PUBLISHED):
         return render(request, "codelists/index.html", ctx)
     else:
         assert status == Status.UNDER_REVIEW
-        codelists = _all_under_review_codelist_versions(handles)
-        ctx = {"versions": codelists, "organisation": organisation, "q": q}
+        versions = _all_under_review_codelist_versions(handles)
+        ctx = {"versions": versions, "organisation": organisation, "q": q}
         return render(request, "codelists/under_review_index.html", ctx)
 
 
@@ -47,10 +48,9 @@ def _all_published_codelists(handles):
 
 
 def _all_under_review_codelist_versions(handles):
-    return sum(
+    return flatten(
         [
             list(handle.codelist.versions.filter(status=Status.UNDER_REVIEW))
             for handle in handles
-        ],
-        [],
+        ]
     )

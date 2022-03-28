@@ -66,7 +66,11 @@ def handle_post_valid(request, form, user, owner_choices):
     try:
         if codes:
             codelist = create_codelist_with_codes(
-                owner=owner, name=name, coding_system_id=coding_system_id, codes=codes
+                owner=owner,
+                name=name,
+                coding_system_id=coding_system_id,
+                codes=codes,
+                author=user,
             )
         else:
             codelist = create_codelist_from_scratch(

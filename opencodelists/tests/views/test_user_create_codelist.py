@@ -33,6 +33,7 @@ def test_post_with_csv(client, organisation_user, disorder_of_elbow_csv_data_no_
 
     assert response.redirect_chain[-1][0] == version.get_absolute_url()
     assert version.is_published
+    assert version.author == organisation_user
 
 
 def test_post_without_csv(client, organisation_user):
@@ -51,6 +52,7 @@ def test_post_without_csv(client, organisation_user):
 
     assert response.redirect_chain[-1][0] == version.get_builder_draft_url()
     assert version.is_draft
+    assert version.author == organisation_user
 
 
 def test_post_create_organisation_codelist(client, organisation_user, organisation):
@@ -69,6 +71,29 @@ def test_post_create_organisation_codelist(client, organisation_user, organisati
 
     assert response.redirect_chain[-1][0] == version.get_builder_draft_url()
     assert version.is_draft
+    assert version.author == organisation_user
+
+
+def test_post_create_organisation_codelist_with_csv(
+    client, organisation_user, organisation, disorder_of_elbow_csv_data_no_header
+):
+    client.force_login(organisation_user)
+    data = {
+        "name": "Test",
+        "coding_system_id": "snomedct",
+        "owner": "organisation:test-university",
+        "csv_data": csv_builder(disorder_of_elbow_csv_data_no_header),
+    }
+
+    with assert_difference(Codelist.objects.count, expected_difference=1):
+        response = client.post("/users/bob/new-codelist/", data, follow=True)
+
+    codelist = organisation.codelists.get(handles__name="Test")
+    version = codelist.versions.get()
+
+    assert response.redirect_chain[-1][0] == version.get_absolute_url()
+    assert version.is_published
+    assert version.author == organisation_user
 
 
 def test_post_invalid_with_csv(client, organisation_user):

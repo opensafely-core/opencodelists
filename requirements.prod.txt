@@ -66,9 +66,9 @@ django-anymail[mailgun]==8.5 \
     --hash=sha256:2325932f56f914d96e0a54db850f2b246ed2277b753f75319620d051a51551e2 \
     --hash=sha256:677e937dc9e2671ca7631abb1d94ddc6b840beb3d53c0fbf699e866a6a9ba92f
     # via -r requirements.prod.in
-django-cache-url==3.3.0 \
-    --hash=sha256:888c6954fdb3c7223e771b61528d7f7dc5987965cd93a6881b9bb31f0ef6d394 \
-    --hash=sha256:dd689515d78a824f469d9cd4e447198999d2f13d1279487da20203f2f3b1e06b
+django-cache-url==3.4.0 \
+    --hash=sha256:4559398a946ff24c4ee96e32c55e3b760bd69f7c2ba48844cdf8fcb4f76d10bd \
+    --hash=sha256:9061f8e7ffbb29eb92ba93fa9058003ec92393e85c537d1969570652ff8721fa
     # via environs
 django-cors-headers==3.11.0 \
     --hash=sha256:a22be2befd4069c4fc174f11cf067351df5c061a3a5f94a01650b4e928b0372b \
@@ -185,9 +185,9 @@ markdown2==2.4.2 \
     --hash=sha256:8f4ac8d9a124ab408c67361090ed512deda746c04362c36c2ec16190c720c2b0 \
     --hash=sha256:91113caf23aa662570fe21984f08fe74f814695c0a0ea8e863a8b4c4f63f9f6e
     # via -r requirements.prod.in
-marshmallow==3.14.1 \
-    --hash=sha256:04438610bc6dadbdddb22a4a55bcc7f6f8099e69580b2e67f5a681933a1f4400 \
-    --hash=sha256:4c05c1684e0e97fe779c62b91878f173b937fe097b356cd82f793464f5bc6138
+marshmallow==3.15.0 \
+    --hash=sha256:2aaaab4f01ef4f5a011a21319af9fce17ab13bf28a026d1252adab0e035648d5 \
+    --hash=sha256:ff79885ed43b579782f48c251d262e062bce49c65c52412458769a4fb57ac30f
     # via environs
 openpyxl==3.0.9 \
     --hash=sha256:40f568b9829bf9e446acfffce30250ac1fa39035124d55fc024025c41481c90f \
@@ -200,7 +200,9 @@ orderedmultidict==1.0.1 \
 packaging==21.3 \
     --hash=sha256:dd47c42927d89ab911e606518907cc2d3a1f38bbd026385970643f9c5b8ecfeb \
     --hash=sha256:ef103e05f519cdc783ae24ea4e2e0f508a9c99b2d4969652eed6a2e1ea5bd522
-    # via bleach
+    # via
+    #   bleach
+    #   marshmallow
 pyparsing==3.0.7 \
     --hash=sha256:18ee9022775d270c55187733956460083db60b37d0d0fb357445f3094eed3eea \
     --hash=sha256:a6c06a88f252e6c322f65faf8f418b16213b51bdfaece0524c1c1bc30c63c484
@@ -212,13 +214,13 @@ pysqlite3-binary==0.4.7 \
     --hash=sha256:ce0f0fd4be6435438db8e5f4121a57575bbd19a82156d3d372bb98d282ecf15d \
     --hash=sha256:fca39983e23fbf0f32738bc40b4740ce801ebe73700ee94d23dab54280557c54
     # via -r requirements.prod.in
-python-dotenv==0.19.2 \
-    --hash=sha256:32b2bdc1873fd3a3c346da1c6db83d0053c3c62f28f1f38516070c4c8971b1d3 \
-    --hash=sha256:a5de49a31e953b45ff2d2fd434bbc2670e8db5273606c1e737cc6b93eff3655f
+python-dotenv==0.20.0 \
+    --hash=sha256:b7e3b04a59693c42c36f9ab1cc2acc46fa5df8c78e178fc33a8d4cd05c8d498f \
+    --hash=sha256:d92a187be61fe482e4fd675b6d52200e7be63a12b724abbf931a40ce4fa92938
     # via environs
-pytz==2021.3 \
-    --hash=sha256:3672058bc3453457b622aab7a1c3bfd5ab0bdae451512f6cf25f64ed37f5b87c \
-    --hash=sha256:acad2d8b20a1af07d4e4c9d2e9285c5ed9104354062f275f3fcd88dcef4f1326
+pytz==2022.1 \
+    --hash=sha256:1e760e2fe6a8163bc0b3d9a19c4f84342afa0a2affebfaa84b01b978a02ecaa7 \
+    --hash=sha256:e68985985296d9a66a881eb3193b0906246245294a881e7c8afe623866ac6a5c
     # via djangorestframework
 requests==2.27.1 \
     --hash=sha256:68d7c56fd5a8999887728ef304a6d12edc7be74f1cfa47714fc8b414525c9a61 \
@@ -247,9 +249,9 @@ structlog==21.5.0 \
     # via
     #   -r requirements.prod.in
     #   django-structlog
-urllib3==1.26.8 \
-    --hash=sha256:000ca7f471a233c2251c6c7023ee85305721bfdf18621ebff4fd17a8653427ed \
-    --hash=sha256:0e7c33d9a63e7ddfcb86780aac87befc2fbddf46c58dbb487e0855f7ceec283c
+urllib3==1.26.9 \
+    --hash=sha256:44ece4d53fb1706f667c9bd1c648f5469a2ec925fcf3a776667042d645472c14 \
+    --hash=sha256:aabaf16477806a5e1dd19aa41f8c2b7950dd3c746362d7e3223dbe6de6ac448e
     # via
     #   requests
     #   sentry-sdk
@@ -263,7 +265,7 @@ whitenoise==6.0.0 \
     # via -r requirements.prod.in
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==60.9.3 \
-    --hash=sha256:2347b2b432c891a863acadca2da9ac101eae6169b1d3dfee2ec605ecd50dbfe5 \
-    --hash=sha256:e4f30b9f84e5ab3decf945113119649fec09c1fc3507c6ebffec75646c56e62b
+setuptools==61.2.0 \
+    --hash=sha256:8f4813dd6a4d6cc17bde85fb2e635fe19763f96efbb0ddf5575562e5ee0bc47a \
+    --hash=sha256:c3d4e2ab578fbf83775755cd76dae73627915a22832cf4ea5de895978767833b
     # via gunicorn

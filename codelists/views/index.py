@@ -1,9 +1,9 @@
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, render
 
+from opencodelists.list_utils import flatten
 from opencodelists.models import Organisation
 
-from ..list_utils import flatten
 from ..models import Handle, Status
 
 

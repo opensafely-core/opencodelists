@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-100">
   <head>
     <meta charset="utf-8" />
     <meta
@@ -105,7 +105,7 @@
     <link rel="manifest" href="/static/manifest.webmanifest">
   </head>
 
-  <body>
+  <body class="d-flex flex-column h-100">
     <nav
       class="navbar navbar-expand-sm navbar-dark bg-secondary justify-content-between align-items-baseline"
     >
@@ -163,7 +163,7 @@
       </div>
     </nav>
 
-    <main role="main" class="container">
+    <main role="main" class="flex-shrink-0 container mb-5">
       {% for message in messages %}
       <div class="alert {{ message.tags }} alert-dismissible mt-3" role="alert">
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -206,10 +206,43 @@
       {% block extra_js %}{% endblock %}
     </main>
 
-    <footer class="footer">
+    <footer id="footer" class="border-top bg-light mt-auto py-5">
       <div class="container">
-        <p class="small text-muted">SNOMED Clinical Terms® content © International Health Terminology Standards Development Organisation.</p>
-        <p class="small text-muted">ICD-10 codes, terms and text © World Health Organization, Third Edition. 2007.</p>
+        <ul class="list-inline text-center d-flex flex-column flex-md-row justify-content-center mb-0 mb-md-3">
+          <li class="list-inline-item mb-3 mb-md-0 mr-0 mr-md-5">
+            <a href="{% url 'docs:index' %}">
+              Documentation
+            </a>
+          </li>
+
+          <li class="list-inline-item mb-3 mb-md-0 mr-0">
+            <a href="https://www.opensafely.org/">
+              OpenSAFELY
+            </a>
+          </li>
+        </ul>
+
+        <ul class="list-inline text-center d-flex flex-column flex-md-row justify-content-center">
+          <li class="list-inline-item mb-3 mb-md-0 mr-0 mr-md-5">
+            <a href="https://www.bennett.ox.ac.uk/">
+              Bennett Institute for Applied Data Science
+            </a>
+          </li>
+
+          <li class="list-inline-item mb-3 mb-md-0">
+            <a href="https://www.ox.ac.uk/">
+              University of Oxford
+            </a>
+          </li>
+        </ul>
+
+        <div class="row">
+          <div class="col-12 offset-md-1 col-md-10 offset-lg-2 col-lg-8 text-center mt-3 mb-0 small">
+            <p>© University of Oxford for the Bennett Institute for Applied Data Science 2022. This work may be copied freely for non-commercial research and study. If you wish to do any of the other acts restricted by the copyright you should apply in writing to <a href="mailto:ebmdatalab@phc.ox.ac.uk">ebmdatalab@phc.ox.ac.uk</a>.</p>
+            <p>SNOMED Clinical Terms® content © International Health Terminology Standards Development Organisation.</p>
+            <p>ICD-10 codes, terms and text © World Health Organization, Third Edition. 2007.</p>
+          </div>
+        </div>
       </div>
     </footer>
   </body>

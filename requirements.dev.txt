@@ -126,9 +126,9 @@ isort==5.10.1 \
     --hash=sha256:6f62d78e2f89b4500b080fe3a81690850cd254227f27f75c3a0c491a1f351ba7 \
     --hash=sha256:e8443a5e7a020e9d7f97f1d7d9cd17c88bcb3bc7e218bf9cf5095fe550be2951
     # via -r requirements.dev.in
-litecli==1.7.0 \
-    --hash=sha256:6e6062aadb65203d3ef7b90ac51ca505c70d49637fac8ea093559410de725ba0 \
-    --hash=sha256:7123b6628e403ccff54123c646c9132c99631efdd78b8ae4e1a1d3aa7e05ba8f
+litecli==1.8.0 \
+    --hash=sha256:02f692747970465c3bacdfe8f068dc5d96f25d5b2b121f97177ef0553044103e \
+    --hash=sha256:edcf972ef2b9d546b3f6c81b60f5dcd1c0ff0f4df1cc07d67f59e61571942969
     # via -r requirements.dev.in
 mccabe==0.6.1 \
     --hash=sha256:ab8a6258860da4b6677da4bd2fe5dc2c659cff31b3ee4f7f5d64e79735b80d42 \

@@ -112,6 +112,7 @@ def create_codelist_with_codes(
     methodology=None,
     references=None,
     signoffs=None,
+    author=None,
 ):
     """Create a new Codelist with a new-style version with given codes."""
 
@@ -126,7 +127,7 @@ def create_codelist_with_codes(
         signoffs=signoffs,
     )
     _create_version_with_codes(
-        codelist=codelist, codes=codes, status=Status.PUBLISHED, tag=tag
+        codelist=codelist, codes=codes, status=Status.PUBLISHED, tag=tag, author=author
     )
     return codelist
 
@@ -208,6 +209,7 @@ def create_version_with_codes(
     status=Status.UNDER_REVIEW,
     hierarchy=None,
     codeset=None,
+    author=None,
 ):
     """Create a new version of a codelist with given codes.
 
@@ -231,6 +233,7 @@ def create_version_with_codes(
         tag=tag,
         hierarchy=hierarchy,
         codeset=codeset,
+        author=author,
     )
 
 
@@ -297,14 +300,14 @@ def create_version_from_ecl_expr(*, codelist, expr, tag=None):
 
 
 def _create_version_with_codes(
-    *, codelist, codes, status, tag=None, hierarchy=None, codeset=None
+    *, codelist, codes, status, tag=None, hierarchy=None, codeset=None, author=None
 ):
     codes = set(codes)
     coding_system = codelist.coding_system
     code_to_term = coding_system.code_to_term(codes)
     assert codes == set(code_to_term)
 
-    clv = codelist.versions.create(tag=tag, status=status)
+    clv = codelist.versions.create(tag=tag, status=status, author=author)
 
     if codeset is None:
         hierarchy = Hierarchy.from_codes(codelist.coding_system, codes)

@@ -1,0 +1,29 @@
+SNOMED-CT
+---------
+
+https://www.snomed.org/
+
+SNOMED-CT aims to be the "global common language for clinical terms".
+
+There is an interantional release, and various national releases.
+
+New releases are published irregularly -- there was a schedule, but it's been disrupted
+by covid.
+
+We obtain the raw data from TRUD [0], and from this we import:
+
+* the International release
+* the UK edition
+* the UK Clinical Extension
+
+You will need an account to access TRUD, and may be asked for a reason when you sign up -- if so, mention OpenCodelists.
+
+On the TRUD release page, download the latest release, which will be a zip file called something like uk_sct2cl_32.10.0_20220216000001Z.zip.
+
+To import the data, unzip the zip file and run:
+
+        ./manage.py import_data coding_systems.snomedct path/to/dir/SnomedCT_InternationalRF2_PRODUCTION_*
+        ./manage.py import_data coding_systems.snomedct path/to/dir/SnomedCT_UKClinicalRF2_PRODUCTION_*
+        ./manage.py import_data coding_systems.snomedct path/to/dir/SnomedCT_UKEditionRF2_PRODUCTION_*
+
+[0] https://isd.digital.nhs.uk/trud/users/authenticated/filters/0/categories/26/items/101/releases

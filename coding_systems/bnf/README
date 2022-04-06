@@ -1,0 +1,17 @@
+BNF
+---
+
+BNF codes are used to identify anything that is prescribed in England (and maybe elsewhere).
+
+For more details, see our most popular blog post [0].
+
+We obtain the raw data from the BSA [1].  New releases are published annually, sometimes
+with unannounced mid-year updates.
+
+To import the data, run:
+
+        ./manage.py import_data coding_systems.bnf path/to/dir/
+
+
+[0] https://www.bennett.ox.ac.uk/blog/2017/04/prescribing-data-bnf-codes/
+[1] https://applications.nhsbsa.nhs.uk/infosystems/data/showDataSelector.do?reportId=126

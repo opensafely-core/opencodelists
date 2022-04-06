@@ -20,12 +20,13 @@ def version(request, clv):
         parent_map = {p: list(cc) for p, cc in hierarchy.parent_map.items()}
         child_map = {c: list(pp) for c, pp in hierarchy.child_map.items()}
         code_to_term = coding_system.code_to_term(hierarchy.nodes)
+        included = set(clv.codes) & hierarchy.nodes
+        excluded = hierarchy.nodes - included
         code_to_status = {
-            code: "+" if code in clv.codes else "-" for code in hierarchy.nodes
+            **{code: "+" for code in included},
+            **{code: "-" for code in excluded},
         }
-        ancestor_codes = hierarchy.filter_to_ultimate_ancestors(
-            set(clv.codes) & hierarchy.nodes
-        )
+        ancestor_codes = hierarchy.filter_to_ultimate_ancestors(included)
         tree_tables = sorted(
             (type.title(), sorted(codes, key=code_to_term.__getitem__))
             for type, codes in coding_system.codes_by_type(

@@ -23,7 +23,7 @@ doc_sections = [
 
 
 def xindex(request):
-    with open(os.path.join(settings.BASE_DIR, "docs", "content.md")) as f:
+    with open(os.path.join(settings.BASE_DIR, "userdocs", "content.md")) as f:
         content = f.read()
 
     content = re.sub(
@@ -50,7 +50,7 @@ def index(request):
 def load_pages():
     pages = []
     for section in doc_sections:
-        with open(os.path.join(settings.BASE_DIR, "docs", f"{section}.md")) as f:
+        with open(os.path.join(settings.BASE_DIR, "userdocs", f"{section}.md")) as f:
             content = f.read()
 
         # Extract title

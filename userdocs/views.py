@@ -22,22 +22,6 @@ doc_sections = [
 ]
 
 
-def xindex(request):
-    with open(os.path.join(settings.BASE_DIR, "docs", "content.md")) as f:
-        content = f.read()
-
-    content = re.sub(
-        r"\n        (.*).png\n",
-        r'\n<img src="/static/img/docs/\1.png" class="border m-3" />\n',
-        content,
-    )
-
-    content = content.replace("{numcodelists}", str(Codelist.objects.count()))
-
-    ctx = {"content": content}
-    return render(request, "docs/index.html", ctx)
-
-
 def index(request):
     pages = load_pages()
     ctx = {"pages": pages}
@@ -50,7 +34,7 @@ def index(request):
 def load_pages():
     pages = []
     for section in doc_sections:
-        with open(os.path.join(settings.BASE_DIR, "docs", f"{section}.md")) as f:
+        with open(os.path.join(settings.BASE_DIR, "userdocs", f"{section}.md")) as f:
             content = f.read()
 
         # Extract title

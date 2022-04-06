@@ -16,6 +16,8 @@ The app with models and views for viewing, downloading, creating, and updating c
 
 A directory containing one app per coding system. Each of these apps will have a common structure, which has not yet been codified.
 
+Each directory contains a README with information about the underlying data.
+
 #### `mappings/`
 
 A directory containing one app per mapping between coding systems. Each of these apps will have a common structure, which has not yet been codified.

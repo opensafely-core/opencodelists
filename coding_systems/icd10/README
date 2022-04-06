@@ -1,0 +1,10 @@
+ICD-10
+------
+
+ICD-10 is the tenth edition of the International Statistical Classification of Diseases
+and Related Health Problems, published by the WHO.
+
+Data was downloaded and imported from [0].  We don't know how often new releases are
+published.
+
+[0] https://apps.who.int/classifications/apps/icd/ClassificationDownload/DLArea/Download.aspx

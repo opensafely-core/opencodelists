@@ -11,7 +11,7 @@
 <div class="row">
   <div class="col-12">
     <dl class="home-codelists">
-      {% for version in versions %}
+      {% for version in versions_page %}
       <dt>
         <a href="{{ version.get_absolute_url }}">{{ version.codelist.name }} - version {{ version.tag_or_hash }}</a>
       </dt>
@@ -19,5 +19,8 @@
       {% endfor %}
     </dl>
   </div>
+
+  {% include "./_pagination.html" with page_obj=versions_page %}
+
 </div>
 {% endblock %}

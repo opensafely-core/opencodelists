@@ -15,7 +15,7 @@ There is currently a soft requirement that the first column must contain codes i
 
 The codelist page will allow you to upload two columns (a code, and a text description of the code), however, some codelists may require a 'classification' or 'type' column, which classifies the codes into subcategories. For example, when using a codelist for venous thromboemobolism you may wish to classify these codes into deep vein thromboses and pulmonary embolisms, and keep this within a single codelist rather than uploading separate lists for each subcategory of the clinical condition. You can access subcategories of a codelist by using the `filter_codes_by_category` functionality when calling `with_these_clinical_events` as part of your `study_definition`. Uploading more than two columns is currently only possible for the OpenSAFELY core team, so in case this is required for your study please get in touch.
 
-Finally, please avoid filtering on an include or exclude column in Excel when finalising a codelist. Any filters applied will be lost when converted to CSV, and you will end up with all of the codes being uploaded.
+Finally, please avoid filtering on an include or exclude column in Excel when finalising a codelist. Any filters applied will be lost when converted to CSV, and you will end up with all of the codes being uploaded. Please also avoid opening any SNOMED-CT codelists in Excel, as the codes get rounded.
 
 When you click _Create_ the codelist will be created and you will be taken to the codelist homepage.
 

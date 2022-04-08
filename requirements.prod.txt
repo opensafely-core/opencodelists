@@ -207,12 +207,12 @@ pyparsing==3.0.7 \
     --hash=sha256:18ee9022775d270c55187733956460083db60b37d0d0fb357445f3094eed3eea \
     --hash=sha256:a6c06a88f252e6c322f65faf8f418b16213b51bdfaece0524c1c1bc30c63c484
     # via packaging
-pysqlite3-binary==0.4.7 \
-    --hash=sha256:07c1ecd569d080016a1248d997b7093caf1e309a00e190e71e17dc587aabd1f0 \
-    --hash=sha256:724265851612539a434a840700e39d550008b60169f29486adc8e7f5b3aa8f8d \
-    --hash=sha256:9f90c9856d776a0d4c75dcc0c64bf9e287852458300636e74e6aa863ef555e6e \
-    --hash=sha256:ce0f0fd4be6435438db8e5f4121a57575bbd19a82156d3d372bb98d282ecf15d \
-    --hash=sha256:fca39983e23fbf0f32738bc40b4740ce801ebe73700ee94d23dab54280557c54
+pysqlite3-binary==0.4.7.post3 \
+    --hash=sha256:245d6b6ca7b75d04a87cd8c0c418b23151c28cc0920cd661f590eaef556ece86 \
+    --hash=sha256:3d37a0d98a314d2d7b44d252d0e694c9dedd99ca9228e7dcd5feef13d559b0be \
+    --hash=sha256:70ec1081d0d2dc9c8aeb3ebf58cbe8062b7a2c2eb1d579c241e4fb51bb6cab1a \
+    --hash=sha256:7e7efbbe8390ec9c91636ac90e8878bcd8d41522e4b173fd8589142210ad83c1 \
+    --hash=sha256:b742aedb23ff086ba23eeccbeab2069df0685ec5aad355f0cd88a99e7b544d63
     # via -r requirements.prod.in
 python-dotenv==0.20.0 \
     --hash=sha256:b7e3b04a59693c42c36f9ab1cc2acc46fa5df8c78e178fc33a8d4cd05c8d498f \

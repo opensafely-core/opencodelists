@@ -1,3 +1,4 @@
+from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, render
 
@@ -28,15 +29,32 @@ def index(request, organisation_slug=None, status=Status.PUBLISHED):
         )
 
     handles = handles.order_by("name")
+
+    page_number = request.GET.get("page")
     if status == Status.PUBLISHED:
         codelists = _all_published_codelists(handles)
-        ctx = {"codelists": codelists, "organisation": organisation, "q": q}
+        ctx = {
+            "codelists_page": _get_page_obj(codelists, page_number, 15),
+            "organisation": organisation,
+            "q": q,
+        }
         return render(request, "codelists/index.html", ctx)
     else:
         assert status == Status.UNDER_REVIEW
         versions = _all_under_review_codelist_versions(handles)
-        ctx = {"versions": versions, "organisation": organisation, "q": q}
+        ctx = {
+            "versions_page": _get_page_obj(versions, page_number),
+            "organisation": organisation,
+            "q": q,
+            "page_obj": _get_page_obj(versions, page_number),
+        }
         return render(request, "codelists/under_review_index.html", ctx)
+
+
+def _get_page_obj(objects, page_number, paginate_by=30):
+    paginator = Paginator(objects, paginate_by)
+    page_obj = paginator.get_page(page_number)
+    return page_obj
 
 
 def _all_published_codelists(handles):

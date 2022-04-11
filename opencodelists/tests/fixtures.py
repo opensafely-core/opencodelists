@@ -118,6 +118,7 @@ from codelists.actions import (
     export_to_builder,
 )
 from codelists.coding_systems import CODING_SYSTEMS
+from codelists.models import Status
 from codelists.search import do_search
 from opencodelists.actions import (
     add_user_to_organisation,
@@ -635,6 +636,27 @@ def draft(draft_with_complete_searches):
 def new_style_version(universe, request):
     version = universe[request.param]
     return type(version).objects.get(pk=version.pk)
+
+
+@pytest.fixture
+def create_codelists(organisation):
+    """Fixture to create a batch of codelists with a specific status"""
+
+    def _create_codelist(i, owner, status):
+        new_codelist = create_codelist_from_scratch(
+            owner=owner, name=f"Codelist {i}", coding_system_id="snomedct", author=None
+        )
+        version = new_codelist.versions.last()
+        version.status = status
+        version.save()
+        return new_codelist
+
+    def make_codelist(number, owner=None, status=Status.PUBLISHED):
+        return [
+            _create_codelist(i, owner or organisation, status) for i in range(number)
+        ]
+
+    return make_codelist
 
 
 @pytest.fixture

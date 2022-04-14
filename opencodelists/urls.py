@@ -1,6 +1,7 @@
 import debug_toolbar
 from django.contrib import admin
 from django.urls import include, path
+from django.views.generic import RedirectView
 
 from . import views
 
@@ -37,4 +38,5 @@ urlpatterns = [
     path("ctv3/", include("coding_systems.ctv3.urls")),
     path("snomedct/", include("coding_systems.snomedct.urls")),
     path("__debug__/", include(debug_toolbar.urls)),
+    path("robots.txt", RedirectView.as_view(url=settings.STATIC_URL + "robots.txt")),
 ]

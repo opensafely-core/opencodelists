@@ -1,11 +1,10 @@
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, render
+from opentelemetry import trace
 
 from opencodelists.list_utils import flatten
 from opencodelists.models import Organisation
-
-from opentelemetry import trace
 
 from ..models import Handle, Status
 

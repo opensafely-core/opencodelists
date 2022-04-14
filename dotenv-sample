@@ -4,3 +4,9 @@ BASE_URLS=http://localhost:8000,http://127.0.0.1:8000
 SECRET_KEY=dummy-secret
 DDT_ENABLED=False
 SENTRY_DSN=
+OTEL_EXPORTER_OTLP_ENDPOINT="https://api.honeycomb.io"
+OTEL_EXPORTER_OTLP_HEADERS="x-honeycomb-team=VALIDKEY1234,x-honeycomb-dataset=opencodelists"
+OTEL_SERVICE_NAME="opencodelists"
+# OTEL requires these, it needs to access settings before other stuff has initialised
+DJANGO_SETTINGS_MODULE="opencodelists.settings"
+PYTHONPATH="/usr/local/bin/python"

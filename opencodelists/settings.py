@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     "opencodelists",
     "builder",
     "codelists",
+    "superusers",
     "coding_systems.bnf",
     "coding_systems.ctv3",
     "coding_systems.dmd",

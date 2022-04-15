@@ -27,6 +27,7 @@ urlpatterns = [
     path("", include("codelists.urls")),
     path("api/v1/", include("codelists.api_urls")),
     path("users/", include(users_patterns)),
+    path("superusers/", include("superusers.urls")),
     path("organisations/", include(organisations_patterns)),
     path("admin/", admin.site.urls),
     path("accounts/", include("django.contrib.auth.urls")),

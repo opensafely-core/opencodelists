@@ -49,6 +49,13 @@ class Codelist(models.Model):
 
     @cached_property
     def current_handle(self):
+        if (
+            hasattr(self, "_prefetched_objects_cache")
+            and "handles" in self._prefetched_objects_cache
+        ):
+            current_handles = [h for h in self.handles.all() if h.is_current]
+            assert len(current_handles) == 1
+            return current_handles[0]
         return self.handles.filter(is_current=True).get()
 
     @cached_property

@@ -423,6 +423,10 @@ function SearchForm(props) {
             Otherwise, searching will return all concepts with a description
             containing the search term.
           </p>
+          <p>
+            We plan to support boolean search operators (eg{" "}
+            <code>ambulatory AND blood pressure</code>) in future.
+          </p>
         </small>
       </div>
     </form>

@@ -47,7 +47,8 @@ def index(request, organisation_slug=None, status=Status.PUBLISHED):
                     "organisation": organisation,
                     "q": q,
                 }
-                return render(request, "codelists/index.html", ctx)
+                with tracer.start_as_current_span("render"):
+                    return render(request, "codelists/index.html", ctx)
             else:
                 status_span.set_attribute("codelist_status", "under review")
                 assert status == Status.UNDER_REVIEW
@@ -58,7 +59,8 @@ def index(request, organisation_slug=None, status=Status.PUBLISHED):
                     "q": q,
                     "page_obj": _get_page_obj(versions, page_number),
                 }
-                return render(request, "codelists/under_review_index.html", ctx)
+                with tracer.start_as_current_span("render"):
+                    return render(request, "codelists/under_review_index.html", ctx)
 
 
 def _get_page_obj(objects, page_number, paginate_by=30):

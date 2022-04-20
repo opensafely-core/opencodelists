@@ -3,7 +3,7 @@ import json
 from opencodelists.tests.assertions import assert_difference, assert_no_difference
 
 
-def test_codelists(client, organisation):
+def test_codelists_get(client, organisation):
     rsp = client.get(f"/api/v1/codelist/{organisation.slug}/")
     data = json.loads(rsp.content)
     assert rsp.status_code == 200
@@ -12,6 +12,7 @@ def test_codelists(client, organisation):
             "full_slug": "test-university/codelist-from-scratch",
             "slug": "codelist-from-scratch",
             "name": "Codelist From Scratch",
+            "coding_system_id": "snomedct",
             "versions": [
                 {
                     "hash": "69a34cc0",
@@ -24,6 +25,7 @@ def test_codelists(client, organisation):
             "full_slug": "test-university/new-style-codelist",
             "slug": "new-style-codelist",
             "name": "New-style Codelist",
+            "coding_system_id": "snomedct",
             "versions": [
                 {
                     "hash": "34d1a660",
@@ -46,6 +48,7 @@ def test_codelists(client, organisation):
             "full_slug": "test-university/old-style-codelist",
             "slug": "old-style-codelist",
             "name": "Old-style Codelist",
+            "coding_system_id": "snomedct",
             "versions": [
                 {
                     "hash": "66f08cca",
@@ -60,6 +63,20 @@ def test_codelists(client, organisation):
             ],
         },
     ]
+
+
+def test_codelists_get_with_coding_system_id(client, organisation):
+    rsp = client.get(f"/api/v1/codelist/{organisation.slug}/?coding_system_id=snomedct")
+    data = json.loads(rsp.content)
+    assert len(data["codelists"]) == 3
+
+    rsp = client.get(f"/api/v1/codelist/{organisation.slug}/?coding_system_id=")
+    data = json.loads(rsp.content)
+    assert len(data["codelists"]) == 3
+
+    rsp = client.get(f"/api/v1/codelist/{organisation.slug}/?coding_system_id=bnf")
+    data = json.loads(rsp.content)
+    assert len(data["codelists"]) == 0
 
 
 def test_codelists_post(client, user):

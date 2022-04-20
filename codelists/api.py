@@ -29,6 +29,9 @@ def codelists_get(request, owner):
     HTPP response contains JSON array with one item for each codelist owned by the
     organisation.
 
+    request.GET may contain `coding_system_id` parameter, which will be used to filter
+    the returned codelists.
+
     Eg:
 
     [
@@ -36,6 +39,7 @@ def codelists_get(request, owner):
             "full_slug": "opensafely/asthma-diagnosis",
             "slug": "asthma-diagnosis",
             "name": "Asthma Diagnosis",
+            "coding_system_id": "snomedct",
             "versions": [
                 {
                     "hash": "66f08cca",
@@ -48,15 +52,23 @@ def codelists_get(request, owner):
     ]
     """
 
+    filter_kwargs = {}
+
+    # Only filter on coding_system_id if it is present and not the empty string.
+    if coding_system_id := request.GET.get("coding_system_id"):
+        filter_kwargs["coding_system_id"] = coding_system_id
+
     records = []
 
     for cl in sorted(
-        owner.codelists.prefetch_related("handles", "versions"), key=lambda cl: cl.slug
+        owner.codelists.filter(**filter_kwargs).prefetch_related("handles", "versions"),
+        key=lambda cl: cl.slug,
     ):
         record = {
             "full_slug": cl.full_slug(),
             "slug": cl.slug,
             "name": cl.name,
+            "coding_system_id": cl.coding_system_id,
             "versions": [],
         }
         for version in sorted(cl.versions.all(), key=lambda v: v.created_at):

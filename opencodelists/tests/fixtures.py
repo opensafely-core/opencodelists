@@ -110,6 +110,7 @@ from django.db.models import Model
 
 from builder.actions import create_search, save, update_code_statuses
 from codelists.actions import (
+    add_codelist_tag,
     add_collaborator,
     create_codelist_from_scratch,
     create_codelist_with_codes,
@@ -284,6 +285,7 @@ def build_fixtures():
     # - owned by organisation
     # - has one version:
     #   - old_style_version
+    # - tagged with "old-style"
     old_style_codelist = create_old_style_codelist(
         owner=organisation,
         name="Old-style Codelist",
@@ -292,6 +294,7 @@ def build_fixtures():
         methodology="How we did it",
         csv_data=disorder_of_elbow_excl_arthritis_csv_data,
     )
+    add_codelist_tag(codelist=old_style_codelist, tag="old-style")
 
     # old_style_version
     # - belongs to old_style_codelist
@@ -311,6 +314,7 @@ def build_fixtures():
     #   - version_with_no_searches
     #   - version_with_some_searches
     #   - version_with_complete_searches
+    # - tagged with "new-style"
     new_style_codelist = create_codelist_with_codes(
         owner=organisation,
         name="New-style Codelist",
@@ -325,6 +329,7 @@ def build_fixtures():
             {"user": collaborator, "date": "2020-02-29"},
         ],
     )
+    add_codelist_tag(codelist=new_style_codelist, tag="new-style")
 
     # organisation_codelist
     # - an alias for new_style_codelist
@@ -457,23 +462,27 @@ def build_fixtures():
     # - belongs to organisation
     # - has single version, being edited:
     #   - version_from_scratch
+    # - tagged with "new-style"
     codelist_from_scratch = create_codelist_from_scratch(
         owner=organisation,
         name="Codelist From Scratch",
         coding_system_id="snomedct",
         author=organisation_user,
     )
+    add_codelist_tag(codelist=codelist_from_scratch, tag="new-style")
 
     # user_codelist_from_scratch
     # - belongs to user
     # - has single version, being edited:
     #   - version_from_scratch
+    # - tagged with "new-style"
     user_codelist_from_scratch = create_codelist_from_scratch(
         owner=organisation_user,
         name="User Codelist From Scratch",
         coding_system_id="snomedct",
         author=organisation_user,
     )
+    add_codelist_tag(codelist=user_codelist_from_scratch, tag="new-style")
 
     # version_from_scratch
     # - belongs to codelist_from_scratch
@@ -487,12 +496,14 @@ def build_fixtures():
     # - belongs to organisation_user
     # - has one version:
     #   - user_version
+    # - tagged with "new-style"
     user_codelist = create_codelist_with_codes(
         owner=organisation_user,
         name="User-owned Codelist",
         coding_system_id="snomedct",
         codes=disorder_of_elbow_excl_arthritis_codes,
     )
+    add_codelist_tag(codelist=user_codelist, tag="new-style")
 
     # user_version
     # - belongs to user_codelist

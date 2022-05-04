@@ -71,6 +71,7 @@ django==4.0.3 \
     #   django-debug-toolbar
     #   django-extensions
     #   django-structlog
+    #   django-taggit
     #   djangorestframework
 django-anymail[mailgun]==8.5 \
     --hash=sha256:2325932f56f914d96e0a54db850f2b246ed2277b753f75319620d051a51551e2 \
@@ -103,6 +104,10 @@ django-ipware==4.0.2 \
 django-structlog==2.2.0 \
     --hash=sha256:0443d39d27bf34258a375a2dfd1a0ae51f24bedce88beae55c1b69f3c09af922 \
     --hash=sha256:d6eb180963c7baf381ad7035e9afc7ecb7031246cb640f16925fe72f7712a2a1
+    # via -r requirements.prod.in
+django-taggit==3.0.0 \
+    --hash=sha256:ca2df20399a11321db75988404afb640a08eff61e52bde35f6c16f307004ec9e \
+    --hash=sha256:e645b8e3dd4f85989d5ef5c5a3d5ebbe5badf5d1e51b53e42d0af726240b00b9
     # via -r requirements.prod.in
 djangorestframework==3.13.1 \
     --hash=sha256:0c33407ce23acc68eca2a6e46424b008c9c02eceb8cf18581921d0092bc1f2ee \

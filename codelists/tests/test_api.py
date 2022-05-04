@@ -79,6 +79,12 @@ def test_codelists_get_with_coding_system_id(client, organisation):
     assert len(data["codelists"]) == 0
 
 
+def test_codelists_get_with_tag(client, universe):
+    rsp = client.get("/api/v1/codelist/?tag=new-style")
+    data = json.loads(rsp.content)
+    assert len(data["codelists"]) == 4
+
+
 def test_codelists_post(client, user):
     data = {
         "name": "New codelist",

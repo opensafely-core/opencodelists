@@ -5,7 +5,9 @@ from . import api
 app_name = "codelists_api"
 
 
-urlpatterns = []
+urlpatterns = [
+    path("codelist/", api.all_codelists, name="all_codelists"),
+]
 
 for subpath, view in [
     ("", api.codelists),

@@ -2,6 +2,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.db import models
 from django.urls import reverse
 from django.utils.functional import cached_property
+from taggit.managers import TaggableManager
 
 from mappings.bnfdmd.mappers import bnf_to_dmd
 from opencodelists.csv_utils import (
@@ -28,6 +29,7 @@ class Codelist(models.Model):
     description = models.TextField(null=True, blank=True)
     methodology = models.TextField(null=True, blank=True)
     is_private = models.BooleanField(default=False)
+    tags = TaggableManager()
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

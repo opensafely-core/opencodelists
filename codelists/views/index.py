@@ -9,7 +9,7 @@ from ..models import Handle, Status
 
 
 def index(request, organisation_slug=None, status=Status.PUBLISHED):
-    handles = Handle.objects.filter(is_current=True)
+    handles = Handle.objects.filter(is_current=True, codelist__is_private=False)
 
     q = request.GET.get("q")
     if q:

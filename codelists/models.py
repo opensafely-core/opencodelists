@@ -27,6 +27,7 @@ class Codelist(models.Model):
     )
     description = models.TextField(null=True, blank=True)
     methodology = models.TextField(null=True, blank=True)
+    is_private = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

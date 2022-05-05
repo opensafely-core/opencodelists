@@ -52,37 +52,18 @@ def test_codelistform_incorrect_csv_column_count():
     assert e.value.messages[0] == "Incorrect number of columns on row 1"
 
 
-def test_codelistform_header_stripping():
+def test_codelistform_incorrect_header():
     form = CSVValidationMixin()
 
     # wrap CSV up in SimpleUploadedFile to mirror how a Django view would
     # handle it
-    csv_data = "code , description\n1067731000000107,Injury whilst swimming (disorder)"
+    csv_data = "code ,description\n1067731000000107,Injury whilst swimming (disorder)"
     upload_file = csv_builder(csv_data)
     uploaded_file = SimpleUploadedFile("our csv", upload_file.read())
     form.cleaned_data = {"csv_data": uploaded_file}
 
-    cleaned_data = form.clean_csv_data()
-    header_line = cleaned_data.splitlines()[0]
-    assert header_line == "code,description"
-    data_line = cleaned_data.splitlines()[1]
-    assert data_line == "1067731000000107,Injury whilst swimming (disorder)"
+    with pytest.raises(ValidationError) as e:
+        form.clean_csv_data()
 
-
-def test_codelistform_header_stripping_quoted():
-    form = CSVValidationMixin()
-
-    # wrap CSV up in SimpleUploadedFile to mirror how a Django view would
-    # handle it
-    csv_data = (
-        '"code "," description"\n"1067731000000107","Injury whilst swimming (disorder)"'
-    )
-    upload_file = csv_builder(csv_data)
-    uploaded_file = SimpleUploadedFile("our csv", upload_file.read())
-    form.cleaned_data = {"csv_data": uploaded_file}
-
-    cleaned_data = form.clean_csv_data()
-    header_line = cleaned_data.splitlines()[0]
-    assert header_line == '"code","description"'
-    data_line = cleaned_data.splitlines()[1]
-    assert data_line == '"1067731000000107","Injury whilst swimming (disorder)"'
+    assert len(e.value.messages) == 1
+    assert e.value.messages[0] == 'Header 1 ("code ") contains extraneous whitespace'

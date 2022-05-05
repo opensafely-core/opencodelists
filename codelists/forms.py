@@ -93,8 +93,15 @@ class CSVValidationMixin:
     def clean_csv_data(self):
         data = self.cleaned_data["csv_data"].read().decode("utf-8-sig")
 
-        reader = csv.reader(StringIO(data), quoting=csv.QUOTE_NONE)
+        reader = csv.reader(StringIO(data))
         header = next(reader)  # expected to be headers
+
+        for i, value in enumerate(header):
+            if value != value.strip():
+                raise forms.ValidationError(
+                    f'Header {i+1} ("{value}") contains extraneous whitespace'
+                )
+
         num_columns = len(header)
         errors = [i for i, row in enumerate(reader) if len(row) != num_columns]
 
@@ -106,14 +113,6 @@ class CSVValidationMixin:
                     for i in errors
                 ]
             )
-
-        cleaned_header = [
-            '"' + h[1:-1].strip() + '"' if h[0] == '"' and h[-1] == '"' else h.strip()
-            for h in header
-        ]
-        if header != cleaned_header:
-            headersplit = data.split("\n", maxsplit=1)
-            data = ",".join(cleaned_header) + "\n" + headersplit[1]
 
         return data
 

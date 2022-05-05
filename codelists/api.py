@@ -10,7 +10,13 @@ from .actions import (
     create_version_with_codes,
 )
 from .api_decorators import require_authentication, require_permission
+from .models import Codelist
 from .views.decorators import load_codelist, load_owner
+
+
+@require_http_methods(["GET"])
+def all_codelists(request):
+    return codelists_get(request)
 
 
 @require_http_methods(["GET", "POST"])
@@ -23,14 +29,16 @@ def codelists(request, owner):
         return codelists_post(request, owner)
 
 
-def codelists_get(request, owner):
+def codelists_get(request, owner=None):
     """Return information about the codelists owned by an organisation.
 
     HTPP response contains JSON array with one item for each codelist owned by the
     organisation.
 
-    request.GET may contain `coding_system_id` parameter, which will be used to filter
-    the returned codelists.
+    request.GET may contain the following parameters to filter the returned codelists:
+
+        * coding_system_id
+        * tag
 
     Eg:
 
@@ -50,18 +58,28 @@ def codelists_get(request, owner):
         },
         ...
     ]
+
+    May 2022: The only known production usage of this endpoint is OpenSAFELY Interactive.
     """
 
     filter_kwargs = {}
 
-    # Only filter on coding_system_id if it is present and not the empty string.
+    # Only filter on parameters that are present and not the empty string.
     if coding_system_id := request.GET.get("coding_system_id"):
         filter_kwargs["coding_system_id"] = coding_system_id
 
+    if tag := request.GET.get("tag"):
+        filter_kwargs["tags__name"] = tag
+
     records = []
 
+    if owner is None:
+        codelists = Codelist.objects.all()
+    else:
+        codelists = owner.codelists
+
     for cl in sorted(
-        owner.codelists.filter(**filter_kwargs).prefetch_related("handles", "versions"),
+        codelists.filter(**filter_kwargs).prefetch_related("handles", "versions"),
         key=lambda cl: cl.slug,
     ):
         record = {

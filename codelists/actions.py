@@ -539,6 +539,10 @@ def cache_hierarchy(*, version, hierarchy=None):
     cached_hierarchy.save()
 
 
+def add_codelist_tag(*, codelist, tag):
+    codelist.tags.add(tag)
+
+
 class DuplicateHandleError(IntegrityError):
     """Indicates an attempt to save a Handle whose slug or name duplicates that
     of another Handle with the same owner.

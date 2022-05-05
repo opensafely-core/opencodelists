@@ -13,6 +13,7 @@ django-cors-headers
 django-debug-toolbar
 django-extensions
 django-structlog
+django-taggit
 environs[django]
 furl
 gunicorn

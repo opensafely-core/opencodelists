@@ -423,3 +423,9 @@ def test_export_to_builder(organisation_user, new_style_version):
     assert draft.codes == new_style_version.codes
     assert draft.code_objs.count() == new_style_version.code_objs.count()
     assert draft.searches.count() == new_style_version.searches.count()
+
+
+def test_add_codelist_tag(codelist):
+    actions.add_codelist_tag(codelist=codelist, tag="TAG")
+
+    assert Codelist.objects.get(tags__name="TAG") == codelist

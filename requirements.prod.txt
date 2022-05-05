@@ -248,9 +248,9 @@ lxml==4.8.0 \
     --hash=sha256:fa56bb08b3dd8eac3a8c5b7d075c94e74f755fd9d8a04543ae8d37b1612dd170 \
     --hash=sha256:fa9b7c450be85bfc6cd39f6df8c5b8cbd76b5d6fc1f69efec80203f9894b885f
     # via -r requirements.prod.in
-markdown2==2.4.2 \
-    --hash=sha256:8f4ac8d9a124ab408c67361090ed512deda746c04362c36c2ec16190c720c2b0 \
-    --hash=sha256:91113caf23aa662570fe21984f08fe74f814695c0a0ea8e863a8b4c4f63f9f6e
+markdown2==2.4.3 \
+    --hash=sha256:412520c7b6bba540c2c2067d6be3a523ab885703bf6a81d93963f848b55dfb9a \
+    --hash=sha256:f344d4adfba5d1de821f7850b36e3507f583468a7eb47e6fa191765ed0b9c66b
     # via -r requirements.prod.in
 marshmallow==3.15.0 \
     --hash=sha256:2aaaab4f01ef4f5a011a21319af9fce17ab13bf28a026d1252adab0e035648d5 \

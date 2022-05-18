@@ -52,7 +52,8 @@ def codelists_get(request, owner=None):
                 {
                     "hash": "66f08cca",
                     "tag": "2020-04-15",
-                    "full_slug": "opensafely/asthma-diagnosis/2020-04-15"
+                    "full_slug": "opensafely/asthma-diagnosis/2020-04-15",
+                    "status": "published"
                 }
             ]
         },
@@ -95,6 +96,7 @@ def codelists_get(request, owner=None):
                     "hash": version.hash,
                     "tag": version.tag,
                     "full_slug": version.full_slug(),
+                    "status": version.status,
                 }
             )
 

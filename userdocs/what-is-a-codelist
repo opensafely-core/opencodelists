@@ -1,0 +1,11 @@
+## What is a codelist?
+
+A codelist is a set of clinical codes representing clinical activities such as diagnoses, medications, procedures, patient administration, etc. 
+
+* Codelists are required for almost all studies in OpenSAFELY and other health data research. 
+* They each use a _coding system_ such as SNOMED, DM&D (dictionary of medicines and devices), CTv3 (Clinical Terms v3), etc.
+* There can often be many possible codes that clinicians may have used to represent a certain activity
+* Creating or selecting a codelist can often be very nuanced 
+e.g. whether a codelist for "diabetes" should _include_ or _exclude_ gestational diabetes may be different in each study. 
+* Sometimes a combination of codelists of different types may be required to fully capture patients with certain conditions, 
+e.g. _medications_ for asthma, _diagnoses_ of asthma in primary care (SNOMED), _diagnoses_ of asthma in hospital (ICD-10).

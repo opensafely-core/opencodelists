@@ -11,7 +11,7 @@
     "@babel/preset-env": "^7.17.12",
     "@babel/preset-react": "^7.16.7",
     "@testing-library/jest-dom": "^5.16.4",
-    "babel-loader": "^8.2.4",
+    "babel-loader": "^8.2.5",
     "eslint": "^8.15.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-react": "^7.30.0",

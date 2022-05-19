@@ -14,7 +14,7 @@
     "babel-loader": "^8.2.4",
     "eslint": "^8.15.0",
     "eslint-config-prettier": "^8.5.0",
-    "eslint-plugin-react": "^7.29.4",
+    "eslint-plugin-react": "^7.30.0",
     "jest": "^27.5.1",
     "prettier": "2.6.2",
     "webpack": "^5.72.1",

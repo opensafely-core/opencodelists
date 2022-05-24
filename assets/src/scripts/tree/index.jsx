@@ -1,6 +1,5 @@
-import ReactDOM from "react-dom";
 import React from "react";
-
+import { createRoot } from "react-dom/client";
 import Hierarchy from "../hierarchy";
 import TreeTables from "../common/tree-tables";
 import { readValueFromPage } from "../utils";
@@ -23,8 +22,10 @@ const visiblePaths = hierarchy.initiallyVisiblePaths(
   0
 );
 
-document.querySelector("#codelist-tree")
-  ? ReactDOM.render(
+const container = document.getElementById("#codelist-builder-container");
+const root = createRoot(container);
+container
+  ? root.render(
       <TreeTables
         hierarchy={hierarchy}
         treeTables={treeTables}
@@ -33,7 +34,6 @@ document.querySelector("#codelist-tree")
         visiblePaths={visiblePaths}
         updateStatus={null}
         showMoreInfoModal={null}
-      />,
-      document.querySelector("#codelist-tree")
+      />
     )
   : null;

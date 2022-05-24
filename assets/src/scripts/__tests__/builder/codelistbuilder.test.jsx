@@ -1,9 +1,8 @@
 /* global global */
 import React from "react";
-import { render, unmountComponentAtNode } from "react-dom";
 import { act } from "react-dom/test-utils";
-
-import { expect, beforeEach, afterEach, beforeAll, afterAll, it } from "vitest";
+import { render } from "@testing-library/react";
+import { expect, beforeAll, afterAll, it } from "vitest";
 import CodelistBuilder from "../../builder/codelistbuilder";
 import Hierarchy from "../../hierarchy";
 
@@ -13,18 +12,6 @@ import * as versionWithNoSearchesData from "../fixtures/version_with_no_searches
 import * as versionWithSomeSearchesData from "../fixtures/version_with_some_searches.json";
 import * as versionWithCompleteSearchesData from "../fixtures/version_with_complete_searches.json";
 import * as versionFromScratchData from "../fixtures/version_from_scratch.json";
-
-let container = null;
-beforeEach(() => {
-  container = document.createElement("div");
-  document.body.appendChild(container);
-});
-
-afterEach(() => {
-  unmountComponentAtNode(container);
-  container.remove();
-  container = null;
-});
 
 const unmockedFetch = global.fetch;
 
@@ -50,28 +37,25 @@ const testRender = (data) => {
     1
   );
 
-  act(() => {
-    render(
-      <CodelistBuilder
-        searches={data.searches}
-        filter={data.filter}
-        treeTables={data.tree_tables}
-        codeToStatus={data.code_to_status}
-        codeToTerm={data.code_to_term}
-        visiblePaths={visiblePaths}
-        allCodes={data.all_codes}
-        includedCodes={data.included_codes}
-        excludedCodes={data.excluded_codes}
-        isEditable={data.is_editable}
-        updateURL={data.update_url}
-        searchURL={data.search_url}
-        versions={data.versions}
-        metadata={data.metadata}
-        hierarchy={hierarchy}
-      />,
-      container
-    );
-  });
+  render(
+    <CodelistBuilder
+      searches={data.searches}
+      filter={data.filter}
+      treeTables={data.tree_tables}
+      codeToStatus={data.code_to_status}
+      codeToTerm={data.code_to_term}
+      visiblePaths={visiblePaths}
+      allCodes={data.all_codes}
+      includedCodes={data.included_codes}
+      excludedCodes={data.excluded_codes}
+      isEditable={data.is_editable}
+      updateURL={data.update_url}
+      searchURL={data.search_url}
+      versions={data.versions}
+      metadata={data.metadata}
+      hierarchy={hierarchy}
+    />
+  );
 };
 
 it("renders version_with_no_searches without error", () => {
@@ -126,7 +110,7 @@ it("does the right thing when clicking around", () => {
 
   const checkStatus = () => {
     Object.keys(statuses).forEach((code) => {
-      const row = container.querySelector(`[data-code='${code}']`);
+      const row = document.querySelector(`[data-code='${code}']`);
 
       switch (statuses[code]) {
         case "+":
@@ -172,10 +156,10 @@ it("does the right thing when clicking around", () => {
   const checkSummary = () => {
     Object.keys(summaryCounts).forEach((key) => {
       if (summaryCounts[key] === 0) {
-        expect(container.querySelector(`#summary-${key}`)).toBe(null);
+        expect(document.querySelector(`#summary-${key}`)).toBe(null);
       } else {
         expect(
-          parseInt(container.querySelector(`#summary-${key}`).textContent)
+          parseInt(document.querySelector(`#summary-${key}`).textContent)
         ).toBe(summaryCounts[key]);
       }
     });
@@ -183,34 +167,31 @@ it("does the right thing when clicking around", () => {
 
   // Helper that simulates clicking on + or - for given code.
   const click = (code, symbol) => {
-    const button = container.querySelector(
+    const button = document.querySelector(
       `[data-code='${code}'] button[data-symbol='${symbol}']`
     );
     button.dispatchEvent(new MouseEvent("click", { bubbles: true }));
   };
 
-  act(() => {
-    render(
-      <CodelistBuilder
-        searches={data.searches}
-        filter={data.filter}
-        treeTables={data.tree_tables}
-        codeToStatus={data.code_to_status}
-        codeToTerm={data.code_to_term}
-        visiblePaths={visiblePaths}
-        allCodes={data.all_codes}
-        includedCodes={data.included_codes}
-        excludedCodes={data.excluded_codes}
-        isEditable={data.is_editable}
-        updateURL={data.update_url}
-        searchURL={data.search_url}
-        versions={data.versions}
-        metadata={data.metadata}
-        hierarchy={hierarchy}
-      />,
-      container
-    );
-  });
+  render(
+    <CodelistBuilder
+      searches={data.searches}
+      filter={data.filter}
+      treeTables={data.tree_tables}
+      codeToStatus={data.code_to_status}
+      codeToTerm={data.code_to_term}
+      visiblePaths={visiblePaths}
+      allCodes={data.all_codes}
+      includedCodes={data.included_codes}
+      excludedCodes={data.excluded_codes}
+      isEditable={data.is_editable}
+      updateURL={data.update_url}
+      searchURL={data.search_url}
+      versions={data.versions}
+      metadata={data.metadata}
+      hierarchy={hierarchy}
+    />
+  );
 
   checkSummary();
   checkStatus();

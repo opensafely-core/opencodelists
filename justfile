@@ -129,13 +129,13 @@ fix: devenv
 # Runs the linter on JS files
 check-js: npm-install
     npm run prettier
-    npm run eslint
+    npm run lint
 
 
 # fix js formatting
 fix-js: npm-install
     npm run prettier:fix
-    npm run eslint:fix
+    npm run lint:fix
 
 
 # setup/update local dev environment

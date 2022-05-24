@@ -1,5 +1,6 @@
 import legacy from "@vitejs/plugin-legacy";
 import { defineConfig } from "vite";
+import copy from "rollup-plugin-copy";
 
 export default defineConfig({
   base: "/static/bundle/",
@@ -20,6 +21,36 @@ export default defineConfig({
   plugins: [
     legacy({
       targets: ["last 2 versions, not dead, > 2%"],
+    }),
+    copy({
+      targets: [
+        {
+          src: "./node_modules/bootstrap/dist/js/bootstrap.bundle.min.*",
+          dest: "./assets/dist/vendor",
+        },
+        {
+          src: "./node_modules/bootstrap/dist/css/bootstrap.min.*",
+          dest: "./assets/dist/vendor",
+        },
+        {
+          src: "./node_modules/jquery/dist/jquery.slim.min.*",
+          dest: "./assets/dist/vendor",
+        },
+        {
+          src: "./node_modules/datatables.net/js/jquery.dataTables.min.js",
+          dest: "./assets/dist/vendor",
+        },
+        {
+          src:
+            "./node_modules/datatables.net-bs4/js/dataTables.bootstrap4.min.js",
+          dest: "./assets/dist/vendor",
+        },
+        {
+          src:
+            "./node_modules/datatables.net-bs4/css/dataTables.bootstrap4.min.css",
+          dest: "./assets/dist/vendor",
+        },
+      ],
     }),
   ],
   test: {

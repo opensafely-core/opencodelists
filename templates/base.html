@@ -15,11 +15,8 @@
     <link rel="icon" href="{% static "icon.svg" %}" type="image/svg+xml">
     <link rel="apple-touch-icon" href="{% static "apple-touch-icon.png" %}">
 
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap4.min.css"
-    />
+    <link rel="stylesheet" href="{% static 'vendor/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'vendor/dataTables.bootstrap4.min.css' %}">
 
     {% vite_hmr_client %}
     {% vite_asset 'assets/src/scripts/main.js' defer=true %}
@@ -100,34 +97,6 @@
       <div class="mt-4">
         {% block content %} {% endblock %}
       </div>
-
-      <script
-        src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.slim.min.js"
-        integrity="sha512-/DXTXr6nQodMUiq+IUJYCt2PPOUjrHJ9wFrqpJ3XkgPNOZVfMok7cRw6CSxyCQxXn6ozlESsSh1/sMCTF1rL/g=="
-        crossorigin="anonymous"
-        referrerpolicy="no-referrer"
-      ></script>
-
-      <script
-        src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/js/bootstrap.bundle.min.js"
-        integrity="sha512-wV7Yj1alIZDqZFCUQJy85VN+qvEIly93fIQAN7iqDFCPEucLCeNFz4r35FCo9s6WrpdDQPi80xbljXB8Bjtvcg=="
-        crossorigin="anonymous"
-        referrerpolicy="no-referrer"
-      ></script>
-
-      <script
-        type="text/javascript"
-        charset="utf8"
-        src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"
-      ></script>
-
-      <script
-        type="text/javascript"
-        charset="utf8"
-        src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap4.min.js"
-      ></script>
-
-      {% block extra_js %}{% endblock %}
     </main>
 
     <footer id="footer" class="border-top bg-light mt-auto py-5">
@@ -170,7 +139,14 @@
       </div>
     </footer>
 
+    <script src="{% static 'vendor/jquery.slim.min.js' %}"></script>
+    <script src="{% static 'vendor/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'vendor/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'vendor/dataTables.bootstrap4.min.js' %}"></script>
+
     {% vite_legacy_polyfills %}
     {% vite_legacy_asset 'assets/src/scripts/main.js' %}
+
+    {% block extra_js %}{% endblock %}
   </body>
 </html>

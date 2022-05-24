@@ -87,18 +87,24 @@ jobs:
           # build docker and run checks
           just docker-check-py
 
-  # test-py:
-  #   needs: [assets]
-  #   runs-on: ubuntu-latest
+  test-py:
+    needs: [assets]
+    runs-on: ubuntu-latest
 
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - uses: extractions/setup-just@aa5d15c144db4585980a44ebfdd2cf337c4f14cb # v1.4.0
+    steps:
+      - uses: actions/checkout@v2
+      - uses: extractions/setup-just@aa5d15c144db4585980a44ebfdd2cf337c4f14cb # v1.4.0
 
-  #     - name: Build docker image and run Python tests in it
-  #       run: |
-  #         # build docker and run test
-  #         just docker-test-py
+      - name: Retrieve assets
+        uses: actions/download-artifact@v3
+        with:
+          name: node-assets
+          path: assets/dist
+
+      - name: Build docker image and run Python tests in it
+        run: |
+          # build docker and run test
+          just docker-test-py
 
   # deploy:
   #   needs: [assets, check-py, test-py, lint-dockerfile]

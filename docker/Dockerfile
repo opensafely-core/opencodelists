@@ -42,8 +42,8 @@ RUN --mount=type=cache,target=/usr/src/app/.npm \
     npm ci
 
 # copy just what npm build needs
-COPY .eslintrc.json .prettierrc .prettierignore ./
-COPY static ./static
+COPY vite.config.js .eslintrc.json .prettierrc .prettierignore ./
+COPY assets ./assets
 RUN --mount=type=cache,target=./npm npm run build
 
 ##################################################

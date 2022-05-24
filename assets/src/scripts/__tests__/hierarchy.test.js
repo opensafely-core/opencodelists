@@ -1,5 +1,4 @@
-"use strict";
-
+import { expect, test } from "vitest";
 import Hierarchy from "../hierarchy";
 
 test("updateCodeToStatus", () => {

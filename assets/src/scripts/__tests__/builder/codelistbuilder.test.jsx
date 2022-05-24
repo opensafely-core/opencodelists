@@ -1,14 +1,9 @@
-/**
- * @jest-environment jsdom
- */
-
-"use strict";
-
+/* global global */
 import React from "react";
 import { render, unmountComponentAtNode } from "react-dom";
 import { act } from "react-dom/test-utils";
-import "@testing-library/jest-dom";
 
+import { expect, beforeEach, afterEach, beforeAll, afterAll, it } from "vitest";
 import CodelistBuilder from "../../builder/codelistbuilder";
 import Hierarchy from "../../hierarchy";
 
@@ -31,12 +26,18 @@ afterEach(() => {
   container = null;
 });
 
-// Not sure if this is the best approach, but it works!
-global.fetch = jest.fn().mockImplementation((url, config) =>
-  Promise.resolve({
-    json: () => Promise.resolve(JSON.parse(config.body)),
-  })
-);
+const unmockedFetch = global.fetch;
+
+beforeAll(() => {
+  global.fetch = () =>
+    Promise.resolve({
+      json: () => Promise.resolve([]),
+    });
+});
+
+afterAll(() => {
+  global.fetch = unmockedFetch;
+});
 
 const testRender = (data) => {
   const hierarchy = new Hierarchy(data.parent_map, data.child_map);

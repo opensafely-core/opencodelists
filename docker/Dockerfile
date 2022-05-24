@@ -17,7 +17,7 @@ RUN rm -f /etc/apt/apt.conf.d/docker-clean
 # see: https://gist.github.com/tiran/2dec9e03c6f901814f6d1e8dad09528e
 # use space efficient utility from base image
 RUN --mount=type=cache,target=/var/cache/apt \
-  /root/docker-apt-install.sh python3 python3-venv python3-pip python3-distutils tzdata ca-certificates
+    /root/docker-apt-install.sh python3 python3-venv python3-pip python3-distutils tzdata ca-certificates
 
 # install any additional system dependencies
 COPY docker/dependencies.txt /tmp/dependencies.txt
@@ -42,7 +42,7 @@ RUN --mount=type=cache,target=/usr/src/app/.npm \
     npm ci
 
 # copy just what npm build needs
-COPY webpack.config.js .babelrc .eslintrc.json .prettierrc .prettierignore ./
+COPY .eslintrc.json .prettierrc .prettierignore ./
 COPY static ./static
 RUN --mount=type=cache,target=./npm npm run build
 
@@ -124,8 +124,8 @@ EXPOSE 7000
 # Adjust this metadata to fit project. Note that the base-docker image does set
 # some basic metadata.
 LABEL org.opencontainers.image.title="opencodelists" \
-      org.opencontainers.image.description="OpenCodelists" \
-      org.opencontainers.image.source="https://github.com/opensafely-core/opencodelists"
+    org.opencontainers.image.description="OpenCodelists" \
+    org.opencontainers.image.source="https://github.com/opensafely-core/opencodelists"
 
 # copy application code
 COPY . /app

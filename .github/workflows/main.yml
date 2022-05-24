@@ -42,9 +42,10 @@ jobs:
         run: npm ci
 
       - name: Lint assets
-        run: |
-          npm run lint
-          npm run prettier
+        run: npm run lint
+
+      - name: Run Prettier
+        run: npm run prettier
 
       - name: Test assets
         run: npm run test
@@ -67,24 +68,18 @@ jobs:
         with:
           dockerfile: docker/Dockerfile
 
-  # check-py:
-  #   needs: [assets]
-  #   runs-on: ubuntu-latest
+  check-py:
+    needs: [assets]
+    runs-on: ubuntu-latest
 
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - uses: extractions/setup-just@aa5d15c144db4585980a44ebfdd2cf337c4f14cb # v1.4.0
+    steps:
+      - uses: actions/checkout@v2
+      - uses: extractions/setup-just@aa5d15c144db4585980a44ebfdd2cf337c4f14cb # v1.4.0
 
-  #     - name: Retrieve assets
-  #       uses: actions/download-artifact@v3
-  #       with:
-  #         name: node-assets
-  #         path: assets/dist
-
-  #     - name: Build docker image and run checks in it
-  #       run: |
-  #         # build docker and run checks
-  #         just docker-check-py
+      - name: Build docker image and run checks in it
+        run: |
+          # build docker and run checks
+          just docker-check-py
 
   # test-py:
   #   needs: [assets]

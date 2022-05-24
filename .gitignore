@@ -12,3 +12,4 @@ static/dist/js
 staticfiles/
 .env
 /coverage
+/assets/dist

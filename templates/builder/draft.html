@@ -1,4 +1,6 @@
 {% extends 'base.html' %}
+
+{% load django_vite %}
 {% load static %}
 
 {% block content %}
@@ -28,5 +30,7 @@
 {{ versions|json_script:"versions" }}
 {{ metadata|json_script:"metadata" }}
 
-<script src="{% static 'js/builder.bundle.js' %}"></script>
+{% vite_asset 'assets/src/scripts/builder/index.jsx' defer=true %}
+{% vite_legacy_polyfills %}
+{% vite_legacy_asset 'assets/src/scripts/builder/index.jsx' %}
 {% endblock %}

@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 
+{% load django_vite %}
 {% load static %}
 
 {% block title_extra %}: {{ codelist.name }}{% endblock %}
@@ -233,5 +234,7 @@
 {{ code_to_term|json_script:"code-to-term" }}
 {{ code_to_status|json_script:"code-to-status" }}
 
-<script src="{% static 'js/tree.bundle.js' %}"></script>
+{% vite_asset 'assets/src/scripts/tree/index.jsx' defer=true %}
+{% vite_legacy_polyfills %}
+{% vite_legacy_asset 'assets/src/scripts/tree/index.jsx' %}
 {% endblock %}

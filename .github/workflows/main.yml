@@ -106,51 +106,57 @@ jobs:
           # build docker and run test
           just docker-test-py
 
-  # deploy:
-  #   needs: [assets, check-py, test-py, lint-dockerfile]
+  deploy:
+    needs: [assets, check-py, test-py, lint-dockerfile]
 
-  #   runs-on: ubuntu-latest
+    runs-on: ubuntu-latest
 
-  #   permissions:
-  #     contents: read
-  #     packages: write
+    permissions:
+      contents: read
+      packages: write
 
-  #   if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main'
 
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - uses: extractions/setup-just@aa5d15c144db4585980a44ebfdd2cf337c4f14cb # v1.4.0
+    steps:
+      - uses: actions/checkout@v2
+      - uses: extractions/setup-just@aa5d15c144db4585980a44ebfdd2cf337c4f14cb # v1.4.0
 
-  #     - name: Build docker image
-  #       run: |
-  #         # docker-test step will build the dev image by default, so build the prod image
-  #         just docker-build prod
+      - name: Retrieve assets
+        uses: actions/download-artifact@v3
+        with:
+          name: node-assets
+          path: assets/dist
 
-  #     - name: Login to Packages Container registry
-  #       run: |
-  #         docker login $REGISTRY -u ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN }}
+      - name: Build docker image
+        run: |
+          # docker-test step will build the dev image by default, so build the prod image
+          just docker-build prod
 
-  #     - name: publish docker image
-  #       run: |
-  #         docker tag $IMAGE_NAME $PUBLIC_IMAGE_NAME:latest
-  #         docker push $PUBLIC_IMAGE_NAME:latest
+      - name: Login to Packages Container registry
+        run: |
+          docker login $REGISTRY -u ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN }}
 
-  #     - name: Setup SSH Agent
-  #       run: |
-  #         ssh-agent -a $SSH_AUTH_SOCK > /dev/null
-  #         ssh-add - <<< "${{ secrets.DOKKU1_DEPLOY_SSH_KEY }}"
+      - name: publish docker image
+        run: |
+          docker tag $IMAGE_NAME $PUBLIC_IMAGE_NAME:latest
+          docker push $PUBLIC_IMAGE_NAME:latest
 
-  #     - name: Deploy
-  #       run: |
-  #         SHA=$(docker inspect --format='{{index .RepoDigests 0}}' $PUBLIC_IMAGE_NAME:latest)
-  #         ssh -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" dokku@dokku.ebmdatalab.net git:from-image opencodelists $SHA
+      - name: Setup SSH Agent
+        run: |
+          ssh-agent -a $SSH_AUTH_SOCK > /dev/null
+          ssh-add - <<< "${{ secrets.DOKKU1_DEPLOY_SSH_KEY }}"
 
-  #     - name: Create Sentry release
-  #       uses: getsentry/action-release@744e4b262278339b79fb39c8922efcae71e98e39
-  #       env:
-  #         SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_RELEASE_INTEGRATION_TOKEN }}
-  #         SENTRY_ORG: ebm-datalab
-  #         SENTRY_PROJECT: opencodelists
-  #       with:
-  #         environment: production
-  #         ignore_empty: true
+      - name: Deploy
+        run: |
+          SHA=$(docker inspect --format='{{index .RepoDigests 0}}' $PUBLIC_IMAGE_NAME:latest)
+          ssh -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" dokku@dokku.ebmdatalab.net git:from-image opencodelists $SHA
+
+      - name: Create Sentry release
+        uses: getsentry/action-release@744e4b262278339b79fb39c8922efcae71e98e39
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_RELEASE_INTEGRATION_TOKEN }}
+          SENTRY_ORG: ebm-datalab
+          SENTRY_PROJECT: opencodelists
+        with:
+          environment: production
+          ignore_empty: true

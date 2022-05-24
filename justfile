@@ -128,13 +128,14 @@ fix: devenv
 
 # Runs the linter on JS files
 check-js: npm-install
-    npx prettier . --check
-    npx eslint static/src/js/builder/* static/src/js/hierarchy.js
+    npm run prettier:check
+    npm run eslint
 
 
 # fix js formatting
 fix-js: npm-install
-    npx prettier . --write
+    npm run prettier:fix
+    npm run eslint:fix
 
 
 # setup/update local dev environment

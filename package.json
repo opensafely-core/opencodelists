@@ -6,7 +6,11 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "prettier": "npx prettier ./assets/src/**/*.{json,js,jsx,scss} --check",
+    "prettier:fix": "npx prettier ./assets/src/**/*.{json,js,jsx,scss} --write",
+    "lint": "npx eslint ./assets/src",
+    "lint:fix": "npx eslint ./assets/src --fix"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.4",
@@ -15,6 +19,7 @@
     "c8": "^7.11.3",
     "eslint": "^8.15.0",
     "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-react": "^7.30.0",
     "jsdom": "^19.0.0",
     "prettier": "2.6.2",

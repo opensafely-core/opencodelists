@@ -1,3 +1,5 @@
+/* global $ */
+
 const addForm = (name, event) => {
   const formIndex = $(`#id_${name}-TOTAL_FORMS`).val();
   const newForm = $(`#${name}-forms .template`)

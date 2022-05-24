@@ -1,5 +1,3 @@
-"use strict";
-
 import ReactDOM from "react-dom";
 import React from "react";
 
@@ -25,15 +23,17 @@ const visiblePaths = hierarchy.initiallyVisiblePaths(
   0
 );
 
-ReactDOM.render(
-  <TreeTables
-    hierarchy={hierarchy}
-    treeTables={treeTables}
-    codeToStatus={codeToStatus}
-    codeToTerm={codeToTerm}
-    visiblePaths={visiblePaths}
-    updateStatus={null}
-    showMoreInfoModal={null}
-  />,
-  document.querySelector("#codelist-tree")
-);
+document.querySelector("#codelist-tree")
+  ? ReactDOM.render(
+      <TreeTables
+        hierarchy={hierarchy}
+        treeTables={treeTables}
+        codeToStatus={codeToStatus}
+        codeToTerm={codeToTerm}
+        visiblePaths={visiblePaths}
+        updateStatus={null}
+        showMoreInfoModal={null}
+      />,
+      document.querySelector("#codelist-tree")
+    )
+  : null;

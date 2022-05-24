@@ -153,7 +153,7 @@ run: devenv
 npm-install: check-fnm
     fnm use
     npm ci
-    npm run build-dev
+    npm run build
 
 
 check-fnm:

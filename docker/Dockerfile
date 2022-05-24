@@ -132,7 +132,7 @@ COPY . /app
 
 # copy node assets over from node-builder image. These will have root:root ownership, but
 # are readable by all.
-COPY --from=node-builder /usr/src/app/static/dist/js /app/static/dist/js
+COPY --from=node-builder /usr/src/app/assets/dist /app/assets/dist
 
 # We set command rather than entrypoint, to make it easier to run different
 # things from the cli

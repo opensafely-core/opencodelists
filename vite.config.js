@@ -41,13 +41,11 @@ export default defineConfig({
           dest: "./assets/dist/vendor",
         },
         {
-          src:
-            "./node_modules/datatables.net-bs4/js/dataTables.bootstrap4.min.js",
+          src: "./node_modules/datatables.net-bs4/js/dataTables.bootstrap4.min.js",
           dest: "./assets/dist/vendor",
         },
         {
-          src:
-            "./node_modules/datatables.net-bs4/css/dataTables.bootstrap4.min.css",
+          src: "./node_modules/datatables.net-bs4/css/dataTables.bootstrap4.min.css",
           dest: "./assets/dist/vendor",
         },
       ],
@@ -55,7 +53,7 @@ export default defineConfig({
   ],
   test: {
     globals: true,
-    environment: "jsdom",
+    environment: "happy-dom",
     setupFiles: "./assets/src/scripts/__tests__/setup.js",
   },
 });

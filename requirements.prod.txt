@@ -72,6 +72,7 @@ django==4.0.4 \
     #   django-extensions
     #   django-structlog
     #   django-taggit
+    #   django-vite
     #   djangorestframework
 django-anymail[mailgun]==8.6 \
     --hash=sha256:49d83d7c16316ca86a624097496881d59b7d71b16bf1c5211cffa5b19ef98d0c \
@@ -108,6 +109,10 @@ django-structlog==2.2.0 \
 django-taggit==3.0.0 \
     --hash=sha256:ca2df20399a11321db75988404afb640a08eff61e52bde35f6c16f307004ec9e \
     --hash=sha256:e645b8e3dd4f85989d5ef5c5a3d5ebbe5badf5d1e51b53e42d0af726240b00b9
+    # via -r requirements.prod.in
+django-vite==2.0.2 \
+    --hash=sha256:5a2e11a9f08a2a0a69c9a7c637a3254ad0c8dd01e07cb40de09a3a180ed99791 \
+    --hash=sha256:f11f4747183b884ee4e6c2ea12f0aa96a846574ee7344c05ac96b4fa89309535
     # via -r requirements.prod.in
 djangorestframework==3.13.1 \
     --hash=sha256:0c33407ce23acc68eca2a6e46424b008c9c02eceb8cf18581921d0092bc1f2ee \

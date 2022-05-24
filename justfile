@@ -128,7 +128,7 @@ fix: devenv
 
 # Runs the linter on JS files
 check-js: npm-install
-    npm run prettier:check
+    npm run prettier
     npm run eslint
 
 

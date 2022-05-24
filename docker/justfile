@@ -25,7 +25,7 @@ build env="dev":
 copy-assets: build
     #!/usr/bin/env bash
     docker-compose build --pull node-assets
-    docker-compose run --rm --no-deps --entrypoint /usr/bin/env node-assets rsync --delete -r /usr/src/app/static/dist/js /app/static/dist/js
+    docker-compose run --rm --no-deps --entrypoint /usr/bin/env node-assets rsync --delete -r /usr/src/app/assets/dist /app/assets/dist
 
 
 # run JS linter

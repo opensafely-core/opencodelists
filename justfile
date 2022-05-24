@@ -163,6 +163,31 @@ check-fnm:
     fi
 
 
+# Remove built assets and collected static files
+assets-clean:
+  rm -rf assets/dist
+  rm -rf staticfiles
+
+
+# Clean install the Node.js dependencies
+assets-install:
+  npm ci
+
+
+# Build the Node.js assets
+assets-build:
+  npm run build
+
+
+# Collect the static files
+assets-collect:
+  $BIN/python manage.py collectstatic --no-input
+
+
+# Clean, reinstall, build and collect all assets
+assets-rebuild: assets-clean assets-install assets-build assets-collect
+
+
 # build docker image env=dev|prod
 docker-build env="dev": _env
     {{ just_executable() }} docker/build {{ env }}

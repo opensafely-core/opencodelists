@@ -10,3 +10,4 @@ htmlcov
 node_modules
 static/dist/js
 staticfiles/
+.env

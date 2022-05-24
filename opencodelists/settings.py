@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -79,6 +80,7 @@ INSTALLED_APPS = [
     "crispy_forms",
     "django_extensions",
     "debug_toolbar",
+    "django_vite",
     "rest_framework",
     "rest_framework.authtoken",
     "taggit",
@@ -182,12 +184,60 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.0/howto/static-files/
-STATICFILES_DIRS = [BASE_DIR / "static" / "dist"]
-STATIC_ROOT = BASE_DIR / "staticfiles"
+# https://docs.djangoproject.com/en/4.0/howto/static-files/
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+    os.path.join(BASE_DIR, "assets", "dist"),
+]
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 STATIC_URL = "/static/"
 
-WHITENOISE_USE_FINDERS = True
+DJANGO_VITE_ASSETS_PATH = "/static/bundle/"
+DJANGO_VITE_STATIC_URL_PREFIX = "bundle"
+DJANGO_VITE_DEV_MODE = env.bool("DJANGO_VITE_DEV_MODE", default=False)
+DJANGO_VITE_MANIFEST_PATH = os.path.join(
+    BASE_DIR, "staticfiles", "bundle", "manifest.json"
+)
+
+# Vite generates files with 8 hash digits
+# http://whitenoise.evans.io/en/stable/django.html#WHITENOISE_IMMUTABLE_FILE_TEST
+
+
+def immutable_file_test(path, url):
+    # Match filename with 12 hex digits before the extension
+    # e.g. app.db8f2edc0c8a.js
+    return re.match(r"^.+\.[0-9a-f]{8,12}\..+$", url)
+
+
+WHITENOISE_IMMUTABLE_FILE_TEST = immutable_file_test
+
+# Insert Whitenoise Middleware.
+STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
+WHITENOISE_SKIP_COMPRESS_EXTENSIONS = (
+    "br",
+    "bz2",
+    "css.map",
+    "flv",
+    "gif",
+    "gz",
+    "ico",
+    "jpeg",
+    "jpg",
+    "js.map",
+    "json",
+    "map",
+    "png",
+    "svg",
+    "swf",
+    "tbz",
+    "tgz",
+    "webmanifest",
+    "webp",
+    "woff",
+    "woff2",
+    "xz",
+    "zip",
+)
 
 
 # Logging

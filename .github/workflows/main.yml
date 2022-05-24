@@ -2,10 +2,10 @@
 name: CI
 
 env:
-    IMAGE_NAME: opencodelists
-    PUBLIC_IMAGE_NAME: ghcr.io/opensafely-core/opencodelists
-    REGISTRY: ghcr.io
-    SSH_AUTH_SOCK: /tmp/agent.sock
+  IMAGE_NAME: opencodelists
+  PUBLIC_IMAGE_NAME: ghcr.io/opensafely-core/opencodelists
+  REGISTRY: ghcr.io
+  SSH_AUTH_SOCK: /tmp/agent.sock
 
 on:
   push:
@@ -14,6 +14,49 @@ on:
 concurrency: ci-${{ github.ref }}
 
 jobs:
+  assets:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      # Node.js
+      - name: Cache node_modules
+        uses: actions/cache@v3.0.1
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+
+      - name: Install node_modules
+        run: npm ci
+
+      - name: Lint assets
+        run: |
+          npm run lint
+          npm run prettier
+
+      - name: Test assets
+        run: npm run test
+
+      - name: Build assets
+        run: npm run build
+
+      - name: Store assets
+        uses: actions/upload-artifact@v2
+        with:
+          name: node-assets
+          path: assets/dist
 
   lint-dockerfile:
     runs-on: ubuntu-latest
@@ -24,99 +67,83 @@ jobs:
         with:
           dockerfile: docker/Dockerfile
 
-  check-py:
-    runs-on: ubuntu-latest
+  # check-py:
+  #   needs: [assets]
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v2
-      - uses: extractions/setup-just@aa5d15c144db4585980a44ebfdd2cf337c4f14cb  # v1.4.0
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - uses: extractions/setup-just@aa5d15c144db4585980a44ebfdd2cf337c4f14cb # v1.4.0
 
-      - name: Build docker image and run checks in it
-        run: |
-          # build docker and run checks
-          just docker-check-py
+  #     - name: Retrieve assets
+  #       uses: actions/download-artifact@v3
+  #       with:
+  #         name: node-assets
+  #         path: assets/dist
 
-  check-js:
-    runs-on: ubuntu-latest
+  #     - name: Build docker image and run checks in it
+  #       run: |
+  #         # build docker and run checks
+  #         just docker-check-py
 
-    steps:
-      - uses: actions/checkout@v2
-      - uses: extractions/setup-just@aa5d15c144db4585980a44ebfdd2cf337c4f14cb  # v1.4.0
+  # test-py:
+  #   needs: [assets]
+  #   runs-on: ubuntu-latest
 
-      - name: Build docker image and run checks in it
-        run: |
-          # build docker and run checks
-          just docker-check-js
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - uses: extractions/setup-just@aa5d15c144db4585980a44ebfdd2cf337c4f14cb # v1.4.0
 
-  test-py:
-    runs-on: ubuntu-latest
+  #     - name: Build docker image and run Python tests in it
+  #       run: |
+  #         # build docker and run test
+  #         just docker-test-py
 
-    steps:
-      - uses: actions/checkout@v2
-      - uses: extractions/setup-just@aa5d15c144db4585980a44ebfdd2cf337c4f14cb  # v1.4.0
+  # deploy:
+  #   needs: [assets, check-py, test-py, lint-dockerfile]
 
-      - name: Build docker image and run Python tests in it
-        run: |
-          # build docker and run test
-          just docker-test-py
+  #   runs-on: ubuntu-latest
 
-  test-js:
-    runs-on: ubuntu-latest
+  #   permissions:
+  #     contents: read
+  #     packages: write
 
-    steps:
-      - uses: actions/checkout@v2
-      - uses: extractions/setup-just@aa5d15c144db4585980a44ebfdd2cf337c4f14cb  # v1.4.0
+  #   if: github.ref == 'refs/heads/main'
 
-      - name: Build docker image and run JS tests in it
-        run: |
-          # build docker and run test
-          just docker-test-js
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - uses: extractions/setup-just@aa5d15c144db4585980a44ebfdd2cf337c4f14cb # v1.4.0
 
-  deploy:
-    needs: [check-py, check-js, test-py, test-js, lint-dockerfile]
+  #     - name: Build docker image
+  #       run: |
+  #         # docker-test step will build the dev image by default, so build the prod image
+  #         just docker-build prod
 
-    runs-on: ubuntu-latest
+  #     - name: Login to Packages Container registry
+  #       run: |
+  #         docker login $REGISTRY -u ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN }}
 
-    permissions:
-      contents: read
-      packages: write
+  #     - name: publish docker image
+  #       run: |
+  #         docker tag $IMAGE_NAME $PUBLIC_IMAGE_NAME:latest
+  #         docker push $PUBLIC_IMAGE_NAME:latest
 
-    if: github.ref == 'refs/heads/main'
+  #     - name: Setup SSH Agent
+  #       run: |
+  #         ssh-agent -a $SSH_AUTH_SOCK > /dev/null
+  #         ssh-add - <<< "${{ secrets.DOKKU1_DEPLOY_SSH_KEY }}"
 
-    steps:
-      - uses: actions/checkout@v2
-      - uses: extractions/setup-just@aa5d15c144db4585980a44ebfdd2cf337c4f14cb  # v1.4.0
+  #     - name: Deploy
+  #       run: |
+  #         SHA=$(docker inspect --format='{{index .RepoDigests 0}}' $PUBLIC_IMAGE_NAME:latest)
+  #         ssh -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" dokku@dokku.ebmdatalab.net git:from-image opencodelists $SHA
 
-      - name: Build docker image
-        run: |
-          # docker-test step will build the dev image by default, so build the prod image
-          just docker-build prod
-
-      - name: Login to Packages Container registry
-        run: |
-            docker login $REGISTRY -u ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN }}
-
-      - name: publish docker image
-        run: |
-            docker tag $IMAGE_NAME $PUBLIC_IMAGE_NAME:latest
-            docker push $PUBLIC_IMAGE_NAME:latest
-
-      - name: Setup SSH Agent
-        run: |
-            ssh-agent -a $SSH_AUTH_SOCK > /dev/null
-            ssh-add - <<< "${{ secrets.DOKKU1_DEPLOY_SSH_KEY }}"
-
-      - name: Deploy
-        run: |
-            SHA=$(docker inspect --format='{{index .RepoDigests 0}}' $PUBLIC_IMAGE_NAME:latest)
-            ssh -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" dokku@dokku.ebmdatalab.net git:from-image opencodelists $SHA
-
-      - name: Create Sentry release
-        uses: getsentry/action-release@744e4b262278339b79fb39c8922efcae71e98e39
-        env:
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_RELEASE_INTEGRATION_TOKEN }}
-          SENTRY_ORG: ebm-datalab
-          SENTRY_PROJECT: opencodelists
-        with:
-          environment: production
-          ignore_empty: true
+  #     - name: Create Sentry release
+  #       uses: getsentry/action-release@744e4b262278339b79fb39c8922efcae71e98e39
+  #       env:
+  #         SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_RELEASE_INTEGRATION_TOKEN }}
+  #         SENTRY_ORG: ebm-datalab
+  #         SENTRY_PROJECT: opencodelists
+  #       with:
+  #         environment: production
+  #         ignore_empty: true

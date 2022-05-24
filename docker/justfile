@@ -28,11 +28,6 @@ copy-assets: build
     docker-compose run --rm --no-deps --entrypoint /usr/bin/env node-assets rsync --delete -r /usr/src/app/assets/dist /app/assets/dist
 
 
-# run JS linter
-check-js: copy-assets
-    docker-compose run --rm node-assets /app/docker/entrypoints/check-js.sh
-
-
 # run python checks
 check-py: build
     docker-compose run --rm dev /app/docker/entrypoints/check.sh

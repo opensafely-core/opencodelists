@@ -22,7 +22,7 @@ const visiblePaths = hierarchy.initiallyVisiblePaths(
   0
 );
 
-const container = document.getElementById("#codelist-builder-container");
+const container = document.getElementById("codelist-tree");
 const root = createRoot(container);
 container
   ? root.render(

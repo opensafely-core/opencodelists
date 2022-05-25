@@ -26,13 +26,13 @@ const container = document.getElementById("codelist-tree");
 const root = container ? createRoot(container) : null;
 
 root?.render(
-      <TreeTables
-        hierarchy={hierarchy}
-        treeTables={treeTables}
-        codeToStatus={codeToStatus}
-        codeToTerm={codeToTerm}
-        visiblePaths={visiblePaths}
-        updateStatus={null}
-        showMoreInfoModal={null}
-      />
+  <TreeTables
+    hierarchy={hierarchy}
+    treeTables={treeTables}
+    codeToStatus={codeToStatus}
+    codeToTerm={codeToTerm}
+    visiblePaths={visiblePaths}
+    updateStatus={null}
+    showMoreInfoModal={null}
+  />
 );

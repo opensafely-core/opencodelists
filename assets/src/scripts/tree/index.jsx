@@ -23,9 +23,9 @@ const visiblePaths = hierarchy.initiallyVisiblePaths(
 );
 
 const container = document.getElementById("codelist-tree");
-const root = createRoot(container);
-container
-  ? root.render(
+const root = container ? createRoot(container) : null;
+
+root?.render(
       <TreeTables
         hierarchy={hierarchy}
         treeTables={treeTables}
@@ -35,5 +35,4 @@ container
         updateStatus={null}
         showMoreInfoModal={null}
       />
-    )
-  : null;
+);

@@ -23,9 +23,9 @@ const visiblePaths = hierarchy.initiallyVisiblePaths(
 );
 
 const container = document.getElementById("codelist-builder-container");
-const root = createRoot(container);
+const root = container ? createRoot(container) : null;
 
-root.render(
+root?.render(
   <CodelistBuilder
     resultsHeading={readValueFromPage("results-heading")}
     searches={readValueFromPage("searches")}

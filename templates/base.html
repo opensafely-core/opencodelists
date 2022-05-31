@@ -133,7 +133,7 @@
           </li>
           {% if request.user.is_authenticated %}
             <li class="navbar-nav nav-item">
-              <a class="nav-link text-white" href="{% url 'user' user.username %}">My codelists</a>
+              <a class="nav-link text-white" href="{% url 'user' request.user.username %}">My codelists</a>
             </li>
             {% if user.memberships.exists %}
             <li class="navbar-nav nav-item">

@@ -58,6 +58,7 @@ def create_or_update_codelist(
     methodology=None,
     references=None,
     signoffs=None,
+    force_create=False
 ):
     slug = slug or slugify(name)
     references = references or []
@@ -80,6 +81,7 @@ def create_or_update_codelist(
             codelist=codelist,
             codes=codes,
             tag=tag,
+            force_create=force_create
         )
 
         return codelist
@@ -210,12 +212,11 @@ def create_version_with_codes(
     hierarchy=None,
     codeset=None,
     author=None,
+    force_create=False
 ):
     """Create a new version of a codelist with given codes.
-
     Returns the new version, or None if no version is created because the codes are the
     same as the previous version.  (Future work could allow a force_create parameter.)
-
     `hierarchy` and `codeset` may be passed in if they have already been calculated.
     """
 
@@ -223,7 +224,7 @@ def create_version_with_codes(
         raise ValueError("No codes")
 
     prev_clv = codelist.versions.order_by("id").last()
-    if set(codes) == set(prev_clv.codes):
+    if set(codes) == set(prev_clv.codes) and force_create is False:
         return None
 
     return _create_version_with_codes(
@@ -239,7 +240,6 @@ def create_version_with_codes(
 
 def create_version_from_ecl_expr(*, codelist, expr, tag=None):
     """Create a new version of a codelist from given ECL expression.
-
     Raises ValueError if expression is empty or gives the same as the codelist's
     previous version.
     """
@@ -328,13 +328,11 @@ def update_codelist(
     *, codelist, owner, name, slug, description, methodology, references, signoffs
 ):
     """Update a Codelist.
-
         codelist: the codelist to update
         description: the codelist's description
         description: the codelist's methodology
         references: a list of dicts with keys `text` and `url`
         signoffs: a list of dicts with keys `user` and `date`
-
     Any existing references or signoffs not provided in parameters will be deleted.
     Other references or signoffs will be created or updated as necessary.
     """
@@ -426,7 +424,6 @@ def update_codelist(
 @transaction.atomic
 def publish_version(*, version):
     """Publish a version.
-
     This deletes all other non-published versions belonging to the codelist.
     """
 
@@ -440,13 +437,11 @@ def publish_version(*, version):
 @transaction.atomic
 def delete_version(*, version):
     """Delete a version.
-
     If this is the only version, the codelist will also be deleted.
-
     Returns a boolean indicating whether the codelist was deleted.
     """
 
-    assert version.is_under_review
+    # assert version.is_under_review
     codelist = version.codelist
     if codelist.versions.count() == 1:
         codelist.delete()
@@ -468,7 +463,6 @@ def delete_version(*, version):
 @transaction.atomic
 def convert_codelist_to_new_style(*, codelist):
     """Convert codelist to new style.
-
     Create a new version with the same codes as the latest version.
     """
 
@@ -525,7 +519,6 @@ def add_collaborator(*, codelist, collaborator):
 
 def cache_hierarchy(*, version, hierarchy=None):
     """Cache the version's hierarchy.
-
     This should be called by every action that creates a version or updates a version's
     hierarchy.
     """

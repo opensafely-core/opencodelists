@@ -58,7 +58,7 @@ def create_or_update_codelist(
     methodology=None,
     references=None,
     signoffs=None,
-    force_create=False
+    force_create=False,
 ):
     slug = slug or slugify(name)
     references = references or []
@@ -78,10 +78,7 @@ def create_or_update_codelist(
             signoffs=signoffs,
         )
         create_version_with_codes(
-            codelist=codelist,
-            codes=codes,
-            tag=tag,
-            force_create=force_create
+            codelist=codelist, codes=codes, tag=tag, force_create=force_create
         )
 
         return codelist
@@ -212,7 +209,7 @@ def create_version_with_codes(
     hierarchy=None,
     codeset=None,
     author=None,
-    force_create=False
+    force_create=False,
 ):
     """Create a new version of a codelist with given codes.
     Returns the new version, or None if no version is created because the codes are the

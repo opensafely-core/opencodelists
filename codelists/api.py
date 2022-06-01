@@ -120,6 +120,7 @@ def codelists_post(request, owner):
         * methodology (optional)
         * references (optional)
         * signoffs (optional)
+        * force_create (optional)
     """
 
     try:
@@ -135,6 +136,8 @@ def codelists_post(request, owner):
         "methodology",
         "references",
         "signoffs",
+        "force_create"
+
     ]
     missing_keys = [k for k in required_keys if k not in data]
     if missing_keys:
@@ -166,11 +169,19 @@ def versions(request, codelist):
 
     try:
         if "codes" in data:
-            clv = create_version_with_codes(
-                codelist=codelist,
-                codes=set(data["codes"]),
-                tag=data.get("tag"),
-            )
+            if "force_create" in data:
+                clv = create_version_with_codes(
+                    codelist=codelist,
+                    codes=set(data["codes"]),
+                    tag=data.get("tag"),
+                    force_create=data.get("force_create")
+                )
+            else:
+                clv = create_version_with_codes(
+                    codelist=codelist,
+                    codes=set(data["codes"]),
+                    tag=data.get("tag")
+                )
 
         elif "ecl" in data:
             clv = create_version_from_ecl_expr(

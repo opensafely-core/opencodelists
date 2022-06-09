@@ -168,17 +168,12 @@ def versions(request, codelist):
 
     try:
         if "codes" in data:
-            if "force_create" in data:
-                clv = create_version_with_codes(
-                    codelist=codelist,
-                    codes=set(data["codes"]),
-                    tag=data.get("tag"),
-                    force_create=data.get("force_create"),
-                )
-            else:
-                clv = create_version_with_codes(
-                    codelist=codelist, codes=set(data["codes"]), tag=data.get("tag")
-                )
+            clv = create_version_with_codes(
+                codelist=codelist,
+                codes=set(data["codes"]),
+                tag=data.get("tag"),
+                force_create=data.get("force_create", False),
+            )
 
         elif "ecl" in data:
             clv = create_version_from_ecl_expr(

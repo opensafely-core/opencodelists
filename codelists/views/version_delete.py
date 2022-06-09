@@ -11,7 +11,8 @@ from .decorators import load_version, require_permission
 @load_version
 @require_permission
 def version_delete(request, version):
-    codelist_was_deleted = actions.delete_version(version=version)
+    force = "force" in request.POST
+    codelist_was_deleted = actions.delete_version(version=version, force=force)
     if codelist_was_deleted:
         return redirect("/")
     else:

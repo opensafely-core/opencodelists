@@ -221,18 +221,17 @@ def create_version_with_codes(
         raise ValueError("No codes")
 
     prev_clv = codelist.versions.order_by("id").last()
-    if set(codes) == set(prev_clv.codes) and force_create is False:
-        return None
-
-    return _create_version_with_codes(
-        codelist=codelist,
-        codes=codes,
-        status=status,
-        tag=tag,
-        hierarchy=hierarchy,
-        codeset=codeset,
-        author=author,
-    )
+    if force_create is True or set(codes) != set(prev_clv.codes):
+        return _create_version_with_codes(
+            codelist=codelist,
+            codes=codes,
+            status=status,
+            tag=tag,
+            hierarchy=hierarchy,
+            codeset=codeset,
+            author=author,
+        )
+    return None
 
 
 def create_version_from_ecl_expr(*, codelist, expr, tag=None):
@@ -432,13 +431,15 @@ def publish_version(*, version):
 
 
 @transaction.atomic
-def delete_version(*, version):
+def delete_version(*, version, force=False):
     """Delete a version.
     If this is the only version, the codelist will also be deleted.
     Returns a boolean indicating whether the codelist was deleted.
     """
 
-    # assert version.is_under_review
+    if not force:
+        assert version.is_under_review
+
     codelist = version.codelist
     if codelist.versions.count() == 1:
         codelist.delete()

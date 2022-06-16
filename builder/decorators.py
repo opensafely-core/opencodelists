@@ -32,7 +32,9 @@ def require_permission(view_fn):
 
     @wraps(view_fn)
     def wrapped_view(request, draft, **kwargs):
-        if request.user == draft.author:
+        if request.user == draft.author or draft.codelist.can_be_edited_by(
+            request.user
+        ):
             return view_fn(request, draft, **kwargs)
         else:
             return redirect("/")

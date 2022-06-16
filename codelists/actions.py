@@ -58,7 +58,7 @@ def create_or_update_codelist(
     methodology=None,
     references=None,
     signoffs=None,
-    force_create=False,
+    always_create_new_version=False,
 ):
     slug = slug or slugify(name)
     references = references or []
@@ -78,7 +78,10 @@ def create_or_update_codelist(
             signoffs=signoffs,
         )
         create_version_with_codes(
-            codelist=codelist, codes=codes, tag=tag, force_create=force_create
+            codelist=codelist,
+            codes=codes,
+            tag=tag,
+            always_create_new_version=always_create_new_version,
         )
 
         return codelist
@@ -209,11 +212,11 @@ def create_version_with_codes(
     hierarchy=None,
     codeset=None,
     author=None,
-    force_create=False,
+    always_create_new_version=False,
 ):
     """Create a new version of a codelist with given codes.
     Returns the new version, or None if no version is created because the codes are the
-    same as the previous version.  (Future work could allow a force_create parameter.)
+    same as the previous version.
     `hierarchy` and `codeset` may be passed in if they have already been calculated.
     """
 
@@ -221,7 +224,7 @@ def create_version_with_codes(
         raise ValueError("No codes")
 
     prev_clv = codelist.versions.order_by("id").last()
-    if force_create is True or set(codes) != set(prev_clv.codes):
+    if always_create_new_version or set(codes) != set(prev_clv.codes):
         return _create_version_with_codes(
             codelist=codelist,
             codes=codes,
@@ -431,14 +434,13 @@ def publish_version(*, version):
 
 
 @transaction.atomic
-def delete_version(*, version, force=False):
+def delete_version(*, version):
     """Delete a version.
     If this is the only version, the codelist will also be deleted.
     Returns a boolean indicating whether the codelist was deleted.
     """
 
-    if not force:
-        assert version.is_under_review
+    assert version.is_under_review
 
     codelist = version.codelist
     if codelist.versions.count() == 1:

@@ -192,20 +192,16 @@ def test_create_or_update_codelist_update_no_change_to_codes_with_force(
     )
     assert cl.versions.count() == 1
 
-    actions.create_or_update_codelist(
-        owner=organisation,
-        name=new_codelist_name,
-        coding_system_id="snomedct",
-        codes=disorder_of_elbow_codes,
-        description="This is a test (updated)",
-        methodology="This is how we did it (updated)",
-        force_create=True,
-    )
-
-    cl.refresh_from_db()
-    assert cl.versions.count() == 2
-    assert cl.description == "This is a test (updated)"
-    assert cl.methodology == "This is how we did it (updated)"
+    with assert_difference(cl.versions.count, expected_difference=1):
+        actions.create_or_update_codelist(
+            owner=organisation,
+            name=new_codelist_name,
+            coding_system_id="snomedct",
+            codes=disorder_of_elbow_codes,
+            description="This is a test (updated)",
+            methodology="This is how we did it (updated)",
+            always_create_new_version=True,
+        )
 
 
 def test_create_codelist_from_scratch(organisation, user):

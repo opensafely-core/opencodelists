@@ -172,7 +172,7 @@ def versions(request, codelist):
                 codelist=codelist,
                 codes=set(data["codes"]),
                 tag=data.get("tag"),
-                force_create=data.get("force_create", False),
+                always_create_new_version=data.get("always_create_new_version", False),
             )
 
         elif "ecl" in data:

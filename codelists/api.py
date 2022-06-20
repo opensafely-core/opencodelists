@@ -48,6 +48,7 @@ def codelists_get(request, owner=None):
             "slug": "asthma-diagnosis",
             "name": "Asthma Diagnosis",
             "coding_system_id": "snomedct",
+            "organisation: "OpenSAFELY,
             "versions": [
                 {
                     "hash": "66f08cca",
@@ -88,6 +89,7 @@ def codelists_get(request, owner=None):
             "slug": cl.slug,
             "name": cl.name,
             "coding_system_id": cl.coding_system_id,
+            "organisation": cl.organisation.name if cl.organisation else "",
             "versions": [],
         }
         for version in sorted(cl.versions.all(), key=lambda v: v.created_at):

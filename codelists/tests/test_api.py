@@ -12,6 +12,7 @@ def test_codelists_get(client, organisation):
             "full_slug": "test-university/codelist-from-scratch",
             "slug": "codelist-from-scratch",
             "name": "Codelist From Scratch",
+            "organisation": "Test University",
             "coding_system_id": "snomedct",
             "versions": [
                 {
@@ -26,6 +27,7 @@ def test_codelists_get(client, organisation):
             "full_slug": "test-university/new-style-codelist",
             "slug": "new-style-codelist",
             "name": "New-style Codelist",
+            "organisation": "Test University",
             "coding_system_id": "snomedct",
             "versions": [
                 {
@@ -52,6 +54,7 @@ def test_codelists_get(client, organisation):
             "full_slug": "test-university/old-style-codelist",
             "slug": "old-style-codelist",
             "name": "Old-style Codelist",
+            "organisation": "Test University",
             "coding_system_id": "snomedct",
             "versions": [
                 {
@@ -83,6 +86,17 @@ def test_codelists_get_with_coding_system_id(client, organisation):
     rsp = client.get(f"/api/v1/codelist/{organisation.slug}/?coding_system_id=bnf")
     data = json.loads(rsp.content)
     assert len(data["codelists"]) == 0
+
+
+def test_codelists_get_with_no_organisation(client, organisation):
+    rsp = client.get("/api/v1/codelist/?coding_system_id=snomedct")
+    data = json.loads(rsp.content)
+    user_codelists = [
+        cl for cl in data["codelists"] if cl["full_slug"].startswith("user")
+    ]
+    assert len(user_codelists) == 2
+    for user_codelist in user_codelists:
+        assert user_codelist["organisation"] == ""
 
 
 def test_codelists_get_with_tag(client, universe):

@@ -13,6 +13,6 @@ def markdown_filter(text):
         text,
         tags=settings.MARKDOWN_FILTER_WHITELIST_TAGS,
         attributes=settings.MARKDOWN_FILTER_WHITELIST_ATTRIBUTES,
-        styles=settings.MARKDOWN_FILTER_WHITELIST_STYLES,
+        css_sanitizer=settings.MARKDOWN_FILTER_WHITELIST_STYLES,
     )
     return html

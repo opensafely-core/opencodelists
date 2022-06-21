@@ -47,6 +47,50 @@ def create_search(*, draft, term=None, code=None, codes):
 
 
 @transaction.atomic
+def create_or_update_search(*, draft, term=None, code=None, codes):
+    assert bool(term) != bool(code)
+    if term is not None:
+        slug = slugify(term)
+    else:
+        slug = f"code:{code}"
+    if not draft.searches.filter(term=term, code=code, slug=slug).exists():
+        return create_search(draft=draft, term=term, code=code, codes=codes)
+
+    search = draft.searches.get(term=term, code=code, slug=slug)
+    # Ensure that there is a CodeObj object linked to this draft for each code.
+    codes_with_existing_code_objs = set(
+        draft.code_objs.filter(code__in=codes).values_list("code", flat=True)
+    )
+    codes_without_existing_code_objs = set(codes) - codes_with_existing_code_objs
+    CodeObj.objects.bulk_create(
+        CodeObj(version=draft, code=code) for code in codes_without_existing_code_objs
+    )
+
+    # Create a SearchResult for each new code which doesn't already have one.
+    code_obj_ids = draft.code_objs.filter(code__in=codes).values_list("id", flat=True)
+    existing_results = SearchResult.objects.filter(
+        search=search, code_obj_id__in=code_obj_ids
+    ).values_list("code_obj_id", flat=True)
+    # find the set of code_obj_ids that don't already exist in the search results
+    to_create = set(code_obj_ids) - set(existing_results)
+    # find code_objs that no longer match a search
+    to_delete = set(existing_results) - set(code_obj_ids)
+
+    SearchResult.objects.bulk_create(
+        SearchResult(search=search, code_obj_id=id) for id in to_create
+    )
+    SearchResult.objects.filter(search=search, code_obj_id__in=to_delete).delete()
+
+    from codelists.actions import cache_hierarchy  # avoid circular imports
+
+    cache_hierarchy(version=draft)
+
+    logger.info("Updated Search", search_pk=search.pk)
+
+    return search
+
+
+@transaction.atomic
 def delete_search(*, search):
     # Grab the PK before we delete the instance
     search_pk = search.pk

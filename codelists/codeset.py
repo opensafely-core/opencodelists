@@ -150,7 +150,7 @@ class Codeset:
 
         yield from helper(self.defining_tree())
 
-    def update(self, updates):
+    def update(self, updates, reset=False):
         """Build new Codeset with given updates applied in turn to self's code_to_status.
 
         Updates are tuples of (node, new_status), where new_status is one of:
@@ -160,6 +160,10 @@ class Codeset:
         * ?   clear this node's status, and do so for all descendants that are not otherwise
                 included or excluded
         """
+        if reset:
+            # reset the code_to_status dict so we reapply the directly included and excluded
+            # codes again, including any new unknown ones
+            self.code_to_status = {code: "?" for code in self.code_to_status}
 
         directly_included = self.codes("+")
         directly_excluded = self.codes("-")
@@ -191,3 +195,24 @@ class Codeset:
 
         updated_code_to_status = {**self.code_to_status, **code_to_status_updates}
         return type(self)(updated_code_to_status, self.hierarchy)
+
+    def diff(self, other_codeset):
+        """
+        Compare this codeset to another, and return a dict of codes that have been
+        added, changed and removed in this codeset
+        """
+        removed_codes = set(other_codeset.code_to_status) - set(self.code_to_status)
+        all_changes = set(self.code_to_status.items()) - set(
+            other_codeset.code_to_status.items()
+        )
+        new_code_statuses = {
+            (code, status)
+            for code, status in self.code_to_status.items()
+            if other_codeset.code_to_status[code] == "?"
+        }
+
+        return {
+            "added": new_code_statuses,
+            "changed": all_changes - new_code_statuses,
+            "removed": removed_codes,
+        }

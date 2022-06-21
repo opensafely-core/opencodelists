@@ -150,7 +150,7 @@ class Codeset:
 
         yield from helper(self.defining_tree())
 
-    def update(self, updates):
+    def update(self, updates, reset=False):
         """Build new Codeset with given updates applied in turn to self's code_to_status.
 
         Updates are tuples of (node, new_status), where new_status is one of:
@@ -160,6 +160,10 @@ class Codeset:
         * ?   clear this node's status, and do so for all descendants that are not otherwise
                 included or excluded
         """
+        if reset:
+            # reset the code_to_status dict so we reapply the directly included and excluded
+            # codes again, including any new unknown ones
+            self.code_to_status = {code: "?" for code in self.code_to_status}
 
         directly_included = self.codes("+")
         directly_excluded = self.codes("-")

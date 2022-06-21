@@ -129,8 +129,8 @@ def delete_search(*, search):
 
 
 @transaction.atomic
-def update_code_statuses(*, draft, updates):
-    new_codeset = draft.codeset.update(updates)
+def update_code_statuses(*, draft, updates, reset=False):
+    new_codeset = draft.codeset.update(updates, reset=reset)
 
     status_to_new_code = defaultdict(list)
     for code, status in new_codeset.code_to_status.items():

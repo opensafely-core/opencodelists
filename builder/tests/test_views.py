@@ -1,13 +1,21 @@
 import pytest
+from django.core.cache import cache
 from django.urls import reverse
 
 from codelists.actions import create_codelist_from_scratch
-from codelists.models import Codelist
+from codelists.models import Codelist, CodeObj
 from codelists.tests.views.assertions import (
     assert_post_unauthenticated,
     assert_post_unauthorised,
 )
 from opencodelists.tests.assertions import assert_difference
+
+
+@pytest.fixture(autouse=True)
+def clear_cache():
+    # clear cache before each test so draft views do the updates they're
+    # expected to
+    cache.clear()
 
 
 def test_draft_with_no_searches(client, draft_with_no_searches):
@@ -36,6 +44,33 @@ def test_version_from_scratch(client, version_from_scratch):
 
     assert rsp.status_code == 200
     assert b"Codelist From Scratch" in rsp.content
+
+
+def test_updated_draft_with_old_code(client, draft_with_no_searches):
+    # the fixure generation added to the cache, so clear it cache again to ensure the
+    # updates are done in the builder view
+    cache.clear()
+    CodeObj.objects.create(version=draft_with_no_searches, code="999999999", status="+")
+    rsp = client.get(draft_with_no_searches.get_builder_draft_url())
+    assert (
+        b"Some concepts no longer exist in the coding system and have been removed"
+        in rsp.content
+    )
+    assert not CodeObj.objects.filter(
+        version=draft_with_no_searches, code="999999999"
+    ).exists()
+
+
+def test_updated_draft_with_new_code(client, draft_with_complete_searches):
+    # the fixure generation added to the cache, so clear it cache again to ensure the
+    # updates are done in the builder view
+    cache.clear()
+    CodeObj.objects.get(version=draft_with_complete_searches, code="202855006").delete()
+    rsp = client.get(draft_with_complete_searches.get_builder_draft_url())
+    assert b"New concepts were found" in rsp.content
+    assert CodeObj.objects.filter(
+        version=draft_with_complete_searches, code="202855006"
+    ).exists()
 
 
 def test_search(client, draft_with_some_searches):

@@ -5,9 +5,12 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from django.utils.text import slugify
 from django.views.decorators.http import require_http_methods
 
+import codelists.actions as codelist_actions
 from codelists.models import Search
 from codelists.search import do_search
 
@@ -59,6 +62,15 @@ def _handle_post(request, draft):
 def _draft(request, draft, search_slug):
     if request.method == "POST":
         return _handle_post(request, draft)
+
+    # Currently we have no way to record the releases for a code system
+    # At the point of any GET for a draft, we can't tell if the codes may have changed,
+    # so we need to update the draft again.  This will recreate all the searches and
+    # check and update the codeset for any new concepts.
+    # We cache the updated draft ids for 24 hrs so this isn't done on every single GET request
+    draft, updates = codelist_actions.update_draft(draft=draft)
+    # if there are new/changed/removed codes, create a warning message for the user
+    _compile_changed_codes_warning(request, updates)
 
     codelist = draft.codelist
     coding_system = draft.coding_system
@@ -183,6 +195,61 @@ def _draft(request, draft, search_slug):
     }
 
     return render(request, "builder/draft.html", ctx)
+
+
+def _compile_changed_codes_warning(request, updates):
+
+    if updates.get("added"):
+        messages.warning(
+            request,
+            format_html(
+                """
+                New concepts were found and have been included or excluded according to their parent status;
+                this is usually the result of an update to the coding system.
+                <ul>{}</ul>
+                """,
+                mark_safe(
+                    "".join(
+                        [
+                            f"<li>{code}: {status}</li>"
+                            for code, status in updates["added"]
+                        ]
+                    )
+                ),
+            ),
+        )
+
+    if updates.get("changed"):
+        messages.warning(
+            request,
+            format_html(
+                """
+                Some concepts have changed the status previously derived from their parent status;
+                this is usually the result of an update to the coding system.
+                <ul>{}</ul>
+                """,
+                mark_safe(
+                    "".join(
+                        [
+                            f"<li>{code}: {status}</li>"
+                            for code, status in updates["changed"]
+                        ]
+                    )
+                ),
+            ),
+        )
+
+    if updates.get("removed"):
+        messages.warning(
+            request,
+            format_html(
+                """
+                Some concepts no longer exist in the coding system and have been removed:
+                <ul>{}</ul>
+                """,
+                mark_safe("".join([f"<li>{code}</li>" for code in updates["removed"]])),
+            ),
+        )
 
 
 @login_required

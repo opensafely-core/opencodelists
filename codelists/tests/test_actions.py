@@ -1,8 +1,9 @@
 import pytest
 from django.db import IntegrityError
 
+from builder.actions import update_code_statuses
 from codelists import actions
-from codelists.models import Codelist, CodelistVersion
+from codelists.models import Codelist, CodelistVersion, CodeObj
 from opencodelists.tests.assertions import assert_difference, assert_no_difference
 
 
@@ -423,6 +424,162 @@ def test_export_to_builder(organisation_user, new_style_version):
     assert draft.codes == new_style_version.codes
     assert draft.code_objs.count() == new_style_version.code_objs.count()
     assert draft.searches.count() == new_style_version.searches.count()
+
+
+def test_update_draft_codeset(minimal_version):
+
+    """
+    There are 4 codes on minimal_version:
+    2 directly included and 2 implicitly included, as the result of searches for
+    "tennis toe" and "Enthesopathy of elbow"
+    Note 202855006 is a descendant of both 3723001/439656005 (not included) and 35185008/73583000 (included)
+
+    ..  3723001         Arthritis
+    ..  439656005       └ Arthritis of elbow
+    (+) 202855006         └ Lateral epicondylitis
+    ..  116309007       Finding of elbow region
+    ..  128133004       ├ Disorder of elbow
+    ..  429554009       │ ├ Arthropathy of elbow
+    ..  439656005       │ │ └ Arthritis of elbow
+    ..  202855006       │ │   └ Lateral epicondylitis
+    +   35185008        │ ├ Enthesopathy of elbow region
+    (+) 73583000        │ │ └ Epicondylitis
+    (+) 202855006       │ │   └ Lateral epicondylitis
+    ..  239964003       │ └ Soft tissue lesion of elbow region
+    ..  298869002       └ Finding of elbow joint
+    ..  429554009         ├ Arthropathy of elbow
+    ..  439656005         │ └ Arthritis of elbow
+    ..  202855006         │   └ Lateral epicondylitis
+    ..  298163003         └ Elbow joint infla
+    ..  439656005           └ Arthritis of elbow
+    ..  202855006             └ Lateral epicondylitis
+    ..  238484001       Tennis toe
+    +   156659008       (Epicondylitis &/or tennis elbow) or (golfers' elbow) [inactive]
+    """
+
+    # Searches for "tennis toe" and "Enthesopathy of elbow" will return these 4 codes
+    initial_code_to_status = {
+        "238484001": "+",
+        "73583000": "(+)",
+        "202855006": "(+)",
+        "35185008": "+",
+    }
+    assert minimal_version.codeset.code_to_status == initial_code_to_status
+
+    # Set up the test scenarios
+    # Manipulate the code objs to represent a previous state of the coding system
+
+    # 1) 202855006 is a new code that will be returned when the searches are re-run
+    # i.e. in previous version
+    # +   73583000        │ ├ Epicondylitis
+    # (+) 35185008        │ │ └ Enthesopathy of elbow region
+    # in new version
+    # +   35185008        │ ├ Enthesopathy of elbow region
+    # (+) 73583000        │ │ └ Epicondylitis
+    # (+) 202855006       │ │   └ Lateral epicondylitis
+
+    # SET UP: Delete 202855006 from the version
+    CodeObj.objects.get(version=minimal_version, code="202855006").delete()
+    # This is the state of the codeset's code_to_status based on searches
+    # that did NOT return 202855006
+    assert minimal_version.codeset.code_to_status == {
+        "238484001": "+",
+        "73583000": "(+)",
+        "35185008": "+",
+    }
+
+    # update the draft to recreate its searches and derived statuses
+    updates = actions.update_draft_codeset(draft=minimal_version)
+    # the "new" code has been set to its expected inherited status
+    assert minimal_version.codeset.code_to_status == initial_code_to_status
+    assert updates == {
+        "added": {("202855006", "(+)")},
+        "changed": set(),
+        "removed": set(),
+    }
+
+    # 2) Assume that 73583000 (Epicondylitis) and 35185008 (Enthesopathy of elbow region)
+    # have swapped places - ie. 73583000 used to be the parent of 35185008 and 202855006,
+    # and was explicitly included, with 35185008 implicitly included
+
+    # i.e. in previous version
+    # +   73583000        │ ├ Epicondylitis
+    # (+) 35185008        │ │ └ Enthesopathy of elbow region
+    # (+) 202855006       │ │   └ Lateral epicondylitis
+    # in new version 73583000 is still included, and 202855006 is implicitly included by it
+    # but the new parent 35185008 is now unresolved
+    # ?   35185008        │ ├ Enthesopathy of elbow region
+    # +   73583000        │ │ └ Epicondylitis
+    # (+) 202855006       │ │   └ Lateral epicondylitis
+
+    # SET UP: Update the status of the two codes
+    code_35185008 = CodeObj.objects.get(version=minimal_version, code="35185008")
+    code_35185008.status = "(+)"
+    code_35185008.save()
+    code_73583000 = CodeObj.objects.get(version=minimal_version, code="73583000")
+    code_73583000.status = "+"
+    code_73583000.save()
+    assert minimal_version.codeset.code_to_status == {
+        "238484001": "+",
+        "73583000": "+",
+        "202855006": "(+)",
+        "35185008": "(+)",
+    }
+    # update the draft to recreate its searches and derived statuses
+    updates = actions.update_draft_codeset(draft=minimal_version)
+    # 35185008 was implicitly included by inclusion of 73583000, but now it is the
+    # parent of 73583000.  Its status has been updated to '?'; this is OK for the
+    # frontend, because it has no ancestors that are included/excluded
+    # 202855006 is still a child of the explicity included 73583000, so it remains
+    # implicitly included
+    assert minimal_version.codeset.code_to_status == {
+        "35185008": "?",
+        "73583000": "+",
+        "238484001": "+",
+        "202855006": "(+)",
+    }
+    assert updates == {"added": set(), "changed": {("35185008", "?")}, "removed": set()}
+
+    # reset the version
+    update_code_statuses(
+        draft=minimal_version,
+        updates=[("238484001", "+"), ("35185008", "+")],
+        reset=True,
+    )
+    assert minimal_version.codeset.code_to_status == initial_code_to_status
+
+    # 3) Assume that the hierarchy has changed so 73583000 is a replacement for another
+    # code 99999999 which no longer exists
+
+    # i.e. in previous version
+    # +   35185008        │ ├ Enthesopathy of elbow region
+    # (+) 99999999        │ │ └ Epicondylitis
+    # (+) 202855006       │ │   └ Lateral epicondylitis
+    # in new version
+    # +   35185008        │ ├ Enthesopathy of elbow region
+    # (+) 73583000        │ │ └ Epicondylitis
+    # (+) 202855006       │ │   └ Lateral epicondylitis
+
+    # SETUP: delete 73583000 and create 99999999
+    CodeObj.objects.get(version=minimal_version, code="73583000").delete()
+    CodeObj.objects.create(version=minimal_version, code="99999999", status="(+)")
+    assert minimal_version.codeset.code_to_status == {
+        "35185008": "+",
+        "99999999": "(+)",
+        "238484001": "+",
+        "202855006": "(+)",
+    }
+    # update the draft to recreate its searches and derived statuses
+    updates = actions.update_draft_codeset(draft=minimal_version)
+    # 99999999 has been replaced by 73583000, and is now implicitly included by inclusion
+    # of its parent 35185008
+
+    assert minimal_version.codeset.code_to_status == initial_code_to_status
+    assert updates == {
+        "added": {("73583000", "(+)")},
+        "changed": set(),
+        "removed": {"99999999"},
+    }
 
 
 def test_add_codelist_tag(codelist):

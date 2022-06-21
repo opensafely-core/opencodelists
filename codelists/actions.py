@@ -492,29 +492,93 @@ def export_to_builder(*, version, author):
         for code_obj in version.code_objs.all()
     )
 
-    # Recreate each search.  This creates the SearchResults linked to the new draft.  We
-    # can't just copy them across, because the data may have been updated, and new
-    # matching concepts might have been imported.
-    #
-    # In future, we should be able to short-circuit this by keeping track of the release
-    # that version was created with.
-    for search in version.searches.all():
-        codes = do_search(version.coding_system, term=search.term, code=search.code)[
-            "all_codes"
-        ]
-        builder_actions.create_search(
-            draft=draft, term=search.term, code=search.code, codes=codes
-        )
-
+    recreate_searches(draft=draft, source_version=version)
     # This assert will fire if new matching concepts have been imported.  At the moment,
     # the builder frontend cannot deal with a CodeObj with status ?  if any of its
-    # ancestors are included or excluded.  We will have to deal with this soon but for
-    # now fail loudly.
+    # ancestors are included or excluded.  For now fail loudly and manually fix drafts
+    # on a case-by-case basis.
     assert not draft.code_objs.filter(status="?").exists()
-
     cache_hierarchy(version=draft)
 
     return draft
+
+
+def recreate_searches(source_version, draft):
+    """
+    Recreate each search from a source version to a draft.
+    The source version may be different to the draft, in the case of a new draft created by
+    `export_to_builder`, or it may be the same, if we are just updating searches on an existing
+    draft.
+    This creates the SearchResults linked to the new/updated draft.  We
+    can't just copy them across, because the data may have been updated, and new
+    matching concepts might have been imported.
+    In future, we should be able to short-circuit this by keeping track of the release
+    that version was created with.
+    """
+    for search in source_version.searches.all():
+        codes = do_search(
+            source_version.coding_system, term=search.term, code=search.code
+        )["all_codes"]
+        builder_actions.create_or_update_search(
+            draft=draft, term=search.term, code=search.code, codes=codes
+        )
+
+
+def update_draft_codeset(draft):
+    """
+    Recreate draft searches, then check for new matching concepts and ensure the codeset
+    is up to date so the builder frontend can display it
+
+    Currently this is only called manually.
+
+    The recreated search will have added any new concepts that are returned by a search.
+    The builder frontend can't deal with new concepts (with unresolved status) if they have
+    a parent that is included/excluded.
+
+    Update all code statuses with the known statuses that are explicitly included
+    or excluded.  This will assign statuses to unresolved codes that have included/excluded
+    parents.  It will also update any previously implicitly included/excluded status that
+    are no longer applicable.
+
+    e.g. On the initial draft, B inherited from A;
+     - A was explicitly included, so B was implicitly included
+    After a coding system update, now A and B have swapped, so A inherits from B
+     - A is still explicitly included
+     - B is now unresolved as it has no parents that are explicitly included or
+       excluded (the fronted can deal with that)
+    """
+    recreate_searches(source_version=draft, draft=draft)
+
+    # The pre-update codeset; will contain all codes returned by the recreated searches.
+    # New codes will have status "?" at this stage, and any old codes will still be on the draft
+    initial_codeset = draft.codeset
+
+    # if there are any code objs on the draft that are no longer in the coding system,
+    # delete them
+    draft_codes = set(draft.code_objs.values_list("code", flat=True))
+    codes_in_coding_system = set(draft.coding_system.code_to_term(draft_codes))
+    old_codes = draft_codes - codes_in_coding_system
+    if old_codes:
+        CodeObj.objects.filter(version=draft, code__in=old_codes).delete()
+        logger.info(
+            "Old codes no longer in coding system removed from draft",
+            draft=draft,
+            coding_system=draft.coding_system,
+            removed_codes=old_codes,
+        )
+
+    # Update the code statuses again for the explicitly included/excluded codes, and
+    # reset any implicit statuses
+    explicitly_included_or_excluded = {
+        (code, "+") for code in draft.codeset.codes("+")
+    } | {(code, "-") for code in draft.codeset.codes("-")}
+    builder_actions.update_code_statuses(
+        draft=draft, updates=explicitly_included_or_excluded, reset=True
+    )
+    cache_hierarchy(version=draft)
+
+    # return a dict of the changes that have been made from the initial codeset
+    return draft.codeset.diff(initial_codeset)
 
 
 def add_collaborator(*, codelist, collaborator):

@@ -8,6 +8,6 @@ used in Python.
 
 To regenerate these files, run:
 
-    java -jar antlr-4.9.1-complete.jar -Dlanguage=Python3 -visitor -no-listener ECLsubset.g4
+    java -jar antlr-4.10.1-complete.jar -Dlanguage=Python3 -visitor -no-listener ECLsubset.g4
 
 The .jar file was downloaded from https://www.antlr.org/download.html

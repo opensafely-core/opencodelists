@@ -65,6 +65,18 @@ def _draft(request, draft, search_slug):
     codeset = draft.codeset
     hierarchy = codeset.hierarchy
 
+    # Ensure all descendants of included/excluded codes are in the codeset and are resolved
+    # If any descendants are missing, it's due to new/modifed concepts in a coding system,
+    # and the frontend can't deal with it.
+    # For now, we just fail loudly with a reminder of how to fix
+    for code in codeset.all_codes():
+        if codeset.code_to_status[code] not in ["?", "!"]:
+            for descendant in hierarchy.descendants(code):
+                assert codeset.code_to_status.get(descendant, "?") != "?", (
+                    f"Unresolved or missing descendant codes in the codeset for draft {draft.hash}; "
+                    "fix by running the 'update_draft' manage command"
+                )
+
     if search_slug is None:
         search = None
         displayed_codes = list(codeset.all_codes())

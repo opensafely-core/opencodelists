@@ -211,6 +211,11 @@ def build_fixtures():
         "disorder-of-elbow-excl-arthritis.csv"
     )
 
+    # enthesopathy_of_elbow_region_plus_tennis_toe
+    enthesopathy_of_elbow_region_plus_tennis_toe = load_codes_from_csv(
+        "enthesopathy-of-elbow-region-plus-tennis-toe.csv"
+    )
+
     # organisation
     # - has two users:
     #   - organisation_admin
@@ -509,6 +514,33 @@ def build_fixtures():
     # - belongs to user_codelist
     user_version = user_codelist.versions.get()
 
+    # minimal codelist with codes
+    # - belongs to organisation
+    # - has 4 codes matching searches
+    # - has one version
+    #   - minimal_version_with_codes
+    minimal_codelist = create_codelist_with_codes(
+        owner=organisation,
+        name="Minimal Codelist",
+        coding_system_id="snomedct",
+        codes=enthesopathy_of_elbow_region_plus_tennis_toe,
+    )
+    # minimal_version
+    # - belongs to minimal_codelist
+    minimal_version = minimal_codelist.versions.get()
+    minimal_draft = export_to_builder(version=minimal_version, author=organisation_user)
+    create_search(
+        draft=minimal_draft,
+        term="enthesopathy of elbow",
+        codes=codes_for_search_term("enthesopathy of elbow"),
+    )
+    create_search(
+        draft=minimal_draft,
+        term="tennis toe",
+        codes=codes_for_search_term("tennis toe"),
+    )
+    # Check that all code_objs are linked to searches
+    assert not minimal_draft.code_objs.filter(results__isnull=True).exists()
     return locals()
 
 
@@ -599,6 +631,7 @@ user_codelist_from_scratch = build_fixture("user_codelist_from_scratch")
 version_from_scratch = build_fixture("version_from_scratch")
 user_codelist = build_fixture("user_codelist")
 user_version = build_fixture("user_version")
+minimal_draft = build_fixture("minimal_draft")
 
 
 # These extra fixtures make modifications to those built in build_fixtures

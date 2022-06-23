@@ -114,9 +114,9 @@ flake8==4.0.1 \
     --hash=sha256:479b1304f72536a55948cb40a32dce8bb0ffe3501e26eaf292c7e60eb5e0428d \
     --hash=sha256:806e034dda44114815e23c16ef92f95c91e4c71100ff52813adf7132a6ad870d
     # via -r requirements.dev.in
-hypothesis==6.47.3 \
-    --hash=sha256:148198eacaa52aabd5b598e989d6906311a0580af6f99e76e3ace8d60762779a \
-    --hash=sha256:3c6d99cd7540a64c37d88f86a7509c0ca29cda37a82a957340fba11388dfb9ce
+hypothesis==6.47.4 \
+    --hash=sha256:0f98e20e8427d99af93a7d2d8184c07f6d5df2666d27626979c52b67b93090e0 \
+    --hash=sha256:4328db270ae6c9121763980afa5c841b0fbdd69e6f07e30f5d1b204a4a8b3c37
     # via -r requirements.dev.in
 identify==2.5.1 \
     --hash=sha256:0dca2ea3e4381c435ef9c33ba100a78a9b40c0bab11189c7cf121f75815efeaa \

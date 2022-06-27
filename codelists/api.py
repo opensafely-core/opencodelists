@@ -136,7 +136,7 @@ def codelists_post(request, owner):
         "methodology",
         "references",
         "signoffs",
-        "force_create",
+        "always_create_new_version",
     ]
     missing_keys = [k for k in required_keys if k not in data]
     if missing_keys:

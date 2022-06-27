@@ -39,11 +39,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = env.str("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env.bool("DEBUG", True)
+DEBUG = env.bool("DEBUG", False)
 
 BASE_URLS = env.list("BASE_URLS", [])
 # note localhost is required on production for dokku checks
-BASE_URLS += ["http://127.0.0.1:8000"]
+BASE_URLS += ["http://localhost:8000"]
 
 ALLOWED_HOSTS = [furl(base_url).host for base_url in BASE_URLS]
 

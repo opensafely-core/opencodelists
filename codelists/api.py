@@ -120,7 +120,7 @@ def codelists_post(request, owner):
         * methodology (optional)
         * references (optional)
         * signoffs (optional)
-        * force_create (optional)
+        * always_create_new_version (optional)
     """
 
     try:

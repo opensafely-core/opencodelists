@@ -190,7 +190,6 @@ def test_create_or_update_codelist_update_no_change_to_codes_with_force(
         references=[{"text": "Some reference", "url": "http://example.com"}],
         signoffs=[{"user": user.username, "date": "2021-04-21"}],
     )
-    assert cl.versions.count() == 1
 
     with assert_difference(cl.versions.count, expected_difference=1):
         actions.create_or_update_codelist(
@@ -201,6 +200,33 @@ def test_create_or_update_codelist_update_no_change_to_codes_with_force(
             description="This is a test (updated)",
             methodology="This is how we did it (updated)",
             always_create_new_version=True,
+        )
+
+
+def test_create_or_update_codelist_update_no_change_to_codes_without_force(
+    user, organisation, disorder_of_elbow_codes
+):
+    new_codelist_name = "test versions false"
+    cl = actions.create_or_update_codelist(
+        owner=organisation,
+        name=new_codelist_name,
+        coding_system_id="snomedct",
+        codes=disorder_of_elbow_codes,
+        description="This is a test",
+        methodology="This is how we did it",
+        references=[{"text": "Some reference", "url": "http://example.com"}],
+        signoffs=[{"user": user.username, "date": "2021-04-21"}],
+    )
+
+    with assert_no_difference(cl.versions.count):
+        actions.create_or_update_codelist(
+            owner=organisation,
+            name=new_codelist_name,
+            coding_system_id="snomedct",
+            codes=disorder_of_elbow_codes,
+            description="This is a test (updated)",
+            methodology="This is how we did it (updated)",
+            always_create_new_version=False,
         )
 
 

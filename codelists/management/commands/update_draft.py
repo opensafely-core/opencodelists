@@ -40,6 +40,7 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument("version_hash")
 
+    @transaction.atomic
     def handle(self, version_hash, **kwargs):
         draft = next(
             (
@@ -92,7 +93,6 @@ class Command(BaseCommand):
                 draft=draft, term=search.term, code=search.code, codes=codes
             )
 
-    @transaction.atomic
     def update_search(self, *, draft, term=None, code=None, codes):
         """
         Note: this is more or less a copy of builder.actions.create_search, modifed to
@@ -152,7 +152,6 @@ class Command(BaseCommand):
                 removed_codes=old_codes,
             )
 
-    @transaction.atomic
     def update_code_statuses(self, draft):
         """
         Update a draft's a codeset that may be out of date following a coding system update,

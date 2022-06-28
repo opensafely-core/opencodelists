@@ -122,6 +122,7 @@ def codelists_post(request, owner):
         * methodology (optional)
         * references (optional)
         * signoffs (optional)
+        * always_create_new_version (optional)
     """
 
     try:
@@ -137,6 +138,7 @@ def codelists_post(request, owner):
         "methodology",
         "references",
         "signoffs",
+        "always_create_new_version",
     ]
     missing_keys = [k for k in required_keys if k not in data]
     if missing_keys:
@@ -172,6 +174,7 @@ def versions(request, codelist):
                 codelist=codelist,
                 codes=set(data["codes"]),
                 tag=data.get("tag"),
+                always_create_new_version=data.get("always_create_new_version", False),
             )
 
         elif "ecl" in data:

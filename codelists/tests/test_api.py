@@ -155,6 +155,44 @@ def test_versions_post_codes(client, user, user_codelist):
     assert rsp.status_code == 200
 
 
+def test_versions_post_codes_with_no_force_new_version(client, user, user_codelist):
+    data = {
+        "name": "New codelist",
+        "coding_system_id": "snomedct",
+        "codes": ["128133004", "156659008"],
+    }
+    post(client, user_codelist.get_versions_api_url(), data, user)
+
+    same_data = {
+        "name": "New codelist",
+        "codes": ["128133004", "156659008"],
+        "always_create_new_version": False,
+    }
+    with assert_no_difference(user_codelist.versions.count):
+        rsp = post(client, user_codelist.get_versions_api_url(), same_data, user)
+
+    assert rsp.status_code == 400
+
+
+def test_versions_post_codes_with_force_new_version(client, user, user_codelist):
+    data = {
+        "name": "New codelist",
+        "coding_system_id": "snomedct",
+        "codes": ["128133004", "156659008"],
+    }
+    post(client, user_codelist.get_versions_api_url(), data, user)
+
+    same_data = {
+        "name": "New codelist",
+        "codes": ["128133004", "156659008"],
+        "always_create_new_version": True,
+    }
+    with assert_difference(user_codelist.versions.count, expected_difference=1):
+        rsp = post(client, user_codelist.get_versions_api_url(), same_data, user)
+
+    assert rsp.status_code == 200
+
+
 def test_versions_post_ecl(client, user, user_codelist):
     data = {"ecl": "<<128133004 OR 156659008"}
 

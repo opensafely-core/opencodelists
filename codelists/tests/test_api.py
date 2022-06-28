@@ -24,6 +24,27 @@ def test_codelists_get(client, organisation):
             ],
         },
         {
+            "full_slug": "test-university/minimal-codelist",
+            "slug": "minimal-codelist",
+            "name": "Minimal Codelist",
+            "organisation": "Test University",
+            "coding_system_id": "snomedct",
+            "versions": [
+                {
+                    "hash": "1e74f321",
+                    "tag": None,
+                    "full_slug": "test-university/minimal-codelist/1e74f321",
+                    "status": "published",
+                },
+                {
+                    "hash": "05657fec",
+                    "tag": None,
+                    "full_slug": "test-university/minimal-codelist/05657fec",
+                    "status": "draft",
+                },
+            ],
+        },
+        {
             "full_slug": "test-university/new-style-codelist",
             "slug": "new-style-codelist",
             "name": "New-style Codelist",
@@ -77,11 +98,11 @@ def test_codelists_get(client, organisation):
 def test_codelists_get_with_coding_system_id(client, organisation):
     rsp = client.get(f"/api/v1/codelist/{organisation.slug}/?coding_system_id=snomedct")
     data = json.loads(rsp.content)
-    assert len(data["codelists"]) == 3
+    assert len(data["codelists"]) == 4
 
     rsp = client.get(f"/api/v1/codelist/{organisation.slug}/?coding_system_id=")
     data = json.loads(rsp.content)
-    assert len(data["codelists"]) == 3
+    assert len(data["codelists"]) == 4
 
     rsp = client.get(f"/api/v1/codelist/{organisation.slug}/?coding_system_id=bnf")
     data = json.loads(rsp.content)

@@ -150,6 +150,22 @@ class Codeset:
 
         yield from helper(self.defining_tree())
 
+    def reapply_statuses(self):
+        """
+        Build a new Codeset by reapplying the directly included and excluded status, and
+        recalculating inherited statuses
+        """
+        # Find all explicitly included/excluded codes
+        explicitly_included_or_excluded = {(code, "+") for code in self.codes("+")} | {
+            (code, "-") for code in self.codes("-")
+        }
+
+        # Reset the code_to_status dict so all codes are now unresolved
+        self.code_to_status = {code: "?" for code in self.code_to_status}
+
+        # Update with the directly included/excludes statuses
+        return self.update(explicitly_included_or_excluded)
+
     def update(self, updates):
         """Build new Codeset with given updates applied in turn to self's code_to_status.
 

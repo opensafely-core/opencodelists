@@ -1,41 +1,57 @@
 {% load markdown_filter %}
 
-{% if codelist.description %}
-<h4>Description</h4>
-<p>{{ codelist.description|markdown_filter|safe }}</p>
-{% endif %}
+<div class="tab-about">
+  {% if codelist.description %}
+  <h4>Description</h4>
+  <p>{{ codelist.description|markdown_filter|safe }}</p>
+  {% endif %}
 
-{% if codelist.methodology %}
-<h4>Methodology</h4>
-<p>{{ codelist.methodology|markdown_filter|safe }}</p>
-{% endif %}
+  {% if codelist.methodology %}
+  <h4>Methodology</h4>
+  <p>{{ codelist.methodology|markdown_filter|safe }}</p>
+  {% endif %}
 
-{% if references %}
-<h4>References</h4>
-<ul>
-  {% for reference in references %}
-  <li><a href="{{ reference.url }}">{{ reference.text }}</a></li>
-  {% empty %}
-  <li>...</li>
-  {% endfor %}
-</ul>
-{% endif %}
+  {% if references %}
+  <h4>References</h4>
+  <ul>
+    {% for reference in references %}
+    <li><a href="{{ reference.url }}">{{ reference.text }}</a></li>
+    {% empty %}
+    <li>...</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
 
-{% if signoffs %}
-<h4>Signed off by</h4>
-<ul>
-  {% for signoff in signoffs %}
-  <li>
-    {{ signoff.user.name }},
-    {{ signoff.user.organisation.name }}
-    ({{ signoff.date }})
-  </li>
-  {% empty %}
-  <li>...</li>
-  {% endfor %}
-</ul>
-{% endif %}
+  {% if signoffs %}
+  <h4>Signed off by</h4>
+  <ul>
+    {% for signoff in signoffs %}
+    <li>
+      {{ signoff.user.name }},
+      {{ signoff.user.organisation.name }}
+      ({{ signoff.date }})
+    </li>
+    {% empty %}
+    <li>...</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
 
-{% if not codelist.description and not codelist.methodology and not references and not signoffs %}
-<p>No metadata has been provided for this codelist.</p>
-{% endif %}
+  {% if not codelist.description and not codelist.methodology and not references and not signoffs %}
+  <p>No metadata has been provided for this codelist.</p>
+  {% endif %}
+
+  <div class="small tab-about-footer">
+    <hr>
+    <p>
+      Codelists are developed by a broad community of users for individual study purposes, which
+      may or may not meet the needs of other studies. They should not be thought of as universal
+      definitions of a particular condition.
+    </p>
+    <p>
+      We don't offer any guarantees about what they do or don't identify. Users should carefully
+      check that any codelist meets their needs, and seek clinical input where appropriate.
+    </p>
+  </div>
+
+</div>

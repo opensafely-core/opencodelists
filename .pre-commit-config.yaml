@@ -7,12 +7,12 @@ repos:
     hooks:
     - id: black
 
-  - repo: https://gitlab.com/pycqa/flake8
+  - repo: https://github.com/PyCQA/flake8
     rev: 3.9.2
     hooks:
     - id: flake8
 
-  - repo: https://github.com/pre-commit/mirrors-isort
+  - repo: https://github.com/PyCQA/isort
     rev: v5.10.1
     hooks:
     - id: isort

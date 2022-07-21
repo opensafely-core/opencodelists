@@ -29,7 +29,6 @@ skip_covered = true
 [tool.isort]
 profile = "black"
 skip_glob = [".direnv", "*migrations*", "tmp", ".venv", "coding_systems/snomedct/parser_utils/*", "staticfiles"]
-known_third_party = ["antlr4", "bleach", "crispy_forms", "debug_toolbar", "django", "environs", "furl", "hypothesis", "lxml", "markdown2", "openpyxl", "opentelemetry", "pytest", "rest_framework", "sentry_sdk", "structlog", "taggit"]
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "opencodelists.settings"

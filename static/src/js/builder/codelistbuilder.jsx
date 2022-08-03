@@ -165,7 +165,10 @@ class CodelistBuilder extends React.Component {
             {this.props.isEditable && (
               <>
                 <h6>New search</h6>
-                <SearchForm searchURL={this.props.searchURL} />
+                <SearchForm
+                  searchURL={this.props.searchURL}
+                  codingSystemName={this.props.metadata.coding_system_name}
+                />
                 <hr />
               </>
             )}
@@ -385,7 +388,7 @@ function Version(props) {
 }
 
 function SearchForm(props) {
-  const { searchURL } = props;
+  const { searchURL, codingSystemName } = props;
 
   return (
     <form method="post" action={searchURL}>
@@ -413,12 +416,21 @@ function SearchForm(props) {
       </div>
       <div>
         <small className="form-text text-muted">
-          <p>
-            To search by code, prefix your search with <code>code:</code>. For
-            instance, use <code>code:xyz</code> to find the concept with code{" "}
-            <code>xyz</code>, or <code>code:xyz*</code> to find all concepts
-            with codes beginning <code>xyz</code>.
-          </p>
+          {codingSystemName === "ICD-10" ? (
+            <p>
+              To search by code, prefix your search with <code>code:</code>. For
+              instance, use <code>code:xyz</code> to find the concept with code{" "}
+              <code>xyz</code>, or <code>code:xyz*</code> to find all concepts
+              with codes beginning <code>xyz</code>. (Wildcard search only
+              available for ICD-10.)
+            </p>
+          ) : (
+            <p>
+              To search by code, prefix your search with <code>code:</code>. For
+              instance, use <code>code:xyz</code> to find the concept with code{" "}
+              <code>xyz</code>.
+            </p>
+          )}
           <p>
             Otherwise, searching will return all concepts with a description
             containing the search term.

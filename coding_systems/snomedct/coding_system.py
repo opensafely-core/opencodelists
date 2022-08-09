@@ -114,7 +114,9 @@ def code_to_term_and_type(codes):
 
 
 def code_to_term(codes):
-    return {code: term for code, (term, _) in code_to_term_and_type(codes).items()}
+    lookup = {code: term for code, (term, _) in code_to_term_and_type(codes).items()}
+    unknown = set(codes) - set(lookup)
+    return {**lookup, **{code: "Unknown" for code in unknown}}
 
 
 def codes_by_type(codes, hierarchy):
@@ -131,8 +133,10 @@ def codes_by_type(codes, hierarchy):
     lookup = collections.defaultdict(list)
 
     for code in codes:
-        type = code_to_type[code]
-        if code_to_active[code]:
+        type = code_to_type.get(code)
+        if type is None:
+            lookup["[unknown]"].append(code)
+        elif code_to_active[code]:
             lookup[type].append(code)
         else:
             lookup[f"[inactive] {type}"].append(code)

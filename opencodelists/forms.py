@@ -80,9 +80,10 @@ class CodelistCreateForm(forms.Form):
 
         data = f.read().decode("utf-8-sig")
         codes = [row[0] for row in csv.reader(StringIO(data))]
-        code_to_term = coding_system.code_to_term(codes)
         unknown_codes_and_ixs = [
-            (ix, code) for ix, code in enumerate(codes) if code not in code_to_term
+            (ix, code)
+            for ix, code in enumerate(codes)
+            if code not in set(coding_system.lookup_names(codes))
         ]
 
         if unknown_codes_and_ixs:

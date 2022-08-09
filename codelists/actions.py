@@ -303,8 +303,7 @@ def _create_version_with_codes(
 ):
     codes = set(codes)
     coding_system = codelist.coding_system
-    code_to_term = coding_system.code_to_term(codes)
-    assert codes == set(code_to_term)
+    assert codes == set(coding_system.lookup_names(codes))
 
     clv = codelist.versions.create(tag=tag, status=status, author=author)
 

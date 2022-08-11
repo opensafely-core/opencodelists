@@ -46,7 +46,7 @@ class Hierarchy:
         edges = ancestor_relationships | descendant_relationships
 
         # We add an edge from the root node to each code that does not appear in
-        # ancestor_relationships or descendant_relationships (eg inactive SNOMED
+        # ancestor_relationships or descendant_relationships (eg inactive SNOMED CT
         # concepts, or certain TPP Y-Codes).
         codes_in_edges = set(chain(*edges))
         for code in codes:

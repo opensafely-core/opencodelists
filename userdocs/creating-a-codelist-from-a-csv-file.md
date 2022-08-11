@@ -35,7 +35,7 @@ However, some codelists may require a 'classification' or 'type' column, which c
 Avoid:
 
 * filtering on an include or exclude column when finalising a codelist. Applied filters are lost in CSV conversion: *all* of the codes will be uploaded.
-* editing SNOMED-CT codelists. The codes get rounded.
+* editing SNOMED CT codelists. The codes get rounded.
 
 When you click _Create_ the codelist will be created and you will be taken to the codelist homepage.
 

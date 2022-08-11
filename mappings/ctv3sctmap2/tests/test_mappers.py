@@ -21,7 +21,7 @@ def test_snomedct_to_ctv3():
     """Test snomedct_to_ctv3 returns the correct format."""
     effective_time = datetime.datetime(2020, 1, 1)
 
-    # construct a mapping between a pair of SNOMED and CTV3 codes
+    # construct a mapping between a pair of SNOMED CT and CTV3 codes
     snomed_concept = SCTConcept(
         id="54219001", effective_time=effective_time, active=True
     )

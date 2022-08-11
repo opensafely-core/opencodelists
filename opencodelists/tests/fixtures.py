@@ -16,7 +16,7 @@ Since each fixture function needs to do the same thing (find the member of the u
 with the given name, reload it from the database, and return it) we use build_fixture()
 to avoid excessive duplication.
 
-We use a very small subset of the SNOMED hierarchy.  For details, see
+We use a very small subset of the SNOMED CT hierarchy.  For details, see
 coding_systems/snomedct/fixtures/README.
 
 There are fixtures for CodelistVersions with two different lists of codes:
@@ -161,7 +161,7 @@ def build_fixture(fixture_name):
 @pytest.fixture(scope="session")
 def snomedct_data(django_db_setup, django_db_blocker):
     with django_db_blocker.unblock():
-        # load enough of the SNOMED hierarchy to be useful
+        # load enough of the SNOMED CT hierarchy to be useful
         call_command("loaddata", SNOMED_FIXTURES_PATH / "core-model-components.json")
         call_command("loaddata", SNOMED_FIXTURES_PATH / "tennis-elbow.json")
         call_command("loaddata", SNOMED_FIXTURES_PATH / "tennis-toe.json")

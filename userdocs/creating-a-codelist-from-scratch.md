@@ -15,7 +15,7 @@ Choose a name for the codelist, and select a coding system from the dropdown.  I
 
 We currently support codelists using the following coding systems:
 
-- SNOMED-CT
+- SNOMED CT
 - ICD-10
 - CTV3 (Read V3)
 - BNF (British National Formulary codes)

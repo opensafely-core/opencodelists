@@ -3,9 +3,9 @@ from django.db import models
 
 class Mapping(models.Model):
     """
-    Mappings between CTV3 and SNOMED Concepts.
+    Mappings between CTV3 and SNOMED CT Concepts.
 
-    NHS Digital has published mappings between Concepts in the CTV3 and SNOMED
+    NHS Digital has published mappings between Concepts in the CTV3 and SNOMED CT
     coding systems [1].  We ingest those mappings and store them with this
     model.
 

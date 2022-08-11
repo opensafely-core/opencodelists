@@ -8,7 +8,7 @@ from django.db import connection as django_connection
 
 def import_data(release_dir):
     """
-    Import NHSD CTV3 -> SNOMED concept maps
+    Import NHSD CTV3 -> SNOMED CT concept maps
     """
     paths = glob.glob(
         os.path.join(

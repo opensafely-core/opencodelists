@@ -81,11 +81,14 @@ def descendant_relationships(codes):
     return query(sql, codes)
 
 
-def code_to_term(codes):
+def lookup_names(codes):
     return dict(Concept.objects.filter(code__in=codes).values_list("code", "term"))
 
 
-lookup_names = code_to_term
+def code_to_term(codes):
+    lookup = lookup_names(codes)
+    unknown = set(codes) - set(lookup)
+    return {**lookup, **{code: "Unknown" for code in unknown}}
 
 
 def codes_by_type(codes, hierarchy):
@@ -93,8 +96,12 @@ def codes_by_type(codes, hierarchy):
 
     codes_by_type = defaultdict(list)
     for code in codes:
-        chapter_code = code_to_chapter()[code]
-        chapter_name = chapter_code_to_chapter_name()[chapter_code]
+        chapter_code = code_to_chapter().get(code)
+        chapter_name = (
+            chapter_code_to_chapter_name()[chapter_code]
+            if chapter_code
+            else "[Unknown]"
+        )
         codes_by_type[chapter_name].append(code)
     return dict(codes_by_type)
 

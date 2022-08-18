@@ -1,4 +1,6 @@
+from django.contrib import messages
 from django.shortcuts import render
+from django.utils.html import format_html
 
 from ..coding_systems import CODING_SYSTEMS
 from ..models import Status
@@ -27,6 +29,14 @@ def version(request, clv):
             **{code: "-" for code in excluded},
         }
         ancestor_codes = hierarchy.filter_to_ultimate_ancestors(included)
+        unknown_codes = set(clv.codes) - set(coding_system.lookup_names(clv.codes))
+        if unknown_codes:
+            messages.warning(
+                request,
+                format_html(
+                    f"WARNING: Codelist contains codes not found in {coding_system.name}"
+                ),
+            )
         tree_tables = sorted(
             (type.title(), sorted(codes, key=code_to_term.__getitem__))
             for type, codes in coding_system.codes_by_type(

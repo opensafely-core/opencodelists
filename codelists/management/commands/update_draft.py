@@ -140,7 +140,7 @@ class Command(BaseCommand):
         and delete them
         """
         codes_in_coding_system = set(
-            draft.coding_system.code_to_term(draft.codeset.all_codes())
+            draft.coding_system.lookup_names(draft.codeset.all_codes())
         )
         old_codes = draft.codeset.all_codes() - codes_in_coding_system
         if old_codes:

@@ -103,7 +103,9 @@ def descendant_relationships(codes):
 
 
 def code_to_term(codes):
-    return lookup_names(codes)
+    lookup = lookup_names(codes)
+    unknown = set(codes) - set(lookup)
+    return {**lookup, **{code: "Unknown" for code in unknown}}
 
 
 def codes_by_type(codes, hierarchy):
@@ -120,17 +122,18 @@ def codes_by_type(codes, hierarchy):
         # root will fail.
         return {}
 
-    # Treat children of CTV3 root as types
+    # Treat children of CTV3 root as types.  This will include any unknown codes.
     types = hierarchy.child_map[root]
     concepts = TPPConcept.objects.filter(read_code__in=types)
     terms_by_type = {c.read_code: c.description for c in concepts}
 
     lookup = collections.defaultdict(list)
+
     for code in codes:
         if code in types:
             # This code is one of the top-level types, and so will not be captured
             # below.
-            lookup[terms_by_type[code]].append(code)
+            lookup[terms_by_type.get(code, "[Unknown]")].append(code)
             continue
 
         # get groups for this
@@ -144,5 +147,4 @@ def codes_by_type(codes, hierarchy):
         for group_code in groups:
             group_term = terms_by_type[group_code]
             lookup[group_term].append(code)
-
     return dict(lookup)

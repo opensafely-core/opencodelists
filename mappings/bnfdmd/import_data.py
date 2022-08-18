@@ -18,14 +18,13 @@ def import_data(filename):
             bnf_code = row[2].value
             dmd_code = row[4].value
 
-            if bnf_code is None or dmd_code is None:
+            if not bnf_code or not dmd_code:
                 continue
-            if bnf_code == "'" or dmd_code == "'":
-                continue
-            if isinstance(bnf_code, str):
-                bnf_code = bnf_code.lstrip("'")
-            if isinstance(dmd_code, str):
-                dmd_code = dmd_code.lstrip("'")
+
+            # In older versions of the spreadsheet, we have seen large numeric codes
+            # prefixed with a single quote, presumably to stop them being rounded.
+            assert bnf_code[0] != "'"
+            assert dmd_code[0] != "'"
 
             yield [dmd_code, dmd_type, bnf_code]
 

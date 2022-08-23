@@ -29,6 +29,7 @@ def get_mappings(ctv3_ids=None, snomedct_ids=None, include_unassured=False):
         read_code__in=mappings.values_list("ctv3_concept_id", flat=True)
     ).values_list("read_code", flat=True)
     mappings = mappings.filter(ctv3_concept_id__in=present_ctv3_ids)
+    mappings = mappings.filter(sct_concept_id__isnull=False)
 
     return [
         {

@@ -35,5 +35,5 @@ DJANGO_SETTINGS_MODULE = "opencodelists.settings"
 addopts = "--tb=native --ignore=node_modules --no-migrations"
 
 filterwarnings = [
-    "ignore::django.utils.deprecation.RemovedInDjango41Warning:social_django",
+    "ignore::django.utils.deprecation.RemovedInDjango50Warning:rest_framework"
 ]

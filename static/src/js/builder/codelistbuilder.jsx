@@ -1,6 +1,6 @@
 "use strict";
 
-import React, { useState, useRef } from "react";
+import React, { useRef } from "react";
 import Modal from "react-bootstrap/Modal";
 
 import TreeTables from "../common/tree-tables";
@@ -15,11 +15,16 @@ class CodelistBuilder extends React.Component {
       updateQueue: [],
       updating: false,
       moreInfoModalCode: null,
+      showConfirmDiscardModal: false,
     };
 
     this.updateStatus = props.isEditable ? this.updateStatus.bind(this) : null;
     this.showMoreInfoModal = this.showMoreInfoModal.bind(this);
     this.hideMoreInfoModal = this.hideMoreInfoModal.bind(this);
+    this.ManagementForm = this.ManagementForm.bind(this);
+    this.setShowConfirmDiscardModal =
+      this.setShowConfirmDiscardModal.bind(this);
+    this.renderConfirmDiscardModal = this.renderConfirmDiscardModal.bind(this);
   }
 
   componentDidMount() {
@@ -96,6 +101,10 @@ class CodelistBuilder extends React.Component {
     this.setState({ moreInfoModalCode: null });
   }
 
+  setShowConfirmDiscardModal(value) {
+    this.setState({ showConfirmDiscardModal: value });
+  }
+
   counts() {
     let counts = {
       "?": 0,
@@ -132,7 +141,7 @@ class CodelistBuilder extends React.Component {
           <div className="col-md-3 col-lg-2">
             {this.props.isEditable && (
               <>
-                <ManagementForm complete={this.complete()}/>
+                <this.ManagementForm complete={this.complete()} />
                 <hr />
               </>
             )}
@@ -222,6 +231,74 @@ class CodelistBuilder extends React.Component {
     );
   }
 
+  ManagementForm(props) {
+    const { complete } = props;
+
+    const management_form = useRef();
+    const confirmDiscardModal =
+      this.state.showConfirmDiscardModal &&
+      this.renderConfirmDiscardModal(management_form);
+
+    const handleConfirmMsg = (e) => {
+      e.preventDefault();
+      this.setShowConfirmDiscardModal(true);
+    };
+
+    return (
+      <>
+        <form method="post" ref={management_form}>
+          <input
+            id="csrfmiddlewaretoken"
+            type="hidden"
+            name="csrfmiddlewaretoken"
+            value={getCookie("csrftoken")}
+          />
+          <input id="action" type="hidden" name="action" value="" />
+          <div className="btn-group-vertical btn-block" role="group">
+            {complete ? (
+              <button
+                type="submit"
+                name="action"
+                value="save-for-review"
+                className="btn btn-outline-primary btn-block"
+              >
+                Save for review
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="disabled btn btn-outline-secondary btn-block"
+                aria-disabled="true"
+                data-toggle="tooltip"
+                title="You cannot save for review until all search results are included or excluded"
+              >
+                Save for review
+              </button>
+            )}
+            <button
+              type="submit"
+              name="action"
+              value="save-draft"
+              className="btn btn-outline-primary btn-block"
+            >
+              Save draft
+            </button>
+            <button
+              type="submit"
+              name="action"
+              value="discard"
+              className="btn btn-outline-primary btn-block"
+              onClick={handleConfirmMsg}
+            >
+              Discard
+            </button>
+          </div>
+        </form>
+        {confirmDiscardModal}
+      </>
+    );
+  }
+
   renderMoreInfoModal(code) {
     const included = this.props.allCodes.filter(
       (c) => this.state.codeToStatus[c] === "+"
@@ -254,100 +331,33 @@ class CodelistBuilder extends React.Component {
       />
     );
   }
-}
 
+  renderConfirmDiscardModal(form) {
+    const handleConfirm = () => {
+      form.current[1].value = "discard";
+      form.current.submit();
+    };
 
-function ManagementForm(props) {
-  const { complete } = props;
+    const handleCancel = () => {
+      this.setShowConfirmDiscardModal(false);
+    };
 
-  const [show_confirm_msg, setShowConfirmMsg] = useState(false);
-  const form = useRef();
-
-  const handleConfirm = (e) => {
-    form.current[1].value = "discard"
-    console.log(form.current[1])
-    form.current.submit();
-  };
-
-  const handleCancel = (e) => {
-    setShowConfirmMsg(false);
-  };
-
-  const handleConfirmMsg = (e) => {
-    e.preventDefault()
-    setShowConfirmMsg(true);
-  };
-
-  const confirmDiscardModal = (
-    <Modal show={show_confirm_msg} centered>
-      <Modal.Header>
-        Are you sure you want to discard this draft?
-      </Modal.Header>
-      <Modal.Body>
-        <button class="btn btn-primary mr-2" onClick={handleConfirm}>Yes</button>
-        <button class="btn btn-secondary" onClick={handleCancel}>No</button>
-      </Modal.Body>
-    </Modal>
-  )
-
-  return (
-    <>
-    <form method="post" ref={form}>
-      <input
-        id="csrfmiddlewaretoken"
-        type="hidden"
-        name="csrfmiddlewaretoken"
-        value={getCookie("csrftoken")}
-      />
-      <input
-        id="action"
-        type="hidden"
-        name="action"
-        value=""
-      />
-      <div className="btn-group-vertical btn-block" role="group">
-        {complete ? (
-          <button
-            type="submit"
-            name="action"
-            value="save-for-review"
-            className="btn btn-outline-primary btn-block"
-          >
-            Save for review
+    return (
+      <Modal show={this.state.showConfirmDiscardModal} centered>
+        <Modal.Header>
+          Are you sure you want to discard this draft?
+        </Modal.Header>
+        <Modal.Body>
+          <button className="btn btn-primary mr-2" onClick={handleConfirm}>
+            Yes
           </button>
-        ) : (
-          <button
-            type="button"
-            className="disabled btn btn-outline-secondary btn-block"
-            aria-disabled="true"
-            data-toggle="tooltip"
-            title="You cannot save for review until all search results are included or excluded"
-          >
-            Save for review
+          <button className="btn btn-secondary" onClick={handleCancel}>
+            No
           </button>
-        )}
-        <button
-          type="submit"
-          name="action"
-          value="save-draft"
-          className="btn btn-outline-primary btn-block"
-        >
-          Save draft
-        </button>
-        <button
-          type="submit"
-          name="action"
-          value="discard"
-          className="btn btn-outline-primary btn-block"
-          onClick={handleConfirmMsg}
-        >
-          Discard
-        </button>
-      </div>
-    </form>
-    {show_confirm_msg && confirmDiscardModal}
-    </>
-  );
+        </Modal.Body>
+      </Modal>
+    );
+  }
 }
 
 function Filter(props) {

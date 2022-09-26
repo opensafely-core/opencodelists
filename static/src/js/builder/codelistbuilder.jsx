@@ -1,6 +1,6 @@
 "use strict";
 
-import React from "react";
+import React, { useState, useRef } from "react";
 import Modal from "react-bootstrap/Modal";
 
 import TreeTables from "../common/tree-tables";
@@ -132,7 +132,7 @@ class CodelistBuilder extends React.Component {
           <div className="col-md-3 col-lg-2">
             {this.props.isEditable && (
               <>
-                <ManagementForm complete={this.complete()} />
+                <ManagementForm complete={this.complete()}/>
                 <hr />
               </>
             )}
@@ -256,15 +256,54 @@ class CodelistBuilder extends React.Component {
   }
 }
 
+
 function ManagementForm(props) {
   const { complete } = props;
 
+  const [show_confirm_msg, setShowConfirmMsg] = useState(false);
+  const form = useRef();
+
+  const handleConfirm = (e) => {
+    form.current[1].value = "discard"
+    console.log(form.current[1])
+    form.current.submit();
+  };
+
+  const handleCancel = (e) => {
+    setShowConfirmMsg(false);
+  };
+
+  const handleConfirmMsg = (e) => {
+    e.preventDefault()
+    setShowConfirmMsg(true);
+  };
+
+  const confirmDiscardModal = (
+    <Modal show={show_confirm_msg} centered>
+      <Modal.Header>
+        Are you sure you want to discard this draft?
+      </Modal.Header>
+      <Modal.Body>
+        <button class="btn btn-primary mr-2" onClick={handleConfirm}>Yes</button>
+        <button class="btn btn-secondary" onClick={handleCancel}>No</button>
+      </Modal.Body>
+    </Modal>
+  )
+
   return (
-    <form method="post">
+    <>
+    <form method="post" ref={form}>
       <input
+        id="csrfmiddlewaretoken"
         type="hidden"
         name="csrfmiddlewaretoken"
         value={getCookie("csrftoken")}
+      />
+      <input
+        id="action"
+        type="hidden"
+        name="action"
+        value=""
       />
       <div className="btn-group-vertical btn-block" role="group">
         {complete ? (
@@ -300,11 +339,14 @@ function ManagementForm(props) {
           name="action"
           value="discard"
           className="btn btn-outline-primary btn-block"
+          onClick={handleConfirmMsg}
         >
           Discard
         </button>
       </div>
     </form>
+    {show_confirm_msg && confirmDiscardModal}
+    </>
   );
 }
 

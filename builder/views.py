@@ -178,7 +178,6 @@ def _draft(request, draft, search_slug):
         "search_url": search_url,
         "versions": versions,
         "metadata": metadata,
-        # }
     }
 
     return render(request, "builder/draft.html", ctx)

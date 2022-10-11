@@ -62,6 +62,6 @@ def test_get_dmd_diff_codes_differ(
     assert rsp.context["common_summary"] == [
         {
             "code": "10525011000001107",
-            "term": "Adrenaline (base) 220micrograms/dose inhaler refill",
+            "term": "Adrenaline (base) 220micrograms/dose inhaler refill (VMP)",
         }
     ]

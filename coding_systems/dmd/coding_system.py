@@ -4,7 +4,7 @@ name = "Dictionary of Medicines and Devices"
 short_name = "dm+d"
 
 
-def lookup_codes(codes):
+def lookup_names(codes):
     # A code is a unique identifier in dm+d which corresponds to a SNOMED-CT code
     # It could be the identifier for any of AMP, VMP, VTM, VMPP, AMPP
     # dm+d codelists generally only include AMPs and VMPs, so we attempt to match codes in
@@ -14,13 +14,13 @@ def lookup_codes(codes):
     for code in codes:
         for model_cls in [AMP, VMP, AMPP, VMPP, VTM]:
             try:
-                yield code, model_cls.objects.get(id=code).nm
+                yield code, f"{model_cls.objects.get(id=code).nm} ({model_cls.__name__})"
                 continue
             except model_cls.DoesNotExist:
                 ...
 
 
 def code_to_term(codes):
-    lookup = {code: term for code, term in lookup_codes(codes)}
+    lookup = {code: term for code, term in lookup_names(codes)}
     unknown = set(codes) - set(lookup)
     return {**lookup, **{code: "Unknown" for code in unknown}}

@@ -1,0 +1,157 @@
+[
+{
+    "model": "dmd.vmp",
+    "pk": "10514511000001106",
+    "fields": {
+        "vpiddt": null,
+        "vpidprev": null,
+        "vtm": "65502005",
+        "invalid": false,
+        "nm": "Adrenaline (base) 220micrograms/dose inhaler",
+        "abbrevnm": null,
+        "basis": 2,
+        "nmdt": "2012-02-28",
+        "nmprev": "Adrenaline 220micrograms/dose inhaler",
+        "basis_prev": 2,
+        "nmchange": 4,
+        "combprod": null,
+        "pres_stat": 1,
+        "sug_f": false,
+        "glu_f": false,
+        "pres_f": false,
+        "cfc_f": false,
+        "non_avail": 1,
+        "non_availdt": "2013-03-18",
+        "df_ind": 1,
+        "udfs": "1.000",
+        "udfs_uom": "3317411000001100",
+        "unit_dose_uom": "3317411000001100"
+    }
+},
+{
+    "model": "dmd.vmp",
+    "pk": "10525011000001107",
+    "fields": {
+        "vpiddt": null,
+        "vpidprev": null,
+        "vtm": "65502005",
+        "invalid": false,
+        "nm": "Adrenaline (base) 220micrograms/dose inhaler refill",
+        "abbrevnm": null,
+        "basis": 2,
+        "nmdt": "2012-02-28",
+        "nmprev": "Adrenaline 220micrograms/dose inhaler refill",
+        "basis_prev": 2,
+        "nmchange": 4,
+        "combprod": null,
+        "pres_stat": 1,
+        "sug_f": false,
+        "glu_f": false,
+        "pres_f": false,
+        "cfc_f": false,
+        "non_avail": 1,
+        "non_availdt": "2013-03-18",
+        "df_ind": 1,
+        "udfs": "1.000",
+        "udfs_uom": "3317411000001100",
+        "unit_dose_uom": "3317411000001100"
+    }
+},
+{
+    "model": "dmd.vmpp",
+    "pk": "10514611000001105",
+    "fields": {
+        "invalid": false,
+        "nm": "Adrenaline (base) 220micrograms/dose inhaler 15 ml",
+        "vmp": "10514511000001106",
+        "qtyval": "15.00",
+        "qty_uom": "258773002",
+        "combpack": null,
+        "bnf_code": null
+    }
+},
+{
+    "model": "dmd.vmpp",
+    "pk": "10525411000001103",
+    "fields": {
+        "invalid": false,
+        "nm": "Adrenaline (base) 220micrograms/dose inhaler refill 15 ml",
+        "vmp": "10525011000001107",
+        "qtyval": "15.00",
+        "qty_uom": "258773002",
+        "combpack": null,
+        "bnf_code": null
+    }
+},
+{
+    "model": "dmd.vtm",
+    "pk": "65502005",
+    "fields": {
+        "invalid": false,
+        "nm": "Adrenaline",
+        "abbrevnm": null,
+        "vtmidprev": null,
+        "vtmiddt": "2006-06-05"
+    }
+},
+{
+    "model": "dmd.unitofmeasure",
+    "pk": "3317411000001100",
+    "fields": {
+        "cddt": null,
+        "cdprev": null,
+        "descr": "dose"
+    }
+},
+{
+    "model": "dmd.unitofmeasure",
+    "pk": "258773002",
+    "fields": {
+        "cddt": null,
+        "cdprev": null,
+        "descr": "ml"
+    }
+},
+{
+    "model": "dmd.basisofname",
+    "pk": 1,
+    "fields": {
+        "descr": "rINN - Recommended International Non-proprietary"
+    }
+},
+{
+    "model": "dmd.basisofname",
+    "pk": 2,
+    "fields": {
+        "descr": "BAN - British Approved Name"
+    }
+},
+{
+    "model": "dmd.dfindicator",
+    "pk": 1,
+    "fields": {
+        "descr": "Discrete"
+    }
+},
+{
+    "model": "dmd.virtualproductnonavail",
+    "pk": 1,
+    "fields": {
+        "descr": "Actual Products not Available"
+    }
+},
+{
+    "model": "dmd.virtualproductpresstatus",
+    "pk": 1,
+    "fields": {
+        "descr": "Valid as a prescribable product"
+    }
+},
+{
+    "model": "dmd.namechangereason",
+    "pk": 4,
+    "fields": {
+        "descr": "Other"
+    }
+}
+]

@@ -11,13 +11,14 @@ def lookup_names(codes):
     # these models first
     # If not found, look up VTM, VMPP, AMPPs also, in case of user-uploaded codelists that
     # might contain these
-    for code in codes:
-        for model_cls in [AMP, VMP, AMPP, VMPP, VTM]:
-            try:
-                yield code, f"{model_cls.objects.get(id=code).nm} ({model_cls.__name__})"
-                continue
-            except model_cls.DoesNotExist:
-                ...
+    codes = set(codes)
+    for model_cls in [AMP, VMP, AMPP, VMPP, VTM]:
+        matched = dict(model_cls.objects.filter(id__in=codes).values_list("id", "nm"))
+        for code, name in matched.items():
+            yield code, f"{name} ({model_cls.__name__})"
+        codes = codes - set(matched.keys())
+        if not codes:
+            break
 
 
 def code_to_term(codes):

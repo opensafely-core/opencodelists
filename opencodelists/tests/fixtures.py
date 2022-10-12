@@ -130,6 +130,7 @@ from opencodelists.actions import (
 from opencodelists.models import User
 
 SNOMED_FIXTURES_PATH = Path(settings.BASE_DIR, "coding_systems", "snomedct", "fixtures")
+DMD_FIXTURES_PATH = Path(settings.BASE_DIR, "coding_systems", "dmd", "fixtures")
 
 
 def build_fixture(fixture_name):
@@ -168,7 +169,14 @@ def snomedct_data(django_db_setup, django_db_blocker):
 
 
 @pytest.fixture(scope="session")
-def universe(snomedct_data, django_db_setup, django_db_blocker):
+def dmd_data(django_db_setup, django_db_blocker):
+    with django_db_blocker.unblock():
+        # load a very small amount of the DMD coding system
+        call_command("loaddata", DMD_FIXTURES_PATH / "asthma-medication.json")
+
+
+@pytest.fixture(scope="session")
+def universe(snomedct_data, dmd_data, django_db_setup, django_db_blocker):
     """Create universe of fixture objects.
 
     This fixture will be loaded exactly once per session.  It is not expected that it is
@@ -214,6 +222,21 @@ def build_fixtures():
     # enthesopathy_of_elbow_region_plus_tennis_toe
     enthesopathy_of_elbow_region_plus_tennis_toe = load_codes_from_csv(
         "enthesopathy-of-elbow-region-plus-tennis-toe.csv"
+    )
+
+    # asthma_medications_csv_data
+    asthma_medication_csv_data = load_csv_data(
+        "asthma-medication.csv", DMD_FIXTURES_PATH
+    )
+
+    # asthma_medication_csv_data_alternative_headers
+    asthma_medication_csv_data_alternative_headers = load_csv_data(
+        "asthma-medication-alt-headers.csv", DMD_FIXTURES_PATH
+    )
+
+    # asthma_medications_refill_csv_data
+    asthma_medication_refill_csv_data = load_csv_data(
+        "asthma-medication-refill.csv", DMD_FIXTURES_PATH
     )
 
     # organisation
@@ -311,6 +334,30 @@ def build_fixtures():
 
     # Check that this version has the expected codes
     check_expected_codes(old_style_version, disorder_of_elbow_codes)
+
+    # dmd codelist
+    # - owned by organisation
+    # - has 3 versions:
+    #   - dmd_version_asthma_medication; contains CSV data with converted-from-BNF headers
+    #   - dmd_version_asthma_medication_alt_headers; same data but headers "code" and "term"
+    #   - dmd_version_asthma_medication_refill_csv_data; contains different data
+    dmd_codelist = create_old_style_codelist(
+        owner=organisation,
+        name="DMD Codelist",
+        coding_system_id="dmd",
+        description="What this is",
+        methodology="How we did it",
+        csv_data=asthma_medication_csv_data,
+    )
+    dmd_version_asthma_medication = dmd_codelist.versions.first()
+    dmd_version_asthma_medication_alt_headers = create_old_style_version(
+        codelist=dmd_codelist,
+        csv_data=asthma_medication_csv_data_alternative_headers,
+    )
+    dmd_version_asthma_medication_refill = create_old_style_version(
+        codelist=dmd_codelist,
+        csv_data=asthma_medication_refill_csv_data,
+    )
 
     # new_style_codelist
     # - belongs to organisation
@@ -544,10 +591,10 @@ def build_fixtures():
     return locals()
 
 
-def load_csv_data(filename):
+def load_csv_data(filename, fixtures_path=None):
     """Return CSV data in given filename."""
-
-    with open(SNOMED_FIXTURES_PATH / filename) as f:
+    fixtures_path = fixtures_path or SNOMED_FIXTURES_PATH
+    with open(fixtures_path / filename) as f:
         return f.read()
 
 
@@ -614,6 +661,15 @@ user = build_fixture("user")
 inactive_user = build_fixture("inactive_user")
 old_style_codelist = build_fixture("old_style_codelist")
 old_style_version = build_fixture("old_style_version")
+dmd_codelist = build_fixture("dmd_codelist")
+dmd_version_asthma_medication = build_fixture("dmd_version_asthma_medication")
+dmd_version_asthma_medication_alt_headers = build_fixture(
+    "dmd_version_asthma_medication_alt_headers"
+)
+dmd_version_asthma_medication_refill = build_fixture(
+    "dmd_version_asthma_medication_refill"
+)
+
 new_style_codelist = build_fixture("new_style_codelist")
 organisation_codelist = build_fixture("organisation_codelist")
 codelist = build_fixture("codelist")

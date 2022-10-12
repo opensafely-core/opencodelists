@@ -16,11 +16,38 @@ def test_codelists_get(client, organisation):
             "coding_system_id": "snomedct",
             "versions": [
                 {
-                    "hash": "69a34cc0",
+                    "hash": "1e74f321",
                     "tag": None,
-                    "full_slug": "test-university/codelist-from-scratch/69a34cc0",
+                    "full_slug": "test-university/codelist-from-scratch/1e74f321",
                     "status": "draft",
                 }
+            ],
+        },
+        {
+            "full_slug": "test-university/dmd-codelist",
+            "slug": "dmd-codelist",
+            "name": "DMD Codelist",
+            "coding_system_id": "dmd",
+            "organisation": "Test University",
+            "versions": [
+                {
+                    "hash": "34d1a660",
+                    "tag": None,
+                    "full_slug": "test-university/dmd-codelist/34d1a660",
+                    "status": "under review",
+                },
+                {
+                    "hash": "1bc2332b",
+                    "tag": None,
+                    "full_slug": "test-university/dmd-codelist/1bc2332b",
+                    "status": "under review",
+                },
+                {
+                    "hash": "02b2bff6",
+                    "tag": None,
+                    "full_slug": "test-university/dmd-codelist/02b2bff6",
+                    "status": "under review",
+                },
             ],
         },
         {
@@ -31,15 +58,15 @@ def test_codelists_get(client, organisation):
             "coding_system_id": "snomedct",
             "versions": [
                 {
-                    "hash": "1e74f321",
+                    "hash": "53469981",
                     "tag": None,
-                    "full_slug": "test-university/minimal-codelist/1e74f321",
+                    "full_slug": "test-university/minimal-codelist/53469981",
                     "status": "published",
                 },
                 {
-                    "hash": "05657fec",
+                    "hash": "3a37264c",
                     "tag": None,
-                    "full_slug": "test-university/minimal-codelist/05657fec",
+                    "full_slug": "test-university/minimal-codelist/3a37264c",
                     "status": "draft",
                 },
             ],
@@ -52,21 +79,21 @@ def test_codelists_get(client, organisation):
             "coding_system_id": "snomedct",
             "versions": [
                 {
-                    "hash": "34d1a660",
+                    "hash": "69a34cc0",
                     "tag": None,
-                    "full_slug": "test-university/new-style-codelist/34d1a660",
+                    "full_slug": "test-university/new-style-codelist/69a34cc0",
                     "status": "published",
                 },
                 {
-                    "hash": "1bc2332b",
+                    "hash": "5093d98b",
                     "tag": None,
-                    "full_slug": "test-university/new-style-codelist/1bc2332b",
+                    "full_slug": "test-university/new-style-codelist/5093d98b",
                     "status": "under review",
                 },
                 {
-                    "hash": "02b2bff6",
+                    "hash": "37846656",
                     "tag": None,
-                    "full_slug": "test-university/new-style-codelist/02b2bff6",
+                    "full_slug": "test-university/new-style-codelist/37846656",
                     "status": "under review",
                 },
             ],
@@ -102,7 +129,7 @@ def test_codelists_get_with_coding_system_id(client, organisation):
 
     rsp = client.get(f"/api/v1/codelist/{organisation.slug}/?coding_system_id=")
     data = json.loads(rsp.content)
-    assert len(data["codelists"]) == 4
+    assert len(data["codelists"]) == 5
 
     rsp = client.get(f"/api/v1/codelist/{organisation.slug}/?coding_system_id=bnf")
     data = json.loads(rsp.content)

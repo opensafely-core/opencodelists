@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     "builder",
     "codelists",
     "superusers",
+    "coding_systems.versioning",
     "coding_systems.bnf",
     "coding_systems.ctv3",
     "coding_systems.dmd",

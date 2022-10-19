@@ -142,13 +142,15 @@ WSGI_APPLICATION = "opencodelists.wsgi.application"
 # Coding systems are in separate databases, one db per coding system and version
 # Coding system version db connections are added after the apps have loaded, using
 # the data in the CodingSystemVersion table
-# see coding_systems.versioning.models.get_coding_system_database_connections
+# see coding_systems.versioning.models.update_coding_system_database_connections (called
+# from coding_systems.versioning.apps)
 DATABASES = {
     "default": env.dj_db_url("DATABASE_URL", "sqlite:///db.sqlite3"),
     "OPTIONS": {"timeout": 30},
 }
 
 DATABASE_DIR = env("DATABASE_DIR", BASE_DIR)  # location of sqlite files e.g. /storage/
+DATABASE_DUMP_DIR = DATABASE_DIR / "sql_dump"
 
 # Default type for auto-created primary keys
 # https://docs.djangoproject.com/en/3.2/releases/3.2/#customizing-type-of-auto-created-primary-keys

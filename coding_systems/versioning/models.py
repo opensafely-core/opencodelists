@@ -1,4 +1,6 @@
-from django.db import models
+import dj_database_url
+from django.conf import settings
+from django.db import connections, models
 
 from opencodelists.hash_utils import hash, unhash
 
@@ -37,3 +39,17 @@ class CodingSystemVersion(models.Model):
     @property
     def db_name(self):
         return f"{self.coding_system}_{self.hash}"
+
+
+def get_coding_system_database_connections():
+    """Add the database config for each coding system version"""
+    for coding_system_version in CodingSystemVersion.objects.all():
+        db_path = settings.DATABASE_DIR / f"{coding_system_version.db_name}.sqlite3"
+        database_dict = {
+            **connections.databases["default"],
+            **dj_database_url.parse(f"sqlite:///{db_path}"),
+        }
+        connections.databases[coding_system_version.db_name] = database_dict
+
+
+get_coding_system_database_connections()

@@ -1,4 +1,5 @@
 import subprocess
+from pathlib import Path
 
 from django.apps import apps
 from django.conf import settings
@@ -36,10 +37,17 @@ class Command(BaseCommand):
             action="store_true",
             help="Override existing initial version migration",
         )
+        # Optional source db; this only exists so we can pass in a different db in tests
+        parser.add_argument(
+            "--source-db",
+            type=Path,
+            help="Path to the source database",
+        )
 
     @transaction.atomic
-    def handle(self, coding_systems, force, **kwargs):
+    def handle(self, coding_systems, force, source_db, **kwargs):
         import_datetime = timezone.now()
+        source_db = source_db or settings.DATABASES[DEFAULT_DB_ALIAS]["NAME"]
 
         for coding_system in coding_systems:
             # Check this coding system is migrate-able (i.e. it's a valid app)
@@ -74,7 +82,7 @@ class Command(BaseCommand):
 
             new_db_path = self.create_new_database(coding_system_version, force)
 
-            self.load_data_to_new_database(coding_system, new_db_path)
+            self.load_data_to_new_database(coding_system, new_db_path, source_db)
 
     def create_new_database(self, coding_system_version, force):
         """
@@ -95,7 +103,7 @@ class Command(BaseCommand):
 
         return new_db_path
 
-    def load_data_to_new_database(self, coding_system, new_db_path):
+    def load_data_to_new_database(self, coding_system, new_db_path, source_db):
         """
         Dump all the coding_system tables from the default DB and load them into the new one
         """
@@ -110,7 +118,7 @@ class Command(BaseCommand):
                 subprocess.run(
                     [
                         "sqlite3",
-                        f"{settings.DATABASES[DEFAULT_DB_ALIAS]['NAME']}",
+                        f"{source_db}",
                         f".dump '{table_name}'",
                     ],
                     stdout=outfile,

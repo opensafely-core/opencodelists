@@ -13,7 +13,7 @@ from coding_systems.versioning.models import (
 
 
 def test_coding_system_version_db_name(coding_system_version):
-    assert coding_system_version.db_name == "snomedct_245584db"
+    assert coding_system_version.db_name == "snomedct_v1_20221001"
 
 
 def test_coding_system_version_most_recent(coding_system_version):
@@ -39,10 +39,6 @@ def test_coding_system_version_most_recent(coding_system_version):
 
     # an unknown coding system
     assert CodingSystemVersion.objects.most_recent("foo") is None
-
-
-def test_get_by_hash(coding_system_version):
-    assert CodingSystemVersion.objects.get_by_hash("245584db") == coding_system_version
 
 
 def test_update_coding_system_database_connections():

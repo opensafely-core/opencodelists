@@ -2,39 +2,38 @@ import dj_database_url
 from django.conf import settings
 from django.db import DEFAULT_DB_ALIAS, connections, models
 from django.db.migrations.executor import MigrationExecutor
-
-from opencodelists.hash_utils import hash, unhash
+from django.utils.functional import cached_property
+from django.utils.text import slugify
 
 
 class CodingSystemVersionManager(models.Manager):
-    def get_by_hash(self, hash):
-        """Return the CodingSystemVersion with given hash."""
-        id = unhash(hash, "CodingSystemVersion")
-        return self.get(id=id)
-
     def most_recent(self, coding_system):
         return self.filter(coding_system=coding_system).order_by("-valid_from").first()
 
 
 class CodingSystemVersion(models.Model):
     coding_system = models.CharField(max_length=10)
-    version = models.CharField(max_length=255, null=True, blank=True)
+    version = models.CharField(max_length=255)
     valid_from = models.DateField()
     import_timestamp = models.DateTimeField(auto_now_add=True)
     import_ref = models.TextField()
+    slug = models.SlugField(max_length=255, unique=True)
 
     objects = CodingSystemVersionManager()
 
     class Meta:
-        unique_together = ("coding_system", "valid_from")
+        unique_together = ("coding_system", "version", "valid_from")
 
-    @property
-    def hash(self):
-        return hash(self.id, "CodingSystemVersion")
-
-    @property
+    @cached_property
     def db_name(self):
-        return f"{self.coding_system}_{self.hash}"
+        return self.slug
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(
+                f"{self.coding_system}_{self.version}_{self.valid_from.strftime('%Y%m%d')}"
+            )
+        return super().save(*args, **kwargs)
 
 
 def database_ready():

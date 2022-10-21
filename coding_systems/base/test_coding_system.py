@@ -16,6 +16,8 @@ def test_most_recent_some_coding_system_versions(
             CODING_SYSTEMS[coding_system].most_recent().version_slug
             == f"{coding_system}_test_20200101"
         )
+    elif coding_system in ["opcs4", "null"]:
+        assert CODING_SYSTEMS[coding_system].most_recent().version_slug == "none"
     else:
         # no CodingSystemVersion created in fixtures for readv2 or bnf
         with pytest.raises(

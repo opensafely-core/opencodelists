@@ -83,3 +83,19 @@ class BaseCodingSystem(ABC):
 
     def codes_by_type(self, codes, hierarchy):
         raise NotImplementedError
+
+
+class DummyCodingSystem(BaseCodingSystem):
+    """
+    Represents a CodingSystem that will never have an associated database.
+    The database alias is set to an string value for any old codelist versions using
+    it, so that the not-null constraint on CodelistVersion.coding_system_version_slug
+    isn't violated
+    """
+
+    def __init__(self, database_alias):
+        super().__init__(database_alias="none")
+
+    @classmethod
+    def most_recent(cls):
+        return cls(database_alias="none")

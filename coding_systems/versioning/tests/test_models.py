@@ -41,16 +41,9 @@ def test_coding_system_version_most_recent(coding_system_version):
     assert CodingSystemVersion.objects.most_recent("foo") is None
 
 
-def test_update_coding_system_database_connections():
-    coding_system_version = CodingSystemVersion.objects.create(
-        coding_system="dmd",
-        version="v1",
-        import_ref="ref",
-        valid_from=datetime(2022, 10, 15, tzinfo=timezone.utc),
-    )
-
-    # coding_system_version is created after django setup, so the database connection
-    # isn't there yet
+def test_update_coding_system_database_connections(coding_system_version):
+    # The coding_system_version fixture is created after django setup, so the database
+    # connection isn't there yet
     assert coding_system_version.db_name not in connections.databases
     with pytest.raises(ConnectionDoesNotExist):
         Concept.objects.using(coding_system_version.db_name).exists()

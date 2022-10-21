@@ -44,6 +44,10 @@ class Codelist(models.Model):
         # e.g. name, id, but is not associated with a specific version of the system
         return CODING_SYSTEMS[self.coding_system_id]
 
+    @cached_property
+    def coding_system_short_name(self):
+        return self.coding_system_cls.short_name
+
     @property
     def codelist_type(self):
         if self.user_id:

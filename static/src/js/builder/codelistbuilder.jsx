@@ -186,6 +186,9 @@ class CodelistBuilder extends React.Component {
               <dt>Coding system</dt>
               <dd>{this.props.metadata.coding_system_name}</dd>
 
+              <dt>Coding system version</dt>
+              <dd>{this.props.metadata.coding_system_version}</dd>
+
               {this.props.metadata.organisation_name ? (
                 <>
                   <dt>Organisation</dt>

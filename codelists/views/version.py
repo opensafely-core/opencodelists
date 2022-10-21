@@ -2,7 +2,6 @@ from django.contrib import messages
 from django.shortcuts import render
 from django.utils.html import format_html
 
-from ..coding_systems import CODING_SYSTEMS
 from ..models import Status
 from ..presenters import present_search_results
 from .decorators import load_version
@@ -16,7 +15,7 @@ def version(request, clv):
     parent_map = None
     tree_tables = None
     if clv.coding_system_id in ["bnf", "ctv3", "icd10", "snomedct"]:
-        coding_system = CODING_SYSTEMS[clv.coding_system_id]
+        coding_system = clv.coding_system
 
         hierarchy = clv.codeset.hierarchy
         parent_map = {p: list(cc) for p, cc in hierarchy.parent_map.items()}

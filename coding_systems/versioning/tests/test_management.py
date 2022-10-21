@@ -14,7 +14,7 @@ from coding_systems.versioning.models import (
 )
 
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def cleanup_db_files(settings):
     yield
     for coding_system_version in CodingSystemVersion.objects.all():
@@ -56,7 +56,7 @@ def db_on_disk(tmp_path):
     yield db_file
 
 
-def test_migrate_coding_system(cleanup_db_files, settings, tmp_path):
+def test_migrate_coding_system(settings, tmp_path):
     settings.DATABASE_DUMP_DIR = tmp_path
 
     assert not CodingSystemVersion.objects.exists()
@@ -68,7 +68,7 @@ def test_migrate_coding_system(cleanup_db_files, settings, tmp_path):
     assert dbpath.exists()
 
 
-def test_migrate_all_coding_systems(cleanup_db_files, settings, tmp_path):
+def test_migrate_all_coding_systems(settings, tmp_path):
     settings.DATABASE_DUMP_DIR = tmp_path
 
     assert not CodingSystemVersion.objects.exists()
@@ -89,7 +89,7 @@ def test_migrate_all_coding_systems(cleanup_db_files, settings, tmp_path):
         assert dbpath.exists()
 
 
-def test_migrate_coding_system_rerun(cleanup_db_files, settings, tmp_path):
+def test_migrate_coding_system_rerun(settings, tmp_path):
     settings.DATABASE_DUMP_DIR = tmp_path
 
     assert not CodingSystemVersion.objects.exists()
@@ -114,7 +114,7 @@ def test_migrate_coding_system_rerun(cleanup_db_files, settings, tmp_path):
 
 
 def test_migrate_coding_system_loads_data(
-    db_on_disk, cleanup_db_files, snomedct_data, settings, tmp_path
+    db_on_disk, snomedct_data, settings, tmp_path
 ):
     settings.DATABASE_DUMP_DIR = tmp_path
     assert not CodingSystemVersion.objects.exists()

@@ -244,6 +244,8 @@ class CodelistVersion(models.Model):
         "Codelist", on_delete=models.CASCADE, related_name="versions"
     )
 
+    coding_system_version_slug = models.SlugField(max_length=255)
+
     status = models.CharField(max_length=len("under review"), choices=Status.choices)
 
     # The user who created this version

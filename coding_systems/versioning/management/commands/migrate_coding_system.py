@@ -80,14 +80,13 @@ class Command(BaseCommand):
 
             self.stdout.write(f"Migrating {coding_system} to new separate database")
 
-            new_db_path = self.create_new_database(coding_system_version, force)
+            new_db_path = self.get_new_database_filepath(coding_system_version, force)
 
             self.load_data_to_new_database(coding_system, new_db_path, source_db)
 
-    def create_new_database(self, coding_system_version, force):
+    def get_new_database_filepath(self, coding_system_version, force):
         """
-        Add the new db config to the connections and run migrate to create the database and
-        tables
+        Generate filepath for the new database and delete existing database file if necessary
         """
         db_name = coding_system_version.db_name
         new_db_path = settings.DATABASE_DIR / f"{db_name}.sqlite3"

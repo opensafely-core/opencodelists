@@ -12,6 +12,9 @@ class CodingSystemVersionManager(models.Manager):
         id = unhash(hash, "CodingSystemVersion")
         return self.get(id=id)
 
+    def most_recent(self, coding_system):
+        return self.filter(coding_system=coding_system).order_by("-valid_from").first()
+
 
 class CodingSystemVersion(models.Model):
     coding_system = models.CharField(max_length=10)
@@ -24,14 +27,6 @@ class CodingSystemVersion(models.Model):
 
     class Meta:
         unique_together = ("coding_system", "valid_from")
-
-    @classmethod
-    def latest(cls, coding_system):
-        return (
-            cls.objects.filter(coding_system=coding_system)
-            .order_by("-valid_from")
-            .first()
-        )
 
     @property
     def hash(self):

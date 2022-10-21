@@ -16,8 +16,8 @@ def test_coding_system_version_db_name(coding_system_version):
     assert coding_system_version.db_name == "snomedct_245584db"
 
 
-def test_coding_system_version_latest(coding_system_version):
-    # latest depends on valid_from date, not imported date
+def test_coding_system_version_most_recent(coding_system_version):
+    # most_recent depends on valid_from date, not imported date
     # make a later import, but for an earlier version
     new_cs_version = CodingSystemVersion.objects.create(
         coding_system="snomedct",
@@ -25,7 +25,7 @@ def test_coding_system_version_latest(coding_system_version):
         import_ref="ref",
         valid_from=datetime(2022, 9, 1, tzinfo=timezone.utc),
     )
-    # latest is coding system-dependent, so a later valid_from version
+    # most_recent is coding system-dependent, so a later valid_from version
     # for a different coding system is irrelevant
     CodingSystemVersion.objects.create(
         coding_system="dmd",
@@ -35,10 +35,10 @@ def test_coding_system_version_latest(coding_system_version):
     )
 
     assert new_cs_version.import_timestamp > coding_system_version.import_timestamp
-    assert CodingSystemVersion.latest("snomedct") == coding_system_version
+    assert CodingSystemVersion.objects.most_recent("snomedct") == coding_system_version
 
     # an unknown coding system
-    assert CodingSystemVersion.latest("foo") is None
+    assert CodingSystemVersion.objects.most_recent("foo") is None
 
 
 def test_get_by_hash(coding_system_version):

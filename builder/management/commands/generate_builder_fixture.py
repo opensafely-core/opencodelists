@@ -2,7 +2,6 @@
 Generate a JSON containing the context that is passed to the page by
 builder.views.codelist, for use in testing frontend code.
 """
-
 import json
 from pathlib import Path
 
@@ -13,6 +12,7 @@ from django.test import override_settings
 from django.test.client import Client
 
 from codelists.actions import export_to_builder
+from codelists.models import Codelist
 from coding_systems.snomedct.models import Concept
 from opencodelists.tests.fixtures import build_fixtures
 
@@ -22,19 +22,31 @@ class Command(BaseCommand):
 
     def handle(self, **kwargs):
         set_up_db()
+        coding_systems_base_path = Path(settings.BASE_DIR, "coding_systems")
+        snomed_fixtures_path = coding_systems_base_path / "snomedct" / "fixtures"
+        for fixture_name in ["core-model-components", "tennis-elbow", "tennis-toe"]:
+            call_command(
+                "loaddata",
+                snomed_fixtures_path / f"{fixture_name}.snomedct_test_20200101.json",
+                database="snomedct_test_20200101",
+            )
 
-        snomed_fixtures_path = Path(
-            settings.BASE_DIR, "coding_systems", "snomedct", "fixtures"
+        # create the CodingSystemVersions so the fixtures can use them to select the coding
+        # system version for a codelist, and the database for retrieving coding system data
+        versioning_fixtures_path = coding_systems_base_path / "versioning" / "fixtures"
+        call_command(
+            "loaddata", versioning_fixtures_path / "coding_system_versions.json"
         )
-        call_command("loaddata", snomed_fixtures_path / "core-model-components.json")
-        call_command("loaddata", snomed_fixtures_path / "tennis-elbow.json")
+
+        # Ensure the coding system fixtures have loaded to the correct database
+        assert Concept.objects.count() == 0
+        assert Concept.objects.using("snomedct_test_20200101").count() > 0
 
         fixtures = build_fixtures()
 
         organisation_user = fixtures["organisation_user"]
         client = Client()
         client.force_login(organisation_user)
-
         for version_key in [
             "version_with_no_searches",
             "version_with_some_searches",
@@ -93,18 +105,24 @@ class Command(BaseCommand):
 
 
 def set_up_db():
-    """Set up the in-memory database so that we can avoid clobbering existing data.
+    """Set up the in-memory databases so that we can avoid clobbering existing data.
 
-    Clear the cached database connection, set up connection to in-memory sqlite3
-    database, and migrate."""
+    Clear the cached database connection, set up connections to in-memory sqlite3
+    databases, and migrate."""
 
     databases = connections.databases
     assert databases["default"]["ENGINE"] == "django.db.backends.sqlite3"
     databases["default"]["NAME"] = ":memory:"
+    databases["snomedct_test_20200101"] = dict(databases["default"])
     del connections.settings
     connections.__init__(settings=databases)
+    # migrate all apps on the default db
     call_command("migrate")
-
+    # migrate just the snomedct app for the test snomedct coding system db
+    call_command("migrate", "snomedct", database="snomedct_test_20200101")
     # This is a belt-and-braces check to ensure that the above hackery has worked.
-    if Concept.objects.count() > 0:
-        raise CommandError("Must be run against empty database")
+    if (
+        Codelist.objects.using("default").count() > 0
+        or Concept.objects.using("snomedct_test_20200101").count() > 0
+    ):
+        raise CommandError("Must be run against empty databases")

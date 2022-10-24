@@ -2,13 +2,13 @@
   "searches": [
     {
       "term_or_code": "arthritis",
-      "url": "/builder/05657fec/search/arthritis/",
-      "delete_url": "/builder/05657fec/search/arthritis/delete/",
+      "url": "/builder/08183fe2/search/arthritis/",
+      "delete_url": "/builder/08183fe2/search/arthritis/delete/",
       "active": false
     },
     {
       "term_or_code": "[no search term]",
-      "url": "/builder/05657fec/no-search-term/",
+      "url": "/builder/08183fe2/no-search-term/",
       "active": false
     }
   ],
@@ -480,44 +480,45 @@
     "73583000": "(+)"
   },
   "is_editable": true,
-  "update_url": "/builder/05657fec/update/",
-  "search_url": "/builder/05657fec/search/",
+  "update_url": "/builder/08183fe2/update/",
+  "search_url": "/builder/08183fe2/search/",
   "versions": [
     {
-      "tag_or_hash": "05657fec",
-      "url": "/codelist/test-university/new-style-codelist/05657fec/",
+      "tag_or_hash": "08183fe2",
+      "url": "/codelist/test-university/new-style-codelist/08183fe2/",
       "status": "draft",
       "current": true
     },
     {
-      "tag_or_hash": "1e74f321",
-      "url": "/codelist/test-university/new-style-codelist/1e74f321/",
+      "tag_or_hash": "2127b317",
+      "url": "/codelist/test-university/new-style-codelist/2127b317/",
       "status": "draft",
       "current": false
     },
     {
-      "tag_or_hash": "02b2bff6",
-      "url": "/codelist/test-university/new-style-codelist/02b2bff6/",
+      "tag_or_hash": "37846656",
+      "url": "/codelist/test-university/new-style-codelist/37846656/",
       "status": "under review",
       "current": false
     },
     {
-      "tag_or_hash": "1bc2332b",
-      "url": "/codelist/test-university/new-style-codelist/1bc2332b/",
+      "tag_or_hash": "5093d98b",
+      "url": "/codelist/test-university/new-style-codelist/5093d98b/",
       "status": "under review",
       "current": false
     },
     {
-      "tag_or_hash": "34d1a660",
-      "url": "/codelist/test-university/new-style-codelist/34d1a660/",
+      "tag_or_hash": "69a34cc0",
+      "url": "/codelist/test-university/new-style-codelist/69a34cc0/",
       "status": "published",
       "current": false
     }
   ],
   "metadata": {
     "coding_system_name": "SNOMED CT",
+    "coding_system_version": "test",
     "organisation_name": "Test University",
     "codelist_full_slug": "test-university/new-style-codelist",
-    "hash": "05657fec"
+    "hash": "08183fe2"
   }
 }

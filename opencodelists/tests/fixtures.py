@@ -131,6 +131,9 @@ from opencodelists.models import User
 
 SNOMED_FIXTURES_PATH = Path(settings.BASE_DIR, "coding_systems", "snomedct", "fixtures")
 DMD_FIXTURES_PATH = Path(settings.BASE_DIR, "coding_systems", "dmd", "fixtures")
+CODING_SYSTEM_VERSIONS_FIXTURES_PATH = Path(
+    settings.BASE_DIR, "coding_systems", "versioning", "fixtures"
+)
 
 
 def build_fixture(fixture_name):
@@ -160,19 +163,45 @@ def build_fixture(fixture_name):
 
 
 @pytest.fixture(scope="session")
-def snomedct_data(django_db_setup, django_db_blocker):
+def setup_coding_systems(django_db_setup, django_db_blocker):
     with django_db_blocker.unblock():
-        # load enough of the SNOMED CT hierarchy to be useful
-        call_command("loaddata", SNOMED_FIXTURES_PATH / "core-model-components.json")
-        call_command("loaddata", SNOMED_FIXTURES_PATH / "tennis-elbow.json")
-        call_command("loaddata", SNOMED_FIXTURES_PATH / "tennis-toe.json")
+        # load the CodingSystemVersions needed for the snomed and dmd fixtures
+        call_command(
+            "loaddata",
+            CODING_SYSTEM_VERSIONS_FIXTURES_PATH / "coding_system_versions.json",
+        )
 
 
 @pytest.fixture(scope="session")
-def dmd_data(django_db_setup, django_db_blocker):
+def snomedct_data(setup_coding_systems, django_db_setup, django_db_blocker):
+    with django_db_blocker.unblock():
+        # load enough of the SNOMED CT hierarchy to be useful
+        call_command(
+            "loaddata",
+            SNOMED_FIXTURES_PATH / "core-model-components.snomedct_test_20200101.json",
+            database="snomedct_test_20200101",
+        )
+        call_command(
+            "loaddata",
+            SNOMED_FIXTURES_PATH / "tennis-elbow.snomedct_test_20200101.json",
+            database="snomedct_test_20200101",
+        )
+        call_command(
+            "loaddata",
+            SNOMED_FIXTURES_PATH / "tennis-toe.snomedct_test_20200101.json",
+            database="snomedct_test_20200101",
+        )
+
+
+@pytest.fixture(scope="session")
+def dmd_data(setup_coding_systems, django_db_setup, django_db_blocker):
     with django_db_blocker.unblock():
         # load a very small amount of the DMD coding system
-        call_command("loaddata", DMD_FIXTURES_PATH / "asthma-medication.json")
+        call_command(
+            "loaddata",
+            DMD_FIXTURES_PATH / "asthma-medication.dmd_test_20200101.json",
+            database="dmd_test_20200101",
+        )
 
 
 @pytest.fixture(scope="session")
@@ -619,17 +648,21 @@ def load_codes_from_csv(filename):
     return [row[0] for row in rows[1:]]
 
 
+def _get_coding_system(coding_system_id):
+    return CODING_SYSTEMS[coding_system_id].most_recent()
+
+
 def codes_for_search_term(term):
     """Return codes matching search term."""
 
-    coding_system = CODING_SYSTEMS["snomedct"]
+    coding_system = _get_coding_system("snomedct")
     return do_search(coding_system, term=term)["all_codes"]
 
 
 def codes_for_search_code(code):
     """Return codes matching search code."""
 
-    coding_system = CODING_SYSTEMS["snomedct"]
+    coding_system = _get_coding_system("snomedct")
     return do_search(coding_system, code=code)["all_codes"]
 
 
@@ -761,5 +794,11 @@ def create_codelists(organisation):
 
 @pytest.fixture
 def icd10_data():
-    path = Path(settings.BASE_DIR, "coding_systems", "icd10", "fixtures", "icd10.json")
-    call_command("loaddata", path)
+    path = Path(
+        settings.BASE_DIR,
+        "coding_systems",
+        "icd10",
+        "fixtures",
+        "icd10.icd10_test_20200101.json",
+    )
+    call_command("loaddata", path, database="icd10_test_20200101")

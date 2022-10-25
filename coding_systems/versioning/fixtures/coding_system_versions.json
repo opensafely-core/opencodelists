@@ -1,0 +1,50 @@
+[
+{
+  "model": "versioning.codingsystemversion",
+  "pk": 1,
+  "fields": {
+    "coding_system": "snomedct",
+    "version": "test",
+    "valid_from": "2020-01-01",
+    "import_timestamp": "2022-10-24T15:38:52.231Z",
+    "import_ref": "unknown",
+    "slug": "snomedct_test_20200101"
+  }
+},
+{
+  "model": "versioning.codingsystemversion",
+  "pk": 2,
+  "fields": {
+    "coding_system": "dmd",
+    "version": "test",
+    "valid_from": "2020-01-01",
+    "import_timestamp": "2022-10-24T15:38:52.231Z",
+    "import_ref": "unknown",
+    "slug": "dmd_test_20200101"
+  }
+},
+{
+  "model": "versioning.codingsystemversion",
+  "pk": 3,
+  "fields": {
+    "coding_system": "icd10",
+    "version": "test",
+    "valid_from": "2020-01-01",
+    "import_timestamp": "2022-10-24T15:38:52.231Z",
+    "import_ref": "unknown",
+    "slug": "icd10_test_20200101"
+  }
+},
+{
+  "model": "versioning.codingsystemversion",
+  "pk": 4,
+  "fields": {
+    "coding_system": "ctv3",
+    "version": "test",
+    "valid_from": "2020-01-01",
+    "import_timestamp": "2022-10-24T15:38:52.231Z",
+    "import_ref": "unknown",
+    "slug": "ctv3_test_20200101"
+  }
+}
+]

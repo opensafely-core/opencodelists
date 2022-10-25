@@ -1,5 +1,18 @@
 import pytest
 from django.db import connections
+from django.test import TestCase
+
+# TestCase.databases sets the databases that tests have access to; this allows all tests
+# access to the test coding system databases in addition to the default db
+database_aliases = {
+    "default",
+    "snomedct_test_20200101",
+    "dmd_test_20200101",
+    "icd10_test_20200101",
+    "ctv3_test_20200101",
+    "bnf_test_20200101",
+}
+TestCase.databases = database_aliases
 
 # This register_assert_rewrite must appear before the module is imported.
 pytest.register_assert_rewrite("opencodelists.tests.fixtures")
@@ -12,6 +25,23 @@ pytest.register_assert_rewrite("opencodelists.tests.assertions")
 @pytest.fixture(autouse=True)
 def enable_db_access_for_all_tests(db):
     pass
+
+
+@pytest.fixture(scope="session")
+def django_db_modify_db_settings():
+    """
+    This is a pytest-django fixture called in the `django_db_setup` fixture, and
+    provides a hook for modifying the DATABASES setting prior to test db configuration.
+    It's used here to add in the test coding system dbs.  This needs to be done here,
+    rather than calling  `versioning.models.update_coding_system_database_connections`
+    so that the database connections are available at the point where the tests load the
+    coding system fixtures, which is prior to db configuration.
+    """
+    from django.conf import settings
+
+    coding_system_db_aliases = database_aliases - {"default"}
+    for alias in coding_system_db_aliases:
+        settings.DATABASES[alias] = dict(settings.DATABASES["default"])
 
 
 @pytest.fixture(autouse=True)

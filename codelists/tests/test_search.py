@@ -3,7 +3,7 @@ from codelists.search import do_search
 
 
 def test_do_search(snomedct_data):
-    coding_system = CODING_SYSTEMS["snomedct"]
+    coding_system = CODING_SYSTEMS["snomedct"].most_recent()
 
     search_results = do_search(coding_system, "elbow")
 

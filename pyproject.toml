@@ -5,7 +5,8 @@ omit = [
   "opencodelists/django_test_runner.py",
   "opencodelists/settings.py",
   "opencodelists/wsgi.py",
-  "staticfiles"
+  "staticfiles",
+  "*/migrations/*"
 ]
 
 [tool.coverage.report]

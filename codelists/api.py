@@ -116,6 +116,7 @@ def codelists_post(request, owner):
         * name
         * coding_system_id
         * codes
+        * coding_system_version_slug (optional)
         * slug (optional)
         * tag (optional)
         * description (optional)
@@ -132,6 +133,7 @@ def codelists_post(request, owner):
 
     required_keys = ["name", "coding_system_id", "codes"]
     optional_keys = [
+        "coding_system_version_slug",
         "slug",
         "tag",
         "description",
@@ -174,6 +176,7 @@ def versions(request, codelist):
                 codelist=codelist,
                 codes=set(data["codes"]),
                 tag=data.get("tag"),
+                coding_system_version_slug=data.get("coding_system_version_slug"),
                 always_create_new_version=data.get("always_create_new_version", False),
             )
 
@@ -182,6 +185,7 @@ def versions(request, codelist):
                 codelist=codelist,
                 expr=data["ecl"],
                 tag=data.get("tag"),
+                coding_system_version_slug=data.get("coding_system_version_slug"),
             )
 
         else:

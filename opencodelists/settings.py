@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     "builder",
     "codelists",
     "superusers",
+    "coding_systems.versioning",
     "coding_systems.bnf",
     "coding_systems.ctv3",
     "coding_systems.dmd",
@@ -135,10 +136,21 @@ WSGI_APPLICATION = "opencodelists.wsgi.application"
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 # Increase timeout from the default 15s to minimise "database is locked" errors
 # see https://docs.djangoproject.com/en/4.0/ref/databases/#database-is-locked-errors
+
+# The default database holds data for all apps/models (including CodingSystemVersion)
+# EXCEPT the coding systems themselves.
+# Coding systems are in separate databases, one db per coding system and version
+# Coding system version db connections are added after the apps have loaded, using
+# the data in the CodingSystemVersion table
+# see coding_systems.versioning.models.update_coding_system_database_connections (called
+# from coding_systems.versioning.apps)
 DATABASES = {
     "default": env.dj_db_url("DATABASE_URL", "sqlite:///db.sqlite3"),
     "OPTIONS": {"timeout": 30},
 }
+
+DATABASE_DIR = env("DATABASE_DIR", BASE_DIR)  # location of sqlite files e.g. /storage/
+DATABASE_DUMP_DIR = DATABASE_DIR / "sql_dump"
 
 # Default type for auto-created primary keys
 # https://docs.djangoproject.com/en/3.2/releases/3.2/#customizing-type-of-auto-created-primary-keys

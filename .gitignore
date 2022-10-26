@@ -1,4 +1,5 @@
-db.sqlite3
+*.sqlite3
+sql_dump/
 environment
 tmp
 venv

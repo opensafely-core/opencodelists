@@ -1,1 +1,2 @@
 # list ubuntu packages needed in production, one per line
+sqlite3

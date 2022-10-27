@@ -14,14 +14,15 @@ def test_get_mappings():
     effective_time = datetime.datetime(2020, 1, 1)
 
     # construct a mapping between a pair of SNOMED CT and CTV3 codes
-    snomed_concept = SCTConcept(
-        id="54219001", effective_time=effective_time, active=True
+    snomed_concept = SCTConcept.objects.using("snomedct_test_20200101").create(
+        id="54219001",
+        effective_time=effective_time,
+        active=True,
+        definition_status_id="54219001",
+        module_id="54219001",
     )
-    snomed_concept.definition_status = snomed_concept
-    snomed_concept.module = snomed_concept
-    snomed_concept.save()
 
-    description = Description.objects.create(
+    description = Description.objects.using("snomedct_test_20200101").create(
         active=True,
         case_significance=snomed_concept,
         concept=snomed_concept,
@@ -30,13 +31,11 @@ def test_get_mappings():
         type=snomed_concept,
     )
 
-    ctv3_concept = CTV3Concept(
-        read_code="J650.",
+    ctv3_concept = CTV3Concept.objects.using("ctv3_test_20200101").create(
+        read_code="J650.", another_concept_id="J650."
     )
-    ctv3_concept.another_concept = ctv3_concept
-    ctv3_concept.save()
 
-    term = RawTerm.objects.create()
+    term = RawTerm.objects.using("ctv3_test_20200101").create()
     ctv3_concept.terms.add(term)
 
     Mapping.objects.create(

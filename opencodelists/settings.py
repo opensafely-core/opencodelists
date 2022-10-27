@@ -149,7 +149,9 @@ DATABASES = {
     "OPTIONS": {"timeout": 30},
 }
 
-DATABASE_DIR = env("DATABASE_DIR", BASE_DIR)  # location of sqlite files e.g. /storage/
+DATABASE_DIR = Path(
+    env("DATABASE_DIR", BASE_DIR)
+)  # location of sqlite files e.g. /storage/
 DATABASE_DUMP_DIR = DATABASE_DIR / "sql_dump"
 
 # Default type for auto-created primary keys

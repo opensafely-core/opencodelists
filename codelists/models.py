@@ -498,10 +498,13 @@ class CodelistVersion(models.Model):
     def definition_csv_data_for_download(self):
         return rows_to_csv_data(present_definition_for_download(self))
 
-    def dmd_csv_data_for_download(self):
+    def dmd_csv_data_for_download(self, dmd_database_alias=None):
         assert self.coding_system_id == "bnf"
+        dmd_coding_system = CODING_SYSTEMS["dmd"].get_by_release_or_most_recent(
+            dmd_database_alias
+        )
         headers = ["dmd_type", "dmd_id", "dmd_name", "bnf_code"]
-        return dict_rows_to_csv_data(headers, bnf_to_dmd(self.codes))
+        return dict_rows_to_csv_data(headers, bnf_to_dmd(self.codes, dmd_coding_system))
 
     def download_filename(self):
         if self.codelist_type == "user":

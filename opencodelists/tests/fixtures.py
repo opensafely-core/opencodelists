@@ -131,6 +131,7 @@ from opencodelists.models import User
 
 SNOMED_FIXTURES_PATH = Path(settings.BASE_DIR, "coding_systems", "snomedct", "fixtures")
 DMD_FIXTURES_PATH = Path(settings.BASE_DIR, "coding_systems", "dmd", "fixtures")
+BNF_FIXTURES_PATH = Path(settings.BASE_DIR, "coding_systems", "bnf", "fixtures")
 CODING_SYSTEM_RELEASES_FIXTURES_PATH = Path(
     settings.BASE_DIR, "coding_systems", "versioning", "fixtures"
 )
@@ -205,7 +206,18 @@ def dmd_data(setup_coding_systems, django_db_setup, django_db_blocker):
 
 
 @pytest.fixture(scope="session")
-def universe(snomedct_data, dmd_data, django_db_setup, django_db_blocker):
+def bnf_data(setup_coding_systems, django_db_setup, django_db_blocker):
+    with django_db_blocker.unblock():
+        # load a very small amount of the BNF coding system
+        call_command(
+            "loaddata",
+            BNF_FIXTURES_PATH / "asthma.bnf_test_20200101.json",
+            database="bnf_test_20200101",
+        )
+
+
+@pytest.fixture(scope="session")
+def universe(snomedct_data, dmd_data, bnf_data, django_db_setup, django_db_blocker):
     """Create universe of fixture objects.
 
     This fixture will be loaded exactly once per session.  It is not expected that it is
@@ -267,6 +279,9 @@ def build_fixtures():
     asthma_medication_refill_csv_data = load_csv_data(
         "asthma-medication-refill.csv", DMD_FIXTURES_PATH
     )
+
+    # asthma_medications_refill_csv_data
+    bnf_asthma_csv_data = load_codes_from_csv("asthma.csv", BNF_FIXTURES_PATH)
 
     # organisation
     # - has two users:
@@ -392,6 +407,27 @@ def build_fixtures():
         csv_data=asthma_medication_refill_csv_data,
         coding_system_database_alias=most_recent_database_alias("dmd"),
     )
+
+    # bnf codelist
+    # - owned by organisation
+    # - has 1 versions:
+    #   - bnf_version_asthma
+    bnf_codelist = create_codelist_with_codes(
+        owner=organisation,
+        name="BNF Codelist",
+        coding_system_id="bnf",
+        coding_system_database_alias=most_recent_database_alias("bnf"),
+        codes=bnf_asthma_csv_data,
+        references=[
+            {"text": "Reference 1", "url": "https://example.com/reference1"},
+            {"text": "Reference 2", "url": "https://example.com/reference2"},
+        ],
+        signoffs=[
+            {"user": organisation_user, "date": "2020-02-29"},
+            {"user": collaborator, "date": "2020-02-29"},
+        ],
+    )
+    bnf_version_asthma = bnf_codelist.versions.first()
 
     # new_style_codelist
     # - belongs to organisation
@@ -647,7 +683,6 @@ def load_csv_data(filename, fixtures_path=None):
 
 def load_csv_data_no_header(filename):
     """Return CSV data in given filename, dropping header."""
-
     with open(SNOMED_FIXTURES_PATH / filename) as f:
         rows = list(csv.reader(f))[1:]
 
@@ -657,10 +692,10 @@ def load_csv_data_no_header(filename):
     return buffer.getvalue()
 
 
-def load_codes_from_csv(filename):
+def load_codes_from_csv(filename, fixtures_path=None):
     """Return codes in CSV file at given filename."""
-
-    with open(SNOMED_FIXTURES_PATH / filename) as f:
+    fixtures_path = fixtures_path or SNOMED_FIXTURES_PATH
+    with open(fixtures_path / filename) as f:
         rows = list(csv.reader(f))
 
     return [row[0] for row in rows[1:]]
@@ -716,6 +751,7 @@ dmd_version_asthma_medication_alt_headers = build_fixture(
 dmd_version_asthma_medication_refill = build_fixture(
     "dmd_version_asthma_medication_refill"
 )
+bnf_version_asthma = build_fixture("bnf_version_asthma")
 
 new_style_codelist = build_fixture("new_style_codelist")
 organisation_codelist = build_fixture("organisation_codelist")

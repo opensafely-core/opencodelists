@@ -1,0 +1,74 @@
+[
+    {
+      "model": "bnf.concept",
+      "pk": "03",
+      "fields": {
+        "type": "Chapter",
+        "name": "Respiratory System",
+        "parent": null
+      }
+    },
+    {
+      "model": "bnf.concept",
+      "pk": "0301",
+      "fields": {
+        "type": "Section",
+        "name": "Bronchodilators",
+        "parent": "03"
+      }
+    },
+    {
+      "model": "bnf.concept",
+      "pk": "030101",
+      "fields": {
+        "type": "Paragraph",
+        "name": "Adrenoceptor agonists",
+        "parent": "0301"
+      }
+    },
+    {
+      "model": "bnf.concept",
+      "pk": "0301012",
+      "fields": {
+        "type": "Subparagraph",
+        "name": "Other andrenoceptor agonists",
+        "parent": "030101"
+      }
+    },
+    {
+      "model": "bnf.concept",
+      "pk": "0301012A0",
+      "fields": {
+        "type": "Chemical Substance",
+        "name": "Adrenaline",
+        "parent": "0301012"
+      }
+    },
+    {
+      "model": "bnf.concept",
+      "pk": "0301012A0AA",
+      "fields": {
+        "type": "Product",
+        "name": "Adrenaline (Asthma)",
+        "parent": "0301012A0"
+      }
+    },
+    {
+      "model": "bnf.concept",
+      "pk": "0301012A0AAABAB",
+      "fields": {
+        "type": "Presentation",
+        "name": "Adrenaline (base) 220micrograms/dose inhaler",
+        "parent": "0301012A0AA"
+      }
+    },
+    {
+      "model": "bnf.concept",
+      "pk": "0301012A0AAACAC",
+      "fields": {
+        "type": "Presentation",
+        "name": "Adrenaline (base) 220micrograms/dose inhaler refill",
+        "parent": "0301012A0AA"
+      }
+    }
+]

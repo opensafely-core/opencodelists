@@ -46,5 +46,17 @@
     "import_ref": "unknown",
     "database_alias": "ctv3_test_20200101"
   }
+},
+{
+  "model": "versioning.codingsystemrelease",
+  "pk": 5,
+  "fields": {
+    "coding_system": "bnf",
+    "release_name": "test",
+    "valid_from": "2020-01-01",
+    "import_timestamp": "2022-10-24T15:38:52.231Z",
+    "import_ref": "unknown",
+    "database_alias": "bnf_test_20200101"
+  }
 }
 ]

@@ -8,6 +8,7 @@ from pathlib import Path
 from django.conf import settings
 from django.core.management import BaseCommand, CommandError, call_command
 from django.db import connections
+from django.db.utils import OperationalError
 from django.test import override_settings
 from django.test.client import Client
 
@@ -39,7 +40,20 @@ class Command(BaseCommand):
         )
 
         # Ensure the coding system fixtures have loaded to the correct database
-        assert Concept.objects.count() == 0
+        # Not only should there be no coding system data in the default database, but migrations
+        # for the snomedct app should not have run on the default database at all
+        # In order to confirm that this is the case, we attempt to access a snomedct Concept model
+        # using the default database, and check that it raises an OperationError as expected, as the
+        # snomedct_concept table doesn't exist in the database
+        try:
+            Concept.objects.using("default").count()
+        except OperationalError:
+            pass
+        else:
+            raise CommandError(
+                "Default database should not contain coding system tables"
+            )
+        # The fixtures have loaded as expected, to the snomedct test database
         assert Concept.objects.using("snomedct_test_20200101").count() > 0
 
         fixtures = build_fixtures()

@@ -51,7 +51,11 @@ def update_coding_system_database_connections():
     # (i.e. migrations have been run)
     if database_ready():  # pragma: no cover
         for coding_system_version in CodingSystemVersion.objects.all():
-            db_path = settings.DATABASE_DIR / f"{coding_system_version.db_name}.sqlite3"
+            db_path = (
+                settings.CODING_SYSTEMS_DATABASE_DIR
+                / coding_system_version.coding_system
+                / f"{coding_system_version.db_name}.sqlite3"
+            )
             database_dict = {
                 **connections.databases[DEFAULT_DB_ALIAS],
                 **dj_database_url.parse(f"sqlite:///{db_path}"),

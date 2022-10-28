@@ -89,7 +89,11 @@ class Command(BaseCommand):
         Generate filepath for the new database and delete existing database file if necessary
         """
         db_name = coding_system_version.db_name
-        new_db_path = settings.DATABASE_DIR / f"{db_name}.sqlite3"
+        new_db_path = (
+            settings.CODING_SYSTEMS_DATABASE_DIR
+            / coding_system_version.coding_system
+            / f"{db_name}.sqlite3"
+        )
 
         if new_db_path.exists() and force:
             self.stdout.write(f"Database {new_db_path} already exists, deleting...")

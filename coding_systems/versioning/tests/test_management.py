@@ -18,7 +18,11 @@ from coding_systems.versioning.models import (
 def cleanup_db_files(settings):
     yield
     for coding_system_version in CodingSystemVersion.objects.all():
-        dbpath = settings.DATABASE_DIR / f"{coding_system_version.db_name}.sqlite3"
+        dbpath = (
+            settings.CODING_SYSTEMS_DATABASE_DIR
+            / coding_system_version.coding_system
+            / f"{coding_system_version.db_name}.sqlite3"
+        )
         if dbpath.exists():  # pragma: no cover
             dbpath.unlink()
 
@@ -57,19 +61,23 @@ def db_on_disk(tmp_path):
 
 
 def test_migrate_coding_system(settings, tmp_path):
-    settings.DATABASE_DUMP_DIR = tmp_path
+    settings.DATABASE_DIR = tmp_path
 
     assert not CodingSystemVersion.objects.exists()
     call_command("migrate_coding_system", coding_systems=["snomedct"])
 
     assert CodingSystemVersion.objects.count() == 1
     coding_system_ver = CodingSystemVersion.objects.first()
-    dbpath = settings.DATABASE_DIR / f"{coding_system_ver.db_name}.sqlite3"
+    dbpath = (
+        settings.CODING_SYSTEMS_DATABASE_DIR
+        / "snomedct"
+        / f"{coding_system_ver.db_name}.sqlite3"
+    )
     assert dbpath.exists()
 
 
 def test_migrate_all_coding_systems(settings, tmp_path):
-    settings.DATABASE_DUMP_DIR = tmp_path
+    settings.DATABASE_DIR = tmp_path
 
     assert not CodingSystemVersion.objects.exists()
     call_command("migrate_coding_system")
@@ -85,12 +93,16 @@ def test_migrate_all_coding_systems(settings, tmp_path):
     assert set(apps.app_configs) & non_versioned_coding_systems == set()
 
     for coding_system_version in CodingSystemVersion.objects.all():
-        dbpath = settings.DATABASE_DIR / f"{coding_system_version.db_name}.sqlite3"
+        dbpath = (
+            settings.CODING_SYSTEMS_DATABASE_DIR
+            / coding_system_version.coding_system
+            / f"{coding_system_version.db_name}.sqlite3"
+        )
         assert dbpath.exists()
 
 
 def test_migrate_coding_system_rerun(settings, tmp_path):
-    settings.DATABASE_DUMP_DIR = tmp_path
+    settings.DATABASE_DIR = tmp_path
 
     assert not CodingSystemVersion.objects.exists()
     call_command("migrate_coding_system", coding_systems=["snomedct"])
@@ -116,14 +128,18 @@ def test_migrate_coding_system_rerun(settings, tmp_path):
 def test_migrate_coding_system_loads_data(
     db_on_disk, snomedct_data, settings, tmp_path
 ):
-    settings.DATABASE_DUMP_DIR = tmp_path
+    settings.DATABASE_DIR = tmp_path
     assert not CodingSystemVersion.objects.exists()
     call_command(
         "migrate_coding_system", coding_systems=["snomedct"], source_db=db_on_disk
     )
     assert CodingSystemVersion.objects.count() == 1
     coding_system_ver = CodingSystemVersion.objects.first()
-    dbpath = settings.DATABASE_DIR / f"{coding_system_ver.db_name}.sqlite3"
+    dbpath = (
+        settings.CODING_SYSTEMS_DATABASE_DIR
+        / "snomedct"
+        / f"{coding_system_ver.db_name}.sqlite3"
+    )
     assert dbpath.exists()
 
     # update the connections so `using` can find the db we've just loaded

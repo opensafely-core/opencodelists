@@ -41,7 +41,9 @@ def test_coding_system_version_most_recent(coding_system_version):
     assert CodingSystemVersion.objects.most_recent("foo") is None
 
 
-def test_update_coding_system_database_connections(coding_system_version):
+def test_update_coding_system_database_connections(
+    coding_systems_tmp_path, coding_system_version
+):
     # The coding_system_version fixture is created after django setup, so the database
     # connection isn't there yet
     assert coding_system_version.db_name not in connections.databases

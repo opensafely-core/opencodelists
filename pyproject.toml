@@ -1,16 +1,3 @@
-[tool.black]
-exclude = '''
-(
-  /(
-      \.git         # exclude a few common directories in the
-    | \.direnv
-    | \.venv
-    | venv
-    | staticfiles
-  )/
-)
-'''
-
 [tool.coverage.run]
 branch = true
 omit = [

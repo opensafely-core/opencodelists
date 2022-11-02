@@ -1,15 +1,31 @@
-import glob
-import os
+from pathlib import Path
+from tempfile import TemporaryDirectory
+from zipfile import ZipFile
 
-from django.db import connection, transaction
+import structlog
+from django.db import connections
 from django.db.models import fields as django_fields
 from lxml import etree
 
-from . import models
+from coding_systems.base.import_data_utils import CodingSystemImporter
+from coding_systems.dmd import models
+
+logger = structlog.get_logger()
 
 
-@transaction.atomic
-def import_data(release_dir):
+def import_data(release_zipfile, release_name, valid_from, import_ref=None):
+    with TemporaryDirectory() as tempdir:
+        release_zip = ZipFile(release_zipfile)
+        logger.info("Extracting", release_zip=release_zip.filename)
+        release_zip.extractall(path=tempdir)
+
+        with CodingSystemImporter(
+            "dmd", release_name, valid_from, import_ref
+        ) as database_alias:
+            import_coding_system(Path(tempdir), database_alias)
+
+
+def import_coding_system(release_dir, database_alias):
     # dm+d data is provided in several XML files:
     #
     # * f_amp2_3[ddmmyy].xml
@@ -77,28 +93,45 @@ def import_data(release_dir):
     # When importing the data, we first delete all existing instances,
     # because the IDs of some SNOMED objects can change.
 
+    # Retrieve the full filepath for each expected XML file first
+    # Some of the models take a long time to load, this means we can check the
+    # expected files are there before we attempt to import all the data from each one.
+    file_fragments = [
+        "lookup",
+        "ingredient",
+        "vtm",
+        "vmp",
+        "vmpp",
+        "amp",
+        "ampp",
+        "gtin",
+    ]
+    filepaths = {
+        fragment: get_filepath(release_dir, fragment) for fragment in file_fragments
+    }
+
     # lookup
-    for elements in load_elements(release_dir, "lookup"):
+    for elements in load_elements(filepaths["lookup"]):
         model_name = make_model_name(elements.tag)
         model = getattr(models, model_name)
-        import_model(model, elements)
+        import_model(model, elements, database_alias)
 
     # ingredient
-    elements = load_elements(release_dir, "ingredient")
-    import_model(models.Ing, elements)
+    elements = load_elements(filepaths["ingredient"])
+    import_model(models.Ing, elements, database_alias)
 
     # vtm
-    elements = load_elements(release_dir, "vtm")
-    import_model(models.VTM, elements)
+    elements = load_elements(filepaths["vtm"])
+    import_model(models.VTM, elements, database_alias)
 
     # vmp
-    for elements in load_elements(release_dir, "vmp"):
+    for elements in load_elements(filepaths["vmp"]):
         model_name = make_model_name(elements[0].tag)
         model = getattr(models, model_name)
-        import_model(model, elements)
+        import_model(model, elements, database_alias)
 
     # vmpp
-    for elements in load_elements(release_dir, "vmpp"):
+    for elements in load_elements(filepaths["vmpp"]):
         if elements[0].tag == "CCONTENT":
             # We don't yet handle the CCONTENT tag, which indicates that a
             # VMPP is part of a combination pack, where two VMPPs are
@@ -107,10 +140,10 @@ def import_data(release_dir):
 
         model_name = make_model_name(elements[0].tag)
         model = getattr(models, model_name)
-        import_model(model, elements)
+        import_model(model, elements, database_alias)
 
     # amp
-    for elements in load_elements(release_dir, "amp"):
+    for elements in load_elements(filepaths["amp"]):
         if len(elements) == 0:
             # For test data, some lists of elements are empty (eg
             # AP_INFORMATION), and so we can't look at the first element of
@@ -119,10 +152,10 @@ def import_data(release_dir):
 
         model_name = make_model_name(elements[0].tag)
         model = getattr(models, model_name)
-        import_model(model, elements)
+        import_model(model, elements, database_alias)
 
     # ampp
-    for elements in load_elements(release_dir, "ampp"):
+    for elements in load_elements(filepaths["ampp"]):
         if len(elements) == 0:
             # For test data, some lists of elements are empty (eg
             # APPLIANCE_PACK_INFO), and so we can't look at the first
@@ -138,42 +171,53 @@ def import_data(release_dir):
 
         model_name = make_model_name(elements[0].tag)
         model = getattr(models, model_name)
-        import_model(model, elements)
+        import_model(model, elements, database_alias)
 
     # gtin
-    elements = load_elements(release_dir, "gtin")[0]
+    elements = load_elements(filepaths["gtin"])[0]
     for element in elements:
-        assert element[0].tag == "AMPPID"
-        assert element[1].tag == "GTINDATA"
+        assert (
+            element[0].tag == "AMPPID"
+        ), f"Expected AMPPID as first element, got {element[0].tag}"
+        assert (
+            element[1].tag == "GTINDATA"
+        ), f"Expected GTINDATA as second element, got {element[1].tag}"
 
         element[0].tag = "APPID"
         for gtinelt in element[1]:
             element.append(gtinelt)
         element.remove(element[1])
-    import_model(models.GTIN, elements)
+    import_model(models.GTIN, elements, database_alias)
 
 
-def load_elements(release_dir, filename_fragment):
+def get_filepath(release_dir, filename_fragment):
+    paths = list(release_dir.glob("f_{}2_*.xml".format(filename_fragment)))
+    assert (
+        len(paths) == 1
+    ), f"Expected 1 path for {f'f_{filename_fragment}2_*.xml'}, found {len(paths)}"
+    return paths[0]
+
+
+def load_elements(filepath):
     """Return list of non-comment top-level elements in given file."""
 
-    paths = glob.glob(
-        os.path.join(release_dir, "f_{}2_*.xml".format(filename_fragment))
-    )
-    assert len(paths) == 1
-
-    with open(paths[0]) as f:
+    logger.info("Reading file", file=filepath)
+    with open(filepath) as f:
         doc = etree.parse(f)
 
     root = doc.getroot()
     elements = list(root)
-    assert isinstance(elements[0], etree._Comment)
+    assert isinstance(
+        elements[0], etree._Comment
+    ), f"Expected etree._Comment first row, got {type(elements[0])}"
     return elements[1:]
 
 
-def import_model(model, elements):
+def import_model(model, elements, database):
     """Import model instances from list of XML elements."""
 
-    model.objects.all().delete()
+    # ensure the starting db is empty
+    assert not model.objects.using(database).exists(), f"Expected empty db for {model}"
 
     boolean_field_names = [
         f.name for f in model._meta.fields if isinstance(f, django_fields.BooleanField)
@@ -191,6 +235,7 @@ def import_model(model, elements):
 
     values = []
 
+    logger.info("Loading model", model=model.__name__)
     for element in elements:
         row = {}
 
@@ -212,8 +257,7 @@ def import_model(model, elements):
             row[name] = name in row
 
         values.append([row.get(name) for name in column_names])
-
-    with connection.cursor() as cursor:
+    with connections[database].cursor() as cursor:
         cursor.executemany(sql, values)
 
 

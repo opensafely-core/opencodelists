@@ -2,20 +2,42 @@
 https://apps.who.int/classifications/apps/icd/ClassificationDownload/DLArea/Download.aspx"""
 
 from collections import defaultdict
+from pathlib import Path
+from tempfile import TemporaryDirectory
+from zipfile import ZipFile
 
-from django.db import transaction
+import structlog
 from lxml import etree
 
-from .models import Concept
+from coding_systems.base.import_data_utils import CodingSystemImporter
+from coding_systems.icd10.models import Concept
+
+logger = structlog.get_logger()
 
 
-def import_data(release_path):
-    with open(release_path) as f:
-        doc = etree.parse(f)
+def import_data(release_zipfile, release_name, valid_from, import_ref=None):
+    with TemporaryDirectory() as tempdir:
+        release_zip = ZipFile(release_zipfile)
+        logger.info("Extracting", release_zip=release_zip.filename)
 
-    with transaction.atomic():
-        Concept.objects.all().delete()
-        Concept.objects.bulk_create(Concept(**record) for record in load_concepts(doc))
+        release_zip.extractall(path=tempdir)
+        paths = list(Path(tempdir).glob("*.xml"))
+        assert (
+            len(paths) == 1
+        ), f"Expected 1 and only one .xml file (found {len(paths)})"
+        release_path = paths[0]
+
+        with open(release_path) as f:
+            doc = etree.parse(f)
+
+    with CodingSystemImporter(
+        "icd10", release_name, valid_from, import_ref
+    ) as database_alias:
+        # ensure we start with an empty database
+        assert not Concept.objects.using(database_alias).exists()
+        Concept.objects.using(database_alias).bulk_create(
+            Concept(**record) for record in load_concepts(doc)
+        )
 
 
 def load_concepts(doc):
@@ -67,15 +89,19 @@ def load_concepts(doc):
 
     modifiers = defaultdict(list)
 
+    def get_label(el):
+        label = e.find("Rubric[@kind='preferredLong']/Label")
+        if label is None:
+            label = e.find("Rubric[@kind='preferred']/Label")
+        return label
+
     for e in root.findall("ModifierClass"):
         modifier = e.get("modifier")
         code = e.get("code")
         if code[0] != ".":
             continue
 
-        label = e.find("Rubric[@kind='preferredLong']/Label")
-        if label is None:
-            label = e.find("Rubric[@kind='preferred']/Label")
+        label = get_label(e)
         term = " ".join(label.itertext())
 
         modifiers[modifier].append((code[1:], term))
@@ -89,9 +115,7 @@ def load_concepts(doc):
                 assert code[3] == "."
                 code = code.replace(".", "")
 
-        label = e.find("Rubric[@kind='preferredLong']/Label")
-        if label is None:
-            label = e.find("Rubric[@kind='preferred']/Label")
+        label = get_label(e)
         term = " ".join(label.itertext())
 
         superclass = e.find("SuperClass")
@@ -122,9 +146,3 @@ def load_concepts(doc):
                     "term": term + " : " + modifier_term,
                     "parent_id": code,
                 }
-
-
-if __name__ == "__main__":
-    import sys
-
-    import_data(sys.argv[1])

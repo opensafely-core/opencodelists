@@ -1,39 +1,75 @@
 import csv
 import datetime
-import glob
-import os
 import sqlite3
+from pathlib import Path
+from tempfile import TemporaryDirectory
+from zipfile import ZipFile
 
-from django.db import connection as django_connection
+import structlog
+from django.db import connections
+
+from coding_systems.base.import_data_utils import CodingSystemImporter
 
 from .models import Concept, Description, Relationship
 
+logger = structlog.get_logger()
 
-def import_data(release_dir):
-    def load_records(filename):
-        paths = glob.glob(
-            os.path.join(
-                release_dir, "Full", "Terminology", "sct2_" + filename + "*.txt"
-            )
-        )
-        assert len(paths) == 1
 
-        with open(paths[0]) as f:
-            reader = csv.reader(f, delimiter="\t")
-            next(reader)
-            for r in reader:
-                r[1] = parse_date(r[1])  # effective_time
-                r[2] = r[2] == "1"  # active
-                yield r
+def import_data(release_zipfile, release_name, valid_from, import_ref=None):
 
-    connection_params = django_connection.get_connection_params()
-    connection = sqlite3.connect(**connection_params)
-    connection.executemany(build_sql(Concept), load_records("Concept"))
-    connection.executemany(build_sql(Description), load_records("Description"))
-    connection.executemany(build_sql(Relationship), load_records("StatedRelationship"))
-    connection.executemany(build_sql(Relationship), load_records("Relationship"))
-    connection.commit()
-    connection.close()
+    with CodingSystemImporter(
+        "snomedct", release_name, valid_from, import_ref
+    ) as database_alias:
+        with TemporaryDirectory() as tempdir:
+            release_zip = ZipFile(release_zipfile)
+            logger.info("Extracting", release_zip=release_zip.filename)
+            release_zip.extractall(path=tempdir)
+
+            release_dir = Path(tempdir)
+            release_subdir_patterns = [
+                "SnomedCT_InternationalRF2_PRODUCTION_*",
+                "SnomedCT_UKClinicalRF2_PRODUCTION_*",
+                "SnomedCT_UKEditionRF2_PRODUCTION_*",
+            ]
+
+            connection_params = connections[database_alias].get_connection_params()
+            connection = sqlite3.connect(**connection_params)
+            for release_subdir_pattern in release_subdir_patterns:
+                release_subdirs = list(release_dir.glob(release_subdir_pattern))
+                assert len(release_subdirs) == 1
+                import_models(release_subdirs[0], connection)
+            connection.commit()
+            connection.close
+
+
+def load_records(release_subdir, filename_part):
+    paths = list(
+        (release_subdir / "Full" / "Terminology").glob(f"sct2_{filename_part}_*.txt")
+    )
+    assert len(paths) == 1
+    logger.info("Loading records", filepath=str(paths[0]))
+
+    with open(paths[0]) as f:
+        reader = csv.reader(f, delimiter="\t")
+        next(reader)
+        for r in reader:
+            r[1] = parse_date(r[1])  # effective_time
+            r[2] = r[2] == "1"  # active
+            yield r
+
+
+def import_models(release_subdir, connection):
+    connection.executemany(build_sql(Concept), load_records(release_subdir, "Concept"))
+    connection.executemany(
+        build_sql(Description), load_records(release_subdir, "Description")
+    )
+    connection.executemany(
+        build_sql(Relationship),
+        load_records(release_subdir, "StatedRelationship"),
+    )
+    connection.executemany(
+        build_sql(Relationship), load_records(release_subdir, "Relationship")
+    )
 
 
 def parse_date(datestr):

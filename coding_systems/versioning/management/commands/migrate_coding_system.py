@@ -18,7 +18,7 @@ class Command(BaseCommand):
         See https://github.com/opensafely-core/opencodelists/issues/1379
 
         Extracts the tables for coding system(s) from the default database and loads each
-        coding system into a new database, with the version "unknown".
+        coding system into a new database, with the release_name "unknown".
 
         This is only intended to be run once.
     """
@@ -64,7 +64,7 @@ class Command(BaseCommand):
             ):
                 coding_system_release, _ = CodingSystemRelease.objects.update_or_create(
                     coding_system=coding_system,
-                    version="unknown",
+                    release_name="unknown",
                     import_ref="unknown",
                     defaults={
                         "valid_from": import_datetime,
@@ -88,11 +88,11 @@ class Command(BaseCommand):
         """
         Generate filepath for the new database and delete existing database file if necessary
         """
-        db_name = coding_system_release.db_name
+        database_alias = coding_system_release.database_alias
         new_db_path = (
             settings.CODING_SYSTEMS_DATABASE_DIR
             / coding_system_release.coding_system
-            / f"{db_name}.sqlite3"
+            / f"{database_alias}.sqlite3"
         )
 
         if new_db_path.exists() and force:

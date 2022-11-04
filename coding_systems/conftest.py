@@ -10,7 +10,7 @@ from coding_systems.versioning.models import CodingSystemRelease
 def coding_system_release():
     yield CodingSystemRelease.objects.create(
         coding_system="snomedct",
-        version="v1",
+        release_name="v1",
         import_ref="ref",
         valid_from=datetime(2022, 10, 1, tzinfo=timezone.utc),
     )

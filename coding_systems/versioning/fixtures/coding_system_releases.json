@@ -4,11 +4,11 @@
   "pk": 1,
   "fields": {
     "coding_system": "snomedct",
-    "version": "test",
+    "release_name": "test",
     "valid_from": "2020-01-01",
     "import_timestamp": "2022-10-24T15:38:52.231Z",
     "import_ref": "unknown",
-    "slug": "snomedct_test_20200101"
+    "database_alias": "snomedct_test_20200101"
   }
 },
 {
@@ -16,11 +16,11 @@
   "pk": 2,
   "fields": {
     "coding_system": "dmd",
-    "version": "test",
+    "release_name": "test",
     "valid_from": "2020-01-01",
     "import_timestamp": "2022-10-24T15:38:52.231Z",
     "import_ref": "unknown",
-    "slug": "dmd_test_20200101"
+    "database_alias": "dmd_test_20200101"
   }
 },
 {
@@ -28,11 +28,11 @@
   "pk": 3,
   "fields": {
     "coding_system": "icd10",
-    "version": "test",
+    "release_name": "test",
     "valid_from": "2020-01-01",
     "import_timestamp": "2022-10-24T15:38:52.231Z",
     "import_ref": "unknown",
-    "slug": "icd10_test_20200101"
+    "database_alias": "icd10_test_20200101"
   }
 },
 {
@@ -40,11 +40,11 @@
   "pk": 4,
   "fields": {
     "coding_system": "ctv3",
-    "version": "test",
+    "release_name": "test",
     "valid_from": "2020-01-01",
     "import_timestamp": "2022-10-24T15:38:52.231Z",
     "import_ref": "unknown",
-    "slug": "ctv3_test_20200101"
+    "database_alias": "ctv3_test_20200101"
   }
 }
 ]

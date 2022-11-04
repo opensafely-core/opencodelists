@@ -12,16 +12,12 @@ from coding_systems.versioning.models import (
 )
 
 
-def test_coding_system_release_db_name(coding_system_release):
-    assert coding_system_release.db_name == "snomedct_v1_20221001"
-
-
 def test_coding_system_release_most_recent(coding_system_release):
     # most_recent depends on valid_from date, not imported date
     # make a later import, but for an earlier version
     new_cs_release = CodingSystemRelease.objects.create(
         coding_system="snomedct",
-        version="v0.1",
+        release_name="v0.1",
         import_ref="ref",
         valid_from=datetime(2022, 9, 1, tzinfo=timezone.utc),
     )
@@ -29,7 +25,7 @@ def test_coding_system_release_most_recent(coding_system_release):
     # for a different coding system is irrelevant
     CodingSystemRelease.objects.create(
         coding_system="dmd",
-        version="v1",
+        release_name="v1",
         import_ref="ref",
         valid_from=datetime(2022, 10, 15, tzinfo=timezone.utc),
     )
@@ -46,12 +42,12 @@ def test_update_coding_system_database_connections(
 ):
     # The coding_system_release fixture is created after django setup, so the database
     # connection isn't there yet
-    assert coding_system_release.db_name not in connections.databases
+    assert coding_system_release.database_alias not in connections.databases
     with pytest.raises(ConnectionDoesNotExist):
-        Concept.objects.using(coding_system_release.db_name).exists()
+        Concept.objects.using(coding_system_release.database_alias).exists()
 
     update_coding_system_database_connections()
-    assert coding_system_release.db_name in connections.databases
+    assert coding_system_release.database_alias in connections.databases
     # Now the connection is available, but the database doesn't exist yet
     with pytest.raises(OperationalError, match="no such table: snomedct_concept"):
-        Concept.objects.using(coding_system_release.db_name).exists()
+        Concept.objects.using(coding_system_release.database_alias).exists()

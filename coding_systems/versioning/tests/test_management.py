@@ -69,7 +69,7 @@ def test_migrate_coding_system(coding_systems_tmp_path):
     dbpath = (
         coding_systems_tmp_path
         / "snomedct"
-        / f"{coding_system_release.db_name}.sqlite3"
+        / f"{coding_system_release.database_alias}.sqlite3"
     )
     assert dbpath.exists()
 
@@ -92,7 +92,7 @@ def test_migrate_all_coding_systems(coding_systems_tmp_path):
         dbpath = (
             coding_systems_tmp_path
             / coding_system_release.coding_system
-            / f"{coding_system_release.db_name}.sqlite3"
+            / f"{coding_system_release.database_alias}.sqlite3"
         )
         assert dbpath.exists()
 
@@ -129,10 +129,12 @@ def test_migrate_coding_system_loads_data(db_on_disk, coding_systems_tmp_path):
     assert CodingSystemRelease.objects.count() == 1
     coding_system_release = CodingSystemRelease.objects.first()
     dbpath = (
-        coding_systems_tmp_path / "bnf" / f"{coding_system_release.db_name}.sqlite3"
+        coding_systems_tmp_path
+        / "bnf"
+        / f"{coding_system_release.database_alias}.sqlite3"
     )
     assert dbpath.exists()
 
     # update the connections so `using` can find the db we've just loaded
     update_coding_system_database_connections()
-    assert BNFConcept.objects.using(coding_system_release.db_name).count() == 1
+    assert BNFConcept.objects.using(coding_system_release.database_alias).count() == 1

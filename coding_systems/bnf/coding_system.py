@@ -14,14 +14,14 @@ class CodingSystem(BaseCodingSystem):
 
     def search_by_term(self, term):
         return set(
-            Concept.objects.using(self.db)
+            Concept.objects.using(self.database_alias)
             .filter(name__contains=term)
             .values_list("code", flat=True)
         )
 
     def search_by_code(self, code):
         try:
-            concept = Concept.objects.using(self.db).get(code__iexact=code)
+            concept = Concept.objects.using(self.database_alias).get(code__iexact=code)
         except Concept.DoesNotExist:
             return set()
 
@@ -54,7 +54,7 @@ class CodingSystem(BaseCodingSystem):
         SELECT parent_code, child_code FROM tree
         """
 
-        return query(sql, codes, database=self.db)
+        return query(sql, codes, database=self.database_alias)
 
     def descendant_relationships(self, codes):
         codes = list(codes)
@@ -77,11 +77,11 @@ class CodingSystem(BaseCodingSystem):
         SELECT parent_code, child_code FROM tree
         """
 
-        return query(sql, codes, database=self.db)
+        return query(sql, codes, database=self.database_alias)
 
     def lookup_names(self, codes):
         return dict(
-            Concept.objects.using(self.db)
+            Concept.objects.using(self.database_alias)
             .filter(code__in=codes)
             .values_list("code", "name")
         )
@@ -97,7 +97,7 @@ class CodingSystem(BaseCodingSystem):
             codes_by_chapter[code[:2]].append(code)
 
         prefix_to_chapter_name = dict(
-            Concept.objects.using(self.db)
+            Concept.objects.using(self.database_alias)
             .filter(type="Chapter", code__in=codes_by_chapter)
             .values_list("code", "name")
         )

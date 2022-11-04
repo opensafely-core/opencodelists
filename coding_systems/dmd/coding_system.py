@@ -17,7 +17,7 @@ class CodingSystem(BaseCodingSystem):
         codes = set(codes)
         for model_cls in [AMP, VMP, AMPP, VMPP, VTM]:
             matched = dict(
-                model_cls.objects.using(self.db)
+                model_cls.objects.using(self.database_alias)
                 .filter(id__in=codes)
                 .values_list("id", "nm")
             )

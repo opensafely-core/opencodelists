@@ -15,7 +15,7 @@ class CodingSystem(BaseCodingSystem):
 
     def search_by_term(self, term):
         return set(
-            Concept.objects.using(self.db)
+            Concept.objects.using(self.database_alias)
             .filter(kind="category")
             .filter(term__contains=term)
             .values_list("code", flat=True)
@@ -29,7 +29,7 @@ class CodingSystem(BaseCodingSystem):
             kwargs = {"code": code}
 
         return set(
-            Concept.objects.using(self.db)
+            Concept.objects.using(self.database_alias)
             .exclude(kind="chapter")
             .filter(**kwargs)
             .values_list("code", flat=True)
@@ -56,7 +56,7 @@ class CodingSystem(BaseCodingSystem):
         SELECT parent_code, child_code FROM tree
         """
 
-        return query(sql, codes, database=self.db)
+        return query(sql, codes, database=self.database_alias)
 
     def descendant_relationships(self, codes):
         codes = list(codes)
@@ -79,11 +79,11 @@ class CodingSystem(BaseCodingSystem):
         SELECT parent_code, child_code FROM tree
         """
 
-        return query(sql, codes, database=self.db)
+        return query(sql, codes, database=self.database_alias)
 
     def lookup_names(self, codes):
         return dict(
-            Concept.objects.using(self.db)
+            Concept.objects.using(self.database_alias)
             .filter(code__in=codes)
             .values_list("code", "term")
         )
@@ -131,34 +131,38 @@ class CodingSystem(BaseCodingSystem):
         # Start with mappings from chapter code to chapter code.
         code_to_chapter = {
             chapter.code: chapter.code
-            for chapter in Concept.objects.using(self.db).filter(kind="chapter")
+            for chapter in Concept.objects.using(self.database_alias).filter(
+                kind="chapter"
+            )
         }
 
         # Add mappings from blocks that are children of chapters.
-        for block in Concept.objects.using(self.db).filter(
+        for block in Concept.objects.using(self.database_alias).filter(
             kind="block", parent__kind="chapter"
         ):
             code_to_chapter[block.code] = code_to_chapter[block.parent_id]
 
         # Add mappings from blocks that are children of other blocks.
-        for block in Concept.objects.using(self.db).filter(
+        for block in Concept.objects.using(self.database_alias).filter(
             kind="block", parent__kind="block"
         ):
             code_to_chapter[block.code] = code_to_chapter[block.parent_id]
 
         # Add mappings from categories that are children of blocks.
-        for category in Concept.objects.using(self.db).filter(
+        for category in Concept.objects.using(self.database_alias).filter(
             kind="category", parent__kind="block"
         ):
             code_to_chapter[category.code] = code_to_chapter[category.parent_id]
 
         # Add mappings from categories that are children of other categories.
-        for category in Concept.objects.using(self.db).filter(
+        for category in Concept.objects.using(self.database_alias).filter(
             kind="category", parent__kind="category"
         ):
             code_to_chapter[category.code] = code_to_chapter[category.parent_id]
 
-        assert len(code_to_chapter) == Concept.objects.using(self.db).count()
+        assert (
+            len(code_to_chapter) == Concept.objects.using(self.database_alias).count()
+        )
 
         return code_to_chapter
 
@@ -168,5 +172,7 @@ class CodingSystem(BaseCodingSystem):
 
         return {
             concept.code: f"{concept.code}: {concept.term}"
-            for concept in Concept.objects.using(self.db).filter(kind="chapter")
+            for concept in Concept.objects.using(self.database_alias).filter(
+                kind="chapter"
+            )
         }

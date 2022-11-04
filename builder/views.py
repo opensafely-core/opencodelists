@@ -146,7 +146,7 @@ def _draft(request, draft, search_slug):
 
     metadata = {
         "coding_system_name": draft.coding_system.name,
-        "coding_system_version": draft.coding_system.version_name,
+        "coding_system_release": draft.coding_system.release_name,
         "organisation_name": codelist.organisation.name
         if codelist.organisation
         else None,

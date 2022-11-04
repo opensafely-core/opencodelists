@@ -16,20 +16,20 @@ class CodingSystem(BaseCodingSystem):
 
     def lookup_names(self, codes):
         return dict(
-            TPPConcept.objects.using(self.db)
+            TPPConcept.objects.using(self.database_alias)
             .filter(read_code__in=codes)
             .values_list("read_code", "description")
         )
 
     def search_by_term(self, term):
         tpp_read_codes = set(
-            TPPConcept.objects.using(self.db)
+            TPPConcept.objects.using(self.database_alias)
             .filter(description__contains=term)
             .values_list("read_code", flat=True)
             .distinct()
         )
         raw_read_codes = set(
-            RawConceptTermMapping.using(self.db)
+            RawConceptTermMapping.using(self.database_alias)
             .objects.filter(
                 Q(term__name_1__contains=term)
                 | Q(term__name_2__contains=term)
@@ -42,13 +42,13 @@ class CodingSystem(BaseCodingSystem):
 
     def search_by_code(self, code):
         tpp_read_codes = set(
-            TPPConcept.objects.using(self.db)
+            TPPConcept.objects.using(self.database_alias)
             .filter(read_code=code)
             .values_list("read_code", flat=True)
             .distinct()
         )
         raw_read_codes = set(
-            RawConceptTermMapping.using(self.db)
+            RawConceptTermMapping.using(self.database_alias)
             .objects.filter(concept_id=code)
             .values_list("concept_id", flat=True)
             .distinct()
@@ -77,7 +77,7 @@ class CodingSystem(BaseCodingSystem):
         SELECT ancestor_id, descendant_id FROM tree
         """
 
-        return query(sql, codes, database=self.db)
+        return query(sql, codes, database=self.database_alias)
 
     def descendant_relationships(self, codes):
         codes = list(codes)
@@ -101,7 +101,7 @@ class CodingSystem(BaseCodingSystem):
         SELECT ancestor_id, descendant_id FROM tree
         """
 
-        return query(sql, codes, database=self.db)
+        return query(sql, codes, database=self.database_alias)
 
     def code_to_term(self, codes):
         lookup = self.lookup_names(codes)
@@ -124,7 +124,9 @@ class CodingSystem(BaseCodingSystem):
 
         # Treat children of CTV3 root as types.  This will include any unknown codes.
         types = hierarchy.child_map[self.root]
-        concepts = TPPConcept.objects.using(self.db).filter(read_code__in=types)
+        concepts = TPPConcept.objects.using(self.database_alias).filter(
+            read_code__in=types
+        )
         terms_by_type = {c.read_code: c.description for c in concepts}
 
         lookup = collections.defaultdict(list)

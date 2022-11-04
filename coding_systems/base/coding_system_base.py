@@ -20,54 +20,51 @@ class BaseCodingSystem(ABC):
     root = None
 
     def __init__(self, database_alias):
-        self.db = database_alias
-        # Convenience alias attribute for retrieving the coding system version slug from
-        # a CodingSystem
-        self.version_slug = database_alias
+        self.database_alias = database_alias
 
     @classmethod
     def most_recent(cls):
         """
-        Return a CodingSystem instance for the most recent version.
+        Return a CodingSystem instance for the most recent release.
         """
-        most_recent_version = CodingSystemRelease.objects.most_recent(cls.id)
-        if most_recent_version is None:
+        most_recent_release = CodingSystemRelease.objects.most_recent(cls.id)
+        if most_recent_release is None:
             raise CodingSystemRelease.DoesNotExist(
                 f"No coding system data found for {cls.short_name}"
             )
-        return cls(database_alias=most_recent_version.slug)
+        return cls(database_alias=most_recent_release.database_alias)
 
     @classmethod
-    def get_version_or_most_recent(cls, version_slug=None):
+    def get_by_release_or_most_recent(cls, database_alias=None):
         """
-        Returns a CodingSystem instance for the requested version, or the most recent one.
+        Returns a CodingSystem instance for the requested release, or the most recent one.
         """
-        version_slug = cls.validate_db_alias(version_slug)
-        return cls(database_alias=version_slug)
+        database_alias = cls.validate_db_alias(database_alias)
+        return cls(database_alias=database_alias)
 
     @classmethod
-    def validate_db_alias(cls, version_slug):
+    def validate_db_alias(cls, database_alias):
         """
-        Ensure that this slug is associated with a valid CodingSystemRelease
-        If no version_slug is provided, default to the most recent one.
+        Ensure that this database_alias is associated with a valid CodingSystemRelease
+        If no database_alias is provided, default to the most recent one.
         """
-        if version_slug is None:
-            return cls.most_recent().version_slug
+        if database_alias is None:
+            return cls.most_recent().database_alias
         all_slugs = CodingSystemRelease.objects.filter(
             coding_system=cls.id
-        ).values_list("slug", flat=True)
+        ).values_list("database_alias", flat=True)
         assert (
-            version_slug in all_slugs
-        ), f"{version_slug} is not a valid database alias for a {cls.short_name} version."
-        return version_slug
+            database_alias in all_slugs
+        ), f"{database_alias} is not a valid database alias for a {cls.short_name} release."
+        return database_alias
 
     @cached_property
-    def version(self):
-        return CodingSystemRelease.objects.get(slug=self.db)
+    def release(self):
+        return CodingSystemRelease.objects.get(database_alias=self.database_alias)
 
     @cached_property
-    def version_name(self):
-        return self.version.version
+    def release_name(self):
+        return self.release.release_name
 
     def search_by_term(self, term):
         raise NotImplementedError

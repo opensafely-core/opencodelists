@@ -18,20 +18,20 @@ class CodingSystem(BaseCodingSystem):
     def lookup_names(self, codes):
         return {
             description.concept_id: description.term
-            for description in Description.objects.using(self.db).filter(
+            for description in Description.objects.using(self.database_alias).filter(
                 concept__in=codes, type=FULLY_SPECIFIED_NAME, active=True
             )
         }
 
     def search_by_term(self, term):
         return set(
-            Concept.objects.using(self.db)
+            Concept.objects.using(self.database_alias)
             .filter(descriptions__term__contains=term, descriptions__active=True)
             .values_list("id", flat=True)
         )
 
     def search_by_code(self, code):
-        if Concept.objects.using(self.db).filter(id=code).exists():
+        if Concept.objects.using(self.database_alias).filter(id=code).exists():
             return {code}
         else:
             return set()
@@ -64,7 +64,7 @@ class CodingSystem(BaseCodingSystem):
         SELECT parent_id, child_id FROM tree
         """
 
-        return query(sql, codes, database=self.db)
+        return query(sql, codes, database=self.database_alias)
 
     def descendant_relationships(self, codes):
         codes = list(codes)
@@ -94,7 +94,7 @@ class CodingSystem(BaseCodingSystem):
         SELECT parent_id, child_id FROM tree
         """
 
-        return query(sql, codes, database=self.db)
+        return query(sql, codes, database=self.database_alias)
 
     def _iter_code_to_term_and_type(self, codes: set):
         for code, term in self.lookup_names(codes).items():
@@ -124,7 +124,9 @@ class CodingSystem(BaseCodingSystem):
 
         code_to_active = {
             concept.id: concept.active
-            for concept in Concept.objects.using(self.db).filter(id__in=codes)
+            for concept in Concept.objects.using(self.database_alias).filter(
+                id__in=codes
+            )
         }
 
         lookup = collections.defaultdict(list)

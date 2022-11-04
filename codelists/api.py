@@ -116,7 +116,7 @@ def codelists_post(request, owner):
         * name
         * coding_system_id
         * codes
-        * coding_system_database_alias (optional)
+        * coding_system_database_alias
         * slug (optional)
         * tag (optional)
         * description (optional)
@@ -131,9 +131,13 @@ def codelists_post(request, owner):
     except json.decoder.JSONDecodeError:
         return error("Invalid JSON")
 
-    required_keys = ["name", "coding_system_id", "codes"]
-    optional_keys = [
+    required_keys = [
+        "name",
+        "coding_system_id",
         "coding_system_database_alias",
+        "codes",
+    ]
+    optional_keys = [
         "slug",
         "tag",
         "description",
@@ -176,7 +180,7 @@ def versions(request, codelist):
                 codelist=codelist,
                 codes=set(data["codes"]),
                 tag=data.get("tag"),
-                coding_system_database_alias=data.get("coding_system_database_alias"),
+                coding_system_database_alias=data["coding_system_database_alias"],
                 always_create_new_version=data.get("always_create_new_version", False),
             )
 
@@ -185,7 +189,7 @@ def versions(request, codelist):
                 codelist=codelist,
                 expr=data["ecl"],
                 tag=data.get("tag"),
-                coding_system_database_alias=data.get("coding_system_database_alias"),
+                coding_system_database_alias=data["coding_system_database_alias"],
             )
 
         else:

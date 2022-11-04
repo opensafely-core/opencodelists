@@ -43,6 +43,14 @@ class BaseCodingSystem(ABC):
         return cls(database_alias=database_alias)
 
     @classmethod
+    def get_by_release(cls, database_alias):
+        """
+        Returns a CodingSystem instance for the requested release
+        """
+        assert database_alias is not None
+        return cls.get_by_release_or_most_recent(database_alias)
+
+    @classmethod
     def validate_db_alias(cls, database_alias):
         """
         Ensure that this database_alias is associated with a valid CodingSystemRelease

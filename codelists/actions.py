@@ -24,7 +24,7 @@ def create_old_style_codelist(
     description,
     methodology,
     csv_data,
-    coding_system_database_alias=None,
+    coding_system_database_alias,
     slug=None,
     references=None,
     signoffs=None,
@@ -57,7 +57,7 @@ def create_or_update_codelist(
     name,
     coding_system_id,
     codes,
-    coding_system_database_alias=None,
+    coding_system_database_alias,
     slug=None,
     tag=None,
     description=None,
@@ -116,7 +116,7 @@ def create_codelist_with_codes(
     name,
     coding_system_id,
     codes,
-    coding_system_database_alias=None,
+    coding_system_database_alias,
     slug=None,
     tag=None,
     description=None,
@@ -137,14 +137,14 @@ def create_codelist_with_codes(
         references=references,
         signoffs=signoffs,
     )
-    coding_system_database_alias = codelist.coding_system_cls.validate_db_alias(
+    coding_system = codelist.coding_system_cls.get_by_release(
         coding_system_database_alias
     )
     _create_version_with_codes(
         codelist=codelist,
         codes=codes,
         status=Status.PUBLISHED,
-        coding_system_database_alias=coding_system_database_alias,
+        coding_system_release=coding_system.release,
         tag=tag,
         author=author,
     )
@@ -158,7 +158,7 @@ def create_codelist_from_scratch(
     author,  # The User who can edit the draft CodelistVersion
     name,
     coding_system_id,
-    coding_system_database_alias=None,
+    coding_system_database_alias,
     slug=None,
     tag=None,
     description=None,
@@ -178,7 +178,7 @@ def create_codelist_from_scratch(
         references=references,
         signoffs=signoffs,
     )
-    coding_system = codelist.coding_system_cls.get_by_release_or_most_recent(
+    coding_system = codelist.coding_system_cls.get_by_release(
         coding_system_database_alias
     )
     version = codelist.versions.create(
@@ -221,7 +221,7 @@ def _create_codelist_with_handle(
 
 
 def create_old_style_version(*, codelist, csv_data, coding_system_database_alias=None):
-    coding_system = codelist.coding_system_cls.get_by_release_or_most_recent(
+    coding_system = codelist.coding_system_cls.get_by_release(
         coding_system_database_alias
     )
     version = codelist.versions.create(
@@ -239,7 +239,7 @@ def create_version_with_codes(
     *,
     codelist,
     codes,
-    coding_system_database_alias=None,
+    coding_system_database_alias,
     tag=None,
     status=Status.UNDER_REVIEW,
     hierarchy=None,
@@ -256,12 +256,15 @@ def create_version_with_codes(
     if not codes:
         raise ValueError("No codes")
     prev_clv = codelist.versions.order_by("id").last()
+    coding_system = codelist.coding_system_cls.get_by_release(
+        coding_system_database_alias
+    )
     if always_create_new_version or set(codes) != set(prev_clv.codes):
         return _create_version_with_codes(
             codelist=codelist,
             codes=codes,
             status=status,
-            coding_system_database_alias=coding_system_database_alias,
+            coding_system_release=coding_system.release,
             tag=tag,
             hierarchy=hierarchy,
             codeset=codeset,
@@ -271,7 +274,7 @@ def create_version_with_codes(
 
 
 def create_version_from_ecl_expr(
-    *, codelist, expr, tag=None, coding_system_database_alias=None
+    *, codelist, expr, coding_system_database_alias, tag=None
 ):
     """Create a new version of a codelist from given ECL expression.
     Raises ValueError if expression is empty or gives the same as the codelist's
@@ -286,7 +289,7 @@ def create_version_from_ecl_expr(
     codes = {item[1] for item in parsed_ecl["included"]} | {
         item[1] for item in parsed_ecl["excluded"]
     }
-    coding_system = codelist.coding_system_cls.get_by_release_or_most_recent(
+    coding_system = codelist.coding_system_cls.get_by_release(
         coding_system_database_alias
     )
     hierarchy = Hierarchy.from_codes(coding_system, codes)
@@ -342,15 +345,15 @@ def _create_version_with_codes(
     codelist,
     codes,
     status,
-    coding_system_database_alias=None,
+    coding_system_release,
     tag=None,
     hierarchy=None,
     codeset=None,
     author=None,
 ):
     codes = set(codes)
-    coding_system = codelist.coding_system_cls.get_by_release_or_most_recent(
-        coding_system_database_alias
+    coding_system = codelist.coding_system_cls.get_by_release(
+        coding_system_release.database_alias
     )
     assert codes == set(coding_system.lookup_names(codes))
 
@@ -358,7 +361,7 @@ def _create_version_with_codes(
         tag=tag,
         status=status,
         author=author,
-        coding_system_release=coding_system.release,
+        coding_system_release=coding_system_release,
     )
 
     if codeset is None:
@@ -527,16 +530,16 @@ def convert_codelist_to_new_style(*, codelist):
         codelist=codelist,
         codes=set(prev_clv.codes),
         status=Status.UNDER_REVIEW,
-        coding_system_database_alias=prev_clv.coding_system_release.database_alias,
+        coding_system_release=prev_clv.coding_system_release,
     )
 
 
 @transaction.atomic
-def export_to_builder(*, version, author, coding_system_database_alias=None):
+def export_to_builder(*, version, author, coding_system_database_alias):
     """Create a new CodelistVersion for editing in the builder."""
     # Fetch the coding system for the requested version, or the most recent one, if
     # no version is specified
-    new_coding_system = version.coding_system.get_by_release_or_most_recent(
+    new_coding_system = version.coding_system.get_by_release(
         coding_system_database_alias
     )
     # Create a new CodelistVersion and CodeObjs.

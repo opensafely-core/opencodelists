@@ -2,15 +2,22 @@ import pytest
 from django.db import IntegrityError
 
 from codelists import actions
+from codelists.coding_systems import CODING_SYSTEMS
 from codelists.models import Codelist, CodelistVersion
 from opencodelists.tests.assertions import assert_difference, assert_no_difference
 
 
+def get_database_alias(coding_system):
+    return CODING_SYSTEMS[coding_system].most_recent().database_alias
+
+
 def test_create_codelist(organisation):
+
     cl = actions.create_old_style_codelist(
         owner=organisation,
         name="Test Codelist",
         coding_system_id="snomedct",
+        coding_system_database_alias=get_database_alias("snomedct"),
         description="This is a test",
         methodology="This is how we did it",
         csv_data="code,description\n1067731000000107,Injury whilst swimming (disorder)",
@@ -33,6 +40,7 @@ def test_create_codelist_for_user(user):
         owner=user,
         name="Test Codelist",
         coding_system_id="snomedct",
+        coding_system_database_alias=get_database_alias("snomedct"),
         description="This is a test",
         methodology="This is how we did it",
         csv_data="code,description\n1067731000000107,Injury whilst swimming (disorder)",
@@ -54,6 +62,7 @@ def test_create_codelist_with_duplicate_name(organisation):
         owner=organisation,
         name="Test",
         coding_system_id="snomedct",
+        coding_system_database_alias=get_database_alias("snomedct"),
         description="This is a test",
         methodology="This is how we did it",
         csv_data="code,description\n1067731000000107,Injury whilst swimming (disorder)",
@@ -64,6 +73,7 @@ def test_create_codelist_with_duplicate_name(organisation):
             owner=organisation,
             name="Test",
             coding_system_id="snomedct",
+            coding_system_database_alias=get_database_alias("snomedct"),
             description="This is a test",
             methodology="This is how we did it",
             csv_data="code,description\n1067731000000107,Injury whilst swimming (disorder)",
@@ -77,6 +87,7 @@ def test_create_codelist_with_codes(user, disorder_of_elbow_excl_arthritis_codes
         owner=user,
         name="Test",
         coding_system_id="snomedct",
+        coding_system_database_alias=get_database_alias("snomedct"),
         codes=disorder_of_elbow_excl_arthritis_codes,
     )
     clv = cl.versions.get()
@@ -106,6 +117,7 @@ def test_create_codelist_with_codes_with_metadata(
         owner=user,
         name="Test",
         coding_system_id="snomedct",
+        coding_system_database_alias=get_database_alias("snomedct"),
         codes=disorder_of_elbow_excl_arthritis_codes,
         description="This is a test",
         methodology="This is how we did it",
@@ -123,6 +135,7 @@ def test_create_or_update_codelist_create(user, disorder_of_elbow_excl_arthritis
         owner=user,
         name="Test",
         coding_system_id="snomedct",
+        coding_system_database_alias=get_database_alias("snomedct"),
         codes=disorder_of_elbow_excl_arthritis_codes,
         description="This is a test",
         methodology="This is how we did it",
@@ -146,6 +159,7 @@ def test_create_or_update_codelist_update(
             owner=organisation,
             name=codelist.name,
             coding_system_id="snomedct",
+            coding_system_database_alias=get_database_alias("snomedct"),
             codes=disorder_of_elbow_excl_arthritis_codes,
             description="This is a test (updated)",
             methodology="This is how we did it (updated)",
@@ -166,6 +180,7 @@ def test_create_or_update_codelist_update_no_change_to_codes(
             owner=organisation,
             name=codelist.name,
             coding_system_id="snomedct",
+            coding_system_database_alias=get_database_alias("snomedct"),
             codes=disorder_of_elbow_codes,
             description="This is a test (updated)",
             methodology="This is how we did it (updated)",
@@ -184,6 +199,7 @@ def test_create_or_update_codelist_update_no_change_to_codes_with_force(
         owner=organisation,
         name=new_codelist_name,
         coding_system_id="snomedct",
+        coding_system_database_alias=get_database_alias("snomedct"),
         codes=disorder_of_elbow_codes,
         description="This is a test",
         methodology="This is how we did it",
@@ -196,6 +212,7 @@ def test_create_or_update_codelist_update_no_change_to_codes_with_force(
             owner=organisation,
             name=new_codelist_name,
             coding_system_id="snomedct",
+            coding_system_database_alias=get_database_alias("snomedct"),
             codes=disorder_of_elbow_codes,
             description="This is a test (updated)",
             methodology="This is how we did it (updated)",
@@ -211,6 +228,7 @@ def test_create_or_update_codelist_update_no_change_to_codes_without_force(
         owner=organisation,
         name=new_codelist_name,
         coding_system_id="snomedct",
+        coding_system_database_alias=get_database_alias("snomedct"),
         codes=disorder_of_elbow_codes,
         description="This is a test",
         methodology="This is how we did it",
@@ -223,6 +241,7 @@ def test_create_or_update_codelist_update_no_change_to_codes_without_force(
             owner=organisation,
             name=new_codelist_name,
             coding_system_id="snomedct",
+            coding_system_database_alias=get_database_alias("snomedct"),
             codes=disorder_of_elbow_codes,
             description="This is a test (updated)",
             methodology="This is how we did it (updated)",
@@ -232,7 +251,11 @@ def test_create_or_update_codelist_update_no_change_to_codes_without_force(
 
 def test_create_codelist_from_scratch(organisation, user):
     cl = actions.create_codelist_from_scratch(
-        owner=organisation, name="Test", coding_system_id="snomedct", author=user
+        owner=organisation,
+        name="Test",
+        coding_system_id="snomedct",
+        coding_system_database_alias=get_database_alias("snomedct"),
+        author=user,
     )
     clv = cl.versions.get()
     assert clv.author == user
@@ -242,6 +265,7 @@ def test_create_codelist_from_scratch(organisation, user):
 def test_create_version_with_codes(new_style_codelist):
     clv = actions.create_version_with_codes(
         codelist=new_style_codelist,
+        coding_system_database_alias=get_database_alias("snomedct"),
         codes={"128133004"},
         tag="test",
     )
@@ -250,34 +274,49 @@ def test_create_version_with_codes(new_style_codelist):
     assert clv.is_under_review
 
     clv = actions.create_version_with_codes(
-        codelist=new_style_codelist, codes={"128133004"}
+        codelist=new_style_codelist,
+        coding_system_database_alias=get_database_alias("snomedct"),
+        codes={"128133004"},
     )
     assert clv is None
 
     with pytest.raises(ValueError):
-        actions.create_version_with_codes(codelist=new_style_codelist, codes=set())
+        actions.create_version_with_codes(
+            codelist=new_style_codelist,
+            coding_system_database_alias=get_database_alias("snomedct"),
+            codes=set(),
+        )
 
 
 def test_create_version_from_ecl_expr(new_style_codelist):
     clv = actions.create_version_from_ecl_expr(
-        codelist=new_style_codelist, expr="<<429554009", tag="test"
+        codelist=new_style_codelist,
+        coding_system_database_alias=get_database_alias("snomedct"),
+        expr="<<429554009",
+        tag="test",
     )
     assert clv.codes == ("202855006", "429554009", "439656005")
     assert clv.tag == "test"
     assert clv.is_under_review
 
     clv = actions.create_version_from_ecl_expr(
-        codelist=new_style_codelist, expr="<429554009"
+        codelist=new_style_codelist,
+        coding_system_database_alias=get_database_alias("snomedct"),
+        expr="<429554009",
     )
     assert clv.codes == ("202855006", "439656005")
 
     clv = actions.create_version_from_ecl_expr(
-        codelist=new_style_codelist, expr="429554009"
+        codelist=new_style_codelist,
+        coding_system_database_alias=get_database_alias("snomedct"),
+        expr="429554009",
     )
     assert clv.codes == ("429554009",)
 
     clv = actions.create_version_from_ecl_expr(
-        codelist=new_style_codelist, expr="<<429554009 MINUS 202855006"
+        codelist=new_style_codelist,
+        coding_system_database_alias=get_database_alias("snomedct"),
+        expr="<<429554009 MINUS 202855006",
     )
     assert clv.codes == ("429554009", "439656005")
 
@@ -470,7 +509,9 @@ def test_export_to_builder(organisation_user, new_style_version):
         new_style_version.codelist.versions.count, expected_difference=1
     ):
         draft = actions.export_to_builder(
-            version=new_style_version, author=organisation_user
+            version=new_style_version,
+            author=organisation_user,
+            coding_system_database_alias=get_database_alias("snomedct"),
         )
 
     assert draft.author == organisation_user

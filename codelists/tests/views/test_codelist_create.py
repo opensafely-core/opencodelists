@@ -53,6 +53,7 @@ def test_post_success(client, organisation, user):
     data = {
         "name": "Test Codelist",
         "coding_system_id": "snomedct",
+        "coding_system_database_alias": "snomedct_test_20200101",
         "description": "This is a test",
         "methodology": "This is how we did it",
         "csv_data": csv_builder(csv_data),

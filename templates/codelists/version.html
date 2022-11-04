@@ -84,6 +84,7 @@
         <div class="btn-group-vertical btn-block" role="group">
           {% if codelist.is_new_style %}
             {% if can_create_new_version %}
+              <input type="hidden" name="coding_system_database_alias" value={{ clv.coding_system.database_alias }} />
               <button
                 type="submit"
                 class="btn btn-outline-primary btn-block">

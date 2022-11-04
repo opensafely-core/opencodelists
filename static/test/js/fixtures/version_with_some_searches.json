@@ -516,7 +516,7 @@
   ],
   "metadata": {
     "coding_system_name": "SNOMED CT",
-    "coding_system_version": "test",
+    "coding_system_release": "test",
     "organisation_name": "Test University",
     "codelist_full_slug": "test-university/new-style-codelist",
     "hash": "08183fe2"

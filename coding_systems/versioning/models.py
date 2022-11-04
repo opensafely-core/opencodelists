@@ -6,12 +6,12 @@ from django.utils.functional import cached_property
 from django.utils.text import slugify
 
 
-class CodingSystemVersionManager(models.Manager):
+class CodingSystemReleaseManager(models.Manager):
     def most_recent(self, coding_system):
         return self.filter(coding_system=coding_system).order_by("-valid_from").first()
 
 
-class CodingSystemVersion(models.Model):
+class CodingSystemRelease(models.Model):
     coding_system = models.CharField(max_length=10)
     version = models.CharField(max_length=255)
     valid_from = models.DateField()
@@ -19,7 +19,7 @@ class CodingSystemVersion(models.Model):
     import_ref = models.TextField()
     slug = models.SlugField(max_length=255, unique=True)
 
-    objects = CodingSystemVersionManager()
+    objects = CodingSystemReleaseManager()
 
     class Meta:
         unique_together = ("coding_system", "version", "valid_from")
@@ -46,18 +46,18 @@ def database_ready():
 
 
 def update_coding_system_database_connections():
-    """Add the database config for each coding system version"""
-    # ensure that the database is ready and the CodingSystemVersion table is available
+    """Add the database config for each coding system release"""
+    # ensure that the database is ready and the CodingSystemRelease table is available
     # (i.e. migrations have been run)
     if database_ready():  # pragma: no cover
-        for coding_system_version in CodingSystemVersion.objects.all():
+        for coding_system_release in CodingSystemRelease.objects.all():
             db_path = (
                 settings.CODING_SYSTEMS_DATABASE_DIR
-                / coding_system_version.coding_system
-                / f"{coding_system_version.db_name}.sqlite3"
+                / coding_system_release.coding_system
+                / f"{coding_system_release.db_name}.sqlite3"
             )
             database_dict = {
                 **connections.databases[DEFAULT_DB_ALIAS],
                 **dj_database_url.parse(f"sqlite:///{db_path}"),
             }
-            connections.databases[coding_system_version.db_name] = database_dict
+            connections.databases[coding_system_release.db_name] = database_dict

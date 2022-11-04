@@ -47,7 +47,7 @@ def django_db_modify_db_settings():
 @pytest.fixture(autouse=True)
 def reset_connections():
     """
-    Database connections are added based on the CodingSystemVersions that exist in the default
+    Database connections are added based on the CodingSystemReleases that exist in the default
     database (see coding_systems.versioning.models.update_coding_system_database_connections).
     Ensure we remove these after tests.
     """

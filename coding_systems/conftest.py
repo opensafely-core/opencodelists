@@ -3,12 +3,12 @@ from datetime import datetime, timezone
 import pytest
 
 from codelists.coding_systems import CODING_SYSTEMS
-from coding_systems.versioning.models import CodingSystemVersion
+from coding_systems.versioning.models import CodingSystemRelease
 
 
 @pytest.fixture
-def coding_system_version():
-    yield CodingSystemVersion.objects.create(
+def coding_system_release():
+    yield CodingSystemRelease.objects.create(
         coding_system="snomedct",
         version="v1",
         import_ref="ref",

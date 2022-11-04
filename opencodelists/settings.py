@@ -137,11 +137,11 @@ WSGI_APPLICATION = "opencodelists.wsgi.application"
 # Increase timeout from the default 15s to minimise "database is locked" errors
 # see https://docs.djangoproject.com/en/4.0/ref/databases/#database-is-locked-errors
 
-# The default database holds data for all apps/models (including CodingSystemVersion)
+# The default database holds data for all apps/models (including CodingSystemRelease)
 # EXCEPT the coding systems themselves.
 # Coding systems are in separate databases, one db per coding system and version
 # Coding system version db connections are added after the apps have loaded, using
-# the data in the CodingSystemVersion table
+# the data in the CodingSystemRelease table
 # see coding_systems.versioning.models.update_coding_system_database_connections (called
 # from coding_systems.versioning.apps)
 DATABASES = {

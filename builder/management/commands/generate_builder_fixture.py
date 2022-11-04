@@ -31,11 +31,11 @@ class Command(BaseCommand):
                 database="snomedct_test_20200101",
             )
 
-        # create the CodingSystemVersions so the fixtures can use them to select the coding
+        # create the CodingSystemReleases so the fixtures can use them to select the coding
         # system version for a codelist, and the database for retrieving coding system data
         versioning_fixtures_path = coding_systems_base_path / "versioning" / "fixtures"
         call_command(
-            "loaddata", versioning_fixtures_path / "coding_system_versions.json"
+            "loaddata", versioning_fixtures_path / "coding_system_releases.json"
         )
 
         # Ensure the coding system fixtures have loaded to the correct database

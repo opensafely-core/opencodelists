@@ -1,6 +1,6 @@
 [
 {
-  "model": "versioning.codingsystemversion",
+  "model": "versioning.codingsystemrelease",
   "pk": 1,
   "fields": {
     "coding_system": "snomedct",
@@ -12,7 +12,7 @@
   }
 },
 {
-  "model": "versioning.codingsystemversion",
+  "model": "versioning.codingsystemrelease",
   "pk": 2,
   "fields": {
     "coding_system": "dmd",
@@ -24,7 +24,7 @@
   }
 },
 {
-  "model": "versioning.codingsystemversion",
+  "model": "versioning.codingsystemrelease",
   "pk": 3,
   "fields": {
     "coding_system": "icd10",
@@ -36,7 +36,7 @@
   }
 },
 {
-  "model": "versioning.codingsystemversion",
+  "model": "versioning.codingsystemrelease",
   "pk": 4,
   "fields": {
     "coding_system": "ctv3",

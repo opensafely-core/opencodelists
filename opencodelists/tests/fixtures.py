@@ -131,7 +131,7 @@ from opencodelists.models import User
 
 SNOMED_FIXTURES_PATH = Path(settings.BASE_DIR, "coding_systems", "snomedct", "fixtures")
 DMD_FIXTURES_PATH = Path(settings.BASE_DIR, "coding_systems", "dmd", "fixtures")
-CODING_SYSTEM_VERSIONS_FIXTURES_PATH = Path(
+CODING_SYSTEM_RELEASES_FIXTURES_PATH = Path(
     settings.BASE_DIR, "coding_systems", "versioning", "fixtures"
 )
 
@@ -168,7 +168,7 @@ def setup_coding_systems(django_db_setup, django_db_blocker):
         # load the CodingSystemVersions needed for the snomed and dmd fixtures
         call_command(
             "loaddata",
-            CODING_SYSTEM_VERSIONS_FIXTURES_PATH / "coding_system_versions.json",
+            CODING_SYSTEM_RELEASES_FIXTURES_PATH / "coding_system_releases.json",
         )
 
 

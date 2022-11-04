@@ -2,7 +2,7 @@ from abc import ABC
 
 from django.utils.functional import cached_property
 
-from coding_systems.versioning.models import CodingSystemVersion
+from coding_systems.versioning.models import CodingSystemRelease
 
 
 class BaseCodingSystem(ABC):
@@ -30,9 +30,9 @@ class BaseCodingSystem(ABC):
         """
         Return a CodingSystem instance for the most recent version.
         """
-        most_recent_version = CodingSystemVersion.objects.most_recent(cls.id)
+        most_recent_version = CodingSystemRelease.objects.most_recent(cls.id)
         if most_recent_version is None:
-            raise CodingSystemVersion.DoesNotExist(
+            raise CodingSystemRelease.DoesNotExist(
                 f"No coding system data found for {cls.short_name}"
             )
         return cls(database_alias=most_recent_version.slug)
@@ -48,12 +48,12 @@ class BaseCodingSystem(ABC):
     @classmethod
     def validate_db_alias(cls, version_slug):
         """
-        Ensure that this slug is associated with a valid CodingSystemVersion
+        Ensure that this slug is associated with a valid CodingSystemRelease
         If no version_slug is provided, default to the most recent one.
         """
         if version_slug is None:
             return cls.most_recent().version_slug
-        all_slugs = CodingSystemVersion.objects.filter(
+        all_slugs = CodingSystemRelease.objects.filter(
             coding_system=cls.id
         ).values_list("slug", flat=True)
         assert (
@@ -63,7 +63,7 @@ class BaseCodingSystem(ABC):
 
     @cached_property
     def version(self):
-        return CodingSystemVersion.objects.get(slug=self.db)
+        return CodingSystemRelease.objects.get(slug=self.db)
 
     @cached_property
     def version_name(self):

@@ -178,10 +178,13 @@ def create_codelist_from_scratch(
         references=references,
         signoffs=signoffs,
     )
+    coding_system = codelist.coding_system_cls.get_by_release_or_most_recent(
+        coding_system_database_alias
+    )
     version = codelist.versions.create(
         author=author,
         status=Status.DRAFT,
-        coding_system_version_slug=coding_system_database_alias,
+        coding_system_release=coding_system.release,
     )
     cache_hierarchy(version=version)
     return codelist
@@ -224,7 +227,7 @@ def create_old_style_version(*, codelist, csv_data, coding_system_database_alias
     version = codelist.versions.create(
         csv_data=csv_data,
         status=Status.UNDER_REVIEW,
-        coding_system_version_slug=coding_system.database_alias,
+        coding_system_release=coding_system.release,
     )
     cache_hierarchy(version=version)
     logger.info("Created Version", version_pk=version.pk)
@@ -355,7 +358,7 @@ def _create_version_with_codes(
         tag=tag,
         status=status,
         author=author,
-        coding_system_version_slug=coding_system.database_alias,
+        coding_system_release=coding_system.release,
     )
 
     if codeset is None:
@@ -524,7 +527,7 @@ def convert_codelist_to_new_style(*, codelist):
         codelist=codelist,
         codes=set(prev_clv.codes),
         status=Status.UNDER_REVIEW,
-        coding_system_version_slug=prev_clv.coding_system_database_alias,
+        coding_system_database_alias=prev_clv.coding_system_release.database_alias,
     )
 
 
@@ -540,7 +543,7 @@ def export_to_builder(*, version, author, coding_system_database_alias=None):
     draft = author.versions.create(
         codelist=version.codelist,
         status=Status.DRAFT,
-        coding_system_version_slug=new_coding_system.database_alias,
+        coding_system_release=new_coding_system.release,
     )
     CodeObj.objects.bulk_create(
         CodeObj(version=draft, code=code_obj.code, status=code_obj.status)

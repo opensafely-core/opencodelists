@@ -251,7 +251,11 @@ class CodelistVersion(models.Model):
         "Codelist", on_delete=models.CASCADE, related_name="versions"
     )
 
-    coding_system_version_slug = models.SlugField(max_length=255)
+    coding_system_release = models.ForeignKey(
+        "versioning.CodingSystemRelease",
+        related_name="codelist_versions",
+        on_delete=models.CASCADE,
+    )
 
     status = models.CharField(max_length=len("under review"), choices=Status.choices)
 
@@ -380,7 +384,7 @@ class CodelistVersion(models.Model):
     @cached_property
     def coding_system(self):
         return self.codelist.coding_system_cls(
-            database_alias=self.coding_system_version_slug
+            database_alias=self.coding_system_release.database_alias
         )
 
     @property

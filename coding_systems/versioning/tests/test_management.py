@@ -32,7 +32,7 @@ def db_on_disk(tmp_path):
     """
     Our main session fixtures load some snomedct, dmd and icd10 data into test
     dbs called "<coding_system>_test_20200101", but for testing the `migrate_coding_system`
-    command we need it to be in the default db.
+    command we need the coding system data to start off in the default db.
 
     During the test run, the default test db is an in-memory sqlite db, and `sqlite3 <db> .dump`
     doesn't actually dump anything. This fixture writes a single BNF concept (the simplest of the
@@ -47,9 +47,7 @@ def db_on_disk(tmp_path):
             res = conn.execute(
                 "select sql from sqlite_schema where name = 'bnf_concept';"
             )
-            table_defs = res.fetchall()
-            build_sql = "\n".join([f"{defn[0]};" for defn in table_defs])
-
+            build_sql = f"{res.fetchone()[0]};"
             insert_sql = """
             INSERT INTO bnf_concept(code, type, name, parent_id)
             VALUES (\'01\', \'Chapter\', \'Gastro-Intestinal System\', \'null\');
@@ -84,9 +82,9 @@ def test_migrate_all_coding_systems(coding_systems_tmp_path):
     assert len(CODING_SYSTEMS) == 8
     # only coding systems that are in INSTALLED_APPS are migrated
     assert CodingSystemRelease.objects.count() == 6
-    versioned_coding_systems = CodingSystemRelease.objects.filter(
-        version="unknown"
-    ).values_list("coding_system", flat=True)
+    versioned_coding_systems = CodingSystemRelease.objects.values_list(
+        "coding_system", flat=True
+    )
     non_versioned_coding_systems = set(CODING_SYSTEMS) - set(versioned_coding_systems)
     assert set(apps.app_configs) & non_versioned_coding_systems == set()
 

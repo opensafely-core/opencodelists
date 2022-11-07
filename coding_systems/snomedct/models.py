@@ -116,34 +116,3 @@ class Relationship(models.Model):
     modifier = models.ForeignKey(
         "Concept", on_delete=models.CASCADE, related_name="+", db_index=False
     )
-
-
-class HistorySubstitution(models.Model):
-    old_concept = models.ForeignKey(
-        "Concept", on_delete=models.CASCADE, related_name="+", db_constraint=False
-    )
-    old_concept_status = models.CharField(max_length=18)
-    new_concept = models.ForeignKey(
-        "Concept", on_delete=models.CASCADE, related_name="+", db_constraint=False
-    )
-    new_concept_status = models.CharField(max_length=18)
-    path = models.CharField(max_length=255)
-    is_ambiguous = models.BooleanField()
-    iterations = models.IntegerField()
-    old_concept_fsn = models.CharField(max_length=255)
-    old_concept_fsn_tagcount = models.IntegerField()
-    new_concept_fsn = models.CharField(max_length=255)
-    new_concept_fsn_tagcount = models.IntegerField()
-    tlh_identical_flag = models.BooleanField()
-    fsn_tagless_identical_flag = models.BooleanField()
-    fsn_tag_identical_flag = models.BooleanField()
-
-
-class QueryTableRecord(models.Model):
-    supertype = models.ForeignKey(
-        "Concept", on_delete=models.CASCADE, related_name="+", db_constraint=False
-    )
-    subtype = models.ForeignKey(
-        "Concept", on_delete=models.CASCADE, related_name="+", db_constraint=False
-    )
-    provenance = models.IntegerField()

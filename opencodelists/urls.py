@@ -37,8 +37,6 @@ urlpatterns = [
     path("builder/", include("builder.urls")),
     path("conversions/", include("conversions.urls")),
     path("docs/", include("userdocs.urls")),
-    path("ctv3/", include("coding_systems.ctv3.urls")),
-    path("snomedct/", include("coding_systems.snomedct.urls")),
     path("__debug__/", include(debug_toolbar.urls)),
     path("robots.txt", RedirectView.as_view(url=settings.STATIC_URL + "robots.txt")),
 ]

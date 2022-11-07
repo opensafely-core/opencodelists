@@ -35,27 +35,6 @@ class RawConcept(models.Model):
         "RawTerm", through="RawConceptTermMapping", related_name="concepts"
     )
 
-    def all_terms(self):
-        assert "terms" in self._prefetched_objects_cache
-        return self.terms.all()
-
-    def preferred_term(self):
-        return (
-            self.terms.filter(
-                rawconcepttermmapping__term_type=RawConceptTermMapping.PREFERRED
-            )
-            .get()
-            .name()
-        )
-
-    def synonyms(self):
-        return sorted(
-            term.name()
-            for term in self.terms.exclude(
-                rawconcepttermmapping__term_type=RawConceptTermMapping.PREFERRED
-            )
-        )
-
 
 class RawConceptHierarchy(models.Model):
     parent = models.ForeignKey(

@@ -1,23 +1,15 @@
 import datetime
 import uuid
-from unittest.mock import patch
 
 from coding_systems.ctv3.models import RawConcept as CTV3Concept
 from coding_systems.ctv3.models import RawTerm
 from coding_systems.snomedct.models import Concept as SCTConcept
 from coding_systems.snomedct.models import Description
-from mappings.ctv3sctmap2.mappers import snomedct_to_ctv3
+from mappings.ctv3sctmap2.mappers import get_mappings
 from mappings.ctv3sctmap2.models import Mapping
 
 
-class DummyCTV3:
-    def lookup_names(codes):
-        name = "(Acute cholecystitis) or (empyema of gallbladder) or (abscess of gallbladder)"
-
-        return {c: name for c in codes}
-
-
-def test_snomedct_to_ctv3():
+def test_get_mappings():
     """Test snomedct_to_ctv3 returns the correct format."""
     effective_time = datetime.datetime(2020, 1, 1)
 
@@ -58,18 +50,7 @@ def test_snomedct_to_ctv3():
         effective_date=effective_time,
     )
 
-    with patch("mappings.ctv3sctmap2.mappers.ctv3", new=DummyCTV3):
-        ctv3_ids = snomedct_to_ctv3(["54219001"])
-
-    name = (
-        "(Acute cholecystitis) or (empyema of gallbladder) or (abscess of gallbladder)"
-    )
-    expected = [
-        {
-            "id": "J650.",
-            "name": name,
-            "snomedct_ids": ["54219001"],
-            "notes": "direct mapping",
-        }
-    ]
-    assert ctv3_ids == expected
+    expected = [{"ctv3": "J650.", "snomedct": "54219001"}]
+    assert get_mappings(ctv3_ids=["J650."]) == expected
+    assert get_mappings(snomedct_ids=["54219001"]) == expected
+    assert get_mappings(ctv3_ids=["J650."], snomedct_ids=["54219001"]) == expected

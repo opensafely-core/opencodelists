@@ -4,6 +4,8 @@ from django.db import DEFAULT_DB_ALIAS, connections, models
 from django.db.migrations.executor import MigrationExecutor
 from django.utils.text import slugify
 
+from codelists.coding_systems import CODING_SYSTEMS
+
 
 class CodingSystemReleaseManager(models.Manager):
     def most_recent(self, coding_system):
@@ -46,6 +48,8 @@ def update_coding_system_database_connections():
     # (i.e. migrations have been run)
     if database_ready():  # pragma: no cover
         for coding_system_release in CodingSystemRelease.objects.all():
+            if not CODING_SYSTEMS[coding_system_release.coding_system].has_database:
+                continue
             db_path = (
                 settings.CODING_SYSTEMS_DATABASE_DIR
                 / coding_system_release.coding_system

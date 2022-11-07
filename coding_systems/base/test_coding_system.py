@@ -16,10 +16,8 @@ def test_most_recent_some_coding_system_releases(
             CODING_SYSTEMS[coding_system].most_recent().database_alias
             == f"{coding_system}_test_20200101"
         )
-    elif coding_system in ["opcs4", "null"]:
-        assert CODING_SYSTEMS[coding_system].most_recent().database_alias == "none"
     else:
-        # no CodingSystemRelease created in fixtures for readv2 or bnf
+        # no CodingSystemRelease created in fixtures for other coding systems
         with pytest.raises(
             CodingSystemRelease.DoesNotExist,
             match=re.escape(

@@ -18,6 +18,8 @@ class BaseCodingSystem(ABC):
     name = NotImplemented
     short_name = NotImplemented
     root = None
+    # flag to indicate that this CodingSystem is associated with a real database instance
+    has_database = True
 
     def __init__(self, database_alias):
         self.database_alias = database_alias
@@ -93,14 +95,6 @@ class BaseCodingSystem(ABC):
 class DummyCodingSystem(BaseCodingSystem):
     """
     Represents a CodingSystem that will never have an associated database.
-    The database alias is set to an string value for any old codelist versions using
-    it, so that the not-null constraint on CodelistVersion.coding_system_version_slug
-    isn't violated
     """
 
-    def __init__(self, database_alias):
-        super().__init__(database_alias="none")
-
-    @classmethod
-    def most_recent(cls):
-        return cls(database_alias="none")
+    has_database = False

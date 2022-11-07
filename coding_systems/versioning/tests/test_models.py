@@ -51,3 +51,17 @@ def test_update_coding_system_database_connections(
     # Now the connection is available, but the database doesn't exist yet
     with pytest.raises(OperationalError, match="no such table: snomedct_concept"):
         Concept.objects.using(coding_system_release.database_alias).exists()
+
+
+def test_update_dummy_coding_system_database_connections(coding_systems_tmp_path):
+    # A CodingSystemRelease is created for null/opcs4 coding systems, but
+    # is not associated with a database, so they don't get added to the database
+    # connections
+    null_coding_system_release = CodingSystemRelease.objects.create(
+        coding_system="null",
+        release_name="null",
+        import_ref="ref",
+        valid_from=datetime(2022, 10, 1, tzinfo=timezone.utc),
+    )
+    update_coding_system_database_connections()
+    assert null_coding_system_release.database_alias not in connections.databases

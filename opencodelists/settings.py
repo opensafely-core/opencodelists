@@ -75,7 +75,6 @@ INSTALLED_APPS = [
     "coding_systems.snomedct",
     "mappings.bnfdmd",
     "mappings.ctv3sctmap2",
-    "mappings.rctctv3map",
     "corsheaders",
     "crispy_forms",
     "django_extensions",

@@ -5,6 +5,7 @@ from django.apps import apps
 from django.db import DEFAULT_DB_ALIAS, OperationalError, connections
 
 from codelists.coding_systems import CODING_SYSTEMS
+from coding_systems.conftest import mock_migrate_coding_system
 from coding_systems.ctv3.models import TPPConcept, TPPRelationship
 from coding_systems.versioning.models import (
     CodingSystemRelease,
@@ -24,29 +25,18 @@ def test_coding_system_routing_errors_if_no_using_db_specified(coding_system):
             model_cls.objects.filter(pk=1).first()
 
 
-def setup_ctv3_db():
-    """Ensure the ctv3 tables are created in a second test db"""
+def test_mismatched_coding_system_database_relations(coding_systems_tmp_path):
+    # Relations are only allowed if the database matches
+    # (Note Mapping instances are an exception; see db_utils.CodingSystemVersionRouter)
+
+    # make another ctv3 db connection
     CodingSystemRelease.objects.create(
         coding_system="ctv3",
         release_name="testv2",
         valid_from=datetime(2022, 11, 1, tzinfo=timezone.utc),
     )
     update_coding_system_database_connections()
-
-    with connections["ctv3_test_20200101"].cursor() as cursor:
-        res = cursor.execute("select sql from sqlite_schema where name LIKE 'ctv3_%';")
-        build_sql = [f"{table_defn[0]};" for table_defn in res.fetchall()]
-    with connections["ctv3_testv2_20221101"].cursor() as cursor:
-        for sql in build_sql:
-            cursor.execute(sql)
-
-
-def test_mismatched_coding_system_database_relations(coding_systems_tmp_path):
-    # Relations are only allowed if the database matches
-    # (Note Mapping instances are an exception; see db_utils.CodingSystemVersionRouter)
-
-    # make another ctv3 db connection
-    setup_ctv3_db()
+    mock_migrate_coding_system(database="ctv3_testv2_20221101")
 
     ancestor = TPPConcept.objects.using("ctv3_test_20200101").create(
         read_code="11111", description="11111"

@@ -30,7 +30,7 @@ def mock_migrate_coding_system(*args, **kwargs):
     `import_data` runs `migrate` for the coding system app, to set up the the newly
     created coding system version database.  However, tests run with --no-migrations,
     so this function uses the schema from the test database for the relevant coding
-    system to set up the new db in tests (note that the default ab can't be used
+    system to set up the new db in tests (note that the default db can't be used
     because the database router prevents migrations on coding system tables for the
     default db)
     """

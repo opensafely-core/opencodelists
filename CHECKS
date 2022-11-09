@@ -1,6 +1,6 @@
 # Wait for 30 seconds to allow time for migrations, if necessary
 WAIT=30
 TIMEOUT=60
-ATTEMPTS=5
+ATTEMPTS=10
 
 http://localhost

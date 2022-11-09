@@ -2,7 +2,7 @@ import pytest
 from django.urls import reverse
 
 from codelists.actions import create_codelist_from_scratch
-from codelists.coding_systems import CODING_SYSTEMS
+from codelists.coding_systems import most_recent_database_alias
 from codelists.models import Codelist
 from codelists.tests.views.assertions import (
     assert_post_unauthenticated,
@@ -185,9 +185,7 @@ def test_discard_only_draft_version(client, organisation_user):
         author=organisation_user,
         name="foo",
         coding_system_id="snomedct",
-        coding_system_database_alias=CODING_SYSTEMS["snomedct"]
-        .most_recent()
-        .database_alias,
+        coding_system_database_alias=most_recent_database_alias("snomedct"),
     )
     assert new_codelist.versions.count() == 1
     draft = new_codelist.versions.first()

@@ -25,22 +25,17 @@ class BaseCodingSystem(ABC):
         self.database_alias = database_alias
 
     @classmethod
-    def most_recent(cls):
-        """
-        Return a CodingSystem instance for the most recent release.
-        """
-        most_recent_release = CodingSystemRelease.objects.most_recent(cls.id)
-        if most_recent_release is None:
-            raise CodingSystemRelease.DoesNotExist(
-                f"No coding system data found for {cls.short_name}"
-            )
-        return cls(database_alias=most_recent_release.database_alias)
-
-    @classmethod
     def get_by_release_or_most_recent(cls, database_alias=None):
         """
         Returns a CodingSystem instance for the requested release, or the most recent one.
         """
+        if database_alias is None:
+            most_recent_release = CodingSystemRelease.objects.most_recent(cls.id)
+            if most_recent_release is None:
+                raise CodingSystemRelease.DoesNotExist(
+                    f"No coding system data found for {cls.short_name}"
+                )
+            return cls(database_alias=most_recent_release.database_alias)
         database_alias = cls.validate_db_alias(database_alias)
         return cls(database_alias=database_alias)
 
@@ -56,10 +51,7 @@ class BaseCodingSystem(ABC):
     def validate_db_alias(cls, database_alias):
         """
         Ensure that this database_alias is associated with a valid CodingSystemRelease
-        If no database_alias is provided, default to the most recent one.
         """
-        if database_alias is None:
-            return cls.most_recent().database_alias
         all_slugs = CodingSystemRelease.objects.filter(
             coding_system=cls.id
         ).values_list("database_alias", flat=True)

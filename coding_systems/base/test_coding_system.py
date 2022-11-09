@@ -2,7 +2,7 @@ import re
 
 import pytest
 
-from codelists.coding_systems import CODING_SYSTEMS
+from codelists.coding_systems import CODING_SYSTEMS, most_recent_database_alias
 from coding_systems.versioning.models import CodingSystemRelease
 
 
@@ -13,7 +13,7 @@ def test_most_recent_some_coding_system_releases(
     # CodingSystemRelease created in fixtures for these
     if coding_system in ["ctv3", "dmd", "snomedct", "icd10"]:
         assert (
-            CODING_SYSTEMS[coding_system].most_recent().database_alias
+            most_recent_database_alias(coding_system)
             == f"{coding_system}_test_20200101"
         )
     else:
@@ -24,17 +24,14 @@ def test_most_recent_some_coding_system_releases(
                 f"No coding system data found for {CODING_SYSTEMS[coding_system].short_name}"
             ),
         ):
-            assert CODING_SYSTEMS[coding_system].most_recent()
+            assert CODING_SYSTEMS[coding_system].get_by_release_or_most_recent()
 
 
 def test_most_recent_multiple_coding_system_releases(
     snomedct_data, coding_system_release
 ):
     assert CodingSystemRelease.objects.filter(coding_system="snomedct").count() == 2
-    assert (
-        CODING_SYSTEMS["snomedct"].most_recent().database_alias
-        == "snomedct_v1_20221001"
-    )
+    assert most_recent_database_alias("snomedct") == "snomedct_v1_20221001"
 
 
 @pytest.mark.parametrize(

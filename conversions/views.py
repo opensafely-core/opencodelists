@@ -20,8 +20,12 @@ class ConvertView(FormView):
         to_coding_system_id = form.cleaned_data["to_coding_system_id"]
         assert from_coding_system_id == "snomedct"
         assert to_coding_system_id == "ctv3"
-        from_coding_system = CODING_SYSTEMS[from_coding_system_id].most_recent()
-        to_coding_system = CODING_SYSTEMS[to_coding_system_id].most_recent()
+        from_coding_system = CODING_SYSTEMS[
+            from_coding_system_id
+        ].get_by_release_or_most_recent()
+        to_coding_system = CODING_SYSTEMS[
+            to_coding_system_id
+        ].get_by_release_or_most_recent()
 
         base_filename, _ = os.path.splitext(form.cleaned_data["csv_data"].name)
         csv_data = form.cleaned_data["csv_data"].read().decode("utf-8-sig")

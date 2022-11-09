@@ -118,7 +118,7 @@ from codelists.actions import (
     create_old_style_version,
     export_to_builder,
 )
-from codelists.coding_systems import CODING_SYSTEMS
+from codelists.coding_systems import CODING_SYSTEMS, most_recent_database_alias
 from codelists.models import Status
 from codelists.search import do_search
 from opencodelists.actions import (
@@ -347,7 +347,7 @@ def build_fixtures():
         owner=organisation,
         name="Old-style Codelist",
         coding_system_id="snomedct",
-        coding_system_database_alias=_get_coding_system("snomedct").database_alias,
+        coding_system_database_alias=most_recent_database_alias("snomedct"),
         description="What this is",
         methodology="How we did it",
         csv_data=disorder_of_elbow_excl_arthritis_csv_data,
@@ -360,7 +360,7 @@ def build_fixtures():
     old_style_version = create_old_style_version(
         codelist=old_style_codelist,
         csv_data=disorder_of_elbow_csv_data,
-        coding_system_database_alias=_get_coding_system("snomedct").database_alias,
+        coding_system_database_alias=most_recent_database_alias("snomedct"),
     )
 
     # Check that this version has the expected codes
@@ -376,7 +376,7 @@ def build_fixtures():
         owner=organisation,
         name="DMD Codelist",
         coding_system_id="dmd",
-        coding_system_database_alias=_get_coding_system("dmd").database_alias,
+        coding_system_database_alias=most_recent_database_alias("dmd"),
         description="What this is",
         methodology="How we did it",
         csv_data=asthma_medication_csv_data,
@@ -385,12 +385,12 @@ def build_fixtures():
     dmd_version_asthma_medication_alt_headers = create_old_style_version(
         codelist=dmd_codelist,
         csv_data=asthma_medication_csv_data_alternative_headers,
-        coding_system_database_alias=_get_coding_system("dmd").database_alias,
+        coding_system_database_alias=most_recent_database_alias("dmd"),
     )
     dmd_version_asthma_medication_refill = create_old_style_version(
         codelist=dmd_codelist,
         csv_data=asthma_medication_refill_csv_data,
-        coding_system_database_alias=_get_coding_system("dmd").database_alias,
+        coding_system_database_alias=most_recent_database_alias("dmd"),
     )
 
     # new_style_codelist
@@ -405,7 +405,7 @@ def build_fixtures():
         owner=organisation,
         name="New-style Codelist",
         coding_system_id="snomedct",
-        coding_system_database_alias=_get_coding_system("snomedct").database_alias,
+        coding_system_database_alias=most_recent_database_alias("snomedct"),
         codes=disorder_of_elbow_excl_arthritis_codes,
         references=[
             {"text": "Reference 1", "url": "https://example.com/reference1"},
@@ -456,7 +456,7 @@ def build_fixtures():
     version_with_some_searches = export_to_builder(
         version=version_with_no_searches,
         author=organisation_user,
-        coding_system_database_alias=_get_coding_system("snomedct").database_alias,
+        coding_system_database_alias=most_recent_database_alias("snomedct"),
     )
     create_search(
         draft=version_with_some_searches,
@@ -491,7 +491,7 @@ def build_fixtures():
     version_with_complete_searches = export_to_builder(
         version=version_with_some_searches,
         author=organisation_user,
-        coding_system_database_alias=_get_coding_system("snomedct").database_alias,
+        coding_system_database_alias=most_recent_database_alias("snomedct"),
     )
     create_search(
         draft=version_with_complete_searches,
@@ -558,7 +558,7 @@ def build_fixtures():
         owner=organisation,
         name="Codelist From Scratch",
         coding_system_id="snomedct",
-        coding_system_database_alias=_get_coding_system("snomedct").database_alias,
+        coding_system_database_alias=most_recent_database_alias("snomedct"),
         author=organisation_user,
     )
     add_codelist_tag(codelist=codelist_from_scratch, tag="new-style")
@@ -572,7 +572,7 @@ def build_fixtures():
         owner=organisation_user,
         name="User Codelist From Scratch",
         coding_system_id="snomedct",
-        coding_system_database_alias=_get_coding_system("snomedct").database_alias,
+        coding_system_database_alias=most_recent_database_alias("snomedct"),
         author=organisation_user,
     )
     add_codelist_tag(codelist=user_codelist_from_scratch, tag="new-style")
@@ -594,7 +594,7 @@ def build_fixtures():
         owner=organisation_user,
         name="User-owned Codelist",
         coding_system_id="snomedct",
-        coding_system_database_alias=_get_coding_system("snomedct").database_alias,
+        coding_system_database_alias=most_recent_database_alias("snomedct"),
         codes=disorder_of_elbow_excl_arthritis_codes,
     )
     add_codelist_tag(codelist=user_codelist, tag="new-style")
@@ -612,7 +612,7 @@ def build_fixtures():
         owner=organisation,
         name="Minimal Codelist",
         coding_system_id="snomedct",
-        coding_system_database_alias=_get_coding_system("snomedct").database_alias,
+        coding_system_database_alias=most_recent_database_alias("snomedct"),
         codes=enthesopathy_of_elbow_region_plus_tennis_toe,
     )
     # minimal_version
@@ -621,7 +621,7 @@ def build_fixtures():
     minimal_draft = export_to_builder(
         version=minimal_version,
         author=organisation_user,
-        coding_system_database_alias=_get_coding_system("snomedct").database_alias,
+        coding_system_database_alias=most_recent_database_alias("snomedct"),
     )
     create_search(
         draft=minimal_draft,
@@ -666,21 +666,17 @@ def load_codes_from_csv(filename):
     return [row[0] for row in rows[1:]]
 
 
-def _get_coding_system(coding_system_id):
-    return CODING_SYSTEMS[coding_system_id].most_recent()
-
-
 def codes_for_search_term(term):
     """Return codes matching search term."""
 
-    coding_system = _get_coding_system("snomedct")
+    coding_system = CODING_SYSTEMS["snomedct"].get_by_release_or_most_recent()
     return do_search(coding_system, term=term)["all_codes"]
 
 
 def codes_for_search_code(code):
     """Return codes matching search code."""
 
-    coding_system = _get_coding_system("snomedct")
+    coding_system = CODING_SYSTEMS["snomedct"].get_by_release_or_most_recent()
     return do_search(coding_system, code=code)["all_codes"]
 
 
@@ -747,7 +743,7 @@ def draft_with_no_searches(version_with_no_searches, organisation_user):
     return export_to_builder(
         version=version_with_no_searches,
         author=organisation_user,
-        coding_system_database_alias=_get_coding_system("snomedct").database_alias,
+        coding_system_database_alias=most_recent_database_alias("snomedct"),
     )
 
 
@@ -756,7 +752,7 @@ def draft_with_some_searches(version_with_some_searches, organisation_user):
     return export_to_builder(
         version=version_with_some_searches,
         author=organisation_user,
-        coding_system_database_alias=_get_coding_system("snomedct").database_alias,
+        coding_system_database_alias=most_recent_database_alias("snomedct"),
     )
 
 
@@ -765,7 +761,7 @@ def draft_with_complete_searches(version_with_complete_searches, organisation_us
     return export_to_builder(
         version=version_with_complete_searches,
         author=organisation_user,
-        coding_system_database_alias=_get_coding_system("snomedct").database_alias,
+        coding_system_database_alias=most_recent_database_alias("snomedct"),
     )
 
 
@@ -774,7 +770,7 @@ def draft_from_scratch(version_with_complete_searches, organisation_user):
     return export_to_builder(
         version=version_with_complete_searches,
         author=organisation_user,
-        coding_system_database_alias=_get_coding_system("snomedct").database_alias,
+        coding_system_database_alias=most_recent_database_alias("snomedct"),
     )
 
 
@@ -808,7 +804,7 @@ def create_codelists(organisation):
             owner=owner,
             name=f"Codelist {i}",
             coding_system_id="snomedct",
-            coding_system_database_alias=_get_coding_system("snomedct").database_alias,
+            coding_system_database_alias=most_recent_database_alias("snomedct"),
             author=None,
         )
         version = new_codelist.versions.last()

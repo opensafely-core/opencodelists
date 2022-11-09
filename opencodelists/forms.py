@@ -80,7 +80,7 @@ class CodelistCreateForm(forms.Form):
         # just defaults to using the most recent one
         coding_system = CODING_SYSTEMS[
             self.cleaned_data["coding_system_id"]
-        ].most_recent()
+        ].get_by_release_or_most_recent()
 
         data = f.read().decode("utf-8-sig")
         codes = [row[0] for row in csv.reader(StringIO(data))]

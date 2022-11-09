@@ -4,7 +4,7 @@ from django.db.utils import IntegrityError
 from django.shortcuts import get_object_or_404, redirect, render
 
 from codelists.actions import create_codelist_from_scratch, create_codelist_with_codes
-from codelists.coding_systems import CODING_SYSTEMS
+from codelists.coding_systems import most_recent_database_alias
 
 from ..forms import CodelistCreateForm
 from ..models import Organisation, User
@@ -66,9 +66,7 @@ def handle_post_valid(request, form, user, owner_choices):
 
     # TODO: Retrieve coding system database alias from form input when
     # coding system version is selectable
-    coding_system_database_alias = (
-        CODING_SYSTEMS[coding_system_id].most_recent().database_alias
-    )
+    coding_system_database_alias = most_recent_database_alias(coding_system_id)
 
     try:
         if codes:

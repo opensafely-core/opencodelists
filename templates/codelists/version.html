@@ -44,7 +44,10 @@
 
     <dl>
       <dt>Coding system</dt>
-      <dd>{{ codelist.coding_system.name }}</dd>
+      <dd>{{ clv.coding_system.name }}</dd>
+
+      <dt>Coding system release</dt>
+      <dd>{{ clv.coding_system.release_name }}</dd>
 
       {% if codelist.organisation %}
       <dt>Organisation</dt>
@@ -81,6 +84,7 @@
         <div class="btn-group-vertical btn-block" role="group">
           {% if codelist.is_new_style %}
             {% if can_create_new_version %}
+              <input type="hidden" name="coding_system_database_alias" value={{ clv.coding_system.database_alias }} />
               <button
                 type="submit"
                 class="btn btn-outline-primary btn-block">

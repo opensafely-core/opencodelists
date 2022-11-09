@@ -38,8 +38,15 @@ class Codelist(models.Model):
         return self.name
 
     @cached_property
-    def coding_system(self):
+    def coding_system_cls(self):
+        # Returns the coding system class for this codelist
+        # This provides access to persistent features of the coding system
+        # e.g. name, id, but is not associated with a specific version of the system
         return CODING_SYSTEMS[self.coding_system_id]
+
+    @cached_property
+    def coding_system_short_name(self):
+        return self.coding_system_cls.short_name
 
     @property
     def codelist_type(self):
@@ -244,6 +251,12 @@ class CodelistVersion(models.Model):
         "Codelist", on_delete=models.CASCADE, related_name="versions"
     )
 
+    coding_system_release = models.ForeignKey(
+        "versioning.CodingSystemRelease",
+        related_name="codelist_versions",
+        on_delete=models.CASCADE,
+    )
+
     status = models.CharField(max_length=len("under review"), choices=Status.choices)
 
     # The user who created this version
@@ -370,7 +383,9 @@ class CodelistVersion(models.Model):
 
     @cached_property
     def coding_system(self):
-        return CODING_SYSTEMS[self.coding_system_id]
+        return self.codelist.coding_system_cls(
+            database_alias=self.coding_system_release.database_alias
+        )
 
     @property
     def codelist_type(self):

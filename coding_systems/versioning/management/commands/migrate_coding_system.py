@@ -8,7 +8,7 @@ from django.db import DEFAULT_DB_ALIAS, transaction
 from django.utils import timezone
 
 from codelists.coding_systems import CODING_SYSTEMS
-from coding_systems.versioning.models import CodingSystemVersion
+from coding_systems.versioning.models import CodingSystemRelease
 
 
 class Command(BaseCommand):
@@ -18,7 +18,7 @@ class Command(BaseCommand):
         See https://github.com/opensafely-core/opencodelists/issues/1379
 
         Extracts the tables for coding system(s) from the default database and loads each
-        coding system into a new database, with the version "unknown".
+        coding system into a new database, with the release_name "unknown".
 
         This is only intended to be run once.
     """
@@ -55,16 +55,16 @@ class Command(BaseCommand):
                 self.stdout.write(f"{coding_system} is not an app, skipping.")
                 continue
 
-            # Create CodingSystemVersion for the initial "unknown" version or bail if one exists already
+            # Create CodingSystemRelease for the initial "unknown" version or bail if one exists already
             if (
                 force
-                or not CodingSystemVersion.objects.filter(
+                or not CodingSystemRelease.objects.filter(
                     coding_system=coding_system
                 ).exists()
             ):
-                coding_system_version, _ = CodingSystemVersion.objects.update_or_create(
+                coding_system_release, _ = CodingSystemRelease.objects.update_or_create(
                     coding_system=coding_system,
-                    version="unknown",
+                    release_name="unknown",
                     import_ref="unknown",
                     defaults={
                         "valid_from": import_datetime,
@@ -73,26 +73,26 @@ class Command(BaseCommand):
                 )
             else:
                 self.stdout.write(
-                    f"CodingSystemVersion already exists for {coding_system}, skipping.\n"
+                    f"CodingSystemRelease already exists for {coding_system}, skipping.\n"
                     "Run with --force to overwrite."
                 )
                 continue
 
             self.stdout.write(f"Migrating {coding_system} to new separate database")
 
-            new_db_path = self.get_new_database_filepath(coding_system_version, force)
+            new_db_path = self.get_new_database_filepath(coding_system_release, force)
 
             self.load_data_to_new_database(coding_system, new_db_path, source_db)
 
-    def get_new_database_filepath(self, coding_system_version, force):
+    def get_new_database_filepath(self, coding_system_release, force):
         """
         Generate filepath for the new database and delete existing database file if necessary
         """
-        db_name = coding_system_version.db_name
+        database_alias = coding_system_release.database_alias
         new_db_path = (
             settings.CODING_SYSTEMS_DATABASE_DIR
-            / coding_system_version.coding_system
-            / f"{db_name}.sqlite3"
+            / coding_system_release.coding_system
+            / f"{database_alias}.sqlite3"
         )
 
         if new_db_path.exists() and force:

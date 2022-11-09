@@ -6,6 +6,7 @@ from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 
 from .. import actions
+from ..coding_systems import most_recent_database_alias
 from ..forms import CodelistCreateForm, ReferenceForm, SignOffForm, data_without_delete
 from .decorators import load_owner, require_permission
 
@@ -66,11 +67,16 @@ def handle_valid(request, owner, codelist_form, reference_formset, signoff_forms
 
     name = codelist_form.cleaned_data["name"]
 
+    # TODO: Retrieve coding system database alias from form input when
+    # coding system version is selectable
+    coding_system_id = codelist_form.cleaned_data["coding_system_id"]
+
     try:
         codelist = actions.create_old_style_codelist(
             owner=owner,
             name=name,
-            coding_system_id=codelist_form.cleaned_data["coding_system_id"],
+            coding_system_id=coding_system_id,
+            coding_system_database_alias=most_recent_database_alias(coding_system_id),
             description=codelist_form.cleaned_data["description"],
             methodology=codelist_form.cleaned_data["methodology"],
             csv_data=codelist_form.cleaned_data["csv_data"],

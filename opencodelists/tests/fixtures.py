@@ -118,7 +118,7 @@ from codelists.actions import (
     create_old_style_version,
     export_to_builder,
 )
-from codelists.coding_systems import CODING_SYSTEMS
+from codelists.coding_systems import CODING_SYSTEMS, most_recent_database_alias
 from codelists.models import Status
 from codelists.search import do_search
 from opencodelists.actions import (
@@ -131,6 +131,9 @@ from opencodelists.models import User
 
 SNOMED_FIXTURES_PATH = Path(settings.BASE_DIR, "coding_systems", "snomedct", "fixtures")
 DMD_FIXTURES_PATH = Path(settings.BASE_DIR, "coding_systems", "dmd", "fixtures")
+CODING_SYSTEM_RELEASES_FIXTURES_PATH = Path(
+    settings.BASE_DIR, "coding_systems", "versioning", "fixtures"
+)
 
 
 def build_fixture(fixture_name):
@@ -160,19 +163,45 @@ def build_fixture(fixture_name):
 
 
 @pytest.fixture(scope="session")
-def snomedct_data(django_db_setup, django_db_blocker):
+def setup_coding_systems(django_db_setup, django_db_blocker):
     with django_db_blocker.unblock():
-        # load enough of the SNOMED CT hierarchy to be useful
-        call_command("loaddata", SNOMED_FIXTURES_PATH / "core-model-components.json")
-        call_command("loaddata", SNOMED_FIXTURES_PATH / "tennis-elbow.json")
-        call_command("loaddata", SNOMED_FIXTURES_PATH / "tennis-toe.json")
+        # load the CodingSystemVersions needed for the snomed and dmd fixtures
+        call_command(
+            "loaddata",
+            CODING_SYSTEM_RELEASES_FIXTURES_PATH / "coding_system_releases.json",
+        )
 
 
 @pytest.fixture(scope="session")
-def dmd_data(django_db_setup, django_db_blocker):
+def snomedct_data(setup_coding_systems, django_db_setup, django_db_blocker):
+    with django_db_blocker.unblock():
+        # load enough of the SNOMED CT hierarchy to be useful
+        call_command(
+            "loaddata",
+            SNOMED_FIXTURES_PATH / "core-model-components.snomedct_test_20200101.json",
+            database="snomedct_test_20200101",
+        )
+        call_command(
+            "loaddata",
+            SNOMED_FIXTURES_PATH / "tennis-elbow.snomedct_test_20200101.json",
+            database="snomedct_test_20200101",
+        )
+        call_command(
+            "loaddata",
+            SNOMED_FIXTURES_PATH / "tennis-toe.snomedct_test_20200101.json",
+            database="snomedct_test_20200101",
+        )
+
+
+@pytest.fixture(scope="session")
+def dmd_data(setup_coding_systems, django_db_setup, django_db_blocker):
     with django_db_blocker.unblock():
         # load a very small amount of the DMD coding system
-        call_command("loaddata", DMD_FIXTURES_PATH / "asthma-medication.json")
+        call_command(
+            "loaddata",
+            DMD_FIXTURES_PATH / "asthma-medication.dmd_test_20200101.json",
+            database="dmd_test_20200101",
+        )
 
 
 @pytest.fixture(scope="session")
@@ -318,6 +347,7 @@ def build_fixtures():
         owner=organisation,
         name="Old-style Codelist",
         coding_system_id="snomedct",
+        coding_system_database_alias=most_recent_database_alias("snomedct"),
         description="What this is",
         methodology="How we did it",
         csv_data=disorder_of_elbow_excl_arthritis_csv_data,
@@ -330,6 +360,7 @@ def build_fixtures():
     old_style_version = create_old_style_version(
         codelist=old_style_codelist,
         csv_data=disorder_of_elbow_csv_data,
+        coding_system_database_alias=most_recent_database_alias("snomedct"),
     )
 
     # Check that this version has the expected codes
@@ -345,6 +376,7 @@ def build_fixtures():
         owner=organisation,
         name="DMD Codelist",
         coding_system_id="dmd",
+        coding_system_database_alias=most_recent_database_alias("dmd"),
         description="What this is",
         methodology="How we did it",
         csv_data=asthma_medication_csv_data,
@@ -353,10 +385,12 @@ def build_fixtures():
     dmd_version_asthma_medication_alt_headers = create_old_style_version(
         codelist=dmd_codelist,
         csv_data=asthma_medication_csv_data_alternative_headers,
+        coding_system_database_alias=most_recent_database_alias("dmd"),
     )
     dmd_version_asthma_medication_refill = create_old_style_version(
         codelist=dmd_codelist,
         csv_data=asthma_medication_refill_csv_data,
+        coding_system_database_alias=most_recent_database_alias("dmd"),
     )
 
     # new_style_codelist
@@ -371,6 +405,7 @@ def build_fixtures():
         owner=organisation,
         name="New-style Codelist",
         coding_system_id="snomedct",
+        coding_system_database_alias=most_recent_database_alias("snomedct"),
         codes=disorder_of_elbow_excl_arthritis_codes,
         references=[
             {"text": "Reference 1", "url": "https://example.com/reference1"},
@@ -419,7 +454,9 @@ def build_fixtures():
     # - has single search, but not all codes covered
     # - includes Disorder of elbow
     version_with_some_searches = export_to_builder(
-        version=version_with_no_searches, author=organisation_user
+        version=version_with_no_searches,
+        author=organisation_user,
+        coding_system_database_alias=most_recent_database_alias("snomedct"),
     )
     create_search(
         draft=version_with_some_searches,
@@ -452,7 +489,9 @@ def build_fixtures():
     # - has some searches, and all codes covered
     # - includes Disorder of elbow
     version_with_complete_searches = export_to_builder(
-        version=version_with_some_searches, author=organisation_user
+        version=version_with_some_searches,
+        author=organisation_user,
+        coding_system_database_alias=most_recent_database_alias("snomedct"),
     )
     create_search(
         draft=version_with_complete_searches,
@@ -519,6 +558,7 @@ def build_fixtures():
         owner=organisation,
         name="Codelist From Scratch",
         coding_system_id="snomedct",
+        coding_system_database_alias=most_recent_database_alias("snomedct"),
         author=organisation_user,
     )
     add_codelist_tag(codelist=codelist_from_scratch, tag="new-style")
@@ -532,6 +572,7 @@ def build_fixtures():
         owner=organisation_user,
         name="User Codelist From Scratch",
         coding_system_id="snomedct",
+        coding_system_database_alias=most_recent_database_alias("snomedct"),
         author=organisation_user,
     )
     add_codelist_tag(codelist=user_codelist_from_scratch, tag="new-style")
@@ -553,6 +594,7 @@ def build_fixtures():
         owner=organisation_user,
         name="User-owned Codelist",
         coding_system_id="snomedct",
+        coding_system_database_alias=most_recent_database_alias("snomedct"),
         codes=disorder_of_elbow_excl_arthritis_codes,
     )
     add_codelist_tag(codelist=user_codelist, tag="new-style")
@@ -570,12 +612,17 @@ def build_fixtures():
         owner=organisation,
         name="Minimal Codelist",
         coding_system_id="snomedct",
+        coding_system_database_alias=most_recent_database_alias("snomedct"),
         codes=enthesopathy_of_elbow_region_plus_tennis_toe,
     )
     # minimal_version
     # - belongs to minimal_codelist
     minimal_version = minimal_codelist.versions.get()
-    minimal_draft = export_to_builder(version=minimal_version, author=organisation_user)
+    minimal_draft = export_to_builder(
+        version=minimal_version,
+        author=organisation_user,
+        coding_system_database_alias=most_recent_database_alias("snomedct"),
+    )
     create_search(
         draft=minimal_draft,
         term="enthesopathy of elbow",
@@ -622,14 +669,14 @@ def load_codes_from_csv(filename):
 def codes_for_search_term(term):
     """Return codes matching search term."""
 
-    coding_system = CODING_SYSTEMS["snomedct"]
+    coding_system = CODING_SYSTEMS["snomedct"].get_by_release_or_most_recent()
     return do_search(coding_system, term=term)["all_codes"]
 
 
 def codes_for_search_code(code):
     """Return codes matching search code."""
 
-    coding_system = CODING_SYSTEMS["snomedct"]
+    coding_system = CODING_SYSTEMS["snomedct"].get_by_release_or_most_recent()
     return do_search(coding_system, code=code)["all_codes"]
 
 
@@ -693,27 +740,37 @@ minimal_draft = build_fixture("minimal_draft")
 # These extra fixtures make modifications to those built in build_fixtures
 @pytest.fixture(scope="function")
 def draft_with_no_searches(version_with_no_searches, organisation_user):
-    return export_to_builder(version=version_with_no_searches, author=organisation_user)
+    return export_to_builder(
+        version=version_with_no_searches,
+        author=organisation_user,
+        coding_system_database_alias=most_recent_database_alias("snomedct"),
+    )
 
 
 @pytest.fixture(scope="function")
 def draft_with_some_searches(version_with_some_searches, organisation_user):
     return export_to_builder(
-        version=version_with_some_searches, author=organisation_user
+        version=version_with_some_searches,
+        author=organisation_user,
+        coding_system_database_alias=most_recent_database_alias("snomedct"),
     )
 
 
 @pytest.fixture(scope="function")
 def draft_with_complete_searches(version_with_complete_searches, organisation_user):
     return export_to_builder(
-        version=version_with_complete_searches, author=organisation_user
+        version=version_with_complete_searches,
+        author=organisation_user,
+        coding_system_database_alias=most_recent_database_alias("snomedct"),
     )
 
 
 @pytest.fixture(scope="function")
 def draft_from_scratch(version_with_complete_searches, organisation_user):
     return export_to_builder(
-        version=version_with_complete_searches, author=organisation_user
+        version=version_with_complete_searches,
+        author=organisation_user,
+        coding_system_database_alias=most_recent_database_alias("snomedct"),
     )
 
 
@@ -744,7 +801,11 @@ def create_codelists(organisation):
 
     def _create_codelist(i, owner, status):
         new_codelist = create_codelist_from_scratch(
-            owner=owner, name=f"Codelist {i}", coding_system_id="snomedct", author=None
+            owner=owner,
+            name=f"Codelist {i}",
+            coding_system_id="snomedct",
+            coding_system_database_alias=most_recent_database_alias("snomedct"),
+            author=None,
         )
         version = new_codelist.versions.last()
         version.status = status
@@ -761,5 +822,11 @@ def create_codelists(organisation):
 
 @pytest.fixture
 def icd10_data():
-    path = Path(settings.BASE_DIR, "coding_systems", "icd10", "fixtures", "icd10.json")
-    call_command("loaddata", path)
+    path = Path(
+        settings.BASE_DIR,
+        "coding_systems",
+        "icd10",
+        "fixtures",
+        "icd10.icd10_test_20200101.json",
+    )
+    call_command("loaddata", path, database="icd10_test_20200101")

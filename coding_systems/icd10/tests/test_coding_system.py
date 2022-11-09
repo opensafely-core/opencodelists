@@ -1,8 +1,15 @@
-from coding_systems.icd10.coding_system import code_to_term, codes_by_type, lookup_names
+import pytest
+
+from coding_systems.icd10.coding_system import CodingSystem
 
 
-def test_codes_by_type(icd10_data):
-    assert codes_by_type(
+@pytest.fixture
+def coding_system():
+    yield CodingSystem(database_alias="icd10_test_20200101")
+
+
+def test_codes_by_type(icd10_data, coding_system):
+    assert coding_system.codes_by_type(
         ["A771", "XIII", "M60-M79", "M70-M79", "M77", "M770", "M779"], None
     ) == {
         "I: Certain infectious and parasitic diseases": ["A771"],
@@ -17,15 +24,15 @@ def test_codes_by_type(icd10_data):
     }
 
 
-def test_lookup_names(icd10_data):
-    assert lookup_names(["M77", "M770", "99999"]) == {
+def test_lookup_names(icd10_data, coding_system):
+    assert coding_system.lookup_names(["M77", "M770", "99999"]) == {
         "M77": "Other enthesopathies",
         "M770": "Medial epicondylitis",
     }
 
 
-def test_code_to_term(icd10_data):
-    assert code_to_term(["M77", "M770", "99999"]) == {
+def test_code_to_term(icd10_data, coding_system):
+    assert coding_system.code_to_term(["M77", "M770", "99999"]) == {
         "M77": "Other enthesopathies",
         "M770": "Medial epicondylitis",
         "99999": "Unknown",

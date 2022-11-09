@@ -3,6 +3,7 @@ from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 
 from .. import actions
+from ..coding_systems import most_recent_database_alias
 from ..forms import CodelistVersionForm
 from .decorators import load_codelist, require_permission
 
@@ -32,8 +33,14 @@ def handle_post(request, codelist):
 
 
 def handle_valid(request, codelist, form):
+    # TODO: Retrieve coding system database alias from form input when
+    # coding system version is selectable
     version = actions.create_old_style_version(
-        codelist=codelist, csv_data=form.cleaned_data["csv_data"]
+        codelist=codelist,
+        csv_data=form.cleaned_data["csv_data"],
+        coding_system_database_alias=most_recent_database_alias(
+            codelist.coding_system_id
+        ),
     )
     return redirect(version)
 

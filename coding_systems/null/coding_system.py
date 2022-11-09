@@ -1,4 +1,8 @@
-name = "No coding system"
-short_name = "null"
+from ..base.coding_system_base import DummyCodingSystem
 
-root = ""
+
+class CodingSystem(DummyCodingSystem):
+    id = "null"
+    name = "No coding system"
+    short_name = "null"
+    root = ""

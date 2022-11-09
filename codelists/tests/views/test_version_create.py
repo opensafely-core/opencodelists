@@ -1,3 +1,5 @@
+from codelists.coding_systems import most_recent_database_alias
+
 from ...models import Status
 from .assertions import assert_post_unauthenticated, assert_post_unauthorised
 from .helpers import force_login
@@ -20,8 +22,10 @@ def test_post_success(client, version):
         ).exists()
         is False
     )
-
-    response = client.post(version.get_create_url())
+    response = client.post(
+        version.get_create_url(),
+        {"coding_system_database_alias": most_recent_database_alias("snomedct")},
+    )
 
     draft = version.codelist.versions.get(author__isnull=False, status=Status.DRAFT)
     assert response.status_code == 302

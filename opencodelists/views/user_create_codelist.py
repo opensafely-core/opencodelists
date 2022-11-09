@@ -4,6 +4,7 @@ from django.db.utils import IntegrityError
 from django.shortcuts import get_object_or_404, redirect, render
 
 from codelists.actions import create_codelist_from_scratch, create_codelist_with_codes
+from codelists.coding_systems import most_recent_database_alias
 
 from ..forms import CodelistCreateForm
 from ..models import Organisation, User
@@ -63,6 +64,10 @@ def handle_post_valid(request, form, user, owner_choices):
     coding_system_id = form.cleaned_data["coding_system_id"]
     codes = form.cleaned_data["csv_data"]
 
+    # TODO: Retrieve coding system database alias from form input when
+    # coding system version is selectable
+    coding_system_database_alias = most_recent_database_alias(coding_system_id)
+
     try:
         if codes:
             codelist = create_codelist_with_codes(
@@ -70,6 +75,7 @@ def handle_post_valid(request, form, user, owner_choices):
                 name=name,
                 coding_system_id=coding_system_id,
                 codes=codes,
+                coding_system_database_alias=coding_system_database_alias,
                 author=user,
             )
         else:
@@ -77,6 +83,7 @@ def handle_post_valid(request, form, user, owner_choices):
                 owner=owner,
                 name=name,
                 coding_system_id=coding_system_id,
+                coding_system_database_alias=coding_system_database_alias,
                 author=user,
             )
     except IntegrityError as e:

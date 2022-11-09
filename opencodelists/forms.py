@@ -76,7 +76,11 @@ class CodelistCreateForm(forms.Form):
         if not f:
             return
 
-        coding_system = CODING_SYSTEMS[self.cleaned_data["coding_system_id"]]
+        # Eventually coding system version may be a selectable field, but for now it
+        # just defaults to using the most recent one
+        coding_system = CODING_SYSTEMS[
+            self.cleaned_data["coding_system_id"]
+        ].get_by_release_or_most_recent()
 
         data = f.read().decode("utf-8-sig")
         codes = [row[0] for row in csv.reader(StringIO(data))]

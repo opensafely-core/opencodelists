@@ -157,6 +157,7 @@ def test_codelists_post(client, user):
     data = {
         "name": "New codelist",
         "coding_system_id": "snomedct",
+        "coding_system_database_alias": "snomedct_test_20200101",
         "codes": ["128133004", "156659008"],
     }
 
@@ -170,6 +171,7 @@ def test_codelists_post_no_auth(client, user):
     data = {
         "name": "New codelist",
         "coding_system_id": "snomedct",
+        "coding_system_database_alias": "snomedct_test_20200101",
         "codes": ["128133004", "156659008"],
     }
 
@@ -183,6 +185,7 @@ def test_codelists_post_permission_denied(client, user, user_without_organisatio
     data = {
         "name": "New codelist",
         "coding_system_id": "snomedct",
+        "coding_system_database_alias": "snomedct_test_20200101",
         "codes": ["128133004", "156659008"],
     }
 
@@ -195,7 +198,10 @@ def test_codelists_post_permission_denied(client, user, user_without_organisatio
 
 
 def test_versions_post_codes(client, user, user_codelist):
-    data = {"codes": ["128133004", "156659008"]}
+    data = {
+        "codes": ["128133004", "156659008"],
+        "coding_system_database_alias": "snomedct_test_20200101",
+    }
 
     with assert_difference(user_codelist.versions.count, expected_difference=1):
         rsp = post(client, user_codelist.get_versions_api_url(), data, user)
@@ -207,12 +213,14 @@ def test_versions_post_codes_with_no_force_new_version(client, user, user_codeli
     data = {
         "name": "New codelist",
         "coding_system_id": "snomedct",
+        "coding_system_database_alias": "snomedct_test_20200101",
         "codes": ["128133004", "156659008"],
     }
     post(client, user_codelist.get_versions_api_url(), data, user)
 
     same_data = {
         "name": "New codelist",
+        "coding_system_database_alias": "snomedct_test_20200101",
         "codes": ["128133004", "156659008"],
         "always_create_new_version": False,
     }
@@ -226,12 +234,14 @@ def test_versions_post_codes_with_force_new_version(client, user, user_codelist)
     data = {
         "name": "New codelist",
         "coding_system_id": "snomedct",
+        "coding_system_database_alias": "snomedct_test_20200101",
         "codes": ["128133004", "156659008"],
     }
     post(client, user_codelist.get_versions_api_url(), data, user)
 
     same_data = {
         "name": "New codelist",
+        "coding_system_database_alias": "snomedct_test_20200101",
         "codes": ["128133004", "156659008"],
         "always_create_new_version": True,
     }
@@ -242,7 +252,10 @@ def test_versions_post_codes_with_force_new_version(client, user, user_codelist)
 
 
 def test_versions_post_ecl(client, user, user_codelist):
-    data = {"ecl": "<<128133004 OR 156659008"}
+    data = {
+        "ecl": "<<128133004 OR 156659008",
+        "coding_system_database_alias": "snomedct_test_20200101",
+    }
 
     with assert_difference(user_codelist.versions.count, expected_difference=1):
         rsp = post(client, user_codelist.get_versions_api_url(), data, user)
@@ -251,7 +264,10 @@ def test_versions_post_ecl(client, user, user_codelist):
 
 
 def test_versions_post_no_difference(client, user, user_codelist):
-    data = {"ecl": "(<<128133004 OR 156659008) MINUS <<439656005"}
+    data = {
+        "ecl": "(<<128133004 OR 156659008) MINUS <<439656005",
+        "coding_system_database_alias": "snomedct_test_20200101",
+    }
 
     with assert_no_difference(user_codelist.versions.count):
         rsp = post(client, user_codelist.get_versions_api_url(), data, user)
@@ -261,7 +277,10 @@ def test_versions_post_no_difference(client, user, user_codelist):
 
 
 def test_versions_post_bad_ecl(client, user, user_codelist):
-    data = {"ecl": "<<128133004 MIN"}
+    data = {
+        "ecl": "<<128133004 MIN",
+        "coding_system_database_alias": "snomedct_test_20200101",
+    }
 
     with assert_no_difference(user_codelist.versions.count):
         rsp = post(client, user_codelist.get_versions_api_url(), data, user)
@@ -283,7 +302,10 @@ def test_versions_post_missing_data(client, user, user_codelist):
 
 
 def test_versions_post_no_auth(client, user_codelist):
-    data = {"ecl": "<<128133004"}
+    data = {
+        "ecl": "<<128133004",
+        "coding_system_database_alias": "snomedct_test_20200101",
+    }
 
     with assert_no_difference(user_codelist.versions.count):
         rsp = post(client, user_codelist.get_versions_api_url(), data, None)
@@ -294,7 +316,10 @@ def test_versions_post_no_auth(client, user_codelist):
 def test_versions_post_permission_denied(
     client, user_without_organisation, user_codelist
 ):
-    data = {"ecl": "<<128133004"}
+    data = {
+        "ecl": "<<128133004",
+        "coding_system_database_alias": "snomedct_test_20200101",
+    }
 
     with assert_no_difference(user_codelist.versions.count):
         rsp = post(

@@ -29,8 +29,8 @@ class CodingSystem(BaseCodingSystem):
             .distinct()
         )
         raw_read_codes = set(
-            RawConceptTermMapping.using(self.database_alias)
-            .objects.filter(
+            RawConceptTermMapping.objects.using(self.database_alias)
+            .filter(
                 Q(term__name_1__contains=term)
                 | Q(term__name_2__contains=term)
                 | Q(term__name_3__contains=term)
@@ -48,8 +48,8 @@ class CodingSystem(BaseCodingSystem):
             .distinct()
         )
         raw_read_codes = set(
-            RawConceptTermMapping.using(self.database_alias)
-            .objects.filter(concept_id=code)
+            RawConceptTermMapping.objects.using(self.database_alias)
+            .filter(concept_id=code)
             .values_list("concept_id", flat=True)
             .distinct()
         )

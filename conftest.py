@@ -36,6 +36,11 @@ def django_db_modify_db_settings():
     rather than calling  `versioning.models.update_coding_system_database_connections`
     so that the database connections are available at the point where the tests load the
     coding system fixtures, which is prior to db configuration.
+
+    In addition, if the tests are running in a local environment with a database that contains
+    CodingSystemReleases, the `update_coding_system_database_connections` command that
+    runs on app startup will have populated the DATABASES setting with real release dbs
+    so we also need to reset those before the tests start.
     """
     from django.conf import settings
 
@@ -43,6 +48,12 @@ def django_db_modify_db_settings():
     # are all in-memory sqlite databases, so although we're duplicating the configuration, the
     # databases is the tests will all be separate in-memory sqlite dbs
     coding_system_db_aliases = database_aliases - {"default"}
+
+    # Reset the DATABASES settings so that it contains only the default db
+    initial_database_aliases = settings.DATABASES.keys() - {"default", "OPTIONS"}
+    for alias in initial_database_aliases:
+        del settings.DATABASES[alias]
+
     for alias in coding_system_db_aliases:
         settings.DATABASES[alias] = dict(settings.DATABASES["default"])
 

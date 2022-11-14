@@ -3,7 +3,7 @@ from coding_systems.dmd.models import AMP, VMP
 from .models import Mapping
 
 
-def bnf_to_dmd(bnf_codes):
+def bnf_to_dmd(bnf_codes, dmd_coding_system):
     vmp_id_to_bnf_code = dict(
         Mapping.objects.filter(
             bnf_concept_id__in=bnf_codes, dmd_type="VMP"
@@ -17,7 +17,9 @@ def bnf_to_dmd(bnf_codes):
 
     rows = []
 
-    for vmp in VMP.objects.filter(id__in=list(vmp_id_to_bnf_code)):
+    for vmp in VMP.objects.using(dmd_coding_system.database_alias).filter(
+        id__in=list(vmp_id_to_bnf_code)
+    ):
         rows.append(
             {
                 "dmd_type": "VMP",
@@ -27,7 +29,9 @@ def bnf_to_dmd(bnf_codes):
             }
         )
 
-    for amp in AMP.objects.filter(id__in=list(amp_id_to_bnf_code)):
+    for amp in AMP.objects.using(dmd_coding_system.database_alias).filter(
+        id__in=list(amp_id_to_bnf_code)
+    ):
         rows.append(
             {
                 "dmd_type": "AMP",

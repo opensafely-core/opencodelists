@@ -75,7 +75,6 @@ INSTALLED_APPS = [
     "coding_systems.snomedct",
     "mappings.bnfdmd",
     "mappings.ctv3sctmap2",
-    "mappings.rctctv3map",
     "corsheaders",
     "crispy_forms",
     "django_extensions",
@@ -154,6 +153,7 @@ DATABASE_DIR = Path(
 )  # location of sqlite files e.g. /storage/
 DATABASE_DUMP_DIR = DATABASE_DIR / "sql_dump"
 CODING_SYSTEMS_DATABASE_DIR = DATABASE_DIR / "coding_systems"
+DATABASE_ROUTERS = ["opencodelists.db_utils.CodingSystemVersionRouter"]
 
 # Default type for auto-created primary keys
 # https://docs.djangoproject.com/en/3.2/releases/3.2/#customizing-type-of-auto-created-primary-keys

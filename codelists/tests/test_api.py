@@ -9,6 +9,21 @@ def test_codelists_get(client, organisation):
     assert rsp.status_code == 200
     assert data["codelists"] == [
         {
+            "full_slug": "test-university/bnf-codelist",
+            "slug": "bnf-codelist",
+            "name": "BNF Codelist",
+            "coding_system_id": "bnf",
+            "organisation": "Test University",
+            "versions": [
+                {
+                    "hash": "69a34cc0",
+                    "tag": None,
+                    "full_slug": "test-university/bnf-codelist/69a34cc0",
+                    "status": "published",
+                }
+            ],
+        },
+        {
             "full_slug": "test-university/codelist-from-scratch",
             "slug": "codelist-from-scratch",
             "name": "Codelist From Scratch",
@@ -16,9 +31,9 @@ def test_codelists_get(client, organisation):
             "coding_system_id": "snomedct",
             "versions": [
                 {
-                    "hash": "1e74f321",
+                    "hash": "05657fec",
                     "tag": None,
-                    "full_slug": "test-university/codelist-from-scratch/1e74f321",
+                    "full_slug": "test-university/codelist-from-scratch/05657fec",
                     "status": "draft",
                 }
             ],
@@ -58,15 +73,15 @@ def test_codelists_get(client, organisation):
             "coding_system_id": "snomedct",
             "versions": [
                 {
-                    "hash": "53469981",
-                    "tag": None,
-                    "full_slug": "test-university/minimal-codelist/53469981",
-                    "status": "published",
-                },
-                {
                     "hash": "3a37264c",
                     "tag": None,
                     "full_slug": "test-university/minimal-codelist/3a37264c",
+                    "status": "published",
+                },
+                {
+                    "hash": "2127b317",
+                    "tag": None,
+                    "full_slug": "test-university/minimal-codelist/2127b317",
                     "status": "draft",
                 },
             ],
@@ -79,21 +94,21 @@ def test_codelists_get(client, organisation):
             "coding_system_id": "snomedct",
             "versions": [
                 {
-                    "hash": "69a34cc0",
-                    "tag": None,
-                    "full_slug": "test-university/new-style-codelist/69a34cc0",
-                    "status": "published",
-                },
-                {
                     "hash": "5093d98b",
                     "tag": None,
                     "full_slug": "test-university/new-style-codelist/5093d98b",
-                    "status": "under review",
+                    "status": "published",
                 },
                 {
                     "hash": "37846656",
                     "tag": None,
                     "full_slug": "test-university/new-style-codelist/37846656",
+                    "status": "under review",
+                },
+                {
+                    "hash": "1e74f321",
+                    "tag": None,
+                    "full_slug": "test-university/new-style-codelist/1e74f321",
                     "status": "under review",
                 },
             ],
@@ -129,11 +144,11 @@ def test_codelists_get_with_coding_system_id(client, organisation):
 
     rsp = client.get(f"/api/v1/codelist/{organisation.slug}/?coding_system_id=")
     data = json.loads(rsp.content)
-    assert len(data["codelists"]) == 5
+    assert len(data["codelists"]) == 6
 
     rsp = client.get(f"/api/v1/codelist/{organisation.slug}/?coding_system_id=bnf")
     data = json.loads(rsp.content)
-    assert len(data["codelists"]) == 0
+    assert len(data["codelists"]) == 1
 
 
 def test_codelists_get_with_no_organisation(client, organisation):

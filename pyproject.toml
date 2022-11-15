@@ -6,7 +6,8 @@ omit = [
   "opencodelists/settings.py",
   "opencodelists/wsgi.py",
   "staticfiles",
-  "*/migrations/*"
+  "*/migrations/*",
+  "coding_systems/snomedct/parser_utils/*",
 ]
 
 [tool.coverage.report]

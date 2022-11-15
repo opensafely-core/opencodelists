@@ -34,7 +34,7 @@ def handle(expr):
         return {"included": handle_expr_or_or(tree), "excluded": set()}
     elif tree["type"] == "minus":
         return handle_minus(tree)
-    else:
+    else:  # pragma: no cover
         assert False, tree
 
 
@@ -134,7 +134,7 @@ class ErrorListener:
 
     def reportAmbiguity(
         self, recognizer, dfa, startIndex, stopIndex, exact, ambigAlts, configs
-    ):
+    ):  # pragma: no cover
         raise ParseError(
             f"Ambiguity (startIndex: {startIndex}, stopIndex: {stopIndex})"
         )
@@ -148,7 +148,7 @@ class ErrorListener:
 
     def reportContextSensitivity(
         self, recognizer, dfa, startIndex, stopIndex, prediction, configs
-    ):
+    ):  # pragma: no cover
         raise ParseError(
             f"Context sensitivity (startIndex: {startIndex}, stopIndex: {stopIndex})"
         )

@@ -65,3 +65,46 @@ def test_update_dummy_coding_system_database_connections(coding_systems_tmp_path
     )
     update_coding_system_database_connections()
     assert null_coding_system_release.database_alias not in connections.databases
+
+
+@pytest.mark.parametrize(
+    "alias,slugified_alias",
+    [(None, "null_version-1_20221001"), ("", "null_version-1_20221001")],
+)
+def test_coding_system_default_database_alias(alias, slugified_alias):
+    # database_alias is set on save, to a slug in the format
+    # <coding_system>_<release_name>_<valid_from>
+    csr = CodingSystemRelease.objects.create(
+        coding_system="null",
+        release_name="Version 1",
+        valid_from=datetime(2022, 10, 1, tzinfo=timezone.utc),
+        database_alias=alias,
+    )
+    assert csr.database_alias == slugified_alias
+
+
+def test_coding_system_invalid_database_alias():
+    # If a custom database_alias is set, and doesn't match the required database_alias
+    # pattern, an AssertionError is raised
+    with pytest.raises(AssertionError):
+        CodingSystemRelease.objects.create(
+            coding_system="null",
+            release_name="Version 1",
+            valid_from=datetime(2022, 10, 1, tzinfo=timezone.utc),
+            database_alias="custom_db_alias",
+        )
+
+    # make a CSR with the default alias
+    csr = CodingSystemRelease.objects.create(
+        coding_system="null",
+        release_name="Version 1",
+        valid_from=datetime(2022, 10, 1, tzinfo=timezone.utc),
+    )
+    # if any of the component fields are changed, the db alias must be updated too
+    with pytest.raises(AssertionError):
+        csr.release_name = "Version 2"
+        csr.save()
+
+    csr.release_name = "Version 2"
+    csr.database_alias = "null_version-2_20221001"
+    csr.save()

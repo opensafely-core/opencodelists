@@ -68,19 +68,19 @@ class BaseCodingSystem(ABC):
     def release_name(self):
         return self.release.release_name
 
-    def search_by_term(self, term):
+    def search_by_term(self, term):  # pragma: no cover
         raise NotImplementedError
 
-    def search_by_code(self, code):
+    def search_by_code(self, code):  # pragma: no cover
         raise NotImplementedError
 
-    def lookup_names(self, codes):
+    def lookup_names(self, codes):  # pragma: no cover
         raise NotImplementedError
 
-    def code_to_term(self, codes):
+    def code_to_term(self, codes):  # pragma: no cover
         raise NotImplementedError
 
-    def codes_by_type(self, codes, hierarchy):
+    def codes_by_type(self, codes, hierarchy):  # pragma: no cover
         raise NotImplementedError
 
 

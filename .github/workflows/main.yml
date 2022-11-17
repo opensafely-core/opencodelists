@@ -104,12 +104,12 @@ jobs:
       - name: Setup SSH Agent
         run: |
             ssh-agent -a $SSH_AUTH_SOCK > /dev/null
-            ssh-add - <<< "${{ secrets.DOKKU1_DEPLOY_SSH_KEY }}"
+            ssh-add - <<< "${{ secrets.DOKKU3_DEPLOY_SSH_KEY }}"
 
       - name: Deploy
         run: |
             SHA=$(docker inspect --format='{{index .RepoDigests 0}}' $PUBLIC_IMAGE_NAME:latest)
-            ssh -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" dokku@dokku.ebmdatalab.net git:from-image opencodelists $SHA
+            ssh -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" dokku@dokku3.ebmdatalab.net git:from-image opencodelists $SHA
 
       - name: Create Sentry release
         uses: getsentry/action-release@744e4b262278339b79fb39c8922efcae71e98e39

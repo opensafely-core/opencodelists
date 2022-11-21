@@ -11,7 +11,7 @@ from django.db import connections
 from coding_systems.bnf.import_data import import_data
 from coding_systems.bnf.models import Concept
 from coding_systems.conftest import mock_migrate_coding_system
-from coding_systems.versioning.models import CodingSystemRelease
+from coding_systems.versioning.models import CodingSystemRelease, ReleaseState
 
 
 @pytest.fixture(autouse=True)
@@ -203,6 +203,7 @@ def test_import_data_existing_coding_system_release(
         release_name="v1-1",
         valid_from=date(2022, 10, 1),
         import_ref="A first ref",
+        state=ReleaseState.READY,
     )
     cs_release_count = CodingSystemRelease.objects.count()
     initial_timestamp = cs_release.import_timestamp
@@ -292,6 +293,7 @@ def test_import_setup_error_existing_release(
         release_name="v_error_setup",
         valid_from=date(2022, 10, 1),
         import_ref="A first ref",
+        state=ReleaseState.READY,
     )
     cs_release_count = CodingSystemRelease.objects.count()
     initial_timestamp = cs_release.import_timestamp

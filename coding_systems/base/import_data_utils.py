@@ -8,6 +8,7 @@ from django.utils import timezone
 
 from coding_systems.versioning.models import (
     CodingSystemRelease,
+    ReleaseState,
     update_coding_system_database_connections,
 )
 
@@ -65,6 +66,7 @@ class CodingSystemImporter:
             # raise the exception
             return False
         # Finally, if all went well, update the coding system release fields
+        self.cs_release.state = ReleaseState.READY
         self.cs_release.import_timestamp = self.import_datetime
         self.cs_release.import_ref = self.import_ref
         self.cs_release.save()
@@ -103,6 +105,9 @@ class CodingSystemImporter:
                 "import_ref": self.import_ref,
             },
         )
+        self.cs_release.state = ReleaseState.IMPORTING
+        self.cs_release.save()
+
         # ensure the new database connection is available
         update_coding_system_database_connections()
         database_alias = self.cs_release.database_alias

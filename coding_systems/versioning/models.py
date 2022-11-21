@@ -7,9 +7,22 @@ from django.utils.text import slugify
 from codelists.coding_systems import CODING_SYSTEMS
 
 
+class ReleaseState(models.TextChoices):
+    IMPORTING = "importing"  # the coding system release is being imported
+    READY = "ready"  # the coding system release has been imported and is ready to use
+
+
 class CodingSystemReleaseManager(models.Manager):
+    def ready(self):
+        return self.filter(state=ReleaseState.READY)
+
     def most_recent(self, coding_system):
-        return self.filter(coding_system=coding_system).order_by("-valid_from").first()
+        return (
+            self.ready()
+            .filter(coding_system=coding_system)
+            .order_by("-valid_from")
+            .first()
+        )
 
 
 class CodingSystemRelease(models.Model):
@@ -19,6 +32,7 @@ class CodingSystemRelease(models.Model):
     import_timestamp = models.DateTimeField(auto_now_add=True)
     import_ref = models.TextField()
     database_alias = models.SlugField(max_length=255, unique=True)
+    state = models.CharField(max_length=len("importing"), choices=ReleaseState.choices)
 
     objects = CodingSystemReleaseManager()
 

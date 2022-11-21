@@ -8,6 +8,7 @@ from django.utils.connection import ConnectionDoesNotExist
 from coding_systems.snomedct.models import Concept
 from coding_systems.versioning.models import (
     CodingSystemRelease,
+    ReleaseState,
     update_coding_system_database_connections,
 )
 
@@ -20,6 +21,7 @@ def test_coding_system_release_most_recent(coding_system_release):
         release_name="v0.1",
         import_ref="ref",
         valid_from=datetime(2022, 9, 1, tzinfo=timezone.utc),
+        state=ReleaseState.READY,
     )
     # most_recent is coding system-dependent, so a later valid_from version
     # for a different coding system is irrelevant
@@ -28,6 +30,7 @@ def test_coding_system_release_most_recent(coding_system_release):
         release_name="v1",
         import_ref="ref",
         valid_from=datetime(2022, 10, 15, tzinfo=timezone.utc),
+        state=ReleaseState.READY,
     )
 
     assert new_cs_release.import_timestamp > coding_system_release.import_timestamp
@@ -62,6 +65,7 @@ def test_update_dummy_coding_system_database_connections(coding_systems_tmp_path
         release_name="null",
         import_ref="ref",
         valid_from=datetime(2022, 10, 1, tzinfo=timezone.utc),
+        state=ReleaseState.READY,
     )
     update_coding_system_database_connections()
     assert null_coding_system_release.database_alias not in connections.databases
@@ -79,6 +83,7 @@ def test_coding_system_default_database_alias(alias, slugified_alias):
         release_name="Version 1",
         valid_from=datetime(2022, 10, 1, tzinfo=timezone.utc),
         database_alias=alias,
+        state=ReleaseState.READY,
     )
     assert csr.database_alias == slugified_alias
 
@@ -92,6 +97,7 @@ def test_coding_system_invalid_database_alias():
             release_name="Version 1",
             valid_from=datetime(2022, 10, 1, tzinfo=timezone.utc),
             database_alias="custom_db_alias",
+            state=ReleaseState.READY,
         )
 
     # make a CSR with the default alias
@@ -99,6 +105,7 @@ def test_coding_system_invalid_database_alias():
         coding_system="null",
         release_name="Version 1",
         valid_from=datetime(2022, 10, 1, tzinfo=timezone.utc),
+        state=ReleaseState.READY,
     )
     # if any of the component fields are changed, the db alias must be updated too
     with pytest.raises(AssertionError):
@@ -108,3 +115,25 @@ def test_coding_system_invalid_database_alias():
     csr.release_name = "Version 2"
     csr.database_alias = "null_version-2_20221001"
     csr.save()
+
+
+def test_coding_system_release_state(coding_system_release):
+    initial_count = CodingSystemRelease.objects.count()
+    # create a new CSR, with importing state
+    now = datetime.now()
+    importing_cs = CodingSystemRelease.objects.create(
+        coding_system="snomedct",
+        release_name="vtest",
+        valid_from=now,
+        state=ReleaseState.IMPORTING,
+    )
+
+    # The importing CSR doesn't get included in `ready`
+    assert CodingSystemRelease.objects.ready().count() == initial_count
+    assert CodingSystemRelease.objects.count() == initial_count + 1
+    assert CodingSystemRelease.objects.most_recent("snomedct") != importing_cs
+
+    importing_cs.state = ReleaseState.READY
+    importing_cs.save()
+    assert CodingSystemRelease.objects.ready().count() == initial_count + 1
+    assert CodingSystemRelease.objects.most_recent("snomedct") == importing_cs

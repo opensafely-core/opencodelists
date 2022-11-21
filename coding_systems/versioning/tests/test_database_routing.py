@@ -9,6 +9,7 @@ from coding_systems.conftest import mock_migrate_coding_system
 from coding_systems.ctv3.models import TPPConcept, TPPRelationship
 from coding_systems.versioning.models import (
     CodingSystemRelease,
+    ReleaseState,
     update_coding_system_database_connections,
 )
 
@@ -34,6 +35,7 @@ def test_mismatched_coding_system_database_relations(coding_systems_tmp_path):
         coding_system="ctv3",
         release_name="testv2",
         valid_from=datetime(2022, 11, 1, tzinfo=timezone.utc),
+        state=ReleaseState.READY,
     )
     update_coding_system_database_connections()
     mock_migrate_coding_system(database="ctv3_testv2_20221101")

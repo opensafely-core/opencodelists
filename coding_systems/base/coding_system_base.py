@@ -51,10 +51,13 @@ class BaseCodingSystem(ABC):
     def validate_db_alias(cls, database_alias):
         """
         Ensure that this database_alias is associated with a valid CodingSystemRelease
+        that is ready to use (i.e. not in "importing" state)
         """
-        all_slugs = CodingSystemRelease.objects.filter(
-            coding_system=cls.id
-        ).values_list("database_alias", flat=True)
+        all_slugs = (
+            CodingSystemRelease.objects.ready()
+            .filter(coding_system=cls.id)
+            .values_list("database_alias", flat=True)
+        )
         assert (
             database_alias in all_slugs
         ), f"{database_alias} is not a valid database alias for a {cls.short_name} release."

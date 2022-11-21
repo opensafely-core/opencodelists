@@ -4,7 +4,7 @@ import pytest
 from django.db import connections
 
 from codelists.coding_systems import CODING_SYSTEMS
-from coding_systems.versioning.models import CodingSystemRelease
+from coding_systems.versioning.models import CodingSystemRelease, ReleaseState
 
 
 @pytest.fixture
@@ -14,6 +14,7 @@ def coding_system_release():
         release_name="v1",
         import_ref="ref",
         valid_from=datetime(2022, 10, 1, tzinfo=timezone.utc),
+        state=ReleaseState.READY,
     )
 
 

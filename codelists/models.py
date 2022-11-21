@@ -256,6 +256,7 @@ class CodelistVersion(models.Model):
         related_name="codelist_versions",
         on_delete=models.CASCADE,
     )
+    compatible_releases = models.ManyToManyField("versioning.CodingSystemRelease")
 
     status = models.CharField(max_length=len("under review"), choices=Status.choices)
 

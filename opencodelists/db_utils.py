@@ -87,7 +87,7 @@ class CodingSystemVersionRouter:
             # it's unlikely, but possible, that at some point there could be Mapping models
             # that have FKs to other Mapping models. In that case, `other_app_label` would be None.
             # We can ignore that and let the default router handle it.
-            if other_app_label is not None:
+            if other_app_label is not None:  # pragma: no cover
                 return other_app_label in CODING_SYSTEMS
         # Defer to the default router for anything else
         return None

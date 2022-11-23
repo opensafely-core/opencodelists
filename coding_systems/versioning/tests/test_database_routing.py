@@ -103,3 +103,40 @@ def test_coding_systems_migrate_only_allowed_on_coding_system_db(
             OperationalError, match=f"no such table: {model_cls._meta.db_table}"
         ):
             model_cls.objects.using(database).filter(pk=1).first()
+
+
+def test_coding_system_routing_with_mismatched_coding_system_db():
+    # Migrations on coding system models are only allowed for matching
+    # databases.  This means that typically, an attempt to use the wrong coding
+    # system database will result in an OperationalError as the tables haven't
+    # been created yet.
+    # In case tables have been created, (theoretically possible if manually created, or
+    # if migrations were run prior to the database router application) the database router
+    # also rejects `using` args with a coding system that doesn't match the app.
+
+    # setup: create ctv3 tables in the bnf database
+    with connections["ctv3_test_20200101"].cursor() as cursor:
+        res = cursor.execute("select sql from sqlite_schema where name like 'ctv3_%';")
+        table_defs = res.fetchall()
+        build_sql = [f"{defn[0]};" for defn in table_defs]
+
+    with connections["bnf_test_20200101"].cursor() as cursor:
+        for sql in build_sql:
+            cursor.execute(sql)
+
+    # we can create TPPConcept objects in the bnf database now (note: in reality, migrations
+    # should never have run, so this would result in an OperationalError)
+    concept1 = TPPConcept.objects.using("bnf_test_20200101").create(
+        read_code="1234", description="test1"
+    )
+    concept2 = TPPConcept.objects.using("bnf_test_20200101").create(
+        read_code="5678", description="test2"
+    )
+    # Attemting to create a TPPRelationship involves foreign keys, so uses
+    # the router and rejects the write attempt
+    with pytest.raises(
+        ValueError, match='"ctv3" models must select a valid version database'
+    ):
+        TPPRelationship.objects.using("bnf_test_20200101").create(
+            ancestor=concept1, descendant=concept2, distance=1
+        )

@@ -1,4 +1,5 @@
 import json
+from datetime import date
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -144,9 +145,30 @@ def _draft(request, draft, search_slug):
         for v in codelist.visible_versions(request.user)
     ]
 
+    # Each coding system release has a "valid_from" date.  For codelist versions imported
+    # before releases were tracked, the exact coding_system_release they were created with
+    # can't be confirmed, so it is set to a default CSR with release_name "unknown" and
+    # valid_from floor date 1900-01-01.  If the CSR is the default "unknown" one, we don't
+    # display the valid_from date to the user
+    coding_system_valid_from_date = (
+        draft.coding_system_release.valid_from.strftime("%Y-%m-%d")
+        if draft.coding_system_release.valid_from > date(1900, 1, 1)
+        else None
+    )
     metadata = {
         "coding_system_name": draft.coding_system.name,
-        "coding_system_release": draft.coding_system.release_name,
+        "coding_system_release": {
+            "release_name": draft.coding_system_release.release_name,
+            "valid_from": coding_system_valid_from_date,
+        },
+        "compatible_releases": [
+            {
+                "id": release.id,
+                "release_name": release.release_name,
+                "valid_from": release.valid_from.strftime("%Y-%m-%d"),
+            }
+            for release in draft.compatible_releases.all()
+        ],
         "organisation_name": codelist.organisation.name
         if codelist.organisation
         else None,

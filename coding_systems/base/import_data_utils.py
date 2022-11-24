@@ -1,3 +1,4 @@
+import json
 import shutil
 import sys
 from pathlib import Path
@@ -9,6 +10,7 @@ from django.db.models import Q
 from django.utils import timezone
 
 from codelists.coding_systems import CODING_SYSTEMS
+from codelists.hierarchy import Hierarchy
 from codelists.models import CodelistVersion
 from codelists.search import do_search
 from coding_systems.versioning.models import (
@@ -156,51 +158,99 @@ def update_codelist_version_compatibility(coding_system_id, new_database_alias):
     """
     Check compatibility of existing codelist versions with a new coding system release
 
-    Filter codelist versions to only those that
-    1) have searches and
-    2) are compatible with, or created from, the previous release
+    Filter codelist versions to only those that are compatible with, or created from,
+    the previous release. Any codelist versions that were not compatible with the previous
+    release can ignored, as we wouldn't expect them to be compatible with any later releases.
 
     Note we don't exlude version created from or already in the compatible
     set for THIS release.  If we're doing a forced-overwrite import (which is where
     we'd expect that might happen), we want to re-check compatibility
+
+    Then check
+    1) versions with searches by rerunning the searches with the new release and checking
+       the results are the same
+    2) versions without searches, but with hierarchies, by recreating the hierarchy with the
+       new release and checking if it is identical to the version's cached hierarchy
     """
     previous_release = (
         CodingSystemRelease.objects.filter(coding_system=coding_system_id)
         .exclude(id=new_coding_system.release.id)
         .latest("valid_from")
     )
+    # Filter to versions compatible with previous release
+    versions_to_check = CodelistVersion.objects.filter(
+        Q(compatible_releases__id=previous_release.id)
+        | Q(coding_system_release=previous_release)
+    )
+    print(
+        f"Found {len(versions_to_check)} versions compatible with previous release '{previous_release.database_alias}'."
+    )
+    # Find any versions with searches
+    print("Checking compatibility by search:")
     versions_with_searches = set(
-        CodelistVersion.objects.filter(
-            Q(codelist__coding_system_id=coding_system_id, searches__isnull=False)
-            & (
-                Q(compatible_releases__id=previous_release.id)
-                | Q(coding_system_release=previous_release)
-            )
+        versions_to_check.filter(
+            codelist__coding_system_id=coding_system_id, searches__isnull=False
         )
     )
-
-    compatible_count = 0
-    number_of_versions = len(versions_with_searches)
-    for i, version in enumerate(versions_with_searches, start=1):
-        update_progress(i, number_of_versions, comment="Checking compatibility: ")
-        compatible = True
-
-        for search in version.searches.all():
-            current_codes = set(search.results.values_list("code_obj__code", flat=True))
-            updated_codes = do_search(
-                new_coding_system, term=search.term, code=search.code
-            )["all_codes"]
-            if current_codes != updated_codes:
-                compatible = False
-                break
-
-        if compatible:
-            version.compatible_releases.add(new_coding_system.release)
-            compatible_count += 1
-
-    print(
-        f"{len(versions_with_searches)} codelist versions with searches checked; {compatible_count} identified as compatible"
+    compatible_count, total = check_and_update_compatibile_versions(
+        new_coding_system, versions_with_searches, _check_version_by_search
     )
+    print(f"{total} checked; {compatible_count} identified as compatible")
+
+    # check any versions without searches, but with hierarchies
+    print("Checking compatibility by hierarchy:")
+    versions_with_hierarchy = {
+        version
+        for version in versions_to_check.filter(
+            codelist__coding_system_id=coding_system_id, searches__isnull=True
+        )
+        if version.has_hierarchy
+    }
+    compatible_count, total = check_and_update_compatibile_versions(
+        new_coding_system, versions_with_hierarchy, _check_version_by_hierarchy
+    )
+    print(f"{total} checked; {compatible_count} identified as compatible")
+
+
+def check_and_update_compatibile_versions(
+    coding_system, versions, compatibility_check_function
+):
+    """Check compatibility of codelist versions against a specific coding system release"""
+    compatible_count = 0
+    number_of_versions = len(versions)
+    for counter, version in enumerate(versions, start=1):
+        update_progress(counter, number_of_versions, comment="Checking: ")
+        is_compatible = compatibility_check_function(coding_system, version)
+        if is_compatible:
+            version.compatible_releases.add(coding_system.release)
+            compatible_count += 1
+    return compatible_count, number_of_versions
+
+
+def _check_version_by_search(coding_system, version):
+    for search in version.searches.all():
+        current_codes = set(search.results.values_list("code_obj__code", flat=True))
+        updated_codes = do_search(coding_system, term=search.term, code=search.code)[
+            "all_codes"
+        ]
+        if current_codes != updated_codes:
+            return False
+    return True
+
+
+def _check_version_by_hierarchy(coding_system, version):
+    def _hierarchy_excl_cache_items(hierarchy):
+        # `_descendants_cache` and `_ancestors_cache` will not have been generated for the
+        # new hierarchy
+        return {k: v for k, v in hierarchy.items() if not k.endswith("_cache")}
+
+    cached_hierarchy_data = _hierarchy_excl_cache_items(
+        json.loads(version.cached_hierarchy.data)
+    )
+    new_hierarchy_data = _hierarchy_excl_cache_items(
+        json.loads(Hierarchy.from_codes(coding_system, version.codes).data_for_cache())
+    )
+    return cached_hierarchy_data == new_hierarchy_data
 
 
 def update_progress(count, total, comment=None, bar_length=30):

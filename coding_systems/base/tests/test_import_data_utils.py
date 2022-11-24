@@ -3,6 +3,9 @@ from datetime import datetime
 import pytest
 from django.db import DEFAULT_DB_ALIAS, connections
 
+from builder.actions import create_search
+from codelists.coding_systems import CODING_SYSTEMS
+from codelists.hierarchy import Hierarchy
 from coding_systems.base.import_data_utils import update_codelist_version_compatibility
 from coding_systems.bnf.models import Concept
 from coding_systems.conftest import mock_migrate_coding_system
@@ -71,8 +74,8 @@ def test_update_codelist_version_compatibility_no_searches(
     bnf_version_asthma, coding_systems_tmp_path, bnf_release
 ):
     update_codelist_version_compatibility("bnf", bnf_release.database_alias)
-    # this version has no searches, so can't be confirmed as compatible
-    assert not bnf_version_asthma.compatible_releases.exists()
+    # this version has no searches, but its hierarchy is identical
+    assert bnf_version_asthma.compatible_releases.exists()
 
 
 def test_update_codelist_version_compatibility_with_search(
@@ -95,3 +98,31 @@ def test_update_codelist_version_compatibility_with_mismatched_search(
     # this version has a search, but the new release returns different results,
     # so it is not compatible
     assert not bnf_version_with_search.compatible_releases.exists()
+
+
+def test_update_codelist_version_compatibility_with_search_but_mismatched_hierarchy(
+    bnf_version_with_search, coding_systems_tmp_path, bnf_release_excl_last_concept
+):
+    # setup the db, but omit the last Concept from the existing db
+    # Modify the search so that it returns just one code; the hierarchy will differ but
+    # search results will remain the same
+    bnf_version_with_search.searches.all().delete()
+    create_search(
+        draft=bnf_version_with_search, code="0301012A0AAABAB", codes=["0301012A0AAABAB"]
+    )
+
+    existing_hierarchy = bnf_version_with_search.hierarchy
+    hierarchy_with_new_release = Hierarchy.from_codes(
+        coding_system=CODING_SYSTEMS["bnf"](
+            database_alias=bnf_release_excl_last_concept.database_alias
+        ),
+        codes=["0301012A0AAABAB"],
+    )
+    assert existing_hierarchy.nodes != hierarchy_with_new_release.nodes
+
+    update_codelist_version_compatibility(
+        "bnf", bnf_release_excl_last_concept.database_alias
+    )
+    # this version has a search that returns identical results in the new release
+    # # so it is not compatible, even though the hierarchies differ
+    assert bnf_version_with_search.compatible_releases.exists()

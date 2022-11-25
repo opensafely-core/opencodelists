@@ -1,11 +1,16 @@
 import shutil
+import sys
 from pathlib import Path
 
 from django.conf import settings
 from django.core.management import call_command
 from django.db import transaction
+from django.db.models import Q
 from django.utils import timezone
 
+from codelists.coding_systems import CODING_SYSTEMS
+from codelists.models import CodelistVersion
+from codelists.search import do_search
 from coding_systems.versioning.models import (
     CodingSystemRelease,
     ReleaseState,
@@ -74,6 +79,12 @@ class CodingSystemImporter:
         if self.backup_path is not None:
             self.backup_path.unlink()
 
+        # Finally, now that the data has been imported successfully, check any existing
+        # codelist versions for compatibility
+        update_codelist_version_compatibility(
+            self.coding_system, self.cs_release.database_alias
+        )
+
     @transaction.atomic
     def setup_new_import_database(self):
         """
@@ -136,3 +147,70 @@ class CodingSystemImporter:
         call_command("migrate", self.coding_system, database=database_alias)
 
         return database_alias
+
+
+def update_codelist_version_compatibility(coding_system_id, new_database_alias):
+    new_coding_system = CODING_SYSTEMS[coding_system_id](
+        database_alias=new_database_alias
+    )
+    """
+    Check compatibility of existing codelist versions with a new coding system release
+
+    Filter codelist versions to only those that
+    1) have searches and
+    2) are compatible with, or created from, the previous release
+
+    Note we don't exlude version created from or already in the compatible
+    set for THIS release.  If we're doing a forced-overwrite import (which is where
+    we'd expect that might happen), we want to re-check compatibility
+    """
+    previous_release = (
+        CodingSystemRelease.objects.filter(coding_system=coding_system_id)
+        .exclude(id=new_coding_system.release.id)
+        .latest("valid_from")
+    )
+    versions_with_searches = set(
+        CodelistVersion.objects.filter(
+            Q(codelist__coding_system_id=coding_system_id, searches__isnull=False)
+            & (
+                Q(compatible_releases__id=previous_release.id)
+                | Q(coding_system_release=previous_release)
+            )
+        )
+    )
+
+    compatible_count = 0
+    number_of_versions = len(versions_with_searches)
+    for i, version in enumerate(versions_with_searches, start=1):
+        update_progress(i, number_of_versions, comment="Checking compatibility: ")
+        compatible = True
+
+        for search in version.searches.all():
+            current_codes = set(search.results.values_list("code_obj__code", flat=True))
+            updated_codes = do_search(
+                new_coding_system, term=search.term, code=search.code
+            )["all_codes"]
+            if current_codes != updated_codes:
+                compatible = False
+                break
+
+        if compatible:
+            version.compatible_releases.add(new_coding_system.release)
+            compatible_count += 1
+
+    print(
+        f"{len(versions_with_searches)} codelist versions with searches checked; {compatible_count} identified as compatible"
+    )
+
+
+def update_progress(count, total, comment=None, bar_length=30):
+    comment = comment or ""
+    progress = count / total
+    hashes = "#" * int(round(progress * bar_length))
+    spaces = " " * (bar_length - len(hashes))
+    sys.stdout.write(
+        f"\r{comment}[{hashes + spaces}] {int(round(progress * 100))}% {count}/{total}"
+    )
+    if count == total:
+        sys.stdout.write("\n")
+    sys.stdout.flush()

@@ -14,9 +14,16 @@ The app with models and views for viewing, downloading, creating, and updating c
 
 #### `coding_systems/`
 
-A directory containing one app per coding system. Each of these apps will have a common structure, which has not yet been codified.
+A directory containing one app per coding system. Each of these apps contains a `coding_system.py` which defines a common interface, and an `import_data.py` which contains
+code for importing new data.
 
 Each directory contains a README with information about the underlying data.
+
+##### `coding_systems/versioning`
+An app that holds information about coding system releases.
+
+Each release of a coding system is imported into a separate sqlite database, and has a `CodingSystemRelease` instance associated with it which allows us to identify the specific
+release database to use to retrieve codes and terms for a codelist version..
 
 #### `mappings/`
 

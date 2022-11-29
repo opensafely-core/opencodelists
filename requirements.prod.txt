@@ -107,9 +107,9 @@ django-structlog==4.0.1 \
     --hash=sha256:07c23f00e5a0a7ef3cfb9d8f8a2e2ca3673b3c834f84a68ce74cba51137b5b34 \
     --hash=sha256:ddcae640fee8552ba93809621c15ab5d39ca5748d16e934cd5ee63cdf30b9625
     # via -r requirements.prod.in
-django-taggit==3.0.0 \
-    --hash=sha256:ca2df20399a11321db75988404afb640a08eff61e52bde35f6c16f307004ec9e \
-    --hash=sha256:e645b8e3dd4f85989d5ef5c5a3d5ebbe5badf5d1e51b53e42d0af726240b00b9
+django-taggit==3.1.0 \
+    --hash=sha256:543218ac346fbe02a65733e0341c91b57a3e0f7a41568966b26f1cea9edc4805 \
+    --hash=sha256:c8f2e4eae387939089b3d75d1d8649e008880970c068ce9d0e82f87fd5e29508
     # via -r requirements.prod.in
 djangorestframework==3.14.0 \
     --hash=sha256:579a333e6256b09489cbe0a067e66abe55c6595d8926be6b99423786334350c8 \

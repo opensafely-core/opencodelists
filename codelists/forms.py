@@ -186,6 +186,7 @@ class CodelistUpdateForm(forms.Form):
 
 
 class CodelistVersionForm(forms.Form, CSVValidationMixin):
+    coding_system_id = forms.CharField(widget=forms.HiddenInput())
     csv_data = forms.FileField(label="CSV data")
 
     class Meta:
@@ -193,6 +194,8 @@ class CodelistVersionForm(forms.Form, CSVValidationMixin):
         fields = ["csv_data"]
 
     def __init__(self, *args, **kwargs):
+        coding_system_id = kwargs.pop("coding_system_id", None)
         self.helper = FormHelper()
         self.helper.add_input(Submit("submit", "Submit"))
         super().__init__(*args, **kwargs)
+        self.fields["coding_system_id"].initial = coding_system_id

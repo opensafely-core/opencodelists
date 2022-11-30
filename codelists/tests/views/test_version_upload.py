@@ -26,13 +26,18 @@ def test_post_unauthorised(client, old_style_codelist):
     assert_post_unauthorised(client, old_style_codelist.get_version_upload_url())
 
 
+def test_get_success(client, old_style_codelist):
+    force_login(old_style_codelist, client)
+    response = client.get(old_style_codelist.get_version_upload_url())
+    form = response.context_data["form"]
+    assert form.fields["coding_system_id"].initial == "snomedct"
+
+
 def test_post_success(client, old_style_codelist):
     force_login(old_style_codelist, client)
 
-    csv_data = "code,description\n1068181000000106, Injury whilst synchronised swimming (disorder)"
-    data = {
-        "csv_data": csv_builder(csv_data),
-    }
+    csv_data = "code,description\n73583000,Epicondylitis (disorder)"
+    data = {"csv_data": csv_builder(csv_data), "coding_system_id": "snomedct"}
 
     with assert_difference(old_style_codelist.versions.count, expected_difference=1):
         response = client.post(old_style_codelist.get_version_upload_url(), data=data)
@@ -46,7 +51,10 @@ def test_post_missing_field(client, old_style_codelist):
     force_login(old_style_codelist, client)
 
     with assert_no_difference(old_style_codelist.versions.count):
-        response = client.post(old_style_codelist.get_version_upload_url(), data={})
+        response = client.post(
+            old_style_codelist.get_version_upload_url(),
+            data={"coding_system_id": "snomedct"},
+        )
 
     assert response.status_code == 200
     assert "form" in response.context_data

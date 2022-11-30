@@ -16,11 +16,11 @@ template_name = "codelists/version_upload.html"
 def version_upload(request, codelist):
     if request.method == "POST":
         return handle_post(request, codelist)
-    return handle_get(request)
+    return handle_get(request, codelist.coding_system_id)
 
 
-def handle_get(request):
-    ctx = {"form": CodelistVersionForm()}
+def handle_get(request, coding_system_id):
+    ctx = {"form": CodelistVersionForm(coding_system_id=coding_system_id)}
     return TemplateResponse(request, template_name, ctx)
 
 

@@ -472,10 +472,17 @@ class CodelistVersion(models.Model):
             return self._new_style_codes()
 
     def _old_style_codes(self):
-        if self.coding_system_id in ["ctv3", "icd10", "snomedct"]:
+        if self.coding_system_id in ["bnf", "ctv3", "icd10", "snomedct"]:
             headers, *rows = self.table
 
-            for header in ["CTV3ID", "CTV3Code", "ctv3_id", "snomedct_id", "id"]:
+            for header in [
+                "CTV3ID",
+                "CTV3Code",
+                "ctv3_id",
+                "snomedct_id",
+                "id",
+                "code",
+            ]:
                 if header in headers:
                     ix = headers.index(header)
                     break

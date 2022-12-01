@@ -6,5 +6,39 @@ CTV3 is a retired system of clinical terms.
 It is the successor to Read v2, and is replaced by SNOMED CT.  (The "CT" stands for
 "Clinical Terms" in both CTV3 and SNOMED CT.)
 
-No new CTV3 codes are published, although sometimes TPP have published new "Y codes",
-which look like CTV3 codes.
+No new CTV3 codes are published, although sometimes TPP have published new "Y codes", which look like CTV3 codes.
+
+The last release of CTV3 was on 1st April 2018.  This data is no longer available to
+download online, but can be retrieved from the zip file on dokku3:
+Add this to the CTV3 data folder on dokku3, at
+`/var/lib/dokku/data/storage/opencodelists/data/ctv3/nhs_readctv3_25.0.0_20180401000001.zip`.
+
+CTV3 codes from TPP are extracted from the database by running all the jobs in
+[this workspace](https://jobs.opensafely.org/datalab/opensafely-testing/tpp-ctv3-codes/), and
+following the [usual process for checking and releasing output files](https://docs.opensafely.org/releasing-files/).  The two output files required for importing data into OpenCodelists are named:
+
+- `ctv3_dictionary.csv.gz`
+- `ctv3_hierarchy.csv.gz`
+
+Add these to a subfolder labelled with the extracted date, in the CTV3 data folder on dokku3. E.g. if the files were extracted on 28 Nov 2023, add them to
+`/var/lib/dokku/data/storage/opencodelists/data/ctv3/2023-11-28/`.
+
+To import the data, run:
+
+    ./manage.py import_coding_system_data ctv3
+    path/to/dated/subdir/in/dokku/app
+    --release <release_name> --valid-from YYYY-MM-DD --import-ref <ref>
+
+- `release` is a short label for this coding system release - include the last official CTV3
+  release date plus the date the TPP extensions were extracted.
+- `valid-from` is the date that this release is valid from (NOT the date it is being imported into OpenCodelists), in YYYY-MM-DD format
+- `import-ref` is an optional long-form reference field for any other potential
+  references or comments on this import if desired. Include at least the extracted date here.
+
+For the example above, the data should be imported with:
+
+    dokku run opencodelists python manage.py import_coding_system_data ctv3
+    /storage/data/ctv3/2023-11-28/
+    --release '2018-04-01 with TPP extensions 2022-11-28'
+    --valid-from 2022-11-28
+    --import-ref 'Extracted 2022-11-28'

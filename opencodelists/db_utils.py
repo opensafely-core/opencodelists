@@ -10,7 +10,7 @@ def query(sql, params=None, database=None):
         return c.fetchall()
 
 
-class CodingSystemVersionRouter:
+class CodingSystemReleaseRouter:
     """
     A router to ensure coding system models always use a named release database.
 

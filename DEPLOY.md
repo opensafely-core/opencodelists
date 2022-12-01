@@ -1,13 +1,13 @@
 ## Deployment
 
 Deployment uses `dokku` and requires the environment variables defined in `dotenv-sample`.
-It is deployed to our `dokku1` instance.
+It is deployed to our `dokku3` instance.
 
 ## Deployment instructions
 
 ### Create app
 
-On dokku1, as the `dokku` user:
+On dokku3, as the `dokku` user:
 
 ```sh
 dokku$ dokku apps:create opencodelists
@@ -31,6 +31,7 @@ dokku$ dokku storage:mount opencodelists /var/lib/dokku/data/storage/opencodelis
 dokku$ dokku config:set opencodelists IN_PRODUCTION=True
 dokku$ dokku config:set opencodelists BASE_URLS='https://www.opencodelists.org'
 dokku$ dokku config:set opencodelists DATABASE_URL='sqlite:////storage/db.sqlite3'
+dokku config:set opencodelists DATABASE_DIR='/storage'
 dokku$ dokku config:set opencodelists SECRET_KEY='xxx'
 dokku$ dokku config:set opencodelists SENTRY_DSN='https://xxx@xxx.ingest.sentry.io/xxx'
 dokku config:set opencodelists EMAIL_BACKEND='anymail.backends.mailgun.EmailBackend'
@@ -65,7 +66,7 @@ Check cron tasks:
 dokku$ dokku cron:list opencodelists
 ```
 
-Backups are saved to `/var/lib/dokku/data/storage/opencodelists` on dokku1.
+Backups are saved to `/var/lib/dokku/data/storage/opencodelists` on dokku3.
 
 ### Manually deploying
 
@@ -87,7 +88,7 @@ docker push ghcr.io/opensafely-core/opencodelists:latest
 SHA=$(docker inspect --format='{{index .RepoDigests 0}}' ghcr.io/opensafely-core/opencodelists:latest)
 ```
 
-On dokku1, as the `dokku` user:
+On dokku3, as the `dokku` user:
 ```
 dokku$ dokku git:from-image opencodelists <SHA>
 ```

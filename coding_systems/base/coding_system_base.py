@@ -51,10 +51,13 @@ class BaseCodingSystem(ABC):
     def validate_db_alias(cls, database_alias):
         """
         Ensure that this database_alias is associated with a valid CodingSystemRelease
+        that is ready to use (i.e. not in "importing" state)
         """
-        all_slugs = CodingSystemRelease.objects.filter(
-            coding_system=cls.id
-        ).values_list("database_alias", flat=True)
+        all_slugs = (
+            CodingSystemRelease.objects.ready()
+            .filter(coding_system=cls.id)
+            .values_list("database_alias", flat=True)
+        )
         assert (
             database_alias in all_slugs
         ), f"{database_alias} is not a valid database alias for a {cls.short_name} release."
@@ -68,19 +71,19 @@ class BaseCodingSystem(ABC):
     def release_name(self):
         return self.release.release_name
 
-    def search_by_term(self, term):
+    def search_by_term(self, term):  # pragma: no cover
         raise NotImplementedError
 
-    def search_by_code(self, code):
+    def search_by_code(self, code):  # pragma: no cover
         raise NotImplementedError
 
-    def lookup_names(self, codes):
+    def lookup_names(self, codes):  # pragma: no cover
         raise NotImplementedError
 
-    def code_to_term(self, codes):
+    def code_to_term(self, codes):  # pragma: no cover
         raise NotImplementedError
 
-    def codes_by_type(self, codes, hierarchy):
+    def codes_by_type(self, codes, hierarchy):  # pragma: no cover
         raise NotImplementedError
 
 

@@ -7,4 +7,32 @@ and Related Health Problems, published by the WHO.
 Data was downloaded and imported from [0].  We don't know how often new releases are
 published.
 
+Download the latest release.  Select the ClaML format to download (ClaML is a an XML-based format, designed for classifications). It will be downloaded as a zipped .xml file, named e.g.
+`icdClaML2019ens.zip`.  In the absence of a more specific release date, we label it as valid from the 1st of the year of release.
+
+The version can be retrieved from the <Title> tag of the XML file.  Usually this is just a year; 2019 includes extra COVID extensions and is labelled 2019-covid-expanded.
+
+To import the data, run:
+
+        ./manage.py import_coding_system_data icd10
+        path/to/zip/file/in/dokku/app
+        --release <release_name> --valid-from YYYY-MM-DD --import-ref <ref>
+
+- `release` is a short label for this coding system release - the version reference as
+  described above.
+- `valid-from` is the date that this release is valid from (NOT the date it is being
+  imported into OpenCodelists), in YYYY-MM-DD format
+- `import-ref` is an optional long-form reference field for any other potential
+  references or comments on this import if desired. Include at least the full downloaded
+  zipfile here.
+
+For the example above (`icdClaML2019ens.zip`), the data should be
+imported with:
+
+    dokku run opencodelists python manage.py import_coding_system_data icd10
+    /storage/data/icd10/icdClaML2019ens.zip
+    --release 2019-covid-expanded
+    --valid-from 2019-01-01
+    --import-ref icdClaML2019ens.zip
+
 [0] https://apps.who.int/classifications/apps/icd/ClassificationDownload/DLArea/Download.aspx

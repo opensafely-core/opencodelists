@@ -8,7 +8,8 @@
     "valid_from": "2020-01-01",
     "import_timestamp": "2022-10-24T15:38:52.231Z",
     "import_ref": "unknown",
-    "database_alias": "snomedct_test_20200101"
+    "database_alias": "snomedct_test_20200101",
+    "state": "ready"
   }
 },
 {
@@ -20,7 +21,8 @@
     "valid_from": "2020-01-01",
     "import_timestamp": "2022-10-24T15:38:52.231Z",
     "import_ref": "unknown",
-    "database_alias": "dmd_test_20200101"
+    "database_alias": "dmd_test_20200101",
+    "state": "ready"
   }
 },
 {
@@ -32,7 +34,8 @@
     "valid_from": "2020-01-01",
     "import_timestamp": "2022-10-24T15:38:52.231Z",
     "import_ref": "unknown",
-    "database_alias": "icd10_test_20200101"
+    "database_alias": "icd10_test_20200101",
+    "state": "ready"
   }
 },
 {
@@ -44,7 +47,8 @@
     "valid_from": "2020-01-01",
     "import_timestamp": "2022-10-24T15:38:52.231Z",
     "import_ref": "unknown",
-    "database_alias": "ctv3_test_20200101"
+    "database_alias": "ctv3_test_20200101",
+    "state": "ready"
   }
 },
 {
@@ -56,7 +60,8 @@
     "valid_from": "2020-01-01",
     "import_timestamp": "2022-10-24T15:38:52.231Z",
     "import_ref": "unknown",
-    "database_alias": "bnf_test_20200101"
+    "database_alias": "bnf_test_20200101",
+    "state": "ready"
   }
 }
 ]

@@ -3,7 +3,7 @@ import re
 import pytest
 
 from codelists.coding_systems import CODING_SYSTEMS, most_recent_database_alias
-from coding_systems.versioning.models import CodingSystemRelease
+from coding_systems.versioning.models import CodingSystemRelease, ReleaseState
 
 
 @pytest.mark.parametrize("coding_system", list(CODING_SYSTEMS))
@@ -37,14 +37,41 @@ def test_most_recent_multiple_coding_system_releases(
 @pytest.mark.parametrize(
     "database_alias,is_valid",
     [
-        ("snomedct_v1_20221001", True),
-        ("snomedct_test_20200101", True),
+        ("snomedct_v1_20221001", True),  # CSR set up with snomedct_data fixture
+        ("snomedct_test_20200101", True),  # Matches the coding_system_release fixture
         ("snomedct_invalid_20200101", False),
     ],
 )
 def test_validate_db_alias(
     snomedct_data, coding_system_release, database_alias, is_valid
 ):
+    # A db alias is only valid if there is an existing CodingSystemRelease that matches it
+    if is_valid:
+        CODING_SYSTEMS["snomedct"].validate_db_alias(database_alias) == database_alias
+    else:
+        with pytest.raises(
+            AssertionError,
+            match=f"{database_alias} is not a valid database alias for a SNOMED CT release.",
+        ):
+            CODING_SYSTEMS["snomedct"].validate_db_alias(database_alias)
+
+
+@pytest.mark.parametrize(
+    "database_alias,release_state,is_valid",
+    [
+        ("snomedct_v1_20221001", ReleaseState.READY, True),
+        ("snomedct_v1_20221001", ReleaseState.IMPORTING, False),
+        ("snomedct_test_20200101", ReleaseState.READY, True),
+        ("snomedct_test_20200101", ReleaseState.IMPORTING, False),
+    ],
+)
+def test_validate_db_alias_release_state(
+    snomedct_data, coding_system_release, database_alias, release_state, is_valid
+):
+    # A db alias is only valid if its matching CodingSystemRelease is ready
+    cs_release = CodingSystemRelease.objects.get(database_alias=database_alias)
+    cs_release.state = release_state
+    cs_release.save()
     if is_valid:
         CODING_SYSTEMS["snomedct"].validate_db_alias(database_alias) == database_alias
     else:

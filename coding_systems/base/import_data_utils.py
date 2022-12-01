@@ -152,9 +152,6 @@ class CodingSystemImporter:
 
 
 def update_codelist_version_compatibility(coding_system_id, new_database_alias):
-    new_coding_system = CODING_SYSTEMS[coding_system_id](
-        database_alias=new_database_alias
-    )
     """
     Check compatibility of existing codelist versions with a new coding system release
 
@@ -172,8 +169,14 @@ def update_codelist_version_compatibility(coding_system_id, new_database_alias):
     2) versions without searches, but with hierarchies, by recreating the hierarchy with the
        new release and checking if it is identical to the version's cached hierarchy
     """
+    new_coding_system = CODING_SYSTEMS[coding_system_id](
+        database_alias=new_database_alias
+    )
     previous_release = (
-        CodingSystemRelease.objects.filter(coding_system=coding_system_id)
+        CodingSystemRelease.objects.filter(
+            coding_system=coding_system_id,
+            valid_from__lt=new_coding_system.release.valid_from,
+        )
         .exclude(id=new_coding_system.release.id)
         .latest("valid_from")
     )

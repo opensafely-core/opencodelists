@@ -84,23 +84,27 @@ class CodelistCreateForm(forms.Form):
 
         data = f.read().decode("utf-8-sig")
         codes = [row[0] for row in csv.reader(StringIO(data))]
-        unknown_codes_and_ixs = [
-            (ix, code)
-            for ix, code in enumerate(codes)
-            if code not in set(coding_system.lookup_names(codes))
-        ]
-
-        if unknown_codes_and_ixs:
-            line = unknown_codes_and_ixs[0][0] + 1
-            code = unknown_codes_and_ixs[0][1]
-            if len(unknown_codes_and_ixs) == 1:
-                msg = f"CSV file contains 1 unknown code ({code}) on line {line}"
-            else:
-                num = len(unknown_codes_and_ixs)
-                msg = f"CSV file contains {num} unknown code -- the first ({code}) is on line {line}"
-            raise forms.ValidationError(msg)
-
+        validate_csv_data_codes(coding_system, codes)
         return codes
+
+
+def validate_csv_data_codes(coding_system, codes):
+    unknown_codes_and_ixs = [
+        (ix, code)
+        for ix, code in enumerate(codes)
+        if code not in set(coding_system.lookup_names(codes))
+    ]
+
+    if unknown_codes_and_ixs:
+        line = unknown_codes_and_ixs[0][0] + 1
+        code = unknown_codes_and_ixs[0][1]
+        if len(unknown_codes_and_ixs) == 1:
+            msg = f"CSV file contains 1 unknown code ({code}) on line {line}"
+        else:
+            num = len(unknown_codes_and_ixs)
+            msg = f"CSV file contains {num} unknown code -- the first ({code}) is on line {line}"
+        msg += f" ({coding_system.short_name} release {coding_system.release_name}, valid from {coding_system.release.valid_from})"
+        raise forms.ValidationError(msg)
 
 
 class RegisterForm(forms.ModelForm):

@@ -46,14 +46,13 @@ def test_get_for_user(client, user):
     assert response.status_code == 200
 
 
-def test_post_success(client, organisation, user):
+def test_post_success(client, organisation, user, bnf_data):
     force_login(organisation, client)
 
-    csv_data = "code,description\n1067731000000107,Injury whilst swimming (disorder)"
+    csv_data = "code,description\n0301012A0AA,Adrenaline (Asthma)"
     data = {
         "name": "Test Codelist",
-        "coding_system_id": "snomedct",
-        "coding_system_database_alias": "snomedct_test_20200101",
+        "coding_system_id": "bnf",
         "description": "This is a test",
         "methodology": "This is how we did it",
         "csv_data": csv_builder(csv_data),
@@ -94,12 +93,12 @@ def test_post_success(client, organisation, user):
 def test_post_invalid(client, organisation):
     force_login(organisation, client)
 
-    csv_data = "code,description\n1067731000000107,Injury whilst swimming (disorder)"
+    csv_data = "code,description\n0301012A0AA,Adrenaline (Asthma)"
 
     # missing signoff-0-user
     data = {
         "name": "Test Codelist",
-        "coding_system_id": "snomedct",
+        "coding_system_id": "bnf",
         "description": "This is a test",
         "methodology": "This is how we did it",
         "csv_data": csv_builder(csv_data),
@@ -130,10 +129,10 @@ def test_post_invalid(client, organisation):
 def test_post_with_duplicate_name(client, organisation):
     force_login(organisation, client)
 
-    csv_data = "code,description\n1067731000000107,Injury whilst swimming (disorder)"
+    csv_data = "code,description\n0301012A0AA,Adrenaline (Asthma)"
     data = {
-        "name": "Old-style Codelist",  # This name is already taken
-        "coding_system_id": "snomedct",
+        "name": "BNF Codelist",  # This name is already taken
+        "coding_system_id": "bnf",
         "description": "This is a test",
         "methodology": "This is how we did it",
         "csv_data": csv_builder(csv_data),
@@ -156,5 +155,5 @@ def test_post_with_duplicate_name(client, organisation):
 
     # confirm we have errors from the codelist form
     assert response.context_data["codelist_form"].errors == {
-        "__all__": ["There is already a codelist called Old-style Codelist"]
+        "__all__": ["There is already a codelist called BNF Codelist"]
     }

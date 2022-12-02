@@ -6,8 +6,10 @@ from crispy_forms.layout import Submit
 from django import forms
 from django.forms.models import fields_for_model
 
+from opencodelists.forms import validate_csv_data_codes
 from opencodelists.models import Organisation, User
 
+from .coding_systems import CODING_SYSTEMS
 from .models import Codelist, CodelistVersion, Handle, Reference, SignOff
 
 
@@ -91,6 +93,12 @@ SignOffFormSet = forms.modelformset_factory(
 
 class CSVValidationMixin:
     def clean_csv_data(self):
+        # Eventually coding system version may be a selectable field, but for now it
+        # just defaults to using the most recent one
+        coding_system = CODING_SYSTEMS[
+            self.cleaned_data["coding_system_id"]
+        ].get_by_release_or_most_recent()
+
         data = self.cleaned_data["csv_data"].read().decode("utf-8-sig")
 
         reader = csv.reader(StringIO(data))
@@ -102,18 +110,41 @@ class CSVValidationMixin:
                     f'Header {i+1} ("{value}") contains extraneous whitespace'
                 )
 
-        num_columns = len(header)
-        errors = [i for i, row in enumerate(reader) if len(row) != num_columns]
+        # restrict the headers we expect
+        # BNF codelists downloaded as dm+d will have a `dmd_id` column that contains the
+        # code; for all others, expect a `code` column.
+        possible_code_headers = {"dmd_id", "code"}
+        code_headers = possible_code_headers & set(header)
+        if not code_headers:
+            raise forms.ValidationError(
+                "Expected code header not found: 'dmd_id' or 'code' required"
+            )
+        if code_headers == possible_code_headers:
+            raise forms.ValidationError(
+                "Ambiguous headers: both 'dmd_id' and 'code' found"
+            )
 
-        if errors:
+        code_header = next((col for col in possible_code_headers if col in header))
+        code_col_ix = header.index(code_header)
+        num_columns = len(header)
+
+        number_of_column_errors = []
+        codes = []
+        for i, row in enumerate(reader, start=1):
+            if len(row) != num_columns:
+                number_of_column_errors.append(i)
+            codes.append(row[code_col_ix])
+
+        if number_of_column_errors:
             msg = "Incorrect number of columns on row {}"
             raise forms.ValidationError(
                 [
-                    forms.ValidationError(msg.format(i + 1), code=f"row{i + 1}")
-                    for i in errors
+                    forms.ValidationError(msg.format(i), code=f"row{i}")
+                    for i in number_of_column_errors
                 ]
             )
 
+        validate_csv_data_codes(coding_system, codes)
         return data
 
 
@@ -155,6 +186,7 @@ class CodelistUpdateForm(forms.Form):
 
 
 class CodelistVersionForm(forms.Form, CSVValidationMixin):
+    coding_system_id = forms.CharField(widget=forms.HiddenInput())
     csv_data = forms.FileField(label="CSV data")
 
     class Meta:
@@ -162,6 +194,8 @@ class CodelistVersionForm(forms.Form, CSVValidationMixin):
         fields = ["csv_data"]
 
     def __init__(self, *args, **kwargs):
+        coding_system_id = kwargs.pop("coding_system_id", None)
         self.helper = FormHelper()
         self.helper.add_input(Submit("submit", "Submit"))
         super().__init__(*args, **kwargs)
+        self.fields["coding_system_id"].initial = coding_system_id

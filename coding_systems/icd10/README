@@ -35,4 +35,8 @@ imported with:
     --valid-from 2019-01-01
     --import-ref icdClaML2019ens.zip
 
+After importing, restart the opencodelists app with:
+
+    dokku ps:restart opencodelists
+
 [0] https://apps.who.int/classifications/apps/icd/ClassificationDownload/DLArea/Download.aspx

@@ -42,4 +42,8 @@ imported with:
     --valid-from 2022-02-23
     --import-ref uk_sct2cl_32.10.0_20220216000001Z.zip
 
+After importing, restart the opencodelists app with:
+
+    dokku ps:restart opencodelists
+
 [0] https://isd.digital.nhs.uk/trud/users/authenticated/filters/0/categories/26/items/101/releases

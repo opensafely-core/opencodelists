@@ -30,11 +30,15 @@ To import the data, run:
 For the example above (`nhsbsa_dmd_11.3.0_20221128000001.zip`), the data should be
 imported with:
 
-    dokku run opencodelists python manage.py import_coding_system_data snomedct
+    dokku run opencodelists python manage.py import_coding_system_data dmd
     /storage/data/dmd/nhsbsa_dmd_11.3.0_20221128000001.zip
     --release '2022 11.3.0'
     --valid-from 2022-11-28
     --import-ref nhsbsa_dmd_11.3.0_20221128000001.zip
+
+After importing, restart the opencodelists app with:
+
+    dokku ps:restart opencodelists
 
 [0] https://www.bennett.ox.ac.uk/blog/2019/08/what-is-the-dm-d-the-nhs-dictionary-of-medicines-and-devices/
 [1] https://isd.digital.nhs.uk/trud/users/authenticated/filters/0/categories/6/items/24/releases

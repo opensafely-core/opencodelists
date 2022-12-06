@@ -30,7 +30,7 @@ To import the data, run:
 For the example above (`nhsbsa_dmd_11.3.0_20221128000001.zip`), the data should be
 imported with:
 
-    dokku run opencodelists python manage.py import_coding_system_data snomedct
+    dokku run opencodelists python manage.py import_coding_system_data dmd
     /storage/data/dmd/nhsbsa_dmd_11.3.0_20221128000001.zip
     --release '2022 11.3.0'
     --valid-from 2022-11-28

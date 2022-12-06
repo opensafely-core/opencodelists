@@ -9,15 +9,12 @@ def coding_system():
 
 
 def test_lookup_names(dmd_data, coding_system):
-    assert list(
-        coding_system.lookup_names(["10514511000001106", "10525011000001107", "99999"])
-    ) == [
-        ("10514511000001106", "Adrenaline (base) 220micrograms/dose inhaler (VMP)"),
-        (
-            "10525011000001107",
-            "Adrenaline (base) 220micrograms/dose inhaler refill (VMP)",
-        ),
-    ]
+    assert coding_system.lookup_names(
+        ["10514511000001106", "10525011000001107", "99999"]
+    ) == {
+        "10514511000001106": "Adrenaline (base) 220micrograms/dose inhaler (VMP)",
+        "10525011000001107": "Adrenaline (base) 220micrograms/dose inhaler refill (VMP)",
+    }
 
 
 def test_code_to_term(dmd_data, coding_system):

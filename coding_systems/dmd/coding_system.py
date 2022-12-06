@@ -15,6 +15,7 @@ class CodingSystem(BaseCodingSystem):
         # If not found, look up VTM, VMPP, AMPPs also, in case of user-uploaded codelists that
         # might contain these
         codes = set(codes)
+        lookup = {}
         for model_cls in [AMP, VMP, AMPP, VMPP, VTM]:
             matched = dict(
                 model_cls.objects.using(self.database_alias)
@@ -22,12 +23,13 @@ class CodingSystem(BaseCodingSystem):
                 .values_list("id", "nm")
             )
             for code, name in matched.items():
-                yield code, f"{name} ({model_cls.__name__})"
+                lookup[code] = f"{name} ({model_cls.__name__})"
             codes = codes - set(matched.keys())
             if not codes:
                 break
+        return lookup
 
     def code_to_term(self, codes):
-        lookup = {code: term for code, term in self.lookup_names(codes)}
+        lookup = self.lookup_names(codes)
         unknown = set(codes) - set(lookup)
         return {**lookup, **{code: "Unknown" for code in unknown}}

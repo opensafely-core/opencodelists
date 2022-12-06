@@ -1,3 +1,4 @@
+from django.db import transaction
 from openpyxl import load_workbook
 
 from .models import Mapping
@@ -28,7 +29,9 @@ def import_data(filename):
 
             yield [dmd_code, dmd_type, bnf_code]
 
-    Mapping.objects.bulk_create(
-        Mapping(dmd_code=r[0], dmd_type=r[1], bnf_concept_id=r[2])
-        for r in load_records()
-    )
+    with transaction.atomic():
+        Mapping.objects.all().delete()
+        Mapping.objects.bulk_create(
+            Mapping(dmd_code=r[0], dmd_type=r[1], bnf_concept_id=r[2])
+            for r in load_records()
+        )

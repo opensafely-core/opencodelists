@@ -19,6 +19,10 @@ def import_data(release_zipfile, release_name, valid_from, import_ref=None):
         logger.info("Extracting", release_zip=release_zip.filename)
         release_zip.extractall(path=tempdir)
 
+        inner_zip = Path(tempdir).glob("*.zip")
+        for inner_zipfile in inner_zip:
+            ZipFile(inner_zipfile).extractall(path=tempdir)
+
         with CodingSystemImporter(
             "dmd", release_name, valid_from, import_ref
         ) as database_alias:

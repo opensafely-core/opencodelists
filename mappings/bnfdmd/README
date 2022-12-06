@@ -1,0 +1,22 @@
+BNF to DM+D (SNOMED) Mappings
+------------------------------------------
+
+dm+d codes are used to identify medicines and devices in use across the NHS.
+
+Codelists are typically built using pseudoBNF and converted to dm+d for use in study definitions.
+
+For more details, see our blog posts [0] and [1].
+
+We obtain the mapping data from the NHS Business Services Authority [2].  New mapping data is released monthly.
+
+On the download page, download the latest release, which will be an zip file called something like `SNOMED - BNF mapping document September 2022.zip`, containing a single
+xlsx file.
+
+To import the data, unzip the file and run:
+
+    ./manage.py import_mapping_data mapping.bnfdmd path/to/xlsx/file
+
+
+[0] https://www.bennett.ox.ac.uk/blog/2019/08/what-is-the-dm-d-the-nhs-dictionary-of-medicines-and-devices/
+[1] https://www.bennett.ox.ac.uk/blog/2022/11/difference-between-bnf-dm-d-and-snomed-ct-codes/
+[2] https://isd.digital.nhs.uk/trud/users/authenticated/filters/0/categories/6/items/24/releases

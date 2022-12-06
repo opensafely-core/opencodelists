@@ -160,9 +160,9 @@ def update_codelist_version_compatibility(coding_system_id, new_database_alias):
     release can ignored, as we wouldn't expect them to be compatible with any later releases.
     We can only check versions that have hierarchies for compatibility.
 
-    Note we don't exlude version created from or already in the compatible
-    set for THIS release.  If we're doing a forced-overwrite import (which is where
-    we'd expect that might happen), we want to re-check compatibility
+    Note we don't exclude versions created from, or already in the compatible
+    set, for THIS release.  If we're doing a forced-overwrite import (which is where
+    we'd expect that might happen), we want to re-check compatibility.
 
     The compatibility check is conservative.  All we're aiming to do here is to say
     that a codelist version with the same codes and searches, would look the same in this
@@ -180,7 +180,7 @@ def update_codelist_version_compatibility(coding_system_id, new_database_alias):
     1) That a hierarchy built from the codelist version's codes is identical
     This indicates that the section of the coding system that relates to any code in
     the codelist (included OR excluded) is identical in the new release.
-    CodelistVersion.codes represents all of a codelist versions included codes, however its
+    CodelistVersion.codes represents all of a codelist version's included codes, however its
     codeset includes any descendants of those codes, whether included or excluded.
     A codelist's hierarchy is built in both directions, so it will include all parents right
     up to the root node, as well as the included/excluded code objs
@@ -249,9 +249,66 @@ def check_and_update_compatibile_versions(coding_system, versions):
 
 
 def _check_version_by_hierarchy(coding_system, version):
-    """
+    r"""
     Check the compatibility of a codelist version with a specific coding system release
     by comparing the hierarchy generated from its codes.
+
+    The version is compatible (on the basis of hierarchy) if
+    a hierarchy built from the version's coding system release and included codes is
+    identical to a hierarchy built from the comparison coding system release and the
+    version's included codes.
+
+    A hierarchy generated from a set of codes represents a subset of the coding system that
+    includes all ancestors (up to the coding system's root node) and descendants of each code.
+
+    e.g. For a coding system with this structure
+           a
+          / \
+         b   c
+        / \ / \
+       d   e   f
+
+    A codelist version that includes just the code 'f' will have the following hierarchy:
+           a
+            \
+             c
+              \
+               f
+
+    If there is a change in a different branch of the coding system - e.g. code 'd' is
+    removed, will not affect the codelist version's hierarchy, and it will be considered
+    compatible.
+
+    However, if a change occurs in the branch that includes 'f', e.g. there is a new
+    descendant code, 'g', the hierarchy will differ and the codelist version will be
+    considered incompatible:
+           a
+          / \
+         b   c
+        / \ / \
+       d   e   f
+                \
+                 g
+
+    In the above case, there is now a new descendant code that needs to be included/excluded
+    in the codelist version.
+
+    If a change occurs in the ancestors of the included code 'f', e.g. 'c' is replaced by 'x':
+           a
+          / \
+         b   x
+        / \ / \
+       d   e   f
+
+    The hierarchy has changed, and the codelist version will be considered incompatible, even
+    though there are no new descendant codes that need to be included or excluded.
+
+    Note that our compatibility check is conservative and the fact that it is does not pass
+    the compatiblity check does not mean that a new codelist version cannot be successfully
+    created from this one with the new coding system release.
+
+    Note that overall compatibility is determined based on both identical search results
+    and identical hierarchies.
     """
 
     def _hierarchy_excl_cache_items(hierarchy):
@@ -280,8 +337,12 @@ def _check_version_by_search(coding_system, version):
     """
     Check the compatibility of a codelist version with a specific coding system release
     by rerunning its searches.  The version is compatible (on the basis of searches) if
-    the search results are identical when with the version's coding system release and
+    the search results are identical when run with the version's coding system release and
     with the comparison coding system release.
+
+    A search finds codes in the coding system that match a specific term or code, AND all
+    their descendant codes (returned in the search results as "all_codes").
+
     Note that overall compatibility is determined based on both identical search results
     and identical hierarchies.
     """

@@ -161,14 +161,6 @@ def _draft(request, draft, search_slug):
             "release_name": draft.coding_system_release.release_name,
             "valid_from": coding_system_valid_from_date,
         },
-        "compatible_releases": [
-            {
-                "id": release.id,
-                "release_name": release.release_name,
-                "valid_from": release.valid_from.strftime("%Y-%m-%d"),
-            }
-            for release in draft.compatible_releases.all()
-        ],
         "organisation_name": codelist.organisation.name
         if codelist.organisation
         else None,

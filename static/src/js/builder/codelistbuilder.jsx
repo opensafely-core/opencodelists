@@ -203,21 +203,6 @@ class CodelistBuilder extends React.Component {
                 ) : null}
               </dd>
 
-              {this.props.metadata.compatible_releases.length ? (
-                <details>
-                  <summary>Show other compatible releases</summary>
-                  <ul>
-                    {this.props.metadata.compatible_releases.map((release) => (
-                      <li key={release.id}>
-                        <small>
-                          {release.release_name} ({release.valid_from})
-                        </small>
-                      </li>
-                    ))}
-                  </ul>
-                </details>
-              ) : null}
-
               {this.props.metadata.organisation_name ? (
                 <>
                   <dt>Organisation</dt>

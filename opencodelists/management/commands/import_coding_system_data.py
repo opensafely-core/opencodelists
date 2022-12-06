@@ -89,3 +89,7 @@ class Command(BaseCommand):
             valid_from=valid_from,
             import_ref=import_ref,
         )
+        self.stdout.write(
+            "\n*** APP RESTART REQUIRED ***\n"
+            "Import complete; run `dokku ps:restart opencodelists` to restart the app"
+        )

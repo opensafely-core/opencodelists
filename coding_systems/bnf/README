@@ -34,5 +34,9 @@ imported with:
     --valid-from 2022-07-01
     --import-ref 20220701_1656687539491_BNF_Code_Information.zip
 
+After importing, restart the opencodelists app with:
+
+    dokku ps:restart opencodelists
+
 [0] https://www.bennett.ox.ac.uk/blog/2017/04/prescribing-data-bnf-codes/
 [1] https://applications.nhsbsa.nhs.uk/infosystems/data/showDataSelector.do?reportId=126

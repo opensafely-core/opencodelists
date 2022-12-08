@@ -4,6 +4,8 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
+from mappings.dmdvmpprevmap.mappers import vmp_ids_to_previous
+
 from .actions import (
     create_or_update_codelist,
     create_version_from_ecl_expr,
@@ -206,3 +208,19 @@ def versions(request, codelist):
 
 def error(msg):
     return JsonResponse({"error": msg}, status=400)
+
+
+@require_http_methods(["GET"])
+def dmd_previous_codes_mapping(request):
+    """
+    Return a mapping of dm+d VMP ID to previous VMP IDs
+
+    dm+d VPM IDs can change.  When they do, the data we obtain in the coding system release
+    contains a record of the previous VMP ID.  Any system using a dm+d codelist with a
+    VMP ID needs to also look up any previous or subsequent IDs in order to avoid missing
+    medications.
+
+    This endpoint is intended to be used by backends to determine any additional related codes
+    to include with set of dm+d codes.
+    """
+    return JsonResponse(vmp_ids_to_previous(), safe=False)

@@ -9,6 +9,7 @@ from coding_systems.conftest import mock_migrate_coding_system
 from coding_systems.dmd.import_data import import_data
 from coding_systems.dmd.models import AMP, AMPP, VMP, VMPP, VPI
 from coding_systems.versioning.models import CodingSystemRelease
+from mappings.dmdvmpprevmap.models import Mapping as VmpPrevMapping
 
 MOCK_DMD_IMPORT_DATA_PATH = (
     Path(__file__).parents[1] / "fixtures" / "import_resources" / "dmd_data.zip"
@@ -36,6 +37,7 @@ def test_import_data(settings):
     # This consists of the AMP 222311000001102 (Ventolin 100micrograms/dose Evohaler)
     # and its related objects, including:
     # VMP 39113611000001102 (Salbutamol 100micrograms/dose inhaler CFC free)
+    #  - this VMP has a VMPPREV id 320139002
     # VPI (with FK to VMP)
     # AMPP 1479411000001101
     # VMPP 1056811000001104
@@ -45,6 +47,8 @@ def test_import_data(settings):
         AMPP: "1479411000001101",
         VMPP: "1056811000001104",
     }
+
+    assert not VmpPrevMapping.objects.exists()
 
     import_data(
         str(MOCK_DMD_IMPORT_DATA_PATH),
@@ -71,6 +75,13 @@ def test_import_data(settings):
         VPI.objects.using("dmd_release-1-a_20221001").first().vmp
         == VMP.objects.using("dmd_release-1-a_20221001").first()
     )
+
+    # One new Mapping obj has been created, to record the previous ID for VMP
+    # 39113611000001102
+    assert VmpPrevMapping.objects.count() == 1
+    mapping = VmpPrevMapping.objects.first()
+    assert mapping.id == "39113611000001102"
+    assert mapping.vpidprev == "320139002"
 
 
 def test_import_data_unexpected_file():

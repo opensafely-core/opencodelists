@@ -6,9 +6,11 @@ import structlog
 from django.db import connections
 from django.db.models import fields as django_fields
 from lxml import etree
+from tqdm import tqdm
 
 from coding_systems.base.import_data_utils import CodingSystemImporter
 from coding_systems.dmd import models
+from mappings.dmdvmpprevmap.models import Mapping
 
 logger = structlog.get_logger()
 
@@ -29,6 +31,8 @@ def import_data(
             "dmd", release_name, valid_from, import_ref, check_compatibility
         ) as database_alias:
             import_coding_system(Path(tempdir), database_alias)
+
+    update_vmp_prev_mapping(database_alias)
 
 
 def import_coding_system(release_dir, database_alias):
@@ -274,3 +278,15 @@ def make_model_name(tag_name):
         return tag_name
     else:
         return "".join(tok.title() for tok in tag_name.split("_"))
+
+
+def update_vmp_prev_mapping(database_alias):
+    vmps_with_prev = models.VMP.objects.using(database_alias).filter(
+        vpidprev__isnull=False
+    )
+    for vmp in tqdm(
+        models.VMP.objects.using(database_alias),
+        total=vmps_with_prev.count(),
+        desc="Update VMP previous mapping",
+    ):
+        Mapping.objects.get_or_create(id=vmp.id, vpidprev=vmp.vpidprev)

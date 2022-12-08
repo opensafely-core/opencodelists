@@ -429,6 +429,28 @@ def build_fixtures():
     )
     bnf_version_asthma = bnf_codelist.versions.first()
 
+    # bnf_version_with_search
+    # - belongs to bnf_codelist
+    # - has a search, and all codes covered
+    bnf_version_with_search = export_to_builder(
+        version=bnf_version_asthma,
+        author=organisation_user,
+        coding_system_database_alias=most_recent_database_alias("bnf"),
+    )
+    create_search(
+        draft=bnf_version_with_search,
+        term="asthma",
+        codes=codes_for_search_term("asthma", coding_system_id="bnf"),
+    )
+    update_code_statuses(
+        draft=bnf_version_with_search,
+        updates=[
+            ("0301012A0AA", "+"),
+            ("0301012A0AAABAB", "+"),
+            ("0301012A0AAACAC", "+"),
+        ],
+    )
+
     # new_style_codelist
     # - belongs to organisation
     # - is collaborated on by collaborator
@@ -701,10 +723,10 @@ def load_codes_from_csv(filename, fixtures_path=None):
     return [row[0] for row in rows[1:]]
 
 
-def codes_for_search_term(term):
+def codes_for_search_term(term, coding_system_id=None):
     """Return codes matching search term."""
-
-    coding_system = CODING_SYSTEMS["snomedct"].get_by_release_or_most_recent()
+    coding_system_id = coding_system_id or "snomedct"
+    coding_system = CODING_SYSTEMS[coding_system_id].get_by_release_or_most_recent()
     return do_search(coding_system, term=term)["all_codes"]
 
 
@@ -752,6 +774,7 @@ dmd_version_asthma_medication_refill = build_fixture(
     "dmd_version_asthma_medication_refill"
 )
 bnf_version_asthma = build_fixture("bnf_version_asthma")
+bnf_version_with_search = build_fixture("bnf_version_with_search")
 
 new_style_codelist = build_fixture("new_style_codelist")
 organisation_codelist = build_fixture("organisation_codelist")

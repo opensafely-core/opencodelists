@@ -20,16 +20,13 @@ logger = structlog.get_logger()
 
 
 def import_data(
-    release_dir,
-    release_name,
-    valid_from,
-    import_ref=None,
+    release_dir, release_name, valid_from, import_ref=None, check_compatibility=True
 ):
     release_dir = Path(release_dir)
     # Note: release_dir is the location of the new TPP exported files. The base CTV3 data (which was
     # last released on 1st April 2018 and is now retired) is expected to be in the parent directory.
     with CodingSystemImporter(
-        "ctv3", release_name, valid_from, import_ref
+        "ctv3", release_name, valid_from, import_ref, check_compatibility
     ) as database_alias:
         import_raw_ctv3(release_dir.parent, database_alias)
         import_tpp_ctv3_data(release_dir, database_alias)

@@ -11,7 +11,9 @@ from coding_systems.bnf.models import TYPES, Concept
 logger = structlog.get_logger()
 
 
-def import_data(release_zipfile, release_name, valid_from, import_ref=None):
+def import_data(
+    release_zipfile, release_name, valid_from, import_ref=None, check_compatibility=True
+):
     with TemporaryDirectory() as tempdir:
         release_zip = ZipFile(release_zipfile)
         logger.info("Extracting", release_zip=release_zip.filename)
@@ -34,7 +36,7 @@ def import_data(release_zipfile, release_name, valid_from, import_ref=None):
                         parent_code = code
 
     with CodingSystemImporter(
-        "bnf", release_name, valid_from, import_ref
+        "bnf", release_name, valid_from, import_ref, check_compatibility
     ) as database_alias:
         for type in TYPES:
             logger.info("Loading BNF type", type=type)

@@ -16,6 +16,7 @@ class CodelistBuilder extends React.Component {
       updating: false,
       moreInfoModalCode: null,
       showConfirmDiscardModal: false,
+      expandedCompatibleReleases: false,
     };
 
     this.updateStatus = props.isEditable ? this.updateStatus.bind(this) : null;
@@ -25,6 +26,14 @@ class CodelistBuilder extends React.Component {
     this.setShowConfirmDiscardModal =
       this.setShowConfirmDiscardModal.bind(this);
     this.renderConfirmDiscardModal = this.renderConfirmDiscardModal.bind(this);
+    this.toggleExpandedCompatibleReleases =
+      this.toggleExpandedCompatibleReleases.bind(this);
+  }
+
+  toggleExpandedCompatibleReleases() {
+    this.setState({
+      expandedCompatibleReleases: !this.state.expandedCompatibleReleases,
+    });
   }
 
   componentDidMount() {
@@ -187,7 +196,12 @@ class CodelistBuilder extends React.Component {
               <dd>{this.props.metadata.coding_system_name}</dd>
 
               <dt>Coding system release</dt>
-              <dd>{this.props.metadata.coding_system_release}</dd>
+              <dd>
+                {this.props.metadata.coding_system_release.release_name}
+                {this.props.metadata.coding_system_release.valid_from ? (
+                  <>({this.props.metadata.coding_system_release.valid_from})</>
+                ) : null}
+              </dd>
 
               {this.props.metadata.organisation_name ? (
                 <>

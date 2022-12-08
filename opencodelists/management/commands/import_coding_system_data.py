@@ -55,6 +55,11 @@ class Command(BaseCommand):
             action="store_true",
             help="Force an overwrite of a coding system release",
         )
+        parser.add_argument(
+            "--skip-compatibility-check",
+            action="store_true",
+            help="Skip checking compatibility of existing codelist versions",
+        )
 
     def handle(
         self,
@@ -64,6 +69,7 @@ class Command(BaseCommand):
         valid_from,
         import_ref,
         force,
+        skip_compatibility_check,
         **kwargs,
     ):
         if (
@@ -88,6 +94,7 @@ class Command(BaseCommand):
             release_name=release_name,
             valid_from=valid_from,
             import_ref=import_ref,
+            check_compatibility=not skip_compatibility_check,
         )
         self.stdout.write(
             "\n*** APP RESTART REQUIRED ***\n"

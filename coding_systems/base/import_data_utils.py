@@ -1,11 +1,18 @@
+import json
 import shutil
+import sys
 from pathlib import Path
 
 from django.conf import settings
 from django.core.management import call_command
 from django.db import transaction
+from django.db.models import Q
 from django.utils import timezone
 
+from codelists.coding_systems import CODING_SYSTEMS
+from codelists.hierarchy import Hierarchy
+from codelists.models import CodelistVersion, Status
+from codelists.search import do_search
 from coding_systems.versioning.models import (
     CodingSystemRelease,
     ReleaseState,
@@ -24,11 +31,19 @@ class CodingSystemImporter:
     is complete.
     """
 
-    def __init__(self, coding_system, release_name, valid_from, import_ref):
+    def __init__(
+        self,
+        coding_system,
+        release_name,
+        valid_from,
+        import_ref,
+        check_compatibility=True,
+    ):
         self.coding_system = coding_system
         self.release_name = release_name
         self.valid_from = valid_from
         self.import_ref = import_ref or ""
+        self.check_compatibilty = check_compatibility
         self.import_datetime = timezone.now()
         self.cs_release = None
         self.new_db_path = None
@@ -73,6 +88,13 @@ class CodingSystemImporter:
 
         if self.backup_path is not None:
             self.backup_path.unlink()
+
+        if self.check_compatibilty:
+            # Finally, now that the data has been imported successfully, check any existing
+            # codelist versions for compatibility
+            update_codelist_version_compatibility(
+                self.coding_system, self.cs_release.database_alias
+            )
 
     @transaction.atomic
     def setup_new_import_database(self):
@@ -136,3 +158,229 @@ class CodingSystemImporter:
         call_command("migrate", self.coding_system, database=database_alias)
 
         return database_alias
+
+
+def update_codelist_version_compatibility(coding_system_id, new_database_alias):
+    """
+    Check compatibility of existing codelist versions with a new coding system release
+
+    Filter codelist versions to only those that are compatible with, or created from,
+    the previous release. Any codelist versions that were not compatible with the previous
+    release can ignored, as we wouldn't expect them to be compatible with any later releases.
+    We can only check versions that have hierarchies for compatibility.
+
+    Note we don't exclude versions created from, or already in the compatible
+    set, for THIS release.  If we're doing a forced-overwrite import (which is where
+    we'd expect that might happen), we want to re-check compatibility.
+
+    The compatibility check is conservative.  All we're aiming to do here is to say
+    that a codelist version with the same codes and searches, would look the same in this
+    new release of the coding system.  In order to do this, we check both its search
+    results and its hierarchy, which represents the section of the coding system extended
+    both parent-wise and child-wise from the associated codes on the codelist version.
+
+    We do NOT check versions that are in draft status, as they are subject to change.
+    Drafts are built/created with a specific coding system release, and any additional
+    searches and included/excluded codes will be made with its assigned coding system
+    release. When a draft is moved to under-review or published, its codes will not change,
+    so it can be checked for compatibility against any newer releases at that point.
+
+    To determine compatibility, we check:
+    1) That a hierarchy built from the codelist version's codes is identical
+    This indicates that the section of the coding system that relates to any code in
+    the codelist (included OR excluded) is identical in the new release.
+    CodelistVersion.codes represents all of a codelist version's included codes, however its
+    codeset includes any descendants of those codes, whether included or excluded.
+    A codelist's hierarchy is built in both directions, so it will include all parents right
+    up to the root node, as well as the included/excluded code objs
+    AND
+    2) if the version has searches, rerun the searches with the new release and check that the
+    results are the same
+
+    """
+    new_coding_system = CODING_SYSTEMS[coding_system_id](
+        database_alias=new_database_alias
+    )
+    # Filter to under-review and published versions compatible with previous release
+    versions_to_check, previous_release = get_versions_compatible_with_previous(
+        new_coding_system
+    )
+    print(
+        f"Found {len(versions_to_check)} versions compatible with previous release '{previous_release.database_alias}'."
+    )
+
+    compatible_count = check_and_update_compatibile_versions(
+        new_coding_system, versions_to_check
+    )
+    print(
+        f"{len(versions_to_check)} checked; {compatible_count} identified as compatible"
+    )
+
+
+def get_versions_compatible_with_previous(coding_system):
+    """Find all under-review and published versions compatible with previous release"""
+    previous_release = (
+        CodingSystemRelease.objects.filter(
+            coding_system=coding_system.id,
+            valid_from__lt=coding_system.release.valid_from,
+        )
+        .exclude(id=coding_system.release.id)
+        .latest("valid_from")
+    )
+    versions = set(
+        CodelistVersion.objects.exclude(status=Status.DRAFT).filter(
+            Q(compatible_releases__id=previous_release.id)
+            | Q(coding_system_release=previous_release)
+        )
+    )
+    return versions, previous_release
+
+
+def version_is_compatible_with_coding_system_release(coding_system, version):
+    """
+    Determine whether a single version is considered compatible with a specific coding system
+    release
+    """
+    if not version.has_hierarchy:
+        # if there's no hierarchy to check against, we can't say it's compatible
+        return False
+    # First check the hierarchies match, and then check any searches return the same results
+    return _check_version_by_search(
+        coding_system, version
+    ) and _check_version_by_hierarchy(coding_system, version)
+
+
+def check_and_update_compatibile_versions(coding_system, versions):
+    """
+    Check compatibility of a set of codelist versions against a specific coding system release
+    Update the compatible_releases for any version found to be compatible
+    """
+    compatible_count = 0
+    number_of_versions = len(versions)
+    for counter, version in enumerate(versions, start=1):
+        update_progress(counter, number_of_versions, comment="Checking: ")
+        if version_is_compatible_with_coding_system_release(coding_system, version):
+            version.compatible_releases.add(coding_system.release)
+            compatible_count += 1
+    return compatible_count
+
+
+def _check_version_by_hierarchy(coding_system, version):
+    r"""
+    Check the compatibility of a codelist version with a specific coding system release
+    by comparing the hierarchy generated from its codes.
+
+    The version is compatible (on the basis of hierarchy) if
+    a hierarchy built from the version's coding system release and included codes is
+    identical to a hierarchy built from the comparison coding system release and the
+    version's included codes.
+
+    A hierarchy generated from a set of codes represents a subset of the coding system that
+    includes all ancestors (up to the coding system's root node) and descendants of each code.
+
+    e.g. For a coding system with this structure
+           a
+          / \
+         b   c
+        / \ / \
+       d   e   f
+
+    A codelist version that includes just the code 'f' will have the following hierarchy:
+           a
+            \
+             c
+              \
+               f
+
+    If there is a change in a different branch of the coding system - e.g. code 'd' is
+    removed, will not affect the codelist version's hierarchy, and it will be considered
+    compatible.
+
+    However, if a change occurs in the branch that includes 'f', e.g. there is a new
+    descendant code, 'g', the hierarchy will differ and the codelist version will be
+    considered incompatible:
+           a
+          / \
+         b   c
+        / \ / \
+       d   e   f
+                \
+                 g
+
+    In the above case, there is now a new descendant code that needs to be included/excluded
+    in the codelist version.
+
+    If a change occurs in the ancestors of the included code 'f', e.g. 'c' is replaced by 'x':
+           a
+          / \
+         b   x
+        / \ / \
+       d   e   f
+
+    The hierarchy has changed, and the codelist version will be considered incompatible, even
+    though there are no new descendant codes that need to be included or excluded.
+
+    Note that our compatibility check is conservative and the fact that it is does not pass
+    the compatiblity check does not mean that a new codelist version cannot be successfully
+    created from this one with the new coding system release.
+
+    Note that overall compatibility is determined based on both identical search results
+    and identical hierarchies.
+    """
+
+    def _hierarchy_excl_cache_items(hierarchy):
+        # `_descendants_cache` and `_ancestors_cache` will not have been generated for the
+        # new hierarchy
+        return {k: v for k, v in hierarchy.items() if not k.endswith("_cache")}
+
+    # All codelist versions that existed prior to implementation of coding system releases
+    # have an "unknown" coding system release, which represents the coding system data at that
+    # point. For older codelist versions, that is not the actual coding system release that was
+    # used to create the codelist version, and we do not have a record of, or access to, the
+    # coding system data at the time of its creation.
+    # All existing codelist versions, including those with the "unknown" coding system release,
+    # will have a cached hierarchy, built with the original coding system release.
+    # We compare this to a hierarchy built from the same codes, but with the new release.
+    original_hierarchy_data = _hierarchy_excl_cache_items(
+        json.loads(version.cached_hierarchy.data)
+    )
+    new_hierarchy_data = _hierarchy_excl_cache_items(
+        json.loads(Hierarchy.from_codes(coding_system, version.codes).data_for_cache())
+    )
+    return original_hierarchy_data == new_hierarchy_data
+
+
+def _check_version_by_search(coding_system, version):
+    """
+    Check the compatibility of a codelist version with a specific coding system release
+    by rerunning its searches.  The version is compatible (on the basis of searches) if
+    the search results are identical when run with the version's coding system release and
+    with the comparison coding system release.
+
+    A search finds codes in the coding system that match a specific term or code, AND all
+    their descendant codes (returned in the search results as "all_codes").
+
+    Note that overall compatibility is determined based on both identical search results
+    and identical hierarchies.
+    """
+    for search in version.searches.all():
+        current_codes = set(search.results.values_list("code_obj__code", flat=True))
+        updated_codes = do_search(coding_system, term=search.term, code=search.code)[
+            "all_codes"
+        ]
+        if current_codes != updated_codes:
+            return False
+    return True
+
+
+def update_progress(count, total, comment=None, bar_length=30):
+    comment = comment or ""
+    progress = count / total
+    hashes = "#" * int(round(progress * bar_length))
+    spaces = " " * (bar_length - len(hashes))
+    sys.stdout.write(
+        f"\r{comment}[{hashes + spaces}] {int(round(progress * 100))}% {count}/{total}"
+    )
+    if count == total:
+        sys.stdout.write("\n")
+    sys.stdout.flush()

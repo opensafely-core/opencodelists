@@ -6,6 +6,8 @@ from django.db.models import Count
 from django.utils.text import slugify
 
 from codelists.models import CodeObj, SearchResult, Status
+from coding_systems.base.import_data_utils import check_and_update_compatibile_versions
+from coding_systems.versioning.models import CodingSystemRelease
 
 logger = structlog.get_logger()
 
@@ -106,6 +108,25 @@ def save(*, draft):
     assert not draft.code_objs.filter(status__in=["?", "!"]).exists()
     draft.status = Status.UNDER_REVIEW
     draft.save()
+
+    # If there any more recent releases for this version's coding system, check them
+    # for compatibility now that the draft has been saved for review.
+
+    # Find more recent releases, in "valid_from" order, oldest to newest
+    newer_coding_system_releases = CodingSystemRelease.objects.filter(
+        coding_system=draft.coding_system_id,
+        valid_from__gt=draft.coding_system_release.valid_from,
+    ).order_by("valid_from")
+
+    for coding_system_release in newer_coding_system_releases:
+        coding_system = draft.coding_system.get_by_release(
+            database_alias=coding_system_release.database_alias
+        )
+        compatible_count = check_and_update_compatibile_versions(coding_system, [draft])
+        # If this release was not found to be compatible, we can stop checking, as
+        # we'd expect later releases to also not be compatible
+        if compatible_count == 0:
+            break
 
 
 @transaction.atomic

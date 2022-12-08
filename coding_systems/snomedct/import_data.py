@@ -15,10 +15,12 @@ from .models import Concept, Description, Relationship
 logger = structlog.get_logger()
 
 
-def import_data(release_zipfile, release_name, valid_from, import_ref=None):
+def import_data(
+    release_zipfile, release_name, valid_from, import_ref=None, check_compatibility=True
+):
 
     with CodingSystemImporter(
-        "snomedct", release_name, valid_from, import_ref
+        "snomedct", release_name, valid_from, import_ref, check_compatibility
     ) as database_alias:
         with TemporaryDirectory() as tempdir:
             release_zip = ZipFile(release_zipfile)

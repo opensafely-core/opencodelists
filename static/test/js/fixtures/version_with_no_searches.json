@@ -463,39 +463,43 @@
     "73583000": "(+)"
   },
   "is_editable": true,
-  "update_url": "/builder/2127b317/update/",
-  "search_url": "/builder/2127b317/search/",
+  "update_url": "/builder/6f08ccac/update/",
+  "search_url": "/builder/6f08ccac/search/",
   "versions": [
     {
-      "tag_or_hash": "2127b317",
-      "url": "/codelist/test-university/new-style-codelist/2127b317/",
+      "tag_or_hash": "6f08ccac",
+      "url": "/codelist/test-university/new-style-codelist/6f08ccac/",
       "status": "draft",
       "current": true
     },
     {
+      "tag_or_hash": "05657fec",
+      "url": "/codelist/test-university/new-style-codelist/05657fec/",
+      "status": "under review",
+      "current": false
+    },
+    {
+      "tag_or_hash": "1e74f321",
+      "url": "/codelist/test-university/new-style-codelist/1e74f321/",
+      "status": "under review",
+      "current": false
+    },
+    {
       "tag_or_hash": "37846656",
       "url": "/codelist/test-university/new-style-codelist/37846656/",
-      "status": "under review",
-      "current": false
-    },
-    {
-      "tag_or_hash": "5093d98b",
-      "url": "/codelist/test-university/new-style-codelist/5093d98b/",
-      "status": "under review",
-      "current": false
-    },
-    {
-      "tag_or_hash": "69a34cc0",
-      "url": "/codelist/test-university/new-style-codelist/69a34cc0/",
       "status": "published",
       "current": false
     }
   ],
   "metadata": {
     "coding_system_name": "SNOMED CT",
-    "coding_system_release": "test",
+    "coding_system_release": {
+      "release_name": "test",
+      "valid_from": "2020-01-01"
+    },
+    "compatible_releases": [],
     "organisation_name": "Test University",
     "codelist_full_slug": "test-university/new-style-codelist",
-    "hash": "2127b317"
+    "hash": "6f08ccac"
   }
 }

@@ -49,6 +49,17 @@
       <dt>Coding system release</dt>
       <dd>{{ clv.coding_system.release_name }}</dd>
 
+      {% if clv.compatible_releases.exists %}
+        <details>
+          <summary>Show other compatible releases</summary>
+          <ul>
+            {% for release in clv.compatible_releases.all %}
+              <li><small>{{ release.release_name }} ({{ release.valid_from|date:'Y-m-d'}})</small></li>
+            {% endfor %}
+          </ul>
+        </details>
+      {% endif %}
+
       {% if codelist.organisation %}
       <dt>Organisation</dt>
       <dd>{{ codelist.organisation.name }}</dd>

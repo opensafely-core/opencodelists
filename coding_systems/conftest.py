@@ -40,7 +40,7 @@ def mock_migrate_coding_system(*args, **kwargs):
     test_db_connections = [
         db for db in connections if db.startswith(coding_system) and db != database
     ]
-    assert len(test_db_connections) == 1
+
     test_db_connection = test_db_connections[0]
     with connections[test_db_connection].cursor() as cursor:
         res = cursor.execute(

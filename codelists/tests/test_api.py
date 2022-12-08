@@ -20,7 +20,13 @@ def test_codelists_get(client, organisation):
                     "tag": None,
                     "full_slug": "test-university/bnf-codelist/69a34cc0",
                     "status": "published",
-                }
+                },
+                {
+                    "hash": "5093d98b",
+                    "tag": None,
+                    "full_slug": "test-university/bnf-codelist/5093d98b",
+                    "status": "draft",
+                },
             ],
         },
         {
@@ -31,9 +37,9 @@ def test_codelists_get(client, organisation):
             "coding_system_id": "snomedct",
             "versions": [
                 {
-                    "hash": "05657fec",
+                    "hash": "6c560cb6",
                     "tag": None,
-                    "full_slug": "test-university/codelist-from-scratch/05657fec",
+                    "full_slug": "test-university/codelist-from-scratch/6c560cb6",
                     "status": "draft",
                 }
             ],
@@ -73,15 +79,15 @@ def test_codelists_get(client, organisation):
             "coding_system_id": "snomedct",
             "versions": [
                 {
-                    "hash": "3a37264c",
-                    "tag": None,
-                    "full_slug": "test-university/minimal-codelist/3a37264c",
-                    "status": "published",
-                },
-                {
                     "hash": "2127b317",
                     "tag": None,
                     "full_slug": "test-university/minimal-codelist/2127b317",
+                    "status": "published",
+                },
+                {
+                    "hash": "08183fe2",
+                    "tag": None,
+                    "full_slug": "test-university/minimal-codelist/08183fe2",
                     "status": "draft",
                 },
             ],
@@ -94,21 +100,21 @@ def test_codelists_get(client, organisation):
             "coding_system_id": "snomedct",
             "versions": [
                 {
-                    "hash": "5093d98b",
-                    "tag": None,
-                    "full_slug": "test-university/new-style-codelist/5093d98b",
-                    "status": "published",
-                },
-                {
                     "hash": "37846656",
                     "tag": None,
                     "full_slug": "test-university/new-style-codelist/37846656",
-                    "status": "under review",
+                    "status": "published",
                 },
                 {
                     "hash": "1e74f321",
                     "tag": None,
                     "full_slug": "test-university/new-style-codelist/1e74f321",
+                    "status": "under review",
+                },
+                {
+                    "hash": "05657fec",
+                    "tag": None,
+                    "full_slug": "test-university/new-style-codelist/05657fec",
                     "status": "under review",
                 },
             ],

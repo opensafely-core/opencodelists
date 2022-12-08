@@ -46,7 +46,7 @@ def django_db_modify_db_settings():
 
     # Copy the default db configuration to each of the aliases; in the test setup the databases
     # are all in-memory sqlite databases, so although we're duplicating the configuration, the
-    # databases is the tests will all be separate in-memory sqlite dbs
+    # databases in the tests will all be separate in-memory sqlite dbs
     coding_system_db_aliases = database_aliases - {"default"}
 
     # Reset the DATABASES settings so that it contains only the default db

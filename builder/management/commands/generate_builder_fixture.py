@@ -32,6 +32,17 @@ class Command(BaseCommand):
                 database="snomedct_test_20200101",
             )
 
+        # we also need to load the BNF data so `build_fixtures` will work (it makes bnf fixtures as
+        # well as snomed ones)
+        call_command(
+            "loaddata",
+            coding_systems_base_path
+            / "bnf"
+            / "fixtures"
+            / "asthma.bnf_test_20200101.json",
+            database="bnf_test_20200101",
+        )
+
         # create the CodingSystemReleases so the fixtures can use them to select the coding
         # system version for a codelist, and the database for retrieving coding system data
         versioning_fixtures_path = coding_systems_base_path / "versioning" / "fixtures"
@@ -69,7 +80,11 @@ class Command(BaseCommand):
         ]:
             version = fixtures[version_key]
             if version_key != "version_from_scratch":
-                draft = export_to_builder(version=version, author=organisation_user)
+                draft = export_to_builder(
+                    version=version,
+                    author=organisation_user,
+                    coding_system_database_alias="snomedct_test_20200101",
+                )
 
             with override_settings(ALLOWED_HOSTS="*"):
                 rsp = client.get(draft.get_builder_draft_url())
@@ -128,12 +143,16 @@ def set_up_db():
     assert databases["default"]["ENGINE"] == "django.db.backends.sqlite3"
     databases["default"]["NAME"] = ":memory:"
     databases["snomedct_test_20200101"] = dict(databases["default"])
+    databases["bnf_test_20200101"] = dict(databases["default"])
     del connections.settings
     connections.__init__(settings=databases)
     # migrate all apps on the default db
     call_command("migrate")
     # migrate just the snomedct app for the test snomedct coding system db
     call_command("migrate", "snomedct", database="snomedct_test_20200101")
+    # this command doesn't use the bnf fixtures explicitly, but `build_fixtures` creates them,
+    # so we need the database to the available
+    call_command("migrate", "bnf", database="bnf_test_20200101")
     # This is a belt-and-braces check to ensure that the above hackery has worked.
     if (
         Codelist.objects.using("default").count() > 0

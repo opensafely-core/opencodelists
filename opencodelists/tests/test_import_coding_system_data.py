@@ -28,6 +28,7 @@ def test_calls_import_data_function_coding_system_import(mock_import_data, tmpdi
         release_name="version 1 A",
         valid_from=date(2022, 10, 1),
         import_ref=None,
+        check_compatibility=True,
     )
 
 
@@ -84,6 +85,7 @@ def test_calls_import_data_function_coding_system_force_overwrite(
         release_name="v1",
         valid_from=date(2022, 10, 1),
         import_ref="A new ref",
+        check_compatibility=True,
     )
 
 

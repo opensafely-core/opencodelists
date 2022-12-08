@@ -13,7 +13,9 @@ from coding_systems.dmd import models
 logger = structlog.get_logger()
 
 
-def import_data(release_zipfile, release_name, valid_from, import_ref=None):
+def import_data(
+    release_zipfile, release_name, valid_from, import_ref=None, check_compatibility=True
+):
     with TemporaryDirectory() as tempdir:
         release_zip = ZipFile(release_zipfile)
         logger.info("Extracting", release_zip=release_zip.filename)
@@ -24,7 +26,7 @@ def import_data(release_zipfile, release_name, valid_from, import_ref=None):
             ZipFile(inner_zipfile).extractall(path=tempdir)
 
         with CodingSystemImporter(
-            "dmd", release_name, valid_from, import_ref
+            "dmd", release_name, valid_from, import_ref, check_compatibility
         ) as database_alias:
             import_coding_system(Path(tempdir), database_alias)
 

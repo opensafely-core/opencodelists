@@ -31,11 +31,19 @@ class CodingSystemImporter:
     is complete.
     """
 
-    def __init__(self, coding_system, release_name, valid_from, import_ref):
+    def __init__(
+        self,
+        coding_system,
+        release_name,
+        valid_from,
+        import_ref,
+        check_compatibility=True,
+    ):
         self.coding_system = coding_system
         self.release_name = release_name
         self.valid_from = valid_from
         self.import_ref = import_ref or ""
+        self.check_compatibilty = check_compatibility
         self.import_datetime = timezone.now()
         self.cs_release = None
         self.new_db_path = None
@@ -81,11 +89,12 @@ class CodingSystemImporter:
         if self.backup_path is not None:
             self.backup_path.unlink()
 
-        # Finally, now that the data has been imported successfully, check any existing
-        # codelist versions for compatibility
-        update_codelist_version_compatibility(
-            self.coding_system, self.cs_release.database_alias
-        )
+        if self.check_compatibilty:
+            # Finally, now that the data has been imported successfully, check any existing
+            # codelist versions for compatibility
+            update_codelist_version_compatibility(
+                self.coding_system, self.cs_release.database_alias
+            )
 
     @transaction.atomic
     def setup_new_import_database(self):
@@ -192,20 +201,9 @@ def update_codelist_version_compatibility(coding_system_id, new_database_alias):
     new_coding_system = CODING_SYSTEMS[coding_system_id](
         database_alias=new_database_alias
     )
-    previous_release = (
-        CodingSystemRelease.objects.filter(
-            coding_system=coding_system_id,
-            valid_from__lt=new_coding_system.release.valid_from,
-        )
-        .exclude(id=new_coding_system.release.id)
-        .latest("valid_from")
-    )
     # Filter to under-review and published versions compatible with previous release
-    versions_to_check = set(
-        CodelistVersion.objects.exclude(status=Status.DRAFT).filter(
-            Q(compatible_releases__id=previous_release.id)
-            | Q(coding_system_release=previous_release)
-        )
+    versions_to_check, previous_release = get_versions_compatible_with_previous(
+        new_coding_system
     )
     print(
         f"Found {len(versions_to_check)} versions compatible with previous release '{previous_release.database_alias}'."
@@ -219,6 +217,25 @@ def update_codelist_version_compatibility(coding_system_id, new_database_alias):
     )
 
 
+def get_versions_compatible_with_previous(coding_system):
+    """Find all under-review and published versions compatible with previous release"""
+    previous_release = (
+        CodingSystemRelease.objects.filter(
+            coding_system=coding_system.id,
+            valid_from__lt=coding_system.release.valid_from,
+        )
+        .exclude(id=coding_system.release.id)
+        .latest("valid_from")
+    )
+    versions = set(
+        CodelistVersion.objects.exclude(status=Status.DRAFT).filter(
+            Q(compatible_releases__id=previous_release.id)
+            | Q(coding_system_release=previous_release)
+        )
+    )
+    return versions, previous_release
+
+
 def version_is_compatible_with_coding_system_release(coding_system, version):
     """
     Determine whether a single version is considered compatible with a specific coding system
@@ -228,9 +245,9 @@ def version_is_compatible_with_coding_system_release(coding_system, version):
         # if there's no hierarchy to check against, we can't say it's compatible
         return False
     # First check the hierarchies match, and then check any searches return the same results
-    return _check_version_by_hierarchy(
+    return _check_version_by_search(
         coding_system, version
-    ) and _check_version_by_search(coding_system, version)
+    ) and _check_version_by_hierarchy(coding_system, version)
 
 
 def check_and_update_compatibile_versions(coding_system, versions):

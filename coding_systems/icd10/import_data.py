@@ -15,7 +15,9 @@ from coding_systems.icd10.models import Concept
 logger = structlog.get_logger()
 
 
-def import_data(release_zipfile, release_name, valid_from, import_ref=None):
+def import_data(
+    release_zipfile, release_name, valid_from, import_ref=None, check_compatibility=True
+):
     with TemporaryDirectory() as tempdir:
         release_zip = ZipFile(release_zipfile)
         logger.info("Extracting", release_zip=release_zip.filename)
@@ -31,7 +33,7 @@ def import_data(release_zipfile, release_name, valid_from, import_ref=None):
             doc = etree.parse(f)
 
     with CodingSystemImporter(
-        "icd10", release_name, valid_from, import_ref
+        "icd10", release_name, valid_from, import_ref, check_compatibility
     ) as database_alias:
         # ensure we start with an empty database
         assert not Concept.objects.using(database_alias).exists()

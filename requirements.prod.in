@@ -27,3 +27,4 @@ pysqlite3-binary
 whitenoise
 sentry-sdk
 structlog
+tqdm

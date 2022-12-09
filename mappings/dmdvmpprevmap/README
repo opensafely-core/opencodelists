@@ -1,0 +1,24 @@
+DM+D VMP Previous Mappings
+---------------------------
+
+dm+d VMP ids sometimes change.  In a single dm+d release, each VMP record may
+have a vmp_prev attribute, which indicates the id that this VMP used to be
+known by.  However, only the last id is recorded, and VMP ids can change more
+than once.
+
+In order to map VMP ids in a dm+d codelist to any previous or subsequent ID,
+we maintain a mapping of the current to previous IDs across historical releases.
+
+Historical data from March 2019 to 12 Dec 2022 has been extracted from the
+release downloads into a single csv file, located at
+`/var/lib/dokku/data/storage/opencodelists/data/dmdvmpprevmap/dmd_vpid_vpidprev_mapping_20221208.csv.gz`
+(See scripts/fetch_vmp_prev.py for re-creating/updating this file.)
+
+For releases after 12 Dec 2022, the mappings are updated when each new release is
+imported.
+
+If the historical data needs to be re-imported, it can be run with:
+
+    dokku run opencodelists python manage.py \
+    import_mapping_data mapping.dmdvmpprevmap \
+    /storage/data/dmdvmpprevmap/dmd_vpid_vpidprev_mapping_20221208.csv.gz

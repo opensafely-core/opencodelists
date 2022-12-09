@@ -8,6 +8,7 @@ omit = [
   "staticfiles",
   "*/migrations/*",
   "coding_systems/snomedct/parser_utils/*",
+  "scripts/fetch_vmp_prev.py"
 ]
 
 [tool.coverage.report]

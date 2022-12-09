@@ -1,5 +1,6 @@
 import json
 
+from mappings.dmdvmpprevmap.models import Mapping as VmpPrevMapping
 from opencodelists.tests.assertions import assert_difference, assert_no_difference
 
 
@@ -359,3 +360,24 @@ def post(client, url, data, user):
     else:
         headers = {"HTTP_AUTHORIZATION": f"Token {user.api_token}"}
     return client.post(url, data, content_type="application/json", **headers)
+
+
+def test_dmd_mapping_no_data(client, organisation, dmd_data):
+    rsp = client.get("/api/v1/dmd-mapping/")
+    data = json.loads(rsp.content)
+    assert rsp.status_code == 200
+    assert data == []
+
+
+def test_dmd_mapping_with_data(client, organisation):
+    VmpPrevMapping.objects.create(id="11", vpidprev="01")
+    VmpPrevMapping.objects.create(id="22", vpidprev="11")
+
+    rsp = client.get("/api/v1/dmd-mapping/")
+    data = json.loads(rsp.content)
+    assert rsp.status_code == 200
+    assert sorted(data) == [
+        ["11", "01"],
+        ["22", "01"],
+        ["22", "11"],
+    ]

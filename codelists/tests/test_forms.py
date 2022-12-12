@@ -1,8 +1,11 @@
+from datetime import date
+
 import pytest
 from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 from codelists.forms import CSVValidationMixin
+from coding_systems.versioning.models import CodingSystemRelease, ReleaseState
 
 from .helpers import csv_builder
 
@@ -16,7 +19,6 @@ def test_csvvalidation_byte_order_mark(bnf_data):
     upload_file = csv_builder("\ufeff" + csv_data)
     uploaded_file = SimpleUploadedFile("our csv", upload_file.read())
     form.cleaned_data = {"csv_data": uploaded_file, "coding_system_id": "bnf"}
-
     assert form.clean_csv_data() == csv_data
 
 
@@ -29,6 +31,26 @@ def test_csvvalidation_correct_csv_column_count(bnf_data):
     upload_file = csv_builder(csv_data)
     uploaded_file = SimpleUploadedFile("our csv", upload_file.read())
     form.cleaned_data = {"csv_data": uploaded_file, "coding_system_id": "bnf"}
+
+    assert form.clean_csv_data() == csv_data
+
+
+def test_csvvalidation_coding_system_without_data():
+    CodingSystemRelease.objects.create(
+        release_name="unk",
+        coding_system="opcs4",
+        valid_from=date(2020, 1, 1),
+        state=ReleaseState.READY,
+    )
+    # opcs4 has no coding system data, so we allow uploads without code validation
+    form = CSVValidationMixin()
+
+    # wrap CSV up in SimpleUploadedFile to mirror how a Django view would
+    # handle it
+    csv_data = "code,description\n0301012A0AA,Adrenaline (Asthma)"
+    upload_file = csv_builder(csv_data)
+    uploaded_file = SimpleUploadedFile("our csv", upload_file.read())
+    form.cleaned_data = {"csv_data": uploaded_file, "coding_system_id": "opcs4"}
 
     assert form.clean_csv_data() == csv_data
 

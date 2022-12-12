@@ -1,6 +1,7 @@
 import json
 import shutil
 import sys
+from itertools import islice
 from pathlib import Path
 
 from django.conf import settings
@@ -18,6 +19,18 @@ from coding_systems.versioning.models import (
     ReleaseState,
     update_coding_system_database_connections,
 )
+
+
+def batched_bulk_create(model, database_alias, iter_records, batch_size=999):
+    """
+    Batch records into groups of at most batch_size (defaulting to 999 - the sqlite max)
+    for bulk_create.
+    """
+    while True:
+        batch = list(islice(iter_records, batch_size))
+        if not batch:
+            break
+        model.objects.using(database_alias).bulk_create(batch, batch_size)
 
 
 class CodingSystemImporter:

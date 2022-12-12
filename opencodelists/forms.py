@@ -89,6 +89,13 @@ class CodelistCreateForm(forms.Form):
 
 
 def validate_csv_data_codes(coding_system, codes):
+    # Fully implemented codings systems have a `lookup_names` method that is used to
+    # validate the codes in the CSV upload.  However, we also support uploads for some
+    # coding systems that we don't maintain data for (e.g. OPCS4, ReadV2).  Skip code
+    # validation for these systems, and just allow upload of the CSV data as it is.
+    if not coding_system.has_database:
+        return
+
     unknown_codes_and_ixs = [
         (ix, code)
         for ix, code in enumerate(codes)

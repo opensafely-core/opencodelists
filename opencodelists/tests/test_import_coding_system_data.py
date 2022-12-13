@@ -48,6 +48,7 @@ def test_calls_import_data_function_coding_system_release_already_exists(
             tmpdir,
             release_name="v1",
             valid_from=date(2022, 10, 1),
+            latest=False,
         )
     assert error.value.code == 1
     captured = capsys.readouterr()

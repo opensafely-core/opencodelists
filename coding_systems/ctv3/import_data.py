@@ -6,7 +6,10 @@ from zipfile import ZipFile
 
 import structlog
 
-from coding_systems.base.import_data_utils import CodingSystemImporter
+from coding_systems.base.import_data_utils import (
+    CodingSystemImporter,
+    batched_bulk_create,
+)
 from coding_systems.ctv3.models import (
     RawConcept,
     RawConceptHierarchy,
@@ -81,15 +84,18 @@ def import_tpp_ctv3_data(release_dir, database_alias):
     assert not TPPRelationship.objects.using(database_alias).exists()
     assert not TPPConcept.objects.using(database_alias).exists()
 
-    TPPConcept.objects.using(database_alias).bulk_create(
-        TPPConcept(read_code=r["CTV3Code"], description=r["Description"])
-        for r in load_records("ctv3_dictionary")
+    iter_dictionary_records = (
+        TPPConcept(read_code=record["CTV3Code"], description=record["Description"])
+        for record in load_records("ctv3_dictionary")
     )
-    TPPRelationship.objects.using(database_alias).bulk_create(
+    batched_bulk_create(TPPConcept, database_alias, iter_dictionary_records)
+
+    iter_hierarchy_records = (
         TPPRelationship(
-            ancestor_id=r["ParentCTV3Code"],
-            descendant_id=r["ChildCTV3Code"],
-            distance=r["ChildToParentDistance"],
+            ancestor_id=record["ParentCTV3Code"],
+            descendant_id=record["ChildCTV3Code"],
+            distance=record["ChildToParentDistance"],
         )
-        for r in load_records("ctv3_hierarchy")
+        for record in load_records("ctv3_hierarchy")
     )
+    batched_bulk_create(TPPRelationship, database_alias, iter_hierarchy_records)

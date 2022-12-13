@@ -1,6 +1,6 @@
 import json
 import shutil
-import sys
+from itertools import islice
 from pathlib import Path
 
 from django.conf import settings
@@ -8,6 +8,7 @@ from django.core.management import call_command
 from django.db import transaction
 from django.db.models import Q
 from django.utils import timezone
+from tqdm import tqdm
 
 from codelists.coding_systems import CODING_SYSTEMS
 from codelists.hierarchy import Hierarchy
@@ -18,6 +19,18 @@ from coding_systems.versioning.models import (
     ReleaseState,
     update_coding_system_database_connections,
 )
+
+
+def batched_bulk_create(model, database_alias, iter_records, batch_size=999):
+    """
+    Batch records into groups of at most batch_size (defaulting to 999 - the sqlite max)
+    for bulk_create.
+    """
+    while True:
+        batch = list(islice(iter_records, batch_size))
+        if not batch:
+            break
+        model.objects.using(database_alias).bulk_create(batch, batch_size)
 
 
 class CodingSystemImporter:
@@ -256,9 +269,7 @@ def check_and_update_compatibile_versions(coding_system, versions):
     Update the compatible_releases for any version found to be compatible
     """
     compatible_count = 0
-    number_of_versions = len(versions)
-    for counter, version in enumerate(versions, start=1):
-        update_progress(counter, number_of_versions, comment="Checking: ")
+    for version in tqdm(versions):
         if version_is_compatible_with_coding_system_release(coding_system, version):
             version.compatible_releases.add(coding_system.release)
             compatible_count += 1
@@ -371,16 +382,3 @@ def _check_version_by_search(coding_system, version):
         if current_codes != updated_codes:
             return False
     return True
-
-
-def update_progress(count, total, comment=None, bar_length=30):
-    comment = comment or ""
-    progress = count / total
-    hashes = "#" * int(round(progress * bar_length))
-    spaces = " " * (bar_length - len(hashes))
-    sys.stdout.write(
-        f"\r{comment}[{hashes + spaces}] {int(round(progress * 100))}% {count}/{total}"
-    )
-    if count == total:
-        sys.stdout.write("\n")
-    sys.stdout.flush()

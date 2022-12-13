@@ -8,15 +8,18 @@ For more details, see our blog post [0].
 We obtain the raw data from TRUD [1].
 
 You will need an account to access TRUD, and may be asked for a reason when you sign up -- if so, mention OpenCodelists.
-
-On the TRUD release page, download the latest release, which will be a zip file called something like nhsbsa_dmd_11.3.0_20221128000001.zip
+On the TRUD release page, subscribe to the releases.
+For local testing, you will need your API key.  Find it on your [account page](https://isd.digital.nhs.uk/trud/users/authenticated/filters/0/account/manage), and set the
+`TRUD_API_KEY` variable in your local .env file.
 
 dm+d updates are released weekly.  The release number (11.3.0 in the example above) refers to the month and (zero-indexed) week of the current year.  The valid from date can be retrieved from the date in the filename.  To avoid confusion, label the release with the year as well as the release number.
 
-To import the data, run:
+The release will be retrieved via the TRUD API (as a zipfile, named something like
+`nhsbsa_dmd_11.3.0_20221128000001.zip`).
+Find the release number and valid from date from the release page, and run:
 
     ./manage.py import_coding_system_data dmd
-    path/to/zip/file/in/dokku/app
+    path/to/dmd/download/dir/in/dokku/app
     --release <release_name> --valid-from YYYY-MM-DD --import-ref <ref>
 
 - `release` is a short label for this coding system release - the release year/number as
@@ -24,17 +27,19 @@ To import the data, run:
 - `valid-from` is the date that this release is valid from (NOT the date it is being
   imported into OpenCodelists), in YYYY-MM-DD format
 - `import-ref` is an optional long-form reference field for any other potential
-  references or comments on this import if desired. Include at least the full downloaded
-  zipfile here.
+  references or comments on this import if desired. Omit it to default to the name
+  of the downloaded zipfile.
+- `latest`: if importing the latest release, optionally specify --latest.  This will
+  retrieve only the latest release from TRUD. It will fail if the release and valid from
+  dates provided are not for the latest release.
 
-For the example above (`nhsbsa_dmd_11.3.0_20221128000001.zip`), the data should be
+For the example above (release 11.3.0, valid from 2022-11-28), the data should be
 imported with:
 
-    dokku run opencodelists python manage.py import_coding_system_data dmd
-    /storage/data/dmd/nhsbsa_dmd_11.3.0_20221128000001.zip
-    --release '2022 11.3.0'
+    dokku run opencodelists python manage.py import_coding_system_data dmd \
+    /storage/data/dmd/ \
+    --release '2022 11.3.0' \
     --valid-from 2022-11-28
-    --import-ref nhsbsa_dmd_11.3.0_20221128000001.zip
 
 After importing, restart the opencodelists app with:
 

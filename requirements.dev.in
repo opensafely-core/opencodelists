@@ -9,6 +9,7 @@ hypothesis
 pytest-cov
 pytest-django
 pytest-subtests
+responses
 
 # dev
 black

@@ -29,7 +29,7 @@ def coding_systems_database_tmp_dir(coding_systems_tmp_path):
     yield coding_systems_tmp_path
 
 
-def test_import_data(settings):
+def test_import_data(settings, dmd_data):
 
     cs_release_count = CodingSystemRelease.objects.count()
 
@@ -123,3 +123,18 @@ def test_import_error(coding_systems_database_tmp_dir):
     assert not (
         coding_systems_database_tmp_dir / "dmd" / "dmd_v3_20221001.sqlite3"
     ).exists()
+
+
+def test_import_data_no_vmp_previous_mapping(dmd_data):
+    # import mock XML data
+    # This is the same data as dmd_data.zip (see `test_import_data` above), except that
+    # VMP 39113611000001102 has no VMPPREV id
+    assert not VmpPrevMapping.objects.exists()
+    import_data(
+        str(MOCK_DMD_IMPORT_DATA_PATH.parent / "dmd_data_no_prev_vmp.zip"),
+        release_name="v4",
+        valid_from=date(2022, 10, 1),
+    )
+    vmp = VMP.objects.using("dmd_v4_20221001").get(id="39113611000001102")
+    assert vmp.vpidprev is None
+    assert not VmpPrevMapping.objects.exists()

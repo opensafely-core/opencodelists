@@ -285,7 +285,7 @@ def update_vmp_prev_mapping(database_alias):
         vpidprev__isnull=False
     )
     for vmp in tqdm(
-        models.VMP.objects.using(database_alias),
+        vmps_with_prev,
         total=vmps_with_prev.count(),
         desc="Update VMP previous mapping",
     ):

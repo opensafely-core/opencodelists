@@ -2,7 +2,9 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from zipfile import ZipFile
 
+import requests
 import structlog
+from django.conf import settings
 from django.db import connections
 from django.db.models import fields as django_fields
 from lxml import etree
@@ -15,11 +17,64 @@ from mappings.dmdvmpprevmap.models import Mapping
 logger = structlog.get_logger()
 
 
+def download_release(release_dir, release_name, valid_from, latest):
+    releases_url = f"https://isd.digital.nhs.uk/trud/api/v1/keys/{settings.TRUD_API_KEY}/items/24/releases"
+
+    # The release name is expected to be labelled with the year and release number, e.g.
+    # "2022 12.0.1"
+    release = release_name.split()[-1]
+    # Build the expected filename so we can verify it matches the release and date provided
+    filename = f"nhsbsa_dmd_{release}_{valid_from.strftime('%Y%m%d')}000001.zip"
+
+    if latest:
+        releases_url += "?latest"
+    resp = requests.get(releases_url)
+    resp.raise_for_status()
+    releases = resp.json()["releases"]
+
+    if not latest:
+        release = next(
+            (release for release in releases if release["archiveFileName"] == filename),
+            None,
+        )
+        if release is None:
+            raise ValueError(
+                f"No matching release found for expected filename {filename}"
+            )
+        url = release["archiveFileUrl"]
+    else:
+        assert (
+            releases[0]["archiveFileName"] == filename
+        ), f"latest release filename {releases[0]['archiveFileName']} does not match expected {filename}"
+        url = releases[0]["archiveFileUrl"]
+
+    local_download_filepath = Path(release_dir) / filename
+    get_file(url, local_download_filepath)
+    return local_download_filepath
+
+
+def get_file(url, local_download_filepath):
+    with requests.get(url, stream=True) as resp:
+        resp.raise_for_status()
+        with open(local_download_filepath, "wb") as f:
+            for chunk in resp.iter_content(chunk_size=8192):
+                f.write(chunk)
+
+
 def import_data(
-    release_zipfile, release_name, valid_from, import_ref=None, check_compatibility=True
+    release_dir,
+    release_name,
+    valid_from,
+    latest=False,
+    import_ref=None,
+    check_compatibility=True,
 ):
+    release_zipfile_path = download_release(
+        release_dir, release_name, valid_from, latest
+    )
+    import_ref = import_ref or release_zipfile_path.name
     with TemporaryDirectory() as tempdir:
-        release_zip = ZipFile(release_zipfile)
+        release_zip = ZipFile(str(release_zipfile_path))
         logger.info("Extracting", release_zip=release_zip.filename)
         release_zip.extractall(path=tempdir)
 

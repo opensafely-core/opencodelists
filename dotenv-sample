@@ -10,3 +10,5 @@ OTEL_SERVICE_NAME="opencodelists"
 # OTEL requires these, it needs to access settings before other stuff has initialised
 DJANGO_SETTINGS_MODULE="opencodelists.settings"
 PYTHONPATH="/usr/local/bin/python"
+# dm+d downloads
+TRUD_API_KEY=dummy-key

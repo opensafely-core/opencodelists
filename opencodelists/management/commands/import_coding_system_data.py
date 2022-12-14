@@ -36,7 +36,7 @@ class Command(BaseCommand):
         parser.add_argument(
             "coding_system_id", help="Coding system id", choices=coding_system_choices()
         )
-        parser.add_argument("release_dir")
+        parser.add_argument("release_dir", help="Path to release directory or file")
         parser.add_argument(
             "--release", dest="release_name", help="Release name", required=True
         )
@@ -60,6 +60,12 @@ class Command(BaseCommand):
             action="store_true",
             help="Skip checking compatibility of existing codelist versions",
         )
+        parser.add_argument(
+            "--latest",
+            action="store_true",
+            help="Import the latest release (dmd only)",
+            default=False,
+        )
 
     def handle(
         self,
@@ -70,8 +76,13 @@ class Command(BaseCommand):
         import_ref,
         force,
         skip_compatibility_check,
+        latest,
         **kwargs,
     ):
+        if latest:
+            if coding_system_id != "dmd":
+                raise ValueError("--latest is only available for dmd imports")
+
         if (
             CodingSystemRelease.objects.filter(
                 coding_system=coding_system_id,
@@ -89,13 +100,16 @@ class Command(BaseCommand):
 
         mod = import_module(f"coding_systems.{coding_system_id}.import_data")
         fn = getattr(mod, "import_data")
-        fn(
-            release_dir,
+        import_kwargs = dict(
             release_name=release_name,
             valid_from=valid_from,
             import_ref=import_ref,
             check_compatibility=not skip_compatibility_check,
         )
+        if latest:
+            import_kwargs["latest"] = latest
+
+        fn(release_dir, **import_kwargs)
         self.stdout.write(
             "\n*** APP RESTART REQUIRED ***\n"
             "Import complete; run `dokku ps:restart opencodelists` to restart the app"

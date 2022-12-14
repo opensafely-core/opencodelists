@@ -292,3 +292,6 @@ EMAIL_BACKEND = env.str(
 )
 DEFAULT_FROM_EMAIL = "no-reply@opencodelists.org"
 SERVER_EMAIL = "tech@opensafely.org"
+
+# API key for dm+d imports
+TRUD_API_KEY = env.str("TRUD_API_KEY")

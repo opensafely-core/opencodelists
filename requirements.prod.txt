@@ -75,9 +75,9 @@ django==4.1.3 \
     #   django-structlog
     #   django-taggit
     #   djangorestframework
-django-anymail[mailgun]==8.6 \
-    --hash=sha256:49d83d7c16316ca86a624097496881d59b7d71b16bf1c5211cffa5b19ef98d0c \
-    --hash=sha256:783342d49dd07d68778b81dd12a94c86e1d217463a68a85450a0513fabe31345
+django-anymail[mailgun]==9.0 \
+    --hash=sha256:4239f7c61fb77b6eb8c8591a317a84a2a78f6bce1f8f42847921de74194b5d8a \
+    --hash=sha256:c21d94ffdbada613a85c22a7bf32e37447d2811e1688cd001d3cad3c7f1ff289
     # via -r requirements.prod.in
 django-cache-url==3.4.2 \
     --hash=sha256:6cc9901a99a99751f5458aa7de08ce06e48c1441b1a94c9457d78af74fab9a26 \

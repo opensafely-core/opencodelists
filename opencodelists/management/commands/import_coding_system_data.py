@@ -11,7 +11,7 @@ from coding_systems.versioning.models import CodingSystemRelease
 
 def valid_from(input_date):
     try:
-        return datetime.strptime(input_date, "%Y-%m-%d")
+        return datetime.strptime(input_date, "%Y-%m-%d").date()
     except ValueError:
         raise argparse.ArgumentTypeError(f"Not a valid date (YYYY-MM-DD): {input_date}")
 

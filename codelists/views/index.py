@@ -22,11 +22,8 @@ def index(request, organisation_slug=None, status=Status.PUBLISHED):
         handles = handles.filter(organisation=organisation)
     else:
         organisation = None
-        # For now, we only want to show codelists that were created as part of the
-        # OpenSAFELY organisation.
-        handles = handles.filter(
-            organisation_id__in=["opensafely", "primis-covid19-vacc-uptake"]
-        )
+        # For now, we only want to show codelists that come from organisations.
+        handles = handles.filter(organisation_id__isnull=False)
 
     handles = handles.order_by("name")
 

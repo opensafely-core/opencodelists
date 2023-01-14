@@ -11,3 +11,4 @@ htmlcov
 node_modules
 static/dist/js
 staticfiles/
+__snapshots__/

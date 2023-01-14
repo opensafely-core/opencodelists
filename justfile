@@ -78,6 +78,8 @@ devenv: _env prodenv requirements-dev && install-precommit
     $PIP install -r requirements.dev.txt
     touch $VIRTUAL_ENV/.dev
 
+    test -f $VIRTUAL_ENV/.playwright || $BIN/playwright install && touch $VIRTUAL_ENV/.playwright
+
 
 # ensure precommit is installed
 install-precommit:
@@ -95,10 +97,11 @@ upgrade env package="": virtualenv
 
 
 # *ARGS is variadic, 0 or more. This allows us to do `just test -k match`, for example.
-# Run the python tests
+# Run the python unit tests
 test-py *ARGS: devenv
     $BIN/python manage.py collectstatic --no-input && \
     $BIN/python -m pytest \
+    -k "not e2e" \
     --cov=builder \
     --cov=codelists \
     --cov=coding_systems \
@@ -112,8 +115,18 @@ test-js: npm-install
     npm run test
 
 
+# Run the e2e tests
+test-e2e *ARGS: devenv
+    $BIN/python -m pytest e2e_tests -k e2e {{ ARGS }}
+
+
+# Run the e2e tests
+update-screenshots: devenv
+    $BIN/python -m pytest e2e_tests  --update-screenshots
+
+
 # Run all the tests
-test: test-js test-py
+test: test-js test-py test-e2e
 
 # runs the format (black), sort (isort) and lint (flake8) but does not change any files
 check: devenv
@@ -186,6 +199,11 @@ docker-test-py *args="": _env
 # run js tests in docker container
 docker-test-js:
     {{ just_executable() }} docker/test-js
+
+
+# run e2e tests in docker container
+docker-test-e2e: _env
+    {{ just_executable() }} docker/test-e2e
 
 
 # run tests in docker container

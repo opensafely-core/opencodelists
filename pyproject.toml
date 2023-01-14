@@ -27,3 +27,7 @@ addopts = "--tb=native --ignore=node_modules --no-migrations"
 filterwarnings = [
     "ignore::django.utils.deprecation.RemovedInDjango50Warning:rest_framework"
 ]
+
+markers = [
+    "e2e: marks end-to-end (playwright) tests"
+]

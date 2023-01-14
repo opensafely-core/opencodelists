@@ -8,6 +8,7 @@
 hypothesis
 pytest-cov
 pytest-django
+pytest-playwright
 pytest-subtests
 responses
 

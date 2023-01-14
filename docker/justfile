@@ -41,6 +41,7 @@ check-py: build
 # run tests in docker container
 test-py *args="": copy-assets
     docker-compose run --rm test python -m pytest \
+    -k "not e2e" \
     --cov=builder \
     --cov=codelists \
     --cov=coding_systems \
@@ -52,7 +53,11 @@ test-py *args="": copy-assets
 test-js: copy-assets
     docker-compose run --rm node-assets npm run test
 
-test: test-js test-py
+# run tests in docker container
+test-e2e *args="": copy-assets
+    docker-compose run --rm test python -m pytest -k "e2e" {{ args }}
+
+test: test-js test-py test-e2e
 
 # run dev server in docker container
 serve: copy-assets

@@ -12,3 +12,5 @@ DJANGO_SETTINGS_MODULE="opencodelists.settings"
 PYTHONPATH="/usr/local/bin/python"
 # dm+d downloads
 TRUD_API_KEY=dummy-key
+# needed for e2e testing with playwright; not for prod
+DJANGO_ALLOW_ASYNC_UNSAFE=1

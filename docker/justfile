@@ -53,11 +53,7 @@ test-py *args="": copy-assets
 test-js: copy-assets
     docker-compose run --rm node-assets npm run test
 
-# run tests in docker container
-test-e2e *args="": copy-assets
-    docker-compose run --rm test python -m pytest -k "e2e" {{ args }}
-
-test: test-js test-py test-e2e
+test: test-js test-py
 
 # run dev server in docker container
 serve: copy-assets

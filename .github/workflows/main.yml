@@ -76,13 +76,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: extractions/setup-just@aa5d15c144db4585980a44ebfdd2cf337c4f14cb  # v1.4.0
+      - uses: actions/checkout@v3
+      - uses: opensafely-core/setup-action@v1
+        with:
+          install-just: true
+          python-version: "3.8"
 
-      - name: Build docker image and run e2e tests in it
-        run: |
-          # build docker and run test
-          just docker-test-e2e
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '16.10.0'
+
+      - name: Run e2e tests
+        run: just test-e2e
 
   deploy:
     needs: [check-py, check-js, test-py, test-js, test-e2e, lint-dockerfile]

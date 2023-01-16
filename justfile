@@ -78,7 +78,7 @@ devenv: _env prodenv requirements-dev && install-precommit
     $PIP install -r requirements.dev.txt
     touch $VIRTUAL_ENV/.dev
 
-    test -f $VIRTUAL_ENV/.playwright || $BIN/playwright install && touch $VIRTUAL_ENV/.playwright
+    test -f $VIRTUAL_ENV/.playwright || $BIN/playwright install --with-deps chromium && touch $VIRTUAL_ENV/.playwright
 
 
 # ensure precommit is installed
@@ -116,7 +116,7 @@ test-js: npm-install
 
 
 # Run the e2e tests
-test-e2e *ARGS: devenv
+test-e2e *ARGS: npm-install-no-fnm devenv
     $BIN/python -m pytest e2e_tests -k e2e {{ ARGS }}
 
 
@@ -168,6 +168,12 @@ npm-install: check-fnm
     npm run build-dev
 
 
+# install all JS dependencies without fnm (for CI)
+npm-install-no-fnm:
+    npm ci
+    npm run build-dev
+
+
 check-fnm:
     #!/usr/bin/env bash
     if ! which fnm >/dev/null; then
@@ -199,11 +205,6 @@ docker-test-py *args="": _env
 # run js tests in docker container
 docker-test-js:
     {{ just_executable() }} docker/test-js
-
-
-# run e2e tests in docker container
-docker-test-e2e: _env
-    {{ just_executable() }} docker/test-e2e
 
 
 # run tests in docker container

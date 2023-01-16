@@ -161,7 +161,5 @@ COPY requirements.dev.txt /tmp/requirements.dev.txt
 # hadolint ignore=DL3042
 RUN --mount=type=cache,target=/root/.cache \
     python -m pip install --require-hashes --requirement /tmp/requirements.dev.txt
-# install playwright for e2e tests
-RUN python -m playwright install --with-deps chromium
 # Override ENTRYPOINT rather than CMD so we can pass arbitrary commands to the entrypoint script
 ENTRYPOINT ["/app/docker/entrypoints/dev.sh"]

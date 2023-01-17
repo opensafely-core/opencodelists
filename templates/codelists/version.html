@@ -13,7 +13,9 @@
 
 <div class="row">
   <div class="col-md-3 col-lg-2">
-    <div class="btn-group-vertical btn-block" role="group">
+    <form method="POST" action={{ clv.get_dmd_convert_url }}>
+      {% csrf_token %}
+      <div class="btn-group-vertical btn-block" role="group">
       <a
         href="{{ clv.get_download_url }}"
         role="button"
@@ -31,15 +33,26 @@
       </a>
       {% endif %}
       {% if clv.coding_system_id == "bnf" %}
-      <a
-        href="{{ clv.get_dmd_download_url }}"
-        role="button"
-        class="btn btn-outline-primary btn-block"
-      >
-        Download dm+d
-      </a>
+        <a
+          href="{{ clv.get_dmd_download_url }}"
+          role="button"
+          class="btn btn-outline-primary btn-block"
+        >
+          Download dm+d
+        </a>
+        {% if user_can_edit %}
+          <button
+            type="submit"
+            role="button"
+            class="btn btn-outline-primary btn-block"
+            data-toggle="tooltip"
+            title="Convert this version to a new dm+d codelist">
+            Convert to dm+d
+          </button>
+        {% endif %}
       {% endif %}
     </div>
+    </form
     <hr />
 
     <dl>

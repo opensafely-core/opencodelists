@@ -59,6 +59,7 @@ for subpath, view in [
     ("<codelist_slug>/<tag_or_hash>/download.csv", views.version_download),
     ("<codelist_slug>/<tag_or_hash>/definition.csv", views.version_download_definition),
     ("<codelist_slug>/<tag_or_hash>/dmd-download.csv", views.version_dmd_download),
+    ("<codelist_slug>/<tag_or_hash>/dmd-convert", views.version_dmd_convert),
 ]:
     urlpatterns.append(
         path(

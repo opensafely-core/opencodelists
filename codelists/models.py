@@ -329,6 +329,12 @@ class CodelistVersion(models.Model):
             kwargs=self.url_kwargs,
         )
 
+    def get_dmd_convert_url(self):
+        return reverse(
+            f"codelists:{self.codelist_type}_version_dmd_convert",
+            kwargs=self.url_kwargs,
+        )
+
     def get_create_url(self):
         return reverse(
             f"codelists:{self.codelist_type}_version_create", kwargs=self.url_kwargs

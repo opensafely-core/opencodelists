@@ -1,8 +1,9 @@
+import csv
 from io import StringIO
 
 from django.core.management import call_command
 
-from codelists.models import CodeObj
+from codelists.models import CodeObj, Handle
 
 
 def output_from_call_command(command, *args):
@@ -225,3 +226,65 @@ def test_update_draft_codeset_replaced_code(minimal_draft):
     # of its parent 35185008
 
     assert minimal_draft.codeset.code_to_status == initial_code_to_status
+
+
+def test_convert_bnf_versions_to_dmd(
+    bnf_version_asthma, bnf_version_with_search, tmp_path
+):
+    # setup csv input data with URLs for the two bnf versions, and two bad urls
+    with open(tmp_path / "bnf_versions_to_convert.csv", "w") as data_f:
+        writer = csv.writer(data_f)
+        writer.writerows(
+            [
+                ["URL"],
+                [bnf_version_asthma.get_absolute_url()],
+                [bnf_version_with_search.get_absolute_url()],
+                ["http://bad-codelist/version/123"],
+                ["http://bad-codelist/version/"],
+            ]
+        )
+
+    call_command(
+        "convert_bnf_versions_to_dmd", tmp_path / "bnf_versions_to_convert.csv"
+    )
+    converted_dmd_codelist = Handle.objects.get(
+        slug=f"{bnf_version_asthma.codelist.slug}-dmd"
+    ).codelist
+
+    report_path = tmp_path / "bnf_versions_to_convert_converted.csv"
+    assert report_path.exists()
+    with open(report_path) as report_f:
+        reader = csv.DictReader(report_f)
+        rows = list(reader)
+
+    assert rows == [
+        # versions are converted in the order they are found in the input CSV
+        # bnf_version_asthma is converted to the new dmd codelist
+        {
+            "BNF version": bnf_version_asthma.get_absolute_url(),
+            "dm+d codelist": converted_dmd_codelist.get_absolute_url(),
+            "created": "True",
+            "comments": "",
+        },
+        # bnf_version_with_search is a version of the same bnf codelist, so it is not converted again
+        {
+            "BNF version": bnf_version_with_search.get_absolute_url(),
+            "dm+d codelist": converted_dmd_codelist.get_absolute_url(),
+            "created": "False",
+            "comments": "already exists",
+        },
+        # the bad URLs are reported as not found, with relevant line number
+        {
+            "BNF version": "http://bad-codelist/version/123",
+            "dm+d codelist": "",
+            "created": "False",
+            "comments": "BNF version not found (input file row 3)",
+        },
+        # the bad URLs are reported as not found, with its relevant line number
+        {
+            "BNF version": "http://bad-codelist/version/",
+            "dm+d codelist": "",
+            "created": "False",
+            "comments": "BNF version not found (input file row 4)",
+        },
+    ]

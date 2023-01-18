@@ -497,7 +497,6 @@
       "release_name": "test",
       "valid_from": "2020-01-01"
     },
-    "compatible_releases": [],
     "organisation_name": "Test University",
     "codelist_full_slug": "test-university/new-style-codelist",
     "hash": "6f08ccac"

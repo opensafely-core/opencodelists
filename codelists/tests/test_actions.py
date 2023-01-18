@@ -4,6 +4,7 @@ from django.db import IntegrityError
 from codelists import actions
 from codelists.coding_systems import most_recent_database_alias
 from codelists.models import Codelist, CodelistVersion
+from mappings.bnfdmd.models import Mapping as BnfDmdMapping
 from opencodelists.tests.assertions import assert_difference, assert_no_difference
 
 
@@ -520,3 +521,49 @@ def test_add_codelist_tag(codelist):
     actions.add_codelist_tag(codelist=codelist, tag="TAG")
 
     assert Codelist.objects.get(tags__name="TAG") == codelist
+
+
+def test_convert_bnf_codelist_version_to_dmd(bnf_version_asthma, dmd_bnf_mapping_data):
+    assert len(bnf_version_asthma.codes) == 3
+    # dmd_data contains mappings for the 2 dmd VMPs
+    assert BnfDmdMapping.objects.count() == 2
+
+    dmd_codelist = actions.convert_bnf_codelist_version_to_dmd(bnf_version_asthma)
+    # New dmd codelist is created with "-dmd" appended to name and slug
+    assert dmd_codelist.coding_system_id == "dmd"
+    assert dmd_codelist.name == f"{bnf_version_asthma.codelist.name} - dmd"
+    assert dmd_codelist.slug == f"{bnf_version_asthma.codelist.slug}-dmd"
+    # References are duplicated from the original
+    assert dmd_codelist.references.count() == 2
+    assert {
+        (ref.text, ref.url) for ref in bnf_version_asthma.codelist.references.all()
+    } == {(ref.text, ref.url) for ref in dmd_codelist.references.all()}
+    # original version url in methodology
+    assert bnf_version_asthma.get_absolute_url() in dmd_codelist.methodology
+
+    assert dmd_codelist.versions.count() == 1
+    dmd_version = dmd_codelist.versions.first()
+
+    # status is under review by default
+    assert dmd_version.status == "under review"
+    assert dmd_version.csv_data == (
+        "dmd_type,dmd_id,dmd_name,bnf_code\n"
+        "VMP,10514511000001106,Adrenaline (base) 220micrograms/dose inhaler,0301012A0AAABAB\n"
+        "VMP,10525011000001107,Adrenaline (base) 220micrograms/dose inhaler refill,0301012A0AAACAC\n"
+    )
+
+
+def test_cannot_convert_non_bnf_codelist_to_dmd(version):
+    assert version.coding_system_id == "snomedct"
+    with pytest.raises(AssertionError):
+        actions.convert_bnf_codelist_version_to_dmd(version)
+
+
+def test_cannot_create_duplicate_converted_dmd_codelist(
+    bnf_version_asthma, dmd_bnf_mapping_data
+):
+    # convert once to create the new codelist
+    actions.convert_bnf_codelist_version_to_dmd(bnf_version_asthma)
+    # attempt to convert again
+    with pytest.raises(IntegrityError):
+        actions.convert_bnf_codelist_version_to_dmd(bnf_version_asthma)

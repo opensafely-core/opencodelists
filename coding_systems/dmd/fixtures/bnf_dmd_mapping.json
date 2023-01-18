@@ -1,0 +1,20 @@
+[
+{
+    "model": "bnfdmd.mapping",
+    "pk": 1,
+    "fields": {
+        "dmd_code": "10514511000001106",
+        "dmd_type": "VMP",
+        "bnf_concept": "0301012A0AAABAB"
+    }
+},
+{
+    "model": "bnfdmd.mapping",
+    "pk": 2,
+    "fields": {
+        "dmd_code": "10525011000001107",
+        "dmd_type": "VMP",
+        "bnf_concept": "0301012A0AAACAC"
+    }
+}
+]

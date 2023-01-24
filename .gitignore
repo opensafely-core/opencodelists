@@ -12,3 +12,4 @@ node_modules
 static/dist/js
 staticfiles/
 __snapshots__/
+e2e_tests/context_state.json

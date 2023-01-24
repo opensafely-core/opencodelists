@@ -11,6 +11,7 @@ database_aliases = {
     "icd10_test_20200101",
     "ctv3_test_20200101",
     "bnf_test_20200101",
+    "snomedct_version-xx_20221101",
 }
 TestCase.databases = database_aliases
 

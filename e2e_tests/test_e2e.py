@@ -4,6 +4,8 @@ from pathlib import Path
 import pytest
 from playwright.sync_api import expect
 
+pytestmark = pytest.mark.e2e
+
 SCREENSHOT_DIR = Path(__file__).parent / "screenshots"
 
 

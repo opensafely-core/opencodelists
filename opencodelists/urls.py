@@ -36,6 +36,7 @@ urlpatterns = [
     path("accounts/register/", views.register, name="register"),
     path("builder/", include("builder.urls")),
     path("conversions/", include("conversions.urls")),
+    path("coding-systems/", include("coding_systems.versioning.urls")),
     path("docs/", include("userdocs.urls")),
     path("__debug__/", include(debug_toolbar.urls)),
     path("robots.txt", RedirectView.as_view(url=settings.STATIC_URL + "robots.txt")),

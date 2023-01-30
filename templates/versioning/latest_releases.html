@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block title_extra %}: Coding System Releases{% endblock %}
+
+{% block content %}
+
+<h1> Coding System Releases</h1>
+
+{% for coding_system_release in latest_releases %}
+    <h4>{{ coding_system_release.name }}</h4>
+    <ul>
+        <li>Latest release: {{ coding_system_release.release_name }}</li>
+        <li>Valid from: {{ coding_system_release.release.valid_from }}
+        <li>Imported on: {{ coding_system_release.release.import_timestamp }}
+    </ul>
+
+{% endfor %}
+
+{% endblock %}

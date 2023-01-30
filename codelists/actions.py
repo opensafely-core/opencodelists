@@ -538,8 +538,6 @@ def convert_codelist_to_new_style(*, codelist):
 @transaction.atomic
 def export_to_builder(*, version, author, coding_system_database_alias):
     """Create a new CodelistVersion for editing in the builder."""
-    # Fetch the coding system for the requested version, or the most recent one, if
-    # no version is specified
     new_coding_system = version.coding_system.get_by_release(
         coding_system_database_alias
     )

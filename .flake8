@@ -1,11 +1,15 @@
 [flake8]
 exclude = .direnv,.venv,venv,coding_systems/snomedct/parser_utils/*
-extend-select = \
-    W504  # match black&PEP8 putting binary operators after new lines
-ignore = \
-    E203 \ # whitespace before : (black disagrees)
-    E501 \ # line too long (black fixes long lines, except for long strings which may benefit from being long (eg URLs))
-    W503   # line break before binary operator (black disagrees)
+extend-select =
+    # match black&PEP8 putting binary operators after new lines
+    W504
+ignore =
+    # whitespace before : (black disagrees)
+    E203,
+    # line too long (black fixes long lines, except for long strings which may benefit from being long (eg URLs))
+    E501,
+    # line break before binary operator (black disagrees)
+    W503
 per-file-ignores =
     codelists/views/__init__.py:F401
     opencodelists/views/__init__.py:F401

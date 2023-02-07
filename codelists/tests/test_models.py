@@ -135,6 +135,23 @@ def test_old_style_table(old_style_version):
     ]
 
 
+def test_old_style_table_with_fixed_headers(old_style_version):
+    assert old_style_version.table_with_fixed_headers() == [
+        ["code", "term"],
+        ["429554009", "Arthropathy of elbow (disorder)"],
+        ["128133004", "Disorder of elbow (disorder)"],
+        ["202855006", "Lateral epicondylitis (disorder)"],
+        ["439656005", "Arthritis of elbow (disorder)"],
+        ["73583000", "Epicondylitis (disorder)"],
+        ["35185008", "Enthesopathy of elbow region (disorder)"],
+        ["239964003", "Soft tissue lesion of elbow region (disorder)"],
+        [
+            "156659008",
+            "(Epicondylitis &/or tennis elbow) or (golfers' elbow) (disorder)",
+        ],
+    ]
+
+
 def test_old_style_codeset(old_style_version):
     assert old_style_version.codeset.codes() == set(old_style_version.codes)
 

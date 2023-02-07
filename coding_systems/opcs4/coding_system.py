@@ -6,3 +6,4 @@ class CodingSystem(DummyCodingSystem):
     name = "OPCS-4"
     short_name = "OPCS-4"
     root = ""
+    csv_headers = {"code": ["code", "opcs4_or_icd10"], "term": ["term", "description"]}

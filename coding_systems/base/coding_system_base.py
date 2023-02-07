@@ -21,6 +21,27 @@ class BaseCodingSystem(ABC):
     # flag to indicate that this CodingSystem is associated with a real database instance
     has_database = True
 
+    # csv_headers is a dict of possible headers in uploaded csv_data representing the
+    # code and term.  This is used to identify the code/term columns in older codelist
+    # versions and versions uploaded directly from CSV
+    #
+    # Older codelist versions and those created by direct "old-style" CSV upload via
+    # codelists/views/version_upload.py
+    # may contain various headers, which may or may not be valid.
+    # As of https://github.com/opensafely-core/opencodelists/pull/1459, "old-style" CSV
+    # uploads are now validated to check for appropriate code headers, so the only possible
+    # code headers are "code" and "dmd_id" ("dmd_id" is the code header used for BNF to dm+D
+    # CSV downloads). However, we still need to accommodate older codelist versions that predate
+    # this.
+    #
+    # Each CodingSystem inheriting from this base class defines its own set of possible
+    # headers for the code and term fields.
+    #
+    # Note that we do not do any validation of the "term" column when CSV data is uploaded
+    # CodingSystem classes define headers that have been used for this column in the past, but
+    # are not guaranteed to be exhaustive in future.
+    csv_headers = {"code": ["code"], "term": ["term"]}
+
     def __init__(self, database_alias):
         self.database_alias = database_alias
 

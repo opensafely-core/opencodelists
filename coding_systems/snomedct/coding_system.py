@@ -14,6 +14,10 @@ class CodingSystem(BaseCodingSystem):
     name = "SNOMED CT"
     short_name = "SNOMED CT"
     root = "138875005"
+    csv_headers = {
+        "code": ["code", "id", "snomedcode", "dmd_id"],
+        "term": ["term", "long_name", "name", "ethnicity", "dmd_name"],
+    }
 
     def lookup_names(self, codes):
         return {

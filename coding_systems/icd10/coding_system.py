@@ -12,6 +12,10 @@ class CodingSystem(BaseCodingSystem):
     name = "ICD-10"
     short_name = "ICD-10"
     root = ""
+    csv_headers = {
+        "code": ["icd_code", "icd10_code", "code", "icd"],
+        "term": ["term", "description", "name", "diag_desc"],
+    }
 
     def search_by_term(self, term):
         return set(

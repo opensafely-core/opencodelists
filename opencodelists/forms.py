@@ -95,12 +95,8 @@ def validate_csv_data_codes(coding_system, codes):
     # validation for these systems, and just allow upload of the CSV data as it is.
     if not coding_system.has_database:
         return
-
-    unknown_codes_and_ixs = [
-        (ix, code)
-        for ix, code in enumerate(codes)
-        if code not in set(coding_system.lookup_names(codes))
-    ]
+    unknown_codes = set(codes) - set(coding_system.lookup_names(codes))
+    unknown_codes_and_ixs = [(codes.index(code), code) for code in unknown_codes]
 
     if unknown_codes_and_ixs:
         line = unknown_codes_and_ixs[0][0] + 1

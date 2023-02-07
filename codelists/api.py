@@ -101,6 +101,7 @@ def codelists_get(request, owner=None):
                     "tag": version.tag,
                     "full_slug": version.full_slug(),
                     "status": version.status,
+                    "downloadable": version.downloadable,
                 }
             )
 

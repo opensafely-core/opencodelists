@@ -6,6 +6,10 @@ class CodingSystem(BaseCodingSystem):
     id = "dmd"
     name = "Dictionary of Medicines and Devices"
     short_name = "dm+d"
+    csv_headers = {
+        "code": ["dmd_id", "code", "id", "snomed_id", "dmd"],
+        "term": ["term", "dmd_name", "name", "nm", "description"],
+    }
 
     def lookup_names(self, codes):
         # A code is a unique identifier in dm+d which corresponds to a SNOMED-CT code

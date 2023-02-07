@@ -13,6 +13,19 @@ class CodingSystem(BaseCodingSystem):
     name = "CTV3 (Read V3)"
     short_name = "CTV3"
     root = "....."
+    csv_headers = {
+        "code": ["code", "ctv3id", "ctv3code", "ctv3_id", "id"],
+        "term": [
+            "term",
+            "description",
+            "CTV3PreferredTermDesc",
+            "readterm/CTV3PreferredTermDesc",
+            "CTV3_Description",
+            "ctv3_name",
+            "readterm",
+            "ctv3term",
+        ],
+    }
 
     def lookup_names(self, codes):
         return dict(

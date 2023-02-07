@@ -11,6 +11,10 @@ class CodingSystem(BaseCodingSystem):
     name = "Pseudo BNF"
     short_name = "BNF"
     root = ""
+    csv_headers = {
+        "code": ["code"],
+        "term": ["term", "description"],
+    }
 
     def search_by_term(self, term):
         return set(

@@ -471,6 +471,16 @@ class CodelistVersion(models.Model):
         rows.extend([code, code_to_term.get(code, "[Unknown]")] for code in self.codes)
         return rows
 
+    @property
+    def downloadable(self):
+        if self.status == Status.DRAFT:
+            return False
+        if not self.csv_data:
+            return True
+        first_row = {header.lower() for header in self.table[0]}
+        possible_code_headers = set(self.codelist.coding_system_cls.csv_headers["code"])
+        return bool(first_row & possible_code_headers)
+
     @cached_property
     def codes(self):
         if self.csv_data:

@@ -1,6 +1,7 @@
 import pytest
 from django.db.utils import IntegrityError
 
+from builder import actions as builder_actions
 from codelists.models import CodelistVersion, Handle
 
 
@@ -260,3 +261,30 @@ def test_get_latest_published_url_no_published_version(codelist_from_scratch):
         codelist_from_scratch.get_latest_published_url()
         == codelist_from_scratch.get_absolute_url()
     )
+
+
+@pytest.mark.parametrize(
+    "new_code_header,is_downloadable",
+    [
+        ("snomedcode", True),
+        ("SnomedCode", True),
+        ("bnf_code", False),
+    ],
+)
+def test_downloadable(old_style_version, new_code_header, is_downloadable):
+    assert old_style_version.downloadable
+    assert old_style_version.table[0] == ["id", "name"]
+
+    # change code header
+    old_style_version.csv_data = old_style_version.csv_data.replace(
+        "id,name", f"{new_code_header},name"
+    )
+    old_style_version.save()
+
+    assert old_style_version.downloadable == is_downloadable
+
+
+def test_draft_is_not_downloadable(draft_with_no_searches):
+    assert draft_with_no_searches.downloadable is False
+    builder_actions.save(draft=draft_with_no_searches)
+    assert draft_with_no_searches.downloadable is True

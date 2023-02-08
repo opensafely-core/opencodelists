@@ -1,4 +1,5 @@
 import csv
+import operator
 from io import StringIO
 
 from crispy_forms.helper import FormHelper
@@ -95,12 +96,11 @@ def validate_csv_data_codes(coding_system, codes):
     # validation for these systems, and just allow upload of the CSV data as it is.
     if not coding_system.has_database:
         return
-
-    unknown_codes_and_ixs = [
-        (ix, code)
-        for ix, code in enumerate(codes)
-        if code not in set(coding_system.lookup_names(codes))
-    ]
+    unknown_codes = set(codes) - set(coding_system.lookup_names(codes))
+    unknown_codes_and_ixs = sorted(
+        [(codes.index(code), code) for code in unknown_codes],
+        key=operator.itemgetter(0),
+    )
 
     if unknown_codes_and_ixs:
         line = unknown_codes_and_ixs[0][0] + 1
@@ -109,7 +109,8 @@ def validate_csv_data_codes(coding_system, codes):
             msg = f"CSV file contains 1 unknown code ({code}) on line {line}"
         else:
             num = len(unknown_codes_and_ixs)
-            msg = f"CSV file contains {num} unknown code -- the first ({code}) is on line {line}"
+            suffix = "" if num == 1 else "s"
+            msg = f"CSV file contains {num} unknown code{suffix} -- the first ({code}) is on line {line}"
         msg += f" ({coding_system.short_name} release {coding_system.release_name}, valid from {coding_system.release.valid_from})"
         raise forms.ValidationError(msg)
 

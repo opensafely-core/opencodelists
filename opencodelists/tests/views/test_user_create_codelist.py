@@ -112,6 +112,33 @@ def test_post_invalid_with_csv(client, organisation_user):
     assert b"CSV file contains 1 unknown code (256307007) on line 1" in response.content
 
 
+def test_post_invalid_with_csv_multiple_bad_codes(
+    client, organisation_user, disorder_of_elbow_csv_data_no_header
+):
+    client.force_login(organisation_user)
+    # Add an invalid entries at line 3, 7, 9; 11 rows in total
+    csv_data_rows = disorder_of_elbow_csv_data_no_header.strip("\r\n").split("\r\n")
+    for i in [2, 6, 8]:
+        csv_data_rows.insert(i, f"256307007{i},Banana (substance)")
+    assert len(csv_data_rows) == 11
+    csv_data = "\r\n".join(csv_data_rows)
+
+    data = {
+        "name": "Test",
+        "coding_system_id": "snomedct",
+        "owner": "user:bob",
+        "csv_data": csv_builder(csv_data),
+    }
+
+    with assert_no_difference(Codelist.objects.count):
+        response = client.post("/users/bob/new-codelist/", data)
+    # Reports the number of invalid codes and the location of the first one
+    assert (
+        b"CSV file contains 3 unknown codes -- the first (2563070072) is on line 3"
+        in response.content
+    )
+
+
 def test_post_invalid_duplicate_name(client, organisation_user):
     client.force_login(organisation_user)
     data = {

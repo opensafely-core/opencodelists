@@ -514,10 +514,50 @@ class CodelistVersion(models.Model):
     def _new_style_codes(self):
         return tuple(sorted(self.codeset.codes()))
 
-    def csv_data_for_download(self):
+    def csv_data_for_download(self, fixed_headers=False):
         if self.csv_data:
-            return self.csv_data
-        return rows_to_csv_data(self.table)
+            if not fixed_headers:
+                return self.csv_data
+            table = self.table_with_fixed_headers()
+        else:
+            table = self.table
+        return rows_to_csv_data(table)
+
+    def table_with_fixed_headers(self):
+        """
+        Find the code and term columns from csv data (which may be labelled with different
+        headers), and return just those columns with the with the headers "code" and "term".
+        """
+        assert self.downloadable
+        header_row = [header.lower() for header in self.table[0]]
+        # Find the first matching header from the possible code and term column headers for this
+        # codelist's coding system.  These are listed in order of assumed most-to-least likely,
+        # in case of multiple matching headers
+        code_header = next(
+            header
+            for header in self.codelist.coding_system_cls.csv_headers["code"]
+            if header in header_row
+        )
+        term_header = next(
+            (
+                header
+                for header in self.codelist.coding_system_cls.csv_headers["term"]
+                if header in header_row
+            ),
+            None,
+        )
+        # Identify the index for the two columns we want
+        code_header_index = header_row.index(code_header)
+        term_header_index = header_row.index(term_header) if term_header else None
+        # re-write the table data with the new headers, and only the code and term columns
+        table_data = [
+            ["code", "term"],
+            *[
+                [row[code_header_index], row[term_header_index] if term_header else ""]
+                for row in self.table[1:]
+            ],
+        ]
+        return table_data
 
     def definition_csv_data_for_download(self):
         return rows_to_csv_data(present_definition_for_download(self))

@@ -260,9 +260,9 @@ lxml==4.9.1 \
     --hash=sha256:fe17d10b97fdf58155f858606bddb4e037b805a60ae023c009f760d8361a4eb8 \
     --hash=sha256:fe749b052bb7233fe5d072fcb549221a8cb1a16725c47c37e42b0b9cb3ff2c3f
     # via -r requirements.prod.in
-markdown2==2.4.6 \
-    --hash=sha256:528f978beb3dbcf529a139b6c76f6ac6ecf8bb96c131beab751bb095b3873b58 \
-    --hash=sha256:f65b4dbe1e16591b14fd40bc659b8b58d285eab70c1da21f390294fcdec42bb0
+markdown2==2.4.8 \
+    --hash=sha256:7d49ca871d3e0e412c65d7d21fcbc13ae897f7876f3e5f14dd4db3b7fbf27f10 \
+    --hash=sha256:90475aca3d9c8e7df6d70c51de5bbbe9edf7fcf6a380bd1044d321500f5445da
     # via -r requirements.prod.in
 marshmallow==3.18.0 \
     --hash=sha256:35e02a3a06899c9119b785c12a22f4cda361745d66a71ab691fd7610202ae104 \

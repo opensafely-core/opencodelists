@@ -64,6 +64,9 @@ class User(AbstractBaseUser):
     USERNAME_FIELD = "username"
     REQUIRED_FIELDS = ["email"]
 
+    class Meta:
+        ordering = (models.functions.Lower("username"),)
+
     def save(self, *args, **kwargs):
         if not self.username:
             self.username = slugify(self.name)

@@ -4,8 +4,9 @@ import pytest
 from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import SimpleUploadedFile
 
-from codelists.forms import CSVValidationMixin
+from codelists.forms import CSVValidationMixin, SignOffForm
 from coding_systems.versioning.models import CodingSystemRelease, ReleaseState
+from opencodelists.models import User
 
 from .helpers import csv_builder
 
@@ -144,3 +145,43 @@ def test_codelistform_invalid_codes():
         "CSV file contains 1 unknown code (1234) on line 1 "
         "(BNF release test, valid from 2020-01-01)"
     )
+
+
+def test_signoff_form_ordered_by_username(
+    organisation_admin,
+    organisation_user,
+    collaborator,
+    user_without_organisation,
+    inactive_user,
+):
+    # Usernames are:
+    # organisation_admin: alice
+    # organisation_user: bob
+    # collaborator: charlie
+    # user_without_organisation: dave
+    # inactive_user: eve
+
+    # Ordering of users in SignOffForm is by (case insensitive) username
+    User.objects.create_user(
+        username="Fred",
+        password="test",
+        email="fred@example.co.uk",
+        name="Fred",
+    )
+
+    # ordering just by username puts title case names first
+    assert list(
+        User.objects.all().order_by("username").values_list("username", flat=True)
+    ) == ["Fred", "alice", "bob", "charlie", "dave", "eve"]
+
+    # the signoff form shows them in the model ordering (i.e. case insensitive)
+    form = SignOffForm()
+    user_field_choices = form.fields["user"].queryset
+    assert list(user_field_choices.values_list("username", flat=True)) == [
+        "alice",
+        "bob",
+        "charlie",
+        "dave",
+        "eve",
+        "Fred",
+    ]

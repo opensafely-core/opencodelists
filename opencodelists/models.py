@@ -1,10 +1,17 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.validators import validate_slug
 from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
 
 from codelists.models import Codelist, Status
+
+
+def validate_username(username):
+    validate_slug(username)
+    if User.objects.filter(username__iexact=username).exists():
+        raise ValidationError("A user with this username already exists.")
 
 
 class UserManager(BaseUserManager):
@@ -19,7 +26,6 @@ class UserManager(BaseUserManager):
         """Create and save a User with the given email and password."""
         if not email:
             raise ValueError("The Email must be set")
-
         email = self.normalize_email(email)
         user = self.model(username=username, email=email, **extra_fields)
         user.set_password(password)
@@ -40,6 +46,7 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser):
     username = models.SlugField(
         primary_key=True,
+        validators=[validate_username],
         error_messages={"unique": "A user with this username already exists."},
     )
     name = models.CharField(max_length=255)
@@ -60,7 +67,12 @@ class User(AbstractBaseUser):
     def save(self, *args, **kwargs):
         if not self.username:
             self.username = slugify(self.name)
-
+        # Explicitly validate the username on first save.  This means that the validators will be run
+        # when creating a model instance outside of a form, e.g. in a shell with User.objects.create_user(...)
+        # As the username is a primary key, not enforcing the validators means that we
+        # can overwrite an existing user
+        if self._state.adding:
+            validate_username(self.username)
         super().save(*args, **kwargs)
 
     def __str__(self):

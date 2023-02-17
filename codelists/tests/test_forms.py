@@ -152,14 +152,14 @@ def test_signoff_form_ordered_by_username(
     organisation_user,
     collaborator,
     user_without_organisation,
-    inactive_user,
+    user_with_no_api_token,
 ):
     # Usernames are:
     # organisation_admin: alice
     # organisation_user: bob
     # collaborator: charlie
     # user_without_organisation: dave
-    # inactive_user: eve
+    # user_with_no_api_token: eve
 
     # Ordering of users in SignOffForm is by (case insensitive) username
     User.objects.create_user(

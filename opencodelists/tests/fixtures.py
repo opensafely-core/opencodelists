@@ -356,8 +356,8 @@ def build_fixtures():
     )
     set_api_token(user=user_without_organisation)
 
-    # inactive_user
-    inactive_user = User.objects.create_user(
+    # user_with_no_api_token
+    user_with_no_api_token = User.objects.create_user(
         username="eve",
         password="test",
         email="eve@example.co.uk",
@@ -773,7 +773,7 @@ organisation_user = build_fixture("organisation_user")
 collaborator = build_fixture("collaborator")
 user_without_organisation = build_fixture("user_without_organisation")
 user = build_fixture("user")
-inactive_user = build_fixture("inactive_user")
+user_with_no_api_token = build_fixture("user_with_no_api_token")
 old_style_codelist = build_fixture("old_style_codelist")
 old_style_version = build_fixture("old_style_version")
 dmd_codelist = build_fixture("dmd_codelist")

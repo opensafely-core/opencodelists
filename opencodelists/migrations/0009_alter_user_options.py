@@ -7,7 +7,7 @@ import django.db.models.functions.text
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("opencodelists", "0007_auto_20210114_1139"),
+        ("opencodelists", "0008_alter_user_username"),
     ]
 
     operations = [

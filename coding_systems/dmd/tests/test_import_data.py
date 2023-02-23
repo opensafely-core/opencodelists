@@ -145,6 +145,7 @@ def test_get_release_metadata():
         "id": "1",
         "archiveFileName": "nhsbsa_dmd_2.0.0_20220101000001.zip",
         "archiveFileUrl": "https://download/nhsbsa_dmd_2.0.0_20220101000001.zip",
+        "releaseDate": "2022-01-01",
     }
     assert DMDTrudDownloader("").get_release_metadata(release) == {
         "release": "2.0.0",

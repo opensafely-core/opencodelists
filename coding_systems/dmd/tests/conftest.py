@@ -19,7 +19,7 @@ def mock_migrate():
         yield
 
 
-def add_response(rsps, filename):
+def add_response(rsps, filename, release_date):
     rsps.add(
         responses.GET,
         f"https://isd.digital.nhs.uk/trud/api/v1/keys/{settings.TRUD_API_KEY}/items/24/releases",
@@ -30,11 +30,13 @@ def add_response(rsps, filename):
                     "id": "latest",
                     "archiveFileName": filename,
                     "archiveFileUrl": f"https://download/{filename}",
+                    "releaseDate": release_date,
                 },
                 {
                     "id": "1",
                     "archiveFileName": "nhsbsa_dmd_2.0.0_20220101000001.zip",
                     "archiveFileUrl": "https://download/nhsbsa_dmd_2.0.0_20220101000001.zip",
+                    "releaseDate": "2022-01-01",
                 },
             ],
         },
@@ -51,7 +53,7 @@ def mocked_responses():
 @pytest.fixture
 def mock_data_download(mocked_responses):
     filename = "nhsbsa_dmd_1.0.0_20221001000001.zip"
-    add_response(mocked_responses, filename)
+    add_response(mocked_responses, filename, "2022-10-01")
     with patch(
         "coding_systems.dmd.import_data.DMDTrudDownloader.get_file",
         return_value=filename,
@@ -80,7 +82,7 @@ def mock_data_download_error(mocked_responses):
 @pytest.fixture
 def mock_data_download_bad_zip(mocked_responses):
     filename = "nhsbsa_dmd_1.1.0_20221001000001.zip"
-    add_response(mocked_responses, filename)
+    add_response(mocked_responses, filename, "2022-10-01")
     with patch(
         "coding_systems.dmd.import_data.DMDTrudDownloader.get_file",
         return_value=filename,
@@ -91,7 +93,7 @@ def mock_data_download_bad_zip(mocked_responses):
 @pytest.fixture
 def mock_data_download_no_prev_vmp(mocked_responses):
     filename = "nhsbsa_dmd_1.2.0_20221001000001.zip"
-    add_response(mocked_responses, filename)
+    add_response(mocked_responses, filename, "2022-10-01")
     with patch(
         "coding_systems.dmd.import_data.DMDTrudDownloader.get_file",
         return_value=filename,

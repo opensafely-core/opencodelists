@@ -48,12 +48,9 @@ class TrudDownloader:
         if not matches:
             return {}
         matched_groups = matches.groupdict()
-        valid_from = date.fromisoformat(
-            f"{matches['year']}-{matched_groups['month']}-{matched_groups['day']}"
-        )
         release_metadata = {
             "release": matched_groups["release"],
-            "valid_from": valid_from,
+            "valid_from": date.fromisoformat(release["releaseDate"]),
             "url": download_url,
             "filename": filename,
         }

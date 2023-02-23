@@ -113,6 +113,7 @@ def codelists_get(request, owner=None):
                     "full_slug": version.full_slug(),
                     "status": version.status,
                     "downloadable": version.downloadable,
+                    "updated_date": version.updated_at.date(),
                 }
             )
 

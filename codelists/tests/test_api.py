@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 
 from codelists.actions import update_codelist
 from mappings.dmdvmpprevmap.models import Mapping as VmpPrevMapping
@@ -9,6 +10,8 @@ def test_codelists_get(client, organisation):
     rsp = client.get(f"/api/v1/codelist/{organisation.slug}/")
     data = json.loads(rsp.content)
     assert rsp.status_code == 200
+
+    today = datetime.today().date().isoformat()
     assert data["codelists"] == [
         {
             "full_slug": "test-university/bnf-codelist",
@@ -23,6 +26,7 @@ def test_codelists_get(client, organisation):
                     "full_slug": "test-university/bnf-codelist/69a34cc0",
                     "status": "published",
                     "downloadable": True,
+                    "updated_date": today,
                 },
                 {
                     "hash": "5093d98b",
@@ -30,6 +34,7 @@ def test_codelists_get(client, organisation):
                     "full_slug": "test-university/bnf-codelist/5093d98b",
                     "status": "draft",
                     "downloadable": False,
+                    "updated_date": today,
                 },
             ],
         },
@@ -46,6 +51,7 @@ def test_codelists_get(client, organisation):
                     "full_slug": "test-university/codelist-from-scratch/6c560cb6",
                     "status": "draft",
                     "downloadable": False,
+                    "updated_date": today,
                 }
             ],
         },
@@ -62,6 +68,7 @@ def test_codelists_get(client, organisation):
                     "full_slug": "test-university/dmd-codelist/34d1a660",
                     "status": "under review",
                     "downloadable": True,
+                    "updated_date": today,
                 },
                 {
                     "hash": "1bc2332b",
@@ -69,6 +76,7 @@ def test_codelists_get(client, organisation):
                     "full_slug": "test-university/dmd-codelist/1bc2332b",
                     "status": "under review",
                     "downloadable": True,
+                    "updated_date": today,
                 },
                 {
                     "hash": "02b2bff6",
@@ -76,6 +84,7 @@ def test_codelists_get(client, organisation):
                     "full_slug": "test-university/dmd-codelist/02b2bff6",
                     "status": "under review",
                     "downloadable": True,
+                    "updated_date": today,
                 },
             ],
         },
@@ -92,6 +101,7 @@ def test_codelists_get(client, organisation):
                     "full_slug": "test-university/minimal-codelist/2127b317",
                     "status": "published",
                     "downloadable": True,
+                    "updated_date": today,
                 },
                 {
                     "hash": "08183fe2",
@@ -99,6 +109,7 @@ def test_codelists_get(client, organisation):
                     "full_slug": "test-university/minimal-codelist/08183fe2",
                     "status": "draft",
                     "downloadable": False,
+                    "updated_date": today,
                 },
             ],
         },
@@ -115,6 +126,7 @@ def test_codelists_get(client, organisation):
                     "full_slug": "test-university/new-style-codelist/37846656",
                     "status": "published",
                     "downloadable": True,
+                    "updated_date": today,
                 },
                 {
                     "hash": "1e74f321",
@@ -122,6 +134,7 @@ def test_codelists_get(client, organisation):
                     "full_slug": "test-university/new-style-codelist/1e74f321",
                     "status": "under review",
                     "downloadable": True,
+                    "updated_date": today,
                 },
                 {
                     "hash": "05657fec",
@@ -129,6 +142,7 @@ def test_codelists_get(client, organisation):
                     "full_slug": "test-university/new-style-codelist/05657fec",
                     "status": "under review",
                     "downloadable": True,
+                    "updated_date": today,
                 },
             ],
         },
@@ -145,6 +159,7 @@ def test_codelists_get(client, organisation):
                     "full_slug": "test-university/old-style-codelist/66f08cca",
                     "status": "under review",
                     "downloadable": True,
+                    "updated_date": today,
                 },
                 {
                     "hash": "4de11995",
@@ -152,6 +167,7 @@ def test_codelists_get(client, organisation):
                     "full_slug": "test-university/old-style-codelist/4de11995",
                     "status": "under review",
                     "downloadable": True,
+                    "updated_date": today,
                 },
             ],
         },

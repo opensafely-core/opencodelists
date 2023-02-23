@@ -1,5 +1,4 @@
 from datetime import date
-from pathlib import Path
 from unittest.mock import patch
 
 from coding_systems.conftest import mock_migrate_coding_system
@@ -7,12 +6,10 @@ from coding_systems.snomedct.import_data import import_data
 from coding_systems.snomedct.models import Concept
 from coding_systems.versioning.models import CodingSystemRelease
 
-MOCK_SNOMEDCT_IMPORT_DATA_PATH = (
-    Path(__file__).parents[1] / "fixtures" / "import_resources" / "snomed.zip"
-)
+from .conftest import MOCK_SNOMEDCT_IMPORT_DATA_PATH
 
 
-def test_import_data(coding_systems_tmp_path, settings):
+def test_import_data(coding_systems_tmp_path, mock_data_download, settings):
 
     cs_release_count = CodingSystemRelease.objects.count()
 
@@ -32,18 +29,17 @@ def test_import_data(coding_systems_tmp_path, settings):
     ):
         import_data(
             str(MOCK_SNOMEDCT_IMPORT_DATA_PATH),
-            release_name="release SnomedCT 1",
-            valid_from=date(2022, 10, 1),
-            import_ref="Ref",
+            release_name="2.0.0",
+            valid_from=date(2023, 1, 1),
         )
 
     # A new CodingSystemRelease has been created
     assert CodingSystemRelease.objects.count() == cs_release_count + 1
     cs_release = CodingSystemRelease.objects.latest("id")
     assert cs_release.coding_system == "snomedct"
-    assert cs_release.release_name == "release SnomedCT 1"
-    assert cs_release.valid_from == date(2022, 10, 1)
-    assert cs_release.import_ref == "Ref"
+    assert cs_release.release_name == "2.0.0"
+    assert cs_release.valid_from == date(2023, 1, 1)
+    assert cs_release.import_ref == "uk_sct2cl_2.0.0_20230101000001Z.zip"
 
     assert cs_release.database_alias in settings.DATABASES
     concepts = Concept.objects.using(cs_release.database_alias).all()

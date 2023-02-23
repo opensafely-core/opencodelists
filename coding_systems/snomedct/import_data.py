@@ -1,5 +1,6 @@
 import csv
 import datetime
+import re
 import sqlite3
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -9,15 +10,43 @@ import structlog
 from django.db import connections
 
 from coding_systems.base.import_data_utils import CodingSystemImporter
+from coding_systems.base.trud_utils import TrudDownloader
 
 from .models import Concept, Description, Relationship
 
 logger = structlog.get_logger()
 
 
+class SnomedctTrudDownloader(TrudDownloader):
+
+    item_number = 101
+    # snomedct release files are in the format uk_sct2cl_35.5.0_20230215000001Z.zip
+    # where the release name is 35.5.0
+    # The release date is found in the metadata and is not usually identical to the date
+    # in the file
+    release_regex = re.compile(r"^uk_sct2cl_(?P<release>\d+\.\d+\.\d+)_20\d{12}Z\.zip$")
+    coding_system_id = "snomedct"
+
+
 def import_data(
-    release_zipfile, release_name, valid_from, import_ref=None, check_compatibility=True
+    release_dir,
+    release_name,
+    valid_from,
+    latest=False,
+    import_ref=None,
+    check_compatibility=True,
 ):
+    downloader = SnomedctTrudDownloader(release_dir)
+    release_zipfile_path = downloader.download_release(release_name, valid_from, latest)
+    import_release(
+        release_zipfile_path, release_name, valid_from, import_ref, check_compatibility
+    )
+
+
+def import_release(
+    release_zipfile, release_name, valid_from, import_ref, check_compatibility
+):
+    import_ref = import_ref or release_zipfile.name
 
     with CodingSystemImporter(
         "snomedct", release_name, valid_from, import_ref, check_compatibility

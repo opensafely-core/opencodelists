@@ -63,7 +63,7 @@ class Command(BaseCommand):
         parser.add_argument(
             "--latest",
             action="store_true",
-            help="Import the latest release (dmd only)",
+            help="Download only if is the latest release (dmd and snomedct only)",
             default=False,
         )
 
@@ -80,7 +80,7 @@ class Command(BaseCommand):
         **kwargs,
     ):
         if latest:
-            if coding_system_id != "dmd":
+            if coding_system_id not in ["dmd", "snomedct"]:
                 raise ValueError("--latest is only available for dmd imports")
 
         if (

@@ -41,6 +41,7 @@ def codelists_get(request, owner=None):
 
         * coding_system_id
         * tag
+        * include-users
 
     Eg:
 
@@ -56,12 +57,18 @@ def codelists_get(request, owner=None):
                     "hash": "66f08cca",
                     "tag": "2020-04-15",
                     "full_slug": "opensafely/asthma-diagnosis/2020-04-15",
-                    "status": "published"
+                    "status": "published",
+                    "downloadable": True,
+                    "updated_date": "2020-04-15"
                 }
             ]
         },
         ...
     ]
+
+    Note "downloadable" for a codelist version means that the version is either under review or
+    published, and it contains an identifiable code column in the csv data available for
+    download. This is important for use with OpenSAFELY Interactive.
 
     May 2022: The only known production usage of this endpoint is OpenSAFELY Interactive.
     """

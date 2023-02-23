@@ -1,5 +1,7 @@
 import json
+from datetime import datetime
 
+from codelists.actions import update_codelist
 from mappings.dmdvmpprevmap.models import Mapping as VmpPrevMapping
 from opencodelists.tests.assertions import assert_difference, assert_no_difference
 
@@ -8,6 +10,8 @@ def test_codelists_get(client, organisation):
     rsp = client.get(f"/api/v1/codelist/{organisation.slug}/")
     data = json.loads(rsp.content)
     assert rsp.status_code == 200
+
+    today = datetime.today().date().isoformat()
     assert data["codelists"] == [
         {
             "full_slug": "test-university/bnf-codelist",
@@ -22,6 +26,7 @@ def test_codelists_get(client, organisation):
                     "full_slug": "test-university/bnf-codelist/69a34cc0",
                     "status": "published",
                     "downloadable": True,
+                    "updated_date": today,
                 },
                 {
                     "hash": "5093d98b",
@@ -29,6 +34,7 @@ def test_codelists_get(client, organisation):
                     "full_slug": "test-university/bnf-codelist/5093d98b",
                     "status": "draft",
                     "downloadable": False,
+                    "updated_date": today,
                 },
             ],
         },
@@ -45,6 +51,7 @@ def test_codelists_get(client, organisation):
                     "full_slug": "test-university/codelist-from-scratch/6c560cb6",
                     "status": "draft",
                     "downloadable": False,
+                    "updated_date": today,
                 }
             ],
         },
@@ -61,6 +68,7 @@ def test_codelists_get(client, organisation):
                     "full_slug": "test-university/dmd-codelist/34d1a660",
                     "status": "under review",
                     "downloadable": True,
+                    "updated_date": today,
                 },
                 {
                     "hash": "1bc2332b",
@@ -68,6 +76,7 @@ def test_codelists_get(client, organisation):
                     "full_slug": "test-university/dmd-codelist/1bc2332b",
                     "status": "under review",
                     "downloadable": True,
+                    "updated_date": today,
                 },
                 {
                     "hash": "02b2bff6",
@@ -75,6 +84,7 @@ def test_codelists_get(client, organisation):
                     "full_slug": "test-university/dmd-codelist/02b2bff6",
                     "status": "under review",
                     "downloadable": True,
+                    "updated_date": today,
                 },
             ],
         },
@@ -91,6 +101,7 @@ def test_codelists_get(client, organisation):
                     "full_slug": "test-university/minimal-codelist/2127b317",
                     "status": "published",
                     "downloadable": True,
+                    "updated_date": today,
                 },
                 {
                     "hash": "08183fe2",
@@ -98,6 +109,7 @@ def test_codelists_get(client, organisation):
                     "full_slug": "test-university/minimal-codelist/08183fe2",
                     "status": "draft",
                     "downloadable": False,
+                    "updated_date": today,
                 },
             ],
         },
@@ -114,6 +126,7 @@ def test_codelists_get(client, organisation):
                     "full_slug": "test-university/new-style-codelist/37846656",
                     "status": "published",
                     "downloadable": True,
+                    "updated_date": today,
                 },
                 {
                     "hash": "1e74f321",
@@ -121,6 +134,7 @@ def test_codelists_get(client, organisation):
                     "full_slug": "test-university/new-style-codelist/1e74f321",
                     "status": "under review",
                     "downloadable": True,
+                    "updated_date": today,
                 },
                 {
                     "hash": "05657fec",
@@ -128,6 +142,7 @@ def test_codelists_get(client, organisation):
                     "full_slug": "test-university/new-style-codelist/05657fec",
                     "status": "under review",
                     "downloadable": True,
+                    "updated_date": today,
                 },
             ],
         },
@@ -144,6 +159,7 @@ def test_codelists_get(client, organisation):
                     "full_slug": "test-university/old-style-codelist/66f08cca",
                     "status": "under review",
                     "downloadable": True,
+                    "updated_date": today,
                 },
                 {
                     "hash": "4de11995",
@@ -151,6 +167,7 @@ def test_codelists_get(client, organisation):
                     "full_slug": "test-university/old-style-codelist/4de11995",
                     "status": "under review",
                     "downloadable": True,
+                    "updated_date": today,
                 },
             ],
         },
@@ -171,8 +188,37 @@ def test_codelists_get_with_coding_system_id(client, organisation):
     assert len(data["codelists"]) == 1
 
 
+def test_codelists_get_exclude_previous_owner(
+    client, organisation, dmd_codelist, another_organisation
+):
+    rsp = client.get(f"/api/v1/codelist/{organisation.slug}/?coding_system_id=dmd")
+    data = json.loads(rsp.content)
+    assert len(data["codelists"]) == 1
+
+    # change the codelist's owner
+    update_codelist(
+        codelist=dmd_codelist,
+        owner=another_organisation,
+        name=dmd_codelist.name,
+        slug=dmd_codelist.slug,
+        description=dmd_codelist.description,
+        methodology=dmd_codelist.methodology,
+        references={},
+        signoffs={},
+    )
+
+    # dmd codelists is still one of the original organisation's codelists
+    assert dmd_codelist in organisation.codelists
+    # but the current owner is another_organisation
+    assert dmd_codelist.owner == another_organisation
+
+    rsp = client.get(f"/api/v1/codelist/{organisation.slug}/?coding_system_id=dmd")
+    data = json.loads(rsp.content)
+    assert len(data["codelists"]) == 0
+
+
 def test_codelists_get_with_no_organisation(client, organisation):
-    rsp = client.get("/api/v1/codelist/?coding_system_id=snomedct")
+    rsp = client.get("/api/v1/codelist/?coding_system_id=snomedct&include-users")
     data = json.loads(rsp.content)
     user_codelists = [
         cl for cl in data["codelists"] if cl["full_slug"].startswith("user")
@@ -184,6 +230,12 @@ def test_codelists_get_with_no_organisation(client, organisation):
 
 def test_codelists_get_with_tag(client, universe):
     rsp = client.get("/api/v1/codelist/?tag=new-style")
+    data = json.loads(rsp.content)
+    assert len(data["codelists"]) == 2
+
+
+def test_codelists_get_with_tag_and_include_users(client, universe):
+    rsp = client.get("/api/v1/codelist/?tag=new-style&include-users")
     data = json.loads(rsp.content)
     assert len(data["codelists"]) == 4
 

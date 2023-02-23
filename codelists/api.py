@@ -41,6 +41,7 @@ def codelists_get(request, owner=None):
 
         * coding_system_id
         * tag
+        * include-users
 
     Eg:
 
@@ -56,12 +57,18 @@ def codelists_get(request, owner=None):
                     "hash": "66f08cca",
                     "tag": "2020-04-15",
                     "full_slug": "opensafely/asthma-diagnosis/2020-04-15",
-                    "status": "published"
+                    "status": "published",
+                    "downloadable": True,
+                    "updated_date": "2020-04-15"
                 }
             ]
         },
         ...
     ]
+
+    Note "downloadable" for a codelist version means that the version is either under review or
+    published, and it contains an identifiable code column in the csv data available for
+    download. This is important for use with OpenSAFELY Interactive.
 
     May 2022: The only known production usage of this endpoint is OpenSAFELY Interactive.
     """
@@ -77,6 +84,8 @@ def codelists_get(request, owner=None):
 
     records = []
 
+    include_user_codelists = "include-users" in request.GET
+
     if owner is None:
         codelists = Codelist.objects.all()
     else:
@@ -86,6 +95,15 @@ def codelists_get(request, owner=None):
         codelists.filter(**filter_kwargs).prefetch_related("handles", "versions"),
         key=lambda cl: cl.slug,
     ):
+        # Only include organisaion codelists by default
+        if not include_user_codelists and not cl.organisation:
+            continue
+
+        # If an owner is specified, only return codelists for which the owner is the
+        # codelist's current owner
+        if owner is not None and cl.owner != owner:
+            continue
+
         record = {
             "full_slug": cl.full_slug(),
             "slug": cl.slug,
@@ -102,6 +120,7 @@ def codelists_get(request, owner=None):
                     "full_slug": version.full_slug(),
                     "status": version.status,
                     "downloadable": version.downloadable,
+                    "updated_date": version.updated_at.date(),
                 }
             )
 

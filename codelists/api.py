@@ -91,6 +91,12 @@ def codelists_get(request, owner=None):
         # Only include organisaion codelists by default
         if not include_user_codelists and not cl.organisation:
             continue
+
+        # If an owner is specified, only return codelists for which the owner is the
+        # codelist's current owner
+        if owner is not None and cl.owner != owner:
+            continue
+
         record = {
             "full_slug": cl.full_slug(),
             "slug": cl.slug,

@@ -3,11 +3,7 @@ from pathlib import Path
 
 from django.core.management import BaseCommand
 
-from coding_systems.dmd.import_data import (
-    get_file,
-    get_latest_release_metadata,
-    import_release,
-)
+from coding_systems.dmd.import_data import DMDTrudDownloader, import_release
 from coding_systems.versioning.models import CodingSystemRelease
 
 
@@ -18,7 +14,8 @@ class Command(BaseCommand):
         )
 
     def handle(self, release_dir, **kwargs):
-        metadata = get_latest_release_metadata()
+        downloader = DMDTrudDownloader(release_dir)
+        metadata = downloader.get_latest_release_metadata()
         valid_from = metadata["valid_from"]
         release_name = f"{valid_from.year} {metadata['release']}"
 
@@ -36,7 +33,7 @@ class Command(BaseCommand):
             sys.exit(1)
 
         release_zipfile_path = Path(release_dir) / metadata["filename"]
-        get_file(metadata["url"], release_zipfile_path)
+        downloader.get_file(metadata["url"], release_zipfile_path)
         import_release(release_zipfile_path, release_name, valid_from)
 
         self.stdout.write(

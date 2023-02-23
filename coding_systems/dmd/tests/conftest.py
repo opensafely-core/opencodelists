@@ -1,3 +1,4 @@
+import shutil
 from pathlib import Path
 from unittest.mock import patch
 
@@ -52,10 +53,28 @@ def mock_data_download(mocked_responses):
     filename = "nhsbsa_dmd_1.0.0_20221001000001.zip"
     add_response(mocked_responses, filename)
     with patch(
-        "coding_systems.dmd.import_data.get_file",
+        "coding_systems.dmd.import_data.DMDTrudDownloader.get_file",
         return_value=filename,
     ):
         yield
+
+
+@pytest.fixture
+def mock_data_download_error(mocked_responses):
+    # make a temporary copy of the good data with new filename
+    original_filename = "nhsbsa_dmd_1.0.0_20221001000001.zip"
+    new_filename = "nhsbsa_dmd_1.0.1_20220901000001.zip"
+    shutil.copy(
+        MOCK_DMD_IMPORT_DATA_PATH / original_filename,
+        MOCK_DMD_IMPORT_DATA_PATH / new_filename,
+    )
+    add_response(mocked_responses, new_filename, "2022-09-01")
+    with patch(
+        "coding_systems.dmd.import_data.DMDTrudDownloader.get_file",
+        return_value=new_filename,
+    ):
+        yield
+    (MOCK_DMD_IMPORT_DATA_PATH / new_filename).unlink()
 
 
 @pytest.fixture
@@ -63,7 +82,7 @@ def mock_data_download_bad_zip(mocked_responses):
     filename = "nhsbsa_dmd_1.1.0_20221001000001.zip"
     add_response(mocked_responses, filename)
     with patch(
-        "coding_systems.dmd.import_data.get_file",
+        "coding_systems.dmd.import_data.DMDTrudDownloader.get_file",
         return_value=filename,
     ):
         yield
@@ -74,7 +93,7 @@ def mock_data_download_no_prev_vmp(mocked_responses):
     filename = "nhsbsa_dmd_1.2.0_20221001000001.zip"
     add_response(mocked_responses, filename)
     with patch(
-        "coding_systems.dmd.import_data.get_file",
+        "coding_systems.dmd.import_data.DMDTrudDownloader.get_file",
         return_value=filename,
     ):
         yield

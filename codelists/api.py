@@ -77,6 +77,8 @@ def codelists_get(request, owner=None):
 
     records = []
 
+    include_user_codelists = "include-users" in request.GET
+
     if owner is None:
         codelists = Codelist.objects.all()
     else:
@@ -86,6 +88,9 @@ def codelists_get(request, owner=None):
         codelists.filter(**filter_kwargs).prefetch_related("handles", "versions"),
         key=lambda cl: cl.slug,
     ):
+        # Only include organisaion codelists by default
+        if not include_user_codelists and not cl.organisation:
+            continue
         record = {
             "full_slug": cl.full_slug(),
             "slug": cl.slug,

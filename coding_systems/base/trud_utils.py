@@ -5,6 +5,8 @@ import requests
 import structlog
 from django.conf import settings
 
+from coding_systems.versioning.models import CodingSystemRelease
+
 logger = structlog.get_logger()
 
 
@@ -99,6 +101,22 @@ class TrudDownloader:
         self.get_file(metadata["url"], local_download_filepath)
 
         return local_download_filepath
+
+    def download_latest_release(self):
+        metadata = self.get_latest_release_metadata()
+
+        # bail if a Coding System Release already exists
+        if CodingSystemRelease.objects.filter(
+            coding_system=self.coding_system_id,
+            release_name=metadata["release_name"],
+            valid_from=metadata["valid_from"],
+        ).exists():
+            raise ValueError("Latest release already exists")
+
+        local_download_filepath = Path(self.release_dir) / metadata["filename"]
+        self.get_file(metadata["url"], local_download_filepath)
+
+        return local_download_filepath, metadata
 
     def get_file(self, url, filepath):
         logger.info("Starting download", download_filepath=filepath)

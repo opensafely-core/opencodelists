@@ -1,10 +1,8 @@
 import sys
-from pathlib import Path
 
 from django.core.management import BaseCommand
 
 from coding_systems.dmd.import_data import DMDTrudDownloader, import_release
-from coding_systems.versioning.models import CodingSystemRelease
 
 
 class Command(BaseCommand):
@@ -15,25 +13,19 @@ class Command(BaseCommand):
 
     def handle(self, release_dir, **kwargs):
         downloader = DMDTrudDownloader(release_dir)
-        metadata = downloader.get_latest_release_metadata()
-        valid_from = metadata["valid_from"]
-        release_name = f"{valid_from.year} {metadata['release']}"
-
-        # bail if a Coding System Release already exists
-        if CodingSystemRelease.objects.filter(
-            coding_system="dmd",
-            release_name=release_name,
-            valid_from=valid_from,
-        ).exists():
+        try:
+            release_zipfile_path, metadata = downloader.download_latest_release()
+        except ValueError:
+            metadata = downloader.get_latest_release_metadata()
             self.stdout.write(
-                f"A dm+d coding system release already exists for the latest release '{release_name}' and "
-                f"valid from date {valid_from}.  If you want to force a re-import, use "
-                "`manage.py import_coding_system_data`"
+                "A dm+d coding system release already exists for the latest release "
+                f"({metadata['release']}) and valid from date ({metadata['valid_from']}). If you "
+                "want to force a re-import, use `manage.py import_coding_system_data`"
             )
             sys.exit(1)
 
-        release_zipfile_path = Path(release_dir) / metadata["filename"]
-        downloader.get_file(metadata["url"], release_zipfile_path)
+        release_name = metadata["release_name"]
+        valid_from = metadata["valid_from"]
         import_release(release_zipfile_path, release_name, valid_from)
 
         self.stdout.write(

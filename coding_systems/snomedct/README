@@ -21,10 +21,28 @@ You will need an account to access TRUD, and may be asked for a reason when you 
 For local testing, you will need your API key.  Find it on your [account page](https://isd.digital.nhs.uk/trud/users/authenticated/filters/0/account/manage), and set the
 `TRUD_API_KEY` variable in your local .env file.
 
-To download the data, go to the TRUD release page and identify the latest release, which will be a zip
-file called something like uk_sct2cl_32.10.0_20220216000001Z.zip. You don't need to download the file, as it will be retrieved via the API.  The release number can be obtained from the filename.  The TRUD
-release page will state the release date, which should be used as the "valid-from" date.  Note that
-this is usually a few days after the date in the zip file name (release 32.10.0 has a release date of 23 Feb 2022).
+## Automated updates
+Updates are released every few months, irregularly.
+
+The latest SNOMED-CT data is imported automatically, via a cron job that runs the script at
+deploy/bin/import_latest_snomed.sh each Monday.  If the latest release already exists, it will not
+be reimported.
+
+
+## Manual updates
+To import the latest release, run:
+  ./manage.py import_latest_data snomedct path/to/snomedct/download/dir/in/dokku/app
+
+On dokku3, import the latest release with:
+
+  dokku run opencodelists python manage.py import_latest_data snomedct \
+    /storage/data/snomedct/ && dokku ps:restart opencodelists
+
+If you need to download an earlier release, go to the TRUD release page and identify the required
+release, which will be a zip file called something like uk_sct2cl_32.10.0_20220216000001Z.zip. You
+don't need to download the file, as it will be retrieved via the API.  The release number can be obtained from the filename.  The TRUD release page will state the release date, which should be used
+as the "valid-from" date.  Note that this is usually a few days after the date in the zip file name
+(release 32.10.0 has a release date of 23 Feb 2022).
 
 To import the data, run:
     ./manage.py import_coding_system_data snomedct

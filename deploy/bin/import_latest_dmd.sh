@@ -24,7 +24,7 @@ curl -X POST -H 'Content-type: application/json' \
 
 
 /usr/bin/dokku run opencodelists \
-    python "$REPO_ROOT"/manage.py import_latest_dmd_data "${DOWNLOAD_DIR}" \
+    python "$REPO_ROOT"/manage.py import_latest_data dmd "${DOWNLOAD_DIR}" \
     && /usr/bin/dokku ps:restart opencodelists
 
 RESULT=$?

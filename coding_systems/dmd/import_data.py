@@ -1,4 +1,3 @@
-import re
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from zipfile import ZipFile
@@ -10,28 +9,12 @@ from lxml import etree
 from tqdm import tqdm
 
 from coding_systems.base.import_data_utils import CodingSystemImporter
-from coding_systems.base.trud_utils import TrudDownloader
 from coding_systems.dmd import models
 from mappings.dmdvmpprevmap.models import Mapping
 
+from .data_downloader import Downloader
+
 logger = structlog.get_logger()
-
-
-class DMDTrudDownloader(TrudDownloader):
-
-    item_number = 24
-    # dm+d release files are in the format nhsbsa_dmd_9.1.0_20220912000001.zip
-    # where the release name is 9.1.0 and the release date is 2022-09-12
-    # the first digit in the release name is the non-zero padded month, in
-    # this case September - 9 - and the following digits are for major and
-    # minor releases in that month
-    release_regex = re.compile(
-        r"^nhsbsa_dmd_(?P<release>([1-9]|1[0-2])\.[\d+]\.[\d+])_(?P<year>20\d{2})(?P<month>0[1-9]|1[0-2])(?P<day>(0[1-9]|[12]\d|3[01]))0+1\.zip$"
-    )
-    coding_system_id = "dmd"
-
-    def get_release_name_from_release_metadata(self, metadata):
-        return f'{metadata["valid_from"].year} {metadata["release"]}'
 
 
 def import_data(
@@ -42,7 +25,7 @@ def import_data(
     import_ref=None,
     check_compatibility=True,
 ):
-    downloader = DMDTrudDownloader(release_dir)
+    downloader = Downloader(release_dir)
     release_zipfile_path = downloader.download_release(release_name, valid_from, latest)
     import_release(
         release_zipfile_path, release_name, valid_from, import_ref, check_compatibility

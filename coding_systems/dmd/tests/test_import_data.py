@@ -4,7 +4,8 @@ from unittest.mock import patch
 
 import pytest
 
-from coding_systems.dmd.import_data import DMDTrudDownloader, import_data
+from coding_systems.dmd.data_downloader import Downloader
+from coding_systems.dmd.import_data import import_data
 from coding_systems.dmd.models import AMP, AMPP, VMP, VMPP, VPI
 from coding_systems.versioning.models import CodingSystemRelease
 from mappings.dmdvmpprevmap.models import Mapping as VmpPrevMapping
@@ -147,7 +148,7 @@ def test_get_release_metadata():
         "archiveFileUrl": "https://download/nhsbsa_dmd_2.0.0_20220101000001.zip",
         "releaseDate": "2022-01-01",
     }
-    assert DMDTrudDownloader("").get_release_metadata(release) == {
+    assert Downloader("").get_release_metadata(release) == {
         "release": "2.0.0",
         "valid_from": date(2022, 1, 1),
         "url": "https://download/nhsbsa_dmd_2.0.0_20220101000001.zip",
@@ -157,7 +158,7 @@ def test_get_release_metadata():
 
 
 def test_get_latest_release_metadata(mock_data_download):
-    assert DMDTrudDownloader("").get_latest_release_metadata() == {
+    assert Downloader("").get_latest_release_metadata() == {
         "release": "1.0.0",
         "valid_from": date(2022, 10, 1),
         "url": "https://download/nhsbsa_dmd_1.0.0_20221001000001.zip",

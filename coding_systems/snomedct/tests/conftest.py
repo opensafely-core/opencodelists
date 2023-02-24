@@ -56,7 +56,7 @@ def mock_data_download(mocked_responses):
     filename = "uk_sct2cl_2.0.0_20230101000001Z.zip"
     add_response(mocked_responses, filename, "2023-01-01")
     with patch(
-        "coding_systems.snomedct.import_data.SnomedctTrudDownloader.get_file",
+        "coding_systems.snomedct.data_downloader.Downloader.get_file",
         return_value=filename,
     ):
         yield

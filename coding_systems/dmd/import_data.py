@@ -1,12 +1,8 @@
-import re
-from datetime import date
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from zipfile import ZipFile
 
-import requests
 import structlog
-from django.conf import settings
 from django.db import connections
 from django.db.models import fields as django_fields
 from lxml import etree
@@ -16,84 +12,9 @@ from coding_systems.base.import_data_utils import CodingSystemImporter
 from coding_systems.dmd import models
 from mappings.dmdvmpprevmap.models import Mapping
 
+from .data_downloader import Downloader
+
 logger = structlog.get_logger()
-
-
-# dm+d release files are in the format nhsbsa_dmd_9.1.0_20220912000001.zip
-# where the release name is 9.1.0 and the release date is 2022-09-12
-# the first digit in the release name is the non-zero padded month, in
-# this case September - 9 - and the following digits are for major and
-# minor releases in that month
-RELEASE_RE = re.compile(
-    r"^nhsbsa_dmd_(?P<release>([1-9]|1[0-2])\.[\d+]\.[\d+])_(?P<year>20\d{2})(?P<month>0[1-9]|1[0-2])(?P<day>(0[1-9]|[12]\d|3[01]))0+1\.zip$"
-)
-
-
-def get_releases(latest):
-    url = f"https://isd.digital.nhs.uk/trud/api/v1/keys/{settings.TRUD_API_KEY}/items/24/releases"
-    if latest:
-        url += "?latest"
-    resp = requests.get(url)
-    resp.raise_for_status()
-    return resp.json()["releases"]
-
-
-def download_release(release_dir, release_name, valid_from, latest):
-    # The release name is expected to be labelled with the year and release number, e.g.
-    # "2022 12.0.1"
-    release = release_name.split()[-1]
-    releases = get_releases(latest)
-    release_metadata = (get_release_metadata(release) for release in releases)
-
-    match_found = False
-    for metadata in release_metadata:
-        if (
-            metadata.get("release") == release
-            and metadata.get("valid_from") == valid_from
-        ):
-            match_found = True
-            break
-
-    if not match_found:
-        raise ValueError(
-            f"No matching release found for release {release}, valid from {valid_from}"
-        )
-
-    local_download_filepath = Path(release_dir) / metadata["filename"]
-    get_file(metadata["url"], local_download_filepath)
-    return local_download_filepath
-
-
-def get_latest_release_metadata():
-    releases = get_releases(latest=True)
-    metadata = get_release_metadata(releases[0])
-    return metadata
-
-
-def get_release_metadata(release):
-    filename = release["archiveFileName"]
-    download_url = release["archiveFileUrl"]
-    matches = RELEASE_RE.match(filename)
-    if not matches:
-        return {}
-    metadata = matches.groupdict()
-    valid_from = date.fromisoformat(
-        f"{matches['year']}-{metadata['month']}-{metadata['day']}"
-    )
-    return {
-        "release": metadata["release"],
-        "valid_from": valid_from,
-        "url": download_url,
-        "filename": filename,
-    }
-
-
-def get_file(url, local_download_filepath):
-    with requests.get(url, stream=True) as resp:
-        resp.raise_for_status()
-        with open(local_download_filepath, "wb") as f:
-            for chunk in resp.iter_content(chunk_size=8192):
-                f.write(chunk)
 
 
 def import_data(
@@ -104,9 +25,8 @@ def import_data(
     import_ref=None,
     check_compatibility=True,
 ):
-    release_zipfile_path = download_release(
-        release_dir, release_name, valid_from, latest
-    )
+    downloader = Downloader(release_dir)
+    release_zipfile_path = downloader.download_release(release_name, valid_from, latest)
     import_release(
         release_zipfile_path, release_name, valid_from, import_ref, check_compatibility
     )

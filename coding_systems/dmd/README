@@ -21,11 +21,11 @@ deploy/bin/import_latest_dmd.sh each Monday.
 
 ## Manual updates
 To import the latest release, run:
-  ./manage.py import_latest_dmd_data path/to/dmd/download/dir/in/dokku/app
+  ./manage.py import_latest_data dmd path/to/dmd/download/dir/in/dokku/app
 
 On dokku3, import the latest release with:
 
-  dokku run opencodelists python manage.py import_latest_dmd_data \
+  dokku run opencodelists python manage.py import_latest_data dmd \
     /storage/data/dmd/ && dokku ps:restart opencodelists
 
 

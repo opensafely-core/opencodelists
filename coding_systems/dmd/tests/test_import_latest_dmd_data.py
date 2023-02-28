@@ -13,7 +13,8 @@ def test_calls_import_release_function_with_extracted_release_metadata(
     mock_import_release, tmpdir, mock_data_download
 ):
     call_command(
-        "import_latest_dmd_data",
+        "import_latest_data",
+        "dmd",
         tmpdir,
     )
     mock_import_release.assert_called_once()
@@ -35,12 +36,13 @@ def test_calls_import_release_function_coding_system_release_already_exists(
     )
     with pytest.raises(SystemExit) as error:
         call_command(
-            "import_latest_dmd_data",
+            "import_latest_data",
+            "dmd",
             tmpdir,
         )
     assert error.value.code == 1
     captured = capsys.readouterr()
     assert (
-        "A dm+d coding system release already exists for the latest release '2022 1.0.0' "
-        "and valid from date 2022-10-01." in captured.out
+        "A dmd coding system release already exists for the latest release (1.0.0) "
+        "and valid from date (2022-10-01)." in captured.out
     )

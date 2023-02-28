@@ -4,11 +4,8 @@ from unittest.mock import patch
 
 import pytest
 
-from coding_systems.dmd.import_data import (
-    get_latest_release_metadata,
-    get_release_metadata,
-    import_data,
-)
+from coding_systems.dmd.data_downloader import Downloader
+from coding_systems.dmd.import_data import import_data
 from coding_systems.dmd.models import AMP, AMPP, VMP, VMPP, VPI
 from coding_systems.versioning.models import CodingSystemRelease
 from mappings.dmdvmpprevmap.models import Mapping as VmpPrevMapping
@@ -86,15 +83,14 @@ def test_import_data_unexpected_file(mock_data_download_bad_zip):
     ):
         import_data(
             str(MOCK_DMD_IMPORT_DATA_PATH),
-            release_name="1.1.0",
+            release_name="2022 1.1.0",
             valid_from=date(2022, 10, 1),
         )
     assert CodingSystemRelease.objects.count() == cs_release_count
 
 
-def test_import_error(coding_systems_database_tmp_dir, mock_data_download):
+def test_import_error(coding_systems_database_tmp_dir, mock_data_download_error):
     cs_release_count = CodingSystemRelease.objects.count()
-
     # raise an exception after the migrate command; i.e after the setup that
     # creates the CodingSystemRelease and the new db file
     cs_release_count = CodingSystemRelease.objects.count()
@@ -105,15 +101,15 @@ def test_import_error(coding_systems_database_tmp_dir, mock_data_download):
         with pytest.raises(Exception, match="expected exception"):
             import_data(
                 str(MOCK_DMD_IMPORT_DATA_PATH),
-                release_name="1.0.0",
-                valid_from=date(2022, 10, 1),
+                release_name="2022 1.0.1",
+                valid_from=date(2022, 9, 1),
             )
 
     # new CodingSystemRelease has been removed
     assert CodingSystemRelease.objects.count() == cs_release_count
     # new db path has been removed
     assert not (
-        coding_systems_database_tmp_dir / "dmd" / "dmd_100_20221001.sqlite3"
+        coding_systems_database_tmp_dir / "dmd" / "dmd_2022-100_20220901.sqlite3"
     ).exists()
 
 
@@ -124,10 +120,10 @@ def test_import_data_no_vmp_previous_mapping(dmd_data, mock_data_download_no_pre
     assert not VmpPrevMapping.objects.exists()
     import_data(
         str(MOCK_DMD_IMPORT_DATA_PATH),
-        release_name="1.2.0",
+        release_name="2022 1.2.0",
         valid_from=date(2022, 10, 1),
     )
-    vmp = VMP.objects.using("dmd_120_20221001").get(id="39113611000001102")
+    vmp = VMP.objects.using("dmd_2022-120_20221001").get(id="39113611000001102")
     assert vmp.vpidprev is None
     assert not VmpPrevMapping.objects.exists()
 
@@ -150,19 +146,22 @@ def test_get_release_metadata():
         "id": "1",
         "archiveFileName": "nhsbsa_dmd_2.0.0_20220101000001.zip",
         "archiveFileUrl": "https://download/nhsbsa_dmd_2.0.0_20220101000001.zip",
+        "releaseDate": "2022-01-01",
     }
-    assert get_release_metadata(release) == {
+    assert Downloader("").get_release_metadata(release) == {
         "release": "2.0.0",
         "valid_from": date(2022, 1, 1),
         "url": "https://download/nhsbsa_dmd_2.0.0_20220101000001.zip",
         "filename": "nhsbsa_dmd_2.0.0_20220101000001.zip",
+        "release_name": "2022 2.0.0",
     }
 
 
 def test_get_latest_release_metadata(mock_data_download):
-    assert get_latest_release_metadata() == {
+    assert Downloader("").get_latest_release_metadata() == {
         "release": "1.0.0",
         "valid_from": date(2022, 10, 1),
         "url": "https://download/nhsbsa_dmd_1.0.0_20221001000001.zip",
         "filename": "nhsbsa_dmd_1.0.0_20221001000001.zip",
+        "release_name": "2022 1.0.0",
     }

@@ -10,14 +10,31 @@ from django.db import connections
 
 from coding_systems.base.import_data_utils import CodingSystemImporter
 
+from .data_downloader import Downloader
 from .models import Concept, Description, Relationship
 
 logger = structlog.get_logger()
 
 
 def import_data(
-    release_zipfile, release_name, valid_from, import_ref=None, check_compatibility=True
+    release_dir,
+    release_name,
+    valid_from,
+    latest=False,
+    import_ref=None,
+    check_compatibility=True,
 ):
+    downloader = Downloader(release_dir)
+    release_zipfile_path = downloader.download_release(release_name, valid_from, latest)
+    import_release(
+        release_zipfile_path, release_name, valid_from, import_ref, check_compatibility
+    )
+
+
+def import_release(
+    release_zipfile, release_name, valid_from, import_ref, check_compatibility
+):
+    import_ref = import_ref or release_zipfile.name
 
     with CodingSystemImporter(
         "snomedct", release_name, valid_from, import_ref, check_compatibility

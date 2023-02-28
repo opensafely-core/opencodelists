@@ -32,7 +32,7 @@ def import_data(
 
 
 def import_release(
-    release_zipfile, release_name, valid_from, import_ref, check_compatibility
+    release_zipfile, release_name, valid_from, import_ref=None, check_compatibility=True
 ):
     import_ref = import_ref or release_zipfile.name
 

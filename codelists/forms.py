@@ -131,6 +131,9 @@ class CSVValidationMixin:
         number_of_column_errors = []
         codes = []
         for i, row in enumerate(reader, start=1):
+            # Ignore completely blank lines
+            if not row:
+                continue
             if len(row) != num_columns:
                 number_of_column_errors.append(i)
             codes.append(row[code_col_ix])

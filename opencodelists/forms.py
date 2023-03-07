@@ -84,7 +84,7 @@ class CodelistCreateForm(forms.Form):
         ].get_by_release_or_most_recent()
 
         data = f.read().decode("utf-8-sig")
-        codes = [row[0] for row in csv.reader(StringIO(data))]
+        codes = [row[0] for row in csv.reader(StringIO(data)) if row]
         validate_csv_data_codes(coding_system, codes)
         return codes
 

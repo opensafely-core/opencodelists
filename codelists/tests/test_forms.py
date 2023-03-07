@@ -36,6 +36,18 @@ def test_csvvalidation_correct_csv_column_count(bnf_data):
     assert form.clean_csv_data() == csv_data
 
 
+def test_csvvalidation_ignores_blank_lines(bnf_data):
+    form = CSVValidationMixin()
+
+    # Note extra newline inserted below
+    csv_data = "code,description\n\n0301012A0AA,Adrenaline (Asthma)"
+    upload_file = csv_builder(csv_data)
+    uploaded_file = SimpleUploadedFile("our csv", upload_file.read())
+    form.cleaned_data = {"csv_data": uploaded_file, "coding_system_id": "bnf"}
+
+    assert form.clean_csv_data() == csv_data
+
+
 def test_csvvalidation_coding_system_without_data():
     CodingSystemRelease.objects.create(
         release_name="unk",

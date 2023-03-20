@@ -39,6 +39,11 @@ class CodingSystemRelease(models.Model):
     class Meta:
         unique_together = ("coding_system", "release_name", "valid_from")
 
+    def __str__(self):
+        if self.release_name == "unknown":
+            return self.release_name
+        return f"{self.release_name} (valid from {self.valid_from.isoformat()})"
+
     def save(self, *args, **kwargs):
         # CodingSystem methods and the database router depend on the format
         # of database_alias following an expected pattern

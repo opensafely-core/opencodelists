@@ -11,6 +11,12 @@
                         <dd>{{ lhs.full_slug }}</dd>
                         <dt>RHS</dt>
                         <dd>{{ rhs.full_slug }}</dd>
+                        <dt>Coding System</dt>
+                        <dd>{{ lhs.coding_system.short_name }}</dd>
+                        <dt>LHS Coding System Release</dt>
+                        <dd>{{ lhs.coding_system.release }}</dd>
+                        <dt>RHS Coding System Release</dt>
+                        <dd>{{ rhs.coding_system.release }}</dd>
                         <dt>Codes in LHS</dt>
                         <dd>{{ lhs_codes|length }}</dd>
                         <dt>Codes in LHS only</dt>

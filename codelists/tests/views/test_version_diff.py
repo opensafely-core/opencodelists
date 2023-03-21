@@ -127,3 +127,24 @@ def test_get_dmd_diff_alternative_column_names(
             "term": "Adrenaline (base) 220micrograms/dose inhaler refill (VMP)",
         }
     ]
+
+
+def test_get_dmd_diff_no_code_column(
+    client,
+    dmd_version_asthma_medication,
+    dmd_version_asthma_medication_refill,
+):
+    # in the fixtures, the column names are: dmd_type, dmd_id, dmd_name, bnf_code
+    # rename the code column in one codelist version so no matching code column
+    # will be foung
+    replacement_csv_data = dmd_version_asthma_medication_refill.csv_data.replace(
+        "dmd_type,dmd_id,dmd_name,bnf_code",
+        "dmd_type,unk_id,dmd_name,bnf_code",
+    )
+    dmd_version_asthma_medication_refill.csv_data = replacement_csv_data
+    dmd_version_asthma_medication_refill.save()
+    rsp = client.get(
+        dmd_version_asthma_medication.get_diff_url(dmd_version_asthma_medication_refill)
+    )
+    assert rsp.status_code == 400
+    assert rsp.content.decode() == "Could not identify code columns"

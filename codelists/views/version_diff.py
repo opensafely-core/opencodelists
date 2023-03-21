@@ -32,7 +32,7 @@ def version_diff(request, clv, other_tag_or_hash):
         lhs_csv_data_codes_to_terms = get_dmd_codes_and_terms(clv)
         rhs_csv_data_codes_to_terms = get_dmd_codes_and_terms(other_clv)
         if lhs_csv_data_codes_to_terms is None or rhs_csv_data_codes_to_terms is None:
-            raise HttpResponseBadRequest("Could not identify code columns")
+            return HttpResponseBadRequest("Could not identify code columns")
         lhs_codes = set(lhs_csv_data_codes_to_terms)
         rhs_codes = set(rhs_csv_data_codes_to_terms)
     else:

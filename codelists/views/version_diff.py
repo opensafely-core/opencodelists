@@ -24,9 +24,10 @@ def version_diff(request, clv, other_tag_or_hash):
     if clv.coding_system_id != other_clv.coding_system_id:
         raise Http404
 
-    coding_system = clv.coding_system
+    lhs_coding_system = clv.coding_system
+    rhs_coding_system = other_clv.coding_system
 
-    if coding_system.id == "dmd":
+    if lhs_coding_system.id == "dmd":
         lhs_codes = get_dmd_codes(clv)
         rhs_codes = get_dmd_codes(other_clv)
         if lhs_codes is None or rhs_codes is None:
@@ -47,9 +48,9 @@ def version_diff(request, clv, other_tag_or_hash):
         "lhs_only_codes": lhs_only_codes,
         "rhs_only_codes": rhs_only_codes,
         "common_codes": common_codes,
-        "lhs_only_summary": summarise(lhs_only_codes, coding_system),
-        "rhs_only_summary": summarise(rhs_only_codes, coding_system),
-        "common_summary": summarise(common_codes, coding_system),
+        "lhs_only_summary": summarise(lhs_only_codes, lhs_coding_system),
+        "rhs_only_summary": summarise(rhs_only_codes, rhs_coding_system),
+        "common_summary": summarise(common_codes, lhs_coding_system),
     }
 
     return render(request, "codelists/version_diff.html", ctx)

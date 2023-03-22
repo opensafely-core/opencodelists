@@ -148,3 +148,31 @@ def test_get_dmd_diff_no_code_column(
     )
     assert rsp.status_code == 400
     assert rsp.content.decode() == "Could not identify code columns"
+
+
+def test_get_snomed_diff_new_vs_old_style_with_unknown(
+    client, version_with_no_searches, old_style_version
+):
+    # old_style_version has CSV data; add an unknown code so we can test the term can be
+    # retrieved from the CSV data
+    old_style_version.csv_data += "1234,Test code\n"
+    old_style_version.save()
+    rsp = client.get(version_with_no_searches.get_diff_url(old_style_version))
+    assert rsp.context["rhs_only_codes"] == {"1234", "202855006", "439656005"}
+    assert rsp.context["common_codes"] == {
+        "35185008",
+        "156659008",
+        "239964003",
+        "73583000",
+        "128133004",
+        "429554009",
+    }
+    assert rsp.context["lhs_only_codes"] == set()
+    assert rsp.context["rhs_only_summary"] == [
+        {
+            "code": "439656005",
+            "term": "Arthritis of elbow",
+            "descendants": [{"code": "202855006", "term": "Lateral epicondylitis"}],
+        },
+        {"code": "1234", "term": "[Unknown] Test code", "descendants": []},
+    ]

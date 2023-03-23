@@ -1,3 +1,5 @@
+import pytest
+
 from codelists.views.version_diff import summarise
 
 
@@ -45,7 +47,7 @@ def test_get_dmd_diff_codes_differ(
     # codelists have one common code, one different
     # terms for the common code differ but are extracted from the coding system, so are
     # summarised identically
-    # Code 123 is unknown in the coding system
+    # Code 123 is unknown in the coding system; it is displayed with the data from the CSV
     # dmd_version_asthma_medication
     # 10514511000001106 - Adrenaline (base) 220micrograms/dose inhaler
     # 10525011000001107 - Adrenaline (base) 220micrograms/dose inhaler refill
@@ -58,10 +60,119 @@ def test_get_dmd_diff_codes_differ(
     assert rsp.context["common_codes"] == {"10525011000001107"}
     assert rsp.context["lhs_only_codes"] == {"10514511000001106"}
     assert rsp.context["rhs_only_codes"] == {"123"}
-    assert rsp.context["rhs_only_summary"] == [{"code": "123", "term": "Unknown"}]
+    assert rsp.context["rhs_only_summary"] == [
+        {"code": "123", "term": "[Unknown] Test refill (VMP)"}
+    ]
     assert rsp.context["common_summary"] == [
         {
             "code": "10525011000001107",
             "term": "Adrenaline (base) 220micrograms/dose inhaler refill (VMP)",
         }
+    ]
+
+
+@pytest.mark.parametrize(
+    "rhs_column_names,expected_unknown_term",
+    [
+        ("type,dmd,nm,bnf_code", "[Unknown] Test refill (VMP)"),
+        ("type,id,name,bnf_code", "[Unknown] Test refill (VMP)"),
+        ("obj_type,code,dmd_name,bnf_code", "[Unknown] Test refill (VMP)"),
+        ("dmd_type,snomed_id,term,bnf_code", "[Unknown] Test refill (VMP)"),
+        # no type column name found
+        ("unk,snomed_id,term,bnf_code", "[Unknown] Test refill"),
+        # no term column name found
+        ("type,snomed_id,unk,bnf_code", "Unknown"),
+        # neither term or type column name found
+        ("unk1,snomed_id,unk2,bnf_code", "Unknown"),
+    ],
+)
+def test_get_dmd_diff_alternative_column_names(
+    client,
+    dmd_version_asthma_medication,
+    dmd_version_asthma_medication_refill,
+    rhs_column_names,
+    expected_unknown_term,
+):
+    # codelists have one common code, one different
+    # terms for the common code differ but are extracted from the coding system, so are
+    # summarised identically
+    # Code 123 is unknown in the coding system; it is displayed with the data from the CSV
+    # dmd_version_asthma_medication
+    # 10514511000001106 - Adrenaline (base) 220micrograms/dose inhaler
+    # 10525011000001107 - Adrenaline (base) 220micrograms/dose inhaler refill
+    # dmd_version_asthma_medication_refill
+    # 10525011000001107 - Adrenaline (base) 220micrograms/dose inhaler refill X
+    # 123 - Test refill
+
+    # in the fixtures, the column names are: dmd_type, dmd_id, dmd_name, bnf_code
+    # test that different column names can be used to fetch the same data
+    replacement_csv_data = dmd_version_asthma_medication_refill.csv_data.replace(
+        "dmd_type,dmd_id,dmd_name,bnf_code", rhs_column_names
+    )
+    dmd_version_asthma_medication_refill.csv_data = replacement_csv_data
+    dmd_version_asthma_medication_refill.save()
+    assert dmd_version_asthma_medication_refill.table[0] == rhs_column_names.split(",")
+    rsp = client.get(
+        dmd_version_asthma_medication.get_diff_url(dmd_version_asthma_medication_refill)
+    )
+    assert rsp.context["common_codes"] == {"10525011000001107"}
+    assert rsp.context["lhs_only_codes"] == {"10514511000001106"}
+    assert rsp.context["rhs_only_codes"] == {"123"}
+    assert rsp.context["rhs_only_summary"] == [
+        {"code": "123", "term": expected_unknown_term}
+    ]
+    assert rsp.context["common_summary"] == [
+        {
+            "code": "10525011000001107",
+            "term": "Adrenaline (base) 220micrograms/dose inhaler refill (VMP)",
+        }
+    ]
+
+
+def test_get_dmd_diff_no_code_column(
+    client,
+    dmd_version_asthma_medication,
+    dmd_version_asthma_medication_refill,
+):
+    # in the fixtures, the column names are: dmd_type, dmd_id, dmd_name, bnf_code
+    # rename the code column in one codelist version so no matching code column
+    # will be foung
+    replacement_csv_data = dmd_version_asthma_medication_refill.csv_data.replace(
+        "dmd_type,dmd_id,dmd_name,bnf_code",
+        "dmd_type,unk_id,dmd_name,bnf_code",
+    )
+    dmd_version_asthma_medication_refill.csv_data = replacement_csv_data
+    dmd_version_asthma_medication_refill.save()
+    rsp = client.get(
+        dmd_version_asthma_medication.get_diff_url(dmd_version_asthma_medication_refill)
+    )
+    assert rsp.status_code == 400
+    assert rsp.content.decode() == "Could not identify code columns"
+
+
+def test_get_snomed_diff_new_vs_old_style_with_unknown(
+    client, version_with_no_searches, old_style_version
+):
+    # old_style_version has CSV data; add an unknown code so we can test the term can be
+    # retrieved from the CSV data
+    old_style_version.csv_data += "1234,Test code\n"
+    old_style_version.save()
+    rsp = client.get(version_with_no_searches.get_diff_url(old_style_version))
+    assert rsp.context["rhs_only_codes"] == {"1234", "202855006", "439656005"}
+    assert rsp.context["common_codes"] == {
+        "35185008",
+        "156659008",
+        "239964003",
+        "73583000",
+        "128133004",
+        "429554009",
+    }
+    assert rsp.context["lhs_only_codes"] == set()
+    assert rsp.context["rhs_only_summary"] == [
+        {
+            "code": "439656005",
+            "term": "Arthritis of elbow",
+            "descendants": [{"code": "202855006", "term": "Lateral epicondylitis"}],
+        },
+        {"code": "1234", "term": "[Unknown] Test code", "descendants": []},
     ]

@@ -27,16 +27,18 @@ def version_diff(request, clv, other_tag_or_hash):
     lhs_coding_system = clv.coding_system
     rhs_coding_system = other_clv.coding_system
 
+    lhs_csv_data_codes_to_terms = get_csv_data_code_to_terms(clv)
+    rhs_csv_data_codes_to_terms = get_csv_data_code_to_terms(other_clv)
     if lhs_coding_system.id == "dmd":
-        lhs_codes = get_dmd_codes(clv)
-        rhs_codes = get_dmd_codes(other_clv)
-        if lhs_codes is None or rhs_codes is None:
-            raise HttpResponseBadRequest("Could not identify code columns")
+        if lhs_csv_data_codes_to_terms is None or rhs_csv_data_codes_to_terms is None:
+            return HttpResponseBadRequest("Could not identify code columns")
+        lhs_codes = set(lhs_csv_data_codes_to_terms)
+        rhs_codes = set(rhs_csv_data_codes_to_terms)
     else:
         lhs_codes = set(clv.codes)
         rhs_codes = set(other_clv.codes)
 
-    lhs_only_codes = lhs_codes - rhs_codes
+    lhs_only_codes = set(lhs_codes) - set(rhs_codes)
     rhs_only_codes = rhs_codes - lhs_codes
     common_codes = lhs_codes & rhs_codes
 
@@ -48,27 +50,34 @@ def version_diff(request, clv, other_tag_or_hash):
         "lhs_only_codes": lhs_only_codes,
         "rhs_only_codes": rhs_only_codes,
         "common_codes": common_codes,
-        "lhs_only_summary": summarise(lhs_only_codes, lhs_coding_system),
-        "rhs_only_summary": summarise(rhs_only_codes, rhs_coding_system),
-        "common_summary": summarise(common_codes, lhs_coding_system),
+        "lhs_only_summary": summarise(
+            lhs_only_codes, lhs_coding_system, lhs_csv_data_codes_to_terms
+        ),
+        "rhs_only_summary": summarise(
+            rhs_only_codes, rhs_coding_system, rhs_csv_data_codes_to_terms
+        ),
+        "common_summary": summarise(
+            common_codes, lhs_coding_system, lhs_csv_data_codes_to_terms
+        ),
     }
 
     return render(request, "codelists/version_diff.html", ctx)
 
 
-def summarise(codes, coding_system):
+def summarise(codes, coding_system, csv_data_codes_to_terms=None):
+    csv_data_codes_to_terms = csv_data_codes_to_terms or {}
     code_to_term = coding_system.code_to_term(codes)
+
+    def get_term(code):
+        term = code_to_term[code]
+        if term == "Unknown" and csv_data_codes_to_terms.get(code) is not None:
+            term = f"[Unknown] {csv_data_codes_to_terms[code]}"
+        return term
 
     if coding_system.id == "dmd":
         # dm+d has no hierarchy to look up, just return the codes themselves with their
         # terms
-        summary = [
-            {
-                "code": code,
-                "term": code_to_term[code],
-            }
-            for code in codes
-        ]
+        summary = [{"code": code, "term": get_term(code)} for code in codes]
     else:
         summary = []
         hierarchy = Hierarchy.from_codes(coding_system, codes)
@@ -77,7 +86,7 @@ def summarise(codes, coding_system):
         for ancestor_code in ancestor_codes:
             descendants = sorted(
                 (
-                    {"code": code, "term": code_to_term[code]}
+                    {"code": code, "term": get_term(code)}
                     for code in (
                         hierarchy.descendants(ancestor_code) & codes - {ancestor_code}
                     )
@@ -87,7 +96,7 @@ def summarise(codes, coding_system):
             summary.append(
                 {
                     "code": ancestor_code,
-                    "term": code_to_term[ancestor_code],
+                    "term": get_term(ancestor_code),
                     "descendants": descendants,
                 }
             )
@@ -95,23 +104,71 @@ def summarise(codes, coding_system):
     return summary
 
 
-def get_dmd_codes(clv):
-    """
-    Extract dm+d codes from a codelist version's csv_data
-    """
-    # Uploaded dm+d codelists have a variety of headers
-    # All of these represent the code column in at least one codelist version
-    possible_code_columns = ["dmd_id", "code", "id", "snomed_id", "dmd"]
-    headers, *rows = clv.table
+def get_csv_data_code_to_terms(clv):
+    if not clv.csv_data:
+        return
 
-    def _get_col_ix():
+    # Old style codelists (i.e. those created with CSV data via the version_create view
+    # /codelist/<org or user>/add/) are now required to contain a column named "code"
+    # or "dmd_id".
+    # However, older ones could be uploaded with any column names, so we need to
+    # check the headers to identify the most likely one
+    # These represent the valid case-insensitive code column names across all existing
+    # old-syle codelists
+    possible_columns_by_coding_system = {
+        "dmd": {
+            "code": ["code", "dmd_id", "id", "snomed_id", "dmd"],
+            "term": ["term", "name", "dmd_name", "nm"],
+            "type": ["dmd_type", "obj_type", "type"],
+        },
+        "snomedct": {
+            "code": ["code", "id", "snomed_id", "snomedcode", "dmd_id"],
+            "term": ["term", "name", "dmd_name"],
+        },
+        "icd10": {
+            "code": ["code", "id", "icd code", "icd_code", "icd", "icd10_code"],
+            "term": ["term", "description", "diag_desc"],
+        },
+        "ctv3": {
+            "code": ["code", "ctv3id", "ctv3code", "ctv3_id"],
+            "term": [
+                "term",
+                "ctv3preferredtermdesc",
+                "ctv3_description",
+                "ctv3_description",
+                "ctvterm",
+                "readterm",
+                "ctvterm",
+            ],
+        },
+        "default": {"code": ["code"], "term": ["term"]},
+    }
+
+    headers, *rows = clv.table
+    headers = [header.lower().strip() for header in headers]
+    possible_columns = possible_columns_by_coding_system.get(
+        clv.codelist.coding_system_id, "default"
+    )
+
+    def _get_col_ix(col_type):
         column = next(
-            (col for col in possible_code_columns if col.strip() in headers), None
+            (col for col in possible_columns.get(col_type, []) if col in headers), None
         )
         if column:
             return headers.index(column)
 
-    code_ix = _get_col_ix()
+    code_ix = _get_col_ix("code")
     if code_ix is None:
         return
-    return {row[code_ix] for row in rows}
+    term_ix = _get_col_ix("term")
+    type_ix = _get_col_ix("type")
+
+    def get_term(row):
+        if term_ix is None:
+            return
+        term = row[term_ix]
+        if type_ix is not None:
+            term = f"{term} ({row[type_ix]})"
+        return term
+
+    return {row[code_ix]: get_term(row) for row in rows}

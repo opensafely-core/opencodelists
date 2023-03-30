@@ -9,7 +9,7 @@ def test_require_authentication_success(client, user, user_codelist):
             "coding_system_database_alias": "snomedct_test_20200101",
         },
         content_type="application/json",
-        HTTP_AUTHORIZATION=f"Token {user.api_token}".encode("utf8"),
+        HTTP_AUTHORIZATION=f"Token {user.api_token}".encode(),
     )
     assert rsp.status_code == 200
 

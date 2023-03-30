@@ -111,7 +111,7 @@ class CodingSystem(BaseCodingSystem):
             codes_by_type[chapter_name].append(code)
         return dict(codes_by_type)
 
-    @lru_cache()
+    @lru_cache
     def code_to_chapter(self):
         """Return mapping from a concept's code to the code of its chapter.
 
@@ -170,7 +170,7 @@ class CodingSystem(BaseCodingSystem):
 
         return code_to_chapter
 
-    @lru_cache()
+    @lru_cache
     def chapter_code_to_chapter_name(self):
         """Return mapping from a chapter code to its name."""
 

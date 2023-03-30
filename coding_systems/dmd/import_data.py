@@ -224,7 +224,7 @@ def import_coding_system(release_dir, database_alias):
 
 
 def get_filepath(release_dir, filename_fragment):
-    paths = list(release_dir.glob("f_{}2_*.xml".format(filename_fragment)))
+    paths = list(release_dir.glob(f"f_{filename_fragment}2_*.xml"))
     assert (
         len(paths) == 1
     ), f"Expected 1 path for {f'f_{filename_fragment}2_*.xml'}, found {len(paths)}"

@@ -100,15 +100,13 @@ def build_sql(model):
     cols = ", ".join(f.attname for f in model._meta.fields)
     params = ", ".join("?" for f in model._meta.fields)
     updates = ", ".join(
-        "{} = excluded.{}".format(f.attname, f.attname) for f in model._meta.fields
+        f"{f.attname} = excluded.{f.attname}" for f in model._meta.fields
     )
 
-    return """
+    return f"""
     INSERT INTO {table_name}({cols})
       VALUES ({params})
     ON CONFLICT(id) DO UPDATE SET
       {updates}
     WHERE excluded.effective_time > {table_name}.effective_time;
-    """.format(
-        **locals()
-    )
+    """

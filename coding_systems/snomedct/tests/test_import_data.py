@@ -10,7 +10,6 @@ from .conftest import MOCK_SNOMEDCT_IMPORT_DATA_PATH
 
 
 def test_import_data(coding_systems_tmp_path, mock_data_download, settings):
-
     cs_release_count = CodingSystemRelease.objects.count()
 
     # import mock data

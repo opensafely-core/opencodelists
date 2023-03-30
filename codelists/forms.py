@@ -124,7 +124,7 @@ class CSVValidationMixin:
                 "Ambiguous headers: both 'dmd_id' and 'code' found"
             )
 
-        code_header = next((col for col in possible_code_headers if col in header))
+        code_header = next(col for col in possible_code_headers if col in header)
         code_col_ix = header.index(code_header)
         num_columns = len(header)
 

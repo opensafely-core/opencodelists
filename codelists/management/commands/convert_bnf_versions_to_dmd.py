@@ -88,7 +88,7 @@ class Command(BaseCommand):
                         "already exists" if not created else "",
                     ]
                 )
-            for (row_num, not_found_version) in not_found:
+            for row_num, not_found_version in not_found:
                 writer.writerow(
                     [
                         not_found_version,

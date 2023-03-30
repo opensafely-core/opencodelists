@@ -91,7 +91,6 @@ def test_duplicate_search(version_from_scratch):
 
 
 def test_delete_search(version_from_scratch):
-
     draft = version_from_scratch
 
     # Act: create a term search

@@ -16,7 +16,7 @@ def setup_mapping():
     ctv3_db = "ctv3_test_20200101"
     snomedct_concept = SCTConcept.objects.using(snomedct_db).get(id="439656005")
     ctv3_term = RawTerm.objects.using(ctv3_db).create(term_id="Y700y")
-    for (code, term_type, description) in [
+    for code, term_type, description in [
         ("N06z2", "S", "(Arthropathy NOS, of the upper arm) or (elbow arthritis NOS)"),
         ("X7009", "P", "Elbow arthritis NOS"),
     ]:

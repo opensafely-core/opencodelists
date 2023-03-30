@@ -18,6 +18,7 @@ isort
 litecli
 pip-tools
 pre-commit
+pyupgrade
 
 # For scripts/fetch_vmp_prev.py
 paramiko

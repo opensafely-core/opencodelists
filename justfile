@@ -116,7 +116,7 @@ test-js: npm-install
 test: test-js test-py
 
 # runs the format (black), sort (isort) and lint (flake8) but does not change any files
-check: devenv
+check *args: devenv
     $BIN/black --check .
     $BIN/isort --check-only --diff .
     $BIN/flake8

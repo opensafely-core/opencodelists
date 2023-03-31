@@ -9,7 +9,6 @@ from opencodelists.tests.assertions import assert_difference, assert_no_differen
 
 
 def test_create_codelist(organisation):
-
     cl = actions.create_old_style_codelist(
         owner=organisation,
         name="Test Codelist",

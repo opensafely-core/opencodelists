@@ -5,6 +5,7 @@
 
 antlr4-python3-runtime
 bleach
+crispy-bootstrap4
 django
 djangorestframework
 django-anymail[mailgun]

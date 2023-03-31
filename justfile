@@ -26,7 +26,11 @@ clean:
 virtualenv:
     #!/usr/bin/env bash
     # allow users to specify python version in .env
-    PYTHON_VERSION=${PYTHON_VERSION:-python3.8}
+    PYTHON_VERSION=${PYTHON_VERSION:-python3.11}
+
+    # Error if venv does not contain the version of Python we expect
+    test -e $BIN/$PYTHON_VERSION || \
+    { echo "Did not find $PYTHON_VERSION in $VIRTUAL_ENV (try deleting the virtualenv (just clean) and letting it re-build)"; exit 1; }
 
     # create venv and upgrade pip
     test -d $VIRTUAL_ENV || { $PYTHON_VERSION -m venv $VIRTUAL_ENV && $PIP install --upgrade pip; }
@@ -120,6 +124,12 @@ check *args: devenv
     $BIN/black --check .
     $BIN/isort --check-only --diff .
     $BIN/flake8
+    # Run pyupgrade on all django apps; excelude snomedct parser_utils as these are pulled
+    # in from external sources (see coding_systems/snomedct/parser_utils/README)
+    $BIN/pyupgrade --py311-plus \
+    $(find builder codelists conversions mappings opencodelists services superusers  -name '*.py' -type f) \
+    $(find coding_systems -not -path 'coding_systems/snomedct/parser_utils/*' -name '*.py' -type f)
+
 
 # fix formatting and import sort ordering
 fix: devenv

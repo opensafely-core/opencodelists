@@ -141,9 +141,9 @@ class Codelist(models.Model):
 
     def full_slug(self):
         if self.codelist_type == "organisation":
-            return "{}/{}".format(self.organisation_id, self.slug)
+            return f"{self.organisation_id}/{self.slug}"
         else:
-            return "user/{}/{}".format(self.user_id, self.slug)
+            return f"user/{self.user_id}/{self.slug}"
 
     def is_new_style(self):
         return self.versions.filter(csv_data__isnull=True).exists()

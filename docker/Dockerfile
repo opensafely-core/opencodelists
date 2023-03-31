@@ -7,19 +7,22 @@
 # the latest base image, by design.
 #
 # hadolint ignore=DL3007
-FROM ghcr.io/opensafely-core/base-docker:latest as base-python
+FROM ghcr.io/opensafely-core/base-docker:22.04 as base-python
 
 # we are going to use an apt cache on the host, so disable the default debian
 # docker clean up that deletes that cache on every apt install
 RUN rm -f /etc/apt/apt.conf.d/docker-clean
 
+# Add deadsnakes PPA for installing new Python versions
 # ensure fully working base python3 installation
 # see: https://gist.github.com/tiran/2dec9e03c6f901814f6d1e8dad09528e
 # use space efficient utility from base image
-RUN --mount=type=cache,target=/var/cache/apt \
-  /root/docker-apt-install.sh python3 python3-venv python3-pip python3-distutils tzdata ca-certificates
 
-# install any additional system dependencies
+RUN --mount=type=cache,target=/var/cache/apt \
+    echo "deb http://ppa.launchpad.net/deadsnakes/ppa/ubuntu jammy main" > /etc/apt/sources.list.d/deadsnakes-ppa.list &&\
+    /usr/lib/apt/apt-helper download-file 'https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xf23c5a6cf475977595c89f51ba6932366a755776' /etc/apt/trusted.gpg.d/deadsnakes.asc
+
+# install any system dependencies
 COPY docker/dependencies.txt /tmp/dependencies.txt
 RUN --mount=type=cache,target=/var/cache/apt \
     /root/docker-apt-install.sh /tmp/dependencies.txt
@@ -64,7 +67,7 @@ RUN --mount=type=cache,target=/var/cache/apt \
     /root/docker-apt-install.sh /tmp/build-dependencies.txt
 
 # Install everything in venv for isolation from system python libraries
-RUN python3 -m venv /opt/venv
+RUN python3.11 -m venv /opt/venv
 ENV VIRTUAL_ENV=/opt/venv/ PATH="/opt/venv/bin:$PATH"
 
 # The cache mount means a) /root/.cache is not in the image, and b) it's preserved

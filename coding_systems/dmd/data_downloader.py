@@ -4,7 +4,6 @@ from ..base.trud_utils import TrudDownloader
 
 
 class Downloader(TrudDownloader):
-
     item_number = 24
     # dm+d release files are in the format nhsbsa_dmd_9.1.0_20220912000001.zip
     # where the release name is 9.1.0 and the release date is 2022-09-12

@@ -78,6 +78,7 @@ INSTALLED_APPS = [
     "mappings.dmdvmpprevmap",
     "corsheaders",
     "crispy_forms",
+    "crispy_bootstrap4",
     "django_extensions",
     "debug_toolbar",
     "rest_framework",

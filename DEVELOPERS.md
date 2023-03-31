@@ -53,7 +53,7 @@ The production database and backups are located at  `/var/lib/dokku/data/storage
 
 ### Prerequisites:
 
-- **Python v3.8.x**
+- **Python v3.11.x**
 - **Pip**
 - **[fnm](#install-fnm)**
 - **[Just](#install-just)**

@@ -4,6 +4,7 @@ from django.views.generic import RedirectView
 from . import views
 from .models import Status
 
+
 app_name = "codelists"
 
 urlpatterns = [

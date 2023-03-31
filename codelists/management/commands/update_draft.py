@@ -9,6 +9,7 @@ from ...actions import cache_hierarchy
 from ...models import CodelistVersion, CodeObj, SearchResult
 from ...search import do_search
 
+
 logger = structlog.get_logger()
 
 

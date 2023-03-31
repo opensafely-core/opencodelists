@@ -10,6 +10,7 @@ from ..coding_systems import most_recent_database_alias
 from ..forms import CodelistCreateForm, ReferenceForm, SignOffForm, data_without_delete
 from .decorators import load_owner, require_permission
 
+
 template_name = "codelists/codelist.html"
 ReferenceFormSet = formset_factory(ReferenceForm, can_delete=True)
 SignOffFormSet = formset_factory(SignOffForm, can_delete=True)

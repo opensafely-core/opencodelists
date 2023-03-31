@@ -1,5 +1,6 @@
 from django.db import models
 
+
 # Magic numbers
 ROOT_CONCEPT = "138875005"
 FULLY_SPECIFIED_NAME = "900000000000003001"

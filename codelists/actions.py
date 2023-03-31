@@ -13,6 +13,7 @@ from .hierarchy import Hierarchy
 from .models import CachedHierarchy, Codelist, CodeObj, Handle, Status
 from .search import do_search
 
+
 logger = structlog.get_logger()
 
 

@@ -6,6 +6,7 @@ from codelists.codeset import Codeset
 from .codeset_test_data import examples
 from .helpers import build_hierarchy, hierarchies
 
+
 # build_hierarchy returns a hierarchy with the following structure:
 #
 #       a

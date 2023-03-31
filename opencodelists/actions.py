@@ -3,6 +3,7 @@ from rest_framework.authtoken.models import Token
 
 from .models import Organisation
 
+
 logger = structlog.get_logger()
 
 

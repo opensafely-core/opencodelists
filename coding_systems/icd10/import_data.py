@@ -12,6 +12,7 @@ from lxml import etree
 from coding_systems.base.import_data_utils import CodingSystemImporter
 from coding_systems.icd10.models import Concept
 
+
 logger = structlog.get_logger()
 
 

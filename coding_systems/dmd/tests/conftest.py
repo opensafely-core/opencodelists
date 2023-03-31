@@ -8,6 +8,7 @@ from django.conf import settings
 
 from coding_systems.conftest import mock_migrate_coding_system
 
+
 MOCK_DMD_IMPORT_DATA_PATH = Path(__file__).parents[1] / "fixtures" / "import_resources"
 
 

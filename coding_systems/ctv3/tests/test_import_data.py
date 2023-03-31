@@ -11,6 +11,7 @@ from coding_systems.ctv3.import_data import import_data
 from coding_systems.ctv3.models import RawConcept, TPPConcept
 from coding_systems.versioning.models import CodingSystemRelease, ReleaseState
 
+
 MOCK_CTV3_IMPORT_DATA_PATH = (
     Path(__file__).parents[1] / "fixtures" / "import_resources" / "2022-11-01"
 )

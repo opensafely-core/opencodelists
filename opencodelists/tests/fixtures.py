@@ -129,6 +129,7 @@ from opencodelists.actions import (
 )
 from opencodelists.models import User
 
+
 SNOMED_FIXTURES_PATH = Path(settings.BASE_DIR, "coding_systems", "snomedct", "fixtures")
 DMD_FIXTURES_PATH = Path(settings.BASE_DIR, "coding_systems", "dmd", "fixtures")
 BNF_FIXTURES_PATH = Path(settings.BASE_DIR, "coding_systems", "bnf", "fixtures")

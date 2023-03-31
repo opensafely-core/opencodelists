@@ -7,6 +7,7 @@ from django.conf import settings
 
 from coding_systems.versioning.models import CodingSystemRelease
 
+
 logger = structlog.get_logger()
 
 

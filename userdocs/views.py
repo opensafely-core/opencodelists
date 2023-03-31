@@ -7,6 +7,7 @@ from django.shortcuts import render
 
 from codelists.models import Codelist
 
+
 doc_sections = [
     "status-of-the-project",
     "what-is-a-codelist",

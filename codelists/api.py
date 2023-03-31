@@ -110,6 +110,7 @@ def codelists_get(request, owner=None):
             "name": cl.name,
             "coding_system_id": cl.coding_system_id,
             "organisation": cl.organisation.name if cl.organisation else "",
+            "user": cl.user.username if cl.user else "",
             "versions": [],
         }
         for version in sorted(cl.versions.all(), key=lambda v: v.created_at):

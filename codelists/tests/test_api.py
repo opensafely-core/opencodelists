@@ -19,6 +19,7 @@ def test_codelists_get(client, organisation):
             "name": "BNF Codelist",
             "coding_system_id": "bnf",
             "organisation": "Test University",
+            "user": "",
             "versions": [
                 {
                     "hash": "69a34cc0",
@@ -43,6 +44,7 @@ def test_codelists_get(client, organisation):
             "slug": "codelist-from-scratch",
             "name": "Codelist From Scratch",
             "organisation": "Test University",
+            "user": "",
             "coding_system_id": "snomedct",
             "versions": [
                 {
@@ -61,6 +63,7 @@ def test_codelists_get(client, organisation):
             "name": "DMD Codelist",
             "coding_system_id": "dmd",
             "organisation": "Test University",
+            "user": "",
             "versions": [
                 {
                     "hash": "34d1a660",
@@ -93,6 +96,7 @@ def test_codelists_get(client, organisation):
             "slug": "minimal-codelist",
             "name": "Minimal Codelist",
             "organisation": "Test University",
+            "user": "",
             "coding_system_id": "snomedct",
             "versions": [
                 {
@@ -118,6 +122,7 @@ def test_codelists_get(client, organisation):
             "slug": "new-style-codelist",
             "name": "New-style Codelist",
             "organisation": "Test University",
+            "user": "",
             "coding_system_id": "snomedct",
             "versions": [
                 {
@@ -151,6 +156,7 @@ def test_codelists_get(client, organisation):
             "slug": "old-style-codelist",
             "name": "Old-style Codelist",
             "organisation": "Test University",
+            "user": "",
             "coding_system_id": "snomedct",
             "versions": [
                 {
@@ -172,6 +178,22 @@ def test_codelists_get(client, organisation):
             ],
         },
     ]
+
+
+def test_codelists_get_all(client, organisation, organisation_user):
+    rsp = client.get("/api/v1/codelist/?include-users")
+    data = json.loads(rsp.content)
+    assert rsp.status_code == 200
+
+    # all org codelist fixtures are owned by the same organisation
+    organisations = {
+        cl["organisation"] for cl in data["codelists"] if cl["organisation"]
+    }
+    assert organisations == {organisation.name}
+
+    user_codelists = [cl for cl in data["codelists"] if cl["user"]]
+    assert len(user_codelists) == 2  # user-codelist-from-scratch, user-owned-codelist
+    assert {cl["user"] for cl in user_codelists} == {organisation_user.username}
 
 
 def test_codelists_get_with_coding_system_id(client, organisation):

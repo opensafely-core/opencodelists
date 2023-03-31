@@ -3,6 +3,7 @@ from django.http import Http404
 
 from codelists.views.decorators import load_codelist, load_owner, load_version
 
+
 request = object()
 
 

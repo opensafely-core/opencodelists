@@ -19,6 +19,7 @@ from coding_systems.ctv3.models import (
     TPPRelationship,
 )
 
+
 logger = structlog.get_logger()
 
 

@@ -7,6 +7,7 @@ from .. import actions
 from ..forms import CodelistUpdateForm, ReferenceFormSet, SignOffFormSet
 from .decorators import load_codelist, require_permission
 
+
 template_name = "codelists/codelist.html"
 
 

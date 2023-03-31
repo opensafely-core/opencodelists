@@ -9,6 +9,7 @@ from codelists.models import CodeObj, SearchResult, Status
 from coding_systems.base.import_data_utils import check_and_update_compatibile_versions
 from coding_systems.versioning.models import CodingSystemRelease
 
+
 logger = structlog.get_logger()
 
 

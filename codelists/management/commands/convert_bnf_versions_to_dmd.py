@@ -8,6 +8,7 @@ from django.db.utils import IntegrityError
 from ...actions import convert_bnf_codelist_version_to_dmd
 from ...models import CodelistVersion, Handle
 
+
 logger = structlog.get_logger()
 
 

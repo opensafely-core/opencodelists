@@ -2,6 +2,7 @@ import pytest
 from django.db import connections
 from django.test import TestCase
 
+
 # TestCase.databases sets the databases that tests have access to; this allows all tests
 # access to the test coding system databases in addition to the default db
 database_aliases = {

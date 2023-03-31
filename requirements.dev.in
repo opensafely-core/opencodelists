@@ -13,12 +13,10 @@ responses
 
 # dev
 black
-flake8
-isort
 litecli
 pip-tools
 pre-commit
-pyupgrade
+ruff
 
 # For scripts/fetch_vmp_prev.py
 paramiko

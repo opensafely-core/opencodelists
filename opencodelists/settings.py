@@ -22,6 +22,7 @@ from sentry_sdk.integrations.logging import ignore_logger
 
 from services.logging import logging_config_dict
 
+
 # Patch sqlite3 to ensure recent version
 __import__("pysqlite3")
 sys.modules["sqlite3"] = sys.modules.pop("pysqlite3")

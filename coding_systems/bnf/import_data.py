@@ -8,6 +8,7 @@ import structlog
 from coding_systems.base.import_data_utils import CodingSystemImporter
 from coding_systems.bnf.models import TYPES, Concept
 
+
 logger = structlog.get_logger()
 
 

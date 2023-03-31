@@ -6,6 +6,7 @@ from django.views.generic import RedirectView
 
 from . import views
 
+
 users_patterns = [
     path("<username>/", views.user, name="user"),
     path(

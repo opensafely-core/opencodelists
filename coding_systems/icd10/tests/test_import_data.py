@@ -7,6 +7,7 @@ from coding_systems.icd10.import_data import import_data
 from coding_systems.icd10.models import Concept
 from coding_systems.versioning.models import CodingSystemRelease
 
+
 MOCK_ICD10_IMPORT_DATA_PATH = (
     Path(__file__).parents[1]
     / "fixtures"

@@ -2,6 +2,7 @@ import os
 
 import structlog
 
+
 # add logging before app has booted
 DEBUG = os.getenv("DEBUG", default=False)
 

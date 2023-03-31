@@ -2,6 +2,7 @@ import pytest
 
 from coding_systems.snomedct.ecl_parser import ParseError, handle
 
+
 examples = [
     ("111111", {(None, "111111")}, set()),
     ("<111111", {("<", "111111")}, set()),

@@ -15,6 +15,7 @@ from codelists.search import do_search
 from . import actions
 from .decorators import load_draft, require_permission
 
+
 NO_SEARCH_TERM = object()
 
 

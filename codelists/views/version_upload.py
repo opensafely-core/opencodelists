@@ -7,6 +7,7 @@ from ..coding_systems import most_recent_database_alias
 from ..forms import CodelistVersionForm
 from .decorators import load_codelist, require_permission
 
+
 template_name = "codelists/version_upload.html"
 
 

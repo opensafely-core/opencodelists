@@ -13,6 +13,7 @@ from coding_systems.base.import_data_utils import CodingSystemImporter
 from .data_downloader import Downloader
 from .models import Concept, Description, Relationship
 
+
 logger = structlog.get_logger()
 
 

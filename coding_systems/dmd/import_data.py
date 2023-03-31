@@ -14,6 +14,7 @@ from mappings.dmdvmpprevmap.models import Mapping
 
 from .data_downloader import Downloader
 
+
 logger = structlog.get_logger()
 
 

@@ -7,6 +7,7 @@ from django.shortcuts import render
 
 from codelists.models import Codelist
 
+
 doc_sections = [
     "status-of-the-project",
     "what-is-a-codelist",
@@ -29,9 +30,7 @@ def index(request):
     return render(request, "docs/index.html", ctx)
 
 
-# Until https://code.djangoproject.com/ticket/32314 lands, comment out @lru_cache() in
-# development.
-@lru_cache()
+@lru_cache
 def load_pages():
     pages = []
     for section in doc_sections:

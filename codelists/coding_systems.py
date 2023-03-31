@@ -4,6 +4,7 @@ from importlib import import_module
 
 from django.conf import settings
 
+
 CODING_SYSTEMS = {}
 
 for path in glob.glob(

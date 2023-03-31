@@ -29,8 +29,10 @@ virtualenv:
     PYTHON_VERSION=${PYTHON_VERSION:-python3.11}
 
     # Error if venv does not contain the version of Python we expect
-    test -e $BIN/$PYTHON_VERSION || \
-    { echo "Did not find $PYTHON_VERSION in $VIRTUAL_ENV (try deleting the virtualenv (just clean) and letting it re-build)"; exit 1; }
+    if test -d $VIRTUAL_ENV; then
+        test -e $BIN/$PYTHON_VERSION || \
+        { echo "Did not find $PYTHON_VERSION in $VIRTUAL_ENV (try deleting the virtualenv (just clean) and letting it re-build)"; exit 1; }
+    fi
 
     # create venv and upgrade pip
     test -d $VIRTUAL_ENV || { $PYTHON_VERSION -m venv $VIRTUAL_ENV && $PIP install --upgrade pip; }
@@ -119,22 +121,19 @@ test-js: npm-install
 # Run all the tests
 test: test-js test-py
 
-# runs the format (black), sort (isort) and lint (flake8) but does not change any files
-check *args: devenv
-    $BIN/black --check .
-    $BIN/isort --check-only --diff .
-    $BIN/flake8
-    # Run pyupgrade on all django apps; excelude snomedct parser_utils as these are pulled
-    # in from external sources (see coding_systems/snomedct/parser_utils/README)
-    $BIN/pyupgrade --py311-plus \
-    $(find builder codelists conversions mappings opencodelists services superusers  -name '*.py' -type f) \
-    $(find coding_systems -not -path 'coding_systems/snomedct/parser_utils/*' -name '*.py' -type f)
+black *args=".": devenv
+    $BIN/black --check {{ args }}
 
+ruff *args=".": devenv
+    $BIN/ruff check {{ args }}
+
+# run the various dev checks but does not change any files
+check *args: devenv black ruff
 
 # fix formatting and import sort ordering
 fix: devenv
     $BIN/black .
-    $BIN/isort .
+    $BIN/ruff --fix .
 
 # Runs the linter on JS files
 check-js: npm-install

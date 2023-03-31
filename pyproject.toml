@@ -37,3 +37,47 @@ addopts = "--tb=native --ignore=node_modules --no-migrations"
 filterwarnings = [
     "ignore::django.utils.deprecation.RemovedInDjango50Warning:rest_framework"
 ]
+
+[tool.ruff]
+line-length = 88
+exclude = [
+  ".direnv",
+  ".git",
+  ".github",
+  ".ipynb_checkpoints",
+  ".pytest_cache",
+  ".venv",
+  "__pycache__",
+  "assets",
+  "coding_systems/snomedct/parser_utils/",
+  "coverage",
+  "deploy",
+  "docker",
+  "docs",
+  "htmlcov",
+  "*/migrations/",
+  "node_modules",
+  "static",
+  "staticfiles",
+  "venv",
+]
+extend-select = [
+  "I",  # isort
+  "INP",  # flake8-no-pep420
+  "ISC",  # flake8-implicit-str-concat
+  "UP",  # pyupgrade
+  "W",  # pycodestyle warning
+]
+extend-ignore = [
+  "E501",
+  "E731",
+]
+
+[tool.ruff.isort]
+lines-after-imports = 2
+
+[tool.ruff.per-file-ignores]
+"gunicorn.conf.py" = ["INP001"]
+"manage.py" = ["INP001"]
+"codelists/views/__init__.py" = ["F401"]
+"opencodelists/views/__init__.py" = ["F401"]

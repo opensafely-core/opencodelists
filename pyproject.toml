@@ -26,10 +26,6 @@ skip_covered = true
 
 [tool.coverage.html]
 
-[tool.isort]
-profile = "black"
-skip_glob = [".direnv", "*migrations*", "tmp", ".venv", "coding_systems/snomedct/parser_utils/*", "staticfiles"]
-
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "opencodelists.settings"
 addopts = "--tb=native --ignore=node_modules --no-migrations"

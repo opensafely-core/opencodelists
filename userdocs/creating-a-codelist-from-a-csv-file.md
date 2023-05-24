@@ -42,6 +42,8 @@ When you click _Create_ the codelist will be created and you will be taken to th
 From here, you can edit any metadata.
 You can also edit the codelist.
 
+We are aware of an issue whereby Excel can truncate or round dm+d IDs, turning them into invalid IDs. This is due to Excel's interpretation of this column as a number type insufficiently large to contain a dm+d ID. For this reason, opening dm+d codelist files in Excel should be avoided wherever possible. Where it is unavoidable to do so, rather than opening a dm+d codelist csv file directly in Excel (such as through the Open dialogue or from the file explorer), we reccomend opening a blank Excel workbook and using the "Import data from Text/CSV" feature. To avoid the problematic rounding/truncation behaviour described above, specify the data type of the dm+d id column as "Text" during the import process.
+
 ### Adding an OPCS-4 or dm+d codelist
 
 Note: OPCS-4 and dm+d codelists can not currently be created using the form described above.

@@ -537,7 +537,9 @@ def convert_codelist_to_new_style(*, codelist):
 
 
 @transaction.atomic
-def export_to_builder(*, version, author, coding_system_database_alias):
+def export_to_builder(
+    *, version, author, coding_system_database_alias, ignore_unknown_statuses=False
+):
     """Create a new CodelistVersion for editing in the builder."""
     new_coding_system = version.coding_system.get_by_release(
         coding_system_database_alias
@@ -573,7 +575,11 @@ def export_to_builder(*, version, author, coding_system_database_alias):
     # the builder frontend cannot deal with a CodeObj with status ?  if any of its
     # ancestors are included or excluded.  We will have to deal with this soon but for
     # now fail loudly.
-    assert not draft.code_objs.filter(status="?").exists()
+    if not ignore_unknown_statuses:
+        assert not draft.code_objs.filter(
+            status="?"
+        ).exists(), "Unknown code statuses; this draft may be created manually with "
+        "the create_and_update_draft command"
 
     cache_hierarchy(version=draft)
 

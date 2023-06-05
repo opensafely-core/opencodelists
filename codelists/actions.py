@@ -17,6 +17,10 @@ from .search import do_search
 logger = structlog.get_logger()
 
 
+class UnknownCodeError(Exception):
+    ...
+
+
 @transaction.atomic
 def create_old_style_codelist(
     *,
@@ -575,11 +579,11 @@ def export_to_builder(
     # the builder frontend cannot deal with a CodeObj with status ?  if any of its
     # ancestors are included or excluded.  We will have to deal with this soon but for
     # now fail loudly.
-    if not ignore_unknown_statuses:
-        assert not draft.code_objs.filter(
-            status="?"
-        ).exists(), "Unknown code statuses; this draft may be created manually with "
-        "the create_and_update_draft command"
+    if not ignore_unknown_statuses and draft.code_objs.filter(status="?").exists():
+        raise UnknownCodeError(
+            "Codes with unknown status found when creating new version; this is likely due "
+            "to an update in the coding system. Please contact tech-support for assistance."
+        )
 
     cache_hierarchy(version=draft)
 

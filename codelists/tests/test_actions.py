@@ -526,7 +526,9 @@ def test_export_to_builder_unknown_codes(
     ).first()
     missing_implicit_concept.delete()
 
-    with pytest.raises(AssertionError, match="Unknown code statuses"):
+    with pytest.raises(
+        actions.UnknownCodeError, match="Codes with unknown status found"
+    ):
         actions.export_to_builder(
             version=version_with_complete_searches,
             author=organisation_user,

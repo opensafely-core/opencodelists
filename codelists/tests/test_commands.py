@@ -4,14 +4,16 @@ from io import StringIO
 from django.core.management import call_command
 
 from codelists.models import CodeObj, Handle
+from opencodelists.tests.assertions import assert_difference
 
 
-def output_from_call_command(command, *args):
+def output_from_call_command(command, *args, **kwargs):
     out = StringIO()
     err = StringIO()
     call_command(
         command,
         *args,
+        **kwargs,
         stdout=out,
         stderr=err,
     )
@@ -288,3 +290,30 @@ def test_convert_bnf_versions_to_dmd(
             "comments": "BNF version not found (input file row 4)",
         },
     ]
+
+
+def test_create_and_update_draft(organisation_user, version_with_complete_searches):
+    # delete a CodeObj that's included by a parent from the version to simulate a new concept
+    # in the coding system
+    missing_implicit_concept = version_with_complete_searches.code_objs.filter(
+        status="(+)"
+    ).first()
+    missing_implicit_concept.delete()
+
+    with assert_difference(
+        version_with_complete_searches.codelist.versions.count, expected_difference=1
+    ):
+        call_command(
+            "create_and_update_draft",
+            version_with_complete_searches.hash,
+            author=organisation_user.username,
+        )
+
+    draft = version_with_complete_searches.codelist.versions.latest("id")
+    # The newly created draft has one additional code obj (the one we deleted)
+    assert (
+        draft.code_objs.count() == version_with_complete_searches.code_objs.count() + 1
+    )
+    new_code = draft.code_objs.get(code=missing_implicit_concept.code)
+    # The new code has been updated with the implicit inclusion status
+    assert new_code.status == "(+)"

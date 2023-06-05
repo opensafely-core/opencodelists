@@ -75,8 +75,10 @@ class Command(BaseCommand):
                     for code, status in updates["added"]:
                         self.stdout.write(f"{code} - {status} (new)")
                 if updates["changed"]:
-                    for code, status in updates["changed"]:
-                        self.stdout.write(f"{code} - {status} (changed)")
+                    for code, old_status, new_status in updates["changed"]:
+                        self.stdout.write(
+                            f"{code} - {new_status} (changed from {old_status})"
+                        )
                 if updates["removed"]:
                     for code in updates["removed"]:
                         self.stdout.write(f"{code} (removed)")
@@ -175,23 +177,34 @@ class Command(BaseCommand):
         Compare the updated codeset to the original codeset, and return a dict of codes that
         have been added, changed and removed in the updated one
         """
-        removed_codes = set(original_codeset.code_to_status) - set(
-            updated_codeset.code_to_status
-        )
-        new_codes = set(updated_codeset.code_to_status) - set(
-            original_codeset.code_to_status
-        )
-        all_changes = set(updated_codeset.code_to_status.items()) - set(
-            original_codeset.code_to_status.items()
-        )
+        original_codes = set(original_codeset.code_to_status)
+        updated_codes = set(updated_codeset.code_to_status)
+
+        removed_codes = original_codes - updated_codes
+        new_codes = updated_codes - original_codes
+        all_changed_and_new_codes = {
+            code
+            for code, _ in set(updated_codeset.code_to_status.items())
+            - set(original_codeset.code_to_status.items())
+        }
+        changed_codes = all_changed_and_new_codes - new_codes
+
         new_code_statuses = {
             (code, status)
             for code, status in updated_codeset.code_to_status.items()
             if code in new_codes
         }
+        changed_statuses = {
+            (
+                code,
+                original_codeset.code_to_status[code],
+                updated_codeset.code_to_status[code],
+            )
+            for code in changed_codes
+        }
 
         return {
             "added": new_code_statuses,
-            "changed": all_changes - new_code_statuses,
+            "changed": changed_statuses,
             "removed": removed_codes,
         }

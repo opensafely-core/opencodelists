@@ -49,3 +49,25 @@ def test_post_success_no_coding_system_database_alias(client, version):
     draft = version.codelist.versions.get(author__isnull=False, status=Status.DRAFT)
     # defaults to most recent database alias for the version's coding system release
     assert draft.coding_system.database_alias == most_recent_database_alias("snomedct")
+
+
+def test_post_unknown_code_status(client, version_with_complete_searches):
+    version_count = version_with_complete_searches.codelist.versions.count()
+    force_login(version_with_complete_searches, client)
+    # delete a CodeObj that's included by a parent from the version to simulate a new concept
+    # in the coding system; this will cause the export_to_builder function called from
+    # the view to raise an error
+    missing_implicit_concept = version_with_complete_searches.code_objs.filter(
+        status="(+)"
+    ).first()
+    missing_implicit_concept.delete()
+
+    response = client.post(
+        version_with_complete_searches.get_create_url(),
+        {"coding_system_database_alias": most_recent_database_alias("snomedct")},
+    )
+    # redirects to origin version
+    assert response.status_code == 302
+    assert response.url == version_with_complete_searches.get_absolute_url()
+    # no new version created
+    assert version_with_complete_searches.codelist.versions.count() == version_count

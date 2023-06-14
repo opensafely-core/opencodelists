@@ -131,7 +131,7 @@ dokku$ dokku run opencodelists \
     python manage.py create_and_update_draft <original version hash> --author <username>
 ```
 
-The command will create the new draft version, and will assign statuses to unknown code if
+The command will create a new draft version, and will assign statuses to each unknown code where
 possible. i.e. if a new code has an ancestor code that is included, it will be implicitly
 included (`(+)` status), and if it has an ancestor code that is excluded, it will be implictly
 excluded (`(-)` status).  The command will output a list of codes that were returned as "unknown"

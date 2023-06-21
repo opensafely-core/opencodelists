@@ -516,53 +516,25 @@ def test_export_to_builder(organisation_user, new_style_version):
     assert draft.searches.count() == new_style_version.searches.count()
 
 
-def test_export_to_builder_unknown_codes(
-    organisation_user, version_with_complete_searches
-):
+def test_export_to_builder_unknown_codes(organisation_user, new_style_version):
     # delete a CodeObj that's included by a parent from the version to simulate a new concept
     # in the coding system
-    missing_implicit_concept = version_with_complete_searches.code_objs.filter(
-        status="(+)"
-    ).first()
-    missing_implicit_concept.delete()
-
-    with pytest.raises(
-        actions.UnknownCodeError, match="Codes with unknown status found"
-    ):
-        actions.export_to_builder(
-            version=version_with_complete_searches,
-            author=organisation_user,
-            coding_system_database_alias=most_recent_database_alias("snomedct"),
-        )
-
-
-def test_export_to_builder_unknown_codes_ignored(
-    organisation_user, version_with_complete_searches
-):
-    # delete a CodeObj that's included by a parent from the version to simulate a new concept
-    # in the coding system
-    missing_implicit_concept = version_with_complete_searches.code_objs.filter(
-        status="(+)"
-    ).first()
+    missing_implicit_concept = new_style_version.code_objs.filter(status="(+)").first()
     missing_implicit_concept.delete()
 
     with assert_difference(
-        version_with_complete_searches.codelist.versions.count, expected_difference=1
+        new_style_version.codelist.versions.count, expected_difference=1
     ):
         draft = actions.export_to_builder(
-            version=version_with_complete_searches,
+            version=new_style_version,
             author=organisation_user,
             coding_system_database_alias=most_recent_database_alias("snomedct"),
-            ignore_unknown_statuses=True,
         )
-
     # The newly created draft has one additional code obj (the one we deleted)
-    assert (
-        draft.code_objs.count() == version_with_complete_searches.code_objs.count() + 1
-    )
-    unknown_code = draft.code_objs.get(code=missing_implicit_concept.code)
-    assert unknown_code.status == "?"
-    assert draft.searches.count() == version_with_complete_searches.searches.count()
+    assert draft.code_objs.count() == new_style_version.code_objs.count() + 1
+    new_code = draft.code_objs.get(code=missing_implicit_concept.code)
+    assert new_code.status == "?"
+    assert draft.searches.count() == new_style_version.searches.count()
 
 
 def test_add_codelist_tag(codelist):

@@ -44,23 +44,22 @@ def test_update_draft_version_no_changes_needed(draft_with_some_searches):
     assert err == ""
 
 
-def test_update_draft_output(draft_with_complete_searches):
+def test_update_draft_output(new_style_draft):
     # Test that a draft that requires an update outputs the expected message
+    # the new_style_draft fixture runs this test with drafts with no, some and complete
+    # searches. For no searches, the missing code obj will be added by checking the
+    # hierarchy for new descendant codes, rather than by rerunning searches
 
     # delete a CodeObj that's included by a parent from the draft to simulate a new concept on the
     # coding system
-    missing_implicit_concept = draft_with_complete_searches.code_objs.filter(
-        status="(+)"
-    ).first()
+    missing_implicit_concept = new_style_draft.code_objs.filter(status="(+)").first()
     missing_code = missing_implicit_concept.code
     missing_implicit_concept.delete()
 
-    out, err = output_from_call_command(
-        "update_draft", draft_with_complete_searches.hash
-    )
+    out, err = output_from_call_command("update_draft", new_style_draft.hash)
     assert (
         out
-        == f"CodelistVersion {draft_with_complete_searches.hash} updated:\n{missing_code} - (+) (new)"
+        == f"CodelistVersion {new_style_draft.hash} updated:\n{missing_code} - (+) (new)"
     )
     assert err == ""
 

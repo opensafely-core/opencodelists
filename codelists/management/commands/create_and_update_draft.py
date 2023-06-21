@@ -15,16 +15,8 @@ User = get_user_model()
 class Command(BaseCommand):
 
     """
-    Create a new draft from a CodelistVersion, using the most recent coding system release, ignoring
-    any unknown code statuses if encountered. Then update the draft to fix any unknown codes that we
-    can, and report the results.
-
-    This command can be run to create and update a draft that cannot be generated in the builder
-    UI in the usual way (i.e. `export_to_builder` raises an AssertionError because re-running the
-    searched for a new draft imports new matching concepts).  At the moment,
-    the builder frontend cannot deal with a CodeObj with status ?  if any of its ancestors are
-    included or excluded. From the frontend, we just make the build fail so as not to magically
-    add statuses for new concepts without users being made explicitly aware of them.
+    Create a new draft from a CodelistVersion, using the most recent coding system release. Then
+    update the draft to assign statuses to any unknown codes that we can, and report the results.
     """
 
     def add_arguments(self, parser):
@@ -60,6 +52,6 @@ class Command(BaseCommand):
             coding_system_database_alias=most_recent_database_alias(
                 codelist_version.coding_system_id
             ),
-            ignore_unknown_statuses=True,
         )
         call_command("update_draft", draft.hash)
+        self.stdout.write(f"New draft created at {draft.get_absolute_url()}")

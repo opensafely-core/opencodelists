@@ -17,10 +17,6 @@ from .search import do_search
 logger = structlog.get_logger()
 
 
-class UnknownCodeError(Exception):
-    ...
-
-
 @transaction.atomic
 def create_old_style_codelist(
     *,
@@ -541,9 +537,7 @@ def convert_codelist_to_new_style(*, codelist):
 
 
 @transaction.atomic
-def export_to_builder(
-    *, version, author, coding_system_database_alias, ignore_unknown_statuses=False
-):
+def export_to_builder(*, version, author, coding_system_database_alias):
     """Create a new CodelistVersion for editing in the builder."""
     new_coding_system = version.coding_system.get_by_release(
         coding_system_database_alias
@@ -575,19 +569,46 @@ def export_to_builder(
             draft=draft, term=search.term, code=search.code, codes=codes
         )
 
-    # This assert will fire if new matching concepts have been imported.  At the moment,
-    # the builder frontend cannot deal with a CodeObj with status ?  if any of its
-    # ancestors are included or excluded.  We will have to deal with this soon but for
-    # now fail loudly.
-    if not ignore_unknown_statuses and draft.code_objs.filter(status="?").exists():
-        raise UnknownCodeError(
-            "Codes with unknown status found when creating new version; this is likely due "
-            "to an update in the coding system. Please contact tech-support for assistance."
-        )
-
+    # cache hierarchy so we can use the codeset and calculated hierarchy
     cache_hierarchy(version=draft)
 
+    # Find and add any new descendants of codes on the original version. This can
+    # occur when the coding system has changed since the original version was
+    # created.
+    add_new_descendants(version=draft)
     return draft
+
+
+def add_new_descendants(*, version):
+    """
+    Find any missing descendant codes on a version and add them.
+
+    The builder frontend cannot deal with a new code if any of its ancestors are included or
+    excluded. It CAN deal with a status of ?, as long as the CodeObj exists. New codes that
+    are returned as the result of a search will be created as CodeObj instances, with status
+    ?, which is fine. However, if a codelist version was created without searches (e.g. via
+    the API), there may be new child codes that do not have corresponding CodeObj instances.
+
+    We don't do any status assignment based on whether parent codes are included or excluded,
+    we just create the CodeObj, which will by default have a status of ?. These new codes
+    will show up in the builder as unresolved, and the user will need to deal with them
+    manually.
+
+    See codelists/management/commands/update_draft.py for a mangement
+    command that will do the status assignment and report on codes that have been updated.
+    """
+    current_codes = set(version.codeset.all_codes())
+    all_descendants = set().union(
+        *[set(version.codeset.hierarchy.descendants(code)) for code in current_codes]
+    )
+    new_descendants = all_descendants - current_codes
+
+    if new_descendants:
+        CodeObj.objects.bulk_create(
+            [CodeObj(version=version, code=new_code) for new_code in new_descendants]
+        )
+        # cache hierarchy again after new codes have been added
+        cache_hierarchy(version=version)
 
 
 def add_collaborator(*, codelist, collaborator):

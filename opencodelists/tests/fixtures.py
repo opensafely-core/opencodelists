@@ -866,6 +866,23 @@ def new_style_version(universe, request):
     return type(version).objects.get(pk=version.pk)
 
 
+@pytest.fixture(
+    scope="function",
+    params=[
+        "version_with_no_searches",
+        "version_with_some_searches",
+        "version_with_complete_searches",
+    ],
+)
+def new_style_draft(universe, request, organisation_user):
+    version = universe[request.param]
+    return export_to_builder(
+        version=version,
+        author=organisation_user,
+        coding_system_database_alias=most_recent_database_alias("snomedct"),
+    )
+
+
 @pytest.fixture
 def create_codelists(organisation):
     """Fixture to create a batch of codelists with a specific status"""

@@ -5,7 +5,7 @@ from django.core.management import BaseCommand
 from django.db import transaction
 from django.utils.text import slugify
 
-from ...actions import cache_hierarchy
+from ...actions import add_new_descendants, cache_hierarchy
 from ...models import CodelistVersion, CodeObj, SearchResult
 from ...search import do_search
 
@@ -65,6 +65,7 @@ class Command(BaseCommand):
             )
             self.update_searches(draft)
             self.delete_removed_codes(draft)
+            add_new_descendants(version=draft)
             self.update_code_statuses(draft)
             updates = self.diff(draft.codeset, original_codeset)
             cache_hierarchy(version=draft)

@@ -5,7 +5,7 @@ from django.core.management import BaseCommand
 from django.db import transaction
 from django.utils.text import slugify
 
-from ...actions import cache_hierarchy
+from ...actions import add_new_descendants, cache_hierarchy
 from ...models import CodelistVersion, CodeObj, SearchResult
 from ...search import do_search
 
@@ -65,7 +65,7 @@ class Command(BaseCommand):
             )
             self.update_searches(draft)
             self.delete_removed_codes(draft)
-            self.add_new_descendants(draft)
+            add_new_descendants(version=draft)
             self.update_code_statuses(draft)
             updates = self.diff(draft.codeset, original_codeset)
             cache_hierarchy(version=draft)
@@ -154,32 +154,6 @@ class Command(BaseCommand):
                 draft=draft,
                 coding_system=draft.coding_system,
                 removed_codes=old_codes,
-            )
-
-    def add_new_descendants(self, draft):
-        """
-        Identify any codes that are new descendants of codes previously included
-        or excluded.
-        This duplicates code in export_to_builder, but is needed here in case any
-        older drafts that predated it need to be updated.
-        """
-        new_descendants = set()
-        for code in draft.codeset.all_codes():
-            descendants = set(draft.codeset.hierarchy.descendants(code))
-            for descendant in descendants:
-                if descendant not in draft.code_objs.values_list("code", flat=True):
-                    new_descendants.add(descendant)
-
-        if new_descendants:
-            CodeObj.objects.bulk_create(
-                [CodeObj(version=draft, code=new_code) for new_code in new_descendants]
-            )
-            logger.info(
-                "New descendant codes found and added to draft",
-                draft=draft.hash,
-                coding_system=draft.coding_system.name,
-                coding_system_release=draft.coding_system.release,
-                new_descendant_codes=new_descendants,
             )
 
     def update_code_statuses(self, draft):

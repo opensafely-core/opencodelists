@@ -37,3 +37,7 @@ def test_code_to_term(icd10_data, coding_system):
         "M770": "Medial epicondylitis",
         "99999": "Unknown",
     }
+
+
+def test_matching_codes(icd10_data, coding_system):
+    assert coding_system.matching_codes(["M77", "M770", "99999"]) == {"M77", "M770"}

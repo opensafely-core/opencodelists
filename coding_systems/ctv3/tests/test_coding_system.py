@@ -142,3 +142,10 @@ def test_relationships(coding_system):
     }
 
     assert set(coding_system.descendant_relationships(["33333", "55555"])) == set()
+
+
+def test_matching_codes(coding_system, tpp_concepts, raw_concepts):
+    assert coding_system.matching_codes(["11111", "33333", "99999"]) == {
+        "11111",
+        "33333",
+    }

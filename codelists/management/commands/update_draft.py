@@ -63,10 +63,15 @@ class Command(BaseCommand):
             logger.info(
                 "Original codeset", code_to_status=original_codeset.code_to_status
             )
+            logger.info("Updating searches")
             self.update_searches(draft)
+            logger.info("Deleting removed codes")
             self.delete_removed_codes(draft)
+            logger.info("Checking for new descendants")
             add_new_descendants(version=draft)
+            logger.info("Updating statatus")
             self.update_code_statuses(draft)
+            logger.info("Geting diff")
             updates = self.diff(draft.codeset, original_codeset)
             cache_hierarchy(version=draft)
 
@@ -143,8 +148,8 @@ class Command(BaseCommand):
         Identify any code objs on the draft that are no longer in the coding system,
         and delete them
         """
-        codes_in_coding_system = set(
-            draft.coding_system.lookup_names(draft.codeset.all_codes())
+        codes_in_coding_system = draft.coding_system.matching_codes(
+            draft.codeset.all_codes()
         )
         old_codes = draft.codeset.all_codes() - codes_in_coding_system
         if old_codes:

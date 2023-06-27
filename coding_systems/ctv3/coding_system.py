@@ -68,6 +68,19 @@ class CodingSystem(BaseCodingSystem):
         )
         return tpp_read_codes | raw_read_codes
 
+    def matching_codes(self, codes):
+        tpp_read_codes = set(
+            TPPConcept.objects.using(self.database_alias)
+            .filter(read_code__in=codes)
+            .values_list("read_code", flat=True)
+        )
+        raw_read_codes = set(
+            RawConceptTermMapping.objects.using(self.database_alias)
+            .filter(concept_id__in=codes)
+            .values_list("concept_id", flat=True)
+        )
+        return tpp_read_codes | raw_read_codes
+
     def ancestor_relationships(self, codes):
         codes = list(codes)
         relationship_table = TPPRelationship._meta.db_table

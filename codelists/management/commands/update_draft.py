@@ -143,8 +143,8 @@ class Command(BaseCommand):
         Identify any code objs on the draft that are no longer in the coding system,
         and delete them
         """
-        codes_in_coding_system = set(
-            draft.coding_system.lookup_names(draft.codeset.all_codes())
+        codes_in_coding_system = draft.coding_system.matching_codes(
+            draft.codeset.all_codes()
         )
         old_codes = draft.codeset.all_codes() - codes_in_coding_system
         if old_codes:

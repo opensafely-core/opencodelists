@@ -37,6 +37,13 @@ class CodingSystem(BaseCodingSystem):
         else:
             return {code}
 
+    def matching_codes(self, codes):
+        return set(
+            Concept.objects.using(self.database_alias)
+            .filter(code__in=codes)
+            .values_list("code", flat=True)
+        )
+
     def ancestor_relationships(self, codes):
         codes = list(codes)
         concept_table = Concept._meta.db_table

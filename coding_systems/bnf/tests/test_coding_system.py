@@ -38,3 +38,18 @@ def test_code_to_term(coding_system):
         "22222": "Section 22222",
         "99999": "Unknown",
     }
+
+
+def test_matching_codes(coding_system):
+    for code in ["11111", "22222"]:
+        Concept.objects.using("bnf_test_20200101").create(
+            code=code[:2], type="Chapter", name=f"Chapter {code[:2]}"
+        )
+        Concept.objects.using("bnf_test_20200101").create(
+            code=code, type="Section", name=f"Section {code}"
+        )
+
+    assert coding_system.matching_codes(["11111", "22222", "99999"]) == {
+        "11111",
+        "22222",
+    }

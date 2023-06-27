@@ -180,3 +180,10 @@ class CodingSystem(BaseCodingSystem):
                 kind="chapter"
             )
         }
+
+    def matching_codes(self, codes):
+        return set(
+            Concept.objects.using(self.database_alias)
+            .filter(code__in=codes)
+            .values_list("code", flat=True)
+        )

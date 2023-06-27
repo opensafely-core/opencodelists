@@ -107,6 +107,15 @@ class BaseCodingSystem(ABC):
     def codes_by_type(self, codes, hierarchy):  # pragma: no cover
         raise NotImplementedError
 
+    def matching_codes(self, codes):
+        """
+        Given a set/list of codes, return the subset of those codes
+        that are found in the coding system. This is used to identify
+        codes on a codelist version that have been removed in the
+        current release of the coding system.
+        """
+        raise NotImplementedError
+
 
 class DummyCodingSystem(BaseCodingSystem):
     """

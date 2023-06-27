@@ -598,8 +598,11 @@ def add_new_descendants(*, version):
     command that will do the status assignment and report on codes that have been updated.
     """
     current_codes = set(version.codeset.all_codes())
-    all_descendants = set().union(
-        *[set(version.codeset.hierarchy.descendants(code)) for code in current_codes]
+    all_descendants = set(
+        child_code
+        for (_, child_code) in version.coding_system.descendant_relationships(
+            current_codes
+        )
     )
     new_descendants = all_descendants - current_codes
 

@@ -63,10 +63,15 @@ class Command(BaseCommand):
             logger.info(
                 "Original codeset", code_to_status=original_codeset.code_to_status
             )
+            logger.info("Updating searches")
             self.update_searches(draft)
+            logger.info("Deleting removed codes")
             self.delete_removed_codes(draft)
+            logger.info("Checking for new descendants")
             add_new_descendants(version=draft)
+            logger.info("Updating statatus")
             self.update_code_statuses(draft)
+            logger.info("Geting diff")
             updates = self.diff(draft.codeset, original_codeset)
             cache_hierarchy(version=draft)
 

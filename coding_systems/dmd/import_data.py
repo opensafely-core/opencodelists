@@ -208,7 +208,7 @@ def import_coding_system(release_dir, database_alias):
         import_model(model, elements, database_alias)
 
     # gtin
-    elements = load_elements(filepaths["gtin"])[0]
+    elements = next(load_elements(filepaths["gtin"]))
     for element in elements:
         assert (
             element[0].tag == "AMPPID"
@@ -236,15 +236,15 @@ def load_elements(filepath):
     """Return list of non-comment top-level elements in given file."""
 
     logger.info("Reading file", file=filepath)
-    with open(filepath) as f:
-        doc = etree.parse(f)
-
+    doc = etree.parse(filepath)
     root = doc.getroot()
-    elements = list(root)
+    iterelements = root.iterchildren()
+    first_element = next(iterelements)
+
     assert isinstance(
-        elements[0], etree._Comment
-    ), f"Expected etree._Comment first row, got {type(elements[0])}"
-    return elements[1:]
+        first_element, etree._Comment
+    ), f"Expected etree._Comment first row, got {type(first_element)}"
+    yield from iterelements
 
 
 def import_model(model, elements, database):
@@ -267,32 +267,32 @@ def import_model(model, elements, database):
         table_name, ", ".join(column_names), ", ".join(["%s"] * len(column_names))
     )
 
-    values = []
-
     logger.info("Loading model", model=model.__name__)
-    for element in elements:
-        row = {}
 
-        for field_element in element:
-            name = field_element.tag.lower()
-            if name == "desc":
-                # "desc" is a really unhelpful field name if you're writing
-                # SQL!
-                name = "descr"
-            elif name == "dnd":
-                # For consistency with the rest of the data, we rename
-                # "dnd" to "dndcd", as it is a foreign key field.
-                name = "dndcd"
+    def iter_values(elements):
+        for element in elements:
+            row = {}
 
-            value = field_element.text
-            row[name] = value
+            for field_element in element:
+                name = field_element.tag.lower()
+                if name == "desc":
+                    # "desc" is a really unhelpful field name if you're writing
+                    # SQL!
+                    name = "descr"
+                elif name == "dnd":
+                    # For consistency with the rest of the data, we rename
+                    # "dnd" to "dndcd", as it is a foreign key field.
+                    name = "dndcd"
 
-        for name in boolean_field_names:
-            row[name] = name in row
+                value = field_element.text
+                row[name] = value
 
-        values.append([row.get(name) for name in column_names])
+            for name in boolean_field_names:
+                row[name] = name in row
+            yield [row.get(name) for name in column_names]
+
     with connections[database].cursor() as cursor:
-        cursor.executemany(sql, values)
+        cursor.executemany(sql, iter_values(elements))
 
 
 def make_model_name(tag_name):

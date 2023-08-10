@@ -20,7 +20,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: hadolint/hadolint-action@v1.4.0
+      - uses: hadolint/hadolint-action@473e36ba306c199243ffe4f1e652a8b60a8fa296  # v1.4.0
         with:
           dockerfile: docker/Dockerfile
 

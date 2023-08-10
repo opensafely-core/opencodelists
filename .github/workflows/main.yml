@@ -29,7 +29,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: extractions/setup-just@aa5d15c144db4585980a44ebfdd2cf337c4f14cb  # v1.4.0
+      - uses: opensafely-core/setup-action@v1
+        with:
+          install-just: true
 
       - name: Build docker image and run checks in it
         run: |
@@ -41,7 +43,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: extractions/setup-just@aa5d15c144db4585980a44ebfdd2cf337c4f14cb  # v1.4.0
+      - uses: opensafely-core/setup-action@v1
+        with:
+          install-just: true
 
       - name: Build docker image and run checks in it
         run: |
@@ -53,7 +57,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: extractions/setup-just@aa5d15c144db4585980a44ebfdd2cf337c4f14cb  # v1.4.0
+      - uses: opensafely-core/setup-action@v1
+        with:
+          install-just: true
 
       - name: Build docker image and run Python tests in it
         run: |
@@ -65,7 +71,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: extractions/setup-just@aa5d15c144db4585980a44ebfdd2cf337c4f14cb  # v1.4.0
+      - uses: opensafely-core/setup-action@v1
+        with:
+          install-just: true
 
       - name: Build docker image and run JS tests in it
         run: |
@@ -85,7 +93,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: extractions/setup-just@aa5d15c144db4585980a44ebfdd2cf337c4f14cb  # v1.4.0
+      - uses: opensafely-core/setup-action@v1
+        with:
+          install-just: true
 
       - name: Build docker image
         run: |

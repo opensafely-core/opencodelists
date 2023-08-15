@@ -435,13 +435,13 @@ protobuf==4.22.1 \
     # via
     #   googleapis-common-protos
     #   opentelemetry-proto
-pysqlite3-binary==0.5.0 \
-    --hash=sha256:99b436a36815166b1f825d513cba4bd15fc909fdb35b32ac2694ab5255b52aea \
-    --hash=sha256:c2a3f4b57918139f61bdf602e497e3eeedeaef462fb1ae8bee9b905eb8e791df \
-    --hash=sha256:cf371dffde31275644b6f02e6c10345a9fac36941835dcbf6190cb2cef6ab470 \
-    --hash=sha256:d1e72b817c55d64c1614fcc4404599ca5033ad29a7be9c63b302545bae1c067c \
-    --hash=sha256:d9acda79c25e6594d002db484c357685f1bf81619c665d394c8942ff737f9e57 \
-    --hash=sha256:fc9a1e6cf1226c4e47a987d722e227c4503dcc33b49a9873bb24bf8f11e673c8
+pysqlite3-binary==0.5.1 \
+    --hash=sha256:102e17ad76878ac8ec4686104b57cd0115a3ba6b82e46625165ff28074a2374e \
+    --hash=sha256:1991c12f98771f6446f06161e68878375e6a4abc341a0783bd329eb3dfe0e6eb \
+    --hash=sha256:41c17f30a68c1fe87aef88402f9e5ededf1cb319089705fdf2f8fdeeb91f79d1 \
+    --hash=sha256:4a22cf616b5367b683054f114b5fe6dece302cf12a04730332a310f335a38441 \
+    --hash=sha256:4d1089b986db9b5abe13813a0edd7eb5f693612641ff99e40afc0afed2633b14 \
+    --hash=sha256:d038101b39da76c20218af0e625213d7ac4ed00fbac02748878e28551f065cce
     # via -r requirements.prod.in
 python-dotenv==1.0.0 \
     --hash=sha256:a8df96034aae6d2d50a4ebe8216326c61c3eb64836776504fcca410e5937a3ba \

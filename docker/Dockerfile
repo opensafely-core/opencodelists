@@ -31,7 +31,7 @@ RUN --mount=type=cache,target=/var/cache/apt \
 #
 # Create node image.
 #
-FROM node:16.10.0 AS node-builder
+FROM node:20.5.0 AS node-builder
 COPY --from=base-python /root/docker-apt-install.sh /root/docker-apt-install.sh
 
 RUN /root/docker-apt-install.sh rsync

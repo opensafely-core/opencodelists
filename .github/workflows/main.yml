@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: hadolint/hadolint-action@473e36ba306c199243ffe4f1e652a8b60a8fa296  # v1.4.0
         with:
           dockerfile: docker/Dockerfile
@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: opensafely-core/setup-action@v1
         with:
           install-just: true
@@ -42,7 +42,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: opensafely-core/setup-action@v1
         with:
           install-just: true
@@ -56,7 +56,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: opensafely-core/setup-action@v1
         with:
           install-just: true
@@ -70,7 +70,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: opensafely-core/setup-action@v1
         with:
           install-just: true
@@ -92,7 +92,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: opensafely-core/setup-action@v1
         with:
           install-just: true

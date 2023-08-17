@@ -442,9 +442,9 @@ lxml==4.9.3 \
     --hash=sha256:fcdd00edfd0a3001e0181eab3e63bd5c74ad3e67152c84f93f13769a40e073a7 \
     --hash=sha256:fe4bda6bd4340caa6e5cf95e73f8fea5c4bfc55763dd42f1b50a94c1b4a2fbd4
     # via -r requirements.prod.in
-markdown2==2.4.8 \
-    --hash=sha256:7d49ca871d3e0e412c65d7d21fcbc13ae897f7876f3e5f14dd4db3b7fbf27f10 \
-    --hash=sha256:90475aca3d9c8e7df6d70c51de5bbbe9edf7fcf6a380bd1044d321500f5445da
+markdown2==2.4.10 \
+    --hash=sha256:cdba126d90dc3aef6f4070ac342f974d63f415678959329cc7909f96cc235d72 \
+    --hash=sha256:e6105800483783831f5dc54f827aa5b44eb137ecef5a70293d8ecfbb4109ecc6
     # via -r requirements.prod.in
 marshmallow==3.19.0 \
     --hash=sha256:90032c0fd650ce94b6ec6dc8dfeb0e3ff50c144586462c389b81a07205bedb78 \

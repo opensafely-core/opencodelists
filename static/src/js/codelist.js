@@ -16,7 +16,7 @@ const removeRow = (name, event) => {
 
   if (classes.length < 1) {
     console.log(
-      `no classes beginning with ${name} in remove button class list`
+      `no classes beginning with ${name} in remove button class list`,
     );
     return;
   }
@@ -40,9 +40,9 @@ $(document).ready(() => {
   $("#add-signoff").click((event) => addForm("signoff", event));
 
   $(document).on("click", ".remove-reference", (event) =>
-    removeRow("reference", event)
+    removeRow("reference", event),
   );
   $(document).on("click", ".remove-signoff", (event) =>
-    removeRow("signoff", event)
+    removeRow("signoff", event),
   );
 });

@@ -48,10 +48,10 @@ class Hierarchy {
     // status, return an updated mapping.
 
     let included = Object.keys(codeToStatus).filter(
-      (c) => codeToStatus[c] === "+" && c !== code
+      (c) => codeToStatus[c] === "+" && c !== code,
     );
     let excluded = Object.keys(codeToStatus).filter(
-      (c) => codeToStatus[c] === "-" && c !== code
+      (c) => codeToStatus[c] === "-" && c !== code,
     );
 
     if (status === "+" && codeToStatus[code] !== "+") {
@@ -87,7 +87,7 @@ class Hierarchy {
     const { includedAncestors, excludedAncestors } = this.significantAncestors(
       code,
       included,
-      excluded
+      excluded,
     );
 
     if (includedAncestors.length === 0 && excludedAncestors.length === 0) {
@@ -123,7 +123,7 @@ class Hierarchy {
 
     // these are the ancestors of the code that are directly included or excluded
     const includedOrExcludedAncestors = ancestors.filter(
-      (a) => included.includes(a) || excluded.includes(a)
+      (a) => included.includes(a) || excluded.includes(a),
     );
 
     // these are the ancestors of the code that are directly included or excluded,
@@ -131,16 +131,16 @@ class Hierarchy {
     const significantAncestors = includedOrExcludedAncestors.filter(
       (a) =>
         !this.getDescendants(a).some((d) =>
-          includedOrExcludedAncestors.includes(d)
-        )
+          includedOrExcludedAncestors.includes(d),
+        ),
     );
 
     return {
       includedAncestors: significantAncestors.filter((a) =>
-        included.includes(a)
+        included.includes(a),
       ),
       excludedAncestors: significantAncestors.filter((a) =>
-        excluded.includes(a)
+        excluded.includes(a),
       ),
     };
   }
@@ -190,7 +190,7 @@ class Hierarchy {
             childCode,
             childPath,
             prevPipes.concat(isLastSibling ? " " : "│"),
-            ix === childCodes.length - 1
+            ix === childCodes.length - 1,
           );
         }
       });
@@ -257,7 +257,7 @@ class Hierarchy {
         newDepth = depth + 1;
       } else if (
         this.getDescendants(code).every((d) =>
-          codeToStatus[d].includes(codeToStatus[code])
+          codeToStatus[d].includes(codeToStatus[code]),
         )
       ) {
         // All descendants of code have the same status as code.

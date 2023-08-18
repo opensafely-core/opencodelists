@@ -35,7 +35,7 @@ afterEach(() => {
 global.fetch = jest.fn().mockImplementation((url, config) =>
   Promise.resolve({
     json: () => Promise.resolve(JSON.parse(config.body)),
-  })
+  }),
 );
 
 const testRender = (data) => {
@@ -46,7 +46,7 @@ const testRender = (data) => {
   const visiblePaths = hierarchy.initiallyVisiblePaths(
     ancestorCodes,
     data.code_to_status,
-    1
+    1,
   );
 
   act(() => {
@@ -68,7 +68,7 @@ const testRender = (data) => {
         metadata={data.metadata}
         hierarchy={hierarchy}
       />,
-      container
+      container,
     );
   });
 };
@@ -98,7 +98,7 @@ it("does the right thing when clicking around", () => {
   const visiblePaths = hierarchy.initiallyVisiblePaths(
     ancestorCodes,
     data.code_to_status,
-    100 // we want all codes to be visible so that we can check statuses
+    100, // we want all codes to be visible so that we can check statuses
   );
 
   // Keep track of which visible concept has which status
@@ -130,36 +130,36 @@ it("does the right thing when clicking around", () => {
       switch (statuses[code]) {
         case "+":
           expect(row.querySelector("button[data-symbol='+']")).toHaveClass(
-            "btn-primary"
+            "btn-primary",
           );
           break;
         case "(+)":
           expect(row.querySelector("button[data-symbol='+']")).toHaveClass(
-            "btn-secondary"
+            "btn-secondary",
           );
           break;
         case "-":
           expect(row.querySelector("button[data-symbol='-']")).toHaveClass(
-            "btn-primary"
+            "btn-primary",
           );
           break;
         case "(-)":
           expect(row.querySelector("button[data-symbol='-']")).toHaveClass(
-            "btn-secondary"
+            "btn-secondary",
           );
           break;
         case "?":
           expect(row.querySelector("button[data-symbol='+']")).not.toHaveClass(
-            "btn-primary"
+            "btn-primary",
           );
           expect(row.querySelector("button[data-symbol='+']")).not.toHaveClass(
-            "btn-secondary"
+            "btn-secondary",
           );
           expect(row.querySelector("button[data-symbol='-']")).not.toHaveClass(
-            "btn-primary"
+            "btn-primary",
           );
           expect(row.querySelector("button[data-symbol='-']")).not.toHaveClass(
-            "btn-secondary"
+            "btn-secondary",
           );
           break;
         case "!":
@@ -174,7 +174,7 @@ it("does the right thing when clicking around", () => {
         expect(container.querySelector(`#summary-${key}`)).toBe(null);
       } else {
         expect(
-          parseInt(container.querySelector(`#summary-${key}`).textContent)
+          parseInt(container.querySelector(`#summary-${key}`).textContent),
         ).toBe(summaryCounts[key]);
       }
     });
@@ -183,7 +183,7 @@ it("does the right thing when clicking around", () => {
   // Helper that simulates clicking on + or - for given code.
   const click = (code, symbol) => {
     const button = container.querySelector(
-      `[data-code='${code}'] button[data-symbol='${symbol}']`
+      `[data-code='${code}'] button[data-symbol='${symbol}']`,
     );
     button.dispatchEvent(new MouseEvent("click", { bubbles: true }));
   };
@@ -207,7 +207,7 @@ it("does the right thing when clicking around", () => {
         metadata={data.metadata}
         hierarchy={hierarchy}
       />,
-      container
+      container,
     );
   });
 

@@ -10,7 +10,7 @@
     "@babel/core": "^7.22.10",
     "@babel/preset-env": "^7.22.10",
     "@babel/preset-react": "^7.22.5",
-    "@testing-library/jest-dom": "^5.17.0",
+    "@testing-library/jest-dom": "^6.0.1",
     "babel-loader": "^9.1.3",
     "eslint": "^8.47.0",
     "eslint-config-prettier": "^9.0.0",

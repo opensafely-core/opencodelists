@@ -117,6 +117,36 @@ def test_coding_system_invalid_database_alias():
     csr.save()
 
 
+def test_updating_database_alias_with_update_or_create():
+    # As of Django 4.2, update_or_create passes update_fields
+    # to Model.save()
+    # This means that any fields that are updated in a custom
+    # save() method need to be added to update_fields in order to
+    # ensure that they are also saved
+    # https://docs.djangoproject.com/en/4.2/releases/4.2/#setting-update-fields-in-model-save-may-now-be-required
+    #
+    # The custom CodingSystemRelease.save() method updates database_alias
+    # based on release_name, coding_system and valid_from fields.
+    # This test ensures that, although we aren't adding database_alias to
+    # update_fields, the validation in the save method will raise an error
+    # in update_or_create if database_alias is not also updated.
+    csr = CodingSystemRelease.objects.create(
+        coding_system="null",
+        release_name="Version 1",
+        valid_from=datetime(2022, 10, 1, tzinfo=timezone.utc),
+        state=ReleaseState.READY,
+    )
+    queryset = CodingSystemRelease.objects.filter(id=csr.id)
+    with pytest.raises(AssertionError):
+        queryset.update_or_create(id=csr.id, defaults={"release_name": "Version 2"})
+
+    queryset.update_or_create(
+        id=csr.id, defaults={"release_name": "Version 2", "database_alias": None}
+    )
+    csr.refresh_from_db()
+    assert csr.database_alias == "null_version-2_20221001"
+
+
 def test_coding_system_release_state(coding_system_release):
     initial_count = CodingSystemRelease.objects.count()
     # create a new CSR, with importing state

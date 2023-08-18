@@ -283,7 +283,7 @@ test("initiallyVisiblePaths", () => {
   //     └ j
 
   expect(hierarchy.initiallyVisiblePaths(["a"], codeToStatus, 0)).toEqual(
-    new Set(["a", "a:b", "a:c", "a:c:e", "a:c:f", "a:c:f:i", "a:c:f:j"])
+    new Set(["a", "a:b", "a:c", "a:c:e", "a:c:f", "a:c:f:i", "a:c:f:j"]),
   );
 
   // Starting at a, the following paths are initially visible with maxDepth = 1:
@@ -313,7 +313,7 @@ test("initiallyVisiblePaths", () => {
       "a:c:f",
       "a:c:f:i",
       "a:c:f:j",
-    ])
+    ]),
   );
 });
 
@@ -356,7 +356,7 @@ test("toggleVisibility", () => {
       "a:c:f",
       "a:b:e:h",
       "a:b:e:i",
-    ])
+    ]),
   );
 
   hierarchy.toggleVisibility(visiblePaths, "a:b:d");
@@ -374,7 +374,7 @@ test("toggleVisibility", () => {
       "a:c:f",
       "a:b:e:h",
       "a:b:e:i",
-    ])
+    ]),
   );
 });
 

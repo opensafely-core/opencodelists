@@ -50,7 +50,7 @@ class CodelistBuilder extends React.Component {
       const newCodeToStatus = hierarchy.updateCodeToStatus(
         codeToStatus,
         code,
-        status
+        status,
       );
 
       return {
@@ -97,7 +97,7 @@ class CodelistBuilder extends React.Component {
             return { updating: false, updateQueue: newUpdateQueue };
           },
 
-          this.maybePostUpdates
+          this.maybePostUpdates,
         );
       });
   }
@@ -318,15 +318,15 @@ class CodelistBuilder extends React.Component {
 
   renderMoreInfoModal(code) {
     const included = this.props.allCodes.filter(
-      (c) => this.state.codeToStatus[c] === "+"
+      (c) => this.state.codeToStatus[c] === "+",
     );
     const excluded = this.props.allCodes.filter(
-      (c) => this.state.codeToStatus[c] === "-"
+      (c) => this.state.codeToStatus[c] === "-",
     );
     const significantAncestors = this.props.hierarchy.significantAncestors(
       code,
       included,
-      excluded
+      excluded,
     );
 
     const includedAncestorsText = significantAncestors.includedAncestors

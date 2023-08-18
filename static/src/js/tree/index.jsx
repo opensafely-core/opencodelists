@@ -9,7 +9,7 @@ import { readValueFromPage } from "../utils";
 
 const hierarchy = new Hierarchy(
   readValueFromPage("parent-map"),
-  readValueFromPage("child-map")
+  readValueFromPage("child-map"),
 );
 
 const treeTables = readValueFromPage("tree-tables");
@@ -22,7 +22,7 @@ const ancestorCodes = treeTables
 const visiblePaths = hierarchy.initiallyVisiblePaths(
   ancestorCodes,
   codeToStatus,
-  0
+  0,
 );
 
 ReactDOM.render(
@@ -35,5 +35,5 @@ ReactDOM.render(
     updateStatus={null}
     showMoreInfoModal={null}
   />,
-  document.querySelector("#codelist-tree")
+  document.querySelector("#codelist-tree"),
 );

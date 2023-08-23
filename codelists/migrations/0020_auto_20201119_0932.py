@@ -3,7 +3,6 @@
 import datetime
 
 from django.db import migrations, models
-from django.utils.timezone import utc
 
 
 class Migration(migrations.Migration):
@@ -18,7 +17,7 @@ class Migration(migrations.Migration):
             name="created_at",
             field=models.DateTimeField(
                 auto_now_add=True,
-                default=datetime.datetime(2020, 11, 19, 9, 32, 9, 901186, tzinfo=utc),
+                default=datetime.datetime(2020, 11, 19, 9, 32, 9, 901186, tzinfo=datetime.timezone.utc),
             ),
             preserve_default=False,
         ),
@@ -32,7 +31,7 @@ class Migration(migrations.Migration):
             name="created_at",
             field=models.DateTimeField(
                 auto_now_add=True,
-                default=datetime.datetime(2020, 11, 19, 9, 32, 19, 101526, tzinfo=utc),
+                default=datetime.datetime(2020, 11, 19, 9, 32, 19, 101526, tzinfo=datetime.timezone.utc),
             ),
             preserve_default=False,
         ),

@@ -35,6 +35,6 @@ if [ $RESULT == 0 ] ; then
 else
   #  Post failure message to slack
   curl -X POST -H 'Content-type: application/json' \
-    --data '{"text":"Latest snomedct release failed to import to OpenCodelists; this is probably because no new release was found."}'\
+    --data '{"text":"Latest snomedct release failed to import to OpenCodelists; this is probably because no new release was found. tech-support please check latest SNOMED-CT release at https://www.opencodelists.org/coding-systems/latest-releases against https://isd.digital.nhs.uk/trud/users/authenticated/filters/0/categories/26/items/101/releases"}'\
     "${SLACK_WEBHOOK_URL}"
 fi

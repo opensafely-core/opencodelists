@@ -37,6 +37,6 @@ if [ $RESULT == 0 ] ; then
 else
   #  Post failure message to slack
   curl -X POST -H 'Content-type: application/json' \
-    --data '{"text":"Latest dm+d release failed to import to OpenCodelists"}'\
+    --data '{"text":"Latest dm+d release failed to import to OpenCodelists. Calling tech-support."}'\
     "${SLACK_WEBHOOK_URL}"
 fi

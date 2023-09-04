@@ -1,9 +1,11 @@
 # /etc/cron.d/dokku-opencodelists-import-latest-dmd
 # cron job to import latest dm+d releases
-# update SLACK_WEBHOOK_URL with relevant channel url (#tech-noise)
+# update SLACK_WEBHOOK_URL and SLACK_TECHSUPPORT_WEBHOOK_URL with relevant channel url
+#(#tech-noise, #tech-support-channel)
 
 PATH=/usr/local/bin:/usr/bin:/bin
 SHELL=/bin/bash
 SLACK_WEBHOOK_URL=dummy-url
+SLACK_TECHSUPPORT_WEBHOOK_URL=dummy-url
 
 5 23 * * 1 dokku /var/lib/dokku/data/storage/opencodelists/import_latest_dmd.sh

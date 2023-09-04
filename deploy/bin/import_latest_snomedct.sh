@@ -9,7 +9,7 @@ set -euo pipefail
 
 # This script should be copied to /var/lib/dokku/data/storage/opencodelists/import_latest_snomedct.sh
 # on dokku3 and run using the cronfile at opencodelists/deploy/bin/import_latest_snomedct_cron
-# SLACK_WEBHOOK_URL is an environment variable set in the cronfile on dokku3
+# SLACK_WEBHOOK_URL  and SLACK_TECHSUPPORT_WEBHOOK_URLis an environment variable set in the cronfile on dokku3
 
 REPO_ROOT="/app"
 DOWNLOAD_DIR="/storage/data/snomedct"
@@ -33,8 +33,13 @@ if [ $RESULT == 0 ] ; then
     --data '{"text":"Latest snomedct release successfully imported to OpenCodelists"}'\
     "${SLACK_WEBHOOK_URL}"
 else
-  #  Post failure message to slack
+  #  Ask tech-support to investigate
   curl -X POST -H 'Content-type: application/json' \
     --data '{"text":"Latest snomedct release failed to import to OpenCodelists; this is probably because no new release was found. tech-support please check latest SNOMED-CT release at https://www.opencodelists.org/coding-systems/latest-releases against https://isd.digital.nhs.uk/trud/users/authenticated/filters/0/categories/26/items/101/releases"}'\
+    "${SLACK_TECHSUPPORT_WEBHOOK_URL}"
+
+  #  Post failure message to slack
+  curl -X POST -H 'Content-type: application/json' \
+    --data '{"text":"Latest snomedct release failed to import to OpenCodelists; this is probably because no new release was found. Tech-support has been notfiied.'\
     "${SLACK_WEBHOOK_URL}"
 fi

@@ -8,4 +8,4 @@ SHELL=/bin/bash
 SLACK_WEBHOOK_URL=dummy-url
 SLACK_TECHSUPPORT_WEBHOOK_URL=dummy-url
 
-5 23 * * 2 dokku /var/lib/dokku/data/storage/opencodelists/import_latest_snomedct.sh
+5 23 * * 2 dokku /var/lib/dokku/data/storage/opencodelists/import_latest_release.sh snomedct

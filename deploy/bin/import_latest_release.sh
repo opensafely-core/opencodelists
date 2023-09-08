@@ -3,11 +3,11 @@
 set -euo pipefail
 
 # NOTE: this script is run by cron (as the dokku user) weekly
-# For dm+d, it is run every Monday noight, to co-incide with weekly
+# For dm+d, it is run every Monday night, to coincide with weekly
 # dm+d releases
 # https://isd.digital.nhs.uk/trud/users/authenticated/filters/0/categories/6/items/24/releases
 
-# For snomedct, it is run every Tuesday. This isarbitrary; snomed releases
+# For snomedct, it is run every Tuesday. This is arbitrary; snomed releases
 # are not made on a very regular schedule, and typically happen about every
 # 2 months.  We run it weekly, expecting it to "fail" because it already has the
 # latest release.

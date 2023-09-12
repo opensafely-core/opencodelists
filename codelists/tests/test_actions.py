@@ -16,7 +16,10 @@ def test_create_codelist(organisation):
         coding_system_database_alias=most_recent_database_alias("snomedct"),
         description="This is a test",
         methodology="This is how we did it",
-        csv_data="code,description\n1067731000000107,Injury whilst swimming (disorder)",
+        # 239964003 is actually the code for "Soft tissue lesion of elbow region"
+        # The action validates that all codes are present in the coding system,
+        # but doesn't check terms match
+        csv_data="code,description\n239964003,Injury whilst swimming (disorder)",
     )
     assert cl.organisation == organisation
     assert cl.user is None
@@ -39,7 +42,7 @@ def test_create_codelist_for_user(user):
         coding_system_database_alias=most_recent_database_alias("snomedct"),
         description="This is a test",
         methodology="This is how we did it",
-        csv_data="code,description\n1067731000000107,Injury whilst swimming (disorder)",
+        csv_data="code,description\n239964003,Injury whilst swimming (disorder)",
     )
     assert cl.organisation is None
     assert cl.user == user
@@ -61,7 +64,7 @@ def test_create_codelist_with_duplicate_name(organisation):
         coding_system_database_alias=most_recent_database_alias("snomedct"),
         description="This is a test",
         methodology="This is how we did it",
-        csv_data="code,description\n1067731000000107,Injury whilst swimming (disorder)",
+        csv_data="code,description\n239964003,Injury whilst swimming (disorder)",
     )
 
     with pytest.raises(IntegrityError):
@@ -72,7 +75,7 @@ def test_create_codelist_with_duplicate_name(organisation):
             coding_system_database_alias=most_recent_database_alias("snomedct"),
             description="This is a test",
             methodology="This is how we did it",
-            csv_data="code,description\n1067731000000107,Injury whilst swimming (disorder)",
+            csv_data="code,description\n239964003,Injury whilst swimming (disorder)",
         )
 
     assert Codelist.objects.filter(handles__name="Test").count() == 1

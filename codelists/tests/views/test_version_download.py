@@ -8,7 +8,11 @@ def test_get(client, version):
 
 
 def test_get_with_fixed_headers(client, old_style_version):
-    assert old_style_version.table[0] == ["id", "name"]
+    old_style_version.csv_data = old_style_version.csv_data.replace(
+        "id,name", "code,name"
+    )
+    old_style_version.save()
+    assert old_style_version.table[0] == ["code", "name"]
     rsp = client.get(old_style_version.get_download_url() + "?fixed-headers")
     data = rsp.content.decode("utf8")
     assert data == old_style_version.csv_data_for_download(fixed_headers=True)
@@ -17,7 +21,7 @@ def test_get_with_fixed_headers(client, old_style_version):
 
 def test_get_with_fixed_headers_no_matching_term(client, old_style_version):
     old_style_version.csv_data = old_style_version.csv_data.replace(
-        "id,name", "id,unk_description"
+        "code,name", "id,unk_description"
     )
     old_style_version.save()
     rsp = client.get(old_style_version.get_download_url() + "?fixed-headers")
@@ -30,7 +34,7 @@ def test_get_with_fixed_headers_no_matching_term(client, old_style_version):
 
 def test_get_with_fixed_headers_not_downloadable(client, old_style_version):
     old_style_version.csv_data = old_style_version.csv_data.replace(
-        "id,name", "unk,name"
+        "code,name", "unk,name"
     )
     old_style_version.save()
     assert not old_style_version.downloadable

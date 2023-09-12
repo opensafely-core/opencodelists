@@ -1,3 +1,6 @@
+import csv
+from io import StringIO
+
 import structlog
 from django.db import transaction
 from django.db.utils import IntegrityError
@@ -226,6 +229,18 @@ def create_old_style_version(*, codelist, csv_data, coding_system_database_alias
     coding_system = codelist.coding_system_cls.get_by_release(
         coding_system_database_alias
     )
+    if coding_system.has_database:
+        # Validate codes against the coding system release we're using to
+        # create the version
+        code_data = csv.reader(StringIO(csv_data))
+        header_row = next(code_data)
+        code_header = list({"dmd_id", "code"} & set(header_row))
+        assert len(code_header) == 1
+        code_col_ix = header_row.index(code_header[0])
+        # Find codes
+        codes = {row[code_col_ix] for row in code_data}
+        assert codes == set(coding_system.lookup_names(codes))
+
     version = codelist.versions.create(
         csv_data=csv_data,
         status=Status.UNDER_REVIEW,

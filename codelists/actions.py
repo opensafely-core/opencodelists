@@ -33,6 +33,7 @@ def create_old_style_codelist(
     slug=None,
     references=None,
     signoffs=None,
+    tag=None,
 ):
     """Create a new codelist with an old-style version with given csv_data."""
 
@@ -50,6 +51,7 @@ def create_old_style_codelist(
         codelist=codelist,
         csv_data=csv_data,
         coding_system_database_alias=coding_system_database_alias,
+        tag=tag,
     )
     logger.info("Created Codelist", codelist_pk=codelist.pk)
     return codelist
@@ -225,7 +227,9 @@ def _create_codelist_with_handle(
     return codelist
 
 
-def create_old_style_version(*, codelist, csv_data, coding_system_database_alias=None):
+def create_old_style_version(
+    *, codelist, csv_data, coding_system_database_alias=None, tag=None
+):
     coding_system = codelist.coding_system_cls.get_by_release(
         coding_system_database_alias
     )
@@ -245,6 +249,7 @@ def create_old_style_version(*, codelist, csv_data, coding_system_database_alias
         csv_data=csv_data,
         status=Status.UNDER_REVIEW,
         coding_system_release=coding_system.release,
+        tag=tag,
     )
     cache_hierarchy(version=version)
     logger.info("Created Version", version_pk=version.pk)

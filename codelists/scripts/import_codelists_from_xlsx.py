@@ -20,6 +20,9 @@ Run with:
       --force-new-version -f  # to force a new version, even if there are no changes
       --live-run  # run for real; if not set, just reports what would be done
 
+(NOTE: when running on prod use --host https://www.opensafely.org; if run with https://opensafely.org, the
+redirect to www will make the api calls return 405s.)
+
 Provide a path to an xlsx file, which should contain at least one sheet, with at least columns:
  - coding_system
  - codelist_name
@@ -314,7 +317,7 @@ def parse_args():
     parser.add_argument(
         "--host",
         default="http://localhost:8000",
-        help="Host to use for API calls; https://opensafely.org for live prod run",
+        help="Host to use for API calls; https://www.opensafely.org for live prod run",
     )
 
     arguments = parser.parse_args()

@@ -7,6 +7,8 @@ from django.views.decorators.http import require_http_methods
 from mappings.dmdvmpprevmap.mappers import vmp_ids_to_previous
 
 from .actions import (
+    create_old_style_codelist,
+    create_old_style_version,
     create_or_update_codelist,
     create_version_from_ecl_expr,
     create_version_with_codes,
@@ -138,7 +140,7 @@ def codelists_post(request, owner):
 
         * name
         * coding_system_id
-        * codes
+        * codes OR csv_data
         * coding_system_database_alias
         * slug (optional)
         * tag (optional)
@@ -154,11 +156,11 @@ def codelists_post(request, owner):
     except json.decoder.JSONDecodeError:
         return error("Invalid JSON")
 
+    code_keys = ["codes", "csv_data"]
     required_keys = [
         "name",
         "coding_system_id",
         "coding_system_database_alias",
-        "codes",
     ]
     optional_keys = [
         "slug",
@@ -169,14 +171,21 @@ def codelists_post(request, owner):
         "signoffs",
         "always_create_new_version",
     ]
+
+    if len(set(data) & set(code_keys)) != 1:
+        return error("Provide exactly one of `codes` or `csv_data`")
+
     missing_keys = [k for k in required_keys if k not in data]
     if missing_keys:
         return error(f"Missing keys: {', '.join(f'`{k}`' for k in missing_keys)}")
-    extra_keys = [k for k in data if k not in required_keys + optional_keys]
+    extra_keys = [k for k in data if k not in required_keys + optional_keys + code_keys]
     if extra_keys:
         return error(f"Extra keys: {', '.join(f'`{k}`' for k in extra_keys)}")
 
-    cl = create_or_update_codelist(owner=owner, **data)
+    if "codes" in data:
+        cl = create_or_update_codelist(owner=owner, **data)
+    else:
+        cl = create_old_style_codelist(owner=owner, **data)
 
     return JsonResponse({"codelist": cl.get_absolute_url()})
 
@@ -192,10 +201,8 @@ def versions(request, codelist):
     except json.decoder.JSONDecodeError:
         return error("Invalid JSON")
 
-    if ("codes" in data and "ecl" in data) or (
-        "codes" not in data and "ecl" not in data
-    ):
-        return error("Provide exactly one of `codes` or `ecl`")
+    if len(set(data) & {"codes", "csv_data", "ecl"}) != 1:
+        return error("Provide exactly one of `codes`, `csv_data` or `ecl`")
 
     try:
         if "codes" in data:
@@ -206,7 +213,13 @@ def versions(request, codelist):
                 coding_system_database_alias=data["coding_system_database_alias"],
                 always_create_new_version=data.get("always_create_new_version", False),
             )
-
+        elif "csv_data" in data:
+            clv = create_old_style_version(
+                codelist=codelist,
+                csv_data=data["csv_data"],
+                tag=data.get("tag"),
+                coding_system_database_alias=data["coding_system_database_alias"],
+            )
         elif "ecl" in data:
             clv = create_version_from_ecl_expr(
                 codelist=codelist,

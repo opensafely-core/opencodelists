@@ -20,3 +20,6 @@ ruff
 
 # For scripts/fetch_vmp_prev.py
 paramiko
+
+# for scripts/import_codelists_from_xlsx.py
+pandas

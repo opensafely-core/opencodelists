@@ -406,7 +406,7 @@ def test_versions_post_missing_data(client, user, user_codelist):
 
     assert rsp.status_code == 400
     assert json.loads(rsp.content) == {
-        "error": "Provide exactly one of `codes` or `ecl`"
+        "error": "Provide exactly one of `codes`, `csv_data` or `ecl`"
     }
 
 

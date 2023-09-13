@@ -120,7 +120,7 @@ def test_old_style_codes(old_style_version):
 
 def test_old_style_table(old_style_version):
     assert old_style_version.table == [
-        ["id", "name"],
+        ["code", "name"],
         ["429554009", "Arthropathy of elbow (disorder)"],
         ["128133004", "Disorder of elbow (disorder)"],
         ["202855006", "Lateral epicondylitis (disorder)"],
@@ -290,11 +290,11 @@ def test_get_latest_published_url_no_published_version(codelist_from_scratch):
 )
 def test_downloadable(old_style_version, new_code_header, is_downloadable):
     assert old_style_version.downloadable
-    assert old_style_version.table[0] == ["id", "name"]
+    assert old_style_version.table[0] == ["code", "name"]
 
     # change code header
     old_style_version.csv_data = old_style_version.csv_data.replace(
-        "id,name", f"{new_code_header},name"
+        "code,name", f"{new_code_header},name"
     )
     old_style_version.save()
 

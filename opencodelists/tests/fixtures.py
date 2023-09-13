@@ -398,7 +398,8 @@ def build_fixtures():
     # - has 3 versions:
     #   - dmd_version_asthma_medication; contains CSV data with converted-from-BNF headers
     #   - dmd_version_asthma_medication_alt_headers; same data but headers "code" and "term"
-    #   - dmd_version_asthma_medication_refill_csv_data; contains different data
+    #   - dmd_version_asthma_medication_refill_csv_data; contains different data, including
+    #     a code which is unknown in the current (test) coding system release
     dmd_codelist = create_old_style_codelist(
         owner=organisation,
         name="DMD Codelist",
@@ -414,11 +415,17 @@ def build_fixtures():
         csv_data=asthma_medication_csv_data_alternative_headers,
         coding_system_database_alias=most_recent_database_alias("dmd"),
     )
+    # In order to avoid raising and exception in the `create_old_style_version`
+    # action because of the unknown code in the csv data, we create the
+    # version with the csv_data set to asthma_medication_csv_data and
+    # replace it with asthma_medication_refill_csv_data afterwards
     dmd_version_asthma_medication_refill = create_old_style_version(
         codelist=dmd_codelist,
-        csv_data=asthma_medication_refill_csv_data,
+        csv_data=asthma_medication_csv_data,
         coding_system_database_alias=most_recent_database_alias("dmd"),
     )
+    dmd_version_asthma_medication_refill.csv_data = asthma_medication_refill_csv_data
+    dmd_version_asthma_medication_refill.save()
 
     # bnf codelist
     # - owned by organisation

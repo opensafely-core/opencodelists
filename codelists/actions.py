@@ -1,3 +1,6 @@
+import csv
+from io import StringIO
+
 import structlog
 from django.db import transaction
 from django.db.utils import IntegrityError
@@ -30,6 +33,7 @@ def create_old_style_codelist(
     slug=None,
     references=None,
     signoffs=None,
+    tag=None,
 ):
     """Create a new codelist with an old-style version with given csv_data."""
 
@@ -47,6 +51,7 @@ def create_old_style_codelist(
         codelist=codelist,
         csv_data=csv_data,
         coding_system_database_alias=coding_system_database_alias,
+        tag=tag,
     )
     logger.info("Created Codelist", codelist_pk=codelist.pk)
     return codelist
@@ -222,14 +227,29 @@ def _create_codelist_with_handle(
     return codelist
 
 
-def create_old_style_version(*, codelist, csv_data, coding_system_database_alias=None):
+def create_old_style_version(
+    *, codelist, csv_data, coding_system_database_alias=None, tag=None
+):
     coding_system = codelist.coding_system_cls.get_by_release(
         coding_system_database_alias
     )
+    if coding_system.has_database:
+        # Validate codes against the coding system release we're using to
+        # create the version
+        code_data = csv.reader(StringIO(csv_data))
+        header_row = next(code_data)
+        code_header = list({"dmd_id", "code"} & set(header_row))
+        assert len(code_header) == 1
+        code_col_ix = header_row.index(code_header[0])
+        # Find codes
+        codes = {row[code_col_ix] for row in code_data}
+        assert codes == set(coding_system.lookup_names(codes))
+
     version = codelist.versions.create(
         csv_data=csv_data,
         status=Status.UNDER_REVIEW,
         coding_system_release=coding_system.release,
+        tag=tag,
     )
     cache_hierarchy(version=version)
     logger.info("Created Version", version_pk=version.pk)

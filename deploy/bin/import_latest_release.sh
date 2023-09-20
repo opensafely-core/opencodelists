@@ -17,7 +17,7 @@ set -euo pipefail
 
 # This script should be copied to /var/lib/dokku/data/storage/opencodelists/import_latest_release.sh
 # on dokku3 and run using the cronfile at opencodelists/deploy/bin/import_latest_dmd_cron
-# SLACK_WEBHOOK_URL and SLACK_TECHSUPPORT_WEBHOOK_URL is an environment variable set in the cronfile on dokku3
+# SLACK_WEBHOOK_URL and SLACK_DATATEAM_WEBHOOK_URL is an environment variable set in the cronfile on dokku3
 
 
 CODING_SYSTEM=$1
@@ -69,12 +69,9 @@ function post_success_message_and_cleanup() {
 function post_failure_message_and_cleanup() {
   # restart app
   /usr/bin/dokku ps:restart opencodelists
-  # Report and notify tech-support
+  # Report and notify data team in slack
   failure_message_text="Latest ${CODING_SYSTEM} release failed to import to OpenCodelists.\nCheck logs on dokku3 at ${LOG_FILE}"
-  post_to_slack "${failure_message_text}" "${SLACK_TECHSUPPORT_WEBHOOK_URL}"
-
-  failure_notification_text="Latest dm+d release failed to import to OpenCodelists. Tech-support has been notified."
-  post_to_slack "${failure_notification_text}" "${SLACK_WEBHOOK_URL}"
+  post_to_slack "${failure_message_text}" "${SLACK_DATATEAM_WEBHOOK_URL}"
 }
 
 

@@ -42,3 +42,16 @@ def test_codes_to_previous_with_self_previous():
     # the mapping
     Mapping.objects.create(id="1", vpidprev="1")
     assert vmp_ids_to_previous() == []
+
+
+def test_codes_to_previous_with_codes():
+    # return previous for selected codes only
+    Mapping.objects.create(id="1", vpidprev="0")
+    Mapping.objects.create(id="2", vpidprev="1")
+    Mapping.objects.create(id="3", vpidprev="2")
+
+    assert sorted(vmp_ids_to_previous(codes=[1, 2])) == [
+        ("1", "0"),
+        ("2", "0"),
+        ("2", "1"),
+    ]

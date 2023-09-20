@@ -5,6 +5,7 @@ from django.utils.functional import cached_property
 from taggit.managers import TaggableManager
 
 from mappings.bnfdmd.mappers import bnf_to_dmd
+from mappings.dmdvmpprevmap.mappers import vmp_ids_to_previous
 from opencodelists.csv_utils import (
     csv_data_to_rows,
     dict_rows_to_csv_data,
@@ -407,7 +408,6 @@ class CodelistVersion(models.Model):
 
     def calculate_hierarchy(self):
         """Return Hierarchy of codes related to this CodelistVersion."""
-
         if self.csv_data:
             return self._calculate_old_style_hierarchy()
         else:
@@ -527,16 +527,17 @@ class CodelistVersion(models.Model):
     def _new_style_codes(self):
         return tuple(sorted(self.codeset.codes()))
 
-    def csv_data_for_download(self, fixed_headers=False):
+    def csv_data_for_download(self, fixed_headers=False, include_mapped_vmps=False):
+        fixed_headers = fixed_headers or include_mapped_vmps
         if self.csv_data:
             if not fixed_headers:
                 return self.csv_data
-            table = self.table_with_fixed_headers()
+            table = self.table_with_fixed_headers(include_mapped_vmps)
         else:
             table = self.table
         return rows_to_csv_data(table)
 
-    def table_with_fixed_headers(self):
+    def table_with_fixed_headers(self, include_mapped_vmps=False):
         """
         Find the code and term columns from csv data (which may be labelled with different
         headers), and return just those columns with the with the headers "code" and "term".
@@ -562,12 +563,29 @@ class CodelistVersion(models.Model):
         # Identify the index for the two columns we want
         code_header_index = header_row.index(code_header)
         term_header_index = header_row.index(term_header) if term_header else None
+
+        table_rows = self.table[1:]
+        if include_mapped_vmps:
+            codes = [row[code_header_index] for row in table_rows]
+            assert self.coding_system_id == "dmd"
+            # add in mapped VMP codes
+            previous_vmps_for_this_codelist = vmp_ids_to_previous(codes)
+            mapped_vmps_to_add = set()
+            for current_vmp, previous_vmp in previous_vmps_for_this_codelist:
+                assert current_vmp in codes
+                if previous_vmp not in codes:
+                    mapped_vmps_to_add.add(previous_vmp)
+            for mapped_vmp in mapped_vmps_to_add:
+                new_row = ["" for cell in table_rows[0]]
+                new_row[code_header_index] = mapped_vmp
+                table_rows.append(new_row)
+
         # re-write the table data with the new headers, and only the code and term columns
         table_data = [
             ["code", "term"],
             *[
                 [row[code_header_index], row[term_header_index] if term_header else ""]
-                for row in self.table[1:]
+                for row in table_rows
             ],
         ]
         return table_data

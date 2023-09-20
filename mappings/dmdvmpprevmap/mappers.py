@@ -1,17 +1,21 @@
 from mappings.dmdvmpprevmap.models import Mapping
 
 
-def vmp_ids_to_previous():
+def vmp_ids_to_previous(codes=None):
     """
     Return any codes with previous IDs
     This applies to VMP IDs only
     """
     # Simple dict of vmp id: previous id from the mappings across historical dm+d releases
     # Filter out any where the current and previous are identical
+    if codes:
+        mapping_objs = Mapping.objects.filter(id__in=codes).values_list(
+            "id", "vpidprev"
+        )
+    else:
+        mapping_objs = Mapping.objects.values_list("id", "vpidprev")
     vmp_to_previous = {
-        vpid: vpidprev
-        for (vpid, vpidprev) in Mapping.objects.values_list("id", "vpidprev")
-        if vpid != vpidprev
+        vpid: vpidprev for (vpid, vpidprev) in mapping_objs if vpid != vpidprev
     }
     # Build list of (id, prev_id) tuples in case of codes with multiple previous ones that
     # we can trace back in the current coding system

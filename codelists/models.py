@@ -5,7 +5,7 @@ from django.utils.functional import cached_property
 from taggit.managers import TaggableManager
 
 from mappings.bnfdmd.mappers import bnf_to_dmd
-from mappings.dmdvmpprevmap.mappers import vmp_ids_to_previous
+from mappings.dmdvmpprevmap.mappers import vmpprev_full_mappings
 from opencodelists.csv_utils import (
     csv_data_to_rows,
     dict_rows_to_csv_data,
@@ -566,20 +566,50 @@ class CodelistVersion(models.Model):
 
         table_rows = self.table[1:]
         if include_mapped_vmps and self.coding_system_id == "dmd":
-            term_header_index = term_header_index or len(self.table[0])
             # ignore include_mapped_vmps if coding system is anything other than dmd
+            term_header_index = term_header_index or len(self.table[0])
             codes = [row[code_header_index] for row in table_rows]
+
             # add in mapped VMP codes
-            previous_vmps_for_this_codelist = vmp_ids_to_previous(codes)
-            for current_vmp, previous_vmp in previous_vmps_for_this_codelist:
-                assert current_vmp in codes
-                if previous_vmp not in codes:
-                    new_row = ["" for i in range(len(table_rows[0]) + 1)]
-                    new_row[code_header_index] = previous_vmp
-                    new_row[
-                        term_header_index
-                    ] = f"Mapped previous VMP for {current_vmp}"
-                    table_rows.append(new_row)
+            vmp_to_prev_mapping, mapped_vmps_for_this_codelist = vmpprev_full_mappings(
+                codes
+            )
+            # vmp_to_prev_mapping is a simple 1:1 mapping of vmp ID to the immediate previous
+            # VMP that it replaced
+            # Since we're mapping later codes as well as previous ones, we also need the
+            # reverse mapping of previous VMP to the one that replaced it
+            prev_to_vmp_mapping = {v: k for k, v in vmp_to_prev_mapping.items()}
+
+            previous_vmps_to_add = set()
+            subsequent_vmps_to_add = set()
+
+            for vmp, previous_vmp in mapped_vmps_for_this_codelist:
+                if vmp in codes:
+                    # mapping a code in the codelist to a previous code
+                    # add the previous code to the list
+                    previous_vmps_to_add.add(previous_vmp)
+                else:
+                    assert previous_vmp in codes
+                    # mapping a code in the codelist to a new code that supercedes it
+                    subsequent_vmps_to_add.add(vmp)
+
+            assert not previous_vmps_to_add & subsequent_vmps_to_add
+
+            def add_row(vmp, description):
+                new_row = ["" for i in range(len(table_rows[0]) + 1)]
+                new_row[code_header_index] = vmp
+                new_row[term_header_index] = description
+                table_rows.append(new_row)
+
+            for vmp in previous_vmps_to_add:
+                # add the code to the table data
+                # include its description as the code it was superceded by
+                add_row(vmp, f"VMP previous to {prev_to_vmp_mapping[vmp]}")
+
+            for vmp in subsequent_vmps_to_add:
+                # add the code to the table data
+                # include its description as the code it supercedes
+                add_row(vmp, f"VMP subsequent to {vmp_to_prev_mapping[vmp]}")
 
         # re-write the table data with the new headers, and only the code and term columns
         table_data = [

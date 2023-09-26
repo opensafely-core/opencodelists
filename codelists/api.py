@@ -257,4 +257,5 @@ def dmd_previous_codes_mapping(request):
     This endpoint is intended to be used by backends to determine any additional related codes
     to include with set of dm+d codes.
     """
-    return JsonResponse(vmp_ids_to_previous(), safe=False)
+    _, vmp_to_previous_tuples = vmp_ids_to_previous()
+    return JsonResponse(vmp_to_previous_tuples, safe=False)

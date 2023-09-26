@@ -1,3 +1,4 @@
+from mappings.dmdvmpprevmap.models import Mapping
 from opencodelists.csv_utils import csv_data_to_rows
 
 
@@ -40,3 +41,18 @@ def test_get_with_fixed_headers_not_downloadable(client, old_style_version):
     assert not old_style_version.downloadable
     rsp = client.get(old_style_version.get_download_url() + "?fixed-headers")
     assert rsp.status_code == 400
+
+
+def test_get_with_mapped_vmps(client, dmd_version_asthma_medication):
+    # create a mapping for one of the dmd codes
+    Mapping.objects.create(id="10514511000001106", vpidprev="999")
+    rsp = client.get(
+        dmd_version_asthma_medication.get_download_url() + "?include-mapped-vmps"
+    )
+    data = rsp.content.decode("utf8")
+    assert csv_data_to_rows(data) == [
+        ["code", "term"],
+        ["10514511000001106", "Adrenaline (base) 220micrograms/dose inhaler"],
+        ["10525011000001107", "Adrenaline (base) 220micrograms/dose inhaler refill"],
+        ["999", "Mapped previous VMP for 10514511000001106"],
+    ]

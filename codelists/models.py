@@ -565,20 +565,21 @@ class CodelistVersion(models.Model):
         term_header_index = header_row.index(term_header) if term_header else None
 
         table_rows = self.table[1:]
-        if include_mapped_vmps:
+        if include_mapped_vmps and self.coding_system_id == "dmd":
+            term_header_index = term_header_index or len(self.table[0])
+            # ignore include_mapped_vmps if coding system is anything other than dmd
             codes = [row[code_header_index] for row in table_rows]
-            assert self.coding_system_id == "dmd"
             # add in mapped VMP codes
             previous_vmps_for_this_codelist = vmp_ids_to_previous(codes)
-            mapped_vmps_to_add = set()
             for current_vmp, previous_vmp in previous_vmps_for_this_codelist:
                 assert current_vmp in codes
                 if previous_vmp not in codes:
-                    mapped_vmps_to_add.add(previous_vmp)
-            for mapped_vmp in mapped_vmps_to_add:
-                new_row = ["" for cell in table_rows[0]]
-                new_row[code_header_index] = mapped_vmp
-                table_rows.append(new_row)
+                    new_row = ["" for i in range(len(table_rows[0]) + 1)]
+                    new_row[code_header_index] = previous_vmp
+                    new_row[
+                        term_header_index
+                    ] = f"Mapped previous VMP for {current_vmp}"
+                    table_rows.append(new_row)
 
         # re-write the table data with the new headers, and only the code and term columns
         table_data = [

@@ -527,7 +527,7 @@ class CodelistVersion(models.Model):
     def _new_style_codes(self):
         return tuple(sorted(self.codeset.codes()))
 
-    def csv_data_for_download(self, fixed_headers=False, include_mapped_vmps=False):
+    def csv_data_for_download(self, fixed_headers=False, include_mapped_vmps=True):
         fixed_headers = fixed_headers or include_mapped_vmps
         if self.csv_data:
             if not fixed_headers:
@@ -537,7 +537,7 @@ class CodelistVersion(models.Model):
             table = self.table
         return rows_to_csv_data(table)
 
-    def table_with_fixed_headers(self, include_mapped_vmps=False):
+    def table_with_fixed_headers(self, include_mapped_vmps=True):
         """
         Find the code and term columns from csv data (which may be labelled with different
         headers), and return just those columns with the with the headers "code" and "term".

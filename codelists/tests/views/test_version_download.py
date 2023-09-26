@@ -46,13 +46,30 @@ def test_get_with_fixed_headers_not_downloadable(client, old_style_version):
 def test_get_with_mapped_vmps(client, dmd_version_asthma_medication):
     # create a mapping for one of the dmd codes
     Mapping.objects.create(id="10514511000001106", vpidprev="999")
-    rsp = client.get(
-        dmd_version_asthma_medication.get_download_url() + "?include-mapped-vmps"
-    )
+    rsp = client.get(dmd_version_asthma_medication.get_download_url())
     data = rsp.content.decode("utf8")
+    # Includes mapped VMPs by default, and uses fixed headers
     assert csv_data_to_rows(data) == [
         ["code", "term"],
         ["10514511000001106", "Adrenaline (base) 220micrograms/dose inhaler"],
         ["10525011000001107", "Adrenaline (base) 220micrograms/dose inhaler refill"],
         ["999", "Mapped previous VMP for 10514511000001106"],
+    ]
+
+
+def test_get_without_mapped_vmps(client, dmd_version_asthma_medication):
+    # create a mapping for one of the dmd codes
+    Mapping.objects.create(id="10514511000001106", vpidprev="999")
+    rsp = client.get(
+        dmd_version_asthma_medication.get_download_url() + "?omit-mapped-vmps"
+    )
+    data = rsp.content.decode("utf8")
+    # omitting mapped VMPs, just download the CSV data as is
+    rows = csv_data_to_rows(data)
+    assert rows[0] == ["dmd_type", "dmd_id", "dmd_name", "bnf_code"]
+    # Mapped VMPS are not in the download
+    assert [row[1] for row in rows] == [
+        "dmd_id",
+        "10514511000001106",
+        "10525011000001107",
     ]

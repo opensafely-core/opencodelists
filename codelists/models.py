@@ -1,3 +1,5 @@
+from collections import Counter
+
 from django.contrib.auth.models import AnonymousUser
 from django.db import models
 from django.urls import reverse
@@ -5,6 +7,7 @@ from django.utils.functional import cached_property
 from taggit.managers import TaggableManager
 
 from mappings.bnfdmd.mappers import bnf_to_dmd
+from mappings.dmdvmpprevmap.mappers import vmpprev_full_mappings
 from opencodelists.csv_utils import (
     csv_data_to_rows,
     dict_rows_to_csv_data,
@@ -407,7 +410,6 @@ class CodelistVersion(models.Model):
 
     def calculate_hierarchy(self):
         """Return Hierarchy of codes related to this CodelistVersion."""
-
         if self.csv_data:
             return self._calculate_old_style_hierarchy()
         else:
@@ -527,16 +529,17 @@ class CodelistVersion(models.Model):
     def _new_style_codes(self):
         return tuple(sorted(self.codeset.codes()))
 
-    def csv_data_for_download(self, fixed_headers=False):
+    def csv_data_for_download(self, fixed_headers=False, include_mapped_vmps=True):
+        fixed_headers = fixed_headers or include_mapped_vmps
         if self.csv_data:
             if not fixed_headers:
                 return self.csv_data
-            table = self.table_with_fixed_headers()
+            table = self.table_with_fixed_headers(include_mapped_vmps)
         else:
             table = self.table
         return rows_to_csv_data(table)
 
-    def table_with_fixed_headers(self):
+    def table_with_fixed_headers(self, include_mapped_vmps=True):
         """
         Find the code and term columns from csv data (which may be labelled with different
         headers), and return just those columns with the with the headers "code" and "term".
@@ -562,12 +565,78 @@ class CodelistVersion(models.Model):
         # Identify the index for the two columns we want
         code_header_index = header_row.index(code_header)
         term_header_index = header_row.index(term_header) if term_header else None
+
+        table_rows = self.table[1:]
+        if include_mapped_vmps and self.coding_system_id == "dmd":
+            # ignore include_mapped_vmps if coding system is anything other than dmd
+            term_header_index = term_header_index or len(self.table[0])
+            codes = [row[code_header_index] for row in table_rows]
+
+            # add in mapped VMP codes
+            vmp_to_prev_mapping, mapped_vmps_for_this_codelist = vmpprev_full_mappings(
+                codes
+            )
+            # vmp_to_prev_mapping is a simple 1:1 mapping of vmp ID to the immediate previous
+            # VMP that it replaced
+
+            # Count if there were any duplicate previous VMPs in the mapping
+            counter = Counter(vmp_to_prev_mapping.values())
+            _, count = counter.most_common(1)[0]
+
+            # Since we're mapping later codes as well as previous ones, we also need the
+            # reverse mapping of previous VMP to the one that replaced it
+            prev_to_vmp_mapping = {v: k for k, v in vmp_to_prev_mapping.items()}
+            # If there were any duplicate previous VMPs, we join them in the reversed mapping
+            # This is only needed for the description of where the mapped code comes from
+            if count > 1:
+                duplicate_mappings = [
+                    vmp for vmp, count in counter.items() if count > 1
+                ]
+                for mapped_vmp in duplicate_mappings:
+                    mapped_to = [
+                        vmp
+                        for vmp, prev in vmp_to_prev_mapping.items()
+                        if prev == mapped_vmp
+                    ]
+                    prev_to_vmp_mapping[mapped_vmp] = ", ".join(mapped_to)
+
+            previous_vmps_to_add = set()
+            subsequent_vmps_to_add = set()
+
+            for vmp, previous_vmp in mapped_vmps_for_this_codelist:
+                if vmp in codes:
+                    # mapping a code in the codelist to a previous code
+                    # add the previous code to the list
+                    previous_vmps_to_add.add(previous_vmp)
+                else:
+                    assert previous_vmp in codes
+                    # mapping a code in the codelist to a new code that supercedes it
+                    subsequent_vmps_to_add.add(vmp)
+
+            assert not previous_vmps_to_add & subsequent_vmps_to_add
+
+            def add_row(vmp, description):
+                new_row = ["" for i in range(len(table_rows[0]) + 1)]
+                new_row[code_header_index] = vmp
+                new_row[term_header_index] = description
+                table_rows.append(new_row)
+
+            for vmp in previous_vmps_to_add:
+                # add the code to the table data
+                # include its description as the code it was superceded by
+                add_row(vmp, f"VMP previous to {prev_to_vmp_mapping[vmp]}")
+
+            for vmp in subsequent_vmps_to_add:
+                # add the code to the table data
+                # include its description as the code it supercedes
+                add_row(vmp, f"VMP subsequent to {vmp_to_prev_mapping[vmp]}")
+
         # re-write the table data with the new headers, and only the code and term columns
         table_data = [
             ["code", "term"],
             *[
                 [row[code_header_index], row[term_header_index] if term_header else ""]
-                for row in self.table[1:]
+                for row in table_rows
             ],
         ]
         return table_data

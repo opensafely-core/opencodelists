@@ -1,3 +1,5 @@
+from collections import Counter
+
 from django.contrib.auth.models import AnonymousUser
 from django.db import models
 from django.urls import reverse
@@ -576,9 +578,27 @@ class CodelistVersion(models.Model):
             )
             # vmp_to_prev_mapping is a simple 1:1 mapping of vmp ID to the immediate previous
             # VMP that it replaced
+
+            # Count if there were any duplicate previous VMPs in the mapping
+            counter = Counter(vmp_to_prev_mapping.values())
+            _, count = counter.most_common(1)[0]
+
             # Since we're mapping later codes as well as previous ones, we also need the
             # reverse mapping of previous VMP to the one that replaced it
             prev_to_vmp_mapping = {v: k for k, v in vmp_to_prev_mapping.items()}
+            # If there were any duplicate previous VMPs, we join them in the reversed mapping
+            # This is only needed for the description of where the mapped code comes from
+            if count > 1:
+                duplicate_mappings = [
+                    vmp for vmp, count in counter.items() if count > 1
+                ]
+                for mapped_vmp in duplicate_mappings:
+                    mapped_to = [
+                        vmp
+                        for vmp, prev in vmp_to_prev_mapping.items()
+                        if prev == mapped_vmp
+                    ]
+                    prev_to_vmp_mapping[mapped_vmp] = ", ".join(mapped_to)
 
             previous_vmps_to_add = set()
             subsequent_vmps_to_add = set()

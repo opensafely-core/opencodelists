@@ -580,8 +580,11 @@ class CodelistVersion(models.Model):
             # VMP that it replaced
 
             # Count if there were any duplicate previous VMPs in the mapping
-            counter = Counter(vmp_to_prev_mapping.values())
-            _, count = counter.most_common(1)[0]
+            if vmp_to_prev_mapping:
+                counter = Counter(vmp_to_prev_mapping.values())
+                _, count = counter.most_common(1)[0]
+            else:
+                count = 0
 
             # Since we're mapping later codes as well as previous ones, we also need the
             # reverse mapping of previous VMP to the one that replaced it

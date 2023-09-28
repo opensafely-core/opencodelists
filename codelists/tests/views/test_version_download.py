@@ -89,6 +89,19 @@ def test_get_with_duplicated_mapped_vmps(client, dmd_version_asthma_medication):
     ]
 
 
+def test_get_with_mapped_vmps_nothing_to_map(client, dmd_version_asthma_medication):
+    # Test that the download still works even if there are no relevant mapped VMPs
+    # create a previous mapping for some other unrelated dmd code
+    Mapping.objects.create(id="111", vpidprev="999")
+    rsp = client.get(dmd_version_asthma_medication.get_download_url())
+    data = rsp.content.decode("utf8")
+    assert csv_data_to_rows(data) == [
+        ["code", "term"],
+        ["10514511000001106", "Adrenaline (base) 220micrograms/dose inhaler"],
+        ["10525011000001107", "Adrenaline (base) 220micrograms/dose inhaler refill"],
+    ]
+
+
 def test_get_without_mapped_vmps(client, dmd_version_asthma_medication):
     # create a mapping for one of the dmd codes
     Mapping.objects.create(id="10514511000001106", vpidprev="999")

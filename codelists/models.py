@@ -530,9 +530,23 @@ class CodelistVersion(models.Model):
         return tuple(sorted(self.codeset.codes()))
 
     def csv_data_for_download(self, fixed_headers=False, include_mapped_vmps=True):
-        fixed_headers = fixed_headers or include_mapped_vmps
+        """
+        Prepare codes for download.  If this is a new-style codelists, the csv data with
+        code and related term will be built from the code objects, looking up the terms in
+        the coding system.  If it is an old-style codelist, it has no associated code objects,
+        and it will use the uploaded csv_data.
+
+        include_mapped_vmps: if True, a dm+d codelist will include mapped VMPs in its download.
+          This value defaults to True, so that when these downloads are requested by OpenSafely CLI,
+          no additional query params need to be passed that are specidfic to dm+d codelists.
+        fixed_headers: if True, uploaded csv_data is converted to two columns, headed "code" and "term".
+          This parameter is ignored for dmd downloads that include mapped VMPs
+        """
         if self.csv_data:
-            if not fixed_headers:
+            dmd_with_mapped_vmps = (
+                self.coding_system_id == "dmd" and include_mapped_vmps
+            )
+            if not fixed_headers and not dmd_with_mapped_vmps:
                 return self.csv_data
             table = self.table_with_fixed_headers(include_mapped_vmps)
         else:

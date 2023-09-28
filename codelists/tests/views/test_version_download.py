@@ -8,11 +8,15 @@ def test_get(client, version):
     assert data == version.csv_data_for_download()
 
 
+def test_get_with_original_headers(client, old_style_version):
+    # by default, the original csv data is downloaded
+    rsp = client.get(old_style_version.get_download_url())
+    data = rsp.content.decode("utf8")
+    assert data == old_style_version.csv_data_for_download()
+    assert csv_data_to_rows(data)[0] == ["code", "name"]
+
+
 def test_get_with_fixed_headers(client, old_style_version):
-    old_style_version.csv_data = old_style_version.csv_data.replace(
-        "id,name", "code,name"
-    )
-    old_style_version.save()
     assert old_style_version.table[0] == ["code", "name"]
     rsp = client.get(old_style_version.get_download_url() + "?fixed-headers")
     data = rsp.content.decode("utf8")

@@ -84,8 +84,8 @@ def test_get_with_duplicated_mapped_vmps(client, dmd_version_asthma_medication):
         ["10514511000001106", "Adrenaline (base) 220micrograms/dose inhaler"],
         ["10525011000001107", "Adrenaline (base) 220micrograms/dose inhaler refill"],
         ["999", "VMP previous to 10514511000001106, 10525011000001107"],
-        ["888", "VMP subsequent to 10514511000001106"],
         ["777", "VMP subsequent to 10514511000001106"],
+        ["888", "VMP subsequent to 10514511000001106"],
     ]
 
 

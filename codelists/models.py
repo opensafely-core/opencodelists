@@ -621,12 +621,15 @@ class CodelistVersion(models.Model):
                 new_row[term_header_index] = description
                 table_rows.append(new_row)
 
-            for vmp in previous_vmps_to_add:
+            # Sort the VMPs being added to ensure consistent order. This will ensure that
+            # repeated CSV downloads are the same unless new mapped VMPs are added and
+            # can be used to check whether updates to study codelists are required.
+            for vmp in sorted(previous_vmps_to_add):
                 # add the code to the table data
                 # include its description as the code it was superceded by
                 add_row(vmp, f"VMP previous to {prev_to_vmp_mapping[vmp]}")
 
-            for vmp in subsequent_vmps_to_add:
+            for vmp in sorted(subsequent_vmps_to_add):
                 # add the code to the table data
                 # include its description as the code it supercedes
                 add_row(vmp, f"VMP subsequent to {vmp_to_prev_mapping[vmp]}")

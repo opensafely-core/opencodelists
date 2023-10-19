@@ -637,11 +637,17 @@ class CodelistVersion(models.Model):
                         prev_to_vmp_mapping[previous_vmp] = vmp
                 else:
                     # if the vmp wasn't in the codelist codes, then the mapped previous one
-                    # must be
+                    # must be. We're mapping in a code that is subsequent to one in the current codelist.
                     assert previous_vmp in codes
-                    # and it must be in the mapping of vmp to previous that we'll look it up in
-                    # later
-                    assert previous_vmp in vmp_to_prev_mapping
+
+                    # The mapped code must be in ONE of the direct mappings
+                    # It's either previous to a current code (and in vmp_to_prev_mapping), or previous to
+                    # another previous code of current code,in which case it will be in the
+                    # prev_to_vmp_mapping
+                    if previous_vmp not in vmp_to_prev_mapping:
+                        assert previous_vmp in prev_to_vmp_mapping
+                        # add the mapped VMP into the mapping so we can add in the description
+                        vmp_to_prev_mapping[vmp] = prev_to_vmp_mapping[previous_vmp]
                     # mapping a code in the codelist to a new code that supercedes it
                     subsequent_vmps_to_add.add(vmp)
 

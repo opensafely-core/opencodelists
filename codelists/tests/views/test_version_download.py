@@ -122,3 +122,25 @@ def test_get_without_mapped_vmps(client, dmd_version_asthma_medication):
         "10514511000001106",
         "10525011000001107",
     ]
+
+
+def test_get_with_mapped_vmps_more_than_one_step_distant(
+    client, dmd_version_asthma_medication
+):
+    # create a previous mapping for one of the dmd codes
+    Mapping.objects.create(id="10514511000001106", vpidprev="999")
+    # create a previous mapping for this previous code
+    # create a new mapping for one of the dmd codes; neither of these
+    # codes are in the codelist, but 777 needs to be mapped in as a previou
+    # code to 10514511000001106, which is in the codelist
+    Mapping.objects.create(id="999", vpidprev="777")
+
+    rsp = client.get(dmd_version_asthma_medication.get_download_url())
+    data = rsp.content.decode("utf8")
+    assert csv_data_to_rows(data) == [
+        ["code", "term"],
+        ["10514511000001106", "Adrenaline (base) 220micrograms/dose inhaler"],
+        ["10525011000001107", "Adrenaline (base) 220micrograms/dose inhaler refill"],
+        ["777", "VMP previous to 10514511000001106"],
+        ["999", "VMP previous to 10514511000001106"],
+    ]

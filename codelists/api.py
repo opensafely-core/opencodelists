@@ -1,10 +1,12 @@
 import json
+import re
 
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
 from mappings.dmdvmpprevmap.mappers import vmp_ids_to_previous
+from opencodelists.models import Organisation, User
 
 from .actions import (
     create_old_style_codelist,
@@ -14,8 +16,21 @@ from .actions import (
     create_version_with_codes,
 )
 from .api_decorators import require_authentication, require_permission
-from .models import Codelist
+from .models import Codelist, CodelistVersion, Handle
 from .views.decorators import load_codelist, load_owner
+
+
+CODELIST_VERSION_REGEX = re.compile(
+    r"""
+    # regex for matching codelists from study repos
+    (?P<user>user)?/?  # may start with "user/" if it's a user codelist
+    (?P<owner>[\w|\d|-]+)/ # organisation slug or user name
+    (?P<codelist_slug>[\w|\d|-]+)/ # codelist slug
+    (?P<tag_or_hash>[\w|\d|-]+) # version tag or hash
+    /?$ # possible trailing slash
+    """,
+    flags=re.X,
+)
 
 
 @require_http_methods(["GET"])
@@ -259,3 +274,114 @@ def dmd_previous_codes_mapping(request):
     """
     _, vmp_to_previous_tuples = vmp_ids_to_previous()
     return JsonResponse(vmp_to_previous_tuples, safe=False)
+
+
+@require_http_methods("POST")
+@csrf_exempt
+def codelists_check(requests):
+    """
+    Checks that a study repo's codelist CSV files as downloaded now are consistent
+    with the study's current downloaded codelists.
+    study_codelists: the contents of a study repo's codelists.txt
+    manifest: the contents of a study repo's codelists.json; this file is generated
+    when codelists are downloaded into a study using `opensafely codelists update`
+    and contain a hash of the codelist CSV file data at the time of update.
+
+    Note that some of these checks are duplicated in opensafely-cli and will fail the
+    Github action test run (`opensafely codelists check`). However, we can't guarantee
+    that a user has corrected those errors, so we need to check them again.
+
+    We DO NOT check whether the actual downloaded codelists have been modified; this can
+    only be done in the study repo itself (either CLI or GA).
+    """
+    study_codelists = requests.POST.get("codelists")
+    try:
+        manifest = json.loads(requests.POST.get("manifest"))
+    except json.decoder.JSONDecodeError:
+        return JsonResponse(
+            {"status": "error", "data": {"error": "Codelists manifest file is invalid"}}
+        )
+
+    codelist_download_data = {}
+    # Fetch codelist CSV data
+    for line in study_codelists.split("\n"):
+        line = line.strip().rstrip("/")
+        if not line or line.startswith("#"):
+            continue
+        matches = CODELIST_VERSION_REGEX.match(line)
+        if not matches:
+            return JsonResponse(
+                {
+                    "status": "error",
+                    "data": {
+                        "error": f"{line} does not match expected codelist pattern"
+                    },
+                }
+            )
+
+        line_parts = matches.groupdict()
+        try:
+            codelist_version = CodelistVersion.objects.get_by_hash(
+                line_parts["tag_or_hash"]
+            )
+        except (CodelistVersion.DoesNotExist, ValueError):
+            # it's an old version that predates hashes, find by owner/org
+            owner = line_parts["owner"]
+            codelist_slug = line_parts["codelist_slug"]
+            try:
+                if line_parts["user"]:
+                    user = User.objects.get(username=owner)
+                    handle = Handle.objects.get(slug=codelist_slug, user=user)
+                else:
+                    organisation = Organisation.objects.get(slug=owner)
+                    handle = Handle.objects.get(
+                        slug=codelist_slug, organisation=organisation
+                    )
+                codelist_version = CodelistVersion.objects.get(
+                    codelist=handle.codelist, tag=line_parts["tag_or_hash"]
+                )
+            except (
+                User.DoesNotExist,
+                Handle.DoesNotExist,
+                Organisation.DoesNotExist,
+                CodelistVersion.DoesNotExist,
+            ):
+                return JsonResponse(
+                    {"status": "error", "data": {"error": f"{line} could not be found"}}
+                )
+        codelist_download_data[line] = codelist_version.csv_data_sha()
+
+    # Compare with manifest file
+    # The manifest file is generated when `opensafely codelists update` is run in a study repo
+    # It contains an entry per codelist file with a hash of the file content and represents the
+    # state of the last update in the study repo
+    # codelist_download_data is the download data corresponding to the files listed in the study
+    # repo's codelists.csv
+    # We can check whether the codelists in the study repo are up to date by comparing the
+    # similarly-hashed content of the data that would be prepared for a CSV download
+    manifest_codelist_ids = set(file["id"] for file in manifest["files"].values())
+    current_codelist_ids = set(codelist_download_data.keys())
+    # new files are files that are in the study's codelists.csv but not in the manifest file generatated
+    # at the last update
+    new_files = current_codelist_ids - manifest_codelist_ids
+    # removed files are codelist entries that have been removed from the study's codelists.csv since
+    # the last update
+    removed_files = manifest_codelist_ids - current_codelist_ids
+    changed = [
+        file_data["id"]
+        for file_data in manifest["files"].values()
+        if file_data["id"] in codelist_download_data
+        and file_data["sha"] != codelist_download_data[file_data["id"]]
+    ]
+    if new_files or removed_files or changed:
+        return JsonResponse(
+            {
+                "status": "error",
+                "data": {
+                    "added": list(new_files),
+                    "removed": list(removed_files),
+                    "changed": changed,
+                },
+            }
+        )
+    return JsonResponse({"status": "ok"})

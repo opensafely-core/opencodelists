@@ -1,6 +1,8 @@
 import json
 from datetime import datetime
 
+import pytest
+
 from codelists.actions import update_codelist
 from mappings.dmdvmpprevmap.models import Mapping as VmpPrevMapping
 from opencodelists.tests.assertions import assert_difference, assert_no_difference
@@ -468,3 +470,205 @@ def test_dmd_mapping_with_data(client, organisation):
         ["22", "01"],
         ["22", "11"],
     ]
+
+
+@pytest.mark.parametrize(
+    "codelists,manifest,error",
+    [
+        ("user/foo/codelist-foo/1234", "[foo]", "Codelists manifest file is invalid"),
+        (
+            "user/foo/codelist-foo/1234",
+            '{"files": {"id": "user/foo/codelist-foo/1234", "sha": "bar"}}',
+            "user/foo/codelist-foo/1234 could not be found",
+        ),
+        (
+            "foo/codelist-foo/1234",
+            '{"files": {"id": "foo/codelist-foo/1234", "sha": "bar"}}',
+            "foo/codelist-foo/1234 could not be found",
+        ),
+        (
+            "foo/bar/codelist-foo/1234/",
+            '{"files": {"id": "foo/bar/codelist-foo/1234", "sha": "bar"}}',
+            "foo/bar/codelist-foo/1234 does not match expected codelist pattern",
+        ),
+    ],
+)
+def test_codelists_check_bad_input_files(client, codelists, manifest, error):
+    data = {"codelists": codelists, "manifest": manifest}
+    resp = client.post("/api/v1/check/", data)
+    assert resp.json() == {"status": "error", "data": {"error": error}}
+
+
+def test_codelists_check_new_style_codelist_version(
+    client, user_version, new_style_version
+):
+    user_codelist_id = f"user/{user_version.user.username}/{user_version.codelist.slug}/{user_version.hash}"
+    user_codelist_csv_id = user_codelist_id.replace("/", "-") + ".csv"
+    org_codelist_id = f"{new_style_version.organisation.slug}/{new_style_version.codelist.slug}/{new_style_version.hash}"
+    org_codelist_csv_id = org_codelist_id.replace("/", "-") + ".csv"
+    manifest = {
+        "files": {
+            user_codelist_csv_id: {
+                "id": user_codelist_id,
+                "url": f"https://opencodelist.org/codelists/{user_codelist_id}/",
+                "downloaded_at": "2023-10-04 13:55:17.569997Z",
+                "sha": user_version.csv_data_sha(),
+            },
+            org_codelist_csv_id: {
+                "id": org_codelist_id,
+                "url": f"https://opencodelist.org/codelists/{org_codelist_id}/",
+                "downloaded_at": "2023-10-04 13:55:17.569997Z",
+                "sha": new_style_version.csv_data_sha(),
+            },
+        }
+    }
+    data = {
+        "codelists": f"# this is a comment line\n{user_codelist_id}\n{org_codelist_id}/\n\n",
+        "manifest": json.dumps(manifest),
+    }
+    resp = client.post("/api/v1/check/", data)
+    assert resp.json() == {"status": "ok"}
+
+
+def test_codelists_check_old_style_codelist_version(client, old_style_version):
+    codelist_id = f"{old_style_version.organisation.slug}/{old_style_version.codelist.slug}/{old_style_version.hash}"
+    codelist_csv_id = codelist_id.replace("/", "-") + ".csv"
+    manifest = {
+        "files": {
+            codelist_csv_id: {
+                "id": codelist_id,
+                "url": f"https://opencodelist.org/codelists/{codelist_id}/",
+                "downloaded_at": "2023-10-04 13:55:17.569997Z",
+                "sha": old_style_version.csv_data_sha(),
+            }
+        }
+    }
+    data = {"codelists": codelist_id, "manifest": json.dumps(manifest)}
+    resp = client.post("/api/v1/check/", data)
+    assert resp.json() == {"status": "ok"}
+
+
+def test_codelists_check_codelist_with_tag(client, old_style_version):
+    old_style_version.tag = "v1"
+    old_style_version.save()
+
+    codelist_id = (
+        f"{old_style_version.organisation.slug}/{old_style_version.codelist.slug}/v1"
+    )
+    codelist_csv_id = codelist_id.replace("/", "-") + ".csv"
+    manifest = {
+        "files": {
+            codelist_csv_id: {
+                "id": codelist_id,
+                "url": f"https://opencodelist.org/codelists/{codelist_id}/",
+                "downloaded_at": "2023-10-04 13:55:17.569997Z",
+                "sha": old_style_version.csv_data_sha(),
+            }
+        }
+    }
+    data = {"codelists": codelist_id, "manifest": json.dumps(manifest)}
+    resp = client.post("/api/v1/check/", data)
+    assert resp.json() == {"status": "ok"}
+
+
+def test_codelists_check_has_added_codelists(
+    client, user_version, version_with_no_searches
+):
+    user_codelist_id = f"user/{user_version.user.username}/{user_version.codelist.slug}/{user_version.hash}"
+    user_codelist_csv_id = user_codelist_id.replace("/", "-") + ".csv"
+    org_codelist_id = (
+        f"{version_with_no_searches.organisation.slug}/"
+        f"{version_with_no_searches.codelist.slug}/"
+        f"{version_with_no_searches.hash}"
+    )
+    # Setup: Study repo has added a codelist (version_with_no_searches) in the codelists.txt file,
+    # but has not run update, so manifest only contains one codelist
+    manifest = {
+        "files": {
+            user_codelist_csv_id: {
+                "id": user_codelist_id,
+                "url": f"https://opencodelist.org/codelists/{user_codelist_id}/",
+                "downloaded_at": "2023-10-04 13:55:17.569997Z",
+                "sha": user_version.csv_data_sha(),
+            },
+        }
+    }
+    data = {
+        "codelists": f"# this is a comment line\n{user_codelist_id}\n{org_codelist_id}/\n\n",
+        "manifest": json.dumps(manifest),
+    }
+    resp = client.post("/api/v1/check/", data)
+    assert resp.json() == {
+        "status": "error",
+        "data": {"added": [org_codelist_id], "removed": [], "changed": []},
+    }
+
+
+def test_codelists_check_has_removed_codelists(
+    client, user_version, version_with_no_searches
+):
+    user_codelist_id = f"user/{user_version.user.username}/{user_version.codelist.slug}/{user_version.hash}"
+    user_codelist_csv_id = user_codelist_id.replace("/", "-") + ".csv"
+    org_codelist_id = (
+        f"{version_with_no_searches.organisation.slug}/"
+        f"{version_with_no_searches.codelist.slug}/"
+        f"{version_with_no_searches.hash}"
+    )
+    org_codelist_csv_id = org_codelist_id.replace("/", "-") + ".csv"
+
+    # Setup: Study repo has remove a codelist (version_with_no_searches) in the codelists.txt file,
+    # but has not run update, so manifest contains 2 codelists, codelists.txt contains only one
+    manifest = {
+        "files": {
+            user_codelist_csv_id: {
+                "id": user_codelist_id,
+                "url": f"https://opencodelist.org/codelists/{user_codelist_id}/",
+                "downloaded_at": "2023-10-04 13:55:17.569997Z",
+                "sha": user_version.csv_data_sha(),
+            },
+            org_codelist_csv_id: {
+                "id": org_codelist_id,
+                "url": f"https://opencodelist.org/codelists/{org_codelist_id}/",
+                "downloaded_at": "2023-10-04 13:55:17.569997Z",
+                "sha": version_with_no_searches.csv_data_sha(),
+            },
+        }
+    }
+    data = {"codelists": user_codelist_id, "manifest": json.dumps(manifest)}
+    resp = client.post("/api/v1/check/", data)
+    assert resp.json() == {
+        "status": "error",
+        "data": {"added": [], "removed": [org_codelist_id], "changed": []},
+    }
+
+
+def test_codelists_check_changes(client, dmd_version_asthma_medication):
+    codelist_id = (
+        f"{dmd_version_asthma_medication.organisation.slug}/"
+        f"{dmd_version_asthma_medication.codelist.slug}/"
+        f"{dmd_version_asthma_medication.hash}"
+    )
+    codelist_csv_id = codelist_id.replace("/", "-") + ".csv"
+
+    # Test the happy path for this dmd version
+    manifest = {
+        "files": {
+            codelist_csv_id: {
+                "id": codelist_id,
+                "url": f"https://opencodelist.org/codelists/{codelist_csv_id}/",
+                "downloaded_at": "2023-10-04 13:55:17.569997Z",
+                "sha": dmd_version_asthma_medication.csv_data_sha(),
+            },
+        }
+    }
+    data = {"codelists": codelist_id, "manifest": json.dumps(manifest)}
+    resp = client.post("/api/v1/check/", data)
+    assert resp.json() == {"status": "ok"}
+    # Add a VMP mapping which will be added into the CSV download
+    VmpPrevMapping.objects.create(id="10514511000001106", vpidprev="999")
+    resp = client.post("/api/v1/check/", data)
+
+    assert resp.json() == {
+        "status": "error",
+        "data": {"added": [], "removed": [], "changed": [codelist_id]},
+    }

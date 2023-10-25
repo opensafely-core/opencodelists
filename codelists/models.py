@@ -558,9 +558,11 @@ class CodelistVersion(models.Model):
         """
         sha of CSV data for download with default parameters. This matches the method
         used to hash the CSVs downloaded in a study repo.
+        # In order to avoid different OS messing with line endings, opensafely-cli
+        # splits the lines and rejoins them before hashing.
         """
-        data_for_download = self.csv_data_for_download().encode()
-        return hashlib.sha1(data_for_download).hexdigest()
+        data_for_download = "\n".join(self.csv_data_for_download().splitlines())
+        return hashlib.sha1(data_for_download.encode()).hexdigest()
 
     def table_with_fixed_headers(self, include_mapped_vmps=True):
         """

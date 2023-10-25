@@ -1,3 +1,4 @@
+import hashlib
 import json
 from datetime import datetime
 
@@ -672,3 +673,32 @@ def test_codelists_check_changes(client, dmd_version_asthma_medication):
         "status": "error",
         "data": {"added": [], "removed": [], "changed": [codelist_id]},
     }
+
+
+def test_codelists_check_sha(version_with_no_searches):
+    # The CSV data download contains \r\n line endings
+    assert version_with_no_searches.csv_data_for_download() == (
+        "code,term\r\n"
+        "128133004,Disorder of elbow\r\n"
+        "156659008,(Epicondylitis &/or tennis elbow) or (golfers' elbow)\r\n"
+        "239964003,Soft tissue lesion of elbow region\r\n"
+        "35185008,Enthesopathy of elbow region\r\n"
+        "429554009,Arthropathy of elbow\r\n"
+        "73583000,Epicondylitis\r\n"
+    )
+    # In order to avoid different OS messing with line endings, opensafely-cli
+    # splits the lines and rejoins them before hashing. Test that our
+    # csv_data_sha does the same
+    csv_data_clean = (
+        "code,term\n"
+        "128133004,Disorder of elbow\n"
+        "156659008,(Epicondylitis &/or tennis elbow) or (golfers' elbow)\n"
+        "239964003,Soft tissue lesion of elbow region\n"
+        "35185008,Enthesopathy of elbow region\n"
+        "429554009,Arthropathy of elbow\n"
+        "73583000,Epicondylitis"
+    )
+    assert (
+        version_with_no_searches.csv_data_sha()
+        == hashlib.sha1(csv_data_clean.encode()).hexdigest()
+    )

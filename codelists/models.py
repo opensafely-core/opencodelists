@@ -1,3 +1,4 @@
+import hashlib
 from collections import Counter
 
 from django.contrib.auth.models import AnonymousUser
@@ -552,6 +553,14 @@ class CodelistVersion(models.Model):
         else:
             table = self.table
         return rows_to_csv_data(table)
+
+    def csv_data_sha(self):
+        """
+        sha of CSV data for download with default parameters. This matches the method
+        used to hash the CSVs downloaded in a study repo.
+        """
+        data_for_download = self.csv_data_for_download().encode()
+        return hashlib.sha1(data_for_download).hexdigest()
 
     def table_with_fixed_headers(self, include_mapped_vmps=True):
         """

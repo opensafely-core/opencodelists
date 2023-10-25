@@ -13,6 +13,7 @@ urlpatterns = [
         api.dmd_previous_codes_mapping,
         name="dmd_previous_codes_mapping",
     ),
+    path("check/", api.codelists_check, name="check_codelists"),
 ]
 
 for subpath, view in [

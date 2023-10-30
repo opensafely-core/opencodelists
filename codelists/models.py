@@ -597,9 +597,7 @@ class CodelistVersion(models.Model):
             codes = [row[code_header_index] for row in table_rows]
 
             # add in mapped VMP codes
-            vmp_to_prev_mapping, mapped_vmps_for_this_codelist = vmpprev_full_mappings(
-                codes
-            )
+            mapped_vmps_for_this_codelist = vmpprev_full_mappings(codes)
 
             # mapped_vmps_for_this_codelist is a full list of (vmp, previous) tuples, where one of
             # vmp/previous are in the codelist. It may contain mappings where `previous` is more than

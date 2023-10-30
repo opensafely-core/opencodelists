@@ -1,5 +1,4 @@
 import hashlib
-from collections import Counter
 
 from django.contrib.auth.models import AnonymousUser
 from django.db import models
@@ -601,68 +600,28 @@ class CodelistVersion(models.Model):
             vmp_to_prev_mapping, mapped_vmps_for_this_codelist = vmpprev_full_mappings(
                 codes
             )
-            # vmp_to_prev_mapping is a simple 1:1 mapping of vmp ID to the immediate previous
-            # VMP that it replaced. It ONLY contains mappings where one of the pair is in
-            # the codelist
 
             # mapped_vmps_for_this_codelist is a full list of (vmp, previous) tuples, where one of
             # vmp/previous are in the codelist. It may contain mappings where `previous` is more than
             # one historical step away from `vmp`
 
-            # Count if there were any duplicate previous VMPs in the mapping
-            if vmp_to_prev_mapping:
-                counter = Counter(vmp_to_prev_mapping.values())
-                _, count = counter.most_common(1)[0]
-            else:
-                count = 0
+            # create a mapping of previous and subsequent VMPs to add, where the
+            # keys are the mapped VMPs, and the values are the code(s) in the
+            # codelist that they map to/from. Usually there is just a 1:1 mapping, but
+            # it's possible that a single VMP could be split and map to 2 new VMPs, or
+            # that 2 VMPs could be merged to a single new code.
+            previous_vmps_to_add = {}
+            subsequent_vmps_to_add = {}
 
-            # Since we're mapping later codes as well as previous ones, we also need the
-            # reverse mapping of previous VMP to the one that replaced it
-            prev_to_vmp_mapping = {v: k for k, v in vmp_to_prev_mapping.items()}
-            # If there were any duplicate IMMEDIATE previous VMPs (i.e. two VMPs mapped to the same
-            # previous VMP), we join them in the reversed mapping
-            # This is only needed for the description of where the mapped code comes from
-            if count > 1:
-                duplicate_mappings = [
-                    vmp for vmp, count in counter.items() if count > 1
-                ]
-                for mapped_vmp in duplicate_mappings:
-                    mapped_to = [
-                        vmp
-                        for vmp, prev in vmp_to_prev_mapping.items()
-                        if prev == mapped_vmp
-                    ]
-                    prev_to_vmp_mapping[mapped_vmp] = ", ".join(mapped_to)
-
-            previous_vmps_to_add = set()
-            subsequent_vmps_to_add = set()
-
-            for vmp, previous_vmp in mapped_vmps_for_this_codelist:
+            for vmp, previous in mapped_vmps_for_this_codelist:
                 if vmp in codes:
-                    # mapping a code in the codelist to a previous code
-                    # add the previous code to the list
-                    previous_vmps_to_add.add(previous_vmp)
-                    # the previous vmp may not be in the prev_to_vmp_mapping mapping
-                    # yet, if it was more than one step away from the code in the codelist.
-                    if previous_vmp not in prev_to_vmp_mapping:
-                        prev_to_vmp_mapping[previous_vmp] = vmp
+                    # mapping in a previous code
+                    previous_vmps_to_add.setdefault(previous, []).append(vmp)
                 else:
-                    # if the vmp wasn't in the codelist codes, then the mapped previous one
-                    # must be. We're mapping in a code that is subsequent to one in the current codelist.
-                    assert previous_vmp in codes
+                    # mapping in a subsequent code
+                    subsequent_vmps_to_add.setdefault(vmp, []).append(previous)
 
-                    # The mapped code must be in ONE of the direct mappings
-                    # It's either previous to a current code (and in vmp_to_prev_mapping), or previous to
-                    # another previous code of current code,in which case it will be in the
-                    # prev_to_vmp_mapping
-                    if previous_vmp not in vmp_to_prev_mapping:
-                        assert previous_vmp in prev_to_vmp_mapping
-                        # add the mapped VMP into the mapping so we can add in the description
-                        vmp_to_prev_mapping[vmp] = prev_to_vmp_mapping[previous_vmp]
-                    # mapping a code in the codelist to a new code that supercedes it
-                    subsequent_vmps_to_add.add(vmp)
-
-            assert not previous_vmps_to_add & subsequent_vmps_to_add
+            assert not set(previous_vmps_to_add) & set(subsequent_vmps_to_add)
 
             def add_row(vmp, description):
                 new_row = ["" for i in range(len(table_rows[0]) + 1)]
@@ -673,15 +632,21 @@ class CodelistVersion(models.Model):
             # Sort the VMPs being added to ensure consistent order. This will ensure that
             # repeated CSV downloads are the same unless new mapped VMPs are added and
             # can be used to check whether updates to study codelists are required.
-            for vmp in sorted(previous_vmps_to_add):
+            for previous_vmp in sorted(previous_vmps_to_add):
                 # add the code to the table data
                 # include its description as the code it was superceded by
-                add_row(vmp, f"VMP previous to {prev_to_vmp_mapping[vmp]}")
+                add_row(
+                    previous_vmp,
+                    f"VMP previous to {', '.join(previous_vmps_to_add[previous_vmp])}",
+                )
 
-            for vmp in sorted(subsequent_vmps_to_add):
+            for subsequent_vmp in sorted(subsequent_vmps_to_add):
                 # add the code to the table data
                 # include its description as the code it supercedes
-                add_row(vmp, f"VMP subsequent to {vmp_to_prev_mapping[vmp]}")
+                add_row(
+                    subsequent_vmp,
+                    f"VMP subsequent to {', '.join(subsequent_vmps_to_add[subsequent_vmp])}",
+                )
 
         # re-write the table data with the new headers, and only the code and term columns
         table_data = [

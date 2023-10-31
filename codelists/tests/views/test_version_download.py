@@ -151,6 +151,6 @@ def test_get_with_mapped_vmps_more_than_one_step_distant(
         ["777", "VMP previous to 10514511000001106"],
         ["999", "VMP previous to 10514511000001106"],
         ["AAA", "VMP subsequent to 10514511000001106"],
-        ["BBB", "VMP subsequent to AAA"],
-        ["CCC", "VMP subsequent to BBB"],
+        ["BBB", "VMP subsequent to 10514511000001106"],
+        ["CCC", "VMP subsequent to 10514511000001106"],
     ]

@@ -19,7 +19,6 @@ set -euo pipefail
 # on dokku3 and run using the cronfile at opencodelists/deploy/bin/import_latest_dmd_cron
 # SLACK_WEBHOOK_URL and SLACK_DATATEAM_WEBHOOK_URL is an environment variable set in the cronfile on dokku3
 
-
 CODING_SYSTEM=$1
 
 REPO_ROOT="/app"
@@ -70,7 +69,16 @@ function post_failure_message_and_cleanup() {
   # restart app
   /usr/bin/dokku ps:restart opencodelists
   # Report and notify data team in slack
-  failure_message_text="Latest ${CODING_SYSTEM} release failed to import to OpenCodelists.\nCheck logs on dokku3 at ${LOG_FILE}"
+  failure_message_text="\
+Latest ${CODING_SYSTEM} release failed to import to OpenCodelists.\n \
+Check logs on dokku3 at ${LOG_FILE}\n \
+If you need to rerun the import, find the release name and valid from date (check the start of the log file) and run: \
+ \`\`\`dokku run opencodelists \
+python $REPO_ROOT/manage.py \
+import_coding_system_data ${CODING_SYSTEM} ${DOWNLOAD_DIR} \
+--release <release name> \
+--valid-from <YYYY-MM-DD> \
+--force && dokku ps:restart opencodelists\`\`\`"
   post_to_slack "${failure_message_text}" "${SLACK_DATATEAM_WEBHOOK_URL}"
 }
 

@@ -549,12 +549,18 @@ def test_codelists_check_old_style_codelist_version(client, old_style_version):
     assert resp.json() == {"status": "ok"}
 
 
-def test_codelists_check_codelist_with_tag(client, old_style_version):
-    old_style_version.tag = "v1"
+@pytest.mark.parametrize(
+    "tag,expected_status",
+    [("v1", "ok"), ("V-1", "ok"), ("v.1.1", "ok"), ("v1&2", "ok"), ("v1/2", "error")],
+)
+def test_codelists_check_codelist_with_tag(
+    client, old_style_version, tag, expected_status
+):
+    old_style_version.tag = tag
     old_style_version.save()
 
     codelist_id = (
-        f"{old_style_version.organisation.slug}/{old_style_version.codelist.slug}/v1"
+        f"{old_style_version.organisation.slug}/{old_style_version.codelist.slug}/{tag}"
     )
     codelist_csv_id = codelist_id.replace("/", "-") + ".csv"
     manifest = {
@@ -569,7 +575,7 @@ def test_codelists_check_codelist_with_tag(client, old_style_version):
     }
     data = {"codelists": codelist_id, "manifest": json.dumps(manifest)}
     resp = client.post("/api/v1/check/", data)
-    assert resp.json() == {"status": "ok"}
+    assert resp.json()["status"] == expected_status
 
 
 def test_codelists_check_has_added_codelists(

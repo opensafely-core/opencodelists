@@ -26,7 +26,9 @@ CODELIST_VERSION_REGEX = re.compile(
     (?P<user>user)?/?  # may start with "user/" if it's a user codelist
     (?P<owner>[\w|\d|-]+)/ # organisation slug or user name
     (?P<codelist_slug>[\w|\d|-]+)/ # codelist slug
-    (?P<tag_or_hash>[\w|\d|-]+) # version tag or hash
+    # version tag or hash; a tag can technically be any character,
+    # but exclude forward slashes, since they'd break the urls anyway.
+    (?P<tag_or_hash>[^\/]+)
     /?$ # possible trailing slash
     """,
     flags=re.X,

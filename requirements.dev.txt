@@ -487,9 +487,9 @@ pytest-django==4.5.2 \
     --hash=sha256:c60834861933773109334fe5a53e83d1ef4828f2203a1d6a0fa9972f4f75ab3e \
     --hash=sha256:d9076f759bb7c36939dbdd5ae6633c18edfc2902d1a69fdbefd2426b970ce6c2
     # via -r requirements.dev.in
-pytest-subtests==0.10.0 \
-    --hash=sha256:03a50a14f7981cd03090e8ca94205d783e290266d828728210c3d79f4d00c46f \
-    --hash=sha256:d9961a67c1791e8c1e32dce7a70ed1e54f3b1e641087f2094f2d37087ab7fb17
+pytest-subtests==0.11.0 \
+    --hash=sha256:453389984952eec85ab0ce0c4f026337153df79587048271c7fd0f49119c07e4 \
+    --hash=sha256:51865c88457545f51fb72011942f0a3c6901ee9e24cbfb6d1b9dc1348bafbe37
     # via -r requirements.dev.in
 python-dateutil==2.8.2 \
     --hash=sha256:0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86 \

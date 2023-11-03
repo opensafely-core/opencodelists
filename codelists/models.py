@@ -562,15 +562,45 @@ class CodelistVersion(models.Model):
             table = self.table
         return rows_to_csv_data(table)
 
-    def csv_data_sha(self):
+    def csv_data_sha(self, csv_data=None):
         """
         sha of CSV data for download with default parameters. This matches the method
         used to hash the CSVs downloaded in a study repo.
         # In order to avoid different OS messing with line endings, opensafely-cli
         # splits the lines and rejoins them before hashing.
         """
-        data_for_download = "\n".join(self.csv_data_for_download().splitlines())
+        csv_data = csv_data or self.csv_data_for_download()
+        data_for_download = "\n".join(csv_data.splitlines())
         return hashlib.sha1(data_for_download.encode()).hexdigest()
+
+    def csv_data_shas(self):
+        """
+        Return a list of shas that should all be considered valid when
+        checked against the downloaded data in a study repo.
+        """
+        current_csv_data_download = self.csv_data_for_download()
+        shas = [self.csv_data_sha(csv_data=current_csv_data_download)]
+        if self.coding_system_id == "dmd":
+            # To try and minimise impact on users, we check if there are mapped
+            # VMPs for this set of dm+d codes. If there are not, then the user's
+            # downloaded CSV data will still be OK, so we can check against the
+            # sha of the old style dm+d download (no mapped VMPs, and uses the
+            # original headers)
+            current_csv_data_in_rows = csv_data_to_rows(current_csv_data_download)
+            if len(current_csv_data_in_rows) == len(self.table):
+                old_dmd_download = rows_to_csv_data(self.table)
+                shas.append(self.csv_data_sha(old_dmd_download))
+            # Also allow CSV downloads that only included the "code" and "term"
+            # columns (i.e. not the original code column)
+            # We only care about checking this if there is an original code column
+            # that would be included (it is included by default, but can be missing
+            # if the original code header was "code" to start with)
+            if len(current_csv_data_in_rows[0]) == 3:
+                fixed_header_data = rows_to_csv_data(
+                    [row[:2] for row in current_csv_data_in_rows]
+                )
+                shas.append(self.csv_data_sha(fixed_header_data))
+        return shas
 
     def table_with_fixed_headers(
         self, include_mapped_vmps=True, include_original_header=False

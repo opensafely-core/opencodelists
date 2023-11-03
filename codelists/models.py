@@ -548,7 +548,16 @@ class CodelistVersion(models.Model):
             )
             if not fixed_headers and not dmd_with_mapped_vmps:
                 return self.csv_data
-            table = self.table_with_fixed_headers(include_mapped_vmps)
+            # if fixed_headers were not explicitly requested (i.e. by OSI), include a column
+            # with the original code column header. This ensures that any new downloads continue
+            # to work with existing study/data definitions that import codelists with a named
+            # code column.
+            # Currently this is likely to only apply to dm+d codelists which have often been
+            # converted from BNF codelists, and previously used "dmd_id" as the code column
+            table = self.table_with_fixed_headers(
+                include_mapped_vmps=include_mapped_vmps,
+                include_original_header=not fixed_headers,
+            )
         else:
             table = self.table
         return rows_to_csv_data(table)
@@ -563,7 +572,9 @@ class CodelistVersion(models.Model):
         data_for_download = "\n".join(self.csv_data_for_download().splitlines())
         return hashlib.sha1(data_for_download.encode()).hexdigest()
 
-    def table_with_fixed_headers(self, include_mapped_vmps=True):
+    def table_with_fixed_headers(
+        self, include_mapped_vmps=True, include_original_header=False
+    ):
         """
         Find the code and term columns from csv data (which may be labelled with different
         headers), and return just those columns with the with the headers "code" and "term".
@@ -588,6 +599,9 @@ class CodelistVersion(models.Model):
         )
         # Identify the index for the two columns we want
         code_header_index = header_row.index(code_header)
+        if include_original_header and code_header == "code":
+            # avoid duplicate columns if the code header is already "code"
+            include_original_header = False
         term_header_index = header_row.index(term_header) if term_header else None
 
         table_rows = self.table[1:]
@@ -646,13 +660,24 @@ class CodelistVersion(models.Model):
                     f"VMP subsequent to {', '.join(subsequent_vmps_to_add[subsequent_vmp])}",
                 )
 
+        headers = ["code", "term"]
+        if include_original_header:
+            headers += [header_row[code_header_index]]
+
         # re-write the table data with the new headers, and only the code and term columns
+        # plus a duplicate code column with the original column header if required
+        def _csv_row(row):
+            csv_row = [
+                row[code_header_index],
+                row[term_header_index] if term_header else "",
+            ]
+            if include_original_header:
+                csv_row += [row[code_header_index]]
+            return csv_row
+
         table_data = [
-            ["code", "term"],
-            *[
-                [row[code_header_index], row[term_header_index] if term_header else ""]
-                for row in table_rows
-            ],
+            headers,
+            *[_csv_row(row) for row in table_rows],
         ]
         return table_data
 

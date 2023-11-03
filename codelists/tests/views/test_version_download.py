@@ -55,7 +55,60 @@ def test_get_with_mapped_vmps(client, dmd_version_asthma_medication):
 
     rsp = client.get(dmd_version_asthma_medication.get_download_url())
     data = rsp.content.decode("utf8")
+    # Includes mapped VMPs  and uses fixed headers by default
+    # Includes an additional column with the original code header
+    assert csv_data_to_rows(data) == [
+        ["code", "term", "dmd_id"],
+        [
+            "10514511000001106",
+            "Adrenaline (base) 220micrograms/dose inhaler",
+            "10514511000001106",
+        ],
+        [
+            "10525011000001107",
+            "Adrenaline (base) 220micrograms/dose inhaler refill",
+            "10525011000001107",
+        ],
+        ["999", "VMP previous to 10514511000001106", "999"],
+        ["888", "VMP subsequent to 10514511000001106", "888"],
+    ]
+
+
+def test_get_with_mapped_vmps_and_original_code_column(
+    client, dmd_version_asthma_medication
+):
+    dmd_version_asthma_medication.csv_data = (
+        dmd_version_asthma_medication.csv_data.replace("dmd_id", "code")
+    )
+    dmd_version_asthma_medication.save()
+
+    # create a previous mapping for one of the dmd codes
+    Mapping.objects.create(id="10514511000001106", vpidprev="999")
+
+    rsp = client.get(dmd_version_asthma_medication.get_download_url())
+    data = rsp.content.decode("utf8")
     # Includes mapped VMPs by default, and uses fixed headers
+    # No additional column when the original code column was already "code"
+    assert csv_data_to_rows(data) == [
+        ["code", "term"],
+        ["10514511000001106", "Adrenaline (base) 220micrograms/dose inhaler"],
+        ["10525011000001107", "Adrenaline (base) 220micrograms/dose inhaler refill"],
+        ["999", "VMP previous to 10514511000001106"],
+    ]
+
+
+def test_get_with_mapped_vmps_and_fixed_headers(client, dmd_version_asthma_medication):
+    # create a previous mapping for one of the dmd codes
+    Mapping.objects.create(id="10514511000001106", vpidprev="999")
+    # create a new mapping for one of the dmd codes
+    Mapping.objects.create(id="888", vpidprev="10514511000001106")
+
+    rsp = client.get(
+        dmd_version_asthma_medication.get_download_url() + "?fixed-headers"
+    )
+    data = rsp.content.decode("utf8")
+    # Includes mapped VMPs by default, and uses fixed headers
+    # No additional column with the original code header when fixed headers are explictly requested
     assert csv_data_to_rows(data) == [
         ["code", "term"],
         ["10514511000001106", "Adrenaline (base) 220micrograms/dose inhaler"],
@@ -84,12 +137,20 @@ def test_get_with_duplicated_mapped_vmps(client, dmd_version_asthma_medication):
     data = rsp.content.decode("utf8")
     # Includes mapped VMPs by default, and uses fixed headers
     assert csv_data_to_rows(data) == [
-        ["code", "term"],
-        ["10514511000001106", "Adrenaline (base) 220micrograms/dose inhaler"],
-        ["10525011000001107", "Adrenaline (base) 220micrograms/dose inhaler refill"],
-        ["999", "VMP previous to 10514511000001106, 10525011000001107"],
-        ["777", "VMP subsequent to 10514511000001106"],
-        ["888", "VMP subsequent to 10514511000001106"],
+        ["code", "term", "dmd_id"],
+        [
+            "10514511000001106",
+            "Adrenaline (base) 220micrograms/dose inhaler",
+            "10514511000001106",
+        ],
+        [
+            "10525011000001107",
+            "Adrenaline (base) 220micrograms/dose inhaler refill",
+            "10525011000001107",
+        ],
+        ["999", "VMP previous to 10514511000001106, 10525011000001107", "999"],
+        ["777", "VMP subsequent to 10514511000001106", "777"],
+        ["888", "VMP subsequent to 10514511000001106", "888"],
     ]
 
 
@@ -99,10 +160,19 @@ def test_get_with_mapped_vmps_nothing_to_map(client, dmd_version_asthma_medicati
     Mapping.objects.create(id="111", vpidprev="999")
     rsp = client.get(dmd_version_asthma_medication.get_download_url())
     data = rsp.content.decode("utf8")
+
     assert csv_data_to_rows(data) == [
-        ["code", "term"],
-        ["10514511000001106", "Adrenaline (base) 220micrograms/dose inhaler"],
-        ["10525011000001107", "Adrenaline (base) 220micrograms/dose inhaler refill"],
+        ["code", "term", "dmd_id"],
+        [
+            "10514511000001106",
+            "Adrenaline (base) 220micrograms/dose inhaler",
+            "10514511000001106",
+        ],
+        [
+            "10525011000001107",
+            "Adrenaline (base) 220micrograms/dose inhaler refill",
+            "10525011000001107",
+        ],
     ]
 
 
@@ -144,13 +214,21 @@ def test_get_with_mapped_vmps_more_than_one_step_distant(
     rsp = client.get(dmd_version_asthma_medication.get_download_url())
     data = rsp.content.decode("utf8")
     assert csv_data_to_rows(data) == [
-        ["code", "term"],
-        ["10514511000001106", "Adrenaline (base) 220micrograms/dose inhaler"],
-        ["10525011000001107", "Adrenaline (base) 220micrograms/dose inhaler refill"],
-        ["666", "VMP previous to 10514511000001106"],
-        ["777", "VMP previous to 10514511000001106"],
-        ["999", "VMP previous to 10514511000001106"],
-        ["AAA", "VMP subsequent to 10514511000001106"],
-        ["BBB", "VMP subsequent to 10514511000001106"],
-        ["CCC", "VMP subsequent to 10514511000001106"],
+        ["code", "term", "dmd_id"],
+        [
+            "10514511000001106",
+            "Adrenaline (base) 220micrograms/dose inhaler",
+            "10514511000001106",
+        ],
+        [
+            "10525011000001107",
+            "Adrenaline (base) 220micrograms/dose inhaler refill",
+            "10525011000001107",
+        ],
+        ["666", "VMP previous to 10514511000001106", "666"],
+        ["777", "VMP previous to 10514511000001106", "777"],
+        ["999", "VMP previous to 10514511000001106", "999"],
+        ["AAA", "VMP subsequent to 10514511000001106", "AAA"],
+        ["BBB", "VMP subsequent to 10514511000001106", "BBB"],
+        ["CCC", "VMP subsequent to 10514511000001106", "CCC"],
     ]

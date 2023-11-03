@@ -548,22 +548,63 @@ class CodelistVersion(models.Model):
             )
             if not fixed_headers and not dmd_with_mapped_vmps:
                 return self.csv_data
-            table = self.table_with_fixed_headers(include_mapped_vmps)
+            # if fixed_headers were not explicitly requested (i.e. by OSI), include a column
+            # with the original code column header. This ensures that any new downloads continue
+            # to work with existing study/data definitions that import codelists with a named
+            # code column.
+            # Currently this is likely to only apply to dm+d codelists which have often been
+            # converted from BNF codelists, and previously used "dmd_id" as the code column
+            table = self.table_with_fixed_headers(
+                include_mapped_vmps=include_mapped_vmps,
+                include_original_header=not fixed_headers,
+            )
         else:
             table = self.table
         return rows_to_csv_data(table)
 
-    def csv_data_sha(self):
+    def csv_data_sha(self, csv_data=None):
         """
         sha of CSV data for download with default parameters. This matches the method
         used to hash the CSVs downloaded in a study repo.
         # In order to avoid different OS messing with line endings, opensafely-cli
         # splits the lines and rejoins them before hashing.
         """
-        data_for_download = "\n".join(self.csv_data_for_download().splitlines())
+        csv_data = csv_data or self.csv_data_for_download()
+        data_for_download = "\n".join(csv_data.splitlines())
         return hashlib.sha1(data_for_download.encode()).hexdigest()
 
-    def table_with_fixed_headers(self, include_mapped_vmps=True):
+    def csv_data_shas(self):
+        """
+        Return a list of shas that should all be considered valid when
+        checked against the downloaded data in a study repo.
+        """
+        current_csv_data_download = self.csv_data_for_download()
+        shas = [self.csv_data_sha(csv_data=current_csv_data_download)]
+        if self.coding_system_id == "dmd":
+            # To try and minimise impact on users, we check if there are mapped
+            # VMPs for this set of dm+d codes. If there are not, then the user's
+            # downloaded CSV data will still be OK, so we can check against the
+            # sha of the old style dm+d download (no mapped VMPs, and uses the
+            # original headers)
+            current_csv_data_in_rows = csv_data_to_rows(current_csv_data_download)
+            if len(current_csv_data_in_rows) == len(self.table):
+                old_dmd_download = rows_to_csv_data(self.table)
+                shas.append(self.csv_data_sha(old_dmd_download))
+            # Also allow CSV downloads that only included the "code" and "term"
+            # columns (i.e. not the original code column)
+            # We only care about checking this if there is an original code column
+            # that would be included (it is included by default, but can be missing
+            # if the original code header was "code" to start with)
+            if len(current_csv_data_in_rows[0]) == 3:
+                fixed_header_data = rows_to_csv_data(
+                    [row[:2] for row in current_csv_data_in_rows]
+                )
+                shas.append(self.csv_data_sha(fixed_header_data))
+        return shas
+
+    def table_with_fixed_headers(
+        self, include_mapped_vmps=True, include_original_header=False
+    ):
         """
         Find the code and term columns from csv data (which may be labelled with different
         headers), and return just those columns with the with the headers "code" and "term".
@@ -588,6 +629,9 @@ class CodelistVersion(models.Model):
         )
         # Identify the index for the two columns we want
         code_header_index = header_row.index(code_header)
+        if include_original_header and code_header == "code":
+            # avoid duplicate columns if the code header is already "code"
+            include_original_header = False
         term_header_index = header_row.index(term_header) if term_header else None
 
         table_rows = self.table[1:]
@@ -646,13 +690,24 @@ class CodelistVersion(models.Model):
                     f"VMP subsequent to {', '.join(subsequent_vmps_to_add[subsequent_vmp])}",
                 )
 
+        headers = ["code", "term"]
+        if include_original_header:
+            headers += [header_row[code_header_index]]
+
         # re-write the table data with the new headers, and only the code and term columns
+        # plus a duplicate code column with the original column header if required
+        def _csv_row(row):
+            csv_row = [
+                row[code_header_index],
+                row[term_header_index] if term_header else "",
+            ]
+            if include_original_header:
+                csv_row += [row[code_header_index]]
+            return csv_row
+
         table_data = [
-            ["code", "term"],
-            *[
-                [row[code_header_index], row[term_header_index] if term_header else ""]
-                for row in table_rows
-            ],
+            headers,
+            *[_csv_row(row) for row in table_rows],
         ]
         return table_data
 

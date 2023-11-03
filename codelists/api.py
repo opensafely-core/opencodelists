@@ -351,7 +351,7 @@ def codelists_check(requests):
                 return JsonResponse(
                     {"status": "error", "data": {"error": f"{line} could not be found"}}
                 )
-        codelist_download_data[line] = codelist_version.csv_data_sha()
+        codelist_download_data[line] = codelist_version.csv_data_shas()
 
     # Compare with manifest file
     # The manifest file is generated when `opensafely codelists update` is run in a study repo
@@ -373,7 +373,7 @@ def codelists_check(requests):
         file_data["id"]
         for file_data in manifest["files"].values()
         if file_data["id"] in codelist_download_data
-        and file_data["sha"] != codelist_download_data[file_data["id"]]
+        and file_data["sha"] not in codelist_download_data[file_data["id"]]
     ]
     if new_files or removed_files or changed:
         return JsonResponse(

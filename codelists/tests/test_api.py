@@ -681,6 +681,115 @@ def test_codelists_check_changes(client, dmd_version_asthma_medication):
     }
 
 
+@pytest.mark.parametrize(
+    "downloaded_data",
+    [
+        (  # default download (as expected from a current `opensafely codelists update`)
+            "code,term,dmd_id\r\n"
+            "10514511000001106,Adrenaline (base) 220micrograms/dose inhaler,10514511000001106\r\n"
+            "10525011000001107,Adrenaline (base) 220micrograms/dose inhaler refill,10525011000001107\r\n"
+        ),
+        (  # old-style download (from before VMPs were mapped into dmd downloads)
+            "dmd_type,dmd_id,dmd_name,bnf_code\r\n"
+            "VMP,10514511000001106,Adrenaline (base) 220micrograms/dose inhaler,0301012A0AAABAB\r\n"
+            "VMP,10525011000001107,Adrenaline (base) 220micrograms/dose inhaler refill,0301012A0AAACAC\r\n"
+        ),
+        (  # download excluding original code column
+            "code,term\r\n"
+            "10514511000001106,Adrenaline (base) 220micrograms/dose inhaler\r\n"
+            "10525011000001107,Adrenaline (base) 220micrograms/dose inhaler refill\r\n"
+        ),
+    ],
+)
+def test_codelists_check_dmd_alternative_downloads(
+    client, dmd_version_asthma_medication, downloaded_data
+):
+    # Test that any of these versions of a downloaded CSV are
+    # still considered OK
+    codelist_id = (
+        f"{dmd_version_asthma_medication.organisation.slug}/"
+        f"{dmd_version_asthma_medication.codelist.slug}/"
+        f"{dmd_version_asthma_medication.hash}"
+    )
+    codelist_csv_id = codelist_id.replace("/", "-") + ".csv"
+
+    manifest = {
+        "files": {
+            codelist_csv_id: {
+                "id": codelist_id,
+                "url": f"https://opencodelist.org/codelists/{codelist_csv_id}/",
+                "downloaded_at": "2023-10-04 13:55:17.569997Z",
+                "sha": dmd_version_asthma_medication.csv_data_sha(
+                    csv_data=downloaded_data
+                ),
+            },
+        }
+    }
+    data = {"codelists": codelist_id, "manifest": json.dumps(manifest)}
+    resp = client.post("/api/v1/check/", data)
+    assert resp.json() == {"status": "ok"}
+
+
+@pytest.mark.parametrize(
+    "downloaded_data,expected_status",
+    [
+        (
+            (  # default download (as expected from a current `opensafely codelists update`)
+                "code,term,dmd_id\r\n"
+                "10514511000001106,Adrenaline (base) 220micrograms/dose inhaler,10514511000001106\r\n"
+                "10525011000001107,Adrenaline (base) 220micrograms/dose inhaler refill,10525011000001107\r\n"
+                "999,VMP previous to 10514511000001106,999\r\n"
+            ),
+            "ok",
+        ),
+        (
+            (  # old-style download (from before VMPs were mapped into dmd downloads)
+                "dmd_type,dmd_id,dmd_name,bnf_code\r\n"
+                "VMP,10514511000001106,Adrenaline (base) 220micrograms/dose inhaler,0301012A0AAABAB\r\n"
+                "VMP,10525011000001107,Adrenaline (base) 220micrograms/dose inhaler refill,0301012A0AAACAC\r\n"
+            ),
+            "error",
+        ),
+        (
+            (  # download excluding original code column
+                "code,term\r\n"
+                "10514511000001106,Adrenaline (base) 220micrograms/dose inhaler\r\n"
+                "10525011000001107,Adrenaline (base) 220micrograms/dose inhaler refill\r\n"
+                "999,VMP previous to 10514511000001106\r\n"
+            ),
+            "ok",
+        ),
+    ],
+)
+def test_codelists_check_dmd_alternative_downloads_with_vmp_mappings(
+    client, dmd_version_asthma_medication, downloaded_data, expected_status
+):
+    # Add a VMP mapping which will be added into the CSV download
+    VmpPrevMapping.objects.create(id="10514511000001106", vpidprev="999")
+    codelist_id = (
+        f"{dmd_version_asthma_medication.organisation.slug}/"
+        f"{dmd_version_asthma_medication.codelist.slug}/"
+        f"{dmd_version_asthma_medication.hash}"
+    )
+    codelist_csv_id = codelist_id.replace("/", "-") + ".csv"
+
+    manifest = {
+        "files": {
+            codelist_csv_id: {
+                "id": codelist_id,
+                "url": f"https://opencodelist.org/codelists/{codelist_csv_id}/",
+                "downloaded_at": "2023-10-04 13:55:17.569997Z",
+                "sha": dmd_version_asthma_medication.csv_data_sha(
+                    csv_data=downloaded_data
+                ),
+            },
+        }
+    }
+    data = {"codelists": codelist_id, "manifest": json.dumps(manifest)}
+    resp = client.post("/api/v1/check/", data)
+    assert resp.json()["status"] == expected_status
+
+
 def test_codelists_check_sha(version_with_no_searches):
     # The CSV data download contains \r\n line endings
     assert version_with_no_searches.csv_data_for_download() == (

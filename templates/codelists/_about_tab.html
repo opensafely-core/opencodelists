@@ -52,6 +52,13 @@
       We don't offer any guarantees about what they do or don't identify. Users should carefully
       check that any codelist meets their needs, and seek clinical input where appropriate.
     </p>
+    {% if codelist.coding_system_id == "dmd" %}
+    <p>
+      * dm+d codelists can be downloaded with codes mapped to changed VMPs included - this is the default
+      for an OpenSAFELY project.  See the <a href="https://docs.opensafely.org/codelist-updating/">
+      documentation on keeping codelists up to date</a> for more details.
+    </p>
+    {% endif %}
   </div>
 
 </div>

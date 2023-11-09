@@ -21,8 +21,17 @@
         role="button"
         class="btn btn-outline-primary btn-block"
       >
-        Download CSV
+        Download CSV{% if clv.coding_system_id == "dmd" %} (with mapped VMPs)*{% endif %}
       </a>
+      {% if clv.coding_system_id == "dmd" %}
+      <a
+        href="{{ clv.get_download_url }}?omit-mapped-vmps"
+        role="button"
+        class="btn btn-outline-primary btn-block"
+      >
+        Download CSV (original)
+      </a>
+      {% endif %}
       {% if clv.codeset %}
       <a
         href="{{ clv.get_download_definition_url }}"

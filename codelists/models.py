@@ -544,25 +544,43 @@ class CodelistVersion(models.Model):
         fixed_headers: if True, uploaded csv_data is converted to two columns, headed "code" and "term".
           This parameter is ignored for dmd downloads that include mapped VMPs
         """
-        if self.csv_data:
-            dmd_with_mapped_vmps = (
-                self.coding_system_id == "dmd" and include_mapped_vmps
+        dmd_version_needs_refreshed = (
+            self.coding_system_id == "dmd"
+            and include_mapped_vmps
+            and self.cached_csv_data.get("release") != most_recent_database_alias("dmd")
+        )
+        cache_key = f"download_data_fixed_headers_{fixed_headers}_include_mapped_vmps_{include_mapped_vmps}"
+        if not self.cached_csv_data.get(cache_key) or dmd_version_needs_refreshed:
+            if self.csv_data:
+                dmd_with_mapped_vmps = (
+                    self.coding_system_id == "dmd" and include_mapped_vmps
+                )
+                if not fixed_headers and not dmd_with_mapped_vmps:
+                    csv_data = self.csv_data
+                else:
+                    # if fixed_headers were not explicitly requested (i.e. by OSI), include a column
+                    # with the original code column header. This ensures that any new downloads continue
+                    # to work with existing study/data definitions that import codelists with a named
+                    # code column.
+                    # Currently this is likely to only apply to dm+d codelists which have often been
+                    # converted from BNF codelists, and previously used "dmd_id" as the code column
+                    csv_data = rows_to_csv_data(
+                        self.table_with_fixed_headers(
+                            include_mapped_vmps=include_mapped_vmps,
+                            include_original_header=not fixed_headers,
+                        )
+                    )
+            else:
+                csv_data = rows_to_csv_data(self.table)
+            relevant_release = (
+                most_recent_database_alias("dmd")
+                if self.coding_system_id == "dmd"
+                else self.coding_system_release.database_alias
             )
-            if not fixed_headers and not dmd_with_mapped_vmps:
-                return self.csv_data
-            # if fixed_headers were not explicitly requested (i.e. by OSI), include a column
-            # with the original code column header. This ensures that any new downloads continue
-            # to work with existing study/data definitions that import codelists with a named
-            # code column.
-            # Currently this is likely to only apply to dm+d codelists which have often been
-            # converted from BNF codelists, and previously used "dmd_id" as the code column
-            table = self.table_with_fixed_headers(
-                include_mapped_vmps=include_mapped_vmps,
-                include_original_header=not fixed_headers,
+            self.cached_csv_data.update(
+                {cache_key: csv_data, "release": relevant_release}
             )
-        else:
-            table = self.table
-        return rows_to_csv_data(table)
+        return self.cached_csv_data[cache_key]
 
     def csv_data_sha(self, csv_data=None):
         """
@@ -616,6 +634,8 @@ class CodelistVersion(models.Model):
             self.coding_system_id == "dmd"
             and self.cached_csv_data.get("release") != most_recent_database_alias("dmd")
         ):
+            # reset the cache so we refresh any stored dmd data
+            self.cached_csv_data = {}
             current_csv_data_download = self.csv_data_for_download()
             shas = [self.csv_data_sha(csv_data=current_csv_data_download)]
             if self.coding_system_id == "dmd":

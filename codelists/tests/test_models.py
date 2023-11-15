@@ -305,3 +305,53 @@ def test_draft_is_not_downloadable(draft_with_no_searches):
     assert draft_with_no_searches.downloadable is False
     builder_actions.save(draft=draft_with_no_searches)
     assert draft_with_no_searches.downloadable is True
+
+
+def test_cached_csv_data(old_style_version):
+    assert old_style_version.cached_csv_data == {}
+    old_style_version.csv_data_shas()
+    assert old_style_version.cached_csv_data["release"] == "snomedct_test_20200101"
+    assert (
+        "download_data_fixed_headers_False_include_mapped_vmps_True"
+        in old_style_version.cached_csv_data
+    )
+    assert (
+        old_style_version.cached_csv_data[
+            "download_data_fixed_headers_False_include_mapped_vmps_True"
+        ]
+        == old_style_version.csv_data
+    )
+    assert len(old_style_version.cached_csv_data["shas"]) == 1
+
+
+def test_cached_csv_data_dmd_codelist(dmd_version_asthma_medication):
+    clv = dmd_version_asthma_medication
+    assert clv.cached_csv_data == {}
+    clv.csv_data_shas()
+
+    # take a copy of the cached data
+    cached_csv_data = {**clv.cached_csv_data}
+    assert clv.cached_csv_data["release"] == "dmd_test_20200101"
+    assert (
+        "download_data_fixed_headers_False_include_mapped_vmps_True"
+        in clv.cached_csv_data
+    )
+    # 3 shas
+    # - original
+    # - mapped version, with fixed headers
+    # - mapped version with fixed headers and extra original code column
+    assert len(clv.cached_csv_data["shas"]) == 3
+
+    clv.csv_data = "code,term"
+    clv.save()
+    # csv_data_for_download still returns the cached data
+    assert clv.csv_data_for_download() != "code,term\r\n"
+    assert (
+        clv.csv_data_for_download()
+        == cached_csv_data["download_data_fixed_headers_False_include_mapped_vmps_True"]
+    )
+
+    # make the release not the latest one so the data needs to be re-cached
+    clv.cached_csv_data["release"] = "old"
+    clv.save()
+    assert clv.csv_data_for_download() == "code,term\r\n"

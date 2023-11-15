@@ -671,6 +671,7 @@ def test_codelists_check_changes(client, dmd_version_asthma_medication):
     data = {"codelists": codelist_id, "manifest": json.dumps(manifest)}
     resp = client.post("/api/v1/check/", data)
     assert resp.json() == {"status": "ok"}
+
     # Add a VMP mapping which will be added into the CSV download
     VmpPrevMapping.objects.create(id="10514511000001106", vpidprev="999")
     resp = client.post("/api/v1/check/", data)
@@ -817,3 +818,37 @@ def test_codelists_check_sha(version_with_no_searches):
         version_with_no_searches.csv_data_sha()
         == hashlib.sha1(csv_data_clean.encode()).hexdigest()
     )
+
+
+def test_codelists_check_non_downloadable_dmd(client, dmd_version_asthma_medication):
+    dmd_version_asthma_medication.csv_data = (
+        dmd_version_asthma_medication.csv_data.replace("dmd_id", "bad_header")
+    )
+    dmd_version_asthma_medication.save()
+
+    assert not dmd_version_asthma_medication.downloadable
+
+    codelist_id = (
+        f"{dmd_version_asthma_medication.organisation.slug}/"
+        f"{dmd_version_asthma_medication.codelist.slug}/"
+        f"{dmd_version_asthma_medication.hash}"
+    )
+    codelist_csv_id = codelist_id.replace("/", "-") + ".csv"
+
+    # Test the happy path for this dmd version
+    manifest = {
+        "files": {
+            codelist_csv_id: {
+                "id": codelist_id,
+                "url": f"https://opencodelist.org/codelists/{codelist_csv_id}/",
+                "downloaded_at": "2023-10-04 13:55:17.569997Z",
+                "sha": "dummy-sha",
+            },
+        }
+    }
+    data = {"codelists": codelist_id, "manifest": json.dumps(manifest)}
+    resp = client.post("/api/v1/check/", data)
+    assert resp.json() == {
+        "status": "error",
+        "data": {"error": f"{codelist_id} is not downloadable"},
+    }

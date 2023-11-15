@@ -16,13 +16,29 @@
     <form method="POST" action={{ clv.get_dmd_convert_url }}>
       {% csrf_token %}
       <div class="btn-group-vertical btn-block" role="group">
-      <a
-        href="{{ clv.get_download_url }}"
-        role="button"
-        class="btn btn-outline-primary btn-block"
-      >
-        Download CSV{% if clv.coding_system_id == "dmd" %} (with mapped VMPs)*{% endif %}
-      </a>
+        {% if clv.coding_system_id == "dmd" %}
+          {% if clv.downloadable %}
+            <a
+              href="{{ clv.get_download_url }}"
+              role="button"
+              class="btn btn-outline-primary btn-block"
+            >
+              Download CSV (with mapped VMPs)*
+            </a>
+          {% else %}
+            <div class="btn btn-outline-primary btn-block disabled">
+              Download CSV (with mapped VMPs)*
+            </div>
+          {% endif %}
+        {% else %}
+            <a
+              href="{{ clv.get_download_url }}"
+              role="button"
+              class="btn btn-outline-primary btn-block"
+            >
+              Download CSV
+            </a>
+        {% endif %}
       {% if clv.coding_system_id == "dmd" %}
       <a
         href="{{ clv.get_download_url }}?omit-mapped-vmps"

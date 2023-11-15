@@ -18,8 +18,11 @@ def coding_systems_database_tmp_dir(coding_systems_tmp_path):
     yield coding_systems_tmp_path
 
 
-def test_import_data(settings, dmd_data, mock_data_download):
+def test_import_data(
+    settings, dmd_data, dmd_version_asthma_medication, mock_data_download
+):
     cs_release_count = CodingSystemRelease.objects.count()
+    assert dmd_version_asthma_medication.cached_csv_data == {}
 
     # import mock XML data
     # This consists of the AMP 222311000001102 (Ventolin 100micrograms/dose Evohaler)
@@ -71,6 +74,13 @@ def test_import_data(settings, dmd_data, mock_data_download):
     mapping = VmpPrevMapping.objects.first()
     assert mapping.id == "39113611000001102"
     assert mapping.vpidprev == "320139002"
+
+    # download data on existing CodelistVersions has been cached
+    dmd_version_asthma_medication.refresh_from_db()
+    assert (
+        dmd_version_asthma_medication.cached_csv_data["release"]
+        == "dmd_2022-100_20221001"
+    )
 
 
 def test_import_data_unexpected_file(mock_data_download_bad_zip):

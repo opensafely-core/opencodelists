@@ -8,6 +8,7 @@ from django.db.models import fields as django_fields
 from lxml import etree
 from tqdm import tqdm
 
+from codelists.models import CodelistVersion
 from coding_systems.base.import_data_utils import CodingSystemImporter
 from coding_systems.dmd import models
 from mappings.dmdvmpprevmap.models import Mapping
@@ -57,6 +58,7 @@ def import_release(
             import_coding_system(Path(tempdir), database_alias)
 
     update_vmp_prev_mapping(database_alias)
+    update_cached_download_data()
 
 
 def import_coding_system(release_dir, database_alias):
@@ -314,3 +316,18 @@ def update_vmp_prev_mapping(database_alias):
         desc="Update VMP previous mapping",
     ):
         Mapping.objects.get_or_create(id=vmp.id, vpidprev=vmp.vpidprev)
+
+
+def update_cached_download_data():
+    """
+    Refresh the cached_csv_data by calling csv_data_shas for each non-draft dmd
+    CodelistVersion. This will also cache the default download data.
+    """
+    logger.info("Updating cached download data")
+    for codelist_version in tqdm(
+        CodelistVersion.objects.filter(codelist__coding_system_id="dmd").exclude(
+            status="draft"
+        )
+    ):
+        if codelist_version.downloadable:
+            codelist_version.csv_data_shas()

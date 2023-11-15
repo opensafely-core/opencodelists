@@ -672,6 +672,9 @@ def test_codelists_check_changes(client, dmd_version_asthma_medication):
     resp = client.post("/api/v1/check/", data)
     assert resp.json() == {"status": "ok"}
 
+    # mock cache to be related to an older release
+    dmd_version_asthma_medication.cached_csv_data["release"] = "old"
+    dmd_version_asthma_medication.save()
     # Add a VMP mapping which will be added into the CSV download
     VmpPrevMapping.objects.create(id="10514511000001106", vpidprev="999")
     resp = client.post("/api/v1/check/", data)

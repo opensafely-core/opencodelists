@@ -6,3 +6,6 @@ Crawl-delay: 60
 
 User-agent: bingbot
 Crawl-delay: 60
+
+User-agent: DotBot
+Crawl-delay: 60

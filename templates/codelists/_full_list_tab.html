@@ -14,3 +14,15 @@
       {% endfor %}
   </tbody>
 </table>
+
+{% if codelist.coding_system_id == "dmd" %}
+<div class="small mt-auto pt-4">
+  <hr>
+  <p>
+    * Note that this is the full list of explicitly included dm+d codes for this codelist. An OpenSAFELY project
+    will by default also include previous or subsequent codes for any included VMPs that may have changed code.
+    See the <a href="https://docs.opensafely.org/codelist-updating/"> documentation on keeping codelists up to
+    date</a> for more details.
+  </p>
+</div>
+{% endif %}

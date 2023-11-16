@@ -16,7 +16,7 @@ from opencodelists.csv_utils import (
 from opencodelists.hash_utils import hash, unhash
 
 from .codeset import Codeset
-from .coding_systems import CODING_SYSTEMS
+from .coding_systems import CODING_SYSTEMS, most_recent_database_alias
 from .hierarchy import Hierarchy
 from .presenters import present_definition_for_download
 
@@ -272,6 +272,8 @@ class CodelistVersion(models.Model):
     )
     tag = models.CharField(max_length=12, null=True)
     csv_data = models.TextField(verbose_name="CSV data", null=True)
+
+    cached_csv_data = models.JSONField(default=dict)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -542,25 +544,43 @@ class CodelistVersion(models.Model):
         fixed_headers: if True, uploaded csv_data is converted to two columns, headed "code" and "term".
           This parameter is ignored for dmd downloads that include mapped VMPs
         """
-        if self.csv_data:
-            dmd_with_mapped_vmps = (
-                self.coding_system_id == "dmd" and include_mapped_vmps
+        dmd_version_needs_refreshed = (
+            self.coding_system_id == "dmd"
+            and include_mapped_vmps
+            and self.cached_csv_data.get("release") != most_recent_database_alias("dmd")
+        )
+        cache_key = f"download_data_fixed_headers_{fixed_headers}_include_mapped_vmps_{include_mapped_vmps}"
+        if not self.cached_csv_data.get(cache_key) or dmd_version_needs_refreshed:
+            if self.csv_data:
+                dmd_with_mapped_vmps = (
+                    self.coding_system_id == "dmd" and include_mapped_vmps
+                )
+                if not fixed_headers and not dmd_with_mapped_vmps:
+                    csv_data = self.csv_data
+                else:
+                    # if fixed_headers were not explicitly requested (i.e. by OSI), include a column
+                    # with the original code column header. This ensures that any new downloads continue
+                    # to work with existing study/data definitions that import codelists with a named
+                    # code column.
+                    # Currently this is likely to only apply to dm+d codelists which have often been
+                    # converted from BNF codelists, and previously used "dmd_id" as the code column
+                    csv_data = rows_to_csv_data(
+                        self.table_with_fixed_headers(
+                            include_mapped_vmps=include_mapped_vmps,
+                            include_original_header=not fixed_headers,
+                        )
+                    )
+            else:
+                csv_data = rows_to_csv_data(self.table)
+            relevant_release = (
+                most_recent_database_alias("dmd")
+                if self.coding_system_id == "dmd"
+                else self.coding_system_release.database_alias
             )
-            if not fixed_headers and not dmd_with_mapped_vmps:
-                return self.csv_data
-            # if fixed_headers were not explicitly requested (i.e. by OSI), include a column
-            # with the original code column header. This ensures that any new downloads continue
-            # to work with existing study/data definitions that import codelists with a named
-            # code column.
-            # Currently this is likely to only apply to dm+d codelists which have often been
-            # converted from BNF codelists, and previously used "dmd_id" as the code column
-            table = self.table_with_fixed_headers(
-                include_mapped_vmps=include_mapped_vmps,
-                include_original_header=not fixed_headers,
+            self.cached_csv_data.update(
+                {cache_key: csv_data, "release": relevant_release}
             )
-        else:
-            table = self.table
-        return rows_to_csv_data(table)
+        return self.cached_csv_data[cache_key]
 
     def csv_data_sha(self, csv_data=None):
         """
@@ -573,34 +593,61 @@ class CodelistVersion(models.Model):
         data_for_download = "\n".join(csv_data.splitlines())
         return hashlib.sha1(data_for_download.encode()).hexdigest()
 
+    def _get_dmd_shas(self, shas, current_csv_data_download):
+        """
+        Return valid shas for a dm+d codelist CSV download
+        """
+        # To try and minimise impact on users, we check if there are mapped
+        # VMPs for this set of dm+d codes. If there are not, then the user's
+        # downloaded CSV data will still be OK, so we can check against the
+        # sha of the old style dm+d download (no mapped VMPs, and uses the
+        # original headers)
+        current_csv_data_in_rows = csv_data_to_rows(current_csv_data_download)
+        if len(current_csv_data_in_rows) == len(self.table):
+            old_dmd_download = rows_to_csv_data(self.table)
+            shas.append(self.csv_data_sha(old_dmd_download))
+        # Also allow CSV downloads that only included the "code" and "term"
+        # columns (i.e. not the original code column)
+        # We only care about checking this if there is an original code column
+        # that would be included (it is included by default, but can be missing
+        # if the original code header was "code" to start with)
+        if len(current_csv_data_in_rows[0]) == 3:
+            fixed_header_data = rows_to_csv_data(
+                [row[:2] for row in current_csv_data_in_rows]
+            )
+            shas.append(self.csv_data_sha(fixed_header_data))
+        return shas
+
     def csv_data_shas(self):
         """
         Return a list of shas that should all be considered valid when
         checked against the downloaded data in a study repo.
+
+        For non-dm+d codelists, we shoud never need to re-compute these one, as codes don't
+        change after a codelist version is moved to under-review (and they can't be downloaded
+        when draft).
+
+        For dm+d codelists, we only need to re-compute the shas if the dmd release has changed
+        since the last time they were computed.
         """
-        current_csv_data_download = self.csv_data_for_download()
-        shas = [self.csv_data_sha(csv_data=current_csv_data_download)]
-        if self.coding_system_id == "dmd":
-            # To try and minimise impact on users, we check if there are mapped
-            # VMPs for this set of dm+d codes. If there are not, then the user's
-            # downloaded CSV data will still be OK, so we can check against the
-            # sha of the old style dm+d download (no mapped VMPs, and uses the
-            # original headers)
-            current_csv_data_in_rows = csv_data_to_rows(current_csv_data_download)
-            if len(current_csv_data_in_rows) == len(self.table):
-                old_dmd_download = rows_to_csv_data(self.table)
-                shas.append(self.csv_data_sha(old_dmd_download))
-            # Also allow CSV downloads that only included the "code" and "term"
-            # columns (i.e. not the original code column)
-            # We only care about checking this if there is an original code column
-            # that would be included (it is included by default, but can be missing
-            # if the original code header was "code" to start with)
-            if len(current_csv_data_in_rows[0]) == 3:
-                fixed_header_data = rows_to_csv_data(
-                    [row[:2] for row in current_csv_data_in_rows]
-                )
-                shas.append(self.csv_data_sha(fixed_header_data))
-        return shas
+        if not self.cached_csv_data or (
+            self.coding_system_id == "dmd"
+            and self.cached_csv_data.get("release") != most_recent_database_alias("dmd")
+        ):
+            # reset the cache so we refresh any stored dmd data
+            self.cached_csv_data = {}
+            current_csv_data_download = self.csv_data_for_download()
+            shas = [self.csv_data_sha(csv_data=current_csv_data_download)]
+            if self.coding_system_id == "dmd":
+                shas = self._get_dmd_shas(shas, current_csv_data_download)
+                release = most_recent_database_alias("dmd")
+            else:
+                release = self.coding_system_release.database_alias
+
+            self.cached_csv_data.update({"shas": shas, "release": release})
+            self.save()
+
+        return self.cached_csv_data["shas"]
 
     def table_with_fixed_headers(
         self, include_mapped_vmps=True, include_original_header=False

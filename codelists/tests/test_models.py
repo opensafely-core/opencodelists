@@ -135,8 +135,8 @@ def test_old_style_table(old_style_version):
     ]
 
 
-def test_old_style_table_with_fixed_headers(old_style_version):
-    assert old_style_version.table_with_fixed_headers() == [
+def test_old_style_formatted_table_with_fixed_headers(old_style_version):
+    assert old_style_version.formatted_table(fixed_headers=True) == [
         ["code", "term"],
         ["429554009", "Arthropathy of elbow (disorder)"],
         ["128133004", "Disorder of elbow (disorder)"],

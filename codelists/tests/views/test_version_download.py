@@ -58,19 +58,35 @@ def test_get_with_mapped_vmps(client, dmd_version_asthma_medication):
     # Includes mapped VMPs  and uses fixed headers by default
     # Includes an additional column with the original code header
     assert csv_data_to_rows(data) == [
-        ["code", "term", "dmd_id"],
+        ["code", "term", "dmd_id", "dmd_type", "bnf_code"],
         [
             "10514511000001106",
             "Adrenaline (base) 220micrograms/dose inhaler",
             "10514511000001106",
+            "VMP",
+            "0301012A0AAABAB",
         ],
         [
             "10525011000001107",
             "Adrenaline (base) 220micrograms/dose inhaler refill",
             "10525011000001107",
+            "VMP",
+            "0301012A0AAACAC",
         ],
-        ["999", "VMP previous to 10514511000001106", "999"],
-        ["888", "VMP subsequent to 10514511000001106", "888"],
+        [
+            "999",
+            "VMP previous to 10514511000001106",
+            "999",
+            "VMP",
+            "0301012A0AAABAB",
+        ],
+        [
+            "888",
+            "VMP subsequent to 10514511000001106",
+            "888",
+            "VMP",
+            "0301012A0AAABAB",
+        ],
     ]
 
 
@@ -90,10 +106,25 @@ def test_get_with_mapped_vmps_and_original_code_column(
     # Includes mapped VMPs by default, and uses fixed headers
     # No additional column when the original code column was already "code"
     assert csv_data_to_rows(data) == [
-        ["code", "term"],
-        ["10514511000001106", "Adrenaline (base) 220micrograms/dose inhaler"],
-        ["10525011000001107", "Adrenaline (base) 220micrograms/dose inhaler refill"],
-        ["999", "VMP previous to 10514511000001106"],
+        ["code", "term", "dmd_type", "bnf_code"],
+        [
+            "10514511000001106",
+            "Adrenaline (base) 220micrograms/dose inhaler",
+            "VMP",
+            "0301012A0AAABAB",
+        ],
+        [
+            "10525011000001107",
+            "Adrenaline (base) 220micrograms/dose inhaler refill",
+            "VMP",
+            "0301012A0AAACAC",
+        ],
+        [
+            "999",
+            "VMP previous to 10514511000001106",
+            "VMP",
+            "0301012A0AAABAB",
+        ],
     ]
 
 
@@ -137,20 +168,30 @@ def test_get_with_duplicated_mapped_vmps(client, dmd_version_asthma_medication):
     data = rsp.content.decode("utf8")
     # Includes mapped VMPs by default, and uses fixed headers
     assert csv_data_to_rows(data) == [
-        ["code", "term", "dmd_id"],
+        ["code", "term", "dmd_id", "dmd_type", "bnf_code"],
         [
             "10514511000001106",
             "Adrenaline (base) 220micrograms/dose inhaler",
             "10514511000001106",
+            "VMP",
+            "0301012A0AAABAB",
         ],
         [
             "10525011000001107",
             "Adrenaline (base) 220micrograms/dose inhaler refill",
             "10525011000001107",
+            "VMP",
+            "0301012A0AAACAC",
         ],
-        ["999", "VMP previous to 10514511000001106, 10525011000001107", "999"],
-        ["777", "VMP subsequent to 10514511000001106", "777"],
-        ["888", "VMP subsequent to 10514511000001106", "888"],
+        [
+            "999",
+            "VMP previous to 10514511000001106, 10525011000001107",
+            "999",
+            "VMP",
+            "0301012A0AAABAB",
+        ],
+        ["777", "VMP subsequent to 10514511000001106", "777", "VMP", "0301012A0AAABAB"],
+        ["888", "VMP subsequent to 10514511000001106", "888", "VMP", "0301012A0AAABAB"],
     ]
 
 
@@ -162,16 +203,20 @@ def test_get_with_mapped_vmps_nothing_to_map(client, dmd_version_asthma_medicati
     data = rsp.content.decode("utf8")
 
     assert csv_data_to_rows(data) == [
-        ["code", "term", "dmd_id"],
+        ["code", "term", "dmd_id", "dmd_type", "bnf_code"],
         [
             "10514511000001106",
             "Adrenaline (base) 220micrograms/dose inhaler",
             "10514511000001106",
+            "VMP",
+            "0301012A0AAABAB",
         ],
         [
             "10525011000001107",
             "Adrenaline (base) 220micrograms/dose inhaler refill",
             "10525011000001107",
+            "VMP",
+            "0301012A0AAACAC",
         ],
     ]
 
@@ -214,21 +259,25 @@ def test_get_with_mapped_vmps_more_than_one_step_distant(
     rsp = client.get(dmd_version_asthma_medication.get_download_url())
     data = rsp.content.decode("utf8")
     assert csv_data_to_rows(data) == [
-        ["code", "term", "dmd_id"],
+        ["code", "term", "dmd_id", "dmd_type", "bnf_code"],
         [
             "10514511000001106",
             "Adrenaline (base) 220micrograms/dose inhaler",
             "10514511000001106",
+            "VMP",
+            "0301012A0AAABAB",
         ],
         [
             "10525011000001107",
             "Adrenaline (base) 220micrograms/dose inhaler refill",
             "10525011000001107",
+            "VMP",
+            "0301012A0AAACAC",
         ],
-        ["666", "VMP previous to 10514511000001106", "666"],
-        ["777", "VMP previous to 10514511000001106", "777"],
-        ["999", "VMP previous to 10514511000001106", "999"],
-        ["AAA", "VMP subsequent to 10514511000001106", "AAA"],
-        ["BBB", "VMP subsequent to 10514511000001106", "BBB"],
-        ["CCC", "VMP subsequent to 10514511000001106", "CCC"],
+        ["666", "VMP previous to 10514511000001106", "666", "VMP", "0301012A0AAABAB"],
+        ["777", "VMP previous to 10514511000001106", "777", "VMP", "0301012A0AAABAB"],
+        ["999", "VMP previous to 10514511000001106", "999", "VMP", "0301012A0AAABAB"],
+        ["AAA", "VMP subsequent to 10514511000001106", "AAA", "VMP", "0301012A0AAABAB"],
+        ["BBB", "VMP subsequent to 10514511000001106", "BBB", "VMP", "0301012A0AAABAB"],
+        ["CCC", "VMP subsequent to 10514511000001106", "CCC", "VMP", "0301012A0AAABAB"],
     ]

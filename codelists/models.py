@@ -591,26 +591,69 @@ class CodelistVersion(models.Model):
     def _get_dmd_shas(self, shas, current_csv_data_download):
         """
         Return valid shas for a dm+d codelist CSV download
+
+        This is used to check whether an existing downloaded CSV for this
+        dm+d version (i.e. a download in a study repo) is still up-to-date.
+        dm+d VMPs can change with each weekly dm+d release, so downloads
+        need to include any mapped VMPs, in addition to the original ones in
+        the codelist. Due to historic changes in the way the default download
+        is formatted, there are multiple formats of the download that could
+        be considered valid, as they include all relevant mapped VMPs at the
+        time of this release.  These include:
+        - "old-style" downloads - these were just a copy of the uploaded `csv_data`,
+          with no checks or changes to formatting, and no mapped-in VMPs. If a
+          codelist has no applicable mapped VMPs, these old downloads are still
+          valid
+        - "fixed-header" downloads: Downloads that include just the code and
+          term/description columns extracted from the original csv_data, with
+          from the standardised column headings "code" and "term"
+        - "fixed-header plus original code colum": Downloads that include the
+          "code" and "term" columns as able, plus an original code column, which
+          is just a duplicate of the "code" column with the original column heading,
+          to allow existing study code to continue to refer to the same named column
+        - "current download": The current default download, which includes the
+          code, term, original code columns as above, plus any other original columns
+          from the csv_data
+
+        In order to minimise impact on users who may have already downloaded their
+        codelist in a previous format, we check the sha provided against all the shas
+        of all possible valid downloaded formats.
         """
-        # To try and minimise impact on users, we check if there are mapped
-        # VMPs for this set of dm+d codes. If there are not, then the user's
-        # downloaded CSV data will still be OK, so we can check against the
-        # sha of the old style dm+d download (no mapped VMPs, and uses the
-        # original headers)
+
+        # shas already contains one sha, for the current csv data download
         current_csv_data_in_rows = csv_data_to_rows(current_csv_data_download)
+
+        # OLD-STYLE DOWNLOADS
+        # valid if we have no VMPs to map in - i.e. our current CSV download has
+        # the same number of rows as the original csv_data uploaded to create this
+        # version
         if len(current_csv_data_in_rows) == len(self.table):
             old_dmd_download = rows_to_csv_data(self.table)
             shas.append(self.csv_data_sha(old_dmd_download))
-        # Also allow CSV downloads that only included the "code" and "term"
-        # columns (i.e. not the original code column)
-        # We only care about checking this if there is an original code column
-        # that would be included (it is included by default, but can be missing
-        # if the original code header was "code" to start with)
-        if len(current_csv_data_in_rows[0]) == 3:
+
+        # FIXED HEADER DOWNLOADS
+        # CSV downloads that only included the "code" and "term" columns
+        # Our current csv data can be just 2 columns wide, if the original
+        # CSV data included only a code/term column, and the code column was
+        # already called "code". If so, we don't need this check
+        if len(current_csv_data_in_rows[0]) > 2:
             fixed_header_data = rows_to_csv_data(
                 [row[:2] for row in current_csv_data_in_rows]
             )
             shas.append(self.csv_data_sha(fixed_header_data))
+
+        # FIXED HEADER DOWNLOADS PLUS ORIGINAL CODE COLUMN
+        # We now download CSVs with not just the original code column, but also
+        # any other original columns (which may include category columns needed
+        # in a study)
+        # Since previous (valid) downloads may include just code, term
+        # and original code column, also allow CSV data that includes just the
+        # first 3 columns
+        if len(current_csv_data_in_rows[0]) > 3:
+            fixed_header_data_with_original_code = rows_to_csv_data(
+                [row[:3] for row in current_csv_data_in_rows]
+            )
+            shas.append(self.csv_data_sha(fixed_header_data_with_original_code))
         return shas
 
     def csv_data_shas(self):

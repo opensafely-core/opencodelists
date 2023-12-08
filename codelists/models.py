@@ -771,13 +771,9 @@ class CodelistVersion(models.Model):
 
     def download_filename(self):
         if self.codelist_type == "user":
-            return "{}-{}-{}".format(
-                self.codelist.user_id, self.codelist.slug, self.tag_or_hash
-            )
+            return f"{self.codelist.user_id}-{self.codelist.slug}-{self.tag_or_hash}"
         else:
-            return "{}-{}-{}".format(
-                self.codelist.organisation_id, self.codelist.slug, self.tag_or_hash
-            )
+            return f"{self.codelist.organisation_id}-{self.codelist.slug}-{self.tag_or_hash}"
 
     @property
     def is_draft(self):

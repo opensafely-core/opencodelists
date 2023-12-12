@@ -135,8 +135,8 @@ def test_old_style_table(old_style_version):
     ]
 
 
-def test_old_style_table_with_fixed_headers(old_style_version):
-    assert old_style_version.table_with_fixed_headers() == [
+def test_old_style_formatted_table_with_fixed_headers(old_style_version):
+    assert old_style_version.formatted_table(fixed_headers=True) == [
         ["code", "term"],
         ["429554009", "Arthropathy of elbow (disorder)"],
         ["128133004", "Disorder of elbow (disorder)"],
@@ -340,12 +340,14 @@ def test_cached_csv_data_dmd_codelist(dmd_version_asthma_medication):
     # - original
     # - mapped version, with fixed headers
     # - mapped version with fixed headers and extra original code column
-    assert len(clv.cached_csv_data["shas"]) == 3
+    # - mapped version with all additional original columns
+    assert len(clv.cached_csv_data["shas"]) == 4
 
-    clv.csv_data = "code,term"
+    clv.csv_data = "code,term\n123,foo\n"
     clv.save()
+    new_download_data = "code,term\r\n123,foo\r\n"
     # csv_data_for_download still returns the cached data
-    assert clv.csv_data_for_download() != "code,term\r\n"
+    assert clv.csv_data_for_download() != new_download_data
     assert (
         clv.csv_data_for_download()
         == cached_csv_data["download_data_fixed_headers_False_include_mapped_vmps_True"]
@@ -354,4 +356,4 @@ def test_cached_csv_data_dmd_codelist(dmd_version_asthma_medication):
     # make the release not the latest one so the data needs to be re-cached
     clv.cached_csv_data["release"] = "old"
     clv.save()
-    assert clv.csv_data_for_download() == "code,term\r\n"
+    assert clv.csv_data_for_download() == new_download_data

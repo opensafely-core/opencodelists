@@ -739,6 +739,15 @@ def test_codelists_check_dmd_alternative_downloads(
     [
         (
             (  # default download (as expected from a current `opensafely codelists update`)
+                "code,term,dmd_id,dmd_type,bnf_code\r\n"
+                "10514511000001106,Adrenaline (base) 220micrograms/dose inhaler,10514511000001106,VMP,0301012A0AAABAB\r\n"
+                "10525011000001107,Adrenaline (base) 220micrograms/dose inhaler refill,10525011000001107,VMP,0301012A0AAACAC\r\n"
+                "999,VMP previous to 10514511000001106,999,VMP,0301012A0AAABAB\r\n"
+            ),
+            "ok",
+        ),
+        (
+            (  # download with code, term and original code column
                 "code,term,dmd_id\r\n"
                 "10514511000001106,Adrenaline (base) 220micrograms/dose inhaler,10514511000001106\r\n"
                 "10525011000001107,Adrenaline (base) 220micrograms/dose inhaler refill,10525011000001107\r\n"

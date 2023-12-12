@@ -533,7 +533,7 @@ class CodelistVersion(models.Model):
 
     def csv_data_for_download(self, fixed_headers=False, include_mapped_vmps=True):
         """
-        Prepare codes for download.  If this is a new-style codelists, the csv data with
+        Prepare codes for download.  If this is a new-style codelist, the csv data with
         code and related term will be built from the code objects, looking up the terms in
         the coding system.  If it is an old-style codelist, it has no associated code objects,
         and it will use the uploaded csv_data.
@@ -541,8 +541,9 @@ class CodelistVersion(models.Model):
         include_mapped_vmps: if True, a dm+d codelist will include mapped VMPs in its download.
           This value defaults to True, so that when these downloads are requested by OpenSafely CLI,
           no additional query params need to be passed that are specidfic to dm+d codelists.
-        fixed_headers: if True, uploaded csv_data is converted to two columns, headed "code" and "term".
-          This parameter is ignored for dmd downloads that include mapped VMPs
+        fixed_headers: if True, uploaded csv_data for old-style codelists is converted
+          to two columns, headed "code" and "term". Note that new-style codelists, will
+          always download with just "code" and "term" headers.
         """
         dmd_version_needs_refreshed = (
             self.coding_system_id == "dmd"
@@ -558,16 +559,10 @@ class CodelistVersion(models.Model):
                 if not fixed_headers and not dmd_with_mapped_vmps:
                     csv_data = self.csv_data
                 else:
-                    # if fixed_headers were not explicitly requested (i.e. by OSI), include a column
-                    # with the original code column header. This ensures that any new downloads continue
-                    # to work with existing study/data definitions that import codelists with a named
-                    # code column.
-                    # Currently this is likely to only apply to dm+d codelists which have often been
-                    # converted from BNF codelists, and previously used "dmd_id" as the code column
                     csv_data = rows_to_csv_data(
-                        self.table_with_fixed_headers(
+                        self.formatted_table(
+                            fixed_headers=fixed_headers,
                             include_mapped_vmps=include_mapped_vmps,
-                            include_original_header=not fixed_headers,
                         )
                     )
             else:
@@ -596,26 +591,69 @@ class CodelistVersion(models.Model):
     def _get_dmd_shas(self, shas, current_csv_data_download):
         """
         Return valid shas for a dm+d codelist CSV download
+
+        This is used to check whether an existing downloaded CSV for this
+        dm+d version (i.e. a download in a study repo) is still up-to-date.
+        dm+d VMPs can change with each weekly dm+d release, so downloads
+        need to include any mapped VMPs, in addition to the original ones in
+        the codelist. Due to historic changes in the way the default download
+        is formatted, there are multiple formats of the download that could
+        be considered valid, as they include all relevant mapped VMPs at the
+        time of this release.  These include:
+        - "old-style" downloads - these were just a copy of the uploaded `csv_data`,
+          with no checks or changes to formatting, and no mapped-in VMPs. If a
+          codelist has no applicable mapped VMPs, these old downloads are still
+          valid
+        - "fixed-header" downloads: Downloads that include just the code and
+          term/description columns extracted from the original csv_data, with
+          from the standardised column headings "code" and "term"
+        - "fixed-header plus original code colum": Downloads that include the
+          "code" and "term" columns as able, plus an original code column, which
+          is just a duplicate of the "code" column with the original column heading,
+          to allow existing study code to continue to refer to the same named column
+        - "current download": The current default download, which includes the
+          code, term, original code columns as above, plus any other original columns
+          from the csv_data
+
+        In order to minimise impact on users who may have already downloaded their
+        codelist in a previous format, we check the sha provided against all the shas
+        of all possible valid downloaded formats.
         """
-        # To try and minimise impact on users, we check if there are mapped
-        # VMPs for this set of dm+d codes. If there are not, then the user's
-        # downloaded CSV data will still be OK, so we can check against the
-        # sha of the old style dm+d download (no mapped VMPs, and uses the
-        # original headers)
+
+        # shas already contains one sha, for the current csv data download
         current_csv_data_in_rows = csv_data_to_rows(current_csv_data_download)
+
+        # OLD-STYLE DOWNLOADS
+        # valid if we have no VMPs to map in - i.e. our current CSV download has
+        # the same number of rows as the original csv_data uploaded to create this
+        # version
         if len(current_csv_data_in_rows) == len(self.table):
             old_dmd_download = rows_to_csv_data(self.table)
             shas.append(self.csv_data_sha(old_dmd_download))
-        # Also allow CSV downloads that only included the "code" and "term"
-        # columns (i.e. not the original code column)
-        # We only care about checking this if there is an original code column
-        # that would be included (it is included by default, but can be missing
-        # if the original code header was "code" to start with)
-        if len(current_csv_data_in_rows[0]) == 3:
+
+        # FIXED HEADER DOWNLOADS
+        # CSV downloads that only included the "code" and "term" columns
+        # Our current csv data can be just 2 columns wide, if the original
+        # CSV data included only a code/term column, and the code column was
+        # already called "code". If so, we don't need this check
+        if len(current_csv_data_in_rows[0]) > 2:
             fixed_header_data = rows_to_csv_data(
                 [row[:2] for row in current_csv_data_in_rows]
             )
             shas.append(self.csv_data_sha(fixed_header_data))
+
+        # FIXED HEADER DOWNLOADS PLUS ORIGINAL CODE COLUMN
+        # We now download CSVs with not just the original code column, but also
+        # any other original columns (which may include category columns needed
+        # in a study)
+        # Since previous (valid) downloads may include just code, term
+        # and original code column, also allow CSV data that includes just the
+        # first 3 columns
+        if len(current_csv_data_in_rows[0]) > 3:
+            fixed_header_data_with_original_code = rows_to_csv_data(
+                [row[:3] for row in current_csv_data_in_rows]
+            )
+            shas.append(self.csv_data_sha(fixed_header_data_with_original_code))
         return shas
 
     def csv_data_shas(self):
@@ -649,24 +687,33 @@ class CodelistVersion(models.Model):
 
         return self.cached_csv_data["shas"]
 
-    def table_with_fixed_headers(
-        self, include_mapped_vmps=True, include_original_header=False
-    ):
+    def formatted_table(self, fixed_headers=False, include_mapped_vmps=False):
         """
-        Find the code and term columns from csv data (which may be labelled with different
-        headers), and return just those columns with the with the headers "code" and "term".
+        Format the table data for download
+        Table data will always include a "code" and "term" column (if it exists in the
+        original data) extracted from the original csv data. These may be labelled
+        with different headers in the original CSV.
+
+        If fixed_headers=True, return just the code/term columns with the with the standardised headings "code" and "term".
+
+        If fixed_headers=False, we also include an original code column (a duplicate of
+        the column labelled "code" but with the heading from the original CSV data), and
+        any other columns from the original CSV data.
+
+        include_mapped_vmps: for dm+d codelists, also map in any previous/subsequent
+        VMPs
         """
         assert self.downloadable
         header_row = [header.lower() for header in self.table[0]]
         # Find the first matching header from the possible code and term column headers for this
         # codelist's coding system.  These are listed in order of assumed most-to-least likely,
         # in case of multiple matching headers
-        code_header = next(
+        original_code_header = next(
             header
             for header in self.codelist.coding_system_cls.csv_headers["code"]
             if header in header_row
         )
-        term_header = next(
+        original_term_header = next(
             (
                 header
                 for header in self.codelist.coding_system_cls.csv_headers["term"]
@@ -675,88 +722,138 @@ class CodelistVersion(models.Model):
             None,
         )
         # Identify the index for the two columns we want
-        code_header_index = header_row.index(code_header)
-        if include_original_header and code_header == "code":
-            # avoid duplicate columns if the code header is already "code"
-            include_original_header = False
-        term_header_index = header_row.index(term_header) if term_header else None
+        code_header_index = header_row.index(original_code_header)
+        term_header_index = (
+            header_row.index(original_term_header) if original_term_header else None
+        )
 
         table_rows = self.table[1:]
         if include_mapped_vmps and self.coding_system_id == "dmd":
             # ignore include_mapped_vmps if coding system is anything other than dmd
-            term_header_index = term_header_index or len(self.table[0])
-            codes = [row[code_header_index] for row in table_rows]
-
-            # add in mapped VMP codes
-            mapped_vmps_for_this_codelist = vmpprev_full_mappings(codes)
-
-            # mapped_vmps_for_this_codelist is a full list of (vmp, previous) tuples, where one of
-            # vmp/previous are in the codelist. It may contain mappings where `previous` is more than
-            # one historical step away from `vmp`
-
-            # create a mapping of previous and subsequent VMPs to add, where the
-            # keys are the mapped VMPs, and the values are the code(s) in the
-            # codelist that they map to/from. Usually there is just a 1:1 mapping, but
-            # it's possible that a single VMP could be split and map to 2 new VMPs, or
-            # that 2 VMPs could be merged to a single new code.
-            previous_vmps_to_add = {}
-            subsequent_vmps_to_add = {}
-
-            for vmp, previous in mapped_vmps_for_this_codelist:
-                if vmp in codes:
-                    # mapping in a previous code
-                    previous_vmps_to_add.setdefault(previous, []).append(vmp)
-                else:
-                    # mapping in a subsequent code
-                    subsequent_vmps_to_add.setdefault(vmp, []).append(previous)
-
-            assert not set(previous_vmps_to_add) & set(subsequent_vmps_to_add)
-
-            def add_row(vmp, description):
-                new_row = ["" for i in range(len(table_rows[0]) + 1)]
-                new_row[code_header_index] = vmp
-                new_row[term_header_index] = description
-                table_rows.append(new_row)
-
-            # Sort the VMPs being added to ensure consistent order. This will ensure that
-            # repeated CSV downloads are the same unless new mapped VMPs are added and
-            # can be used to check whether updates to study codelists are required.
-            for previous_vmp in sorted(previous_vmps_to_add):
-                # add the code to the table data
-                # include its description as the code it was superceded by
-                add_row(
-                    previous_vmp,
-                    f"VMP previous to {', '.join(previous_vmps_to_add[previous_vmp])}",
-                )
-
-            for subsequent_vmp in sorted(subsequent_vmps_to_add):
-                # add the code to the table data
-                # include its description as the code it supercedes
-                add_row(
-                    subsequent_vmp,
-                    f"VMP subsequent to {', '.join(subsequent_vmps_to_add[subsequent_vmp])}",
-                )
+            table_rows = self._add_mapped_vmps_to_table_data(
+                table_rows, code_header_index, term_header_index
+            )
 
         headers = ["code", "term"]
-        if include_original_header:
-            headers += [header_row[code_header_index]]
+        code_header_relabelled = original_code_header != "code"
+
+        # Add in any original columns we need to include
+        if not fixed_headers:
+            if code_header_relabelled:
+                # only add in the original code column if it was relabelled (i.e. it
+                # wasn't already called "code"
+                headers += [header_row[code_header_index]]
+
+            # Include any other original columns as well
+            # Other columns in the csv_data may include category column(s). We
+            # have no easy way of telling which those are since there's no
+            # verification of columns in uploads other than code columns, so if we
+            # haven't explicitly requested fixed headers (i.e. this is a dm+d
+            # download that's mapping in previous/subsequent VMPs), we just write
+            # out all other columns
+            other_headers = [
+                (i, header)
+                for i, header in enumerate(header_row)
+                if header and i not in [code_header_index, term_header_index]
+            ]
+            other_header_ix, other_header_names = (
+                list(zip(*other_headers)) if other_headers else [(), ()]
+            )
+            headers += list(other_header_names)
 
         # re-write the table data with the new headers, and only the code and term columns
-        # plus a duplicate code column with the original column header if required
+        # plus a duplicate code column with the original column header if required, and
+        # any other original columns
         def _csv_row(row):
             csv_row = [
                 row[code_header_index],
-                row[term_header_index] if term_header else "",
+                row[term_header_index] if original_term_header else "",
             ]
-            if include_original_header:
-                csv_row += [row[code_header_index]]
+            if not fixed_headers:
+                if code_header_relabelled:
+                    csv_row += [row[code_header_index]]
+                csv_row += [row[ix] for ix in list(other_header_ix)]
             return csv_row
 
         table_data = [
             headers,
             *[_csv_row(row) for row in table_rows],
         ]
+
         return table_data
+
+    def _add_mapped_vmps_to_table_data(self, table_rows, code_ix, term_ix):
+        """
+        Take a list of dm+d table rows for CSV download, plus an index identifying
+        which column to find the code and term in for each row, and append to it
+        any previous or subsequent mapped VMPs
+        """
+        term_ix = term_ix or len(self.table[0])
+        codes_dict = {row[code_ix]: row for row in table_rows}
+
+        # add in mapped VMP codes
+        mapped_vmps_for_this_codelist = vmpprev_full_mappings(codes_dict.keys())
+
+        # mapped_vmps_for_this_codelist is a full list of (vmp, previous) tuples, where one of
+        # vmp/previous are in the codelist. It may contain mappings where `previous` is more than
+        # one historical step away from `vmp`
+
+        # create a mapping of previous and subsequent VMPs to add, where the
+        # keys are the mapped VMPs, and the values are the code(s) in the
+        # codelist that they map to/from. Usually there is just a 1:1 mapping, but
+        # it's possible that a single VMP could be split and map to 2 new VMPs, or
+        # that 2 VMPs could be merged to a single new code.
+        previous_vmps_to_add = {}
+        subsequent_vmps_to_add = {}
+
+        for vmp, previous in mapped_vmps_for_this_codelist:
+            if vmp in codes_dict:
+                # mapping in a previous code
+                previous_vmps_to_add.setdefault(previous, []).append(vmp)
+            else:
+                # mapping in a subsequent code
+                subsequent_vmps_to_add.setdefault(vmp, []).append(previous)
+
+        assert not set(previous_vmps_to_add) & set(subsequent_vmps_to_add)
+
+        def add_row(vmp, description, original_code):
+            # copy the row for the original code that this VMP mapped to,
+            # and replace the code and term columns
+            # original code is a list, because it's a possiblity that a VMP could
+            # (although so far hasn't) mapped to more than one code. We just take the
+            # first one to get the starting row
+            original_code = original_code[0]
+            new_row = [*codes_dict[original_code]]
+            new_row[code_ix] = vmp
+            new_row[term_ix] = description
+            table_rows.append(new_row)
+
+        # Sort the VMPs being added to ensure consistent order. This will ensure that
+        # repeated CSV downloads are the same unless new mapped VMPs are added and
+        # can be used to check whether updates to study codelists are required.
+        for previous_vmp in sorted(previous_vmps_to_add):
+            # add the code to the table data
+            # include its description as the code(s) it was superceded by
+            # sort the codes so that ordering is consistent between downloads
+            original_codes = sorted(previous_vmps_to_add[previous_vmp])
+            add_row(
+                previous_vmp,
+                f"VMP previous to {', '.join(original_codes)}",
+                original_codes,
+            )
+
+        for subsequent_vmp in sorted(subsequent_vmps_to_add):
+            # add the code to the table data
+            # include its description as the code it supercedes
+            # sort the codes so that ordering is consistent between downloads
+            original_codes = sorted(subsequent_vmps_to_add[subsequent_vmp])
+            add_row(
+                subsequent_vmp,
+                f"VMP subsequent to {', '.join(original_codes)}",
+                original_codes,
+            )
+
+        return table_rows
 
     def definition_csv_data_for_download(self):
         return rows_to_csv_data(present_definition_for_download(self))
@@ -771,13 +868,9 @@ class CodelistVersion(models.Model):
 
     def download_filename(self):
         if self.codelist_type == "user":
-            return "{}-{}-{}".format(
-                self.codelist.user_id, self.codelist.slug, self.tag_or_hash
-            )
+            return f"{self.codelist.user_id}-{self.codelist.slug}-{self.tag_or_hash}"
         else:
-            return "{}-{}-{}".format(
-                self.codelist.organisation_id, self.codelist.slug, self.tag_or_hash
-            )
+            return f"{self.codelist.organisation_id}-{self.codelist.slug}-{self.tag_or_hash}"
 
     @property
     def is_draft(self):

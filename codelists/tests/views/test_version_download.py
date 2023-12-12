@@ -1,3 +1,5 @@
+import pytest
+
 from mappings.dmdvmpprevmap.models import Mapping
 from opencodelists.csv_utils import csv_data_to_rows
 
@@ -126,6 +128,85 @@ def test_get_with_mapped_vmps_and_original_code_column(
             "0301012A0AAABAB",
         ],
     ]
+
+
+@pytest.mark.parametrize(
+    "csv_data,expected",
+    [
+        (
+            "dmd_id\n10514511000001106\n10525011000001107",
+            [
+                ["code", "term", "dmd_id"],
+                ["10514511000001106", "", "10514511000001106"],
+                ["10525011000001107", "", "10525011000001107"],
+                ["999", "VMP previous to 10514511000001106", "999"],
+                ["888", "VMP subsequent to 10514511000001106", "888"],
+            ],
+        ),
+        (
+            "code\n10514511000001106\n10525011000001107",
+            [
+                ["code", "term"],
+                ["10514511000001106", ""],
+                ["10525011000001107", ""],
+                ["999", "VMP previous to 10514511000001106"],
+                ["888", "VMP subsequent to 10514511000001106"],
+            ],
+        ),
+        (
+            "dmd_id,dmd_type,bnf_code\n"
+            "10514511000001106,VMP,0301012A0AAABAB\n10525011000001107,VMP,0301012A0AAACAC",
+            [
+                ["code", "term", "dmd_id", "dmd_type", "bnf_code"],
+                [
+                    "10514511000001106",
+                    "",
+                    "10514511000001106",
+                    "VMP",
+                    "0301012A0AAABAB",
+                ],
+                [
+                    "10525011000001107",
+                    "",
+                    "10525011000001107",
+                    "VMP",
+                    "0301012A0AAACAC",
+                ],
+                [
+                    "999",
+                    "VMP previous to 10514511000001106",
+                    "999",
+                    "VMP",
+                    "0301012A0AAABAB",
+                ],
+                [
+                    "888",
+                    "VMP subsequent to 10514511000001106",
+                    "888",
+                    "VMP",
+                    "0301012A0AAABAB",
+                ],
+            ],
+        ),
+    ],
+)
+def test_get_with_mapped_vmps_no_term_column(
+    client, dmd_version_asthma_medication, csv_data, expected
+):
+    # create a previous mapping for one of the dmd codes
+    Mapping.objects.create(id="10514511000001106", vpidprev="999")
+    # create a new mapping for one of the dmd codes
+    Mapping.objects.create(id="888", vpidprev="10514511000001106")
+
+    # update CSV data
+    dmd_version_asthma_medication.csv_data = csv_data
+    dmd_version_asthma_medication.save()
+
+    rsp = client.get(dmd_version_asthma_medication.get_download_url())
+    data = rsp.content.decode("utf8")
+    # Includes mapped VMPs  and uses fixed headers by default
+    # Includes an additional column with the original code header
+    assert csv_data_to_rows(data) == expected
 
 
 def test_get_with_mapped_vmps_and_fixed_headers(client, dmd_version_asthma_medication):

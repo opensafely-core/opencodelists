@@ -573,8 +573,12 @@ class CodelistVersion(models.Model):
                 else self.coding_system_release.database_alias
             )
             self.cached_csv_data.update(
-                {cache_key: csv_data, "release": relevant_release}
+                {
+                    cache_key: csv_data,
+                    "release": relevant_release,
+                }
             )
+            self.save()
         return self.cached_csv_data[cache_key]
 
     def csv_data_sha(self, csv_data=None):
@@ -668,21 +672,21 @@ class CodelistVersion(models.Model):
         For dm+d codelists, we only need to re-compute the shas if the dmd release has changed
         since the last time they were computed.
         """
-        if not self.cached_csv_data or (
+        if not self.cached_csv_data.get("shas") or (
             self.coding_system_id == "dmd"
             and self.cached_csv_data.get("release") != most_recent_database_alias("dmd")
         ):
             # reset the cache so we refresh any stored dmd data
             self.cached_csv_data = {}
+
             current_csv_data_download = self.csv_data_for_download()
             shas = [self.csv_data_sha(csv_data=current_csv_data_download)]
             if self.coding_system_id == "dmd":
                 shas = self._get_dmd_shas(shas, current_csv_data_download)
-                release = most_recent_database_alias("dmd")
-            else:
-                release = self.coding_system_release.database_alias
-
-            self.cached_csv_data.update({"shas": shas, "release": release})
+            # Re-fetching the CSV data sets the cached data and the release
+            # (to the latest (for dm+d) or to the relevant release for this
+            # codelist version), so we only need to update the shas now
+            self.cached_csv_data.update({"shas": shas})
             self.save()
 
         return self.cached_csv_data["shas"]

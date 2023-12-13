@@ -173,9 +173,9 @@ charset-normalizer==3.1.0 \
     --hash=sha256:f8303414c7b03f794347ad062c0516cee0e15f7a612abd0ce1e25caf6ceb47df \
     --hash=sha256:fca62a8301b605b954ad2e9c3666f9d97f63872aa4efcae5492baca2056b74ab
     # via requests
-crispy-bootstrap4==2022.1 \
-    --hash=sha256:5241ab1dc2188c95560aa786439bcbedec7416e6b0f5a52dded82380810367ec \
-    --hash=sha256:f18386c4d96180c1bb1212487d6e8f5a3dd1a9bb58d3032183973d4d130b55f9
+crispy-bootstrap4==2023.1 \
+    --hash=sha256:1a88e74f8d36d2dedeb40a66f246994f3ce5cd855017785d0291e741d3e7d7c2 \
+    --hash=sha256:d60e93eb6d82886c009eb174f2a4c78fdac602a1efadf0305471c84815bd973a
     # via -r requirements.prod.in
 cryptography==41.0.4 \
     --hash=sha256:004b6ccc95943f6a9ad3142cfabcc769d7ee38a3f60fb0dddbfb431f818c3a67 \

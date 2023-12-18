@@ -10,10 +10,6 @@ export COMPOSE_DOCKER_CLI_BUILD := "1"
 
 export BIN := "/opt/venv/bin"
 
-export DEV_USERID := `id -u`
-export DEV_GROUPID := `id -g`
-
-
 build env="dev":
     #!/usr/bin/env bash
 

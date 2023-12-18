@@ -61,10 +61,31 @@ jobs:
         with:
           install-just: true
 
-      - name: Build docker image and run Python tests in it
+      - name: Build docker image for both prod and dev
+        run: |
+          just docker-build prod
+          just docker-build dev
+
+      - name: Run unit tests on docker dev image
         run: |
           # build docker and run test
           just docker-test-py
+
+      - name: Run smoke test on prod
+        run: |
+          just docker-serve prod -d
+          sleep 5
+          just docker-smoke-test || { docker logs docker_prod_1; exit 1; }
+
+      - name: Save docker image
+        run: |
+          docker save opencodelists | gzip > /tmp/opencodelists.tar.gz
+
+      - name: Upload docker image
+        uses: actions/upload-artifact@v3
+        with:
+            name: opencodelists-image
+            path: /tmp/opencodelists.tar.gz
 
   test-js:
     runs-on: ubuntu-latest
@@ -97,17 +118,24 @@ jobs:
         with:
           install-just: true
 
-      - name: Build docker image
-        run: |
-          # docker-test step will build the dev image by default, so build the prod image
-          just docker-build prod
+      - name: Download docker image
+        uses: actions/download-artifact@v3
+        with:
+          name: opencodelists-image
+          path: /tmp/image
 
-      - name: Login to Packages Container registry
-        run: |
-            docker login $REGISTRY -u ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN }}
+      - name: Import docker image
+        run: gunzip -c /tmp/image/opencodelists.tar.gz | docker load
 
-      - name: publish docker image
+      - name: Test image we imported from previous job works
         run: |
+            SKIP_BUILD=1 just docker-serve prod -d
+            sleep 5
+            just docker-smoke-test || { docker logs opencodelists_prod_1; exit 1; }
+
+      - name: Publish docker image
+        run: |
+            echo ${{ secrets.GITHUB_TOKEN }} | docker login $REGISTRY -u ${{ github.actor }} --password-stdin
             docker tag $IMAGE_NAME $PUBLIC_IMAGE_NAME:latest
             docker push $PUBLIC_IMAGE_NAME:latest
 

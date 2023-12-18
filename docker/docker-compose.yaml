@@ -44,10 +44,6 @@ services:
     build:
       # the dev stage in the Dockerfile
       target: opencodelists-dev
-      args:
-        # user developer uid:gid in dev
-        - USERID=${DEV_USERID:-1000}
-        - GROUPID=${DEV_GROUPID:-1000}
     # paths relative to docker-compose.yaml file
     volumes:
       - ..:/app

@@ -149,8 +149,8 @@ ARG GITREF=unknown
 LABEL org.opencontainers.image.revision=$GITREF
 
 
-ARG USERID=10001
-ARG GROUPID=10001
+ARG USERID=10003
+ARG GROUPID=10003
 USER ${USERID}:${GROUPID}
 
 ##################################################

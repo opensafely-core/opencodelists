@@ -22,7 +22,7 @@ services:
     # use dockers builitin PID daemon
     init: true
     ports:
-      - "8000:7000"
+      - "7000:7000"
 
   # prod service. Used to build prod image and run/test it locally
   prod:

@@ -67,7 +67,7 @@ exec *args="bash":
 
 
 # run a basic functional smoke test against a running opencodelists
-smoke-test host="http://localhost:8000":
+smoke-test host="http://localhost:7000":
     #!/bin/bash
     set -eu
     curl -I {{ host }} -s --compressed --fail --retry 20 --retry-delay 1 --retry-all-errors

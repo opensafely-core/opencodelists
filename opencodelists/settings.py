@@ -44,7 +44,7 @@ DEBUG = env.bool("DEBUG", False)
 
 BASE_URLS = env.list("BASE_URLS", [])
 # note localhost is required on production for dokku checks
-BASE_URLS += ["http://localhost:8000"]
+BASE_URLS += ["http://localhost:7000"]
 
 ALLOWED_HOSTS = [furl(base_url).host for base_url in BASE_URLS]
 

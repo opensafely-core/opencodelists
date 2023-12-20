@@ -138,7 +138,8 @@ def main(
     codelists_resp = requests.get(base_url)
     if codelists_resp.status_code == 404:
         print(
-            "Could not retrieve codelists for organisation {}; ensure organisation slug is correct."
+            f"Could not retrieve codelists for organisation {config['organisation']}; "
+            "ensure organisation slug is correct and authorised user has access to it."
         )
         sys.exit(1)
     # Create a mapping of codelist name to slug
@@ -198,9 +199,19 @@ def main(
                 if response.status_code == 200:
                     print(f"Created {message_part}")
                 else:
-                    print(
+                    error_message = (
                         f"Failed to create new {message_part}: {response.status_code}"
                     )
+                    if (
+                        response.status_code == 400
+                        and not dry_run
+                        and not force_new_version
+                    ):
+                        error_message += (
+                            "\nA version with these codes may already exist. "
+                            "Use -f to force creation of a new version."
+                        )
+                    print(error_message)
 
 
 def get_headers():

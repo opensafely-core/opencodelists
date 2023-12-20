@@ -155,3 +155,7 @@ Run a command in the dev docker containter
 ```sh
 just docker-run <command>
 ```
+
+### Import codelists from an xlsx file
+
+See [codelists/scripts/README.md](codelists/scripts/README.md#bulk-import-codelists-from an-xlsx-file)

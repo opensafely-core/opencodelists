@@ -63,5 +63,18 @@
     "database_alias": "bnf_test_20200101",
     "state": "ready"
   }
+},
+{
+  "model": "versioning.codingsystemrelease",
+  "pk": 6,
+  "fields": {
+    "coding_system": "null",
+    "release_name": "test",
+    "valid_from": "2020-01-01",
+    "import_timestamp": "2022-10-24T15:38:52.231Z",
+    "import_ref": "unknown",
+    "database_alias": "null_test_20200101",
+    "state": "ready"
+  }
 }
 ]

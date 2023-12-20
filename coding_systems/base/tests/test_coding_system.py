@@ -11,7 +11,7 @@ def test_most_recent_some_coding_system_releases(
     snomedct_data, dmd_data, icd10_data, coding_system
 ):
     # CodingSystemRelease created in fixtures for these
-    if coding_system in ["ctv3", "dmd", "snomedct", "icd10", "bnf"]:
+    if coding_system in ["ctv3", "dmd", "snomedct", "icd10", "bnf", "null"]:
         assert (
             most_recent_database_alias(coding_system)
             == f"{coding_system}_test_20200101"

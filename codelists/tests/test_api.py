@@ -155,6 +155,32 @@ def test_codelists_get(client, organisation):
             ],
         },
         {
+            "full_slug": "test-university/null-codelist",
+            "slug": "null-codelist",
+            "name": "Null Codelist",
+            "coding_system_id": "null",
+            "organisation": "Test University",
+            "user": "",
+            "versions": [
+                {
+                    "hash": "6f08ccac",
+                    "tag": None,
+                    "full_slug": "test-university/null-codelist/6f08ccac",
+                    "status": "under review",
+                    "downloadable": True,
+                    "updated_date": "2023-12-20",
+                },
+                {
+                    "hash": "55f95977",
+                    "tag": None,
+                    "full_slug": "test-university/null-codelist/55f95977",
+                    "status": "under review",
+                    "downloadable": True,
+                    "updated_date": "2023-12-20",
+                },
+            ],
+        },
+        {
             "full_slug": "test-university/old-style-codelist",
             "slug": "old-style-codelist",
             "name": "Old-style Codelist",
@@ -206,7 +232,7 @@ def test_codelists_get_with_coding_system_id(client, organisation):
 
     rsp = client.get(f"/api/v1/codelist/{organisation.slug}/?coding_system_id=")
     data = json.loads(rsp.content)
-    assert len(data["codelists"]) == 6
+    assert len(data["codelists"]) == 7
 
     rsp = client.get(f"/api/v1/codelist/{organisation.slug}/?coding_system_id=bnf")
     data = json.loads(rsp.content)

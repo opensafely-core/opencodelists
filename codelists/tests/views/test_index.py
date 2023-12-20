@@ -46,7 +46,12 @@ def test_paginate_codelists(client, organisation, create_codelists):
 
 
 def test_under_review_index(
-    client, organisation, version_under_review, old_style_codelist, dmd_codelist
+    client,
+    organisation,
+    version_under_review,
+    old_style_codelist,
+    dmd_codelist,
+    null_codelist,
 ):
     # The organisation has three codelists (new style, old style, dmd)
     # All three codelists have under review versions
@@ -69,13 +74,22 @@ def test_under_review_index(
     dmd_under_review_count = dmd_codelist.versions.filter(status="under review").count()
     assert dmd_under_review_count > 0
 
+    assert null_codelist.organisation == organisation
+    null_under_review_count = null_codelist.versions.filter(
+        status="under review"
+    ).count()
+    assert null_under_review_count > 0
+
     # Get the under-review index.
     rsp = client.get(f"/codelist/{organisation.slug}/under-review/")
     # Assert that only under-review versions are returned
     versions = rsp.context["versions_page"].object_list
     assert (
         len(versions)
-        == under_review_count + old_style_under_review_count + dmd_under_review_count
+        == under_review_count
+        + old_style_under_review_count
+        + dmd_under_review_count
+        + null_under_review_count
     )
     for version in versions:
         assert version.status == "under review"

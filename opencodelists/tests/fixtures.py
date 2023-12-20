@@ -712,6 +712,27 @@ def build_fixtures():
     )
     # Check that all code_objs are linked to searches
     assert not minimal_draft.code_objs.filter(results__isnull=True).exists()
+
+    # null codelist
+    # A codelist using the "null" coding system, which isn't associated with
+    # a coding system database
+    # Has 2 versions
+    null_codelist = create_old_style_codelist(
+        owner=organisation,
+        name="Null Codelist",
+        coding_system_id="null",
+        coding_system_database_alias="null_test_20200101",
+        csv_data="code,term\n1234,Test code",
+        description="",
+        methodology="",
+    )
+    null_version1 = null_codelist.versions.get()
+    null_version2 = create_old_style_version(
+        codelist=null_codelist,
+        csv_data="code,term\n5678,Test code1",
+        coding_system_database_alias="null_test_20200101",
+    )
+
     return locals()
 
 
@@ -813,6 +834,7 @@ version_from_scratch = build_fixture("version_from_scratch")
 user_codelist = build_fixture("user_codelist")
 user_version = build_fixture("user_version")
 minimal_draft = build_fixture("minimal_draft")
+null_codelist = build_fixture("null_codelist")
 
 
 # These extra fixtures make modifications to those built in build_fixtures

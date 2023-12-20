@@ -123,3 +123,6 @@ class DummyCodingSystem(BaseCodingSystem):
     """
 
     has_database = False
+
+    def code_to_term(self, codes):
+        return {code: "unknown" for code in codes}

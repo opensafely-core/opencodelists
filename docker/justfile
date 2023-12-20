@@ -10,6 +10,10 @@ export COMPOSE_DOCKER_CLI_BUILD := "1"
 
 export BIN := "/opt/venv/bin"
 
+export DEV_USERID := `id -u`
+export DEV_GROUPID := `id -g`
+
+
 build env="dev":
     #!/usr/bin/env bash
 
@@ -21,15 +25,8 @@ build env="dev":
     docker-compose build --pull {{ env }}
 
 
-# copy built node assets back to host
-copy-assets: build
-    #!/usr/bin/env bash
-    docker-compose build --pull node-assets
-    docker-compose run --rm --no-deps --entrypoint /usr/bin/env node-assets rsync --delete -r /usr/src/app/static/dist/js /app/static/dist/js
-
-
 # run JS linter
-check-js: copy-assets
+check-js:
     docker-compose run --rm node-assets /app/docker/entrypoints/check-js.sh
 
 
@@ -39,7 +36,7 @@ check-py: build
 
 
 # run tests in docker container
-test-py *args="": copy-assets
+test-py *args="":
     docker-compose run --rm test python -m pytest \
     --cov=builder \
     --cov=codelists \
@@ -49,21 +46,28 @@ test-py *args="": copy-assets
     --cov-report html \
     --cov-report term-missing:skip-covered {{ args }}
 
-test-js: copy-assets
+test-js:
     docker-compose run --rm node-assets npm run test
 
 test: test-js test-py
 
 # run dev server in docker container
-serve: copy-assets
-    docker-compose up dev
+serve env="dev" *args="":
+    docker-compose up {{ args }} {{ env }}
 
 
 # run command in dev container
-run *args="bash": copy-assets
+run *args="bash":
     docker-compose run dev {{ args }}
 
 
 # exec command in existing dev container
 exec *args="bash":
     docker-compose exec dev {{ args }}
+
+
+# run a basic functional smoke test against a running opencodelists
+smoke-test host="http://localhost:7000":
+    #!/bin/bash
+    set -eu
+    curl -I {{ host }} -s --compressed --fail --retry 20 --retry-delay 1 --retry-all-errors

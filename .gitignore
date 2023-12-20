@@ -11,3 +11,5 @@ htmlcov
 node_modules
 static/dist/js
 staticfiles/
+/assets/dist
+/docker/docker-staticfiles/*

@@ -97,7 +97,7 @@ just dev-setup
 just run
 ```
 
-Access at http://localhost:8000
+Access at http://localhost:7000
 
 
 #### Run tests

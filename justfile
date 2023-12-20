@@ -169,7 +169,7 @@ dev-setup: devenv npm-install
 
 # Run the dev project
 run: devenv
-    $BIN/python manage.py runserver localhost:8000
+    $BIN/python manage.py runserver localhost:7000
 
 
 # install all JS dependencies
@@ -220,8 +220,8 @@ docker-test: _env
 
 
 # run dev server in docker container
-docker-serve: _env
-    {{ just_executable() }} docker/serve
+docker-serve env="dev" *args="": _env
+    {{ just_executable() }} docker/serve {{ env }} {{ args }}
 
 
 # run cmd in dev docker continer
@@ -232,3 +232,8 @@ docker-run *args="bash": _env
 # exec command in an existing dev docker container
 docker-exec *args="bash": _env
     {{ just_executable() }} docker/exec {{ args }}
+
+
+# run tests in docker container
+docker-smoke-test host="http://localhost:7000": _env
+    {{ just_executable() }} docker/smoke-test {{ host }}

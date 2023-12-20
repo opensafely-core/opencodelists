@@ -16,7 +16,7 @@ Run with:
     python codelists/scripts/import_codelists_from_xlsx.py
       <path/to/xlsx>
       <path/to/config/json>
-      --host # run on the specified host; defaults to localhost:8000
+      --host # run on the specified host; defaults to localhost:7000
       --force-new-version -f  # to force a new version, even if there are no changes
       --live-run  # run for real; if not set, just reports what would be done
 
@@ -316,7 +316,7 @@ def parse_args():
     )
     parser.add_argument(
         "--host",
-        default="http://localhost:8000",
+        default="http://localhost:7000",
         help="Host to use for API calls; https://www.opensafely.org for live prod run",
     )
 

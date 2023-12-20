@@ -1,3 +1,4 @@
+from django.core.exceptions import BadRequest
 from django.db.models import Q
 from django.http import Http404, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, render
@@ -27,16 +28,19 @@ def version_diff(request, clv, other_tag_or_hash):
     lhs_coding_system = clv.coding_system
     rhs_coding_system = other_clv.coding_system
 
-    lhs_csv_data_codes_to_terms = get_csv_data_code_to_terms(clv)
-    rhs_csv_data_codes_to_terms = get_csv_data_code_to_terms(other_clv)
-    if lhs_coding_system.id == "dmd":
-        if lhs_csv_data_codes_to_terms is None or rhs_csv_data_codes_to_terms is None:
-            return HttpResponseBadRequest("Could not identify code columns")
-        lhs_codes = set(lhs_csv_data_codes_to_terms)
-        rhs_codes = set(rhs_csv_data_codes_to_terms)
-    else:
-        lhs_codes = set(clv.codes)
-        rhs_codes = set(other_clv.codes)
+    def _get_clv_codes(codelist_version):
+        if codelist_version.csv_data:
+            csv_data_codes_to_terms = get_csv_data_code_to_terms(codelist_version)
+            if csv_data_codes_to_terms is None:
+                raise BadRequest("Could not identify code columns")
+            return set(csv_data_codes_to_terms), csv_data_codes_to_terms
+        return set(codelist_version.codes), None
+
+    try:
+        lhs_codes, lhs_csv_data_codes_to_terms = _get_clv_codes(clv)
+        rhs_codes, rhs_csv_data_codes_to_terms = _get_clv_codes(other_clv)
+    except BadRequest as err:
+        return HttpResponseBadRequest(str(err))
 
     lhs_only_codes = set(lhs_codes) - set(rhs_codes)
     rhs_only_codes = rhs_codes - lhs_codes
@@ -74,9 +78,9 @@ def summarise(codes, coding_system, csv_data_codes_to_terms=None):
             term = f"[Unknown] {csv_data_codes_to_terms[code]}"
         return term
 
-    if coding_system.id == "dmd":
-        # dm+d has no hierarchy to look up, just return the codes themselves with their
-        # terms
+    if not hasattr(coding_system, "ancestor_relationships"):
+        # if the coding system has no hierarchy to look up, just return the codes
+        # themselves with their terms
         summary = [{"code": code, "term": get_term(code)} for code in codes]
     else:
         summary = []
@@ -141,13 +145,12 @@ def get_csv_data_code_to_terms(clv):
                 "ctvterm",
             ],
         },
-        "default": {"code": ["code"], "term": ["term"]},
     }
 
     headers, *rows = clv.table
     headers = [header.lower().strip() for header in headers]
     possible_columns = possible_columns_by_coding_system.get(
-        clv.codelist.coding_system_id, "default"
+        clv.codelist.coding_system_id, {"code": ["code"], "term": ["term"]}
     )
 
     def _get_col_ix(col_type):

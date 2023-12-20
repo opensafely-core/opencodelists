@@ -176,3 +176,22 @@ def test_get_snomed_diff_new_vs_old_style_with_unknown(
         },
         {"code": "1234", "term": "[Unknown] Test code", "descendants": []},
     ]
+
+
+def test_get_version_diff_no_matching_version(
+    client, version_with_no_searches, old_style_version
+):
+    url = version_with_no_searches.get_diff_url(old_style_version)
+    url = url.replace(old_style_version.hash, "unknown-version-hash")
+    rsp = client.get(url)
+    assert rsp.status_code == 404
+
+
+def test_version_diff_default_columns(client, null_codelist):
+    # null_codelist has 2 old-style versions
+    # null coding_system doesn't have any named code/term columns, so
+    # should use the defaults
+    version1, version2 = list(null_codelist.versions.all())
+    rsp = client.get(version1.get_diff_url(version2))
+    assert rsp.context["rhs_only_codes"] == {"5678"}
+    assert rsp.context["lhs_only_codes"] == {"1234"}

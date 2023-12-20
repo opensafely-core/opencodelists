@@ -32,6 +32,10 @@ services:
       service: base
     environment:
       - SECRET_KEY=12345
+      - DATABASE_DIR=/storage
+      - DATABASE_URL=sqlite:////storage/db.sqlite3
+    volumes:
+      - ../db.sqlite3:/storage/db.sqlite3
 
   node-assets:
     extends:

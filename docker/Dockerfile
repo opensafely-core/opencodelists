@@ -185,7 +185,6 @@ LABEL org.opencontainers.image.revision=$GITREF
 
 ARG USERID=10003
 ARG GROUPID=10003
-RUN chown -R ${USERID}:${GROUPID} /app
 USER ${USERID}:${GROUPID}
 
 ##################################################

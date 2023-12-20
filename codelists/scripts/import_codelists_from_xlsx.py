@@ -239,6 +239,14 @@ def process_xlsx_to_dataframe(xlsx_filepath, config):
         sheet_name=config["sheet"],
         converters={column_aliases["code"]: str},
     )
+
+    if config.get("limit_to_named_codelists", False):
+        # if necessary, limit to only the named columns
+        codelist_name_col = codelist_df[
+            config["column_aliases"].get("codelist_name", "codelist_name")
+        ]
+        codelist_df = codelist_df[codelist_name_col.isin(codelist_name_aliases.keys())]
+
     # Rename df columns with any aliased column names
     codelist_df.rename(columns={v: k for k, v in column_aliases.items()}, inplace=True)
 

@@ -82,7 +82,7 @@ jobs:
           docker save opencodelists | gzip > /tmp/opencodelists.tar.gz
 
       - name: Upload docker image
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
             name: opencodelists-image
             path: /tmp/opencodelists.tar.gz

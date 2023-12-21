@@ -168,7 +168,7 @@ def test_codelists_get(client, organisation):
                     "full_slug": "test-university/null-codelist/6f08ccac",
                     "status": "under review",
                     "downloadable": True,
-                    "updated_date": "2023-12-20",
+                    "updated_date": today,
                 },
                 {
                     "hash": "55f95977",
@@ -176,7 +176,7 @@ def test_codelists_get(client, organisation):
                     "full_slug": "test-university/null-codelist/55f95977",
                     "status": "under review",
                     "downloadable": True,
-                    "updated_date": "2023-12-20",
+                    "updated_date": today,
                 },
             ],
         },

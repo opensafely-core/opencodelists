@@ -131,7 +131,7 @@ jobs:
         run: |
             SKIP_BUILD=1 just docker-serve prod -d
             sleep 5
-            just docker-smoke-test || { docker docker_prod_1; exit 1; }
+            just docker-smoke-test || { docker logs docker_prod_1; exit 1; }
 
       - name: Publish docker image
         run: |

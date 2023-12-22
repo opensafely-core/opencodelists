@@ -13,3 +13,4 @@ static/dist/js
 staticfiles/
 /assets/dist
 /docker/docker-staticfiles/*
+docker/storage

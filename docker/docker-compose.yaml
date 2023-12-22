@@ -35,7 +35,9 @@ services:
       - DATABASE_DIR=/storage
       - DATABASE_URL=sqlite:////storage/db.sqlite3
     volumes:
-      - ../db.sqlite3:/storage/db.sqlite3
+      # mount local directory for db path for use in tests;
+      # this is created with the correct permissions in `just docker/serve`
+      - "../docker/storage:/storage"
 
   node-assets:
     extends:

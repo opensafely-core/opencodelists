@@ -53,6 +53,13 @@ test: test-js test-py
 
 # run dev server in docker container
 serve env="dev" *args="":
+    #!/usr/bin/env bash
+    if [ "$env" = "prod" ]; then
+        echo foo
+        SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+        mkdir "$SCRIPT_DIR/storage"
+        sudo chown 10003:10003 "$SCRIPT_DIR/storage"
+    fi
     docker-compose up {{ args }} {{ env }}
 
 

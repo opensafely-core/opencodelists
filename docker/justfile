@@ -51,15 +51,19 @@ test-js:
 
 test: test-js test-py
 
-# run dev server in docker container
-serve env="dev" *args="":
+_create_storage env:
     #!/usr/bin/env bash
-    if [ "$env" = "prod" ]; then
-        echo foo
-        SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+    set -euo pipefail
+
+    if [ "{{ env }}" = "prod" ]; then
+        SCRIPT_DIR={{justfile_directory()}}
         mkdir "$SCRIPT_DIR/storage"
         sudo chown 10003:10003 "$SCRIPT_DIR/storage"
     fi
+
+
+# run dev server in docker container
+serve env="dev" *args="": (_create_storage env)
     docker-compose up {{ args }} {{ env }}
 
 

@@ -57,8 +57,10 @@ _create_storage env:
 
     if [ "{{ env }}" = "prod" ]; then
         SCRIPT_DIR={{justfile_directory()}}
-        mkdir "$SCRIPT_DIR/storage"
-        sudo chown 10003:10003 "$SCRIPT_DIR/storage"
+        if ! test -d "$SCRIPT_DIR/storage"; then
+            mkdir -p "$SCRIPT_DIR/storage"
+            sudo chown 10003:10003 "$SCRIPT_DIR/storage"
+        fi
     fi
 
 

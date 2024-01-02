@@ -209,8 +209,8 @@ STORAGES = {
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
-
-STATICFILES_DIRS = [BASE_DIR / "static" / "dist"]
+BUILT_ASSETS = env.path("BUILT_ASSETS", default=BASE_DIR / "static" / "dist")
+STATICFILES_DIRS = [str(BUILT_ASSETS)]
 STATIC_ROOT = env.path("STATIC_ROOT", default=BASE_DIR / "staticfiles")
 STATIC_URL = "/static/"
 

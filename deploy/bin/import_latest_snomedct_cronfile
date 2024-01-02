@@ -1,11 +1,10 @@
 # /etc/cron.d/dokku-opencodelists-import-latest-snomedct
 # cron job to import latest snomedct releases
-# update SLACK_WEBHOOK_URL and SLACK_DATATEAM_WEBHOOK_URL with relevant channel url
-#(#tech-noise, #team-data)
+# update SLACK_WEBHOOK_URL and SLACK_TEAM_WEBHOOK_URL with relevant channel url
 
 PATH=/usr/local/bin:/usr/bin:/bin
 SHELL=/bin/bash
 SLACK_WEBHOOK_URL=dummy-url
-SLACK_DATATEAM_WEBHOOK_URL=dummy-url
+SLACK_TEAM_WEBHOOK_URL=dummy-url
 
 5 23 * * 2 dokku /var/lib/dokku/data/storage/opencodelists/import_latest_release.sh snomedct

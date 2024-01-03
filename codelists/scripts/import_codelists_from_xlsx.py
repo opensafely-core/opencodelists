@@ -179,16 +179,16 @@ def process_xlsx_to_dataframe(xlsx_filepath, config):
         # ensure all required columns are now present
         assert column in relevant_df_columns, f"Expected column {column} not found"
 
-    # Remove extraneous whitespace from all columns of interest
-    for column in relevant_df_columns:
-        codelist_df[column] = codelist_df[column].str.strip()
-
     # update the codelist name column with any aliases
     def update_name(name):
         return codelist_name_aliases.get(name, name)
 
     aliased_names = codelist_df["codelist_name"].apply(update_name)
     codelist_df["codelist_name"] = aliased_names
+
+    # Remove extraneous whitespace from all columns of interest
+    for column in relevant_df_columns:
+        codelist_df[column] = codelist_df[column].str.strip()
 
     return codelist_df
 

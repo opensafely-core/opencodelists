@@ -110,29 +110,3 @@ root$ dokku letsencrypt:enable opencodelists
 dokku$ dokku http-auth:on opencodelists <user> <password>
 dokku$ dokku http-auth:off opencodelists
 ```
-
-### Manually creating and updating codelist versions
-
-Currently OpenCodelists handles multiple coding system releases, however it can't always handle
-new versions of codelists when the coding system has changed significantly since the original
-version was created. When a user creates a new version of a codelist, the searches from the
-original codelist are re-run. If these searches bring back any new codes, the version will fail
-to be created.  Users will see a message prompting them to contact tech-support:
-
-```
-Codes with unknown status found when creating new version; this is likely due to an update in
-the coding system. Please contact tech-support for assistance.
-```
-
-The codelist version can be manually created by running the following command on dokku3:
-
-```
-dokku$ dokku run opencodelists \
-    python manage.py create_and_update_draft <original version hash> --author <username>
-```
-
-The command will create a new draft version, and will assign statuses to each unknown code where
-possible. i.e. if a new code has an ancestor code that is included, it will be implicitly
-included (`(+)` status), and if it has an ancestor code that is excluded, it will be implictly
-excluded (`(-)` status).  The command will output a list of codes that were returned as "unknown"
-(`?`) status from the re-run searches, and have been assigned an assumed status. These should be passed on to the user to confirm.

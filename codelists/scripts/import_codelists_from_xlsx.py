@@ -6,11 +6,6 @@ Reads an XLSX file and updates/creates codelist versions
 This script is intended to be run on a local machine, and will use the OpenCodelists
 API to create the new codelist versions.
 
-Create a token on the server with:
-    from rest_framework.authtoken.models import Token
-    token = Token.objects.create(user=...)
-    print(user.api_token)
-
 Run with:
     API_TOKEN=###
     python codelists/scripts/import_codelists_from_xlsx.py
@@ -20,79 +15,7 @@ Run with:
       --force-new-version -f  # to force a new version, even if there are no changes
       --live-run  # run for real; if not set, just reports what would be done
 
-(NOTE: when running on prod use --host https://www.opensafely.org; if run with https://opensafely.org, the
-redirect to www will make the api calls return 405s.)
-
-Provide a path to an xlsx file, which should contain at least one sheet, with at least columns:
- - coding_system
- - codelist_name
- - code
- - term (only required if file includes dm+d codelists)
-
- Each row represents one code in one codelist version, e.g. the following represents
- one SNOMED-CT codelist and one dm+d codelist, each with 3 codes.
-
- coding_system | codelist_name | code
- --------------|---------------|-----
- snomedct      | Asthma        | 1234
- snomedct      | Asthma        | 2345
- snomedct      | Asthma        | 3456
- dmd           | Paracetemol   | ABCD
- dmd           | Paracetemol   | BCDE
- dmd           | Paracetemol   | CDEF
-
-Note the columns names, coding system refs and codelist names can be aliased
-in the config file, see below.
-
-Provide a config file in json format:
-required keys:
-- organisation (Organisation slug)
-- sheet (sheet in the workbook that contains the list of codes)
-- coding_systems (for each coding system value present in the workbook,
-  the id of the coding system in OpenCodelists and the database alias of the
-  release to be used for the new codelist. In the example below, the coding
-  system column in the xlsx file  contains values "SNOMED CT" and "dm+d")
-optional keys:
-- tag (optional tag for the codelist versions)
-- column_aliases (optional aliases for column names. We expect columns named
-  coding_system, codelist_name, code, term (optional); column aliases is a dict
-  mapping one or more of these column names to the actual name in the xlsx file.)
-- codelist_name_aliases (in case the the name
-  in OpenCodelists doesn't exactly match the value in the codelist_name column.
-  Dict mapping from the name in the xlsx file (key) to name in OpenCodelists (value)
-
-example_config.json:
-{
-    "organisation": "pincer",
-    "sheet": "SCT codeclusters",
-    "coding_systems": {
-        "SNOMED CT": {
-            "id": "snomedct",
-            "release": "snomedct_3600_20230419"
-        },
-        "dm+d": {
-            "id": "dmd",
-            "release": "dmd_2023-530_20230522"
-        }
-    },
-    "tag": "v2.0",
-    "column_aliases": {
-        "coding_system": "Coding_scheme",
-        "codelist_name": "Cluster_description",
-        "code": "SNOMED code"
-        "term": "SNOMED_Description",
-    },
-    "codelist_name_aliases": {
-        "Loop diuretics": "Loop diuretics Rx",
-        "Lithium medication": "Lithium Rx",
-        "Methrotrexate": "Methotrexate Rx",
-        "NSAID medication": "oral NSAID Rx",
-        "Non Aspirin antiplatelet": "Antiplatelet Rx without aspirin Rx",
-        "Non Selective Beta Blockers": "Non cardio-selective beta-blocker Rx",
-        "Aspirin & other antiplatelets": "aspirin + other antiplatelet Rx",
-        "PPIs and H2 blockers": "Ulcer healing drugs: PPI & H2 blockers Rx"
-    }
-}
+See additional documentation at codelists/scripts/README.md
 
 """
 import argparse
@@ -138,7 +61,8 @@ def main(
     codelists_resp = requests.get(base_url)
     if codelists_resp.status_code == 404:
         print(
-            "Could not retrieve codelists for organisation {}; ensure organisation slug is correct."
+            f"Could not retrieve codelists for organisation {config['organisation']}; "
+            "ensure organisation slug is correct and authorised user has access to it."
         )
         sys.exit(1)
     # Create a mapping of codelist name to slug
@@ -198,9 +122,19 @@ def main(
                 if response.status_code == 200:
                     print(f"Created {message_part}")
                 else:
-                    print(
+                    error_message = (
                         f"Failed to create new {message_part}: {response.status_code}"
                     )
+                    if (
+                        response.status_code == 400
+                        and not dry_run
+                        and not force_new_version
+                    ):
+                        error_message += (
+                            "\nA version with these codes may already exist. "
+                            "Use -f to force creation of a new version."
+                        )
+                    print(error_message)
 
 
 def get_headers():
@@ -228,6 +162,14 @@ def process_xlsx_to_dataframe(xlsx_filepath, config):
         sheet_name=config["sheet"],
         converters={column_aliases["code"]: str},
     )
+
+    if config.get("limit_to_named_codelists", False):
+        # if necessary, limit to only the named columns
+        codelist_name_col = codelist_df[
+            config["column_aliases"].get("codelist_name", "codelist_name")
+        ]
+        codelist_df = codelist_df[codelist_name_col.isin(codelist_name_aliases.keys())]
+
     # Rename df columns with any aliased column names
     codelist_df.rename(columns={v: k for k, v in column_aliases.items()}, inplace=True)
 
@@ -237,16 +179,16 @@ def process_xlsx_to_dataframe(xlsx_filepath, config):
         # ensure all required columns are now present
         assert column in relevant_df_columns, f"Expected column {column} not found"
 
-    # Remove extraneous whitespace from all columns of interest
-    for column in relevant_df_columns:
-        codelist_df[column] = codelist_df[column].str.strip()
-
     # update the codelist name column with any aliases
     def update_name(name):
         return codelist_name_aliases.get(name, name)
 
     aliased_names = codelist_df["codelist_name"].apply(update_name)
     codelist_df["codelist_name"] = aliased_names
+
+    # Remove extraneous whitespace from all columns of interest
+    for column in relevant_df_columns:
+        codelist_df[column] = codelist_df[column].str.strip()
 
     return codelist_df
 
@@ -317,7 +259,7 @@ def parse_args():
     parser.add_argument(
         "--host",
         default="http://localhost:7000",
-        help="Host to use for API calls; https://www.opensafely.org for live prod run",
+        help="Host to use for API calls; https://www.opencodelists.org for live prod run",
     )
 
     arguments = parser.parse_args()

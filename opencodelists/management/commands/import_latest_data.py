@@ -38,6 +38,9 @@ class Command(BaseCommand):
 
         release_name = metadata["release_name"]
         valid_from = metadata["valid_from"]
+        self.stdout.write(
+            f'STARTING IMPORT: RELEASE NAME "{release_name}"; VALID FROM "{valid_from}"'
+        )
         import_fn(release_zipfile_path, release_name, valid_from)
 
         self.stdout.write(

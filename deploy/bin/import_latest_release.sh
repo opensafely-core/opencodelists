@@ -45,11 +45,11 @@ function post_to_slack() {
   "${webhook_url}"
 }
 
-
 function run_dokku_import_command () {
+  # pipe the output via sed to remove ansi escape sequences
   /usr/bin/dokku run opencodelists \
       python "$REPO_ROOT"/manage.py \
-      import_latest_data "${CODING_SYSTEM}" "${DOWNLOAD_DIR}" > "${LOG_FILE}" 2>&1
+      import_latest_data "${CODING_SYSTEM}" "${DOWNLOAD_DIR}" |& sed 's/\x1b\[[0-9;]*[mGKHF]//g' > "${LOG_FILE}"
 }
 
 

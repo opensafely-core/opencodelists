@@ -9,8 +9,8 @@ export DOCKER_BUILDKIT := "1"
 
 export BIN := "/opt/venv/bin"
 
-export DEV_USERID := `id -u`
-export DEV_GROUPID := `id -g`
+export DEV_USERID := "3000"
+export DEV_GROUPID := "3000"
 
 
 build env="dev":

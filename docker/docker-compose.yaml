@@ -31,6 +31,10 @@ services:
   prod:
     # image name, both locally and public
     image: opencodelists
+    build:
+      args:
+        - USERID=3000
+        - GROUPID=3000
     extends:
       service: base
     environment:
@@ -64,8 +68,8 @@ services:
       target: opencodelists-dev
       args:
         # user developer uid:gid in dev
-        - USERID=${DEV_USERID:-1000}
-        - GROUPID=${DEV_GROUPID:-1000}
+        - USERID=3000
+        - GROUPID=3000
     # paths relative to docker-compose.yaml file
     volumes:
       - ..:/app

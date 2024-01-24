@@ -8,3 +8,4 @@ tzdata
 zstd
 # Needed to make HTTP calls to the Sentry API
 curl
+acl

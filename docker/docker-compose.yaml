@@ -26,11 +26,17 @@ services:
     init: true
     ports:
       - "7000:7000"
+    volumes:
+      - ./assetsout:/opt/assetsout
 
   # prod service. Used to build prod image and run/test it locally
   prod:
     # image name, both locally and public
     image: opencodelists
+    build:
+      args:
+        - USERID=3000
+        - GROUPID=3000
     extends:
       service: base
     environment:
@@ -52,6 +58,7 @@ services:
       target: node-builder
     volumes:
       - ..:/app
+      - ./assetsout:/opt/assetsout
 
   # main development service
   dev:
@@ -64,8 +71,8 @@ services:
       target: opencodelists-dev
       args:
         # user developer uid:gid in dev
-        - USERID=${DEV_USERID:-1000}
-        - GROUPID=${DEV_GROUPID:-1000}
+        - USERID=3000
+        - GROUPID=3000
     # paths relative to docker-compose.yaml file
     volumes:
       - ..:/app

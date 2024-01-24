@@ -18,3 +18,4 @@ docker/storage
 deleted-user-dumps/*
 *.tsbuildinfo
 .playwright-browsers
+/docker/assetsout/*

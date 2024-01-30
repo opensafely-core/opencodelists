@@ -114,6 +114,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - uses: opensafely-core/setup-action@v1
         with:
           install-just: true

@@ -24,8 +24,8 @@ from services.logging import logging_config_dict
 
 
 # Patch sqlite3 to ensure recent version
-__import__("pysqlite3")
-sys.modules["sqlite3"] = sys.modules.pop("pysqlite3")
+__import__("sqlean")
+sys.modules["sqlite3"] = sys.modules.pop("sqlean")
 
 
 # Read env file/vars

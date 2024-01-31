@@ -24,8 +24,8 @@ openpyxl
 opentelemetry-exporter-otlp
 opentelemetry-instrumentation-django
 opentelemetry-sdk
-pysqlite3-binary
 whitenoise
 sentry-sdk
+sqlean.py
 structlog
 tqdm

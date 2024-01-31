@@ -1,6 +1,6 @@
 "use strict";
 
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import React from "react";
 
 import CodelistBuilder from "./codelistbuilder";
@@ -25,7 +25,9 @@ const visiblePaths = hierarchy.initiallyVisiblePaths(
   1,
 );
 
-ReactDOM.render(
+const container = document.getElementById("codelist-builder-container");
+const root = createRoot(container);
+root.render(
   <CodelistBuilder
     resultsHeading={readValueFromPage("results-heading")}
     searches={readValueFromPage("searches")}
@@ -45,5 +47,4 @@ ReactDOM.render(
     versions={readValueFromPage("versions")}
     metadata={readValueFromPage("metadata")}
   />,
-  document.querySelector("#codelist-builder-container"),
 );

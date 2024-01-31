@@ -343,9 +343,9 @@ iniconfig==2.0.0 \
     --hash=sha256:2d91e135bf72d31a410b17c16da610a82cb55f6b0477d1a902134b24a455b8b3 \
     --hash=sha256:b6a85871a79d2e3b22d2d1b94ac2824226a63c6b741c88f7ae975f18b6778374
     # via pytest
-litecli==1.9.0 \
-    --hash=sha256:21af2cfa083dd4df1e3ccaa2a2117129b5f17212756f596ea090e296776c27a1 \
-    --hash=sha256:9190099368224a8f610ebcd55ddd3e3dd2148f083d2347b9853c89586652cb7d
+litecli==1.10.0 \
+    --hash=sha256:d00cfd18cb22dce536e4bcb9e560b286b2955cfb526588ac784eaabebf561394 \
+    --hash=sha256:ee9e2a93d193a555c0e661ed083943a6f932a9c8e8c267b689b469f9ac7a3e0c
     # via -r requirements.dev.in
 mypy-extensions==1.0.0 \
     --hash=sha256:4392f6c0eb8a5668a69e23d168ffa70f0be9ccfd32b5cc2d26a34ae5b844552d \

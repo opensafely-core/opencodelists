@@ -1,6 +1,6 @@
 "use strict";
 
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import React from "react";
 
 import Hierarchy from "../hierarchy";
@@ -25,7 +25,9 @@ const visiblePaths = hierarchy.initiallyVisiblePaths(
   0,
 );
 
-ReactDOM.render(
+const container = document.getElementById("codelist-tree");
+const root = createRoot(container);
+root.render(
   <TreeTables
     hierarchy={hierarchy}
     treeTables={treeTables}
@@ -35,5 +37,4 @@ ReactDOM.render(
     updateStatus={null}
     showMoreInfoModal={null}
   />,
-  document.querySelector("#codelist-tree"),
 );

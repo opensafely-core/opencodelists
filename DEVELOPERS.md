@@ -182,6 +182,64 @@ included (`(+)` status), and if it has an ancestor code that is excluded, it wil
 excluded (`(-)` status).  The command will output a list of codes that were returned as "unknown"
 (`?`) status from the re-run searches, and have been assigned an assumed status. These should be passed on to the user to confirm.
 
+### Deleting published codelists
+
+:warning: *We should not delete published codelists,
+except in very rare circumstances.*
+It is difficult to guarantee that codelists are not being anywhere at all
+— there may be uses other than for OpenSAFELY projects.
+
+However, on rare occasions,
+users may request deletion of *published* codelists or their versions.
+
+Note that users can delete unpublished versions of codelists,
+or entirely unpublished codelists themselves.
+Users cannot delete published versions of codelists.
+
+These requests should be limited to user-owned codelists,
+not organisation codelists.
+
+#### Process for deleting a single version of a codelist
+
+First, visit the codelist URL of interest
+and note down the version ID hash on the page.
+
+On dokku3:
+
+1. Start `shell_plus` which loads the database models for you:
+   ```sh
+   $ dokku run opencodelists python manage.py shell_plus
+   ```
+2. Access the specific version of the codelist:
+   ```pycon
+   >>> version = CodelistVersion.objects.get_by_hash("<hash>")
+   ```
+3. Delete the **codelist version**:
+   ```pycon
+   >>> version.delete()
+   ```
+
+#### Process for deleting a codelist entirely
+
+First, visit the codelist URL of interest
+and note down the version hash on the page.
+
+On dokku3:
+
+1. Start `shell_plus` which loads the database models for you:
+   ```sh
+   $ dokku run opencodelists python manage.py shell_plus
+   ```
+2. Access the codelist through the specified version:
+   ```pycon
+   >>> version = CodelistVersion.objects.get_by_hash("<hash>")
+   >>> codelist = version.codelist
+   ```
+3. Delete the **codelist and all of its versions**:
+   ```pycon
+   >>> codelist.delete()
+   ```
+
 ### Import codelists from an xlsx file
 
 See [codelists/scripts/README.md](codelists/scripts/README.md#bulk-import-codelists-from an-xlsx-file)

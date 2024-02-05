@@ -47,7 +47,7 @@ RUN --mount=type=cache,target=/usr/src/app/.npm \
 
 # copy just what npm build needs
 COPY webpack.config.js .babelrc .eslintrc.json .prettierrc .prettierignore ./
-COPY static ./static
+COPY assets ./assets
 RUN --mount=type=cache,target=./npm npm run build
 
 ##################################################
@@ -109,7 +109,7 @@ WORKDIR /app
 
 # copy node assets over from node-builder image. These will have root:root ownership, but
 # are readable by all.
-COPY --from=node-builder /usr/src/app/static/dist /opt/assets
+COPY --from=node-builder /usr/src/app/assets/dist /opt/assets
 
 # Asset and staticfile management
 #

@@ -27,7 +27,7 @@ build env="dev":
 
 # run JS linter
 check-js:
-    docker-compose run --rm node-assets /app/docker/entrypoints/check-js.sh
+    docker-compose run --rm node-assets npm run lint
 
 
 # run python checks

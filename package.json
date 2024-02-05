@@ -31,5 +31,49 @@
     "type": "git",
     "url": "git+https://github.com/opensafely-core/opencodelists.git"
   },
-  "license": "GPL-3.0-or-later"
+  "license": "GPL-3.0-or-later",
+  "eslintConfig": {
+    "env": {
+      "browser": true,
+      "es2021": true
+    },
+    "extends": [
+      "eslint:recommended",
+      "plugin:react/recommended",
+      "prettier"
+    ],
+    "globals": {
+      "$": "readonly",
+      "global": "readonly"
+    },
+    "overrides": [
+      {
+        "env": {
+          "jest": true
+        },
+        "files": [
+          "**/*.test.js",
+          "**/*.test.jsx"
+        ]
+      }
+    ],
+    "parserOptions": {
+      "ecmaFeatures": {
+        "jsx": true
+      },
+      "ecmaVersion": 12,
+      "sourceType": "module"
+    },
+    "plugins": [
+      "react"
+    ],
+    "rules": {
+      "react/prop-types": "off"
+    },
+    "settings": {
+      "react": {
+        "version": "17"
+      }
+    }
+  }
 }

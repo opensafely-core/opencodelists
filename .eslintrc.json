@@ -8,6 +8,9 @@
         "plugin:react/recommended",
         "prettier"
     ],
+    "globals": {
+        "$": "readonly"
+    },
     "ignorePatterns": [
         "static/src/js/codelist.js"
     ],

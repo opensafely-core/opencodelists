@@ -1,6 +1,6 @@
 "use strict";
 
-import Hierarchy from "../../src/js/hierarchy";
+import Hierarchy from "../scripts/hierarchy";
 
 test("updateCodeToStatus", () => {
   const hierarchy = buildTestHierarchy();

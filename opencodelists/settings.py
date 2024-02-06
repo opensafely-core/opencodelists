@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -86,6 +87,7 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     "taggit",
     "anymail",
+    "django_vite",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -216,6 +218,27 @@ STATICFILES_DIRS = [
 ]
 STATIC_ROOT = env.path("STATIC_ROOT", default=BASE_DIR / "staticfiles")
 STATIC_URL = "/static/"
+
+ASSETS_DEV_MODE = env.bool("ASSETS_DEV_MODE", default=False)
+
+DJANGO_VITE = {
+    "default": {
+        "dev_mode": ASSETS_DEV_MODE,
+        "manifest_path": BUILT_ASSETS / ".vite" / "manifest.json",
+    }
+}
+
+# Vite generates files with 8 hash digits
+# http://whitenoise.evans.io/en/stable/django.html#WHITENOISE_IMMUTABLE_FILE_TEST
+
+
+def immutable_file_test(path, url):
+    # Match filename with 12 hex digits before the extension
+    # e.g. app.db8f2edc0c8a.js
+    return re.match(r"^.+[\.\-][0-9a-f]{8,12}\..+$", url)
+
+
+WHITENOISE_IMMUTABLE_FILE_TEST = immutable_file_test
 
 
 # Logging

@@ -4,6 +4,10 @@
 
 {% block title_extra %}: {{ codelist.name }}{% endblock %}
 
+{% block extra_styles %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.20/css/dataTables.bootstrap4.min.css" integrity="sha512-4o2NtfcBGIT0SbOTpWLYovl07cIaliKIQpUXvEPvyOgBF/01xY1TXm5F1B+X48/zhhFLIw2oBTsE0rjcwEOwJQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+{% endblock extra_styles %}
+
 {% block content %}
 <h3 class="mt-4">{{ codelist.name }}</h3>
 {% if clv.is_under_review %}
@@ -253,6 +257,8 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.20/js/jquery.dataTables.min.js" integrity="sha512-hX6rgGqXX6Ajh6Y+bZ+P/0ZkUBl3fQMY6I1B51h5NDOu7XE1lVgdf2VqygjozLX8AufHvWAzOuC0WVMb4wJX4w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.20/js/dataTables.bootstrap4.min.js" integrity="sha512-T970v+zvIZu3UugrSpRoyYt0K0VknTDg2G0/hH7ZmeNjMAfymSRoY+CajxepI0k6VMFBXxgsBhk4W2r7NFg6ag==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script type="text/javascript">
   $(document).ready(function () {
     $('#js-codelist-table').DataTable({

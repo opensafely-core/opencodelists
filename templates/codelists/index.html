@@ -2,30 +2,21 @@
 {% load markdown_filter %}
 
 {% block extra_styles %}
-<style>
-@media (max-width: 768px) {
-  .video-container {
-    margin: 0 1rem 1rem 1rem;
-    overflow: hidden;
-    position: relative;
-    width:100%;
-  }
-
-  .video-container::after {
-    content: '';
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lite-youtube-embed/0.3.0/lite-yt-embed.min.css" integrity="sha512-F+q2wTRzuK17yqnrP7XZ2R1jvzJiVVUUZW9wqDIMhiZFlsP5TTvGZtPQbwS1v+ZUp3JR4CDK1Tai6Gvvh7c2Fg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+  .youtube-embed {
     display: block;
-    padding-top: 56.25%;
-  }
+    padding-block-end: 1rem;
 
-  .video-container iframe {
-    height: 100%;
-    left: 0;
-    position: absolute;
-    top: 0;
-    width: 100%;
+    &:not(:first-child) {
+      padding-block-start: 1rem;
+    }
+
+    lite-youtube {
+      margin: 0 auto;
+    }
   }
-}
-</style>
+  </style>
 {% endblock %}
 
 {% block content %}
@@ -41,11 +32,19 @@
   </div>
 
   <div class="row my-2">
-    <div class="col-md-6 video-container">
-      <iframe width="550px" height="300px" src="https://www.youtube.com/embed/ayRtpbcPFLA?list=PLE66rRIHuZxzSkFz8CthPQngqXIZiPlwq" title="YouTube video player" frameborder="0" allowfullscreen></iframe>
+    <div class="col-md-6">
+      <div class="youtube-embed">
+        <lite-youtube
+          videoid="ayRtpbcPFLA"
+          params="controls=1&rel=0&enablejsapi=1"
+        ></lite-youtube>
+      </div>
     </div>
-    <div class="col-md-6 video-container">
-      <iframe width="550px" height="300px" src="https://www.youtube.com/embed/t-A2kWHZ5lA?list=PLE66rRIHuZxzSkFz8CthPQngqXIZiPlwq" title="YouTube video player" frameborder="0" allowfullscreen></iframe>
+    <div class="col-md-6">
+      <lite-youtube
+        videoid="t-A2kWHZ5lA"
+        params="controls=1&rel=0&enablejsapi=1"
+      ></lite-youtube>
     </div>
   </div>
 
@@ -87,3 +86,7 @@
 
 </div>
 {% endblock %}
+
+{% block extra_js %}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lite-youtube-embed/0.3.0/lite-yt-embed.min.js" integrity="sha512-mnzNl5OgPbvEh4byaFsFh3bYSHnAvcgo4v+0yShBsFYcXps4E0p+8a1KHzgLajw50+kZEwZKuMFu8bhLZkiGlQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+{% endblock extra_js %}

@@ -12,3 +12,4 @@ DJANGO_SETTINGS_MODULE="opencodelists.settings"
 PYTHONPATH="/usr/local/bin/python"
 # dm+d downloads
 TRUD_API_KEY=dummy-key
+ASSETS_DEV_MODE=False

@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% load crispy_forms_tags %}
-{% load static %}
+{% load django_vite %}
 
 {% block title_extra %}: {{ codelist.name }}{% endblock %}
 
@@ -52,5 +52,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script type="text/javascript" src="{% static 'js/codelist.bundle.js' %}"></script>
+{% vite_asset "assets/src/scripts/codelist.js" %}
 {% endblock %}

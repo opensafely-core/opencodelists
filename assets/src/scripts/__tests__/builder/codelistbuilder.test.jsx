@@ -1,38 +1,21 @@
-/**
- * @jest-environment jsdom
- */
-
-"use strict";
-
-import React from "react";
-import { render, unmountComponentAtNode } from "react-dom";
-import { act } from "react-dom/test-utils";
 import "@testing-library/jest-dom";
+import { render } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import React from "react";
 
-import CodelistBuilder from "../../scripts/builder/codelistbuilder";
-import Hierarchy from "../../scripts/hierarchy";
+import Hierarchy from "../../hierarchy";
+import CodelistBuilder from "../../builder/codelistbuilder";
 
 // See builder/management/commands/generate_builder_fixtures.py and
 // opencodelists/tests/fixtures.py for details about what these fixtures contain.
+import { vi } from "vitest";
+import * as versionFromScratchData from "../fixtures/version_from_scratch.json";
+import * as versionWithCompleteSearchesData from "../fixtures/version_with_complete_searches.json";
 import * as versionWithNoSearchesData from "../fixtures/version_with_no_searches.json";
 import * as versionWithSomeSearchesData from "../fixtures/version_with_some_searches.json";
-import * as versionWithCompleteSearchesData from "../fixtures/version_with_complete_searches.json";
-import * as versionFromScratchData from "../fixtures/version_from_scratch.json";
-
-let container = null;
-beforeEach(() => {
-  container = document.createElement("div");
-  document.body.appendChild(container);
-});
-
-afterEach(() => {
-  unmountComponentAtNode(container);
-  container.remove();
-  container = null;
-});
 
 // Not sure if this is the best approach, but it works!
-global.fetch = jest.fn().mockImplementation((url, config) =>
+global.fetch = vi.fn().mockImplementation((url, config) =>
   Promise.resolve({
     json: () => Promise.resolve(JSON.parse(config.body)),
   }),
@@ -49,28 +32,25 @@ const testRender = (data) => {
     1,
   );
 
-  act(() => {
-    render(
-      <CodelistBuilder
-        searches={data.searches}
-        filter={data.filter}
-        treeTables={data.tree_tables}
-        codeToStatus={data.code_to_status}
-        codeToTerm={data.code_to_term}
-        visiblePaths={visiblePaths}
-        allCodes={data.all_codes}
-        includedCodes={data.included_codes}
-        excludedCodes={data.excluded_codes}
-        isEditable={data.is_editable}
-        updateURL={data.update_url}
-        searchURL={data.search_url}
-        versions={data.versions}
-        metadata={data.metadata}
-        hierarchy={hierarchy}
-      />,
-      container,
-    );
-  });
+  render(
+    <CodelistBuilder
+      searches={data.searches}
+      filter={data.filter}
+      treeTables={data.tree_tables}
+      codeToStatus={data.code_to_status}
+      codeToTerm={data.code_to_term}
+      visiblePaths={visiblePaths}
+      allCodes={data.all_codes}
+      includedCodes={data.included_codes}
+      excludedCodes={data.excluded_codes}
+      isEditable={data.is_editable}
+      updateURL={data.update_url}
+      searchURL={data.search_url}
+      versions={data.versions}
+      metadata={data.metadata}
+      hierarchy={hierarchy}
+    />,
+  );
 };
 
 it("renders version_with_no_searches without error", () => {
@@ -89,7 +69,7 @@ it("renders version_from_scratch without error", () => {
   testRender(versionFromScratchData);
 });
 
-it("does the right thing when clicking around", () => {
+it("does the right thing when clicking around", async () => {
   const data = versionWithSomeSearchesData;
   const hierarchy = new Hierarchy(data.parent_map, data.child_map);
   const ancestorCodes = data.tree_tables
@@ -125,7 +105,7 @@ it("does the right thing when clicking around", () => {
 
   const checkStatus = () => {
     Object.keys(statuses).forEach((code) => {
-      const row = container.querySelector(`[data-code='${code}']`);
+      const row = document.querySelector(`[data-code='${code}']`);
 
       switch (statuses[code]) {
         case "+":
@@ -171,52 +151,46 @@ it("does the right thing when clicking around", () => {
   const checkSummary = () => {
     Object.keys(summaryCounts).forEach((key) => {
       if (summaryCounts[key] === 0) {
-        expect(container.querySelector(`#summary-${key}`)).toBe(null);
+        expect(document.querySelector(`#summary-${key}`)).toBe(null);
       } else {
         expect(
-          parseInt(container.querySelector(`#summary-${key}`).textContent),
+          parseInt(document.querySelector(`#summary-${key}`).textContent),
         ).toBe(summaryCounts[key]);
       }
     });
   };
 
   // Helper that simulates clicking on + or - for given code.
-  const click = (code, symbol) => {
-    const button = container.querySelector(
+  const findClick = (code, symbol) => {
+    return document.querySelector(
       `[data-code='${code}'] button[data-symbol='${symbol}']`,
     );
-    button.dispatchEvent(new MouseEvent("click", { bubbles: true }));
   };
 
-  act(() => {
-    render(
-      <CodelistBuilder
-        searches={data.searches}
-        filter={data.filter}
-        treeTables={data.tree_tables}
-        codeToStatus={data.code_to_status}
-        codeToTerm={data.code_to_term}
-        visiblePaths={visiblePaths}
-        allCodes={data.all_codes}
-        includedCodes={data.included_codes}
-        excludedCodes={data.excluded_codes}
-        isEditable={data.is_editable}
-        updateURL={data.update_url}
-        searchURL={data.search_url}
-        versions={data.versions}
-        metadata={data.metadata}
-        hierarchy={hierarchy}
-      />,
-      container,
-    );
-  });
+  render(
+    <CodelistBuilder
+      searches={data.searches}
+      filter={data.filter}
+      treeTables={data.tree_tables}
+      codeToStatus={data.code_to_status}
+      codeToTerm={data.code_to_term}
+      visiblePaths={visiblePaths}
+      allCodes={data.all_codes}
+      includedCodes={data.included_codes}
+      excludedCodes={data.excluded_codes}
+      isEditable={data.is_editable}
+      updateURL={data.update_url}
+      searchURL={data.search_url}
+      versions={data.versions}
+      metadata={data.metadata}
+      hierarchy={hierarchy}
+    />,
+  );
 
   checkSummary();
   checkStatus();
 
-  act(() => {
-    click("35185008", "-"); // Exclude Enthesopathy of elbow region
-  });
+  await userEvent.click(findClick("35185008", "-")); // Exclude Enthesopathy of elbow region
 
   summaryCounts.excluded += 2;
   summaryCounts["in-conflict"] += 1;
@@ -229,9 +203,7 @@ it("does the right thing when clicking around", () => {
   checkSummary();
   checkStatus();
 
-  act(() => {
-    click("35185008", "-"); // Un-exclude Enthesopathy of elbow region
-  });
+  await userEvent.click(findClick("35185008", "-")); // Un-exclude Enthesopathy of elbow region
 
   summaryCounts.excluded -= 2;
   summaryCounts["in-conflict"] -= 1;

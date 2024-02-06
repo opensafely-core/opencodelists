@@ -8,9 +8,9 @@ antlr4-python3-runtime==4.13.0 \
     --hash=sha256:0d5454928ae40c8a6b653caa35046cd8492c8743b5fbc22ff4009099d074c7ae \
     --hash=sha256:53e6e208cf4a1ad53fb8b1b4467b756375a4f827331e290618aedcf481cb1d5c
     # via -r requirements.prod.in
-asgiref==3.6.0 \
-    --hash=sha256:71e68008da809b957b7ee4b43dbccff33d1b23519fb8344e33f049897077afac \
-    --hash=sha256:9567dfe7bd8d3c8c892227827c41cce860b368104c3431da67a0c5a65a949506
+asgiref==3.7.2 \
+    --hash=sha256:89b2ef2247e3b562a16eef663bc0e2e703ec6468e2fa8a5cd61cd449786d4f6e \
+    --hash=sha256:9e0ce3aa93a819ba5b45120216b23878cf6e8525eb3848653452b4192b92afed
     # via
     #   django
     #   django-structlog
@@ -214,9 +214,9 @@ dj-email-url==1.0.6 \
     --hash=sha256:55ffe3329e48f54f8a75aa36ece08f365e09d61f8a209773ef09a1d4760e699a \
     --hash=sha256:cbd08327fbb08b104eac160fb4703f375532e4c0243eb230f5b960daee7a96db
     # via environs
-django==4.2.4 \
-    --hash=sha256:7e4225ec065e0f354ccf7349a22d209de09cc1c074832be9eb84c51c1799c432 \
-    --hash=sha256:860ae6a138a238fc4f22c99b52f3ead982bb4b1aad8c0122bcd8c8a3a02e409d
+django==5.0.2 \
+    --hash=sha256:56ab63a105e8bb06ee67381d7b65fe6774f057e41a8bab06c8020c8882d8ecd4 \
+    --hash=sha256:b5bb1d11b2518a5f91372a282f24662f58f66749666b0a286ab057029f728080
     # via
     #   -r requirements.prod.in
     #   crispy-bootstrap4

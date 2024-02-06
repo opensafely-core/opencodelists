@@ -9,8 +9,8 @@ import { render, unmountComponentAtNode } from "react-dom";
 import { act } from "react-dom/test-utils";
 import "@testing-library/jest-dom";
 
-import CodelistBuilder from "../../../src/js/builder/codelistbuilder";
-import Hierarchy from "../../../src/js/hierarchy";
+import CodelistBuilder from "../../scripts/builder/codelistbuilder";
+import Hierarchy from "../../scripts/hierarchy";
 
 // See builder/management/commands/generate_builder_fixtures.py and
 // opencodelists/tests/fixtures.py for details about what these fixtures contain.

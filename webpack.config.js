@@ -1,13 +1,13 @@
-const path = require("path");
+const path = require("node:path");
 
 module.exports = {
   entry: {
-    builder: "./static/src/js/builder/index.jsx",
-    codelist: "./static/src/js/codelist.js",
-    tree: "./static/src/js/tree/index.jsx",
+    builder: "./assets/src/scripts/builder/index.jsx",
+    codelist: "./assets/src/scripts/codelist.js",
+    tree: "./assets/src/scripts/tree/index.jsx",
   },
   output: {
-    path: path.resolve(__dirname, "static", "dist", "js"),
+    path: path.resolve(__dirname, "assets", "dist", "js"),
     filename: "[name].bundle.js",
   },
   resolve: {

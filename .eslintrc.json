@@ -8,8 +8,11 @@
         "plugin:react/recommended",
         "prettier"
     ],
+    "globals": {
+        "$": "readonly"
+    },
     "ignorePatterns": [
-        "static/src/js/codelist.js"
+        "assets/src/scripts/codelist.js"
     ],
     "parserOptions": {
         "ecmaFeatures": {

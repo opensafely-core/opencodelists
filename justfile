@@ -152,13 +152,13 @@ fix: devenv
 
 # Runs the linter on JS files
 check-js: npm-install
-    npx prettier static/* --check
-    npx eslint static/src/js/builder/* static/src/js/hierarchy.js
+    npx prettier assets/src/**/*.js --check
+    npx eslint assets/src/**/*.js
 
 
 # fix js formatting
 fix-js: npm-install
-    npx prettier static/* --write
+    npx prettier assets/src/**/*.js --write
 
 
 # setup/update local dev environment

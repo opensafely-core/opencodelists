@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 
@@ -21,4 +22,16 @@ export default defineConfig({
   },
   clearScreen: false,
   plugins: [react()],
+  test: {
+    coverage: {
+      provider: "v8",
+      lines: 90,
+      functions: 90,
+      branches: 90,
+      statements: -10,
+    },
+    environment: "jsdom",
+    globals: true,
+    root: "./assets/src/scripts",
+  },
 });

@@ -1,6 +1,5 @@
-"use strict";
-
-import Hierarchy from "../scripts/hierarchy";
+import { expect, test } from "vitest";
+import Hierarchy from "../hierarchy";
 
 test("updateCodeToStatus", () => {
   const hierarchy = buildTestHierarchy();

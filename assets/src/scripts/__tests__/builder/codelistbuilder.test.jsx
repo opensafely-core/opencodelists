@@ -3,7 +3,7 @@ import { render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React from "react";
 
-import Hierarchy from "../../hierarchy";
+import Hierarchy from "../../_hierarchy";
 import CodelistBuilder from "../../builder/codelistbuilder";
 
 // See builder/management/commands/generate_builder_fixtures.py and

@@ -1,3 +1,24 @@
+// Fonts
+import "@fontsource/public-sans/400.css";
+import "@fontsource/public-sans/500.css";
+import "@fontsource/public-sans/600.css";
+import "@fontsource/public-sans/700.css";
+
+// jQuery
+import jQuery from "jquery/dist/jquery.slim";
+
+// define & and jQuery on the global window object
+Object.assign(window, { $: jQuery, jQuery });
+
+// Bootstrap
+import "bootstrap";
+import "bootstrap/dist/css/bootstrap.css";
+
+// Lite YouTube Embed
+import "lite-youtube-embed/src/lite-yt-embed";
+import "lite-youtube-embed/src/lite-yt-embed.css";
+
+// Styles
 import "../styles/base.css";
 
 if (document.location.hostname === "www.opencodelists.org") {

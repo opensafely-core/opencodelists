@@ -1,9 +1,9 @@
 import { createRoot } from "react-dom/client";
 import React from "react";
 
-import Hierarchy from "../hierarchy";
+import Hierarchy from "../_hierarchy";
 import TreeTables from "../common/tree-tables";
-import { readValueFromPage } from "../utils";
+import { readValueFromPage } from "../_utils";
 
 const hierarchy = new Hierarchy(
   readValueFromPage("parent-map"),

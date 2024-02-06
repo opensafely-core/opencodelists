@@ -110,7 +110,7 @@ just test-py
 just test-py <path/to/test>::<test name>
 
 # js tests
-just test-js
+just assets-test
 
 # all tests
 just test
@@ -125,7 +125,7 @@ just check
 just fix
 
 # js linting
-just check-js
+just assets-lint
 ```
 
 ### Using docker for development and tests

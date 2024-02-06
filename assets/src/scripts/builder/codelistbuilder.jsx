@@ -2,7 +2,7 @@ import React, { useRef } from "react";
 import Modal from "react-bootstrap/Modal";
 
 import TreeTables from "../common/tree-tables";
-import { getCookie } from "../utils";
+import { getCookie } from "../_utils";
 
 class CodelistBuilder extends React.Component {
   constructor(props) {

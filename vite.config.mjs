@@ -12,6 +12,7 @@ export default defineConfig({
         builder: "assets/src/scripts/builder/index.jsx",
         codelist: "assets/src/scripts/codelist.js",
         tree: "assets/src/scripts/tree/index.jsx",
+        "codelists-version": "assets/src/scripts/codelists-version.js",
       },
     },
     outDir: "assets/dist",

@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import Hierarchy from "../hierarchy";
+import Hierarchy from "../_hierarchy";
 
 test("updateCodeToStatus", () => {
   const hierarchy = buildTestHierarchy();

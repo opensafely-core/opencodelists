@@ -1,4 +1,4 @@
-*.sqlite3
+*.sqlite3*
 sql_dump/
 environment
 tmp
@@ -6,11 +6,12 @@ venv
 .venv
 __pycache__/
 .coverage
+.env
 .hypothesis
 htmlcov
 node_modules
-static/dist/js
 staticfiles/
 /assets/dist
+/assets/src/scripts/coverage
 /docker/docker-staticfiles/*
 docker/storage

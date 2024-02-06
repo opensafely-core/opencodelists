@@ -152,13 +152,12 @@ fix: devenv
 
 # Runs the linter on JS files
 check-js: npm-install
-    npx prettier assets/src/**/*.js --check
-    npx eslint assets/src/**/*.js
+    npm run lint
 
 
 # fix js formatting
 fix-js: npm-install
-    npx prettier assets/src/**/*.js --write
+    npm run lint:fix
 
 
 # setup/update local dev environment

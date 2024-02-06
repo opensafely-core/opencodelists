@@ -31,7 +31,7 @@ RUN --mount=type=cache,target=/var/cache/apt \
 #
 # Create node image.
 #
-FROM node:20.5.0 AS node-builder
+FROM node:20.11.0 AS node-builder
 COPY --from=base-python /root/docker-apt-install.sh /root/docker-apt-install.sh
 
 RUN /root/docker-apt-install.sh rsync
@@ -46,7 +46,7 @@ RUN --mount=type=cache,target=/usr/src/app/.npm \
     npm ci
 
 # copy just what npm build needs
-COPY webpack.config.js .babelrc .eslintrc.json .prettierrc .prettierignore ./
+COPY webpack.config.js .babelrc ./
 COPY assets ./assets
 RUN --mount=type=cache,target=./npm npm run build
 

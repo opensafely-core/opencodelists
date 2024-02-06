@@ -4,6 +4,10 @@ import "@fontsource/public-sans/500.css";
 import "@fontsource/public-sans/600.css";
 import "@fontsource/public-sans/700.css";
 
+// Bootstrap
+import "bootstrap";
+import "bootstrap/dist/css/bootstrap.css";
+
 // Styles
 import "../styles/base.css";
 

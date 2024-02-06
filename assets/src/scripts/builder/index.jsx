@@ -2,8 +2,8 @@ import { createRoot } from "react-dom/client";
 import React from "react";
 
 import CodelistBuilder from "./codelistbuilder";
-import Hierarchy from "../hierarchy";
-import { readValueFromPage } from "../utils";
+import Hierarchy from "../_hierarchy";
+import { readValueFromPage } from "../_utils";
 
 const hierarchy = new Hierarchy(
   readValueFromPage("parent-map"),

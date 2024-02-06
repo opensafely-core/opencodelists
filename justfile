@@ -128,13 +128,8 @@ test-py *ARGS: devenv
     --cov-report html \
     --cov-report term-missing:skip-covered {{ ARGS }}
 
-# Run the js tests
-test-js: npm-install
-    npm run test
-
-
 # Run all the tests
-test: test-js test-py
+test: assets-test test-py
 
 black *args=".": devenv
     $BIN/black --check {{ args }}
@@ -150,20 +145,9 @@ fix: devenv
     $BIN/black .
     $BIN/ruff --fix .
 
-# Runs the linter on JS files
-check-js: npm-install
-    npm run lint
-
-
-# fix js formatting
-fix-js: npm-install
-    npm run lint:fix
-
-
 # setup/update local dev environment
-dev-setup: devenv npm-install
+dev-setup: devenv assets
     $BIN/python manage.py migrate
-    $BIN/python manage.py collectstatic --no-input --clear | grep -v '^Deleting '
 
 
 # Run the dev project
@@ -171,21 +155,77 @@ run: devenv
     $BIN/python manage.py runserver localhost:7000
 
 
-# install all JS dependencies
-npm-install: check-fnm
-    fnm use
-    npm ci
-    npm run build-dev
+# Remove built assets and collected static files
+assets-clean:
+    rm -rf assets/dist
+    rm -rf staticfiles
 
 
-check-fnm:
+# Install the Node.js dependencies
+assets-install *args="":
     #!/usr/bin/env bash
     set -euo pipefail
 
-    if ! which fnm >/dev/null; then
-        echo >&2 "You must install fnm. See https://github.com/Schniz/fnm."
+
+    # exit if lock file has not changed since we installed them. -nt == "newer than",
+    # but we negate with || to avoid error exit code
+    test package-lock.json -nt node_modules/.written || exit 0
+
+    npm ci {{ args }}
+    touch node_modules/.written
+
+
+# Build the Node.js assets
+assets-build:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+
+    # find files which are newer than dist/.written in the src directory. grep
+    # will exit with 1 if there are no files in the result.  We negate this
+    # with || to avoid error exit code
+    # we wrap the find in an if in case dist/.written is missing so we don't
+    # trigger a failure prematurely
+    if test -f assets/dist/.written; then
+        find assets/src -type f -newer assets/dist/.written | grep -q . || exit 0
+    fi
+
+    npm run build && npm run vite:build
+    touch assets/dist/.written
+
+
+# Ensure django's collectstatic is run if needed
+collectstatic: devenv
+    ./scripts/collect-me-maybe.sh $BIN/python
+
+
+# install npm toolchain, build assets, and then collect assets
+assets: assets-install assets-build collectstatic
+
+
+# rebuild all npm/static assets
+assets-rebuild: assets-clean assets
+
+
+assets-run: assets-install
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    if [ "$ASSETS_DEV_MODE" == "False" ]; then
+        echo "Set ASSETS_DEV_MODE to a truthy value to run this command"
         exit 1
     fi
+
+    npm run dev
+
+
+assets-lint: assets-install
+    npm run lint
+
+
+assets-test: assets-install
+    npm run lint
+    npm run test:coverage
 
 
 # build docker image env=dev|prod

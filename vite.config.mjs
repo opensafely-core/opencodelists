@@ -14,7 +14,7 @@ export default defineConfig({
       },
     },
     outDir: "assets/dist",
-    emptyOutDir: true,
+    emptyOutDir: false,
   },
   server: {
     origin: "http://localhost:5173",

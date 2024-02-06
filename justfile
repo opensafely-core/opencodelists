@@ -190,7 +190,7 @@ assets-build:
         find assets/src -type f -newer assets/dist/.written | grep -q . || exit 0
     fi
 
-    npm run build && npm run vite:build
+    npm run build
     touch assets/dist/.written
 
 

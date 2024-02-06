@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
-{% load static %}
+
+{% load django_vite %}
 
 {% block content %}
 <h3 class="mt-4">{{ codelist_name }}</h3>
@@ -28,5 +29,15 @@
 {{ versions|json_script:"versions" }}
 {{ metadata|json_script:"metadata" }}
 
-<script src="{% static 'js/builder.bundle.js' %}"></script>
+{% if debug %}
+<script type="module" nonce="{{ request.csp_nonce }}">
+  import RefreshRuntime from 'http://localhost:5173/static/@react-refresh'
+  RefreshRuntime.injectIntoGlobalHook(window)
+  window.$RefreshReg$ = () => {}
+  window.$RefreshSig$ = () => (type) => type
+  window.__vite_plugin_react_preamble_installed__ = true
+</script>
+{% endif %}
+
+{% vite_asset "assets/src/scripts/builder/index.jsx" %}
 {% endblock %}

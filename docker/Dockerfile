@@ -46,7 +46,7 @@ RUN --mount=type=cache,target=/usr/src/app/.npm \
     npm ci
 
 # copy just what npm build needs
-COPY webpack.config.js .babelrc ./
+COPY vite.config.mjs ./
 COPY assets ./assets
 RUN --mount=type=cache,target=./npm npm run build
 

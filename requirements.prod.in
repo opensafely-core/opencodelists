@@ -15,6 +15,7 @@ django-debug-toolbar
 django-extensions
 django-structlog
 django-taggit
+django-vite
 environs[django]
 furl
 gunicorn

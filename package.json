@@ -31,6 +31,7 @@
     "@fontsource/public-sans": "^5.0.16",
     "bootstrap": "^4.6.2",
     "jquery": "^3.7.1",
+    "lite-youtube-embed": "^0.3.0",
     "react": "^18.2.0",
     "react-bootstrap": "^1.6.8",
     "react-dom": "^18.2.0"

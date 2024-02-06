@@ -60,3 +60,16 @@ a:focus {
 .footer p {
   margin-bottom: 0;
 }
+
+.youtube-embed {
+  display: block;
+  padding-block-end: 1rem;
+
+  &:not(:first-child) {
+    padding-block-start: 1rem;
+  }
+
+  lite-youtube {
+    margin: 0 auto;
+  }
+}

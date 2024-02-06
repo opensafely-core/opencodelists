@@ -14,6 +14,10 @@ Object.assign(window, { $: jQuery, jQuery });
 import "bootstrap";
 import "bootstrap/dist/css/bootstrap.css";
 
+// Lite YouTube Embed
+import "lite-youtube-embed/src/lite-yt-embed";
+import "lite-youtube-embed/src/lite-yt-embed.css";
+
 // Styles
 import "../styles/base.css";
 

@@ -1,8 +1,7 @@
 import React, { useRef } from "react";
 import Modal from "react-bootstrap/Modal";
-
-import TreeTables from "../common/tree-tables";
 import { getCookie } from "../_utils";
+import TreeTables from "../components/TreeTables";
 
 class CodelistBuilder extends React.Component {
   constructor(props) {

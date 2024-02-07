@@ -1,9 +1,8 @@
-import { createRoot } from "react-dom/client";
 import React from "react";
-
+import { createRoot } from "react-dom/client";
 import Hierarchy from "../_hierarchy";
-import TreeTables from "../common/tree-tables";
 import { readValueFromPage } from "../_utils";
+import TreeTables from "../components/TreeTables";
 
 const hierarchy = new Hierarchy(
   readValueFromPage("parent-map"),
@@ -27,12 +26,12 @@ const container = document.getElementById("codelist-tree");
 const root = createRoot(container);
 root.render(
   <TreeTables
-    hierarchy={hierarchy}
-    treeTables={treeTables}
     codeToStatus={codeToStatus}
     codeToTerm={codeToTerm}
-    visiblePaths={visiblePaths}
-    updateStatus={null}
+    hierarchy={hierarchy}
     showMoreInfoModal={null}
+    treeTables={treeTables}
+    updateStatus={null}
+    visiblePaths={visiblePaths}
   />,
 );

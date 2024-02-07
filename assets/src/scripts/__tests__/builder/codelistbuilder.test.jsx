@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event";
 import React from "react";
 
 import Hierarchy from "../../_hierarchy";
-import CodelistBuilder from "../../builder/codelistbuilder";
+import CodelistBuilder from "../../components/CodelistBuilder";
 
 // See builder/management/commands/generate_builder_fixtures.py and
 // opencodelists/tests/fixtures.py for details about what these fixtures contain.

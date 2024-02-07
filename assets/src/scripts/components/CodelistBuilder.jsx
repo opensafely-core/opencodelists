@@ -1,7 +1,13 @@
 import React, { useRef } from "react";
 import Modal from "react-bootstrap/Modal";
 import { getCookie } from "../_utils";
-import TreeTables from "../components/TreeTables";
+import Filter from "./Filter";
+import MoreInfoModal from "./MoreInfoModal";
+import Search from "./Search";
+import SearchForm from "./SearchForm";
+import Summary from "./Summary";
+import TreeTables from "./TreeTables";
+import Version from "./Version";
 
 class CodelistBuilder extends React.Component {
   constructor(props) {
@@ -166,8 +172,8 @@ class CodelistBuilder extends React.Component {
                   ))}
                   {this.props.searches.some((search) => search.active) ? (
                     <a
-                      href={this.props.draftURL}
                       className="list-group-item list-group-item-action py-1 font-italic"
+                      href={this.props.draftURL}
                     >
                       show all
                     </a>
@@ -181,8 +187,8 @@ class CodelistBuilder extends React.Component {
               <>
                 <h6>New search</h6>
                 <SearchForm
-                  searchURL={this.props.searchURL}
                   codingSystemName={this.props.metadata.coding_system_name}
+                  searchURL={this.props.searchURL}
                 />
                 <hr />
               </>
@@ -230,12 +236,12 @@ class CodelistBuilder extends React.Component {
             <hr />
             <TreeTables
               codeToStatus={this.state.codeToStatus}
-              hierarchy={this.props.hierarchy}
-              treeTables={this.props.treeTables}
               codeToTerm={this.props.codeToTerm}
-              visiblePaths={this.props.visiblePaths}
-              updateStatus={this.updateStatus}
+              hierarchy={this.props.hierarchy}
               showMoreInfoModal={this.showMoreInfoModal}
+              treeTables={this.props.treeTables}
+              updateStatus={this.updateStatus}
+              visiblePaths={this.props.visiblePaths}
             />
           </div>
         </div>
@@ -260,49 +266,49 @@ class CodelistBuilder extends React.Component {
 
     return (
       <>
-        <form method="post" ref={management_form}>
+        <form ref={management_form} method="post">
           <input
             id="csrfmiddlewaretoken"
-            type="hidden"
             name="csrfmiddlewaretoken"
+            type="hidden"
             value={getCookie("csrftoken")}
           />
-          <input id="action" type="hidden" name="action" value="" />
+          <input id="action" name="action" type="hidden" value="" />
           <div className="btn-group-vertical btn-block" role="group">
             {complete ? (
               <button
-                type="submit"
-                name="action"
-                value="save-for-review"
                 className="btn btn-outline-primary btn-block"
+                name="action"
+                type="submit"
+                value="save-for-review"
               >
                 Save for review
               </button>
             ) : (
               <button
-                type="button"
-                className="disabled btn btn-outline-secondary btn-block"
                 aria-disabled="true"
+                className="disabled btn btn-outline-secondary btn-block"
                 data-toggle="tooltip"
                 title="You cannot save for review until all search results are included or excluded"
+                type="button"
               >
                 Save for review
               </button>
             )}
             <button
-              type="submit"
-              name="action"
-              value="save-draft"
               className="btn btn-outline-primary btn-block"
+              name="action"
+              type="submit"
+              value="save-draft"
             >
               Save draft
             </button>
             <button
-              type="submit"
-              name="action"
-              value="discard"
               className="btn btn-outline-primary btn-block"
+              name="action"
               onClick={handleConfirmMsg}
+              type="submit"
+              value="discard"
             >
               Discard
             </button>
@@ -337,11 +343,11 @@ class CodelistBuilder extends React.Component {
     return (
       <MoreInfoModal
         code={code}
-        term={this.props.codeToTerm[code]}
-        status={this.state.codeToStatus[code]}
-        includedAncestorsText={includedAncestorsText}
         excludedAncestorsText={excludedAncestorsText}
         hideModal={this.hideMoreInfoModal}
+        includedAncestorsText={includedAncestorsText}
+        status={this.state.codeToStatus[code]}
+        term={this.props.codeToTerm[code]}
       />
     );
   }
@@ -357,7 +363,7 @@ class CodelistBuilder extends React.Component {
     };
 
     return (
-      <Modal show={this.state.showConfirmDiscardModal} centered>
+      <Modal centered show={this.state.showConfirmDiscardModal}>
         <Modal.Header>
           Are you sure you want to discard this draft?
         </Modal.Header>
@@ -374,223 +380,4 @@ class CodelistBuilder extends React.Component {
   }
 }
 
-function Filter(props) {
-  const { filter } = props;
-  return filter ? (
-    <p>Filtered to {filter} concepts and their descendants.</p>
-  ) : null;
-}
-
-function Search(props) {
-  const { search } = props;
-
-  return search.delete_url ? (
-    <form method="post" action={search.delete_url} className="mt-0 pt-0">
-      <input
-        type="hidden"
-        name="csrfmiddlewaretoken"
-        value={getCookie("csrftoken")}
-      />
-
-      <a
-        href={search.url}
-        className={
-          search.active
-            ? "list-group-item list-group-item-action active py-1 px-2"
-            : "list-group-item list-group-item-action py-1 px-2 "
-        }
-      >
-        {search.term_or_code}
-
-        <button
-          type="submit"
-          name="delete-search"
-          className="btn badge badge-secondary float-right"
-        >
-          x
-        </button>
-      </a>
-    </form>
-  ) : (
-    <a
-      href={search.url}
-      className={
-        search.active
-          ? "list-group-item list-group-item-action active py-1 px-2"
-          : "list-group-item list-group-item-action py-1 px-2 "
-      }
-    >
-      {search.term_or_code}
-    </a>
-  );
-}
-
-function Version(props) {
-  const { version } = props;
-
-  return (
-    <li>
-      {version.current ? (
-        version.tag_or_hash
-      ) : (
-        <a href={version.url}>{version.tag_or_hash}</a>
-      )}
-
-      {version.status === "draft" ? (
-        <>
-          {" "}
-          <span className="badge badge-primary">Draft</span>
-        </>
-      ) : null}
-
-      {version.status === "under review" ? (
-        <>
-          {" "}
-          <span className="badge badge-primary">Review</span>
-        </>
-      ) : null}
-    </li>
-  );
-}
-
-function SearchForm(props) {
-  const { searchURL, codingSystemName } = props;
-
-  return (
-    <form method="post" action={searchURL}>
-      <div className="form-group">
-        <input
-          type="hidden"
-          name="csrfmiddlewaretoken"
-          value={getCookie("csrftoken")}
-        />
-        <input
-          type="search"
-          className="form-control"
-          name="search"
-          placeholder="Term or code"
-        />
-      </div>
-      <div>
-        <button
-          type="submit"
-          name="field"
-          className="btn btn-sm btn-primary mr-1"
-        >
-          Search
-        </button>
-      </div>
-      <div>
-        <small className="form-text text-muted">
-          {codingSystemName === "ICD-10" ? (
-            <p>
-              To search by code, prefix your search with <code>code:</code>. For
-              instance, use <code>code:xyz</code> to find the concept with code{" "}
-              <code>xyz</code>, or <code>code:xyz*</code> to find all concepts
-              with codes beginning <code>xyz</code>. (Wildcard search only
-              available for ICD-10.)
-            </p>
-          ) : (
-            <p>
-              To search by code, prefix your search with <code>code:</code>. For
-              instance, use <code>code:xyz</code> to find the concept with code{" "}
-              <code>xyz</code>.
-            </p>
-          )}
-          <p>
-            Otherwise, searching will return all concepts with a description
-            containing the search term.
-          </p>
-          <p>
-            We plan to support boolean search operators (eg{" "}
-            <code>ambulatory AND blood pressure</code>) in future.
-          </p>
-        </small>
-      </div>
-    </form>
-  );
-}
-
-function MoreInfoModal(props) {
-  const {
-    code,
-    term,
-    status,
-    includedAncestorsText,
-    excludedAncestorsText,
-    hideModal,
-  } = props;
-
-  let text = null;
-
-  switch (status) {
-    case "+":
-      text = "Included";
-      break;
-    case "(+)":
-      text = `Included by ${includedAncestorsText}`;
-      break;
-    case "-":
-      text = "Excluded";
-      break;
-    case "(-)":
-      text = `Excluded by ${includedAncestorsText}`;
-      break;
-    case "?":
-      text = "Unresolved";
-      break;
-    case "!":
-      text = `In conflict!  Included by ${includedAncestorsText}, and excluded by ${excludedAncestorsText}`;
-      break;
-  }
-
-  return (
-    <Modal show={code !== null} onHide={hideModal} centered>
-      <Modal.Header closeButton>
-        {term} ({code})
-      </Modal.Header>
-      <Modal.Body>{text}</Modal.Body>
-    </Modal>
-  );
-}
-
-function Summary(props) {
-  return (
-    <>
-      <p>
-        Found <span id="summary-total">{props.counts.total}</span> matching
-        concepts (including descendants).
-      </p>
-      {props.counts["+"] > 0 && (
-        <p>
-          <span id="summary-included">
-            {props.counts["+"] + props.counts["(+)"]}
-          </span>{" "}
-          have been <a href="?filter=included">included</a> in the codelist.
-        </p>
-      )}
-      {props.counts["-"] > 0 && (
-        <p>
-          <span id="summary-excluded">
-            {props.counts["-"] + props.counts["(-)"]}
-          </span>{" "}
-          have been <a href="?filter=excluded">excluded</a> from the codelist.
-        </p>
-      )}
-      {props.counts["?"] > 0 && (
-        <p>
-          <span id="summary-unresolved">{props.counts["?"]}</span> are{" "}
-          <a href="?filter=unresolved">unresolved</a>.
-        </p>
-      )}
-      {props.counts["!"] > 0 && (
-        <p>
-          <span id="summary-in-conflict">{props.counts["!"]}</span> are{" "}
-          <a href="?filter=in-conflict">in conflict</a>.
-        </p>
-      )}
-    </>
-  );
-}
-
-export { CodelistBuilder as default };
+export default CodelistBuilder;

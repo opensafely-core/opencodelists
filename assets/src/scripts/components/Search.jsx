@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import React from "react";
 import { getCookie } from "../_utils";
 
@@ -44,3 +45,12 @@ function Search({ search }) {
 }
 
 export default Search;
+
+Search.propTypes = {
+  search: PropTypes.shape({
+    active: PropTypes.bool,
+    delete_url: PropTypes.string,
+    term_or_code: PropTypes.string,
+    url: PropTypes.string,
+  }),
+};

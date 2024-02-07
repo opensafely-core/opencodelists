@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import React from "react";
 import { getCookie } from "../_utils";
 
@@ -58,3 +59,8 @@ function SearchForm({ codingSystemName, searchURL }) {
 }
 
 export default SearchForm;
+
+SearchForm.propTypes = {
+  codingSystemName: PropTypes.string,
+  searchURL: PropTypes.string,
+};

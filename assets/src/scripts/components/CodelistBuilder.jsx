@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import React, { useRef } from "react";
 import Modal from "react-bootstrap/Modal";
 import { getCookie } from "../_utils";
@@ -381,3 +382,51 @@ class CodelistBuilder extends React.Component {
 }
 
 export default CodelistBuilder;
+
+CodelistBuilder.propTypes = {
+  allCodes: PropTypes.arrayOf(PropTypes.string),
+  codeToStatus: PropTypes.objectOf(PropTypes.string),
+  codeToTerm: PropTypes.objectOf(PropTypes.string),
+  draftURL: PropTypes.string,
+  filter: PropTypes.string,
+  hierarchy: PropTypes.shape({
+    ancestorMap: PropTypes.shape(),
+    childMap: PropTypes.objectOf(PropTypes.array),
+    nodes: PropTypes.shape(),
+    parentMap: PropTypes.objectOf(PropTypes.arrayOf(PropTypes.string)),
+    updateCodeToStatus: PropTypes.func,
+    significantAncestors: PropTypes.func,
+  }),
+  isEditable: PropTypes.bool,
+  metadata: PropTypes.shape({
+    codelist_full_slug: PropTypes.string,
+    coding_system_name: PropTypes.string,
+    hash: PropTypes.string,
+    organisation_name: PropTypes.string,
+    coding_system_release: PropTypes.shape({
+      release_name: PropTypes.string,
+      valid_from: PropTypes.string,
+    }),
+  }),
+  resultsHeading: PropTypes.string,
+  searches: PropTypes.arrayOf(
+    PropTypes.shape({
+      active: PropTypes.bool,
+      delete_url: PropTypes.string,
+      term_or_code: PropTypes.string,
+      url: PropTypes.string,
+    }),
+  ),
+  searchURL: PropTypes.string,
+  treeTables: PropTypes.arrayOf(PropTypes.array),
+  updateURL: PropTypes.string,
+  versions: PropTypes.arrayOf(
+    PropTypes.shape({
+      current: PropTypes.bool,
+      status: PropTypes.string,
+      tag_or_hash: PropTypes.string,
+      url: PropTypes.string,
+    }),
+  ),
+  visiblePaths: PropTypes.object,
+};

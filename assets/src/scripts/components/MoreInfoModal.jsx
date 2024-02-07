@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import React from "react";
 import { Modal } from "react-bootstrap";
 
@@ -43,3 +44,12 @@ function MoreInfoModal({
 }
 
 export default MoreInfoModal;
+
+MoreInfoModal.propTypes = {
+  code: PropTypes.string,
+  excludedAncestorsText: PropTypes.string,
+  hideModal: PropTypes.func,
+  includedAncestorsText: PropTypes.string,
+  status: PropTypes.string,
+  term: PropTypes.string,
+};

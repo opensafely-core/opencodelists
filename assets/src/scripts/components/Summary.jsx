@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import React from "react";
 
 function Summary({ counts }) {
@@ -36,3 +37,15 @@ function Summary({ counts }) {
 }
 
 export default Summary;
+
+Summary.propTypes = {
+  counts: PropTypes.shape({
+    "!": PropTypes.number,
+    "(+)": PropTypes.number,
+    "(-)": PropTypes.number,
+    "+": PropTypes.number,
+    "-": PropTypes.number,
+    "?": PropTypes.number,
+    total: PropTypes.number,
+  }),
+};

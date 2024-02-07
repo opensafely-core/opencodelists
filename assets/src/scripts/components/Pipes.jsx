@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import React from "react";
 
 function Pipes({ pipes }) {
@@ -18,3 +19,7 @@ function Pipes({ pipes }) {
 }
 
 export default Pipes;
+
+Pipes.propTypes = {
+  pipes: PropTypes.arrayOf(PropTypes.string),
+};

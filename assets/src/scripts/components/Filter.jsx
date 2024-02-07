@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import React from "react";
 
 function Filter({ filter }) {
@@ -7,3 +8,7 @@ function Filter({ filter }) {
 }
 
 export default Filter;
+
+Filter.propTypes = {
+  filter: PropTypes.string,
+};

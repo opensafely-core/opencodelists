@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import React from "react";
 import { Button } from "react-bootstrap";
 
@@ -16,3 +17,8 @@ function MoreInfoButton({ code, showMoreInfoModal }) {
 }
 
 export default MoreInfoButton;
+
+MoreInfoButton.propTypes = {
+  code: PropTypes.string,
+  showMoreInfoModal: PropTypes.func,
+};

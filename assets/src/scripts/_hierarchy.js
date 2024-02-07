@@ -84,7 +84,7 @@ class Hierarchy {
       return "-";
     }
 
-    const { includedAncestors, excludedAncestors } = this.significantAncestors(
+    const { excludedAncestors, includedAncestors } = this.significantAncestors(
       code,
       included,
       excluded,

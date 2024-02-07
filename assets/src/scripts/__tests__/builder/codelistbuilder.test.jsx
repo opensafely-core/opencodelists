@@ -2,13 +2,11 @@ import "@testing-library/jest-dom";
 import { render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React from "react";
-
+import { vi } from "vitest";
 import Hierarchy from "../../_hierarchy";
 import CodelistBuilder from "../../components/CodelistBuilder";
-
 // See builder/management/commands/generate_builder_fixtures.py and
 // opencodelists/tests/fixtures.py for details about what these fixtures contain.
-import { vi } from "vitest";
 import * as versionFromScratchData from "../fixtures/version_from_scratch.json";
 import * as versionWithCompleteSearchesData from "../fixtures/version_with_complete_searches.json";
 import * as versionWithNoSearchesData from "../fixtures/version_with_no_searches.json";
@@ -34,21 +32,21 @@ const testRender = (data) => {
 
   render(
     <CodelistBuilder
-      searches={data.searches}
-      filter={data.filter}
-      treeTables={data.tree_tables}
+      allCodes={data.all_codes}
       codeToStatus={data.code_to_status}
       codeToTerm={data.code_to_term}
-      visiblePaths={visiblePaths}
-      allCodes={data.all_codes}
-      includedCodes={data.included_codes}
       excludedCodes={data.excluded_codes}
-      isEditable={data.is_editable}
-      updateURL={data.update_url}
-      searchURL={data.search_url}
-      versions={data.versions}
-      metadata={data.metadata}
+      filter={data.filter}
       hierarchy={hierarchy}
+      includedCodes={data.included_codes}
+      isEditable={data.is_editable}
+      metadata={data.metadata}
+      searches={data.searches}
+      searchURL={data.search_url}
+      treeTables={data.tree_tables}
+      updateURL={data.update_url}
+      versions={data.versions}
+      visiblePaths={visiblePaths}
     />,
   );
 };
@@ -169,21 +167,21 @@ it("does the right thing when clicking around", async () => {
 
   render(
     <CodelistBuilder
-      searches={data.searches}
-      filter={data.filter}
-      treeTables={data.tree_tables}
+      allCodes={data.all_codes}
       codeToStatus={data.code_to_status}
       codeToTerm={data.code_to_term}
-      visiblePaths={visiblePaths}
-      allCodes={data.all_codes}
-      includedCodes={data.included_codes}
       excludedCodes={data.excluded_codes}
-      isEditable={data.is_editable}
-      updateURL={data.update_url}
-      searchURL={data.search_url}
-      versions={data.versions}
-      metadata={data.metadata}
+      filter={data.filter}
       hierarchy={hierarchy}
+      includedCodes={data.included_codes}
+      isEditable={data.is_editable}
+      metadata={data.metadata}
+      searches={data.searches}
+      searchURL={data.search_url}
+      treeTables={data.tree_tables}
+      updateURL={data.update_url}
+      versions={data.versions}
+      visiblePaths={visiblePaths}
     />,
   );
 

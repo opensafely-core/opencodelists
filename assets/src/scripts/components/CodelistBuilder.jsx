@@ -227,7 +227,7 @@ class CodelistBuilder extends React.Component {
             <h6>Versions</h6>
             <ul className="pl-3">
               {this.props.versions.map((version) => (
-                <Version key={version.hash} version={version} />
+                <Version key={version.tag_or_hash} version={version} />
               ))}
             </ul>
           </div>

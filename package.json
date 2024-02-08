@@ -24,7 +24,7 @@
     "eslint-plugin-react": "^7.33.2",
     "jsdom": "^24.0.0",
     "prettier": "^3.2.5",
-    "vite": "^5.0.12",
+    "vite": "^5.1.0",
     "vitest": "^1.2.2"
   },
   "dependencies": {

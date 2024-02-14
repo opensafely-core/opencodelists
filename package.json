@@ -20,8 +20,10 @@
     "babel-loader": "^9.1.3",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-prettier": "^5.1.3",
     "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-sort-destructure-keys": "^1.5.0",
     "jsdom": "^24.0.0",
     "prettier": "^3.2.5",
     "vite": "^5.1.1",
@@ -33,6 +35,7 @@
     "datatables.net-bs4": "^1.13.10",
     "jquery": "^3.7.1",
     "lite-youtube-embed": "^0.3.0",
+    "prop-types": "^15.8.1",
     "react": "^18.2.0",
     "react-bootstrap": "^1.6.8",
     "react-dom": "^18.2.0"
@@ -76,11 +79,48 @@
     },
     "plugins": [
       "prettier",
-      "react"
+      "react",
+      "import",
+      "sort-destructure-keys"
     ],
     "rules": {
       "prettier/prettier": "error",
-      "react/prop-types": "off"
+      "sort-destructure-keys/sort-destructure-keys": 2,
+      "react/jsx-props-no-spreading": "off",
+      "react/jsx-sort-props": [
+        "error",
+        {
+          "ignoreCase": true,
+          "reservedFirst": true
+        }
+      ],
+      "react/function-component-definition": [
+        2,
+        {
+          "namedComponents": "function-declaration",
+          "unnamedComponents": "arrow-function"
+        }
+      ],
+      "import/order": [
+        "error",
+        {
+          "groups": [
+            [
+              "builtin",
+              "external",
+              "internal"
+            ],
+            "parent",
+            "sibling",
+            "index"
+          ],
+          "newlines-between": "never",
+          "alphabetize": {
+            "order": "asc",
+            "caseInsensitive": true
+          }
+        }
+      ]
     },
     "settings": {
       "react": {

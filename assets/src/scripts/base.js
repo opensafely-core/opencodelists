@@ -22,10 +22,16 @@ import "lite-youtube-embed/src/lite-yt-embed.css";
 import "../styles/base.css";
 
 if (document.location.hostname === "www.opencodelists.org") {
-  var script = document.createElement("script");
+  /**
+   * <script
+   *   defer
+   *   data-domain="opencodelists.org"
+   *   src="https://plausible.io/js/script.js"
+   * ></script>
+   */
+  const script = document.createElement("script");
   script.defer = true;
   script.setAttribute("data-domain", "opencodelists.org");
-  script.id = "plausible";
-  script.src = "https://plausible.io/js/plausible.compat.js";
+  script.src = "https://plausible.io/js/script.js";
   document.head.appendChild(script);
 }

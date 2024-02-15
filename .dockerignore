@@ -1,0 +1,16 @@
+.git/
+.github/
+.pre-commit-config.yaml
+.direnv
+.venv/
+venv/
+.coverage
+htmlcov/
+pyproject.toml
+**/*.pyc
+**/__pycache__/
+node_modules/
+# docker image builds its own dir
+staticfiles/
+# dockerfile image build its own dir
+assets/dist/

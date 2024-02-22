@@ -230,10 +230,12 @@ django==4.2.4 \
     #   django-taggit
     #   django-vite
     #   djangorestframework
-django-anymail[mailgun]==10.1 \
-    --hash=sha256:5c4f26bd0f5507324ed1da31e430bca3293bb2c16f386e813484f2ea2df83d06 \
-    --hash=sha256:e0a65c1e235dcb863dab67a3e193e899a48503b650df483d7b73f73983fd874b
-    # via -r requirements.prod.in
+django-anymail[mailgun]==10.2 \
+    --hash=sha256:1f3006d3b16874aaa32976078da6cdc9baa7f5274cf80e3fc51a288887617aaf \
+    --hash=sha256:ca273abbc04b5ce06d1f3b3e5f28e2d79331519198fa6d6b5ba1b5aa5eea02f7
+    # via
+    #   -r requirements.prod.in
+    #   django-anymail
 django-cache-url==3.4.4 \
     --hash=sha256:5ca4760b4580b80e41279bc60d1e5c16a822e4e462265faab0a330701bb0ef9a \
     --hash=sha256:ef2cfacea361ee22e9b67d6ca941db22e0a9eaf892b67ca71cad52c62a17fd36

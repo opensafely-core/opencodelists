@@ -167,7 +167,7 @@ LABEL org.opencontainers.image.title="opencodelists" \
 COPY . /app
 
 # collect static files
-RUN SECRET_KEY=dummy-key \
+RUN TRUD_API_KEY=dummy-key SECRET_KEY=dummy-key \
     python /app/manage.py collectstatic --no-input
 
 ENTRYPOINT ["/app/docker/entrypoints/prod.sh"]

@@ -548,9 +548,9 @@ requests==2.31.0 \
     # via
     #   -c requirements.prod.txt
     #   responses
-responses==0.23.1 \
-    --hash=sha256:8a3a5915713483bf353b6f4079ba8b2a29029d1d1090a503c70b0dc5d9d0c7bd \
-    --hash=sha256:c4d9aa9fc888188f0c673eff79a8dadbe2e75b7fe879dc80a221a06e0a68138f
+responses==0.25.0 \
+    --hash=sha256:01ae6a02b4f34e39bffceb0fc6786b67a25eae919c6368d05eabc8d9576c2a66 \
+    --hash=sha256:2f0b9c2b6437db4b528619a77e5d565e4ec2a9532162ac1a131a83529db7be1a
     # via -r requirements.dev.in
 ruff==0.1.15 \
     --hash=sha256:1bab866aafb53da39c2cadfb8e1c4550ac5340bb40300083eb8967ba25481447 \
@@ -594,10 +594,6 @@ tabulate[widechars]==0.9.0 \
     # via
     #   cli-helpers
     #   tabulate
-types-pyyaml==6.0.12.9 \
-    --hash=sha256:5aed5aa66bd2d2e158f75dda22b059570ede988559f030cf294871d3b647e3e8 \
-    --hash=sha256:c51b1bd6d99ddf0aa2884a7a328810ebf70a4262c292195d3f4f9a0005f9eeb6
-    # via responses
 tzdata==2023.3 \
     --hash=sha256:11ef1e08e54acb0d4f95bdb1be05da659673de4acbd21bf9c69e94cc5e907a3a \
     --hash=sha256:7e65763eef3120314099b6939b5546db7adce1e7d6f2e179e3df563c70511eda

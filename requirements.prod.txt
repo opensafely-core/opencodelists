@@ -615,9 +615,9 @@ sqlparse==0.4.4 \
     # via
     #   django
     #   django-debug-toolbar
-structlog==23.1.0 \
-    --hash=sha256:270d681dd7d163c11ba500bc914b2472d2b50a8ef00faa999ded5ff83a2f906b \
-    --hash=sha256:79b9e68e48b54e373441e130fa447944e6f87a05b35de23138e475c05d0f7e0e
+structlog==24.1.0 \
+    --hash=sha256:3f6efe7d25fab6e86f277713c218044669906537bb717c1807a09d46bca0714d \
+    --hash=sha256:41a09886e4d55df25bdcb9b5c9674bccfab723ff43e0a86a1b7b236be8e57b16
     # via
     #   -r requirements.prod.in
     #   django-structlog

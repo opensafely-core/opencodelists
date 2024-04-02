@@ -1,37 +1,36 @@
+import pandas as pd
 from django.db import transaction
-from openpyxl import load_workbook
 
 from .models import Mapping
 
 
 def import_data(filename):
     def load_records():
-        wb = load_workbook(filename=filename)
-        rows = wb.active.rows
+        column_names = {
+            "VMP / VMPP/ AMP / AMPP": "dmd_type",
+            "BNF Code": "bnf_code",
+            "SNOMED Code": "dmd_code",
+        }
+        # This will fail with ValueError if the columns don't match.
+        df = pd.read_excel(
+            io=filename,
+            dtype=object,
+            usecols=column_names.keys(),
+        )
 
-        headers = next(rows)
-        assert headers[1].value == "VMP / VMPP/ AMP / AMPP"
-        assert headers[2].value == "BNF Code"
-        assert headers[4].value == "SNOMED Code"
+        df = df.rename(columns=column_names)
+        df = df.dropna(subset=["bnf_code", "dmd_code"])
 
-        for row in rows:
-            dmd_type = row[1].value
-            bnf_code = row[2].value
-            dmd_code = row[4].value
+        # In older versions of the spreadsheet, we have seen large numeric codes
+        # prefixed with a single quote, presumably to stop them being rounded.
+        assert "'" not in df["bnf_code"].str[0].values
+        assert "'" not in df["dmd_code"].str[0].values
 
-            if not bnf_code or not dmd_code:
-                continue
-
-            # In older versions of the spreadsheet, we have seen large numeric codes
-            # prefixed with a single quote, presumably to stop them being rounded.
-            assert bnf_code[0] != "'"
-            assert dmd_code[0] != "'"
-
-            yield [dmd_code, dmd_type, bnf_code]
+        return df.itertuples(index=False)
 
     with transaction.atomic():
         Mapping.objects.all().delete()
         Mapping.objects.bulk_create(
-            Mapping(dmd_code=r[0], dmd_type=r[1], bnf_concept_id=r[2])
+            Mapping(dmd_code=r.dmd_code, dmd_type=r.dmd_type, bnf_concept_id=r.bnf_code)
             for r in load_records()
         )

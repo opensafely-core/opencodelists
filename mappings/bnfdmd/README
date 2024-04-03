@@ -14,7 +14,7 @@ xlsx file.
 
 To import the data, unzip the file and run:
 
-    ./manage.py import_mapping_data mapping.bnfdmd path/to/xlsx/file
+    ./manage.py import_mapping_data mappings.bnfdmd path/to/xlsx/file
 
 
 [0] https://www.bennett.ox.ac.uk/blog/2019/08/what-is-the-dm-d-the-nhs-dictionary-of-medicines-and-devices/

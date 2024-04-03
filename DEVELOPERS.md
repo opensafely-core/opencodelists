@@ -245,3 +245,7 @@ On dokku3:
 ### Import codelists from an xlsx file
 
 See [codelists/scripts/README.md](codelists/scripts/README.md#bulk-import-codelists-from-an-xlsx-file)
+
+## Updating mappings
+
+See the relevant README in each of the subdirectories inside [mappings/](mappings/).

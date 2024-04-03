@@ -242,4 +242,4 @@ On dokku3:
 
 ### Import codelists from an xlsx file
 
-See [codelists/scripts/README.md](codelists/scripts/README.md#bulk-import-codelists-from an-xlsx-file)
+See [codelists/scripts/README.md](codelists/scripts/README.md#bulk-import-codelists-from-an-xlsx-file)

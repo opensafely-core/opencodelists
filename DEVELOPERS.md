@@ -156,6 +156,8 @@ Run a command in the dev docker containter
 just docker-run <command>
 ```
 
+## Other production maintenance tasks
+
 ### Manually creating and updating codelist versions
 
 Currently OpenCodelists handles multiple coding system releases, however it can't always handle

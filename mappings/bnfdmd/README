@@ -14,8 +14,14 @@ xlsx file.
 
 To import the data, unzip the file and run:
 
-    ./manage.py import_mapping_data mapping.bnfdmd path/to/xlsx/file
+    ./manage.py import_mapping_data mappings.bnfdmd path/to/xlsx/file
 
+As a simple post-import check, you could compare the count of the imported mappings:
+
+>>> from mappings.bnfdmd.models import Mapping
+>>> Mapping.objects.count()
+
+against the number of the corresponding rows of the spreadsheet which have both a BNF and DMD code.
 
 [0] https://www.bennett.ox.ac.uk/blog/2019/08/what-is-the-dm-d-the-nhs-dictionary-of-medicines-and-devices/
 [1] https://www.bennett.ox.ac.uk/blog/2022/11/difference-between-bnf-dm-d-and-snomed-ct-codes/

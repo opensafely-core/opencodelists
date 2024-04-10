@@ -20,5 +20,5 @@ imported.
 If the historical data needs to be re-imported, it can be run with:
 
     dokku run opencodelists python manage.py \
-    import_mapping_data mapping.dmdvmpprevmap \
+    import_mapping_data mappings.dmdvmpprevmap \
     /storage/data/dmdvmpprevmap/dmd_vpid_vpidprev_mapping_20221208.csv.gz

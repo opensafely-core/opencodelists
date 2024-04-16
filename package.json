@@ -26,7 +26,7 @@
     "eslint-plugin-sort-destructure-keys": "^1.5.0",
     "jsdom": "^24.0.0",
     "prettier": "^3.2.5",
-    "vite": "^5.2.8",
+    "vite": "^5.2.9",
     "vitest": "^1.5.0"
   },
   "dependencies": {

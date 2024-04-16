@@ -2,6 +2,7 @@
 Generate a JSON containing the context that is passed to the page by
 builder.views.codelist, for use in testing frontend code.
 """
+
 import json
 from pathlib import Path
 

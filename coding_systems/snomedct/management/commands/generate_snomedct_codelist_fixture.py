@@ -3,6 +3,7 @@ THIS COMMAND DOES NOT CURRENTLY WORK.  WHEN REWRITTEN, IT SHOULD USE ecl_parser.
 
 Generate a CSV file for containing codes derived from the given definition fragments.
 """
+
 import csv
 
 from django.core.management import BaseCommand

@@ -5,6 +5,7 @@ these Concepts.
 
 The generated fixture can be loaded with `loaddata`.
 """
+
 from operator import attrgetter
 
 from django.core import serializers

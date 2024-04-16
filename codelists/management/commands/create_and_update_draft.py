@@ -13,7 +13,6 @@ User = get_user_model()
 
 
 class Command(BaseCommand):
-
     """
     Create a new draft from a CodelistVersion, using the most recent coding system release. Then
     update the draft to assign statuses to any unknown codes that we can, and report the results.

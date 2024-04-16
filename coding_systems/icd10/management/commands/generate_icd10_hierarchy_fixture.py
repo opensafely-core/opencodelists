@@ -3,6 +3,7 @@ Generate a JSON fixture containing every Concept related to Concepts with given 
 
 The generated fixture can be loaded with `loaddata`.
 """
+
 from operator import attrgetter
 
 from django.core import serializers

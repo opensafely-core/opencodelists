@@ -13,7 +13,6 @@ logger = structlog.get_logger()
 
 
 class Command(BaseCommand):
-
     """
     Convert BNF codelist versions to new dm+d codelist.
 

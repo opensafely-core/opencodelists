@@ -14,7 +14,6 @@ logger = structlog.get_logger()
 
 
 class Command(BaseCommand):
-
     """
     Update a draft's codeset; required if a coding system has changed since the draft was created.
 

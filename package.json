@@ -30,7 +30,7 @@
     "vitest": "^1.5.0"
   },
   "dependencies": {
-    "@fontsource/public-sans": "^5.0.17",
+    "@fontsource/public-sans": "^5.0.18",
     "bootstrap": "4.6.2",
     "datatables.net-bs4": "1.13.10",
     "jquery": "3.7.1",

@@ -36,9 +36,9 @@
     "jquery": "3.7.1",
     "lite-youtube-embed": "^0.3.2",
     "prop-types": "^15.8.1",
-    "react": "^18.2.0",
+    "react": "^18.3.1",
     "react-bootstrap": "1.6.8",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.3.1"
   },
   "repository": {
     "type": "git",

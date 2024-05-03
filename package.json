@@ -32,7 +32,7 @@
   "dependencies": {
     "@fontsource/public-sans": "^5.0.18",
     "bootstrap": "4.6.2",
-    "datatables.net-bs4": "1.13.10",
+    "datatables.net-bs4": "2.0.6",
     "jquery": "3.7.1",
     "lite-youtube-embed": "^0.3.2",
     "prop-types": "^15.8.1",

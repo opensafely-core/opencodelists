@@ -5,35 +5,45 @@ BNF codes are used to identify anything that is prescribed in England (and maybe
 
 For more details, see [our most popular blog post][0].
 
-We obtain the raw data from [the BSA][1].
+We obtain the data from the BSA.
 New releases are published annually, sometimes with unannounced mid-year updates.
-The release page will display the current release number for the year as of 1st Jan (e.g. "01-01-2022: 82");
-updates are identified by the date in the downloaded filename.
+[The release page][1] displays the date and number of each release.
+For example, in "01-01-2024 : 86", "01-01-2024" is the date and "86" is the number.
+The release page displays mid-year updates using the same dates and numbers as their associated releases.
+The date of a mid-year update is contained in the name of the associated zipfile.
+For example, in `20240502_1714657404842_BNF_Code_Information.zip`, the date of the mid-year update is "20240502".
+The number of a mid-year update is the same as that of the associated release.
 
-Download the latest release, which will be a zipfile named something like `20220701_1656687539491_BNF_Code_Information.zip`.
-Add this to the BNF data folder on dokku3, at `/var/lib/dokku/data/storage/opencodelists/data/bnf/`.
+Download and copy the latest release's zipfile to the BNF data folder on dokku3,
+at `/var/lib/dokku/data/storage/opencodelists/data/bnf/`.
 
 To import the data, run:
 
 ```sh
-./manage.py bnf
-path/to/zip/file/in/dokku/app
---release <release_name> --valid-from YYYY-MM-DD --import-ref <ref>
+./manage.py import_coding_system_data bnf
+/storage/data/bnf/<zipfile>
+--release <release_name>
+--valid-from <valid_from>
+--import-ref <import_ref>
 ```
 
-- `release` is a short label for this coding system release - the official version number as described above plus the date of any update.
-- `valid-from` is the date that this release is valid from (NOT the date it is being imported into OpenCodelists), in YYYY-MM-DD format.
-- `import-ref` is an optional long-form reference field for any other potential references or comments on this import if desired. Include at least the full downloaded zipfile here.
+- `release_name` is the name of the release in `<number> (<date>)` format.
+  `<number>` is the number of the release.
+  (Remember that the number of a mid-year update is the same as that of the associated release.)
+  `<date>` is the date of the release/mid-year update in `YYYY-MM-DD` format.
+- `valid_from` is the date of the release/mid-year update in `YYYY-MM-DD` format.
+  (It is *not* the date the data are imported into OpenCodelists.)
+- `import_ref` is an optional reference for any other information. Include the name of the zipfile.
 
-For the example above (`20220701_1656687539491_BNF_Code_Information.zip`),
+For the example above (`20240502_1714657404842_BNF_Code_Information.zip`),
 the data should be imported with:
 
 ```sh
 dokku run opencodelists python manage.py import_coding_system_data bnf
-/storage/data/bnf/20220701_1656687539491_BNF_Code_Information.zip
---release '82 (2022-07-01)'
---valid-from 2022-07-01
---import-ref 20220701_1656687539491_BNF_Code_Information.zip
+/storage/data/bnf/20240502_1714657404842_BNF_Code_Information.zip
+--release '86 (2024-05-02)'
+--valid-from 2024-05-02
+--import-ref 20240502_1714657404842_BNF_Code_Information.zip
 ```
 
 After importing, restart the opencodelists app with:

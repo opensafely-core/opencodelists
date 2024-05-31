@@ -3,9 +3,9 @@ BNF
 
 BNF codes are used to identify anything that is prescribed in England (and maybe elsewhere).
 
-For more details, see our most popular blog post [0].
+For more details, see [our most popular blog post][0].
 
-We obtain the raw data from the BSA [1].  New releases are published annually, sometimes
+We obtain the raw data from [the BSA][1].  New releases are published annually, sometimes
 with unannounced mid-year updates.  The release page will display the current release number for the year as of 1st Jan (e.g. "01-01-2022: 82"); updates are identified by the date in the downloaded filename.
 
 Download the latest release, which will be a zipfile named something like `20220701_1656687539491_BNF_Code_Information.zip`.  Add this to the BNF data folder on dokku3, at
@@ -38,5 +38,5 @@ After importing, restart the opencodelists app with:
 
     dokku ps:restart opencodelists
 
-[0] https://www.bennett.ox.ac.uk/blog/2017/04/prescribing-data-bnf-codes/
-[1] https://applications.nhsbsa.nhs.uk/infosystems/data/showDataSelector.do?reportId=126
+[0]: https://www.bennett.ox.ac.uk/blog/2017/04/prescribing-data-bnf-codes/
+[1]: https://applications.nhsbsa.nhs.uk/infosystems/data/showDataSelector.do?reportId=126

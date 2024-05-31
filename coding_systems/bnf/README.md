@@ -15,9 +15,11 @@ Add this to the BNF data folder on dokku3, at `/var/lib/dokku/data/storage/openc
 
 To import the data, run:
 
-    ./manage.py bnf
-    path/to/zip/file/in/dokku/app
-    --release <release_name> --valid-from YYYY-MM-DD --import-ref <ref>
+```sh
+./manage.py bnf
+path/to/zip/file/in/dokku/app
+--release <release_name> --valid-from YYYY-MM-DD --import-ref <ref>
+```
 
 - `release` is a short label for this coding system release - the official version number as described above plus the date of any update.
 - `valid-from` is the date that this release is valid from (NOT the date it is being imported into OpenCodelists), in YYYY-MM-DD format.
@@ -26,15 +28,19 @@ To import the data, run:
 For the example above (`20220701_1656687539491_BNF_Code_Information.zip`),
 the data should be imported with:
 
-    dokku run opencodelists python manage.py import_coding_system_data bnf
-    /storage/data/bnf/20220701_1656687539491_BNF_Code_Information.zip
-    --release '82 (2022-07-01)'
-    --valid-from 2022-07-01
-    --import-ref 20220701_1656687539491_BNF_Code_Information.zip
+```sh
+dokku run opencodelists python manage.py import_coding_system_data bnf
+/storage/data/bnf/20220701_1656687539491_BNF_Code_Information.zip
+--release '82 (2022-07-01)'
+--valid-from 2022-07-01
+--import-ref 20220701_1656687539491_BNF_Code_Information.zip
+```
 
 After importing, restart the opencodelists app with:
 
-    dokku ps:restart opencodelists
+```sh
+dokku ps:restart opencodelists
+```
 
 [0]: https://www.bennett.ox.ac.uk/blog/2017/04/prescribing-data-bnf-codes/
 [1]: https://applications.nhsbsa.nhs.uk/infosystems/data/showDataSelector.do?reportId=126

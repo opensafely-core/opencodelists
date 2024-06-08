@@ -1,4 +1,4 @@
-# note: we do not run prod service with docker-compose, we use it just for
+# note: we do not run prod service with Docker Compose, we use it just for
 # configuring the production build
 services:
   # base service, exists to hold common config, but is not actually used directly

@@ -6,7 +6,6 @@ set dotenv-load := true
 
 # enable modern docker build features
 export DOCKER_BUILDKIT := "1"
-export COMPOSE_DOCKER_CLI_BUILD := "1"
 
 export BIN := "/opt/venv/bin"
 
@@ -22,22 +21,22 @@ build env="dev":
     export GITREF=$(git rev-parse --short HEAD)
 
     # build the thing
-    docker-compose build --pull {{ env }}
+    docker compose build --pull {{ env }}
 
 
 # run JS linter
 check-js:
-    docker-compose run --rm node-assets npm run lint
+    docker compose run --rm node-assets npm run lint
 
 
 # run python checks
 check-py: build
-    docker-compose run --rm dev /app/docker/entrypoints/check.sh
+    docker compose run --rm dev /app/docker/entrypoints/check.sh
 
 
 # run tests in docker container
 test-py *args="":
-    docker-compose run --rm test python -m pytest \
+    docker compose run --rm test python -m pytest \
     --cov=builder \
     --cov=codelists \
     --cov=coding_systems \
@@ -47,7 +46,7 @@ test-py *args="":
     --cov-report term-missing:skip-covered {{ args }}
 
 test-js:
-    docker-compose run --rm node-assets npm run test
+    docker compose run --rm node-assets npm run test
 
 test: test-js test-py
 
@@ -66,17 +65,17 @@ _create_storage env:
 
 # run dev server in docker container
 serve env="dev" *args="": (_create_storage env)
-    docker-compose up {{ args }} {{ env }}
+    docker compose up {{ args }} {{ env }}
 
 
 # run command in dev container
 run *args="bash":
-    docker-compose run dev {{ args }}
+    docker compose run dev {{ args }}
 
 
 # exec command in existing dev container
 exec *args="bash":
-    docker-compose exec dev {{ args }}
+    docker compose exec dev {{ args }}
 
 
 # run a basic functional smoke test against a running opencodelists

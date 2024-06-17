@@ -12,7 +12,7 @@
     "test:single": "npx vitest -t"
   },
   "devDependencies": {
-    "@testing-library/jest-dom": "^6.4.5",
+    "@testing-library/jest-dom": "^6.4.6",
     "@testing-library/react": "^16.0.0",
     "@testing-library/user-event": "^14.5.2",
     "@vitejs/plugin-react-swc": "^3.7.0",
@@ -25,8 +25,8 @@
     "eslint-plugin-react": "^7.34.2",
     "eslint-plugin-sort-destructure-keys": "^2.0.0",
     "jsdom": "^24.1.0",
-    "prettier": "^3.3.0",
-    "vite": "^5.2.12",
+    "prettier": "^3.3.2",
+    "vite": "^5.3.1",
     "vitest": "^1.6.0"
   },
   "dependencies": {

@@ -10,7 +10,9 @@ from opencodelists.tests.assertions import assert_difference, assert_no_differen
 
 
 def test_codelists_get(client, organisation):
-    rsp = client.get(f"/api/v1/codelist/{organisation.slug}/")
+    rsp = client.get(
+        f"/api/v1/codelist/{organisation.slug}/?description&methodology&references"
+    )
     data = json.loads(rsp.content)
     assert rsp.status_code == 200
 
@@ -23,6 +25,12 @@ def test_codelists_get(client, organisation):
             "coding_system_id": "bnf",
             "organisation": "Test University",
             "user": "",
+            "description": None,
+            "methodology": None,
+            "references": [
+                {"text": "Reference 1", "url": "https://example.com/reference1"},
+                {"text": "Reference 2", "url": "https://example.com/reference2"},
+            ],
             "versions": [
                 {
                     "hash": "69a34cc0",
@@ -48,6 +56,9 @@ def test_codelists_get(client, organisation):
             "name": "Codelist From Scratch",
             "organisation": "Test University",
             "user": "",
+            "description": None,
+            "methodology": None,
+            "references": [],
             "coding_system_id": "snomedct",
             "versions": [
                 {
@@ -67,6 +78,9 @@ def test_codelists_get(client, organisation):
             "coding_system_id": "dmd",
             "organisation": "Test University",
             "user": "",
+            "description": "What this is",
+            "methodology": "How we did it",
+            "references": [],
             "versions": [
                 {
                     "hash": "34d1a660",
@@ -100,6 +114,9 @@ def test_codelists_get(client, organisation):
             "name": "Minimal Codelist",
             "organisation": "Test University",
             "user": "",
+            "description": None,
+            "methodology": None,
+            "references": [],
             "coding_system_id": "snomedct",
             "versions": [
                 {
@@ -126,6 +143,12 @@ def test_codelists_get(client, organisation):
             "name": "New-style Codelist",
             "organisation": "Test University",
             "user": "",
+            "description": None,
+            "methodology": None,
+            "references": [
+                {"text": "Reference 1", "url": "https://example.com/reference1"},
+                {"text": "Reference 2", "url": "https://example.com/reference2"},
+            ],
             "coding_system_id": "snomedct",
             "versions": [
                 {
@@ -161,6 +184,9 @@ def test_codelists_get(client, organisation):
             "coding_system_id": "null",
             "organisation": "Test University",
             "user": "",
+            "description": "",
+            "methodology": "",
+            "references": [],
             "versions": [
                 {
                     "hash": "6f08ccac",
@@ -186,6 +212,9 @@ def test_codelists_get(client, organisation):
             "name": "Old-style Codelist",
             "organisation": "Test University",
             "user": "",
+            "description": "What this is",
+            "methodology": "How we did it",
+            "references": [],
             "coding_system_id": "snomedct",
             "versions": [
                 {

@@ -144,6 +144,22 @@ def codelists_get(request, owner=None):
                 }
             )
 
+        if "description" in request.GET:
+            record["description"] = cl.description
+
+        if "methodology" in request.GET:
+            record["methodology"] = cl.methodology
+
+        if "references" in request.GET:
+            record["references"] = []
+            for reference in cl.references.all():
+                record["references"].append(
+                    {
+                        "text": reference.text,
+                        "url": reference.url,
+                    }
+                )
+
         records.append(record)
     return JsonResponse({"codelists": records})
 

@@ -91,8 +91,3 @@ Once the codelist is reviewed, it can be published, using the __Publish version_
 
         publish.png
         
-### Selecting appropriate codes for your codelist
-<a name="selecting-appropriate-codes"></a>
-
-Choosing which codes to include in your codelist can be challenging without understanding their usage in clinical practice. Some clinical activities are represented by a single code, while others may require a comprehensive list of codes to accurately capture the intended clinical activity. Helpfully, [NHS Digital provides a dataset on SNOMED CT code usage in primary care](https://digital.nhs.uk/data-and-information/publications/statistical/mi-snomed-code-usage-in-primary-care), which includes data since 2011. This dataset includes annual counts of how often each SNOMED CT code is recorded in GP patient records across England. When building a SNOMED CT codelist, this may help you decide whether to include or exclude a code. You can explore recorded usage of individual codes or entire codelists, including those on OpenCodelists, using [this prototype SNOMED CT code usage explorer](https://snomed-code-usage.streamlit.app/).
-

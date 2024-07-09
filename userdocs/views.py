@@ -16,6 +16,7 @@ doc_sections = [
     "organisations",
     "creating-a-codelist-from-scratch",
     "creating-a-codelist-from-a-csv-file",
+    "selecting-appropriate-codes",
     "editing-a-codelist",
     "viewing-your-codelists",
     "using-a-codelist-in-opensafely-research",

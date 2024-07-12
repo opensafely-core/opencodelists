@@ -448,9 +448,9 @@ lxml==4.9.3 \
     --hash=sha256:fcdd00edfd0a3001e0181eab3e63bd5c74ad3e67152c84f93f13769a40e073a7 \
     --hash=sha256:fe4bda6bd4340caa6e5cf95e73f8fea5c4bfc55763dd42f1b50a94c1b4a2fbd4
     # via -r requirements.prod.in
-markdown2==2.4.10 \
-    --hash=sha256:cdba126d90dc3aef6f4070ac342f974d63f415678959329cc7909f96cc235d72 \
-    --hash=sha256:e6105800483783831f5dc54f827aa5b44eb137ecef5a70293d8ecfbb4109ecc6
+markdown2==2.5.0 \
+    --hash=sha256:300d4429b620ebc974ef512339a9e08bc080473f95135a91f33906e24e8280c1 \
+    --hash=sha256:9bff02911f8b617b61eb269c4c1a5f9b2087d7ff051604f66a61b63cab30adc2
     # via -r requirements.prod.in
 marshmallow==3.19.0 \
     --hash=sha256:90032c0fd650ce94b6ec6dc8dfeb0e3ff50c144586462c389b81a07205bedb78 \

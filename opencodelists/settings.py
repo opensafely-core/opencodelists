@@ -44,6 +44,8 @@ SECRET_KEY = env.str("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool("DEBUG", False)
 
+DEBUG_TOOLBAR = env.bool("DJANGO_DEBUG_TOOLBAR", default=False)
+
 BASE_URLS = env.list("BASE_URLS", [])
 # note localhost is required on production for dokku checks
 BASE_URLS += ["http://localhost:7000"]
@@ -83,7 +85,6 @@ INSTALLED_APPS = [
     "crispy_forms",
     "crispy_bootstrap4",
     "django_extensions",
-    "debug_toolbar",
     "rest_framework",
     "rest_framework.authtoken",
     "taggit",
@@ -107,14 +108,12 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django_structlog.middlewares.RequestMiddleware",
 ]
 
-if not env.bool("DDT_ENABLED", False):
-    # Django Debug Toolbar adds 77s to the load time of a large codelist!
-    INSTALLED_APPS.remove("debug_toolbar")
-    MIDDLEWARE.remove("debug_toolbar.middleware.DebugToolbarMiddleware")
+if DEBUG_TOOLBAR:
+    INSTALLED_APPS.append("debug_toolbar")
+    MIDDLEWARE.append("debug_toolbar.middleware.DebugToolbarMiddleware")
 
 ROOT_URLCONF = "opencodelists.urls"
 

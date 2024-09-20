@@ -225,7 +225,6 @@ django==4.2.4 \
     #   django-anymail
     #   django-cors-headers
     #   django-crispy-forms
-    #   django-debug-toolbar
     #   django-extensions
     #   django-structlog
     #   django-taggit
@@ -249,10 +248,6 @@ django-crispy-forms==2.1 \
     # via
     #   -r requirements.prod.in
     #   crispy-bootstrap4
-django-debug-toolbar==4.2.0 \
-    --hash=sha256:af99128c06e8e794479e65ab62cc6c7d1e74e1c19beb44dcbf9bad7a9c017327 \
-    --hash=sha256:bc7fdaafafcdedefcc67a4a5ad9dac96efd6e41db15bc74d402a54a2ba4854dc
-    # via -r requirements.prod.in
 django-extensions==3.2.3 \
     --hash=sha256:44d27919d04e23b3f40231c4ab7af4e61ce832ef46d610cc650d53e68328410a \
     --hash=sha256:9600b7562f79a92cbf1fde6403c04fee314608fefbb595502e34383ae8203401
@@ -613,9 +608,7 @@ sqlean-py==3.45.1 \
 sqlparse==0.4.4 \
     --hash=sha256:5430a4fe2ac7d0f93e66f1efc6e1338a41884b7ddf2a350cedd20ccc4d9d28f3 \
     --hash=sha256:d446183e84b8349fa3061f0fe7f06ca94ba65b426946ffebe6e3e8295332420c
-    # via
-    #   django
-    #   django-debug-toolbar
+    # via django
 structlog==24.1.0 \
     --hash=sha256:3f6efe7d25fab6e86f277713c218044669906537bb717c1807a09d46bca0714d \
     --hash=sha256:41a09886e4d55df25bdcb9b5c9674bccfab723ff43e0a86a1b7b236be8e57b16

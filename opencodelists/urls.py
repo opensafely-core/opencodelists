@@ -1,4 +1,3 @@
-import debug_toolbar
 from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
@@ -26,6 +25,11 @@ organisations_patterns = [
     path("", views.organisations, name="organisations"),
 ]
 
+if settings.DEBUG_TOOLBAR:  # pragma: no cover
+    debug_toolbar_urls = [path("__debug__/", include("debug_toolbar.urls"))]
+else:
+    debug_toolbar_urls = []
+
 urlpatterns = [
     path("", include("codelists.urls")),
     path("api/v1/", include("codelists.api_urls")),
@@ -39,6 +43,6 @@ urlpatterns = [
     path("conversions/", include("conversions.urls")),
     path("coding-systems/", include("coding_systems.versioning.urls")),
     path("docs/", include("userdocs.urls")),
-    path("__debug__/", include(debug_toolbar.urls)),
+    *debug_toolbar_urls,
     path("robots.txt", RedirectView.as_view(url=settings.STATIC_URL + "robots.txt")),
 ]

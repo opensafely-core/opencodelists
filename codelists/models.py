@@ -495,7 +495,7 @@ class CodelistVersion(models.Model):
             return self._new_style_codes()
 
     def _old_style_codes(self):
-        if self.coding_system_id in ["bnf", "ctv3", "icd10", "snomedct"]:
+        if self.coding_system_id in ["bnf", "ctv3", "icd10", "snomedct", "dmd"]:
             headers, *rows = self.table
             headers = [header.lower().strip() for header in headers]
             # (non-dmd) old style codelists are now required to contain a column named "code"

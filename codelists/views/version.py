@@ -14,7 +14,7 @@ def version(request, clv):
     code_to_term = None
     parent_map = None
     tree_tables = None
-    if clv.coding_system_id in ["bnf", "ctv3", "icd10", "snomedct"]:
+    if clv.coding_system_id in ["bnf", "ctv3", "icd10", "snomedct", "dmd"]:
         coding_system = clv.coding_system
 
         hierarchy = clv.codeset.hierarchy

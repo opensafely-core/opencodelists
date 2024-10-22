@@ -242,9 +242,9 @@ django-cors-headers==4.3.1 \
     --hash=sha256:0b1fd19297e37417fc9f835d39e45c8c642938ddba1acce0c1753d3edef04f36 \
     --hash=sha256:0bf65ef45e606aff1994d35503e6b677c0b26cafff6506f8fd7187f3be840207
     # via -r requirements.prod.in
-django-crispy-forms==2.1 \
-    --hash=sha256:4d7ec431933ad4d4b5c5a6de4a584d24613c347db9ac168723c9aaf63af4bb96 \
-    --hash=sha256:d592044771412ae1bd539cc377203aa61d4eebe77fcbc07fbc8f12d3746d4f6b
+django-crispy-forms==2.3 \
+    --hash=sha256:2db17ae08527201be1273f0df789e5f92819e23dd28fec69cffba7f3762e1a38 \
+    --hash=sha256:efc4c31e5202bbec6af70d383a35e12fc80ea769d464fb0e7fe21768bb138a20
     # via
     #   -r requirements.prod.in
     #   crispy-bootstrap4

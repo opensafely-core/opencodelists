@@ -4,6 +4,7 @@
 # pip-compile --generate-hashes --output-file=requirements.prod.txt requirements.prod.in
 
 antlr4-python3-runtime
+beautifulsoup4
 bleach
 crispy-bootstrap4
 django

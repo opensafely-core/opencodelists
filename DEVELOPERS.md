@@ -47,7 +47,19 @@ A place to put scripts to be run via [runscript](https://django-extensions.readt
 ## Production database and backups
 
 The production database and backups are located at  `/var/lib/dokku/data/storage/opencodelists` on dokku3 (see also [deployment notes](DEPLOY.md)).
+This database is the core (default) database;
+the coding system databases are located within the `coding_systems` subdirectory.
 
+The backups are created with the dumpdata management command (`deploy/bin/backup.sh`).
+They can be restored with:
+
+```sh
+rm db.sqlite3
+
+python manage.py migrate
+
+python manage.py loaddata core-data-<date>.json
+```
 
 ## Local development
 

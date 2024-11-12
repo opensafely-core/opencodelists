@@ -131,19 +131,19 @@ test-py *ARGS: devenv
 # Run all the tests
 test: assets-test test-py
 
-black *args=".": devenv
-    $BIN/black --check {{ args }}
+format *args=".": devenv
+    $BIN/ruff format --check {{ args }}
 
 ruff *args=".": devenv
     $BIN/ruff check {{ args }}
 
 # run the various dev checks but does not change any files
-check *args: devenv black ruff
+check *args: devenv ruff
 
 # fix formatting and import sort ordering
 fix: devenv
-    $BIN/black .
-    $BIN/ruff --fix .
+    $BIN/ruff check --fix .
+    $BIN/ruff format .
 
 # setup/update local dev environment
 dev-setup: devenv assets

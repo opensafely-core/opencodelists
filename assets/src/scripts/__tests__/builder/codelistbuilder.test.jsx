@@ -2,7 +2,7 @@ import "@testing-library/jest-dom";
 import { render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React from "react";
-import { vi } from "vitest";
+import { expect, it, vi } from "vitest";
 import Hierarchy from "../../_hierarchy";
 import CodelistBuilder from "../../components/CodelistBuilder";
 // See builder/management/commands/generate_builder_fixtures.py and
@@ -13,7 +13,7 @@ import * as versionWithNoSearchesData from "../fixtures/version_with_no_searches
 import * as versionWithSomeSearchesData from "../fixtures/version_with_some_searches.json";
 
 // Not sure if this is the best approach, but it works!
-global.fetch = vi.fn().mockImplementation((url, config) =>
+global.fetch = vi.fn().mockImplementation((_url, config) =>
   Promise.resolve({
     json: () => Promise.resolve(JSON.parse(config.body)),
   }),

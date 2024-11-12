@@ -1,13 +1,3 @@
-[tool.black]
-extend-exclude = '''
-(
-  /(
-      migrations
-    | coding_systems/snomedct/parser_utils
-  )/
-)
-'''
-
 [tool.coverage.run]
 branch = true
 omit = [

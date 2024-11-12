@@ -18,6 +18,7 @@ Run with:
 See additional documentation at codelists/scripts/README.md
 
 """
+
 import argparse
 import json
 import os

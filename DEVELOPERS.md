@@ -54,12 +54,15 @@ The backups are created with the dumpdata management command (`deploy/bin/backup
 They can be restored with:
 
 ```sh
-rm db.sqlite3
+mv db.sqlite3 previous-db.sqlite3
 
 python manage.py migrate
 
 python manage.py loaddata core-data-<date>.json
 ```
+
+When all is confirmed working with the restore,
+you can delete `previous-db.sqlite3`.
 
 ## Local development
 

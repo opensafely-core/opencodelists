@@ -3,8 +3,8 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite",
-    "lint:fix": "eslint \"./assets/src/**/*.{js,jsx}\" --fix",
-    "lint": "eslint \"./assets/src/**/*.{js,jsx}\"",
+    "lint:fix": "npx @biomejs/biome check --write ./assets/src/**/*",
+    "lint": "npx @biomejs/biome check ./assets/src/**/*",
     "serve": "vite preview",
     "test": "npx vitest run",
     "test:watch": "npx vitest",

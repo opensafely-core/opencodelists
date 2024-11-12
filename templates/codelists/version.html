@@ -211,6 +211,7 @@
         {% elif version.is_draft %}
         <span class="badge badge-primary">Draft</span>
         {% endif %}
+        <span>(updated {{ version.updated_at | date:'Y-m-d H:i:s' }})</span>
       </li>
       {% endfor %}
     </ul>

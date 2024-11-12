@@ -14,7 +14,6 @@ pytest-subtests
 responses
 
 # dev
-black
 litecli
 pip-tools
 pre-commit

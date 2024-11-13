@@ -3,8 +3,8 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite",
-    "lint:fix": "eslint \"./assets/src/**/*.{js,jsx}\" --fix",
-    "lint": "eslint \"./assets/src/**/*.{js,jsx}\"",
+    "lint:fix": "npx @biomejs/biome check --write ./assets/src/**/*",
+    "lint": "npx @biomejs/biome check ./assets/src/**/*",
     "serve": "vite preview",
     "test": "npx vitest run",
     "test:watch": "npx vitest",
@@ -12,20 +12,14 @@
     "test:single": "npx vitest -t"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.0.1",
     "@testing-library/user-event": "^14.5.2",
     "@vitejs/plugin-react-swc": "^3.7.1",
     "@vitest/coverage-v8": "^2.1.4",
     "babel-loader": "^9.2.1",
-    "eslint": "^8.57.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-import": "^2.31.0",
-    "eslint-plugin-prettier": "^5.2.1",
-    "eslint-plugin-react": "^7.37.2",
-    "eslint-plugin-sort-destructure-keys": "^2.0.0",
     "jsdom": "^25.0.1",
-    "prettier": "^3.3.3",
     "vite": "^5.4.10",
     "vitest": "^2.1.2"
   },
@@ -44,88 +38,5 @@
     "type": "git",
     "url": "git+https://github.com/opensafely-core/opencodelists.git"
   },
-  "license": "GPL-3.0-or-later",
-  "eslintConfig": {
-    "env": {
-      "browser": true,
-      "es2021": true
-    },
-    "extends": [
-      "eslint:recommended",
-      "plugin:react/recommended",
-      "prettier"
-    ],
-    "globals": {
-      "$": "readonly",
-      "global": "readonly"
-    },
-    "overrides": [
-      {
-        "env": {
-          "jest": true
-        },
-        "files": [
-          "**/*.test.js",
-          "**/*.test.jsx"
-        ]
-      }
-    ],
-    "parserOptions": {
-      "ecmaFeatures": {
-        "jsx": true
-      },
-      "ecmaVersion": 12,
-      "sourceType": "module"
-    },
-    "plugins": [
-      "prettier",
-      "react",
-      "import",
-      "sort-destructure-keys"
-    ],
-    "rules": {
-      "prettier/prettier": "error",
-      "sort-destructure-keys/sort-destructure-keys": 2,
-      "react/jsx-props-no-spreading": "off",
-      "react/jsx-sort-props": [
-        "error",
-        {
-          "ignoreCase": true,
-          "reservedFirst": true
-        }
-      ],
-      "react/function-component-definition": [
-        2,
-        {
-          "namedComponents": "function-declaration",
-          "unnamedComponents": "arrow-function"
-        }
-      ],
-      "import/order": [
-        "error",
-        {
-          "groups": [
-            [
-              "builtin",
-              "external",
-              "internal"
-            ],
-            "parent",
-            "sibling",
-            "index"
-          ],
-          "newlines-between": "never",
-          "alphabetize": {
-            "order": "asc",
-            "caseInsensitive": true
-          }
-        }
-      ]
-    },
-    "settings": {
-      "react": {
-        "version": "17"
-      }
-    }
-  }
+  "license": "GPL-3.0-or-later"
 }

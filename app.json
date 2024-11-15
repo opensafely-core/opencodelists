@@ -1,8 +1,22 @@
 {
-    "cron": [
+  "cron": [
+    {
+      "command": "/app/deploy/bin/backup.sh",
+      "schedule": "00 01 * * *"
+    }
+  ],
+  "healthchecks": {
+    "web": [
       {
-        "command": "/app/deploy/bin/backup.sh",
-        "schedule": "00 01 * * *"
+        "name": "Web health check",
+        "type": "startup",
+        "description": "Check root URL is available",
+        "path": "/",
+        "port": 7000,
+        "attempts": 10,
+        "initialDelay": 30,
+        "timeout": 60
       }
     ]
   }
+}

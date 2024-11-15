@@ -63,3 +63,12 @@ a:focus {
     margin: 0 auto;
   }
 }
+
+.sidebar-versions code {
+  font-size: 1.1rem;
+}
+
+.sidebar-versions .updated {
+  border-top: 1px dotted #ddd;
+  font-size: 0.9rem;
+}

@@ -18,7 +18,6 @@ from pathlib import Path
 import sentry_sdk
 from django.contrib.messages import constants as messages
 from environs import Env
-from furl import furl
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.logging import ignore_logger
 
@@ -47,10 +46,8 @@ DEBUG = env.bool("DEBUG", False)
 DEBUG_TOOLBAR = env.bool("DJANGO_DEBUG_TOOLBAR", default=False)
 
 BASE_URLS = env.list("BASE_URLS", [])
-# note localhost is required on production for dokku checks
-BASE_URLS += ["http://localhost:7000"]
 
-ALLOWED_HOSTS = [furl(base_url).host for base_url in BASE_URLS]
+ALLOWED_HOSTS = ["*"]
 
 IN_PRODUCTION = env.bool("IN_PRODUCTION", False)
 

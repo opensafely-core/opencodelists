@@ -1,18 +1,19 @@
 {% load markdown_filter %}
 
 <div class="tab-about h-100 d-flex flex-column">
+  <h2 class="sr-only">About</h2>
   {% if codelist.description %}
-  <h4>Description</h4>
+  <h3 class="h4">Description</h3>
   <p>{{ codelist.description|markdown_filter|safe }}</p>
   {% endif %}
 
   {% if codelist.methodology %}
-  <h4>Methodology</h4>
+  <h3 class="h4">Methodology</h3>
   <p>{{ codelist.methodology|markdown_filter|safe }}</p>
   {% endif %}
 
   {% if references %}
-  <h4>References</h4>
+  <h3 class="h4">References</h3>
   <ul>
     {% for reference in references %}
     <li><a href="{{ reference.url }}">{{ reference.text }}</a></li>
@@ -23,7 +24,7 @@
   {% endif %}
 
   {% if signoffs %}
-  <h4>Signed off by</h4>
+  <h3 class="h4">Signed off by</h3>
   <ul>
     {% for signoff in signoffs %}
     <li>

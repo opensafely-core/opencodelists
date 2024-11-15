@@ -197,24 +197,43 @@
 
     <hr />
 
-    <h6>Versions</h6>
-    <ul class="pl-3">
-      {% for version in versions %}
-      <li>
-        {% if version == clv %}
-        {{ version.tag_or_hash }}
-        {% else %}
-        <a href="{{ version.get_absolute_url }}">{{ version.tag_or_hash }}</a>
-        {% endif %}
-        {% if version.is_under_review %}
-        <span class="badge badge-primary">Review</span>
-        {% elif version.is_draft %}
-        <span class="badge badge-primary">Draft</span>
-        {% endif %}
-        <span>(updated {{ version.updated_at | date:'Y-m-d H:i:s' }})</span>
-      </li>
-      {% endfor %}
-    </ul>
+    <div class="card">
+      <div class="card-header px-2 py-3">
+        <h2 class="h5 mb-0">Versions</h2>
+      </div>
+      <ul class="list-group list-group-flush sidebar-versions">
+        {% for version in versions %}
+          <li class="list-group-item px-2 py-3">
+            {% if version.is_under_review %}
+              <span class="badge badge-primary">Review</span>
+            {% elif version.is_draft %}
+              <span class="badge badge-primary">Draft</span>
+            {% endif %}
+
+            <span class="d-block pb-1">
+              <code class="font-weight-bold text-body">
+                {% if version == clv %}
+                  {{ version.tag_or_hash }}
+                {% else %}
+                  <a class="text-monospace" href="{{ version.get_absolute_url }}">
+                    {{ version.tag_or_hash }}
+                  </a>
+                {% endif %}
+              </code>
+            </span>
+
+            <span class="updated d-block pt-1">
+              <span>
+                Updated:
+              </span>
+              <span class="d-block">
+                {{ version.updated_at | date:'Y-m-d H:i:s' }}
+              </span>
+            </span>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
   </div>
 
   <div class="col-md-9 col-lg-10">

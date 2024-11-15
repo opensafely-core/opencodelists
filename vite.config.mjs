@@ -1,8 +1,9 @@
 /// <reference types="vitest" />
-import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
+import { defineConfig } from "vite";
+import liveReload from "vite-plugin-live-reload";
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   base: "/static/",
   build: {
     manifest: true,
@@ -22,7 +23,14 @@ export default defineConfig({
     origin: "http://localhost:5173",
   },
   clearScreen: false,
-  plugins: [react()],
+  plugins: [
+    mode !== "test"
+      ? liveReload(["templates/**/*.html", "assets/src/styles/base.css"], {
+          alwaysReload: true,
+        })
+      : undefined,
+    react(),
+  ],
   test: {
     coverage: {
       provider: "v8",
@@ -35,4 +43,4 @@ export default defineConfig({
     globals: true,
     root: "./assets/src/scripts",
   },
-});
+}));

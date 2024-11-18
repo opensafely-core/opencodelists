@@ -4,5 +4,25 @@
             "command": "/app/deploy/bin/backup.sh",
             "schedule": "00 01 * * *"
         }
-    ]
+    ],
+    "healthchecks": {
+        "web": [
+            {
+                "attempts": 10,
+                "description": "Check the root URL is available",
+                "httpHeaders": [
+                    {
+                        "name": "Host",
+                        "value": "localhost"
+                    }
+                ],
+                "initialDelay": 30,
+                "name": "Web health check",
+                "path": "/",
+                "port": 7000,
+                "timeout": 60,
+                "type": "startup"
+            }
+        ]
+    }
 }

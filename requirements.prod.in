@@ -26,7 +26,7 @@ opentelemetry-instrumentation-django
 opentelemetry-sdk
 # Serves static files. Dependabot wasn't updating past 6.3.0 for
 # unclear reasons, and we want fix #612 from 6.8.0.
-whitenoise>=6.8.0
+whitenoise[brotli]>=6.8.0
 sentry-sdk
 sqlean.py
 structlog

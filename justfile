@@ -28,7 +28,7 @@ virtualenv:
     set -euo pipefail
 
     # allow users to specify python version in .env
-    PYTHON_VERSION=${PYTHON_VERSION:-python3.11}
+    PYTHON_VERSION=${PYTHON_VERSION:-python3.12}
 
     # Error if venv does not contain the version of Python we expect
     if test -d $VIRTUAL_ENV; then

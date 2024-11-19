@@ -79,13 +79,14 @@ jobs:
 
       - name: Save docker image
         run: |
-          docker save opencodelists | gzip > /tmp/opencodelists.tar.gz
+          docker save opencodelists | zstd --fast -o /tmp/opencodelists.tar.zst
 
       - name: Upload docker image
         uses: actions/upload-artifact@v4
         with:
             name: opencodelists-image
-            path: /tmp/opencodelists.tar.gz
+            path: /tmp/opencodelists.tar.zst
+            compression-level: 0
 
   test-js:
     runs-on: ubuntu-latest
@@ -128,7 +129,7 @@ jobs:
           path: /tmp/image
 
       - name: Import docker image
-        run: gunzip -c /tmp/image/opencodelists.tar.gz | docker load
+        run: docker image load --input /tmp/image/opencodelists.tar.zst
 
       - name: Test image we imported from previous job works
         run: |

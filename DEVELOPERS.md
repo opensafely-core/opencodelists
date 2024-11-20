@@ -68,7 +68,7 @@ you can delete `previous-db.sqlite3`.
 
 ### Prerequisites:
 
-- **Python v3.12.x**
+- **Python v3.13.x**
 - **Pip**
 - **[fnm](#install-fnm)**
 - **[Just](#install-just)**

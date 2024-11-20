@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 from django.db import connections
@@ -20,7 +20,7 @@ def test_coding_system_release_most_recent(coding_system_release):
         coding_system="snomedct",
         release_name="v0.1",
         import_ref="ref",
-        valid_from=datetime(2022, 9, 1, tzinfo=timezone.utc),
+        valid_from=datetime(2022, 9, 1, tzinfo=UTC),
         state=ReleaseState.READY,
     )
     # most_recent is coding system-dependent, so a later valid_from version
@@ -29,7 +29,7 @@ def test_coding_system_release_most_recent(coding_system_release):
         coding_system="dmd",
         release_name="v1",
         import_ref="ref",
-        valid_from=datetime(2022, 10, 15, tzinfo=timezone.utc),
+        valid_from=datetime(2022, 10, 15, tzinfo=UTC),
         state=ReleaseState.READY,
     )
 
@@ -64,7 +64,7 @@ def test_update_dummy_coding_system_database_connections(coding_systems_tmp_path
         coding_system="null",
         release_name="null",
         import_ref="ref",
-        valid_from=datetime(2022, 10, 1, tzinfo=timezone.utc),
+        valid_from=datetime(2022, 10, 1, tzinfo=UTC),
         state=ReleaseState.READY,
     )
     update_coding_system_database_connections()
@@ -81,7 +81,7 @@ def test_coding_system_default_database_alias(alias, slugified_alias):
     csr = CodingSystemRelease.objects.create(
         coding_system="null",
         release_name="Version 1",
-        valid_from=datetime(2022, 10, 1, tzinfo=timezone.utc),
+        valid_from=datetime(2022, 10, 1, tzinfo=UTC),
         database_alias=alias,
         state=ReleaseState.READY,
     )
@@ -95,7 +95,7 @@ def test_coding_system_invalid_database_alias():
         CodingSystemRelease.objects.create(
             coding_system="null",
             release_name="Version 1",
-            valid_from=datetime(2022, 10, 1, tzinfo=timezone.utc),
+            valid_from=datetime(2022, 10, 1, tzinfo=UTC),
             database_alias="custom_db_alias",
             state=ReleaseState.READY,
         )
@@ -104,7 +104,7 @@ def test_coding_system_invalid_database_alias():
     csr = CodingSystemRelease.objects.create(
         coding_system="null",
         release_name="Version 1",
-        valid_from=datetime(2022, 10, 1, tzinfo=timezone.utc),
+        valid_from=datetime(2022, 10, 1, tzinfo=UTC),
         state=ReleaseState.READY,
     )
     # if any of the component fields are changed, the db alias must be updated too
@@ -133,7 +133,7 @@ def test_updating_database_alias_with_update_or_create():
     csr = CodingSystemRelease.objects.create(
         coding_system="null",
         release_name="Version 1",
-        valid_from=datetime(2022, 10, 1, tzinfo=timezone.utc),
+        valid_from=datetime(2022, 10, 1, tzinfo=UTC),
         state=ReleaseState.READY,
     )
     queryset = CodingSystemRelease.objects.filter(id=csr.id)

@@ -47,6 +47,7 @@ exclude = [
   "staticfiles",
   "venv",
 ]
+target-version = "py312"
 
 [tool.ruff.lint]
 extend-select = [

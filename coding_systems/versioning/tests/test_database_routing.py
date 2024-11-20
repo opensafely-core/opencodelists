@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 from django.apps import apps
@@ -34,7 +34,7 @@ def test_mismatched_coding_system_database_relations(coding_systems_tmp_path):
     CodingSystemRelease.objects.create(
         coding_system="ctv3",
         release_name="testv2",
-        valid_from=datetime(2022, 11, 1, tzinfo=timezone.utc),
+        valid_from=datetime(2022, 11, 1, tzinfo=UTC),
         state=ReleaseState.READY,
     )
     update_coding_system_database_connections()

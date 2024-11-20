@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 from django.db import connections
@@ -13,7 +13,7 @@ def coding_system_release():
         coding_system="snomedct",
         release_name="v1",
         import_ref="ref",
-        valid_from=datetime(2022, 10, 1, tzinfo=timezone.utc),
+        valid_from=datetime(2022, 10, 1, tzinfo=UTC),
         state=ReleaseState.READY,
     )
 

@@ -37,6 +37,12 @@ CODELIST_VERSION_REGEX = re.compile(
 
 @require_http_methods(["GET"])
 def all_codelists(request):
+    """Return information about all codelists.
+
+    Parameters and response as in codelists_get.
+
+    2024-Nov: no known production clients.
+    """
     return codelists_get(request)
 
 
@@ -89,7 +95,10 @@ def codelists_get(request, owner=None):
     published, and it contains an identifiable code column in the csv data available for
     download. This is important for use with OpenSAFELY Interactive.
 
-    May 2022: The only known production usage of this endpoint is OpenSAFELY Interactive.
+    2024-Nov: Used by opensafely-cli when updating codelists and when
+        validating its OpenCodelists API wrapper.
+    2024-Nov: Used in OpenSAFELY Interactive to get all SNOMEDCT and DMD codelists
+        for reference when creating an analysis request.
     """
 
     filter_kwargs = {}
@@ -182,6 +191,9 @@ def codelists_post(request, owner):
         * references (optional)
         * signoffs (optional)
         * always_create_new_version (optional)
+
+    2024-Nov: Scripts such as those in /codelists/scripts/ may use this endpoint
+        to do batch upload of codelists.
     """
 
     try:
@@ -229,6 +241,21 @@ def codelists_post(request, owner):
 @load_codelist
 @require_permission
 def versions(request, codelist):
+    """Create new version of existing codelist.
+
+    request.body should contain one of:
+        * codes
+        * csv_data
+        * ecl
+
+    ... and:
+        * tag
+        * coding_system_database_alias
+        * always_create_new_version (optional, for "codes" / new-style only.)
+
+    2024-Nov: Scripts such as those in /codelists/scripts/ may use this endpoint
+        to do batch upload of codelists.
+    """
     try:
         data = json.loads(request.body)
     except json.decoder.JSONDecodeError:
@@ -289,6 +316,7 @@ def dmd_previous_codes_mapping(request):
 
     This endpoint is intended to be used by backends to determine any additional related codes
     to include with set of dm+d codes.
+    2024-Nov: Used by cohort-extractor update_vmp_mapping.py.
     """
     vmp_to_previous_tuples = vmp_ids_to_previous()
     return JsonResponse(vmp_to_previous_tuples, safe=False)
@@ -311,6 +339,10 @@ def codelists_check(requests):
 
     We DO NOT check whether the actual downloaded codelists have been modified; this can
     only be done in the study repo itself (either CLI or GA).
+
+    2024-Nov: Used in opensafely-cli when checking codelists are current in actions.
+    2024-Nov: Used in Job Server when creating a job request and when
+        validating its OpenCodelists API wrapper.
     """
     study_codelists = requests.POST.get("codelists")
     try:

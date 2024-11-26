@@ -90,7 +90,7 @@ def test_calls_import_data_function_coding_system_force_overwrite(
 
 
 @pytest.mark.parametrize(
-    "input_date,error",
+    "input_date,error_regex",
     [
         ("2020-1", "Not a valid date \\(YYYY-MM-DD\\): 2020-1"),
         ("20201101", "Not a valid date \\(YYYY-MM-DD\\): 20201101"),
@@ -98,8 +98,8 @@ def test_calls_import_data_function_coding_system_force_overwrite(
         (("20200231", "Not a valid date \\(YYYY-MM-DD\\): 20200231")),
     ],
 )
-def test_valid_from_validation(input_date, error):
-    with pytest.raises(CommandError, match=error):
+def test_valid_from_validation(input_date, error_regex):
+    with pytest.raises(CommandError, match=error_regex):
         call_command(
             "import_coding_system_data",
             "snomedct",

@@ -1,4 +1,3 @@
-import subprocess
 from datetime import date
 from unittest.mock import patch
 
@@ -91,30 +90,20 @@ def test_calls_import_data_function_coding_system_force_overwrite(
 
 
 @pytest.mark.parametrize(
-    "input_date,returncode,error",
+    "input_date,error",
     [
-        ("2020-1", 2, "Not a valid date (YYYY-MM-DD): 2020-1"),
-        ("20201101", 2, "Not a valid date (YYYY-MM-DD): 20201101"),
-        ("Nov", 2, "Not a valid date (YYYY-MM-DD): Nov"),
-        (("20200231", 2, "Not a valid date (YYYY-MM-DD): 20200231")),
+        ("2020-1", "Not a valid date \\(YYYY-MM-DD\\): 2020-1"),
+        ("20201101", "Not a valid date \\(YYYY-MM-DD\\): 20201101"),
+        ("Nov", "Not a valid date \\(YYYY-MM-DD\\): Nov"),
+        (("20200231", "Not a valid date \\(YYYY-MM-DD\\): 20200231")),
     ],
 )
-def test_valid_from_validation(capfd, input_date, returncode, error):
-    ret = subprocess.run(
-        [
-            "python",
-            "manage.py",
+def test_valid_from_validation(input_date, error):
+    with pytest.raises(CommandError, match=error):
+        call_command(
             "import_coding_system_data",
             "snomedct",
             "/tmp",
-            "--release",
-            "v1",
-            "--valid-from",
-            input_date,
-        ],
-        check=False,
-    )
-    assert ret.returncode == returncode
-    cap = capfd.readouterr()
-    assert error in cap.err
-    assert cap.out == ""
+            release_name="v1",
+            valid_from=input_date,
+        )

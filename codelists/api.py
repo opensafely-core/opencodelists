@@ -99,6 +99,11 @@ def codelists_get(request, owner=None):
         validating its OpenCodelists API wrapper.
     2024-Nov: Used in OpenSAFELY Interactive to get all SNOMEDCT and DMD codelists
         for reference when creating an analysis request.
+    2024-Nov: Used by the code usage explorer
+        https://github.com/ebmdatalab/codeusage/ which is stood up at
+        https://milanwiedemann.shinyapps.io/codeusage/
+        This uses the API to allow filtering usage stats by an OpenCodelists
+        codelist.
     """
 
     filter_kwargs = {}

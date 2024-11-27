@@ -89,6 +89,7 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     "taggit",
     "anymail",
+    "django_structlog",
     "django_vite",
     "django.contrib.admin",
     "django.contrib.auth",

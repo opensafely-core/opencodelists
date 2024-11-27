@@ -99,6 +99,10 @@ def test_calls_import_data_function_coding_system_force_overwrite(
     ],
 )
 def test_valid_from_validation(input_date, error_regex):
+    """Test that an exception is raised when an invalid date is passed as the
+    valid_from arg.
+
+    Successful parsing of valid_from dates covered by other tests."""
     with pytest.raises(CommandError, match=error_regex):
         call_command(
             "import_coding_system_data",

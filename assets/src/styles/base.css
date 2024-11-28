@@ -72,3 +72,17 @@ a:focus {
   border-top: 1px dotted #ddd;
   font-size: 0.9rem;
 }
+
+.auth-form {
+  margin-bottom: 2rem;
+  max-width: 30rem;
+
+  & label {
+    font-weight: bold;
+  }
+
+  & .asteriskField {
+    color: red;
+    margin-left: 0.25rem;
+  }
+}

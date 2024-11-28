@@ -9,7 +9,7 @@ from codelists.coding_systems import CODING_SYSTEMS
 from coding_systems.versioning.models import CodingSystemRelease
 
 
-def valid_from(input_date):
+def date_yymmdd(input_date):
     try:
         return datetime.strptime(input_date, "%Y-%m-%d").date()
     except ValueError:
@@ -42,7 +42,7 @@ class Command(BaseCommand):
         )
         parser.add_argument(
             "--valid-from",
-            type=valid_from,
+            type=date_yymmdd,
             help="For coding system imports: date the release is valid from, in YYYY-MM-DD format",
             required=True,
         )

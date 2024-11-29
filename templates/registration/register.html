@@ -2,11 +2,16 @@
 
 {% load crispy_forms_tags %}
 
+{% block title_extra %}: Sign up{% endblock %}
+
 {% block content %}
-
 <div class="mt-3">
+    <h1>Sign up</h1>
+    <p class="lead">
+        Create an OpenCodelists user account
+    </p>
 
-    <form method="post" action="{% url 'register' %}">
+    <form class="auth-form" method="post" action="{% url 'register' %}">
         {% csrf_token %}
         {{ form|crispy }}
 

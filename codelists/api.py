@@ -1,3 +1,19 @@
+"""RESTful API for interacting with codelists and related resources.
+
+Endpoints are used by some OpenSAFELY components and other clients. Method
+docstrings may list known clients, though this list is not exhaustive and
+reflects a specific point in time. This does not imply tight coupling or that
+the OpenCodelists owner is responsible for those clients. However, notifying
+client owners about new endpoints, parameters, or API versions can be helpful
+where relevant. Identifying clients may also aid user research.
+
+Non-backward-compatible changes to API contracts should be scoped to a new
+/api/vN/ base path. Examples include modifying outputs, methods, or accepted
+parameters of existing endpoints. This approach ensures existing clients remain
+functional. New endpoints, methods, and parameters can be added without
+requiring a new version.
+"""
+
 import json
 import re
 
@@ -41,7 +57,8 @@ def all_codelists(request):
 
     Parameters and response as in codelists_get.
 
-    2024-Nov: no known production clients.
+    Known clients (see caveats in module docstring):
+        2024-Nov: no known production clients.
     """
     return codelists_get(request)
 
@@ -95,15 +112,15 @@ def codelists_get(request, owner=None):
     published, and it contains an identifiable code column in the csv data available for
     download. This is important for use with OpenSAFELY Interactive.
 
-    2024-Nov: Used by opensafely-cli when updating codelists and when
-        validating its OpenCodelists API wrapper.
-    2024-Nov: Used in OpenSAFELY Interactive to get all SNOMEDCT and DMD codelists
-        for reference when creating an analysis request.
-    2024-Nov: Used by the code usage explorer
-        https://github.com/ebmdatalab/codeusage/ which is stood up at
-        https://milanwiedemann.shinyapps.io/codeusage/
-        This uses the API to allow filtering usage stats by an OpenCodelists
-        codelist.
+    Known clients (see caveats in module docstring):
+        2024-Nov: Used by opensafely-cli when updating codelists and when
+            validating its OpenCodelists API wrapper.
+        2024-Nov: Used in OpenSAFELY Interactive to get all SNOMEDCT and DMD
+            codelists for reference when creating an analysis request.
+        2024-Nov: Used by the code usage explorer
+            https://github.com/ebmdatalab/codeusage/ which is stood up at
+            https://milanwiedemann.shinyapps.io/codeusage/ This uses the API to
+            allow filtering usage stats by an OpenCodelists codelist.
     """
 
     filter_kwargs = {}
@@ -197,8 +214,9 @@ def codelists_post(request, owner):
         * signoffs (optional)
         * always_create_new_version (optional)
 
-    2024-Nov: Scripts such as those in /codelists/scripts/ may use this endpoint
-        to do batch upload of codelists.
+    Known clients (see caveats in module docstring):
+        2024-Nov: Scripts such as those in /codelists/scripts/ may use this
+            endpoint to do batch upload of codelists.
     """
 
     try:
@@ -258,8 +276,9 @@ def versions(request, codelist):
         * coding_system_database_alias
         * always_create_new_version (optional, for "codes" / new-style only.)
 
-    2024-Nov: Scripts such as those in /codelists/scripts/ may use this endpoint
-        to do batch upload of codelists.
+    Known clients (see caveats in module docstring):
+        2024-Nov: Scripts such as those in /codelists/scripts/ may use this
+            endpoint to do batch upload of codelists.
     """
     try:
         data = json.loads(request.body)
@@ -321,7 +340,10 @@ def dmd_previous_codes_mapping(request):
 
     This endpoint is intended to be used by backends to determine any additional related codes
     to include with set of dm+d codes.
-    2024-Nov: Used by cohort-extractor update_vmp_mapping.py.
+
+
+    Known clients (see caveats in module docstring):
+        2024-Nov: Used by cohort-extractor update_vmp_mapping.py.
     """
     vmp_to_previous_tuples = vmp_ids_to_previous()
     return JsonResponse(vmp_to_previous_tuples, safe=False)
@@ -345,9 +367,12 @@ def codelists_check(requests):
     We DO NOT check whether the actual downloaded codelists have been modified; this can
     only be done in the study repo itself (either CLI or GA).
 
-    2024-Nov: Used in opensafely-cli when checking codelists are current in actions.
-    2024-Nov: Used in Job Server when creating a job request and when
-        validating its OpenCodelists API wrapper.
+
+    Known clients (see caveats in module docstring):
+        2024-Nov: Used in opensafely-cli when checking codelists are current in
+            actions.
+        2024-Nov: Used in Job Server when creating a job request and when
+            validating its OpenCodelists API wrapper.
     """
     study_codelists = requests.POST.get("codelists")
     try:

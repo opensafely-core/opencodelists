@@ -16,13 +16,13 @@
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.0.1",
     "@testing-library/user-event": "^14.5.2",
-    "@vitejs/plugin-react-swc": "^3.7.1",
-    "@vitest/coverage-v8": "^2.1.5",
+    "@vitejs/plugin-react-swc": "^3.7.2",
+    "@vitest/coverage-v8": "^2.1.7",
     "babel-loader": "^9.2.1",
     "jsdom": "^25.0.1",
     "vite": "^5.4.11",
     "vite-plugin-live-reload": "^3.0.3",
-    "vitest": "^2.1.2"
+    "vitest": "^2.1.7"
   },
   "dependencies": {
     "@fontsource/public-sans": "^5.1.1",

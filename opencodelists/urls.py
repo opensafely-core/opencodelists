@@ -43,6 +43,7 @@ urlpatterns = [
     path("conversions/", include("conversions.urls")),
     path("coding-systems/", include("coding_systems.versioning.urls")),
     path("docs/", include("userdocs.urls")),
+    path("health-check/", views.health_check, name="health-check"),
     *debug_toolbar_urls,
     path("robots.txt", RedirectView.as_view(url=settings.STATIC_URL + "robots.txt")),
 ]

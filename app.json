@@ -18,7 +18,7 @@
                 ],
                 "initialDelay": 30,
                 "name": "Web health check",
-                "path": "/",
+                "path": "/health-check",
                 "port": 7000,
                 "timeout": 60,
                 "type": "startup"

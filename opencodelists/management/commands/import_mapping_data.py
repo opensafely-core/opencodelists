@@ -12,8 +12,8 @@ class Command(BaseCommand):
         parser.add_argument(
             "source",
             help=(
-                "File or dir that defines the mapping, see import_data.py in "
-                "the mapping's package to understand how it is used"
+                "File or dir that defines the mapping, see README and/or "
+                "import_data.py in the mapping's package for more info"
             ),
         )
 

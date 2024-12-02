@@ -151,7 +151,7 @@ class CodelistBuilder extends React.Component {
     return (
       <>
         <div className="row">
-          <div className="col-md-3 col-lg-2">
+          <div className="col-md-3">
             {this.props.isEditable && (
               <>
                 <this.ManagementForm complete={this.complete()} />
@@ -232,7 +232,7 @@ class CodelistBuilder extends React.Component {
             </ul>
           </div>
 
-          <div className="col-9 pl-5">
+          <div className="col-md-9 overflow-auto">
             <h4>{this.props.resultsHeading}</h4>
             <hr />
             <TreeTables

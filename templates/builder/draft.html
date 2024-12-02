@@ -2,12 +2,15 @@
 
 {% load django_vite %}
 
-{% block content %}
-<h3 class="mt-4">{{ codelist_name }}</h3>
-<p class="text-muted">This version is a draft</p>
-<hr />
+{% block title_extra %}: {{ codelist_name }} (Draft){% endblock %}
 
-<div id="codelist-builder-container"></div>
+{% block full_width_content %}
+<div class="border-bottom mb-3">
+  <h1 class="h3">{{ codelist_name }}</h1>
+  <p class="text-muted">This version is a draft</p>
+</div>
+
+<div class="overflow-hidden" id="codelist-builder-container"></div>
 {% endblock %}
 
 {% block extra_js %}

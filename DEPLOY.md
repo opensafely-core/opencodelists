@@ -110,3 +110,12 @@ root$ dokku letsencrypt:enable opencodelists
 dokku$ dokku http-auth:on opencodelists <user> <password>
 dokku$ dokku http-auth:off opencodelists
 ```
+
+### Mapping source files
+
+When updating a mapping you can copy the mapping file(s) to dokku via `scp`.
+You should probably test that you can import it in a local development
+environment first to ensure that there are no issues with it. By convention, we
+place the mapping files to be imported in
+/var/lib/dokku/data/storage/mappings/bnfdmd which is mapped within the
+container to /storage/mappings/bnfdmd.

@@ -14,7 +14,7 @@ xlsx file.
 
 To import the data, unzip the file and run:
 
-    ./manage.py import_mapping_data mappings.bnfdmd path/to/xlsx/file
+    ./manage.py import_mapping_data bnfdmd path/to/xlsx/file
 
 As a simple post-import check, you could compare the count of the imported mappings:
 

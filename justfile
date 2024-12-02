@@ -131,14 +131,16 @@ test-py *ARGS: devenv
 # Run all the tests
 test: assets-test test-py
 
+# Run formatting checks
 format *args=".": devenv
     $BIN/ruff format --check {{ args }}
 
+# Run linting checks (unused variables etc.)
 ruff *args=".": devenv
     $BIN/ruff check {{ args }}
 
 # run the various dev checks but does not change any files
-check *args: devenv ruff
+check *args: devenv ruff format
 
 # fix formatting and import sort ordering
 fix: devenv

@@ -1,25 +1,30 @@
-import glob
-import os
 from importlib import import_module
 
 from django.core.management import BaseCommand
 
-
-def possible_modules():
-    paths = glob.glob("mappings/**/import_data.py", recursive=True)
-    mods = []
-    for path in paths:
-        head, _ = os.path.split(path)
-        mods.append(head.replace(os.sep, "."))
-    return mods
+from mappings import mappings
 
 
 class Command(BaseCommand):
     def add_arguments(self, parser):
-        parser.add_argument("dataset", choices=possible_modules())
-        parser.add_argument("release_dir")
+        parser.description = "Import a coding system mapping"
+        parser.add_argument("mapping", choices=mappings.keys(), help="Mapping name")
+        parser.add_argument(
+            "source",
+            help=(
+                "File or dir that defines the mapping, see README and/or "
+                "import_data.py in the mapping's package for more info"
+            ),
+        )
 
-    def handle(self, dataset, release_dir, **kwargs):
-        mod = import_module(dataset + ".import_data")
-        fn = getattr(mod, "import_data")
-        fn(release_dir)
+    def handle(self, mapping, source, **kwargs):
+        self.stdout.write(
+            f"Importing {mapping} mapping, this may take a few seconds..."
+        )
+        mapping_import_data_module = import_module(f"mappings.{mapping}.import_data")
+        import_data = getattr(mapping_import_data_module, "import_data")
+        import_data(source)
+
+        mapping_models_module = import_module(f"mappings.{mapping}.models")
+        mapping_model = getattr(mapping_models_module, "Mapping")
+        self.stdout.write(f"Imported {mapping_model.objects.count()} rows")

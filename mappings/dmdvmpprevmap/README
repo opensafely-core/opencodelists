@@ -1,5 +1,5 @@
 DM+D VMP Previous Mappings
----------------------------
+--------------------------
 
 dm+d VMP ids sometimes change.  In a single dm+d release, each VMP record may
 have a vmp_prev attribute, which indicates the id that this VMP used to be
@@ -20,5 +20,5 @@ imported.
 If the historical data needs to be re-imported, it can be run with:
 
     dokku run opencodelists python manage.py \
-    import_mapping_data mappings.dmdvmpprevmap \
+    import_mapping_data dmdvmpprevmap \
     /storage/data/dmdvmpprevmap/dmd_vpid_vpidprev_mapping_20221208.csv.gz

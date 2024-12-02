@@ -18,6 +18,13 @@ class Command(BaseCommand):
         )
 
     def handle(self, mapping, source, **kwargs):
+        self.stdout.write(
+            f"Importing {mapping} mapping, this may take a few seconds..."
+        )
         mapping_import_data_module = import_module(f"mappings.{mapping}.import_data")
-        import_data = getattr(mapping_import_data_module , "import_data")
+        import_data = getattr(mapping_import_data_module, "import_data")
         import_data(source)
+
+        mapping_models_module = import_module(f"mappings.{mapping}.models")
+        mapping_model = getattr(mapping_models_module, "Mapping")
+        self.stdout.write(f"Imported {mapping_model.objects.count()} rows")

@@ -1,17 +1,15 @@
-import glob
 import os
 from importlib import import_module
+from pathlib import Path
 
 from django.core.management import BaseCommand
 
 
 def possible_modules():
-    paths = glob.glob("mappings/**/import_data.py", recursive=True)
-    mods = []
-    for path in paths:
-        head, _ = os.path.split(path)
-        mods.append(head.replace(os.sep, "."))
-    return mods
+    return [
+        str(path.parent).replace(os.sep, ".")
+        for path in Path("mappings").rglob("import_data.py")
+    ]
 
 
 class Command(BaseCommand):

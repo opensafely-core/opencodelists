@@ -5,42 +5,42 @@
 {% block title_extra %}: {{ codelist_name }} (Draft){% endblock %}
 
 {% block full_width_content %}
-<div class="border-bottom mb-3">
-  <h1 class="h3">{{ codelist_name }}</h1>
-  <p class="text-muted">This version is a draft</p>
-</div>
+  <div class="border-bottom mb-3">
+    <h1 class="h3">{{ codelist_name }}</h1>
+    <p class="text-muted">This version is a draft</p>
+  </div>
 
-<div class="overflow-hidden" id="codelist-builder-container"></div>
+  <div class="overflow-hidden" id="codelist-builder-container"></div>
 {% endblock %}
 
 {% block extra_js %}
-{{ results_heading|json_script:"results-heading" }}
-{{ searches|json_script:"searches" }}
-{{ filter|json_script:"filter" }}
-{{ tree_tables|json_script:"tree-tables" }}
-{{ code_to_term|json_script:"code-to-term" }}
-{{ code_to_status|json_script:"code-to-status" }}
-{{ all_codes|json_script:"all-codes" }}
-{{ included_codes|json_script:"included-codes" }}
-{{ excluded_codes|json_script:"excluded-codes" }}
-{{ parent_map|json_script:"parent-map" }}
-{{ child_map|json_script:"child-map" }}
-{{ is_editable|json_script:"is-editable" }}
-{{ draft_url|json_script:"draft-url" }}
-{{ update_url|json_script:"update-url" }}
-{{ search_url|json_script:"search-url" }}
-{{ versions|json_script:"versions" }}
-{{ metadata|json_script:"metadata" }}
+  {{ results_heading|json_script:"results-heading" }}
+  {{ searches|json_script:"searches" }}
+  {{ filter|json_script:"filter" }}
+  {{ tree_tables|json_script:"tree-tables" }}
+  {{ code_to_term|json_script:"code-to-term" }}
+  {{ code_to_status|json_script:"code-to-status" }}
+  {{ all_codes|json_script:"all-codes" }}
+  {{ included_codes|json_script:"included-codes" }}
+  {{ excluded_codes|json_script:"excluded-codes" }}
+  {{ parent_map|json_script:"parent-map" }}
+  {{ child_map|json_script:"child-map" }}
+  {{ is_editable|json_script:"is-editable" }}
+  {{ draft_url|json_script:"draft-url" }}
+  {{ update_url|json_script:"update-url" }}
+  {{ search_url|json_script:"search-url" }}
+  {{ versions|json_script:"versions" }}
+  {{ metadata|json_script:"metadata" }}
 
-{% if debug %}
-<script type="module" nonce="{{ request.csp_nonce }}">
-  import RefreshRuntime from 'http://localhost:5173/static/@react-refresh'
-  RefreshRuntime.injectIntoGlobalHook(window)
-  window.$RefreshReg$ = () => {}
-  window.$RefreshSig$ = () => (type) => type
-  window.__vite_plugin_react_preamble_installed__ = true
-</script>
-{% endif %}
+  {% if debug %}
+    <script type="module" nonce="{{ request.csp_nonce }}">
+      import RefreshRuntime from 'http://localhost:5173/static/@react-refresh'
+      RefreshRuntime.injectIntoGlobalHook(window)
+      window.$RefreshReg$ = () => {}
+      window.$RefreshSig$ = () => (type) => type
+      window.__vite_plugin_react_preamble_installed__ = true
+    </script>
+  {% endif %}
 
-{% vite_asset "assets/src/scripts/builder/index.jsx" %}
+  {% vite_asset "assets/src/scripts/builder/index.jsx" %}
 {% endblock %}

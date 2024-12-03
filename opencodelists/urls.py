@@ -4,7 +4,13 @@ from django.urls import include, path
 from django.views.generic import RedirectView
 
 from . import views
+from .views.errors import bad_request, page_not_found, permission_denied, server_error
 
+
+handler400 = bad_request
+handler403 = permission_denied
+handler404 = page_not_found
+handler500 = server_error
 
 users_patterns = [
     path("<username>/", views.user, name="user"),
@@ -43,6 +49,10 @@ urlpatterns = [
     path("conversions/", include("conversions.urls")),
     path("coding-systems/", include("coding_systems.versioning.urls")),
     path("docs/", include("userdocs.urls")),
+    path("400", bad_request, name="bad_request"),
+    path("403", permission_denied, name="permission_denied"),
+    path("404", page_not_found, name="page_not_found"),
+    path("500", server_error, name="server_error"),
     path("health-check/", views.health_check, name="health-check"),
     *debug_toolbar_urls,
     path("robots.txt", RedirectView.as_view(url=settings.STATIC_URL + "robots.txt")),

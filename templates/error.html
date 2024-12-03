@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title_extra %}: {{ error_name }}{% endblock %}
+
+{% block content %}
+  <h1 class="display-4">
+    {{ error_code }}:
+    {{ error_name }}
+  </h1>
+  <p class="lead">
+    {{ error_message }}
+  </p>
+  <hr class="my-4">
+  <a class="btn btn-primary text-decoration-none" href="{% url 'codelists:index' %}" role="button">
+    Go to the home page
+  </a>
+  <a class="btn btn-secondary text-decoration-none" href="mailto:tech@opensafely.org" role="button">
+    Contact support
+  </a>
+{% endblock %}

@@ -358,9 +358,9 @@ litecli==1.13.2 \
     --hash=sha256:866379c740bf8fd0cf3c1a82c1cee73a94856f2d732224a99184bfda4173ec14 \
     --hash=sha256:ac374929a5b3d914a9f47e0a7f4a838a7e1f6e963b4893cd7d67a1e2a3ac4762
     # via -r requirements.dev.in
-nodeenv==1.8.0 \
-    --hash=sha256:d51e0c37e64fbf47d017feac3145cdbb58836d7eee8c6f6d3b6880c5456227d2 \
-    --hash=sha256:df865724bb3c3adc86b3876fa209771517b0cfe596beff01a92700e0e8be4cec
+nodeenv==1.9.1 \
+    --hash=sha256:6ec12890a2dab7946721edbfbcd91f3319c6ccc9aec47be7c7e6b7011ee6645f \
+    --hash=sha256:ba11c9782d29c27c70ffbdda2d7415098754709be8a7056d79a737cd901155c9
     # via pre-commit
 numpy==2.1.3 \
     --hash=sha256:016d0f6f5e77b0f0d45d77387ffa4bb89816b57c835580c3ce8e099ef830befe \
@@ -696,5 +696,4 @@ setuptools==70.3.0 \
     --hash=sha256:fe384da74336c398e0d956d1cae0669bc02eed936cdb1d49b57de1990dc11ffc
     # via
     #   -c requirements.prod.txt
-    #   nodeenv
     #   pip-tools

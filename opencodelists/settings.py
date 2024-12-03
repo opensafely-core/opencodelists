@@ -63,6 +63,9 @@ if IN_PRODUCTION:
 # https://docs.djangoproject.com/en/4.0/ref/settings/#std:setting-CSRF_TRUSTED_ORIGINS
 CSRF_TRUSTED_ORIGINS = BASE_URLS
 
+# CSRF error view
+# https://docs.djangoproject.com/en/4.1/ref/settings/#csrf-failure-view
+CSRF_FAILURE_VIEW = "opencodelists.views.errors.csrf_failure"
 
 # Application definition
 

@@ -31,6 +31,7 @@
         <dd>{{ common_codes|length }}</dd>
       </dl>
     </div>
+
     <div class="col">
       {% if lhs_only_codes %}
         <h2>Codes in LHS only</h2>
@@ -38,13 +39,15 @@
           {% for record in lhs_only_summary %}
             <li>
               {{ record.term }} (<code>{{ record.code }}</code>)
-              {% if record.descendants %}with these descendants{% endif %}
+              {% if record.descendants %}
+                with these descendants
+                <ul>
+                  {% for descendant in record.descendants %}
+                    <li>{{ descendant.term }} (<code>{{ descendant.code }}</code>)</li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
             </li>
-            <ul>
-              {% for descendant in record.descendants %}
-                <li>{{ descendant.term }} (<code>{{ descendant.code }}</code>)</li>
-              {% endfor %}
-            </ul>
           {% endfor %}
         </ul>
       {% endif %}
@@ -55,13 +58,15 @@
           {% for record in rhs_only_summary %}
             <li>
               {{ record.term }} (<code>{{ record.code }}</code>)
-              {% if record.descendants %}with these descendants{% endif %}
+              {% if record.descendants %}
+                with these descendants
+                <ul>
+                  {% for descendant in record.descendants %}
+                    <li>{{ descendant.term }} (<code>{{ descendant.code }}</code>)</li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
             </li>
-            <ul>
-              {% for descendant in record.descendants %}
-                <li>{{ descendant.term }} (<code>{{ descendant.code }}</code>)</li>
-              {% endfor %}
-            </ul>
           {% endfor %}
         </ul>
       {% endif %}
@@ -71,17 +76,17 @@
         {% for record in common_summary %}
           <li>
             {{ record.term }} (<code>{{ record.code }}</code>)
-            {% if record.descendants %}with these descendants{% endif %}
+            {% if record.descendants %}
+              with these descendants
+              <ul>
+                {% for descendant in record.descendants %}
+                  <li>{{ descendant.term }} (<code>{{ descendant.code }}</code>)</li>
+                {% endfor %}
+              </ul>
+            {% endif %}
           </li>
-          <ul>
-            {% for descendant in record.descendants %}
-              <li>{{ descendant.term }} (<code>{{ descendant.code }}</code>)</li>
-            {% endfor %}
-          </ul>
         {% endfor %}
       </ul>
     </div>
   </div>
-
-
 {% endblock %}

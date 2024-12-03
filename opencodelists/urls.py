@@ -7,6 +7,11 @@ from . import views
 from .views.errors import bad_request, page_not_found, permission_denied, server_error
 
 
+handler400 = bad_request
+handler403 = permission_denied
+handler404 = page_not_found
+handler500 = server_error
+
 users_patterns = [
     path("<username>/", views.user, name="user"),
     path(

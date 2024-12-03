@@ -479,9 +479,9 @@ pre-commit==4.0.1 \
     --hash=sha256:80905ac375958c0444c65e9cebebd948b3cdb518f335a091a670a89d652139d2 \
     --hash=sha256:efde913840816312445dc98787724647c65473daefe420785f885e8ed9a06878
     # via -r requirements.dev.in
-prompt-toolkit==3.0.43 \
-    --hash=sha256:3527b7af26106cbc65a040bcc84839a3566ec1b051bb0bfe953631e704b0ff7d \
-    --hash=sha256:a11a29cb3bf0a28a387fe5122cdb649816a957cd9261dcedf8c9f1fef33eacf6
+prompt-toolkit==3.0.48 \
+    --hash=sha256:d6623ab0477a80df74e646bdbc93621143f5caf104206aa29294d53de1a03d90 \
+    --hash=sha256:f49a827f90062e411f1ce1f854f2aedb3c23353244f8108b89283587397ac10e
     # via litecli
 pycparser==2.21 \
     --hash=sha256:8ee45429555515e1f6b185e78100aea234072576aa43ab53aefcae078162fca9 \

@@ -1,10 +1,15 @@
+from data_downloader import Downloader
 from django.db import transaction
 from openpyxl import load_workbook
 
 from .models import Mapping
 
 
-def import_data(filename):
+def import_data(filename=None):
+    if not filename:
+        downloader = Downloader(release_dir="/storage/mappings/bnfdmd")
+        filename, _ = downloader.download_latest_release()
+
     def load_records():
         wb = load_workbook(filename=filename)
         rows = wb.active.rows

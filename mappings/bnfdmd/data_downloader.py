@@ -1,10 +1,14 @@
+import glob
+import os
 import re
+import zipfile
 from datetime import datetime
 from pathlib import Path
+from urllib.parse import unquote, urljoin, urlparse
 
 import requests
 import structlog
-from lxml import html
+from bs4 import BeautifulSoup
 
 
 logger = structlog.get_logger()
@@ -18,53 +22,98 @@ class Downloader:
         self.url = "https://www.nhsbsa.nhs.uk"
         self.release_dir = release_dir
 
+    def op_download(self):
+        # taken from openprescribing/openprescribing/dmd/management/commands/fetch_bnf_snomed_mapping.py
+
+        page_url = "https://www.nhsbsa.nhs.uk/prescription-data/understanding-our-data/bnf-snomed-mapping"
+        filename_re = re.compile(
+            r"^BNF Snomed Mapping data (?P<date>20\d{6})\.zip$", re.IGNORECASE
+        )
+
+        rsp = requests.get(page_url)
+        rsp.raise_for_status()
+        doc = BeautifulSoup(rsp.text, "html.parser")
+
+        matches = []
+        for a_tag in doc.find_all("a", href=True):
+            url = urljoin(page_url, a_tag["href"])
+            filename = Path(unquote(urlparse(url).path)).name
+            match = filename_re.match(filename)
+            if match:
+                matches.append((match.group("date"), url, filename))
+
+        if not matches:
+            raise RuntimeError(f"Found no URLs matching {filename_re} at {page_url}")
+
+        # Sort by release date and get the latest
+        matches.sort()
+        datestamp, url, filename = matches[-1]
+
+        # release_date = datestamp[:4] + "_" + datestamp[4:6] + "_" + datestamp[6:]
+        dir_path = self.release_dir  # os.path.join(
+        # settings.PIPELINE_DATA_BASEDIR, "bnf_snomed_mapping", release_date
+        # )
+        zip_path = os.path.join(dir_path, filename)
+
+        if glob.glob(os.path.join(dir_path, "*.xlsx")):
+            return
+
+        # mkdir_p(dir_path)
+
+        rsp = requests.get(url, stream=True)
+        rsp.raise_for_status()
+
+        with open(zip_path, "wb") as f:
+            for block in rsp.iter_content(32 * 1024):
+                f.write(block)
+
+        with zipfile.ZipFile(zip_path) as zf:
+            zf.extractall(dir_path)
+
     def get_releases(self):
-        resp = requests.get(
+        # adapted from openprescribing/openprescribing/dmd/management/commands/fetch_bnf_snomed_mapping.py
+        page_url = (
             f"{self.url}/prescription-data/understanding-our-data/bnf-snomed-mapping"
         )
-        resp.raise_for_status()
-        tree = html.fromstring(resp.content)
+        filename_re = re.compile(
+            r"^BNF Snomed Mapping data (?P<date>20\d{6})\.zip$", re.IGNORECASE
+        )
 
-        datepat = re.compile(r"\w+ \d{4}")
-        datefmt = "%B %Y"
+        rsp = requests.get(page_url)
+        rsp.raise_for_status()
+        doc = BeautifulSoup(rsp.text, "html.parser")
 
-        def parse_link_para(p):
-            inner_text = p.text_content().replace("\xa0", " ")
-            date_string = datepat.search(inner_text).group()
-            valid_date = datetime.strptime(date_string, datefmt)
-            href = None
-            for e in p:
-                if "href" in e.attrib:
-                    href = e.get("href")
-                    break
-            if not href:
-                raise ValueError(f"Unable to find url in {html.tostring(p)}")
-            return {
-                "valid_from": valid_date.date(),
-                "archiveFileUrl": f"{self.url}{href}",
-            }
+        matches = []
+        for a_tag in doc.find_all("a", href=True):
+            url = urljoin(page_url, a_tag["href"])
+            filename = Path(unquote(urlparse(url).path)).name
+            match = filename_re.match(filename)
+            if match:
+                matches.append((match.group("date"), url, filename))
 
-        ziplinks = [
-            parse_link_para(a.getparent())
-            for a in tree.xpath("//body//a")
-            if a.get("href").endswith(".zip")
-        ]
+        if not matches:
+            raise RuntimeError(f"Found no URLs matching {filename_re} at {page_url}")
 
-        return sorted(ziplinks, key=lambda z: z["valid_from"], reverse=True)
+        # Sort by release date and get the latest
+        matches.sort()
+
+        return matches
 
     def get_latest_release(self):
         return self.get_releases()[0]
 
     def get_release_metadata(self, release):
-        download_url = release["archiveFileUrl"]
-        filename = download_url.split("/")[-1]
-        release_name = filename.split("%20")[-1].replace(".zip", "")
+        datestamp, url, filename = release
+        datepat = re.compile(r"\w+ \d{4}")
+        datefmt = "%B %Y"
+        valid_from = datepat.search(url).group()
+        valid_from = datetime.strptime(valid_from, datefmt)
         return {
-            "release": release_name,
-            "valid_from": release["valid_from"],
-            "url": download_url,
+            "release": datestamp,
+            "valid_from": valid_from,
+            "url": url,
             "filename": filename,
-            "release_name": release_name,
+            "release_name": datestamp,
         }
 
     def get_latest_release_metadata(self):
@@ -111,11 +160,16 @@ class Downloader:
                 for chunk in resp.iter_content(chunk_size=8192):
                     f.write(chunk)
         logger.info("Download complete", download_filepath=filepath)
+        logger.info("Starting unzip", download_filepath=filepath)
+        with zipfile.ZipFile(filepath) as zf:
+            zf.extractall(self.release_dir)
+        logger.info("Unzipping complete", download_filepath=filepath)
 
     def download_latest_release(self):
         metadata = self.get_latest_release_metadata()
 
-        # todo bail if release already loaded
+        if glob.glob(os.path.join(self.release_dir, metadata["filename"])):
+            return
 
         local_download_filepath = Path(self.release_dir) / metadata["filename"]
         self.get_file(metadata["url"], local_download_filepath)

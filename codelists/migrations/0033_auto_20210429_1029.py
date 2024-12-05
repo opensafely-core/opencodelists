@@ -62,7 +62,7 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name="handle",
             constraint=models.CheckConstraint(
-                check=models.Q(
+                condition=models.Q(
                     models.Q(
                         ("organisation_id__isnull", False), ("user_id__isnull", True)
                     ),

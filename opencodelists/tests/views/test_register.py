@@ -20,8 +20,8 @@ def test_post_success(client):
         "username": "user",
         "name": "Prof User",
         "email": "user@example.com",
-        "password1": "password",
-        "password2": "password",
+        "password1": "hCSeKtZg",
+        "password2": "hCSeKtZg",
     }
 
     with assert_difference(User.objects.count, expected_difference=1):
@@ -30,7 +30,7 @@ def test_post_success(client):
     u = User.objects.get(username="user")
     assert u.name == "Prof User"
     assert u.email == "user@example.com"
-    assert u.check_password("password")
+    assert u.check_password("hCSeKtZg")
     assert u.is_active
     assert not u.is_staff
 

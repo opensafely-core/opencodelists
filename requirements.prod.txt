@@ -300,9 +300,9 @@ django-taggit==6.1.0 \
     --hash=sha256:ab776264bbc76cb3d7e49e1bf9054962457831bd21c3a42db9138b41956e4cf0 \
     --hash=sha256:c4d1199e6df34125dd36db5eb0efe545b254dec3980ce5dd80e6bab3e78757c3
     # via -r requirements.prod.in
-django-vite==3.0.3 \
-    --hash=sha256:0738e6fe49ed097ab8e9e22ac78776584735948e118d3875817f78a87acaac82 \
-    --hash=sha256:3efe96d93cd77dfca4d8274c49db9dd43c545c95daab3c6b1e3dabf2236df943
+django-vite==3.0.5 \
+    --hash=sha256:049b74f38c999cbfcf0e2c21b254c2e059bb97bfd7e4049caf2d0f9fba0b482f \
+    --hash=sha256:431c1212e7627adc20666d150578f1a8983f043e90f3905778fb3c5c0ffe6963
     # via -r requirements.prod.in
 djangorestframework==3.14.0 \
     --hash=sha256:579a333e6256b09489cbe0a067e66abe55c6595d8926be6b99423786334350c8 \

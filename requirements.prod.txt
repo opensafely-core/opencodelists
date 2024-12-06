@@ -608,9 +608,9 @@ requests==2.31.0 \
     # via
     #   django-anymail
     #   opentelemetry-exporter-otlp-proto-http
-sentry-sdk==1.45.0 \
-    --hash=sha256:1ce29e30240cc289a027011103a8c83885b15ef2f316a60bcc7c5300afa144f1 \
-    --hash=sha256:509aa9678c0512344ca886281766c2e538682f8acfa50fd8d405f8c417ad0625
+sentry-sdk==2.19.1 \
+    --hash=sha256:6ad8507457a379b72f832aca55787b21e7391751892faef1fd8bace350aa5e17 \
+    --hash=sha256:b056e04b766f805fdf0aa620482cafe2ff000c8fcb51cb266cdb90873e93837b
     # via -r requirements.prod.in
 six==1.16.0 \
     --hash=sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926 \

@@ -46,23 +46,47 @@ A place to put scripts to be run via [runscript](https://django-extensions.readt
 
 ## Production database and backups
 
-The production database and backups are located at  `/var/lib/dokku/data/storage/opencodelists` on dokku3 (see also [deployment notes](DEPLOY.md)).
-This database is the core (default) database;
-the coding system databases are located within the `coding_systems` subdirectory.
+Production data is stored on dokku3 at `/storage/` within the container layer
+file system. This maps to `/var/lib/dokku/data/storage/opencodelists` in the
+host operating system's file system. See also [deployment notes](DEPLOY.md)).
 
-The backups are created with the dumpdata management command (`deploy/bin/backup.sh`).
-They can be restored with:
+`/storage/db.sqlite3` is the core Django database.
+
+`/storage/coding_systems` contains the coding system databases. These are
+read-only. Refer to their README files for information on the source data and
+creation process.
+
+The core database is fully backed up daily on the local file system. Coding
+system databases are not backed up locally but can be recreated from source.
+Weekly backups of the droplets allow a restore of the file system.
+
+The core database backups are located at `/storage/backup/db`. They are created
+by `deploy/bin/backup.sh` scheduled via `cron` as configured in `app.json`.
+Backups are taken via the `sqlite3` `.backup` command . These are effectively
+copies of the database file. They are compressed to save space.
+
+To restore from a backup, use the command-line tool to create a fresh temporary
+backup of the current state of the database (in case anything gones wrong),
+then restore from the decompressed backup file. On the production server:
 
 ```sh
-mv db.sqlite3 previous-db.sqlite3
+dokku enter opencodelists
+sqlite3 /app/db.sqlite3 ".backup /storage/backup/previous-db.sqlite"
 
-python manage.py migrate
-
-python manage.py loaddata core-data-<date>.json
+cp /storage/backup/db/{PATH_TO_BACKUP_GZ} /storage/backup
+gunzip /storage/backup/{PATH_TO_BACKUP_GZ}
+sqlite3 /app/db.sqlite3 ".restore /storage/backup/{PATH_TO_BACKUP_SQLITE}
 ```
 
-When all is confirmed working with the restore,
-you can delete `previous-db.sqlite3`.
+When all is confirmed working with the restore, you can delete
+`previous-db.sqlite3`.
+
+The latest backup is available via symlink at
+`/storage/backup/db/latest-db.sqlite3.gz`. You can use `scp`, `gunzip` and
+`sqlite3 ".restore" to bring your local database into the same state as the
+production database. You may also wish to retrieve the coding systems
+databases, otherwise you will not be able to interact with codelists that
+require them.
 
 ## Local development
 

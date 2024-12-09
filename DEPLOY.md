@@ -66,7 +66,7 @@ Check cron tasks:
 dokku$ dokku cron:list opencodelists
 ```
 
-Backups are saved to `/var/lib/dokku/data/storage/opencodelists` on dokku3.
+Backups are saved to `/var/lib/dokku/data/storage/opencodelists/backup` on dokku3.
 
 ### Manually deploying
 

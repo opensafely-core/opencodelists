@@ -1,7 +1,6 @@
 # list ubuntu packages needed in production, one per line
 ca-certificates
 python3.12
-python3.12-distutils
 python3.12-venv
 sqlite3
 tzdata

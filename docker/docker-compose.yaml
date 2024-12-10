@@ -26,6 +26,8 @@ services:
     init: true
     ports:
       - "7000:7000"
+    volumes:
+      - ./assetsout:/opt/assetsout
 
   # prod service. Used to build prod image and run/test it locally
   prod:
@@ -56,6 +58,7 @@ services:
       target: node-builder
     volumes:
       - ..:/app
+      - ./assetsout:/opt/assetsout
 
   # main development service
   dev:
@@ -75,7 +78,6 @@ services:
       - ..:/app
       # provides a persistant inspectable cache for staticfiles
       - ./docker-staticfiles:/opt/staticfiles
-      - ./assetsout:/opt/assetsout
     # override command
     command: /app/manage.py runserver 0.0.0.0:7000
 

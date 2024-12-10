@@ -10,6 +10,7 @@
     {% vite_hmr_client %}
     {% vite_asset "assets/src/scripts/base.js" %}
 
+    <meta name="is_logged_in" content="{% if user.is_authenticated %}true{% else %}false{% endif %}">
     {% block extra_styles %}{% endblock %}
 
     <title>OpenCodelists{% block title_extra %}{% endblock %}</title>

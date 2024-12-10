@@ -8,19 +8,21 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument(
             "coding_system_id",
-            help="Coding system to import",
-            choices=["dmd", "snomedct"],
+            help="Coding system or mappings to import",
+            choices=["dmd", "snomedct", "mappings.bnfdmd"],
         )
         parser.add_argument(
             "release_dir", help="Path to local release directory to download raw data"
         )
 
     def handle(self, coding_system_id, release_dir, **kwargs):
-        downloader_module_path = f"coding_systems.{coding_system_id}.data_downloader"
+        if "." not in coding_system_id:
+            coding_system_id = "coding_systems." + coding_system_id
+        downloader_module_path = f"{coding_system_id}.data_downloader"
         downloader_module = import_module(downloader_module_path)
         downloader_cls = downloader_module.Downloader
 
-        import_module_path = f"coding_systems.{coding_system_id}.import_data"
+        import_module_path = f"{coding_system_id}.import_data"
         importer_module = import_module(import_module_path)
         import_fn = importer_module.import_release
 

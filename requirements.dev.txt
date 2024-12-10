@@ -336,9 +336,9 @@ filelock==3.16.1 \
     --hash=sha256:2082e5703d51fbf98ea75855d9d5527e33d8ff23099bec374a134febee6946b0 \
     --hash=sha256:c249fbfcd5db47e5e2d6d62198e565475ee65e4831e2561c8e313fa7eb961435
     # via virtualenv
-hypothesis==6.122.1 \
-    --hash=sha256:23280e802eef88316b02cb32205d74b5bf2e3de4a378e2579a8974117c512b83 \
-    --hash=sha256:59e52da0f2529b40f0b7bd0c3c61d8b3fe3337102800bf3534c53d4a8bdf8a6d
+hypothesis==6.122.3 \
+    --hash=sha256:f0f57036d3b95b979491602b32c95b6725c3af678cccb6165d8de330857f3c83 \
+    --hash=sha256:f4c927ce0ec739fa6266e4572949d0b54e24a14601a2bc5fec8f78e16af57918
     # via -r requirements.dev.in
 identify==2.6.3 \
     --hash=sha256:62f5dae9b5fef52c84cc188514e9ea4f3f636b1d8799ab5ebc475471f9e47a02 \

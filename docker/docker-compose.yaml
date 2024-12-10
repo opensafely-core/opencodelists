@@ -75,6 +75,7 @@ services:
       - ..:/app
       # provides a persistant inspectable cache for staticfiles
       - ./docker-staticfiles:/opt/staticfiles
+      - ./assetsout:/opt/assetsout
     # override command
     command: /app/manage.py runserver 0.0.0.0:7000
 

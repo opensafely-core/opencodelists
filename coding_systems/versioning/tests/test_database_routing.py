@@ -28,7 +28,7 @@ def test_coding_system_routing_errors_if_no_using_db_specified(coding_system):
 
 def test_mismatched_coding_system_database_relations(coding_systems_tmp_path):
     # Relations are only allowed if the database matches
-    # (Note Mapping instances are an exception; see db_utils.CodingSystemVersionRouter)
+    # (Note Mapping instances are an exception; see db_utils.CodingSystemReleaseRouter)
 
     # make another ctv3 db connection
     CodingSystemRelease.objects.create(

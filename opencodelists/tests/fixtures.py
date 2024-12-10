@@ -167,7 +167,7 @@ def build_fixture(fixture_name):
 @pytest.fixture(scope="session")
 def setup_coding_systems(django_db_setup, django_db_blocker):
     with django_db_blocker.unblock():
-        # load the CodingSystemVersions needed for the snomed and dmd fixtures
+        # load the CodingSystemReleases needed for the snomed and dmd fixtures
         call_command(
             "loaddata",
             CODING_SYSTEM_RELEASES_FIXTURES_PATH / "coding_system_releases.json",

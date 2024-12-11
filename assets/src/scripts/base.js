@@ -32,6 +32,13 @@ if (document.location.hostname === "www.opencodelists.org") {
   const script = document.createElement("script");
   script.defer = true;
   script.setAttribute("data-domain", "opencodelists.org");
-  script.src = "https://plausible.io/js/script.js";
+  script.src = "https://plausible.io/js/script.tagged-events.js";
   document.head.appendChild(script);
+
+  window.plausible =
+    window.plausible ||
+    function () {
+      // biome-ignore lint/suspicious/noAssignInExpressions: Plausible Analytics provided script
+      (window.plausible.q = window.plausible.q || []).push(arguments);
+    };
 }

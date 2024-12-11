@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name="search",
             constraint=models.CheckConstraint(
-                check=models.Q(
+                condition=models.Q(
                     models.Q(("code__isnull", True), ("term__isnull", False)),
                     models.Q(("code__isnull", False), ("term__isnull", True)),
                     _connector="OR",

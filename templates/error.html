@@ -18,3 +18,7 @@
     Contact support
   </a>
 {% endblock %}
+
+{% block extra_js %}
+  <script>document.addEventListener('DOMContentLoaded', function () { plausible('{{error_code}}', { props: { path: document.location.pathname } }); });</script>
+{% endblock %}

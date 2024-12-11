@@ -235,9 +235,9 @@ charset-normalizer==3.1.0 \
     --hash=sha256:f8303414c7b03f794347ad062c0516cee0e15f7a612abd0ce1e25caf6ceb47df \
     --hash=sha256:fca62a8301b605b954ad2e9c3666f9d97f63872aa4efcae5492baca2056b74ab
     # via requests
-crispy-bootstrap4==2023.1 \
-    --hash=sha256:1a88e74f8d36d2dedeb40a66f246994f3ce5cd855017785d0291e741d3e7d7c2 \
-    --hash=sha256:d60e93eb6d82886c009eb174f2a4c78fdac602a1efadf0305471c84815bd973a
+crispy-bootstrap4==2024.10 \
+    --hash=sha256:138a97884044ae4c4799c80595b36c42066e4e933431e2e971611e251c84f96c \
+    --hash=sha256:503e8922b0f3b5262a6fdf303a3a94eb2a07514812f1ca130b88f7c02dd25e2b
     # via -r requirements.prod.in
 deprecated==1.2.13 \
     --hash=sha256:43ac5335da90c31c24ba028af536a91d41d53f9e6901ddb021bcc572ce44e38d \

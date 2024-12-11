@@ -10,9 +10,11 @@
     {% vite_hmr_client %}
     {% vite_asset "assets/src/scripts/base.js" %}
 
+    {# The following <meta> tags are for Plausible stats collection. #}
     <meta name="is_logged_in" content="{% if user.is_authenticated %}true{% else %}false{% endif %}">
-    <meta name="is_staff" content="{% if user.is_admin %}true{% else %}false{% endif %}">
-    {% if template_name %}<meta name="template" content="{{ template_name }}">{% endif %}
+    <meta name="is_admin" content="{% if user.is_admin %}true{% else %}false{% endif %}">
+    {# End of stats-collecting <meta> tags. #}
+
     {% block extra_styles %}{% endblock %}
 
     <title>OpenCodelists{% block title_extra %}{% endblock %}</title>

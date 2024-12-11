@@ -34,4 +34,10 @@ if (document.location.hostname === "www.opencodelists.org") {
   script.setAttribute("data-domain", "opencodelists.org");
   script.src = "https://plausible.io/js/script.js";
   document.head.appendChild(script);
+
+  window.plausible =
+    window.plausible ||
+    function () {
+      (window.plausible.q = window.plausible.q || []).push(arguments);
+    };
 }

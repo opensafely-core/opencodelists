@@ -86,3 +86,13 @@ a:focus {
     margin-left: 0.25rem;
   }
 }
+
+.max-w-screen-2xl {
+  max-width: 1536px;
+}
+
+.break-word {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
+}

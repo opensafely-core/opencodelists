@@ -535,9 +535,9 @@ lxml==5.3.0 \
     --hash=sha256:f914c03e6a31deb632e2daa881fe198461f4d06e57ac3d0e05bbcab8eae01945 \
     --hash=sha256:fb66442c2546446944437df74379e9cf9e9db353e61301d1a0e26482f43f0dd8
     # via -r requirements.prod.in
-markdown2==2.5.1 \
-    --hash=sha256:12fc04ea5a87f7bb4b65acf5bf3af1183b20838cc7d543b74c92ec7eea4bbc74 \
-    --hash=sha256:190ae60a4bd0425c60c863bede18a9f3d45b1cbf3fbc9f40b4fac336ff2c520b
+markdown2==2.5.2 \
+    --hash=sha256:3ac02226a901c4b2f6fc21dbd17c26d118d2c25bcbb28cee093a1f8b5c46f3f1 \
+    --hash=sha256:bed80d301a33845be633acde47a67cf265c57ddf9cbe3cb11c49c18016c2f581
     # via -r requirements.prod.in
 marshmallow==3.23.1 \
     --hash=sha256:3a8dfda6edd8dcdbf216c0ede1d1e78d230a6dc9c5a088f58c4083b974a0d468 \

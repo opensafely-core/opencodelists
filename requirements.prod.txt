@@ -693,9 +693,9 @@ sqlean-py==3.47.0 \
     --hash=sha256:f9069e1c80820622cf6ac51372f80dbadacb4f5492abf912b28b6e93bd8ec315 \
     --hash=sha256:fb7ab546feb994f730db8be07f5effe9545279bf7b4f2bfa0ac4d9492dea80c9
     # via -r requirements.prod.in
-sqlparse==0.5.2 \
-    --hash=sha256:9e37b35e16d1cc652a2545f0997c1deb23ea28fa1f3eefe609eee3063c3b105f \
-    --hash=sha256:e99bc85c78160918c3e1d9230834ab8d80fc06c59d03f8db2618f65f65dda55e
+sqlparse==0.5.3 \
+    --hash=sha256:09f67787f56a0b16ecdbde1bfc7f5d9c3371ca683cfeaa8e6ff60b4807ec9272 \
+    --hash=sha256:cf2196ed3418f3ba5de6af7e82c694a9fbdbfecccdfc72e281548517081f16ca
     # via django
 structlog==24.4.0 \
     --hash=sha256:597f61e80a91cc0749a9fd2a098ed76715a1c8a01f73e336b746504d1aad7610 \

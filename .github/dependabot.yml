@@ -1,19 +1,6 @@
 version: 2
 
 updates:
-  - package-ecosystem: "pip"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "08:00"
-      timezone: "Europe/London"
-    open-pull-requests-limit: 20
-    # Can remove the ignore for pip upgrades when this pip-tools issue is resolved:
-    # https://github.com/jazzband/pip-tools/issues/2131
-    ignore:
-      - dependency-name: "pip"
-        versions: [ ">=24.3" ]
   - package-ecosystem: "npm"
     directory: "/"
     schedule:

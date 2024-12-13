@@ -174,7 +174,7 @@ class CodelistBuilder extends React.Component {
                   {this.props.searches.some((search) => search.active) ? (
                     <a
                       className="list-group-item list-group-item-action py-1 font-italic"
-                      href={this.props.draftURL}
+                      href={encodeURI(this.props.draftURL)}
                     >
                       show all
                     </a>

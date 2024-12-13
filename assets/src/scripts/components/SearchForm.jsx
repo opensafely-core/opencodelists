@@ -4,7 +4,7 @@ import { getCookie } from "../_utils";
 
 function SearchForm({ codingSystemName, searchURL }) {
   return (
-    <form action={searchURL} method="post">
+    <form action={encodeURI(searchURL)} method="post">
       <div className="form-group">
         <input
           name="csrfmiddlewaretoken"

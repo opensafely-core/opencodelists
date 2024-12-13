@@ -43,6 +43,6 @@ def test_calls_import_release_function_coding_system_release_already_exists(
     assert error.value.code == 1
     captured = capsys.readouterr()
     assert (
-        "A dmd coding system release already exists for the latest release (1.0.0) "
+        "A coding_systems.dmd coding system release already exists for the latest release (1.0.0) "
         "and valid from date (2022-10-01)." in captured.out
     )

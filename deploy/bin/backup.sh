@@ -9,13 +9,16 @@ BACKUP_DIR="$STORAGE_ROOT/backup/db"
 mkdir "$BACKUP_DIR" -p
 
 # Take a datestamped backup.
-BACKUP_FILENAME="$BACKUP_DIR/$(date +%F)-db.sqlite3"
-sqlite3 "$STORAGE_ROOT/db.sqlite3" ".backup $BACKUP_FILENAME"
+BACKUP_FILENAME="$(date +%F)-db.sqlite3"
+BACKUP_FILEPATH="$BACKUP_DIR/$BACKUP_FILENAME"
+sqlite3 "$STORAGE_ROOT/db.sqlite3" ".backup $BACKUP_FILEPATH"
 
 # Compress the latest backup.
-gzip -f "$BACKUP_FILENAME"
+gzip -f "$BACKUP_FILEPATH"
 
 # Symlink to the new latest backup to make it easy to discover.
+# Make the target a relative path -- an absolute one won't mean the same thing
+# in the host file system if executed inside a container as we expect.
 ln -sf "$BACKUP_FILENAME.gz" "$BACKUP_DIR/latest-db.sqlite3.gz"
 
 # Keep only the last 30 days of backups.

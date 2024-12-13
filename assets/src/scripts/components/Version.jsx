@@ -7,7 +7,7 @@ function Version({ version }) {
       {version.current ? (
         version.tag_or_hash
       ) : (
-        <a href={version.url}>{version.tag_or_hash}</a>
+        <a href={encodeURI(version.url)}>{version.tag_or_hash}</a>
       )}
 
       {version.status === "draft" ? (

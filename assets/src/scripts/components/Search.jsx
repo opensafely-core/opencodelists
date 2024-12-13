@@ -37,7 +37,7 @@ function Search({ search }) {
           ? "list-group-item list-group-item-action active py-1 px-2"
           : "list-group-item list-group-item-action py-1 px-2 "
       }
-      href={search.url}
+      href={encodeURI(search.url)}
     >
       {search.term_or_code}
     </a>

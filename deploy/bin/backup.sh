@@ -2,8 +2,8 @@
 
 set -euxo pipefail
 
-STORAGE_ROOT="/storage"
-BACKUP_DIR="$STORAGE_ROOT/backup/db"
+# DATABASE_DIR is configured via dokku (see DEPLOY.md)
+BACKUP_DIR="$DATABASE_DIR/backup/db"
 
 # Make the backup dir if it doesn't exist.
 mkdir "$BACKUP_DIR" -p
@@ -11,7 +11,7 @@ mkdir "$BACKUP_DIR" -p
 # Take a datestamped backup.
 BACKUP_FILENAME="$(date +%F)-db.sqlite3"
 BACKUP_FILEPATH="$BACKUP_DIR/$BACKUP_FILENAME"
-sqlite3 "$STORAGE_ROOT/db.sqlite3" ".backup $BACKUP_FILEPATH"
+sqlite3 "$DATABASE_DIR/db.sqlite3" ".backup $BACKUP_FILEPATH"
 
 # Compress the latest backup.
 gzip -f "$BACKUP_FILEPATH"
@@ -26,5 +26,5 @@ ln -sf "$BACKUP_FILENAME.gz" "$BACKUP_DIR/latest-db.sqlite3.gz"
 # Django dumpdata management command and the new dir with backups based on
 # sqlite .backup. Once there are none of the former remaining, the first line can be
 # removed, along with most of this comment.
-find "$STORAGE_ROOT" -name "core-data-*.json.gz" -type f -mtime +30 -exec rm {} \;
+find "$DATABASE_DIR" -name "core-data-*.json.gz" -type f -mtime +30 -exec rm {} \;
 find "$BACKUP_DIR" -name "*-db.sqlite3.gz" -type f -mtime +30 -exec rm {} \;

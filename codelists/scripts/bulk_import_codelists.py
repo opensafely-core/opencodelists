@@ -192,6 +192,15 @@ def process_file_to_dataframe(filepath, config):
     # Rename df columns with any aliased column names
     codelist_df.rename(columns={v: k for k, v in column_aliases.items()}, inplace=True)
 
+    # Set coding system column where not present and only one configured
+    if "coding_system" not in codelist_df.columns:
+        if len(config["coding_systems"]) > 1:
+            raise ValueError(
+                "coding_system column must be present when multiple coding systems configured"
+            )
+        else:
+            codelist_df["coding_system"] = list(config["coding_systems"].keys())[0]
+
     relevant_df_columns = set(codelist_df.columns) & column_names
     required_columns = column_names - {"term"}
     for column in required_columns:

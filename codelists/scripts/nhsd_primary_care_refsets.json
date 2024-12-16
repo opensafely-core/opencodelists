@@ -1,0 +1,20 @@
+{
+    "comment": "For loading of the xxxx_PCD_RefsetContext.txt files downloaded from NHSD PC Refset Portal",
+    "organisation": "nhsd-primary-care-domain-refsets",
+    "sheet": "20241205_PCD_Refset_Content",
+    "coding_systems": {
+        "snomedct": {
+            "id": "snomedct",
+            "release": "snomedct_3920_20241127"
+        }
+    },
+    "tag": "20241205",
+    "column_aliases": {
+        "codelist_name": "Cluster_description",
+        "code": "SNOMED_code",
+        "term": "SNOMED_code_description",
+        "codelist_description":"Cluster_ID"
+    },
+    "description_template":"Taken from the `%s` refset published by NHSD.",
+    "delimiter":"\t"
+}

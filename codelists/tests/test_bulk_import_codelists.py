@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 
 from ..models import Codelist, CodelistVersion
-from ..scripts.import_codelists_from_xlsx import main
+from ..scripts.bulk_import_codelists import main
 
 
 FIXTURES_PATH = Path(__file__).parent / "fixtures"

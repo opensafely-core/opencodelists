@@ -74,6 +74,8 @@ Provide a path to an xlsx file, which should contain at least one sheet, with at
  - code
  - term (only required if file includes dm+d codelists)
 
+Optionally, a codelist_description field may be provided either to be used verbatim or with a template string specified in the [config](#config).
+
  Each row represents one code in one codelist version, e.g. the following represents
  one SNOMED-CT codelist and one dm+d codelist, each with 3 codes.
 
@@ -113,6 +115,8 @@ Provide a config file in json format
   subset of codelists in the xlsx file.
 - **limit_to_named_codelists**: boolean, defaults to False; only import update for
   codelists named in codelist_name_aliases
+- **description_template**: template string for interpolation of
+  `codelist_description` field in codelist descriptions
 
 ### example_config.json:
 ```json

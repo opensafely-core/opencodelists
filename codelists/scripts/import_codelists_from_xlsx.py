@@ -205,6 +205,9 @@ def get_post_data(config, codelist_df, create_new_codelist, force_new_version):
     coding_system_id = config["coding_systems"][coding_system_from_data]["id"]
     release_db_alias = config["coding_systems"][coding_system_from_data]["release"]
     tag = config.get("tag")
+    description = first_row.get("codelist_description", None)
+    if "description_template" in config:
+        description = config["description_template"] % description
 
     post_data = {"coding_system_database_alias": release_db_alias, "tag": tag}
     if coding_system_id in CODING_SYSTEMS_WITH_OLD_STYLE_CODELISTS:
@@ -223,7 +226,7 @@ def get_post_data(config, codelist_df, create_new_codelist, force_new_version):
             {
                 "name": codelist_name,
                 "coding_system_id": coding_system_id,
-                "description": None,
+                "description": description,
                 "methodology": None,
             }
         )

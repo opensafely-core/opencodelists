@@ -71,18 +71,17 @@ then restore from the decompressed backup file. On the production server:
 
 ```sh
 dokku enter opencodelists
-sqlite3 /app/db.sqlite3 ".backup /storage/backup/previous-db.sqlite"
+sqlite3 /storage/db.sqlite3 ".backup /storage/backup/previous-db.sqlite3"
 
-cp /storage/backup/db/{PATH_TO_BACKUP_GZ} /storage/backup
-gunzip /storage/backup/{PATH_TO_BACKUP_GZ}
-sqlite3 /app/db.sqlite3 ".restore /storage/backup/{PATH_TO_BACKUP_SQLITE}
+zstd -d /storage/backup/db/{PATH_TO_BACKUP_ZST} -o /storage/backup/restore-db.sqlite3
+sqlite3 /storage/db.sqlite3 ".restore /storage/backup/restore-db.sqlite3
 ```
 
 When all is confirmed working with the restore, you can delete
-`previous-db.sqlite3`.
+`previous-db.sqlite3` and `restore-db.sqlite3`.
 
 The latest backup is available via symlink at
-`/storage/backup/db/latest-db.sqlite3.gz`. You can use `scp`, `gunzip` and
+`/storage/backup/db/latest-db.sqlite3.zst`. You can use `scp`, `zstd -d` and
 `sqlite3 ".restore" to bring your local database into the same state as the
 production database. You may also wish to retrieve the coding systems
 databases, otherwise you will not be able to interact with codelists that

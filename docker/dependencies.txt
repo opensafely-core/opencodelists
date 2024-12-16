@@ -4,3 +4,5 @@ python3.12
 python3.12-venv
 sqlite3
 tzdata
+# Fast, modern compression utility. Compress backups. Search 'zstd' to find uses.
+zstd

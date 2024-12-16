@@ -1,6 +1,6 @@
-# Bulk import codelists from an xlsx file
+# Bulk import codelists from a file
 
-`codelists/scripts/import_codelists_from_xlsx.py` reads an XLSX file and creates new
+`codelists/scripts/bulk_import_codelists.py` reads a file and creates new
 codelists/codelist versions. All new versions are created as "under review".
 
 This script is intended to be run on a local machine, and will use the OpenCodelists
@@ -9,12 +9,12 @@ API to create the new codelist versions.
 ## Running the script
 
 ```
-usage: import_codelists_from_xlsx.py [-h] [--force-new-version] [--live-run]
+usage: bulk_import_codelists.py [-h] [--force-new-version] [--live-run]
                                      [--host HOST]
-                                     xlsx_file config_file
+                                     file_path config_file
 
 positional arguments:
-  xlsx_file             Path/to/xlsx/file
+  file_path             Path/to/file
   config_file           Path/to/config/json/file
 
 options:
@@ -32,8 +32,8 @@ options:
 Run with:
 ```sh
 API_TOKEN=###
-python codelists/scripts/ \import_codelists_from_xlsx.py
-    <path/to/xlsx> \
+python codelists/scripts/ \bulk_import_codelists.py
+    <path/to/file> \
     <path/to/config/json> \
     --host \ # run on the specified host; defaults to localhost:7000
     --force-new-version -f \ # to force a new version, even if there are no changes
@@ -41,7 +41,7 @@ python codelists/scripts/ \import_codelists_from_xlsx.py
 ```
 
 Always run without the `--live-run` flag first. This will tell you if the script will
-create a new codelist or a new version for each codelist in the xlsx file; confirm
+create a new codelist or a new version for each codelist in the file; confirm
 that for any codelists that already exist, it reports that they will create new
 *versions*.
 
@@ -66,9 +66,9 @@ print(user.api_token)
 
 NOTE: the token user must be a member of the relevant organisation on OpenCodelists.
 
-## XLSX file format
+## File format
 
-Provide a path to an xlsx file, which should contain at least one sheet, with at least columns (these can be aliased using the [config](#config)):
+Provide a path to an xlsx or tab/comma-delimited file (.txt files must state `delimiter` in config), which should contain at least one sheet, with at least columns (these can be aliased using the [config](#config)):
  - coding_system
  - codelist_name
  - code

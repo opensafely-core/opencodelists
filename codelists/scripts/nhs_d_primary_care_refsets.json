@@ -14,5 +14,6 @@
         "term": "SNOMED_code_description",
         "codelist_description":"Cluster_ID"
     },
-    "description_template":"Taken from the `%s` refset published by NHSD."
+    "description_template":"Taken from the `%s` refset published by NHSD.",
+    "delimiter":"\t"
 }

@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 
 """
-Reads an XLSX file and updates/creates codelist versions
+Reads an file and updates/creates codelist versions
 
 This script is intended to be run on a local machine, and will use the OpenCodelists
 API to create the new codelist versions.
 
 Run with:
     API_TOKEN=###
-    python codelists/scripts/import_codelists_from_xlsx.py
-      <path/to/xlsx>
+    python codelists/scripts/bulk_import_codelists.py
+      <path/to/file>
       <path/to/config/json>
       --host # run on the specified host; defaults to localhost:7000
       --force-new-version -f  # to force a new version, even if there are no changes
@@ -42,7 +42,7 @@ def read_config(config_filepath):
 
 
 def main(
-    xlsx_filepath,
+    filepath,
     config,
     host,
     force_new_version=False,
@@ -54,8 +54,8 @@ def main(
     headers = get_headers()
     base_url = urljoin(host, f"api/v1/codelist/{config['organisation']}/")
 
-    # Read the xlsx file and apply any aliases specified in the config
-    codelists_df = process_xlsx_to_dataframe(xlsx_filepath, config)
+    # Read the file and apply any aliases specified in the config
+    codelists_df = process_file_to_dataframe(filepath, config)
 
     # Identify codelist slugs for existing codelists
     # First retrieve all codelists for this organisation
@@ -71,7 +71,7 @@ def main(
         codelist["name"]: codelist["slug"]
         for codelist in codelists_resp.json()["codelists"]
     }
-    # Add a codelist_slug column to the dataframe, using the codelist names from the xlsx file
+    # Add a codelist_slug column to the dataframe, using the codelist names from the file
     new_codelist_identifier = "".join(
         random.choices(string.ascii_lowercase + string.digits, k=7)
     )
@@ -146,9 +146,9 @@ def get_headers():
     return {"authorization": f"Token {token}"}
 
 
-def process_xlsx_to_dataframe(xlsx_filepath, config):
+def process_file_to_dataframe(filepath, config):
     """
-    Read an xlsx file into a Pandas dataframe and santitise it, ready for
+    Read a file into a Pandas dataframe and santitise it, ready for
     importing codelists
     """
     column_names = {"coding_system", "codelist_name", "code", "term"}
@@ -157,12 +157,30 @@ def process_xlsx_to_dataframe(xlsx_filepath, config):
     column_aliases = {col: col for col in column_names}
     column_aliases.update(config.get("column_aliases", {}))
 
-    # read xlsx file, ensure the code column is imported as string
-    codelist_df = pd.read_excel(
-        xlsx_filepath,
-        sheet_name=config["sheet"],
-        converters={column_aliases["code"]: str},
-    )
+    if filepath.suffix == ".xlsx":
+        # read xlsx file, ensure the code column is imported as string
+        codelist_df = pd.read_excel(
+            filepath,
+            sheet_name=config["sheet"],
+            converters={column_aliases["code"]: str},
+        )
+    else:
+        if filepath.suffix == ".csv":
+            delim = ","
+        elif filepath.suffix == ".tsv":
+            delim = "\t"
+        elif filepath.suffix == ".txt":
+            delim = config.get("delimiter", None)
+            if not delim:
+                raise ValueError("Delimiter must be supplied for .txt files")
+        else:
+            raise ValueError("Unknown file extension")
+        # read text file, ensure the code column is imported as string
+        codelist_df = pd.read_csv(
+            filepath,
+            delimiter=delim,
+            converters={column_aliases["code"]: str},
+        )
 
     if config.get("limit_to_named_codelists", False):
         # if necessary, limit to only the named columns
@@ -244,7 +262,7 @@ class ValidateHost(argparse.Action):
 def parse_args():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("xlsx_file", type=Path, help="Path/to/xlsx/file")
+    parser.add_argument("file_path", type=Path, help="Path/to/file")
     parser.add_argument("config_file", type=Path, help="Path/to/config/json/file")
     parser.add_argument(
         "--force-new-version",
@@ -270,7 +288,7 @@ def parse_args():
     config = read_config(arguments.config_file)
 
     return (
-        arguments.xlsx_file,
+        arguments.file_path,
         config,
         arguments.host,
         arguments.force_new_version,

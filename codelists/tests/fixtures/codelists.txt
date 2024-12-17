@@ -1,0 +1,7 @@
+codelist_name	Alias for Code	term	codelist_code
+Arthritis	3723001	Arthritis	ART2
+Arthritis	439656005	Arthritis of elbow	ART2
+Arthritis	202855006	Lateral epicondylitis	ART2
+Name to alias to Tennis Toe	299573000	Lesion of toe	TEN2
+Tennis Toe	238484001	Tennis Toe	TEN2
+Tennis Toe	238458007	Friction dermatosis	TEN2

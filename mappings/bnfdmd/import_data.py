@@ -45,7 +45,7 @@ def import_data(filename):
         )
 
 
-def import_release(release_zipfile):
+def import_release(release_zipfile, release_name, valid_from):
     with TemporaryDirectory() as tempdir:
         release_zip = ZipFile(str(release_zipfile))
         logger.info("Extracting", release_zip=release_zip.filename)

@@ -111,6 +111,8 @@ class Downloader:
 
     def get_file(self, url, filepath):
         logger.info("Starting download", download_filepath=filepath)
+        if not filepath.parent.exists():
+            filepath.parent.mkdir(parents=True)
         with requests.get(url, stream=True) as resp:
             resp.raise_for_status()
             with open(filepath, "wb") as f:

@@ -3,7 +3,7 @@ name: Update Python dependencies
 on:
   workflow_dispatch:
   schedule:
-    - cron:  "12 6 * * *"
+    - cron:  "12 6 * * 1"
 
 jobs:
   update-dependencies:

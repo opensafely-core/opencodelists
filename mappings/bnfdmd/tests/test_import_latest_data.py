@@ -5,10 +5,8 @@ from unittest.mock import patch
 from django.core.management import call_command
 
 
-@patch("mappings.bnfdmd.import_data.import_release")
-def test_calls_import_release_function_with_extracted_release_metadata(
-    mock_import_release, tmpdir, mock_data_download
-):
+@patch("mappings.bnfdmd.import_data.import_release", autospec=True)
+def test_calls_import_release_function(mock_import_release, tmpdir, mock_data_download):
     call_command(
         "import_latest_data",
         "mappings.bnfdmd",

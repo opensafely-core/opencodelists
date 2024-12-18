@@ -1,7 +1,16 @@
+from pathlib import Path
 from unittest.mock import patch
 
 import pytest
 import responses
+
+
+MOCK_BNFDMD_IMPORT_DATA_PATH = (
+    Path(__file__).parents[1]
+    / "fixtures"
+    / "import_resources"
+    / "BNF Snomed Mapping data 20241119.zip"
+)
 
 
 def add_response(rsps, filename, release_date):

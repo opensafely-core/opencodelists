@@ -7,7 +7,7 @@ antlr4-python3-runtime
 beautifulsoup4
 bleach
 crispy-bootstrap4
-django~=4.2
+django
 djangorestframework
 django-anymail[mailgun]
 django-crispy-forms

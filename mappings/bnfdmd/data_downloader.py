@@ -124,7 +124,7 @@ class Downloader:
         metadata = self.get_latest_release_metadata()
 
         if glob.glob(os.path.join(self.release_dir, metadata["filename"])):
-            return
+            raise ValueError("Latest release already exists")
 
         local_download_filepath = Path(self.release_dir) / metadata["filename"]
         self.get_file(metadata["url"], local_download_filepath)

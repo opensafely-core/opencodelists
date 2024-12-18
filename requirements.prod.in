@@ -8,7 +8,7 @@ beautifulsoup4
 bleach
 crispy-bootstrap4
 dj-database-url
-django~=4.2
+django
 djangorestframework
 django-anymail[mailgun]
 django-crispy-forms

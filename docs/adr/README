@@ -1,0 +1,30 @@
+We record architecturally significant decisions in Architecture Decision
+Records (ADRs). Refer to [this article by Michael
+Nygard](http://thinkrelevance.com/blog/2011/11/15/documenting-architecture-decisions)
+for an introduction and guidelines.
+
+ADRs are stored as markdown-format text files in this directory, each with a
+leading 4-digit incrementing identifier and a meaningful name (e.g.,
+`0001-record-name.md`).
+
+Determining what is "architecturally significant" is subjective. Nygard defines it as
+"decisions that affect the structure, non-functional characteristics,
+dependencies, interfaces, or construction techniques". Examples include:
+
+- Decisions about the overall purposes of the system and its interfaces with
+  other elements of its ecosystem.
+- Key technology, framework, and system design decisions.
+- Decisions about how the code is deployed and managed in production.
+- Decisions impacting scalability, security, or maintainability.
+- Adopting a design pattern that influences multiple components.
+
+Purely functional or business-logic decisions are unlikely to be architectural.
+
+If the context, rationale, and consequences of a decision can be easily
+documented in a single location and are still easily discoverable, it may be
+preferable to avoid creating an ADR. Use ADRs when the decision has long-term
+implications or needs greater visibility for future reference.
+
+We do not plan to create retroactive ADRs as a separate activity. If an
+investigation has been done into the rationale for past decisions, it may be
+useful to document the findings in an ADR.

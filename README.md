@@ -16,6 +16,9 @@ Read more at [OpenSAFELY.org](https://opensafely.org).
 
 See the [development notes](DEVELOPERS.md).
 
+We record architecturally significant decisions in ADRs. Refer to
+`docs/adr/README` for more information.
+
 # Deployment
 
 See the [deployment notes](DEPLOY.md).

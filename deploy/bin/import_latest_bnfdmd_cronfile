@@ -7,4 +7,4 @@ SHELL=/bin/bash
 SLACK_WEBHOOK_URL=dummy-url
 SLACK_TEAM_WEBHOOK_URL=dummy-url
 
-5 23 * * 5 dokku /var/lib/dokku/data/storage/opencodelists/import_latest_release.sh mappings.bnfdmd
+5 23 * * 3 dokku /var/lib/dokku/data/storage/opencodelists/import_latest_release.sh mappings.bnfdmd

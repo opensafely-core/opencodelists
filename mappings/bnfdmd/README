@@ -9,6 +9,15 @@ For more details, see our blog posts [0] and [1].
 
 We obtain the mapping data from the NHS Business Services Authority [2].  New mapping data is released monthly.
 
+## Automated updates
+
+The latest mapping file is imported automatically, via a cron job that runs `import_latest_release.sh mappings.bnfdmd` each Wednesday.
+If the latest release file is already on disk at /storage/data/mappings.bnfdmd/, it will not be reimported.
+In case of a failed import, you may need to delete the corresponding release file to enable the import to re-run.
+
+
+## Manual updates
+
 On the download page, download the latest release, which will be an zip file called something like `SNOMED - BNF mapping document September 2022.zip`, containing a single
 xlsx file.
 

@@ -1,6 +1,6 @@
-# Bulk import codelists from an xlsx file
+# Bulk import codelists from a file
 
-`codelists/scripts/import_codelists_from_xlsx.py` reads an XLSX file and creates new
+`codelists/scripts/bulk_import_codelists.py` reads a file and creates new
 codelists/codelist versions. All new versions are created as "under review".
 
 This script is intended to be run on a local machine, and will use the OpenCodelists
@@ -9,12 +9,12 @@ API to create the new codelist versions.
 ## Running the script
 
 ```
-usage: import_codelists_from_xlsx.py [-h] [--force-new-version] [--live-run]
+usage: bulk_import_codelists.py [-h] [--force-new-version] [--live-run]
                                      [--host HOST]
-                                     xlsx_file config_file
+                                     file_path config_file
 
 positional arguments:
-  xlsx_file             Path/to/xlsx/file
+  file_path             Path/to/file
   config_file           Path/to/config/json/file
 
 options:
@@ -32,8 +32,8 @@ options:
 Run with:
 ```sh
 API_TOKEN=###
-python codelists/scripts/ \import_codelists_from_xlsx.py
-    <path/to/xlsx> \
+python codelists/scripts/ \bulk_import_codelists.py
+    <path/to/file> \
     <path/to/config/json> \
     --host \ # run on the specified host; defaults to localhost:7000
     --force-new-version -f \ # to force a new version, even if there are no changes
@@ -41,7 +41,7 @@ python codelists/scripts/ \import_codelists_from_xlsx.py
 ```
 
 Always run without the `--live-run` flag first. This will tell you if the script will
-create a new codelist or a new version for each codelist in the xlsx file; confirm
+create a new codelist or a new version for each codelist in the file; confirm
 that for any codelists that already exist, it reports that they will create new
 *versions*.
 
@@ -66,13 +66,15 @@ print(user.api_token)
 
 NOTE: the token user must be a member of the relevant organisation on OpenCodelists.
 
-## XLSX file format
+## File format
 
-Provide a path to an xlsx file, which should contain at least one sheet, with at least columns (these can be aliased using the [config](#config)):
+Provide a path to an xlsx or tab/comma-delimited file (.txt files must state `delimiter` in config), which should contain at least one sheet, with at least columns (these can be aliased using the [config](#config)):
  - coding_system
  - codelist_name
  - code
  - term (only required if file includes dm+d codelists)
+
+Optionally, a codelist_description field may be provided either to be used verbatim or with a template string specified in the [config](#config).
 
  Each row represents one code in one codelist version, e.g. the following represents
  one SNOMED-CT codelist and one dm+d codelist, each with 3 codes.
@@ -113,6 +115,8 @@ Provide a config file in json format
   subset of codelists in the xlsx file.
 - **limit_to_named_codelists**: boolean, defaults to False; only import update for
   codelists named in codelist_name_aliases
+- **description_template**: template string for interpolation of
+  `codelist_description` field in codelist descriptions
 
 ### example_config.json:
 ```json

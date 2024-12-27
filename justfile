@@ -244,7 +244,7 @@ docker-build env="dev": _env
 
 
 # run js checks in docker container
-docker-check-js:
+docker-check-js: _env
     {{ just_executable() }} docker/check-js
 
 
@@ -259,7 +259,7 @@ docker-test-py *args="": _env
 
 
 # run js tests in docker container
-docker-test-js:
+docker-test-js: _env
     {{ just_executable() }} docker/test-js
 
 

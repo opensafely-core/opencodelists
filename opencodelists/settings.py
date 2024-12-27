@@ -15,9 +15,9 @@ import re
 import sys
 from pathlib import Path
 
+import dj_database_url
 import sentry_sdk
 from django.contrib.messages import constants as messages
-from environs import Env
 from furl import furl
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.logging import ignore_logger
@@ -30,29 +30,50 @@ __import__("sqlean")
 sys.modules["sqlite3"] = sys.modules.pop("sqlean")
 
 
-# Read env file/vars
-env = Env()
-env.read_env()
+_missing_env_var_hint = """\
+If you are running commands locally outside of `just` then you should
+make sure that your `.env` file is being loaded into the environment,
+which you can do in Bash using:
+
+    set -a; source .env; set +a
+
+If you are seeing this error when running via `just` (which should
+automatically load variables from `.env`) then you should check that
+`.env` contains all the variables listed in `dotenv-sample` (which may
+have been updated since `.env` was first created).
+
+If you are seeing this error in production then you haven't configured
+things properly.
+"""
+
+
+def get_env_var(name):
+    try:
+        return os.environ[name]
+    except KeyError:
+        raise RuntimeError(
+            f"Missing environment variable: {name}\n\n{_missing_env_var_hint}"
+        )
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env.str("SECRET_KEY")
+SECRET_KEY = get_env_var("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env.bool("DEBUG", False)
+DEBUG = os.environ.get("DEBUG", default=False) == "True"
 
-DEBUG_TOOLBAR = env.bool("DJANGO_DEBUG_TOOLBAR", default=False)
+DEBUG_TOOLBAR = os.environ.get("DJANGO_DEBUG_TOOLBAR", default=False) == "True"
 
-BASE_URLS = env.list("BASE_URLS", [])
+BASE_URLS = os.environ.get("BASE_URLS", default="").split(",")
 # note localhost is required on production for dokku checks
 BASE_URLS += ["http://localhost:7000"]
 
-ALLOWED_HOSTS = [furl(base_url).host for base_url in BASE_URLS]
+ALLOWED_HOSTS = [furl(base_url).host for base_url in BASE_URLS if base_url]
 
-IN_PRODUCTION = env.bool("IN_PRODUCTION", False)
+IN_PRODUCTION = os.environ.get("IN_PRODUCTION", default=False) == "True"
 
 if IN_PRODUCTION:
     # This setting causes infinite redirects
@@ -153,13 +174,14 @@ WSGI_APPLICATION = "opencodelists.wsgi.application"
 # see coding_systems.versioning.models.update_coding_system_database_connections (called
 # from coding_systems.versioning.apps)
 DATABASES = {
-    "default": env.dj_db_url("DATABASE_URL", "sqlite:///db.sqlite3"),
+    "default": dj_database_url.parse(
+        os.environ.get("DATABASE_URL", default="sqlite:///db.sqlite3")
+    ),
     "OPTIONS": {"timeout": 45},
 }
 
-DATABASE_DIR = Path(
-    env("DATABASE_DIR", BASE_DIR)
-)  # location of sqlite files e.g. /storage/
+DATABASE_DIR = Path(os.environ.get("DATABASE_DIR", default=BASE_DIR))
+# location of sqlite files e.g. /storage/
 DATABASE_DUMP_DIR = DATABASE_DIR / "sql_dump"
 CODING_SYSTEMS_DATABASE_DIR = DATABASE_DIR / "coding_systems"
 DATABASE_ROUTERS = ["opencodelists.db_utils.CodingSystemReleaseRouter"]
@@ -215,15 +237,17 @@ STORAGES = {
 
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 # Note: these *must* be strings. If they are paths, we cannot cleanly extract them in ./scripts/collect-me-maybe.sh
-BUILT_ASSETS = env.path("BUILT_ASSETS", default=BASE_DIR / "assets" / "dist")
+BUILT_ASSETS = Path(
+    os.environ.get("BUILT_ASSETS", default=BASE_DIR / "assets" / "dist")
+)
 STATICFILES_DIRS = [
     str(BASE_DIR / "static"),
     str(BUILT_ASSETS),
 ]
-STATIC_ROOT = env.path("STATIC_ROOT", default=BASE_DIR / "staticfiles")
+STATIC_ROOT = Path(os.environ.get("STATIC_ROOT", default=BASE_DIR / "staticfiles"))
 STATIC_URL = "/static/"
 
-ASSETS_DEV_MODE = env.bool("ASSETS_DEV_MODE", default=False)
+ASSETS_DEV_MODE = os.environ.get("ASSETS_DEV_MODE", default=False) == "True"
 
 DJANGO_VITE = {
     "default": {
@@ -324,15 +348,15 @@ MESSAGE_TAGS = {
 # EMAIL
 # Anymail
 ANYMAIL = {
-    "MAILGUN_API_KEY": env.str("MAILGUN_API_KEY", default=None),
+    "MAILGUN_API_KEY": os.environ.get("MAILGUN_API_KEY", default=None),
     "MAILGUN_API_URL": "https://api.eu.mailgun.net/v3",
     "MAILGUN_SENDER_DOMAIN": "mg.opencodelists.org",
 }
-EMAIL_BACKEND = env.str(
+EMAIL_BACKEND = os.environ.get(
     "EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend"
 )
 DEFAULT_FROM_EMAIL = "no-reply@opencodelists.org"
 SERVER_EMAIL = "tech@opensafely.org"
 
 # API key for dm+d imports
-TRUD_API_KEY = env.str("TRUD_API_KEY")
+TRUD_API_KEY = get_env_var("TRUD_API_KEY")

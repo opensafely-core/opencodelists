@@ -19,7 +19,7 @@ then
     BIN_DIR="$CONTAINER_STORAGE_ROOT/deploy/bin/"
     if test -d "$BIN_DIR";
     then
-        CRONFILE="$BIN_DIR${JOB_NAME//"_release.sh"/"_"}${JOB_ARG}_cronfile"
+        CRONFILE="$BIN_DIR"${JOB_NAME//".sh"/"_"}"${JOB_ARG}_cronfile"
         CRONTAB=$(grep -oP "$CRONTAB_PATTERN" "$CRONFILE")
 
         BIN_PATH="$BIN_DIR$JOB_NAME $JOB_ARG"

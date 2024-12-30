@@ -34,8 +34,9 @@ then
     fi
 else
     # running inside container
-    BIN_PATH="/app/deploy/bin/$JOB_NAME.sh"
-    CRONTAB=$(grep -A 2 "$JOB_NAME" "/app/app.json" | grep -oP "$CRONTAB_PATTERN")
+    BIN_DIR="/app/deploy/bin"
+    CRONTAB=$(grep -A 2 "$BIN_DIR/run_cron.sh $JOB_NAME" "/app/app.json" | grep -oP "$CRONTAB_PATTERN")
+    BIN_PATH+="$BIN_DIR/$JOB_NAME"
     # sentry_dsn env var is available inside container
 fi
 

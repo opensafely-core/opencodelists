@@ -1,7 +1,7 @@
 {
     "cron": [
         {
-            "command": "/app/deploy/bin/backup.sh",
+            "command": "/app/deploy/bin/run_cron.sh backup.sh",
             "schedule": "00 01 * * *"
         }
     ],

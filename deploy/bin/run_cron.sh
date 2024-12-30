@@ -19,7 +19,7 @@ then
     BIN_PATH+="deploy/bin/"
     if test -d "$BINPATH";
     then
-        CRONFILE="$BIN_PATH"${JOB_NAME//"_release.sh"/"_"}"${JOB_ARG}_cronfile"
+        CRONFILE="$BIN_PATH"${JOB_NAME//".sh"/"_"}"${JOB_ARG}_cronfile"
         CRONTAB=$(grep -oP "$CRONTAB_PATTERN" "$CRONFILE")
 
         BIN_PATH+="$JOB_NAME $JOB_ARG"

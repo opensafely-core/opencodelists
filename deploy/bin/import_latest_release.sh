@@ -15,9 +15,6 @@ source sentry_cron_functions.sh
 # Updates to coding systems require restarting the dokku app, so this job is
 # not dokku-managed
 
-# This script should be copied to /var/lib/dokku/data/storage/opencodelists/import_latest_release.sh
-# on dokku3 and run using the cronfiles in opencodelists/deploy/bin/
-
 # SLACK_WEBHOOK_URL and SLACK_TEAM_WEBHOOK_URL are environment variables set in the cronfile on dokku3
 # General notification messages (import start, complete etc) are posted to the
 # SLACK_WEBHOOK_URL channel (#tech-noise).  Failures are posted to the

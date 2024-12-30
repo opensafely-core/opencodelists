@@ -24,5 +24,10 @@
                 "type": "startup"
             }
         ]
+    },
+    "scripts": {
+        "dokku": {
+            "predeploy": "mkdir -p /storage/deploy/bin && cp /app/deploy/bin/* /storage/deploy/bin/"
+        }
     }
 }

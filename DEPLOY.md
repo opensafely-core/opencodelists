@@ -126,8 +126,8 @@ container to /storage/mappings/bnfdmd.
 We use a mixture of dokku-managed (see [Backups](#Backups) ) and
 [self-managed](https://dokku.com/docs/processes/scheduled-cron-tasks/#self-managed-cron)cron jobs.
 
-For the latter, these are configured via `cronfile`s in `deploy/bin/`
-which should be copied to `/etc/cron.d/` using the filename stated in the head of the cronfile.
+For the latter, these are configured via a `cronfile` in `deploy/bin/`
+which should be copied to `/etc/cron.d/` using `copy_cronfile.sh` as `sudo`.
 
 All cron jobs (both dokku- and self-managed) call functions from `sentry_cron_functions.sh` to enable
 Sentry cron job monitoring. The contents of `deploy/bin` should be copied to

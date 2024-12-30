@@ -16,7 +16,7 @@ source sentry_cron_functions.sh
 # not dokku-managed
 
 # This script should be copied to /var/lib/dokku/data/storage/opencodelists/import_latest_release.sh
-# on dokku3 and run using the cronfiles in opencodelists/deploy/bin/
+# on dokku3 and run using the cronfile in opencodelists/deploy/bin/
 
 # SLACK_WEBHOOK_URL and SLACK_TEAM_WEBHOOK_URL are environment variables set in the cronfile on dokku3
 # General notification messages (import start, complete etc) are posted to the

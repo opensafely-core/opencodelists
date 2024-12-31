@@ -177,7 +177,7 @@ DATABASES = {
     "default": dj_database_url.parse(
         os.environ.get("DATABASE_URL", default="sqlite:///db.sqlite3")
     ),
-    "OPTIONS": {"timeout": 45},
+    "OPTIONS": {"timeout": 90},
 }
 
 DATABASE_DIR = Path(os.environ.get("DATABASE_DIR", default=BASE_DIR))

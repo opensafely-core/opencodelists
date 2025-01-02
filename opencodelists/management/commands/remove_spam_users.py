@@ -1,7 +1,5 @@
 import csv
-import os
 from datetime import datetime
-from pathlib import Path
 
 from django.core.management import BaseCommand
 from django.db import transaction
@@ -9,6 +7,7 @@ from django.db.models import F, Q
 
 from codelists.models import Collaboration, Handle, SignOff
 from opencodelists.models import Membership, User
+from opencodelists.settings import DATABASE_DIR
 
 
 class Command(BaseCommand):
@@ -40,7 +39,7 @@ class Command(BaseCommand):
             | {s.user for s in SignOff.objects.all().prefetch_related("user")}
         )
 
-        # TLDs we trust (.uk, .edu[.*], .ac.*, .gov[.*])
+        # Top-level and second-level domains we trust (.uk, .edu[.*], .ac.*, .gov[.*])
         safe_tld_users = User.objects.filter(
             Q(email__endswith=".uk")
             | Q(email__regex=r"[^@]+@.*(:?\.edu)(:?\.[^\.]+)?")
@@ -75,7 +74,8 @@ class Command(BaseCommand):
         print(f"Three-or-more dots before @ users {len(dotty)}")
         users_to_remove |= dotty
 
-        # bad TLDs
+        # bad Top-Level Domains (and domains)
+        # observed to be frequently associated with spam accounts
         for bad_tld in [
             ".dynainbox.com",
             ".fun",
@@ -102,17 +102,20 @@ class Command(BaseCommand):
         users_to_remove |= badnames
 
         print(f"Combined users to be removed {len(users_to_remove)}")
-        userfields = [f.name for f in User._meta.fields]
+        userfields = [f.name for f in User._meta.fields if f != "password"]
 
         # dump them to csv just in case
-        dump_path = Path(os.environ["DATABASE_DIR"]) / "deleted-user-dumps"
+        dump_path = DATABASE_DIR / "deleted-user-dumps"
         dump_path.mkdir(parents=False, exist_ok=True)
         dump_file_path = dump_path / f"deletedusers_{datetime.now().isoformat()}.csv"
         with (dump_file_path).open("w") as f:
             writer = csv.DictWriter(f, fieldnames=userfields)
             writer.writeheader()
             writer.writerows(
-                [{f: getattr(u, f) for f in userfields} for u in users_to_remove]
+                [
+                    {f: getattr(u, f) for f in userfields}
+                    for u in users_to_remove.order_by("-last_login")
+                ]
             )
             print(f"Spam user log written to {dump_file_path}")
 

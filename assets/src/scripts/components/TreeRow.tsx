@@ -1,7 +1,7 @@
 import React from "react";
 import DescendantToggle from "./DescendantToggle";
 import MoreInfoButton from "./MoreInfoButton";
-import Pipes from "./Pipes";
+import Pipes, { PipesProps } from "./Pipes";
 import StatusToggle from "./StatusToggle";
 
 export interface TreeRowProps {
@@ -9,7 +9,7 @@ export interface TreeRowProps {
   hasDescendants: boolean;
   isExpanded: boolean;
   path: string;
-  pipes: ("+" | "(+)" | "-" | "(-)" | "!")[];
+  pipes: PipesProps["pipes"];
   showMoreInfoModal: Function;
   status: string;
   term: string;

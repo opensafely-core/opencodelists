@@ -2,7 +2,7 @@ import React from "react";
 import { TreeProps } from "./Tree";
 import TreeTable from "./TreeTable";
 
-export interface TreeTableProps extends TreeProps {
+export interface TreeTableProps extends Omit<TreeProps, "ancestorCode"> {
   treeTables: [string, string[]][];
   visiblePaths: Set<string>;
 }

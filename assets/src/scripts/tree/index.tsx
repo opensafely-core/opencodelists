@@ -2,14 +2,15 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import Hierarchy from "../_hierarchy";
 import { readValueFromPage } from "../_utils";
-import TreeTables from "../components/TreeTables";
+import TreeTables, { TreeTableProps } from "../components/TreeTables";
 
 const hierarchy = new Hierarchy(
   readValueFromPage("parent-map"),
   readValueFromPage("child-map"),
 );
 
-const treeTables = readValueFromPage("tree-tables");
+const treeTables: TreeTableProps["treeTables"] =
+  readValueFromPage("tree-tables");
 const codeToStatus = readValueFromPage("code-to-status");
 const codeToTerm = readValueFromPage("code-to-term");
 
@@ -23,15 +24,19 @@ const visiblePaths = hierarchy.initiallyVisiblePaths(
 );
 
 const container = document.getElementById("codelist-tree");
-const root = createRoot(container);
-root.render(
-  <TreeTables
-    codeToStatus={codeToStatus}
-    codeToTerm={codeToTerm}
-    hierarchy={hierarchy}
-    showMoreInfoModal={null}
-    treeTables={treeTables}
-    updateStatus={null}
-    visiblePaths={visiblePaths}
-  />,
-);
+
+if (container) {
+  const root = createRoot(container);
+  root.render(
+    <TreeTables
+      codeToStatus={codeToStatus}
+      codeToTerm={codeToTerm}
+      hierarchy={hierarchy}
+      showMoreInfoModal={() => null}
+      treeTables={treeTables}
+      toggleVisibility={() => null}
+      updateStatus={() => null}
+      visiblePaths={visiblePaths}
+    />,
+  );
+}

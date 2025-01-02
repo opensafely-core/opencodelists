@@ -2,11 +2,11 @@ import React from "react";
 
 export interface VersionProps {
   version: {
-    current: boolean,
-    status: string,
-    tag_or_hash: string,
-    url: string,
-  }
+    current: boolean;
+    status: string;
+    tag_or_hash: string;
+    url: string;
+  };
 }
 
 function Version({ version }: VersionProps) {

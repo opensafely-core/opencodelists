@@ -4,8 +4,8 @@ import { createRoot } from "react-dom/client";
 import Hierarchy from "../_hierarchy";
 import { readValueFromPage } from "../_utils";
 import CodelistBuilder from "../components/CodelistBuilder";
-import { TreeTableProps } from "../components/TreeTables";
 import { TreeProps } from "../components/Tree";
+import { TreeTableProps } from "../components/TreeTables";
 
 const hierarchy = new Hierarchy(
   readValueFromPage("parent-map"),
@@ -14,15 +14,19 @@ const hierarchy = new Hierarchy(
 
 const treeTables: TreeTableProps["treeTables"] =
   readValueFromPage("tree-tables");
-const codeToStatus: TreeProps["codeToStatus"] = readValueFromPage("code-to-status");
+const codeToStatus: TreeProps["codeToStatus"] =
+  readValueFromPage("code-to-status");
 const codeToTerm = readValueFromPage("code-to-term");
 
 const ancestorCodes = treeTables
   .map(([_, ancestorCodes]) => ancestorCodes)
   .flat();
 
-const visiblePaths: Set<string> =
-  hierarchy.initiallyVisiblePaths(ancestorCodes, codeToStatus, 1);
+const visiblePaths: Set<string> = hierarchy.initiallyVisiblePaths(
+  ancestorCodes,
+  codeToStatus,
+  1,
+);
 
 const container = document.getElementById("codelist-builder-container");
 

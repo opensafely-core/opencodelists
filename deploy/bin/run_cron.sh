@@ -19,11 +19,8 @@ then
     BIN_DIR="$CONTAINER_STORAGE_ROOT/deploy/bin/"
     if test -d "$BIN_DIR";
     then
-        CRONFILE="$BIN_DIR"${JOB_NAME//".sh"/"_"}"${JOB_ARG}_cronfile"
-        CRONTAB=$(grep -oP "$CRONTAB_PATTERN" "$CRONFILE")
-
         BIN_PATH="$BIN_DIR$JOB_NAME $JOB_ARG"
-
+        CRONTAB=$(grep "$BIN_PATH" "$BIN_DIR/cronfile" | grep -oP "$CRONTAB_PATTERN")
         SENTRY_DSN=$(dokku config:get opencodelists SENTRY_DSN)
 
         # combine job name and arg for reporting to Sentry

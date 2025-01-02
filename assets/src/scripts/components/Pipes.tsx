@@ -1,7 +1,8 @@
 import React from "react";
 
-interface PipesProps {
-  pipes: string[];
+export interface PipesProps {
+  pipe?: ("└" | "├" | " " | "│");
+  pipes: PipesProps["pipe"][];
 }
 
 function Pipes({ pipes }: PipesProps) {

@@ -1,3 +1,4 @@
+import { PipesProps } from "./components/Pipes";
 import { TreeProps } from "./components/Tree";
 
 class Hierarchy {
@@ -182,7 +183,7 @@ class Hierarchy {
       hasDescendants: boolean;
       isExpanded: boolean;
       path: string;
-      pipes: string[];
+      pipes: PipesProps["pipes"];
       status: "+" | "(+)" | "-" | "(-)" | "!";
       term: string;
     }[] = [];
@@ -190,7 +191,7 @@ class Hierarchy {
     const helper = (
       code: string,
       path: string,
-      prevPipes: string | string[],
+      prevPipes: PipesProps["pipes"],
       isLastSibling: boolean,
     ) => {
       const childCodes = this.childMap[code] || [];

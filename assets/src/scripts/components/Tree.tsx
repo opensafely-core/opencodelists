@@ -3,7 +3,7 @@ import Hierarchy from "../_hierarchy";
 import TreeRow from "./TreeRow";
 
 export interface TreeProps {
-  ancestorCode?: string;
+  ancestorCode: string;
   codeToStatus: {
     [key: string]: "+" | "(+)" | "-" | "(-)" | "!";
   };

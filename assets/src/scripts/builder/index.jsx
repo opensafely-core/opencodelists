@@ -14,7 +14,7 @@ const codeToStatus = readValueFromPage("code-to-status");
 const codeToTerm = readValueFromPage("code-to-term");
 
 const ancestorCodes = treeTables
-  .map(([_, ancestorCodes]) => ancestorCodes) // eslint-disable-line no-unused-vars
+  .map(([_, ancestorCodes]) => ancestorCodes)
   .flat();
 const visiblePaths = hierarchy.initiallyVisiblePaths(
   ancestorCodes,

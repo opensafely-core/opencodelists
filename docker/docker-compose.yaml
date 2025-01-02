@@ -19,6 +19,9 @@ services:
           # env vars supplied by just
           - BUILD_DATE
           - GITREF
+    # paths relative to docker-compose.yaml file
+    env_file:
+      - ../.env
     # use dockers builitin PID daemon
     init: true
     ports:

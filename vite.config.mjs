@@ -12,7 +12,7 @@ export default defineConfig(({ mode }) => ({
         base: "assets/src/scripts/base.js",
         builder: "assets/src/scripts/builder/index.jsx",
         codelist: "assets/src/scripts/codelist.js",
-        tree: "assets/src/scripts/tree/index.jsx",
+        tree: "assets/src/scripts/tree/index.tsx",
         "codelists-version": "assets/src/scripts/codelists-version.js",
       },
     },

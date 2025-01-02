@@ -22,7 +22,7 @@ global.fetch = vi.fn().mockImplementation((_url, config) =>
 const testRender = (data) => {
   const hierarchy = new Hierarchy(data.parent_map, data.child_map);
   const ancestorCodes = data.tree_tables
-    .map(([_, ancestorCodes]) => ancestorCodes) // eslint-disable-line no-unused-vars
+    .map(([_, ancestorCodes]) => ancestorCodes)
     .flat();
   const visiblePaths = hierarchy.initiallyVisiblePaths(
     ancestorCodes,
@@ -71,7 +71,7 @@ it("does the right thing when clicking around", async () => {
   const data = versionWithSomeSearchesData;
   const hierarchy = new Hierarchy(data.parent_map, data.child_map);
   const ancestorCodes = data.tree_tables
-    .map(([_, ancestorCodes]) => ancestorCodes) // eslint-disable-line no-unused-vars
+    .map(([_, ancestorCodes]) => ancestorCodes)
     .flat();
   const visiblePaths = hierarchy.initiallyVisiblePaths(
     ancestorCodes,

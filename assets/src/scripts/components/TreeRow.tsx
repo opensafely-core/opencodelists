@@ -1,9 +1,21 @@
-import PropTypes from "prop-types";
 import React from "react";
 import DescendantToggle from "./DescendantToggle";
 import MoreInfoButton from "./MoreInfoButton";
 import Pipes from "./Pipes";
 import StatusToggle from "./StatusToggle";
+
+export interface TreeRowProps {
+  code: string;
+  hasDescendants: boolean;
+  isExpanded: boolean;
+  path: string;
+  pipes: ("+" | "(+)" | "-" | "(-)" | "!")[];
+  showMoreInfoModal: Function;
+  status: string;
+  term: string;
+  toggleVisibility: Function;
+  updateStatus: Function;
+}
 
 function TreeRow({
   code,
@@ -16,8 +28,8 @@ function TreeRow({
   term,
   toggleVisibility,
   updateStatus,
-}) {
-  const statusToColour = {
+}: TreeRowProps) {
+  const statusToColour: { [key: string]: string } = {
     "+": "black",
     "(+)": "black",
     "-": "gray",
@@ -68,16 +80,3 @@ function TreeRow({
 }
 
 export default TreeRow;
-
-TreeRow.propTypes = {
-  code: PropTypes.string,
-  hasDescendants: PropTypes.bool,
-  isExpanded: PropTypes.bool,
-  path: PropTypes.string,
-  pipes: PropTypes.arrayOf(PropTypes.string),
-  showMoreInfoModal: PropTypes.func,
-  status: PropTypes.string,
-  term: PropTypes.string,
-  toggleVisibility: PropTypes.func,
-  updateStatus: PropTypes.func,
-};

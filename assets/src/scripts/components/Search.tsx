@@ -1,9 +1,17 @@
-import PropTypes from "prop-types";
 import React from "react";
 import { Button, Form } from "react-bootstrap";
 import { getCookie } from "../_utils";
 
-function Search({ search }) {
+export interface SearchProps {
+  search: {
+    active: boolean;
+    delete_url: string;
+    term_or_code: string;
+    url: string;
+  };
+}
+
+function Search({ search }: SearchProps) {
   return search.delete_url ? (
     <Form action={search.delete_url} className="mt-0 pt-0" method="post">
       <Form.Control
@@ -49,12 +57,3 @@ function Search({ search }) {
 }
 
 export default Search;
-
-Search.propTypes = {
-  search: PropTypes.shape({
-    active: PropTypes.bool,
-    delete_url: PropTypes.string,
-    term_or_code: PropTypes.string,
-    url: PropTypes.string,
-  }),
-};

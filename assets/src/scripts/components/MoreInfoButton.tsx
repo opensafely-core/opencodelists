@@ -1,8 +1,12 @@
-import PropTypes from "prop-types";
 import React from "react";
 import { Button } from "react-bootstrap";
 
-function MoreInfoButton({ code, showMoreInfoModal }) {
+interface MoreInfoButtonProps {
+  code: string;
+  showMoreInfoModal: Function;
+}
+
+function MoreInfoButton({ code, showMoreInfoModal }: MoreInfoButtonProps) {
   return (
     <Button
       className="py-0 border-0"
@@ -15,8 +19,3 @@ function MoreInfoButton({ code, showMoreInfoModal }) {
 }
 
 export default MoreInfoButton;
-
-MoreInfoButton.propTypes = {
-  code: PropTypes.string,
-  showMoreInfoModal: PropTypes.func,
-};

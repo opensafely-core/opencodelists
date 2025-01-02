@@ -1,35 +1,81 @@
-import PropTypes from "prop-types";
 import React, { useRef } from "react";
+import { Button } from "react-bootstrap";
 import Modal from "react-bootstrap/Modal";
+import Hierarchy from "../_hierarchy";
 import { getCookie } from "../_utils";
-import Filter from "./Filter";
+import Filter, { FilterProps } from "./Filter";
 import MoreInfoModal from "./MoreInfoModal";
-import Search from "./Search";
-import SearchForm from "./SearchForm";
+import Search, { SearchProps } from "./Search";
+import SearchForm, { SearchFormProps } from "./SearchForm";
 import Summary from "./Summary";
-import TreeTables from "./TreeTables";
-import Version from "./Version";
+import { TreeProps } from "./Tree";
+import TreeTables, { TreeTableProps } from "./TreeTables";
+import Version, { VersionProps } from "./Version";
 
-class CodelistBuilder extends React.Component {
-  constructor(props) {
+interface CodingSystemReleaseProps {
+  release_name: string;
+  valid_from: string;
+}
+
+interface MetadataProps {
+  codelist_full_slug: string;
+  coding_system_name: string;
+  hash: string;
+  organisation_name: string;
+  coding_system_release: CodingSystemReleaseProps;
+}
+
+interface CodelistBuilderProps {
+  allCodes: string[];
+  codeToStatus: TreeProps["codeToStatus"];
+  codeToTerm: TreeProps["codeToTerm"];
+  draftURL: string;
+  filter: FilterProps["filter"];
+  hierarchy: Hierarchy;
+  isEditable: boolean;
+  metadata: MetadataProps;
+  resultsHeading: string;
+  searches: SearchProps["search"][];
+  searchURL: SearchFormProps["searchURL"];
+  treeTables: TreeTableProps["treeTables"];
+  updateURL: string;
+  versions: VersionProps["version"][];
+  visiblePaths: TreeProps["visiblePaths"];
+}
+
+class CodelistBuilder extends React.Component<
+  CodelistBuilderProps,
+  {
+    codeToStatus: CodelistBuilderProps["codeToStatus"];
+    expandedCompatibleReleases: boolean;
+    moreInfoModalCode: string | null;
+    showConfirmDiscardModal: boolean;
+    updateQueue: string[][];
+    updating: boolean;
+  }
+> {
+  private _isMounted: boolean = false;
+
+  constructor(props: CodelistBuilderProps) {
     super(props);
 
     this.state = {
       codeToStatus: props.codeToStatus,
-      updateQueue: [],
-      updating: false,
+      expandedCompatibleReleases: false,
       moreInfoModalCode: null,
       showConfirmDiscardModal: false,
-      expandedCompatibleReleases: false,
+      updateQueue: [],
+      updating: false,
     };
 
-    this.updateStatus = props.isEditable ? this.updateStatus.bind(this) : null;
+    this.updateStatus = props.isEditable
+      ? this.updateStatus.bind(this)
+      : () => null;
     this.showMoreInfoModal = this.showMoreInfoModal.bind(this);
     this.hideMoreInfoModal = this.hideMoreInfoModal.bind(this);
     this.ManagementForm = this.ManagementForm.bind(this);
     this.setShowConfirmDiscardModal =
       this.setShowConfirmDiscardModal.bind(this);
-    this.renderConfirmDiscardModal = this.renderConfirmDiscardModal.bind(this);
     this.toggleExpandedCompatibleReleases =
       this.toggleExpandedCompatibleReleases.bind(this);
   }
@@ -49,7 +95,7 @@ class CodelistBuilder extends React.Component {
     this._isMounted = false;
   }
 
-  updateStatus(code, status) {
+  updateStatus(code: string, status: string) {
     this.setState(({ codeToStatus, updateQueue }, { hierarchy }) => {
       const newCodeToStatus = hierarchy.updateCodeToStatus(
         codeToStatus,
@@ -72,15 +118,20 @@ class CodelistBuilder extends React.Component {
   }
 
   postUpdates() {
+    const requestHeaders: HeadersInit = new Headers();
+    requestHeaders.append("Accept", "application/json");
+    requestHeaders.append("Content-Type", "application/json");
+
+    const csrfCookie = getCookie("csrftoken");
+    if (csrfCookie) {
+      requestHeaders.append("X-CSRFToken", csrfCookie);
+    }
+
     fetch(this.props.updateURL, {
       method: "POST",
       credentials: "include",
       mode: "same-origin",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        "X-CSRFToken": getCookie("csrftoken"),
-      },
+      headers: requestHeaders,
       body: JSON.stringify({ updates: this.state.updateQueue }),
     })
       .then((response) => response.json())
@@ -106,7 +157,7 @@ class CodelistBuilder extends React.Component {
       });
   }
 
-  showMoreInfoModal(code) {
+  showMoreInfoModal(code: string) {
     this.setState({ moreInfoModalCode: code });
   }
 
@@ -114,7 +165,7 @@ class CodelistBuilder extends React.Component {
     this.setState({ moreInfoModalCode: null });
   }
 
-  setShowConfirmDiscardModal(value) {
+  setShowConfirmDiscardModal(value: boolean) {
     this.setState({ showConfirmDiscardModal: value });
   }
 
@@ -128,7 +179,7 @@ class CodelistBuilder extends React.Component {
       "(-)": 0,
       total: 0,
     };
-    this.props.allCodes.forEach((code) => {
+    this.props.allCodes.forEach((code: string) => {
       const status = this.state.codeToStatus[code];
       if (["?", "!", "+", "(+)", "-", "(-)"].includes(status)) {
         counts[status] += 1;
@@ -240,6 +291,7 @@ class CodelistBuilder extends React.Component {
               codeToTerm={this.props.codeToTerm}
               hierarchy={this.props.hierarchy}
               showMoreInfoModal={this.showMoreInfoModal}
+              toggleVisibility={() => null}
               treeTables={this.props.treeTables}
               updateStatus={this.updateStatus}
               visiblePaths={this.props.visiblePaths}
@@ -252,22 +304,11 @@ class CodelistBuilder extends React.Component {
     );
   }
 
-  ManagementForm(props) {
+  ManagementForm(props: { complete: boolean }) {
     const { complete } = props;
-
-    const management_form = useRef();
-    const confirmDiscardModal =
-      this.state.showConfirmDiscardModal &&
-      this.renderConfirmDiscardModal(management_form);
-
-    const handleConfirmMsg = (e) => {
-      e.preventDefault();
-      this.setShowConfirmDiscardModal(true);
-    };
-
     return (
       <>
-        <form ref={management_form} method="post">
+        <form method="POST">
           <input
             id="csrfmiddlewaretoken"
             name="csrfmiddlewaretoken"
@@ -304,28 +345,30 @@ class CodelistBuilder extends React.Component {
             >
               Save draft
             </button>
-            <button
-              className="btn btn-outline-primary btn-block"
-              name="action"
-              onClick={handleConfirmMsg}
-              type="submit"
-              value="discard"
+            <Button
+              block
+              type="button"
+              variant="outline-primary"
+              onClick={() => this.setShowConfirmDiscardModal(true)}
             >
               Discard
-            </button>
+            </Button>
           </div>
         </form>
-        {confirmDiscardModal}
+        <DiscardModal
+          show={this.state.showConfirmDiscardModal}
+          handleCancel={() => this.setShowConfirmDiscardModal(false)}
+        />
       </>
     );
   }
 
-  renderMoreInfoModal(code) {
+  renderMoreInfoModal(code: string) {
     const included = this.props.allCodes.filter(
-      (c) => this.state.codeToStatus[c] === "+",
+      (c: string) => this.state.codeToStatus[c] === "+",
     );
     const excluded = this.props.allCodes.filter(
-      (c) => this.state.codeToStatus[c] === "-",
+      (c: string) => this.state.codeToStatus[c] === "-",
     );
     const significantAncestors = this.props.hierarchy.significantAncestors(
       code,
@@ -334,11 +377,11 @@ class CodelistBuilder extends React.Component {
     );
 
     const includedAncestorsText = significantAncestors.includedAncestors
-      .map((code) => `${this.props.codeToTerm[code]} (${code})`)
+      .map((code: string) => `${this.props.codeToTerm[code]} (${code})`)
       .join(", ");
 
     const excludedAncestorsText = significantAncestors.excludedAncestors
-      .map((code) => `${this.props.codeToTerm[code]} (${code})`)
+      .map((code: string) => `${this.props.codeToTerm[code]} (${code})`)
       .join(", ");
 
     return (
@@ -352,81 +395,39 @@ class CodelistBuilder extends React.Component {
       />
     );
   }
+}
 
-  renderConfirmDiscardModal(form) {
-    const handleConfirm = () => {
-      form.current[1].value = "discard";
-      form.current.submit();
-    };
-
-    const handleCancel = () => {
-      this.setShowConfirmDiscardModal(false);
-    };
-
-    return (
-      <Modal centered show={this.state.showConfirmDiscardModal}>
-        <Modal.Header>
-          Are you sure you want to discard this draft?
-        </Modal.Header>
-        <Modal.Body>
-          <button className="btn btn-primary mr-2" onClick={handleConfirm}>
+function DiscardModal({
+  show,
+  handleCancel,
+}: { show: boolean; handleCancel: () => void }) {
+  return (
+    <Modal centered show={show}>
+      <Modal.Header>Are you sure you want to discard this draft?</Modal.Header>
+      <Modal.Body>
+        <form className="mb-2" method="POST">
+          <input
+            id="csrfmiddlewaretoken"
+            name="csrfmiddlewaretoken"
+            type="hidden"
+            value={getCookie("csrftoken")}
+          />
+          <input id="action" name="action" type="hidden" value="discard" />
+          <Button
+            className="mr-2"
+            type="submit"
+            value="discard"
+            variant="primary"
+          >
             Yes
-          </button>
-          <button className="btn btn-secondary" onClick={handleCancel}>
-            No
-          </button>
-        </Modal.Body>
-      </Modal>
-    );
-  }
+          </Button>
+        </form>
+        <Button variant="secondary" onClick={handleCancel}>
+          No
+        </Button>
+      </Modal.Body>
+    </Modal>
+  );
 }
 
 export default CodelistBuilder;
-
-CodelistBuilder.propTypes = {
-  allCodes: PropTypes.arrayOf(PropTypes.string),
-  codeToStatus: PropTypes.objectOf(PropTypes.string),
-  codeToTerm: PropTypes.objectOf(PropTypes.string),
-  draftURL: PropTypes.string,
-  filter: PropTypes.string,
-  hierarchy: PropTypes.shape({
-    ancestorMap: PropTypes.shape(),
-    childMap: PropTypes.objectOf(PropTypes.array),
-    nodes: PropTypes.shape(),
-    parentMap: PropTypes.objectOf(PropTypes.arrayOf(PropTypes.string)),
-    updateCodeToStatus: PropTypes.func,
-    significantAncestors: PropTypes.func,
-  }),
-  isEditable: PropTypes.bool,
-  metadata: PropTypes.shape({
-    codelist_full_slug: PropTypes.string,
-    coding_system_name: PropTypes.string,
-    hash: PropTypes.string,
-    organisation_name: PropTypes.string,
-    coding_system_release: PropTypes.shape({
-      release_name: PropTypes.string,
-      valid_from: PropTypes.string,
-    }),
-  }),
-  resultsHeading: PropTypes.string,
-  searches: PropTypes.arrayOf(
-    PropTypes.shape({
-      active: PropTypes.bool,
-      delete_url: PropTypes.string,
-      term_or_code: PropTypes.string,
-      url: PropTypes.string,
-    }),
-  ),
-  searchURL: PropTypes.string,
-  treeTables: PropTypes.arrayOf(PropTypes.array),
-  updateURL: PropTypes.string,
-  versions: PropTypes.arrayOf(
-    PropTypes.shape({
-      current: PropTypes.bool,
-      status: PropTypes.string,
-      tag_or_hash: PropTypes.string,
-      url: PropTypes.string,
-    }),
-  ),
-  visiblePaths: PropTypes.object,
-};

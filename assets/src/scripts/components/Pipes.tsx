@@ -1,7 +1,7 @@
 import React from "react";
 
 export interface PipesProps {
-  pipe?: ("└" | "├" | " " | "│");
+  pipe?: "└" | "├" | " " | "│";
   pipes: PipesProps["pipe"][];
 }
 

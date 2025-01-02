@@ -1,6 +1,6 @@
 import React from "react";
-import TreeTable from "./TreeTable";
 import { TreeProps } from "./Tree";
+import TreeTable from "./TreeTable";
 
 export interface TreeTableProps extends TreeProps {
   treeTables: [string, string[]][];

@@ -1,9 +1,9 @@
 import React from "react";
-import TreeRow from "./TreeRow";
 import Hierarchy from "../_hierarchy";
+import TreeRow from "./TreeRow";
 
 export interface TreeProps {
-  ancestorCode?: string,
+  ancestorCode?: string;
   codeToStatus: {
     [key: string]: "+" | "(+)" | "-" | "(-)" | "!";
   };

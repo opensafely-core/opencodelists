@@ -84,7 +84,11 @@ class Hierarchy {
     return updatedCodeToStatus;
   }
 
-  codeStatus(code: any, included: string | any[], excluded: string | any[]) {
+  codeStatus(
+    code: string,
+    included: string | string[],
+    excluded: string | string[],
+  ) {
     // Return status of code, given lists of codes that are included and excluded.
 
     if (included.includes(code)) {
@@ -125,9 +129,9 @@ class Hierarchy {
   }
 
   significantAncestors(
-    code: any,
-    included: string | any[],
-    excluded: string | any[],
+    code: string,
+    included: string | string[],
+    excluded: string | string[],
   ) {
     // Find ancestors of code which are both:
     //   * members of included or excluded, and
@@ -140,33 +144,33 @@ class Hierarchy {
 
     // these are the ancestors of the code that are directly included or excluded
     const includedOrExcludedAncestors = ancestors.filter(
-      (a: any) => included.includes(a) || excluded.includes(a),
+      (a: string) => included.includes(a) || excluded.includes(a),
     );
 
     // these are the ancestors of the code that are directly included or excluded,
     // and which are not overridden by any of their descendants
     const significantAncestors = includedOrExcludedAncestors.filter(
-      (a: any) =>
-        !this.getDescendants(a).some((d: any) =>
+      (a: string) =>
+        !this.getDescendants(a).some((d: string) =>
           includedOrExcludedAncestors.includes(d),
         ),
     );
 
     return {
-      includedAncestors: significantAncestors.filter((a: any) =>
+      includedAncestors: significantAncestors.filter((a: string) =>
         included.includes(a),
       ),
-      excludedAncestors: significantAncestors.filter((a: any) =>
+      excludedAncestors: significantAncestors.filter((a: string) =>
         excluded.includes(a),
       ),
     };
   }
 
   treeRows(
-    ancestorCode: any,
-    codeToStatus: { [x: string]: any },
-    codeToTerm: { [x: string]: any },
-    visiblePaths: Set<string>,
+    ancestorCode: string,
+    codeToStatus: TreeProps["codeToStatus"],
+    codeToTerm: TreeProps["codeToTerm"],
+    visiblePaths: TreeProps["visiblePaths"],
   ) {
     // Return array of objects representing rows in a "tree table" whose root
     // is at ancestorCode.  Rows are only included if they are reached by a
@@ -174,19 +178,19 @@ class Hierarchy {
     // to TreeRow components.
 
     const rows: {
-      code: any;
-      status: any;
-      term: any;
-      path: any;
-      pipes: any;
+      code: string;
       hasDescendants: boolean;
-      isExpanded: any;
+      isExpanded: boolean;
+      path: string;
+      pipes: string[];
+      status: "+" | "(+)" | "-" | "(-)" | "!";
+      term: string;
     }[] = [];
 
     const helper = (
       code: string,
       path: string,
-      prevPipes: string | any[],
+      prevPipes: string | string[],
       isLastSibling: boolean,
     ) => {
       const childCodes = this.childMap[code] || [];
@@ -288,7 +292,7 @@ class Hierarchy {
 
       paths.add(path);
 
-      let newDepth;
+      let newDepth: number;
 
       if (depth > 0) {
         // This code is a descendant of a code all of whose descendants have
@@ -311,7 +315,7 @@ class Hierarchy {
       });
     };
 
-    ancestorCodes.forEach((ancestorCode: any) => {
+    ancestorCodes.forEach((ancestorCode: string) => {
       helper(ancestorCode, ancestorCode, 0);
     });
 
@@ -320,9 +324,9 @@ class Hierarchy {
 
   toggleVisibility(
     visiblePaths: {
-      has: any;
-      delete: any;
-      add: any;
+      has: (path: string) => boolean;
+      delete: (path: string) => void;
+      add: (path: string) => void;
     },
     path: string,
   ) {

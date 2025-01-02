@@ -35,6 +35,11 @@ mkdir -p "${LOG_DIR}"
 current_timestamp=$(date "+%Y.%m.%d-%H.%M.%S")
 LOG_FILE="${LOG_DIR}/${CODING_SYSTEM}_import_${current_timestamp}.txt"
 
+SENTRY_DSN=$(dokku config:get opencodelists SENTRY_DSN)
+
+# modify the DSN to point it at the cron API
+SENTRY_CRONS=$(sed -E "s/([0-9]+$)/api\/\1/g" <<< "$SENTRY_DSN")
+SENTRY_CRONS+="/cron/import_latest_release__$CODING_SYSTEM"
 
 function post_to_slack() {
   message_text=$1
@@ -56,6 +61,7 @@ function run_dokku_import_command () {
 function post_starting_message() {
   starting_message_text="Starting OpenCodelists import of latest ${CODING_SYSTEM}"
   post_to_slack "${starting_message_text}" "${SLACK_WEBHOOK_URL}"
+  curl "${SENTRY_CRONS}?status=in_progress"
 }
 
 
@@ -67,6 +73,8 @@ function post_success_message_and_cleanup() {
   post_to_slack "${success_message_text}" "${SLACK_WEBHOOK_URL}"
   # remove log file; only persist log files for errors
   rm "${LOG_FILE}"
+  # log success with sentry
+  curl "${SENTRY_CRONS}?status=ok"
 }
 
 
@@ -85,6 +93,8 @@ import_coding_system_data ${CODING_SYSTEM} ${DOWNLOAD_DIR} \
 --valid-from <YYYY-MM-DD> \
 --force && dokku ps:restart opencodelists\`\`\`"
   post_to_slack "${failure_message_text}" "${SLACK_TEAM_WEBHOOK_URL}"
+  # report to sentry
+  curl "${SENTRY_CRONS}?status=error"
 }
 
 

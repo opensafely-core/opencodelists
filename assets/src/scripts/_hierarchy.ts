@@ -54,10 +54,10 @@ class Hierarchy {
   }
 
   updateCodeToStatus(
-    codeToStatus: { [x: string]: string },
+    codeToStatus: TreeProps["codeToStatus"],
     code: string,
     status: string,
-  ) {
+  ): TreeProps["codeToStatus"] {
     // Given mapping from codes to statuses, a code, and that code's new
     // status, return an updated mapping.
 
@@ -74,7 +74,7 @@ class Hierarchy {
       excluded.push(code);
     }
 
-    const updatedCodeToStatus: Record<string, string> = {};
+    const updatedCodeToStatus: TreeProps["codeToStatus"] = {};
     this.nodes.forEach((code1: string) => {
       if (code1 === code || this.getDescendants(code).includes(code1)) {
         updatedCodeToStatus[code1] = this.codeStatus(code1, included, excluded);
@@ -184,7 +184,7 @@ class Hierarchy {
       isExpanded: boolean;
       path: string;
       pipes: PipesProps["pipes"];
-      status: "+" | "(+)" | "-" | "(-)" | "!";
+      status: "+" | "(+)" | "-" | "(-)" | "!" | "?";
       term: string;
     }[] = [];
 

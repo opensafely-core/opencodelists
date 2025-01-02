@@ -5,7 +5,7 @@ import TreeRow from "./TreeRow";
 export interface TreeProps {
   ancestorCode: string;
   codeToStatus: {
-    [key: string]: "+" | "(+)" | "-" | "(-)" | "!";
+    [key: string]: "+" | "(+)" | "-" | "(-)" | "!" | "?";
   };
   codeToTerm: {
     [key: string]: string;

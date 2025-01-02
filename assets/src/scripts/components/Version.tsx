@@ -1,7 +1,15 @@
-import PropTypes from "prop-types";
 import React from "react";
 
-function Version({ version }) {
+export interface VersionProps {
+  version: {
+    current: boolean,
+    status: string,
+    tag_or_hash: string,
+    url: string,
+  }
+}
+
+function Version({ version }: VersionProps) {
   return (
     <li>
       {version.current ? (
@@ -28,12 +36,3 @@ function Version({ version }) {
 }
 
 export default Version;
-
-Version.propTypes = {
-  version: PropTypes.shape({
-    current: PropTypes.bool,
-    status: PropTypes.string,
-    tag_or_hash: PropTypes.string,
-    url: PropTypes.string,
-  }),
-};

@@ -1,8 +1,12 @@
-import PropTypes from "prop-types";
 import React from "react";
 import { getCookie } from "../_utils";
 
-function SearchForm({ codingSystemName, searchURL }) {
+export interface SearchFormProps {
+  codingSystemName: string;
+  searchURL: string;
+}
+
+function SearchForm({ codingSystemName, searchURL }: SearchFormProps) {
   return (
     <form action={encodeURI(searchURL)} method="post">
       <div className="form-group">
@@ -59,8 +63,3 @@ function SearchForm({ codingSystemName, searchURL }) {
 }
 
 export default SearchForm;
-
-SearchForm.propTypes = {
-  codingSystemName: PropTypes.string,
-  searchURL: PropTypes.string,
-};

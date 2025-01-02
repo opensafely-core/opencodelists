@@ -1,14 +1,15 @@
-import PropTypes from "prop-types";
 import React from "react";
 
-function Filter({ filter }) {
+export interface FilterProps {
+  filter: string;
+}
+
+function Filter({ filter }: FilterProps) {
   return filter ? (
     <p>Filtered to {filter} concepts and their descendants.</p>
-  ) : null;
+  ) : (
+    ""
+  );
 }
 
 export default Filter;
-
-Filter.propTypes = {
-  filter: PropTypes.string,
-};

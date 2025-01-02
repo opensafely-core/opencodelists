@@ -1,7 +1,18 @@
-import PropTypes from "prop-types";
 import React from "react";
 
-function StatusToggle({ code, status, symbol, updateStatus }) {
+interface StatusToggleProps {
+  code: string;
+  status: string;
+  symbol: string;
+  updateStatus: Function;
+}
+
+function StatusToggle({
+  code,
+  status,
+  symbol,
+  updateStatus,
+}: StatusToggleProps) {
   let buttonClasses = ["btn"];
   if (status === symbol) {
     buttonClasses.push("btn-primary");
@@ -24,10 +35,3 @@ function StatusToggle({ code, status, symbol, updateStatus }) {
 }
 
 export default StatusToggle;
-
-StatusToggle.propTypes = {
-  code: PropTypes.string,
-  status: PropTypes.string,
-  symbol: PropTypes.string,
-  updateStatus: PropTypes.func,
-};

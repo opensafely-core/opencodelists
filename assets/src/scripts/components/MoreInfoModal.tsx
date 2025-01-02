@@ -1,6 +1,14 @@
-import PropTypes from "prop-types";
 import React from "react";
 import { Modal } from "react-bootstrap";
+
+interface MoreInfoModalProps {
+  code: string;
+  excludedAncestorsText: string;
+  hideModal: Function;
+  includedAncestorsText: string;
+  status: string;
+  term: string;
+}
 
 function MoreInfoModal({
   code,
@@ -9,7 +17,7 @@ function MoreInfoModal({
   includedAncestorsText,
   status,
   term,
-}) {
+}: MoreInfoModalProps) {
   let text = null;
 
   switch (status) {
@@ -34,7 +42,7 @@ function MoreInfoModal({
   }
 
   return (
-    <Modal centered onHide={hideModal} show={code !== null}>
+    <Modal centered onHide={() => hideModal} show={code !== null}>
       <Modal.Header closeButton>
         {term} ({code})
       </Modal.Header>
@@ -44,12 +52,3 @@ function MoreInfoModal({
 }
 
 export default MoreInfoModal;
-
-MoreInfoModal.propTypes = {
-  code: PropTypes.string,
-  excludedAncestorsText: PropTypes.string,
-  hideModal: PropTypes.func,
-  includedAncestorsText: PropTypes.string,
-  status: PropTypes.string,
-  term: PropTypes.string,
-};

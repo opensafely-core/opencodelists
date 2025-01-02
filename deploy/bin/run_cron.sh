@@ -19,13 +19,10 @@ then
     BIN_PATH+="deploy/bin/"
     if test -d "$BINPATH";
     then
-        CRONFILE="$BIN_PATH"${JOB_NAME//".sh"/"_"}"${JOB_ARG}_cronfile"
-        CRONTAB=$(grep -oP "$CRONTAB_PATTERN" "$CRONFILE")
-
         BIN_PATH+="$JOB_NAME $JOB_ARG"
-        
+        CRONTAB=$(grep "$BINPATH" /deploy/bin/cronfile | grep -oP "$CRONTAB_PATTERN")
         SENTRY_DSN=$(dokku config:get opencodelists SENTRY_DSN)
-        
+
         # combine job name and arg for reporting to Sentry
         JOB_NAME+="_$JOB_ARG"
     else

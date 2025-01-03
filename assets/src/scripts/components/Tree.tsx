@@ -1,12 +1,11 @@
 import React from "react";
 import Hierarchy from "../_hierarchy";
 import TreeRow from "./TreeRow";
+import { CodeToStatus } from "../types";
 
 export interface TreeProps {
   ancestorCode: string;
-  codeToStatus: {
-    [key: string]: "+" | "(+)" | "-" | "(-)" | "!" | "?";
-  };
+  codeToStatus: CodeToStatus;
   codeToTerm: {
     [key: string]: string;
   };

@@ -1,5 +1,5 @@
-import { PipesProps } from "./components/Pipes";
 import { TreeProps } from "./components/Tree";
+import { CodeToStatus, PipesState, StatusState } from "./types";
 
 class Hierarchy {
   ancestorMap: Record<string, string[]>;
@@ -54,10 +54,10 @@ class Hierarchy {
   }
 
   updateCodeToStatus(
-    codeToStatus: TreeProps["codeToStatus"],
+    codeToStatus: CodeToStatus,
     code: string,
     status: string,
-  ): TreeProps["codeToStatus"] {
+  ): CodeToStatus {
     // Given mapping from codes to statuses, a code, and that code's new
     // status, return an updated mapping.
 
@@ -74,7 +74,7 @@ class Hierarchy {
       excluded.push(code);
     }
 
-    const updatedCodeToStatus: TreeProps["codeToStatus"] = {};
+    const updatedCodeToStatus: CodeToStatus = {};
     this.nodes.forEach((code1: string) => {
       if (code1 === code || this.getDescendants(code).includes(code1)) {
         updatedCodeToStatus[code1] = this.codeStatus(code1, included, excluded);
@@ -169,7 +169,7 @@ class Hierarchy {
 
   treeRows(
     ancestorCode: string,
-    codeToStatus: TreeProps["codeToStatus"],
+    codeToStatus: CodeToStatus,
     codeToTerm: TreeProps["codeToTerm"],
     visiblePaths: TreeProps["visiblePaths"],
   ) {
@@ -183,15 +183,15 @@ class Hierarchy {
       hasDescendants: boolean;
       isExpanded: boolean;
       path: string;
-      pipes: PipesProps["pipes"];
-      status: "+" | "(+)" | "-" | "(-)" | "!" | "?";
+      pipes: PipesState;
+      status: StatusState;
       term: string;
     }[] = [];
 
     const helper = (
       code: string,
       path: string,
-      prevPipes: PipesProps["pipes"],
+      prevPipes: PipesState,
       isLastSibling: boolean,
     ) => {
       const childCodes = this.childMap[code] || [];
@@ -243,7 +243,7 @@ class Hierarchy {
 
   initiallyVisiblePaths(
     ancestorCodes: string[],
-    codeToStatus: TreeProps["codeToStatus"],
+    codeToStatus: CodeToStatus,
     maxDepth: number,
   ) {
     // Return set of paths which start at one of ancestorCodes, and end at

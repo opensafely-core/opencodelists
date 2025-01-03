@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React from "react";
 import { Button } from "react-bootstrap";
 import Modal from "react-bootstrap/Modal";
 import Hierarchy from "../_hierarchy";
@@ -9,8 +9,9 @@ import Search, { SearchProps } from "./Search";
 import SearchForm, { SearchFormProps } from "./SearchForm";
 import Summary from "./Summary";
 import { TreeProps } from "./Tree";
-import TreeTables, { TreeTableProps } from "./TreeTables";
+import TreeTables, { TreeTablesProps } from "./TreeTables";
 import Version, { VersionProps } from "./Version";
+import { CodeToStatus } from "../types";
 
 interface CodingSystemReleaseProps {
   release_name: string;
@@ -27,7 +28,7 @@ interface MetadataProps {
 
 interface CodelistBuilderProps {
   allCodes: string[];
-  codeToStatus: TreeProps["codeToStatus"];
+  codeToStatus: CodeToStatus;
   codeToTerm: TreeProps["codeToTerm"];
   draftURL: string;
   filter: FilterProps["filter"];
@@ -37,7 +38,7 @@ interface CodelistBuilderProps {
   resultsHeading: string;
   searches: SearchProps["search"][];
   searchURL: SearchFormProps["searchURL"];
-  treeTables: TreeTableProps["treeTables"];
+  treeTables: TreeTablesProps["treeTables"];
   updateURL: string;
   versions: VersionProps["version"][];
   visiblePaths: TreeProps["visiblePaths"];
@@ -46,7 +47,7 @@ interface CodelistBuilderProps {
 class CodelistBuilder extends React.Component<
   CodelistBuilderProps,
   {
-    codeToStatus: CodelistBuilderProps["codeToStatus"];
+    codeToStatus: CodeToStatus;
     expandedCompatibleReleases: boolean;
     moreInfoModalCode: string | null;
     showConfirmDiscardModal: boolean;
@@ -400,7 +401,10 @@ class CodelistBuilder extends React.Component<
 function DiscardModal({
   show,
   handleCancel,
-}: { show: boolean; handleCancel: () => void }) {
+}: {
+  show: boolean;
+  handleCancel: () => void;
+}) {
   return (
     <Modal centered show={show}>
       <Modal.Header>Are you sure you want to discard this draft?</Modal.Header>

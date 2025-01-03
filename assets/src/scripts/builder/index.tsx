@@ -4,18 +4,17 @@ import { createRoot } from "react-dom/client";
 import Hierarchy from "../_hierarchy";
 import { readValueFromPage } from "../_utils";
 import CodelistBuilder from "../components/CodelistBuilder";
-import { TreeProps } from "../components/Tree";
-import { TreeTableProps } from "../components/TreeTables";
+import { TreeTablesProps } from "../components/TreeTables";
+import { CodeToStatus } from "../types";
 
 const hierarchy = new Hierarchy(
   readValueFromPage("parent-map"),
   readValueFromPage("child-map"),
 );
 
-const treeTables: TreeTableProps["treeTables"] =
+const treeTables: TreeTablesProps["treeTables"] =
   readValueFromPage("tree-tables");
-const codeToStatus: TreeProps["codeToStatus"] =
-  readValueFromPage("code-to-status");
+const codeToStatus: CodeToStatus = readValueFromPage("code-to-status");
 const codeToTerm = readValueFromPage("code-to-term");
 
 const ancestorCodes = treeTables

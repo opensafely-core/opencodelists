@@ -2,14 +2,14 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import Hierarchy from "../_hierarchy";
 import { readValueFromPage } from "../_utils";
-import TreeTables, { TreeTableProps } from "../components/TreeTables";
+import TreeTables, { TreeTablesProps } from "../components/TreeTables";
 
 const hierarchy = new Hierarchy(
   readValueFromPage("parent-map"),
   readValueFromPage("child-map"),
 );
 
-const treeTables: TreeTableProps["treeTables"] =
+const treeTables: TreeTablesProps["treeTables"] =
   readValueFromPage("tree-tables");
 const codeToStatus = readValueFromPage("code-to-status");
 const codeToTerm = readValueFromPage("code-to-term");

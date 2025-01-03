@@ -1,24 +1,28 @@
 import React from "react";
 import { Button } from "react-bootstrap";
+import { StatusState } from "../types";
 
 interface StatusToggleProps {
   code: string;
-  status: string;
-  symbol: string;
+  icon: "+" | "&minus;";
+  status: StatusState;
+  symbol: "+" | "-";
   updateStatus: Function;
 }
 
 function StatusToggle({
   code,
+  icon,
   status,
   symbol,
   updateStatus,
 }: StatusToggleProps) {
   return (
     <Button
-      className="py-0"
+      className="py-0 text-monospace"
       data-symbol={symbol}
       onClick={updateStatus && updateStatus.bind(null, code, symbol)}
+      size="sm"
       variant={
         status === symbol
           ? "primary"
@@ -27,7 +31,7 @@ function StatusToggle({
             : "outline-secondary"
       }
     >
-      {symbol}
+      {icon}
     </Button>
   );
 }

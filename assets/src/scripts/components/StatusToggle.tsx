@@ -14,21 +14,11 @@ function StatusToggle({
   symbol,
   updateStatus,
 }: StatusToggleProps) {
-  let buttonClasses = ["btn"];
-  if (status === symbol) {
-    buttonClasses.push("btn-primary");
-  } else if (status === `(${symbol})`) {
-    buttonClasses.push("btn-secondary");
-  } else {
-    buttonClasses.push("btn-outline-secondary");
-  }
-  buttonClasses.push("py-0");
   return (
     <Button
       className="py-0"
       data-symbol={symbol}
       onClick={updateStatus && updateStatus.bind(null, code, symbol)}
-      size="sm"
       variant={
         status === symbol
           ? "primary"

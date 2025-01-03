@@ -1,7 +1,7 @@
 import React from "react";
 import Hierarchy from "../_hierarchy";
-import TreeRow from "./TreeRow";
 import { CodeToStatus } from "../types";
+import TreeRow from "./TreeRow";
 
 export interface TreeProps {
   ancestorCode: string;

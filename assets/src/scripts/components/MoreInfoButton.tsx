@@ -13,7 +13,7 @@ function MoreInfoButton({ code, showMoreInfoModal }: MoreInfoButtonProps) {
       onClick={showMoreInfoModal.bind(null, code)}
       variant="outline-secondary"
     >
-      &hellip;
+      ...
     </Button>
   );
 }

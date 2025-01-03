@@ -1,7 +1,7 @@
 import React from "react";
+import { CodeToStatus } from "../types";
 import { TreeProps } from "./Tree";
 import TreeTable from "./TreeTable";
-import { CodeToStatus } from "../types";
 
 export interface TreeTablesProps {
   ancestorCodes?: TreeProps["ancestorCode"][];

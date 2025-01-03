@@ -1,6 +1,6 @@
 import React from "react";
 import { ButtonGroup } from "react-bootstrap";
-import { PipesState } from "../types";
+import { PipesState, StatusState } from "../types";
 import DescendantToggle from "./DescendantToggle";
 import MoreInfoButton from "./MoreInfoButton";
 import Pipes from "./Pipes";
@@ -13,7 +13,7 @@ export interface TreeRowProps {
   path: string;
   pipes: PipesState;
   showMoreInfoModal: Function;
-  status: string;
+  status: StatusState;
   term: string;
   toggleVisibility: Function;
   updateStatus: Function;
@@ -47,6 +47,7 @@ function TreeRow({
       <ButtonGroup size="sm">
         <StatusToggle
           code={code}
+          icon="+"
           status={status}
           symbol="+"
           updateStatus={updateStatus}
@@ -54,6 +55,7 @@ function TreeRow({
         <StatusToggle
           code={code}
           status={status}
+          icon="&minus;"
           symbol="-"
           updateStatus={updateStatus}
         />

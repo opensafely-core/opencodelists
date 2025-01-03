@@ -1,9 +1,17 @@
 import React from "react";
 import Tree, { TreeProps } from "./Tree";
+import { CodeToStatus } from "../types";
 
-interface TreeTableProps extends Omit<TreeProps, "ancestorCode"> {
-  ancestorCodes: string[];
+interface TreeTableProps {
+  ancestorCodes: TreeProps["ancestorCode"][];
+  codeToStatus: CodeToStatus;
+  codeToTerm: TreeProps["codeToTerm"];
   heading: string;
+  hierarchy: TreeProps["hierarchy"];
+  showMoreInfoModal: TreeProps["showMoreInfoModal"];
+  toggleVisibility: TreeProps["toggleVisibility"];
+  updateStatus: TreeProps["updateStatus"];
+  visiblePaths: TreeProps["visiblePaths"];
 }
 
 function TreeTable({

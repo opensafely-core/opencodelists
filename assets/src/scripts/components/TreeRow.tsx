@@ -1,15 +1,16 @@
 import React from "react";
 import DescendantToggle from "./DescendantToggle";
 import MoreInfoButton from "./MoreInfoButton";
-import Pipes, { PipesProps } from "./Pipes";
+import Pipes from "./Pipes";
 import StatusToggle from "./StatusToggle";
+import { PipesState } from "../types";
 
 export interface TreeRowProps {
   code: string;
   hasDescendants: boolean;
   isExpanded: boolean;
   path: string;
-  pipes: PipesProps["pipes"];
+  pipes: PipesState;
   showMoreInfoModal: Function;
   status: string;
   term: string;

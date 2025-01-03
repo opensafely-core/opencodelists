@@ -1,18 +1,27 @@
 import React from "react";
 import { TreeProps } from "./Tree";
 import TreeTable from "./TreeTable";
+import { CodeToStatus } from "../types";
 
-export interface TreeTableProps extends Omit<TreeProps, "ancestorCode"> {
+export interface TreeTablesProps {
+  ancestorCodes?: TreeProps["ancestorCode"][];
+  codeToStatus: CodeToStatus;
+  codeToTerm: TreeProps["codeToTerm"];
+  heading?: string;
+  hierarchy: TreeProps["hierarchy"];
+  showMoreInfoModal: TreeProps["showMoreInfoModal"];
+  toggleVisibility: TreeProps["toggleVisibility"];
   treeTables: [string, string[]][];
-  visiblePaths: Set<string>;
+  updateStatus: TreeProps["updateStatus"];
+  visiblePaths: TreeProps["visiblePaths"];
 }
 
-interface TreeTablesState {
-  visiblePaths: Set<string>;
+interface ComponentState {
+  visiblePaths: TreeProps["visiblePaths"];
 }
 
-class TreeTables extends React.Component<TreeTableProps, TreeTablesState> {
-  constructor(props: TreeTableProps) {
+class TreeTables extends React.Component<TreeTablesProps, ComponentState> {
+  constructor(props: TreeTablesProps) {
     super(props);
     this.state = { visiblePaths: props.visiblePaths };
     this.toggleVisibility = this.toggleVisibility.bind(this);

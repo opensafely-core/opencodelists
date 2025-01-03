@@ -1,4 +1,5 @@
 import React from "react";
+import { Button, Form } from "react-bootstrap";
 import { getCookie } from "../_utils";
 
 export interface SearchFormProps {
@@ -8,31 +9,28 @@ export interface SearchFormProps {
 
 function SearchForm({ codingSystemName, searchURL }: SearchFormProps) {
   return (
-    <form action={encodeURI(searchURL)} method="post">
-      <div className="form-group">
-        <input
+    <Form action={encodeURI(searchURL)} method="post">
+      <Form.Group>
+        <Form.Control
           name="csrfmiddlewaretoken"
           type="hidden"
           value={getCookie("csrftoken")}
         />
-        <input
-          className="form-control"
-          name="search"
-          placeholder="Term or code"
-          type="search"
-        />
-      </div>
-      <div>
-        <button
-          className="btn btn-sm btn-primary mr-1"
+        <Form.Control name="search" placeholder="Term or code" type="search" />
+      </Form.Group>
+      <Form.Group>
+        <Button
+          className="mr-1"
           name="field"
+          size="sm"
           type="submit"
+          variant="primary"
         >
           Search
-        </button>
-      </div>
-      <div>
-        <small className="form-text text-muted">
+        </Button>
+      </Form.Group>
+      <Form.Group>
+        <Form.Text className="text-muted">
           {codingSystemName === "ICD-10" ? (
             <p>
               To search by code, prefix your search with <code>code:</code>. For
@@ -56,9 +54,9 @@ function SearchForm({ codingSystemName, searchURL }: SearchFormProps) {
             We plan to support boolean search operators (eg{" "}
             <code>ambulatory AND blood pressure</code>) in future.
           </p>
-        </small>
-      </div>
-    </form>
+        </Form.Text>
+      </Form.Group>
+    </Form>
   );
 }
 

@@ -1,8 +1,18 @@
 import React from "react";
-import { Button } from "react-bootstrap";
-import Modal from "react-bootstrap/Modal";
+import {
+  Button,
+  ButtonGroup,
+  Col,
+  Form,
+  ListGroup,
+  OverlayTrigger,
+  Row,
+  Tooltip,
+} from "react-bootstrap";
 import Hierarchy from "../_hierarchy";
 import { getCookie } from "../_utils";
+import { CodeToStatus } from "../types";
+import DiscardModal from "./DiscardModal";
 import Filter, { FilterProps } from "./Filter";
 import MoreInfoModal from "./MoreInfoModal";
 import Search, { SearchProps } from "./Search";
@@ -11,7 +21,6 @@ import Summary from "./Summary";
 import { TreeProps } from "./Tree";
 import TreeTables, { TreeTablesProps } from "./TreeTables";
 import Version, { VersionProps } from "./Version";
-import { CodeToStatus } from "../types";
 
 interface CodingSystemReleaseProps {
   release_name: string;
@@ -202,8 +211,8 @@ class CodelistBuilder extends React.Component<
 
     return (
       <>
-        <div className="row">
-          <div className="col-md-3">
+        <Row>
+          <Col md="3">
             {this.props.isEditable && (
               <>
                 <this.ManagementForm complete={this.complete()} />
@@ -218,27 +227,28 @@ class CodelistBuilder extends React.Component<
 
             {this.props.searches.length > 0 && (
               <>
-                <h6>Searches</h6>
-                <div className="list-group">
+                <h3 className="h6">Searches</h3>
+                <ListGroup>
                   {this.props.searches.map((search) => (
                     <Search key={search.url} search={search} />
                   ))}
                   {this.props.searches.some((search) => search.active) ? (
-                    <a
-                      className="list-group-item list-group-item-action py-1 font-italic"
+                    <ListGroup.Item
+                      action
+                      className="py-1 px-2 font-italic"
                       href={encodeURI(this.props.draftURL)}
                     >
                       show all
-                    </a>
+                    </ListGroup.Item>
                   ) : null}
-                </div>
+                </ListGroup>
                 <hr />
               </>
             )}
 
             {this.props.isEditable && (
               <>
-                <h6>New search</h6>
+                <h3 className="h6">New search</h3>
                 <SearchForm
                   codingSystemName={this.props.metadata.coding_system_name}
                   searchURL={this.props.searchURL}
@@ -276,16 +286,16 @@ class CodelistBuilder extends React.Component<
             </dl>
             <hr />
 
-            <h6>Versions</h6>
+            <h3 className="h6">Versions</h3>
             <ul className="pl-3">
               {this.props.versions.map((version) => (
                 <Version key={version.tag_or_hash} version={version} />
               ))}
             </ul>
-          </div>
+          </Col>
 
-          <div className="col-md-9 overflow-auto">
-            <h4>{this.props.resultsHeading}</h4>
+          <Col md="9" className="overflow-auto">
+            <h3 className="h4">{this.props.resultsHeading}</h3>
             <hr />
             <TreeTables
               codeToStatus={this.state.codeToStatus}
@@ -297,8 +307,8 @@ class CodelistBuilder extends React.Component<
               updateStatus={this.updateStatus}
               visiblePaths={this.props.visiblePaths}
             />
-          </div>
-        </div>
+          </Col>
+        </Row>
 
         {moreInfoModal}
       </>
@@ -309,43 +319,55 @@ class CodelistBuilder extends React.Component<
     const { complete } = props;
     return (
       <>
-        <form method="POST">
-          <input
+        <Form method="POST">
+          <Form.Control
             id="csrfmiddlewaretoken"
             name="csrfmiddlewaretoken"
             type="hidden"
             value={getCookie("csrftoken")}
           />
-          <input id="action" name="action" type="hidden" value="" />
-          <div className="btn-group-vertical btn-block" role="group">
+          <Form.Control id="action" name="action" type="hidden" value="" />
+          <ButtonGroup
+            aria-label="Codelist actions"
+            className="d-block"
+            vertical
+          >
             {complete ? (
-              <button
-                className="btn btn-outline-primary btn-block"
+              <Button
+                block
                 name="action"
                 type="submit"
                 value="save-for-review"
+                variant="outline-primary"
               >
                 Save for review
-              </button>
+              </Button>
             ) : (
-              <button
-                aria-disabled="true"
-                className="disabled btn btn-outline-secondary btn-block"
-                data-toggle="tooltip"
-                title="You cannot save for review until all search results are included or excluded"
-                type="button"
-              >
-                Save for review
-              </button>
+              <>
+                <OverlayTrigger
+                  placement="right"
+                  overlay={
+                    <Tooltip id="disabled-review">
+                      You cannot save for review until all search results are
+                      included or excluded
+                    </Tooltip>
+                  }
+                >
+                  <Button block disabled variant="outline-secondary">
+                    Save for review
+                  </Button>
+                </OverlayTrigger>
+              </>
             )}
-            <button
-              className="btn btn-outline-primary btn-block"
+            <Button
+              block
               name="action"
               type="submit"
               value="save-draft"
+              variant="outline-primary"
             >
               Save draft
-            </button>
+            </Button>
             <Button
               block
               type="button"
@@ -354,8 +376,8 @@ class CodelistBuilder extends React.Component<
             >
               Discard
             </Button>
-          </div>
-        </form>
+          </ButtonGroup>
+        </Form>
         <DiscardModal
           show={this.state.showConfirmDiscardModal}
           handleCancel={() => this.setShowConfirmDiscardModal(false)}
@@ -396,42 +418,6 @@ class CodelistBuilder extends React.Component<
       />
     );
   }
-}
-
-function DiscardModal({
-  show,
-  handleCancel,
-}: {
-  show: boolean;
-  handleCancel: () => void;
-}) {
-  return (
-    <Modal centered show={show}>
-      <Modal.Header>Are you sure you want to discard this draft?</Modal.Header>
-      <Modal.Body>
-        <form className="mb-2" method="POST">
-          <input
-            id="csrfmiddlewaretoken"
-            name="csrfmiddlewaretoken"
-            type="hidden"
-            value={getCookie("csrftoken")}
-          />
-          <input id="action" name="action" type="hidden" value="discard" />
-          <Button
-            className="mr-2"
-            type="submit"
-            value="discard"
-            variant="primary"
-          >
-            Yes
-          </Button>
-        </form>
-        <Button variant="secondary" onClick={handleCancel}>
-          No
-        </Button>
-      </Modal.Body>
-    </Modal>
-  );
 }
 
 export default CodelistBuilder;

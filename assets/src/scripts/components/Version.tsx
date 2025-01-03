@@ -1,4 +1,5 @@
 import React from "react";
+import { Badge } from "react-bootstrap";
 
 export interface VersionProps {
   version: {
@@ -19,17 +20,15 @@ function Version({ version }: VersionProps) {
       )}
 
       {version.status === "draft" ? (
-        <>
-          {" "}
-          <span className="badge badge-primary">Draft</span>
-        </>
+        <Badge className="ml-1" variant="primary">
+          Draft
+        </Badge>
       ) : null}
 
       {version.status === "under review" ? (
-        <>
-          {" "}
-          <span className="badge badge-primary">Review</span>
-        </>
+        <Badge className="ml-1" variant="primary">
+          Review
+        </Badge>
       ) : null}
     </li>
   );

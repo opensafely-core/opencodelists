@@ -42,7 +42,7 @@ function MoreInfoModal({
   }
 
   return (
-    <Modal centered onHide={() => hideModal} show={code !== null}>
+    <Modal centered onHide={() => hideModal()} show={code !== null}>
       <Modal.Header closeButton>
         {term} ({code})
       </Modal.Header>

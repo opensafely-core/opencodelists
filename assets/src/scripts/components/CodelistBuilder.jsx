@@ -1,5 +1,15 @@
 import PropTypes from "prop-types";
 import React, { useRef } from "react";
+import {
+  Button,
+  ButtonGroup,
+  Col,
+  Form,
+  ListGroup,
+  OverlayTrigger,
+  Row,
+  Tooltip,
+} from "react-bootstrap";
 import Modal from "react-bootstrap/Modal";
 import { getCookie } from "../_utils";
 import Filter from "./Filter";
@@ -150,8 +160,8 @@ class CodelistBuilder extends React.Component {
 
     return (
       <>
-        <div className="row">
-          <div className="col-md-3">
+        <Row>
+          <Col md="3">
             {this.props.isEditable && (
               <>
                 <this.ManagementForm complete={this.complete()} />
@@ -159,34 +169,35 @@ class CodelistBuilder extends React.Component {
               </>
             )}
 
-            <h6>Summary</h6>
+            <h3 className="h6">Summary</h3>
             <Filter filter={this.props.filter} />
             <Summary counts={this.counts()} />
             <hr />
 
             {this.props.searches.length > 0 && (
               <>
-                <h6>Searches</h6>
-                <div className="list-group">
+                <h3 className="h6">Searches</h3>
+                <ListGroup>
                   {this.props.searches.map((search) => (
                     <Search key={search.url} search={search} />
                   ))}
                   {this.props.searches.some((search) => search.active) ? (
-                    <a
-                      className="list-group-item list-group-item-action py-1 font-italic"
+                    <ListGroup.Item
+                      action
+                      className="py-1 px-2 font-italic"
                       href={encodeURI(this.props.draftURL)}
                     >
                       show all
-                    </a>
+                    </ListGroup.Item>
                   ) : null}
-                </div>
+                </ListGroup>
                 <hr />
               </>
             )}
 
             {this.props.isEditable && (
               <>
-                <h6>New search</h6>
+                <h3 className="h6">New search</h3>
                 <SearchForm
                   codingSystemName={this.props.metadata.coding_system_name}
                   searchURL={this.props.searchURL}
@@ -224,16 +235,16 @@ class CodelistBuilder extends React.Component {
             </dl>
             <hr />
 
-            <h6>Versions</h6>
+            <h3 className="h6">Versions</h3>
             <ul className="pl-3">
               {this.props.versions.map((version) => (
                 <Version key={version.tag_or_hash} version={version} />
               ))}
             </ul>
-          </div>
+          </Col>
 
-          <div className="col-md-9 overflow-auto">
-            <h4>{this.props.resultsHeading}</h4>
+          <Col md="9" className="overflow-auto">
+            <h3 className="h4">{this.props.resultsHeading}</h3>
             <hr />
             <TreeTables
               codeToStatus={this.state.codeToStatus}
@@ -244,8 +255,8 @@ class CodelistBuilder extends React.Component {
               updateStatus={this.updateStatus}
               visiblePaths={this.props.visiblePaths}
             />
-          </div>
-        </div>
+          </Col>
+        </Row>
 
         {moreInfoModal}
       </>
@@ -267,54 +278,65 @@ class CodelistBuilder extends React.Component {
 
     return (
       <>
-        <form ref={management_form} method="post">
-          <input
+        <Form method="POST" ref={management_form}>
+          <Form.Control
             id="csrfmiddlewaretoken"
             name="csrfmiddlewaretoken"
             type="hidden"
             value={getCookie("csrftoken")}
           />
-          <input id="action" name="action" type="hidden" value="" />
-          <div className="btn-group-vertical btn-block" role="group">
+          <Form.Control id="action" name="action" type="hidden" value="" />
+          <ButtonGroup
+            aria-label="Codelist actions"
+            className="d-block"
+            vertical
+          >
             {complete ? (
-              <button
-                className="btn btn-outline-primary btn-block"
+              <Button
+                block
                 name="action"
                 type="submit"
                 value="save-for-review"
+                variant="outline-primary"
               >
                 Save for review
-              </button>
+              </Button>
             ) : (
-              <button
-                aria-disabled="true"
-                className="disabled btn btn-outline-secondary btn-block"
-                data-toggle="tooltip"
-                title="You cannot save for review until all search results are included or excluded"
-                type="button"
-              >
-                Save for review
-              </button>
+              <>
+                <OverlayTrigger
+                  placement="right"
+                  overlay={
+                    <Tooltip id="disabled-review">
+                      You cannot save for review until all search results are
+                      included or excluded
+                    </Tooltip>
+                  }
+                >
+                  <Button block disabled variant="outline-secondary">
+                    Save for review
+                  </Button>
+                </OverlayTrigger>
+              </>
             )}
-            <button
-              className="btn btn-outline-primary btn-block"
+            <Button
+              block
               name="action"
               type="submit"
               value="save-draft"
+              variant="outline-primary"
             >
               Save draft
-            </button>
-            <button
-              className="btn btn-outline-primary btn-block"
-              name="action"
+            </Button>
+            <Button
+              block
+              type="button"
+              variant="outline-primary"
               onClick={handleConfirmMsg}
-              type="submit"
-              value="discard"
             >
               Discard
-            </button>
-          </div>
-        </form>
+            </Button>
+          </ButtonGroup>
+        </Form>
         {confirmDiscardModal}
       </>
     );

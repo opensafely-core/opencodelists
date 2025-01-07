@@ -1,25 +1,24 @@
 import PropTypes from "prop-types";
 import React from "react";
+import { Button } from "react-bootstrap";
 
 function StatusToggle({ code, status, symbol, updateStatus }) {
-  let buttonClasses = ["btn"];
-  if (status === symbol) {
-    buttonClasses.push("btn-primary");
-  } else if (status === `(${symbol})`) {
-    buttonClasses.push("btn-secondary");
-  } else {
-    buttonClasses.push("btn-outline-secondary");
-  }
-  buttonClasses.push("py-0");
   return (
-    <button
-      className={buttonClasses.join(" ")}
+    <Button
+      className="py-0"
       data-symbol={symbol}
       onClick={updateStatus && updateStatus.bind(null, code, symbol)}
-      type="button"
+      size="sm"
+      variant={
+        status === symbol
+          ? "primary"
+          : status === `(${symbol})`
+            ? "secondary"
+            : "outline-secondary"
+      }
     >
       {symbol}
-    </button>
+    </Button>
   );
 }
 

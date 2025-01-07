@@ -1,11 +1,12 @@
 import PropTypes from "prop-types";
 import React from "react";
+import { Button, Form } from "react-bootstrap";
 import { getCookie } from "../_utils";
 
 function Search({ search }) {
   return search.delete_url ? (
-    <form action={search.delete_url} className="mt-0 pt-0" method="post">
-      <input
+    <Form action={search.delete_url} className="mt-0 pt-0" method="post">
+      <Form.Control
         name="csrfmiddlewaretoken"
         type="hidden"
         value={getCookie("csrftoken")}
@@ -21,15 +22,18 @@ function Search({ search }) {
       >
         {search.term_or_code}
 
-        <button
-          className="btn badge badge-secondary float-right"
+        <Button
+          aria-label="remove search"
+          className="float-right p-0 px-1"
           name="delete-search"
           type="submit"
+          size="sm"
+          variant="secondary"
         >
-          x
-        </button>
+          &times;
+        </Button>
       </a>
-    </form>
+    </Form>
   ) : (
     <a
       className={

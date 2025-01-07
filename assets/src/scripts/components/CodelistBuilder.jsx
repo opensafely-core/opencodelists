@@ -26,11 +26,11 @@ class CodelistBuilder extends React.Component {
 
     this.state = {
       codeToStatus: props.codeToStatus,
-      updateQueue: [],
-      updating: false,
+      expandedCompatibleReleases: false,
       moreInfoModalCode: null,
       showConfirmDiscardModal: false,
-      expandedCompatibleReleases: false,
+      updateQueue: [],
+      updating: false,
     };
 
     this.updateStatus = props.isEditable ? this.updateStatus.bind(this) : null;

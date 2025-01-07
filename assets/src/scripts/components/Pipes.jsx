@@ -5,13 +5,7 @@ function Pipes({ pipes }) {
   return pipes.map((pipe, ix) => (
     <span
       key={ix}
-      style={{
-        display: "inline-block",
-        textAlign: "center",
-        paddingLeft: "3px",
-        paddingRight: "6px",
-        width: "20px",
-      }}
+      className="d-inline-block pl-1 pr-2 text-center text-monospace"
     >
       {pipe}
     </span>

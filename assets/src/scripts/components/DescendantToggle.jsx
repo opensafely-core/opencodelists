@@ -3,13 +3,14 @@ import React from "react";
 
 function DescendantToggle({ isExpanded, path, toggleVisibility }) {
   return (
-    <span
+    <button
+      className="p-0 bg-white border-0 text-monospace d-inline-block ml-1 mr-2"
       onClick={toggleVisibility.bind(null, path)}
-      style={{ cursor: "pointer", marginLeft: "2px", marginRight: "4px" }}
+      type="button"
     >
       {" "}
       {isExpanded ? "⊟" : "⊞"}
-    </span>
+    </button>
   );
 }
 

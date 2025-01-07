@@ -16,7 +16,10 @@ function getCookie(name) {
 }
 
 function readValueFromPage(id) {
-  return JSON.parse(document.getElementById(id).textContent);
+  const scriptId = document.getElementById(id);
+  if (scriptId?.textContent) {
+    return JSON.parse(scriptId.textContent);
+  }
 }
 
 export { getCookie, readValueFromPage };

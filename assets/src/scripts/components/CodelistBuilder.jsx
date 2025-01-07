@@ -84,15 +84,20 @@ class CodelistBuilder extends React.Component {
   }
 
   postUpdates() {
+    const requestHeaders = new Headers();
+    requestHeaders.append("Accept", "application/json");
+    requestHeaders.append("Content-Type", "application/json");
+
+    const csrfCookie = getCookie("csrftoken");
+    if (csrfCookie) {
+      requestHeaders.append("X-CSRFToken", csrfCookie);
+    }
+
     fetch(this.props.updateURL, {
       method: "POST",
       credentials: "include",
       mode: "same-origin",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        "X-CSRFToken": getCookie("csrftoken"),
-      },
+      headers: requestHeaders,
       body: JSON.stringify({ updates: this.state.updateQueue }),
     })
       .then((response) => response.json())

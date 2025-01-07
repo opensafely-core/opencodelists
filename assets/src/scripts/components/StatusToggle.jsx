@@ -5,7 +5,7 @@ import { Button } from "react-bootstrap";
 function StatusToggle({ code, status, symbol, updateStatus }) {
   return (
     <Button
-      className="py-0"
+      className="py-0 text-monospace"
       data-symbol={symbol}
       onClick={updateStatus && updateStatus.bind(null, code, symbol)}
       size="sm"
@@ -17,7 +17,7 @@ function StatusToggle({ code, status, symbol, updateStatus }) {
             : "outline-secondary"
       }
     >
-      {symbol}
+      {symbol === "+" ? <>+</> : <>&minus;</>}
     </Button>
   );
 }

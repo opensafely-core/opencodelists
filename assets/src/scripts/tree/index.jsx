@@ -1,4 +1,4 @@
-import React from "react";
+import React, { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import Hierarchy from "../_hierarchy";
 import { readValueFromPage } from "../_utils";
@@ -26,14 +26,16 @@ const container = document.getElementById("codelist-tree");
 if (container) {
   const root = createRoot(container);
   root.render(
-    <TreeTables
-      codeToStatus={codeToStatus}
-      codeToTerm={codeToTerm}
-      hierarchy={hierarchy}
-      showMoreInfoModal={null}
-      treeTables={treeTables}
-      updateStatus={null}
-      visiblePaths={visiblePaths}
-    />,
+    <StrictMode>
+      <TreeTables
+        codeToStatus={codeToStatus}
+        codeToTerm={codeToTerm}
+        hierarchy={hierarchy}
+        showMoreInfoModal={null}
+        treeTables={treeTables}
+        updateStatus={null}
+        visiblePaths={visiblePaths}
+      />
+    </StrictMode>,
   );
 }

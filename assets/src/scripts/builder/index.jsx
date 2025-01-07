@@ -23,25 +23,27 @@ const visiblePaths = hierarchy.initiallyVisiblePaths(
 );
 
 const container = document.getElementById("codelist-builder-container");
-const root = createRoot(container);
-root.render(
-  <CodelistBuilder
-    allCodes={readValueFromPage("all-codes")}
-    codeToStatus={codeToStatus}
-    codeToTerm={codeToTerm}
-    draftURL={readValueFromPage("draft-url")}
-    excludedCodes={readValueFromPage("excluded-codes")}
-    filter={readValueFromPage("filter")}
-    hierarchy={hierarchy}
-    includedCodes={readValueFromPage("included-codes")}
-    isEditable={readValueFromPage("is-editable")}
-    metadata={readValueFromPage("metadata")}
-    resultsHeading={readValueFromPage("results-heading")}
-    searches={readValueFromPage("searches")}
-    searchURL={readValueFromPage("search-url")}
-    treeTables={treeTables}
-    updateURL={readValueFromPage("update-url")}
-    versions={readValueFromPage("versions")}
-    visiblePaths={visiblePaths}
-  />,
-);
+if (container) {
+  const root = createRoot(container);
+  root.render(
+    <CodelistBuilder
+      allCodes={readValueFromPage("all-codes")}
+      codeToStatus={codeToStatus}
+      codeToTerm={codeToTerm}
+      draftURL={readValueFromPage("draft-url")}
+      excludedCodes={readValueFromPage("excluded-codes")}
+      filter={readValueFromPage("filter")}
+      hierarchy={hierarchy}
+      includedCodes={readValueFromPage("included-codes")}
+      isEditable={readValueFromPage("is-editable")}
+      metadata={readValueFromPage("metadata")}
+      resultsHeading={readValueFromPage("results-heading")}
+      searches={readValueFromPage("searches")}
+      searchURL={readValueFromPage("search-url")}
+      treeTables={treeTables}
+      updateURL={readValueFromPage("update-url")}
+      versions={readValueFromPage("versions")}
+      visiblePaths={visiblePaths}
+    />,
+  );
+}

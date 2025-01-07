@@ -23,15 +23,17 @@ const visiblePaths = hierarchy.initiallyVisiblePaths(
 );
 
 const container = document.getElementById("codelist-tree");
-const root = createRoot(container);
-root.render(
-  <TreeTables
-    codeToStatus={codeToStatus}
-    codeToTerm={codeToTerm}
-    hierarchy={hierarchy}
-    showMoreInfoModal={null}
-    treeTables={treeTables}
-    updateStatus={null}
-    visiblePaths={visiblePaths}
-  />,
-);
+if (container) {
+  const root = createRoot(container);
+  root.render(
+    <TreeTables
+      codeToStatus={codeToStatus}
+      codeToTerm={codeToTerm}
+      hierarchy={hierarchy}
+      showMoreInfoModal={null}
+      treeTables={treeTables}
+      updateStatus={null}
+      visiblePaths={visiblePaths}
+    />,
+  );
+}

@@ -391,12 +391,12 @@ class CodelistBuilder extends React.Component {
           Are you sure you want to discard this draft?
         </Modal.Header>
         <Modal.Body>
-          <button className="btn btn-primary mr-2" onClick={handleConfirm}>
+          <Button className="mr-2" onClick={handleConfirm} variant="primary">
             Yes
-          </button>
-          <button className="btn btn-secondary" onClick={handleCancel}>
+          </Button>
+          <Button onClick={handleCancel} variant="secondary">
             No
-          </button>
+          </Button>
         </Modal.Body>
       </Modal>
     );

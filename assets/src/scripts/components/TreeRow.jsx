@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
 import React from "react";
+import { ButtonGroup } from "react-bootstrap";
 import DescendantToggle from "./DescendantToggle";
 import MoreInfoButton from "./MoreInfoButton";
 import Pipes from "./Pipes";
@@ -30,7 +31,7 @@ function TreeRow({
 
   return (
     <div className={className} data-code={code} data-path={path}>
-      <div className="btn-group btn-group-sm" role="group">
+      <ButtonGroup>
         <StatusToggle
           code={code}
           status={status}
@@ -43,7 +44,7 @@ function TreeRow({
           symbol="-"
           updateStatus={updateStatus}
         />
-      </div>
+      </ButtonGroup>
 
       <div className="pl-2" style={{ whiteSpace: "nowrap" }}>
         <Pipes pipes={pipes} />

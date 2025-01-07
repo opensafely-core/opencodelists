@@ -360,3 +360,7 @@ SERVER_EMAIL = "tech@opensafely.org"
 
 # API key for dm+d imports
 TRUD_API_KEY = get_env_var("TRUD_API_KEY")
+
+# This setting will become the default in Django 6
+# and can be removed when Opencodelists is upgraded to Django 6.
+FORMS_URLFIELD_ASSUME_HTTPS = True

@@ -4,7 +4,6 @@ import { Col, Row } from "react-bootstrap";
 import { getCookie } from "../_utils";
 import Filter from "./Filter";
 import ManagementForm from "./ManagementForm";
-import MoreInfoModal from "./MoreInfoModal";
 import Search from "./Search";
 import SearchForm from "./SearchForm";
 import Summary from "./Summary";
@@ -18,7 +17,6 @@ class CodelistBuilder extends React.Component {
     this.state = {
       codeToStatus: props.codeToStatus,
       expandedCompatibleReleases: false,
-      moreInfoModalCode: null,
       updateQueue: [],
       updating: false,
     };
@@ -26,8 +24,6 @@ class CodelistBuilder extends React.Component {
     this.updateStatus = props.isEditable
       ? this.updateStatus.bind(this)
       : () => null;
-    this.showMoreInfoModal = this.showMoreInfoModal.bind(this);
-    this.hideMoreInfoModal = this.hideMoreInfoModal.bind(this);
     this.toggleExpandedCompatibleReleases =
       this.toggleExpandedCompatibleReleases.bind(this);
   }
@@ -109,14 +105,6 @@ class CodelistBuilder extends React.Component {
       });
   }
 
-  showMoreInfoModal(code) {
-    this.setState({ moreInfoModalCode: code });
-  }
-
-  hideMoreInfoModal() {
-    this.setState({ moreInfoModalCode: null });
-  }
-
   counts() {
     let counts = {
       "?": 0,
@@ -138,10 +126,6 @@ class CodelistBuilder extends React.Component {
   }
 
   render() {
-    const moreInfoModal =
-      this.state.moreInfoModalCode &&
-      this.renderMoreInfoModal(this.state.moreInfoModalCode);
-
     return (
       <>
         <Row>
@@ -212,52 +196,18 @@ class CodelistBuilder extends React.Component {
             <h3 className="h4">{this.props.resultsHeading}</h3>
             <hr />
             <TreeTables
+              allCodes={this.props.allCodes}
               codeToStatus={this.state.codeToStatus}
               codeToTerm={this.props.codeToTerm}
               hierarchy={this.props.hierarchy}
-              showMoreInfoModal={this.showMoreInfoModal}
+              isEditable={this.props.isEditable}
               treeTables={this.props.treeTables}
               updateStatus={this.updateStatus}
               visiblePaths={this.props.visiblePaths}
             />
           </Col>
         </Row>
-
-        {moreInfoModal}
       </>
-    );
-  }
-
-  renderMoreInfoModal(code) {
-    const included = this.props.allCodes.filter(
-      (c) => this.state.codeToStatus[c] === "+",
-    );
-    const excluded = this.props.allCodes.filter(
-      (c) => this.state.codeToStatus[c] === "-",
-    );
-    const significantAncestors = this.props.hierarchy.significantAncestors(
-      code,
-      included,
-      excluded,
-    );
-
-    const includedAncestorsText = significantAncestors.includedAncestors
-      .map((code) => `${this.props.codeToTerm[code]} (${code})`)
-      .join(", ");
-
-    const excludedAncestorsText = significantAncestors.excludedAncestors
-      .map((code) => `${this.props.codeToTerm[code]} (${code})`)
-      .join(", ");
-
-    return (
-      <MoreInfoModal
-        code={code}
-        excludedAncestorsText={excludedAncestorsText}
-        hideModal={this.hideMoreInfoModal}
-        includedAncestorsText={includedAncestorsText}
-        status={this.state.codeToStatus[code]}
-        term={this.props.codeToTerm[code]}
-      />
     );
   }
 }

@@ -31,7 +31,7 @@ if (container) {
         codeToStatus={codeToStatus}
         codeToTerm={codeToTerm}
         hierarchy={hierarchy}
-        showMoreInfoModal={null}
+        isEditable={false}
         treeTables={treeTables}
         updateStatus={null}
         visiblePaths={visiblePaths}

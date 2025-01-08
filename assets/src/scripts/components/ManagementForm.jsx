@@ -69,6 +69,7 @@ export default function ManagementForm({ complete }) {
           </Button>
         </ButtonGroup>
       </Form>
+      <hr />
       <Modal centered show={showDiscardModal}>
         <Modal.Header>
           Are you sure you want to discard this draft?

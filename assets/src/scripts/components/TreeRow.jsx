@@ -1,33 +1,99 @@
 import PropTypes from "prop-types";
-import React from "react";
-import { ButtonGroup } from "react-bootstrap";
+import React, { useState } from "react";
+import { Button, ButtonGroup, Modal } from "react-bootstrap";
+import { readValueFromPage } from "../_utils";
 import DescendantToggle from "./DescendantToggle";
-import MoreInfoButton from "./MoreInfoButton";
 import Pipes from "./Pipes";
 import StatusToggle from "./StatusToggle";
 
-function TreeRow({
+function createModalText({
+  allCodes,
   code,
+  codeToStatus,
+  codeToTerm,
+  hierarchy,
+  status,
+}) {
+  const included = allCodes.filter((c) => codeToStatus[c] === "+");
+  const excluded = allCodes.filter((c) => codeToStatus[c] === "-");
+  const significantAncestors = hierarchy.significantAncestors(
+    code,
+    included,
+    excluded,
+  );
+
+  const includedAncestorsText = significantAncestors.includedAncestors
+    .map((code) => `${codeToTerm[code]} (${code})`)
+    .join(", ");
+
+  const excludedAncestorsText = significantAncestors.excludedAncestors
+    .map((code) => `${codeToTerm[code]} (${code})`)
+    .join(", ");
+
+  let text = "";
+
+  switch (status) {
+    case "+":
+      text = "Included";
+      break;
+    case "(+)":
+      text = `Included by ${includedAncestorsText}`;
+      break;
+    case "-":
+      text = "Excluded";
+      break;
+    case "(-)":
+      text = `Excluded by ${excludedAncestorsText}`;
+      break;
+    case "?":
+      text = "Unresolved";
+      break;
+    case "!":
+      text = `In conflict!  Included by ${includedAncestorsText}, and excluded by ${excludedAncestorsText}`;
+      break;
+  }
+
+  return text;
+}
+
+function TreeRow({
+  allCodes,
+  code,
+  codeToStatus,
+  codeToTerm,
   hasDescendants,
+  hierarchy,
+  isEditable,
   isExpanded,
   path,
   pipes,
-  showMoreInfoModal,
   status,
   term,
   toggleVisibility,
   updateStatus,
 }) {
   const statusToColour = {
-    "+": "black",
-    "(+)": "black",
-    "-": "gray",
-    "(-)": "gray",
-    "!": "red",
+    "+": "text-body",
+    "(+)": "text-body",
+    "-": "text-secondary",
+    "(-)": "text-secondary",
+    "!": "text-danger",
   };
 
   const rowSpacing = pipes.length === 0 ? "mt-2" : "mt-0";
   const className = `${rowSpacing} d-flex`;
+
+  const modalText = isEditable
+    ? createModalText({
+        allCodes,
+        code,
+        codeToStatus,
+        codeToTerm,
+        hierarchy,
+        status,
+      })
+    : "";
+  const [showMoreInfoModal, setShowMoreInfoModal] = useState(false);
 
   return (
     <div className={className} data-code={code} data-path={path}>
@@ -46,7 +112,7 @@ function TreeRow({
         />
       </ButtonGroup>
 
-      <div className="pl-2" style={{ whiteSpace: "nowrap" }}>
+      <div className="pl-2 whitespace-nowrap">
         <Pipes pipes={pipes} />
         {hasDescendants ? (
           <DescendantToggle
@@ -55,15 +121,35 @@ function TreeRow({
             toggleVisibility={toggleVisibility}
           />
         ) : null}
-        <span style={{ color: statusToColour[status] }}>{term}</span>
+        <span className={statusToColour[status]}>{term}</span>
         <span className="ml-1">
           (<code>{code}</code>)
         </span>
       </div>
 
-      {showMoreInfoModal && (
-        <MoreInfoButton code={code} showMoreInfoModal={showMoreInfoModal} />
-      )}
+      {isEditable ? (
+        <>
+          <Button
+            className="py-0 border-0"
+            onClick={() => setShowMoreInfoModal(true)}
+            variant="outline-secondary"
+          >
+            &hellip;
+          </Button>
+
+          <Modal
+            show={showMoreInfoModal}
+            onHide={() => setShowMoreInfoModal(false)}
+          >
+            <Modal.Header closeButton>
+              <Modal.Title>
+                {term} ({code})
+              </Modal.Title>
+            </Modal.Header>
+            <Modal.Body>{modalText}</Modal.Body>
+          </Modal>
+        </>
+      ) : null}
     </div>
   );
 }

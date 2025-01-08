@@ -19,10 +19,11 @@ class TreeTables extends React.Component {
 
   render() {
     const {
+      allCodes,
       codeToStatus,
       codeToTerm,
       hierarchy,
-      showMoreInfoModal,
+      isEditable,
       treeTables,
       updateStatus,
     } = this.props;
@@ -30,12 +31,13 @@ class TreeTables extends React.Component {
     return treeTables.map(([heading, ancestorCodes]) => (
       <TreeTable
         key={heading}
+        allCodes={allCodes}
         ancestorCodes={ancestorCodes}
         codeToStatus={codeToStatus}
         codeToTerm={codeToTerm}
         heading={heading}
         hierarchy={hierarchy}
-        showMoreInfoModal={showMoreInfoModal}
+        isEditable={isEditable}
         toggleVisibility={this.toggleVisibility}
         updateStatus={updateStatus}
         visiblePaths={this.state.visiblePaths}
@@ -56,7 +58,6 @@ TreeTables.propTypes = {
     parentMap: PropTypes.objectOf(PropTypes.arrayOf(PropTypes.string)),
     toggleVisibility: PropTypes.func,
   }),
-  showMoreInfoModal: PropTypes.func,
   treeTables: PropTypes.arrayOf(PropTypes.array),
   updateStatus: PropTypes.func,
   visiblePaths: PropTypes.objectOf(PropTypes.string),

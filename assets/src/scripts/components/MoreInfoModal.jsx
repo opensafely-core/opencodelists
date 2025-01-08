@@ -23,7 +23,7 @@ function MoreInfoModal({
       text = "Excluded";
       break;
     case "(-)":
-      text = `Excluded by ${includedAncestorsText}`;
+      text = `Excluded by ${excludedAncestorsText}`;
       break;
     case "?":
       text = "Unresolved";

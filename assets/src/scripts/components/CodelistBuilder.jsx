@@ -137,11 +137,6 @@ class CodelistBuilder extends React.Component {
     return counts;
   }
 
-  complete() {
-    const counts = this.counts();
-    return counts["!"] === 0 && counts["?"] === 0;
-  }
-
   render() {
     const moreInfoModal =
       this.state.moreInfoModalCode &&
@@ -151,9 +146,7 @@ class CodelistBuilder extends React.Component {
       <>
         <Row>
           <Col md="3">
-            {this.props.isEditable && (
-              <ManagementForm complete={this.complete()} />
-            )}
+            {this.props.isEditable && <ManagementForm counts={this.counts()} />}
 
             <h3 className="h6">Summary</h3>
             <Filter filter={this.props.filter} />

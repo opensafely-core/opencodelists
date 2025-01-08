@@ -1,0 +1,79 @@
+---
+name: Deploy
+
+env:
+    IMAGE_NAME: opencodelists
+    PUBLIC_IMAGE_NAME: ghcr.io/opensafely-core/opencodelists
+    REGISTRY: ghcr.io
+    SSH_AUTH_SOCK: /tmp/agent.sock
+
+on:
+  push:
+    branches: [main]
+
+concurrency: deploy-production
+
+jobs:
+  test-and-build-docker-image:
+    uses: ./.github/workflows/main.yml
+
+  deploy:
+    needs: [test-and-build-docker-image]
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: opensafely-core/setup-action@v1
+        with:
+          install-just: true
+
+      - name: Download docker image
+        uses: actions/download-artifact@v4
+        with:
+          name: opencodelists-image
+          path: /tmp/image
+
+      - name: Import docker image
+        run: docker image load --input /tmp/image/opencodelists.tar.zst
+
+      - name: Test image we imported from previous job works
+        run: |
+            SKIP_BUILD=1 just docker-serve prod -d
+            sleep 5
+            just docker-smoke-test || { docker logs docker_prod_1; exit 1; }
+
+      - name: Publish docker image
+        run: |
+            echo ${{ secrets.GITHUB_TOKEN }} | docker login $REGISTRY -u ${{ github.actor }} --password-stdin
+            docker tag $IMAGE_NAME $PUBLIC_IMAGE_NAME:latest
+            docker push $PUBLIC_IMAGE_NAME:latest
+
+      - name: Setup SSH Agent
+        run: |
+            ssh-agent -a $SSH_AUTH_SOCK > /dev/null
+            ssh-add - <<< "${{ secrets.DOKKU3_DEPLOY_SSH_KEY }}"
+
+      - name: Deploy
+        run: |
+            SHA=$(docker inspect --format='{{index .RepoDigests 0}}' $PUBLIC_IMAGE_NAME:latest)
+            ssh -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" dokku@dokku3.ebmdatalab.net git:from-image opencodelists $SHA
+
+      - name: Create Sentry release
+        uses: getsentry/action-release@e769183448303de84c5a06aaaddf9da7be26d6c7  # v1.7.0
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_RELEASE_INTEGRATION_TOKEN }}
+          SENTRY_ORG: ebm-datalab
+          SENTRY_PROJECT: opencodelists
+        with:
+          environment: production
+          ignore_empty: true

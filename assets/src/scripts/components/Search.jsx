@@ -1,50 +1,45 @@
 import PropTypes from "prop-types";
 import React from "react";
-import { Button, Form } from "react-bootstrap";
+import { Button, Form, ListGroup } from "react-bootstrap";
 import { getCookie } from "../_utils";
 
 function Search({ search }) {
   return search.delete_url ? (
-    <Form action={search.delete_url} className="mt-0 pt-0" method="post">
-      <Form.Control
-        name="csrfmiddlewaretoken"
-        type="hidden"
-        value={getCookie("csrftoken")}
-      />
-
-      <a
-        className={
-          search.active
-            ? "list-group-item list-group-item-action active py-1 px-2"
-            : "list-group-item list-group-item-action py-1 px-2 "
-        }
-        href={search.url}
-      >
+    <ListGroup.Item
+      action
+      active={search.active}
+      className="py-1 px-2"
+      href={search.url}
+    >
+      <Form action={search.delete_url} method="post">
+        <Form.Control
+          name="csrfmiddlewaretoken"
+          type="hidden"
+          value={getCookie("csrftoken")}
+        />
         {search.term_or_code}
-
         <Button
           aria-label="remove search"
           className="float-right p-0 px-1"
           name="delete-search"
           type="submit"
           size="sm"
-          variant="secondary"
+          variant="danger"
         >
           &times;
         </Button>
-      </a>
-    </Form>
+      </Form>
+    </ListGroup.Item>
   ) : (
-    <a
-      className={
-        search.active
-          ? "list-group-item list-group-item-action active py-1 px-2"
-          : "list-group-item list-group-item-action py-1 px-2 "
-      }
+    <ListGroup.Item
+      action
+      active={search.active}
+      className="py-1 px-2"
       href={encodeURI(search.url)}
+      key={search.url}
     >
       {search.term_or_code}
-    </a>
+    </ListGroup.Item>
   );
 }
 

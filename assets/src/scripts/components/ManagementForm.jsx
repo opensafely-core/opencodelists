@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   ButtonGroup,
@@ -9,8 +9,19 @@ import {
 } from "react-bootstrap";
 import { getCookie } from "../_utils";
 
-export default function ManagementForm({ complete }) {
+export default function ManagementForm({ counts }) {
   const [showDiscardModal, setShowDiscardModal] = useState(false);
+  const [isComplete, setIsComplete] = useState(false);
+
+  useEffect(
+    function calculateCounts() {
+      if (counts["!"] === 0 && counts["?"] === 0) {
+        return setIsComplete(true);
+      }
+      return setIsComplete(false);
+    },
+    [counts],
+  );
 
   return (
     <>
@@ -23,7 +34,7 @@ export default function ManagementForm({ complete }) {
         />
         <Form.Control id="action" name="action" type="hidden" value="" />
         <ButtonGroup aria-label="Codelist actions" className="d-block" vertical>
-          {complete ? (
+          {isComplete ? (
             <Button
               block
               name="action"

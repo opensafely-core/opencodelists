@@ -68,7 +68,7 @@ a:focus {
   font-size: 1.1rem;
 }
 
-.sidebar-versions .updated {
+.sidebar-versions .created {
   border-top: 1px dotted #ddd;
   font-size: 0.9rem;
 }

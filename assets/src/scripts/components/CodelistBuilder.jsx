@@ -126,30 +126,41 @@ class CodelistBuilder extends React.Component {
   }
 
   render() {
+    const {
+      allCodes,
+      codeToTerm,
+      draftURL,
+      filter,
+      hierarchy,
+      isEditable,
+      metadata,
+      resultsHeading,
+      searches,
+      searchURL,
+      treeTables,
+      visiblePaths,
+    } = this.props;
     return (
       <>
         <Row>
           <Col md="3">
-            {this.props.isEditable && <ManagementForm counts={this.counts()} />}
+            {isEditable && <ManagementForm counts={this.counts()} />}
 
             <h3 className="h6">Summary</h3>
-            <Filter filter={this.props.filter} />
+            <Filter filter={filter} />
             <Summary counts={this.counts()} />
             <hr />
 
-            {this.props.searches.length > 0 && (
-              <Search
-                draftURL={this.props.draftURL}
-                searches={this.props.searches}
-              />
+            {searches.length > 0 && (
+              <Search draftURL={draftURL} searches={searches} />
             )}
 
-            {this.props.isEditable && (
+            {isEditable && (
               <>
                 <h3 className="h6">New search</h3>
                 <SearchForm
-                  codingSystemName={this.props.metadata.coding_system_name}
-                  searchURL={this.props.searchURL}
+                  codingSystemName={metadata.coding_system_name}
+                  searchURL={searchURL}
                 />
                 <hr />
               </>
@@ -157,30 +168,28 @@ class CodelistBuilder extends React.Component {
 
             <dl>
               <dt>Coding system</dt>
-              <dd>{this.props.metadata.coding_system_name}</dd>
+              <dd>{metadata.coding_system_name}</dd>
 
               <dt>Coding system release</dt>
               <dd>
-                {this.props.metadata.coding_system_release.release_name}
-                {this.props.metadata.coding_system_release.valid_from ? (
-                  <>({this.props.metadata.coding_system_release.valid_from})</>
+                {metadata.coding_system_release.release_name}
+                {metadata.coding_system_release.valid_from ? (
+                  <>({metadata.coding_system_release.valid_from})</>
                 ) : null}
               </dd>
 
-              {this.props.metadata.organisation_name ? (
+              {metadata.organisation_name ? (
                 <>
                   <dt>Organisation</dt>
-                  <dd>{this.props.metadata.organisation_name}</dd>
+                  <dd>{metadata.organisation_name}</dd>
                 </>
               ) : null}
 
               <dt>Codelist ID</dt>
-              <dd className="text-break">
-                {this.props.metadata.codelist_full_slug}
-              </dd>
+              <dd className="text-break">{metadata.codelist_full_slug}</dd>
 
               <dt>ID</dt>
-              <dd>{this.props.metadata.hash}</dd>
+              <dd>{metadata.hash}</dd>
             </dl>
             <hr />
 
@@ -193,17 +202,17 @@ class CodelistBuilder extends React.Component {
           </Col>
 
           <Col md="9" className="overflow-auto">
-            <h3 className="h4">{this.props.resultsHeading}</h3>
+            <h3 className="h4">{resultsHeading}</h3>
             <hr />
             <TreeTables
-              allCodes={this.props.allCodes}
+              allCodes={allCodes}
               codeToStatus={this.state.codeToStatus}
-              codeToTerm={this.props.codeToTerm}
-              hierarchy={this.props.hierarchy}
-              isEditable={this.props.isEditable}
-              treeTables={this.props.treeTables}
+              codeToTerm={codeToTerm}
+              hierarchy={hierarchy}
+              isEditable={isEditable}
+              treeTables={treeTables}
               updateStatus={this.updateStatus}
-              visiblePaths={this.props.visiblePaths}
+              visiblePaths={visiblePaths}
             />
           </Col>
         </Row>

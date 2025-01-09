@@ -26,14 +26,16 @@ class CodelistBuilder extends React.Component {
 
     this.state = {
       codeToStatus: props.codeToStatus,
-      updateQueue: [],
-      updating: false,
+      expandedCompatibleReleases: false,
       moreInfoModalCode: null,
       showConfirmDiscardModal: false,
-      expandedCompatibleReleases: false,
+      updateQueue: [],
+      updating: false,
     };
 
-    this.updateStatus = props.isEditable ? this.updateStatus.bind(this) : null;
+    this.updateStatus = props.isEditable
+      ? this.updateStatus.bind(this)
+      : () => null;
     this.showMoreInfoModal = this.showMoreInfoModal.bind(this);
     this.hideMoreInfoModal = this.hideMoreInfoModal.bind(this);
     this.ManagementForm = this.ManagementForm.bind(this);
@@ -82,15 +84,20 @@ class CodelistBuilder extends React.Component {
   }
 
   postUpdates() {
+    const requestHeaders = new Headers();
+    requestHeaders.append("Accept", "application/json");
+    requestHeaders.append("Content-Type", "application/json");
+
+    const csrfCookie = getCookie("csrftoken");
+    if (csrfCookie) {
+      requestHeaders.append("X-CSRFToken", csrfCookie);
+    }
+
     fetch(this.props.updateURL, {
       method: "POST",
       credentials: "include",
       mode: "same-origin",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        "X-CSRFToken": getCookie("csrftoken"),
-      },
+      headers: requestHeaders,
       body: JSON.stringify({ updates: this.state.updateQueue }),
     })
       .then((response) => response.json())
@@ -391,12 +398,12 @@ class CodelistBuilder extends React.Component {
           Are you sure you want to discard this draft?
         </Modal.Header>
         <Modal.Body>
-          <button className="btn btn-primary mr-2" onClick={handleConfirm}>
+          <Button className="mr-2" onClick={handleConfirm} variant="primary">
             Yes
-          </button>
-          <button className="btn btn-secondary" onClick={handleCancel}>
+          </Button>
+          <Button onClick={handleCancel} variant="secondary">
             No
-          </button>
+          </Button>
         </Modal.Body>
       </Modal>
     );

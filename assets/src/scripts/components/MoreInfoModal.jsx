@@ -23,7 +23,7 @@ function MoreInfoModal({
       text = "Excluded";
       break;
     case "(-)":
-      text = `Excluded by ${includedAncestorsText}`;
+      text = `Excluded by ${excludedAncestorsText}`;
       break;
     case "?":
       text = "Unresolved";
@@ -34,7 +34,7 @@ function MoreInfoModal({
   }
 
   return (
-    <Modal centered onHide={hideModal} show={code !== null}>
+    <Modal centered onHide={() => hideModal()} show={code !== null}>
       <Modal.Header closeButton>
         {term} ({code})
       </Modal.Header>

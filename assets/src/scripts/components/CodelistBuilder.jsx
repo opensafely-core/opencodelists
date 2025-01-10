@@ -182,24 +182,10 @@ class CodelistBuilder extends React.Component {
             <hr />
 
             {this.props.searches.length > 0 && (
-              <>
-                <h3 className="h6">Searches</h3>
-                <ListGroup>
-                  {this.props.searches.map((search) => (
-                    <Search key={search.url} search={search} />
-                  ))}
-                  {this.props.searches.some((search) => search.active) ? (
-                    <ListGroup.Item
-                      action
-                      className="py-1 px-2 font-italic"
-                      href={encodeURI(this.props.draftURL)}
-                    >
-                      show all
-                    </ListGroup.Item>
-                  ) : null}
-                </ListGroup>
-                <hr />
-              </>
+              <Search
+                draftURL={this.props.draftURL}
+                searches={this.props.searches}
+              />
             )}
 
             {this.props.isEditable && (

@@ -231,7 +231,7 @@ class Handle(models.Model):
         constraints = [
             models.CheckConstraint(
                 name="%(app_label)s_%(class)s_organisation_xor_user",
-                check=(
+                condition=(
                     models.Q(organisation_id__isnull=False, user_id__isnull=True)
                     | models.Q(user_id__isnull=False, organisation_id__isnull=True)
                 ),
@@ -963,7 +963,7 @@ class Search(models.Model):
         constraints = [
             models.CheckConstraint(
                 name="%(app_label)s_%(class)s_term_xor_code",
-                check=(
+                condition=(
                     models.Q(term__isnull=False, code__isnull=True)
                     | models.Q(code__isnull=False, term__isnull=True)
                 ),

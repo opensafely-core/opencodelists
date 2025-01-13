@@ -104,7 +104,7 @@
     "jsxRuntime": "reactClassic"
   },
   "overrides": [
-    { "include": ["**/*.test.js", "**/*.test.jsx"] },
-    { "include": ["**/*.test.js", "**/*.test.jsx"] }
+    { "include": ["**/*.test.{js,ts}", "**/*.test.{jsx,tsx}"] },
+    { "include": ["**/*.test.{js,ts}", "**/*.test.{jsx,tsx}"] }
   ]
 }

@@ -231,10 +231,12 @@ assets-run: assets-install
 
 assets-lint: assets-install
     npm run lint
+    npm run typecheck
 
 
 assets-test: assets-install
     npm run lint
+    npm run typecheck
     npm run test:coverage
 
 

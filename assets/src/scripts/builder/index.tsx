@@ -3,20 +3,24 @@ import { createRoot } from "react-dom/client";
 import Hierarchy from "../_hierarchy";
 import { readValueFromPage } from "../_utils";
 import CodelistBuilder from "../components/CodelistBuilder";
+import { TreeTablesProps } from "../components/TreeTables";
+import { CodeToStatus } from "../types";
 
 const hierarchy = new Hierarchy(
   readValueFromPage("parent-map"),
   readValueFromPage("child-map"),
 );
 
-const treeTables = readValueFromPage("tree-tables");
-const codeToStatus = readValueFromPage("code-to-status");
+const treeTables: TreeTablesProps["treeTables"] =
+  readValueFromPage("tree-tables");
+const codeToStatus: CodeToStatus = readValueFromPage("code-to-status");
 const codeToTerm = readValueFromPage("code-to-term");
 
 const ancestorCodes = treeTables
   .map(([_, ancestorCodes]) => ancestorCodes)
   .flat();
-const visiblePaths = hierarchy.initiallyVisiblePaths(
+
+const visiblePaths: Set<string> = hierarchy.initiallyVisiblePaths(
   ancestorCodes,
   codeToStatus,
   1,
@@ -32,10 +36,8 @@ if (container) {
         codeToStatus={codeToStatus}
         codeToTerm={codeToTerm}
         draftURL={readValueFromPage("draft-url")}
-        excludedCodes={readValueFromPage("excluded-codes")}
         filter={readValueFromPage("filter")}
         hierarchy={hierarchy}
-        includedCodes={readValueFromPage("included-codes")}
         isEditable={readValueFromPage("is-editable")}
         metadata={readValueFromPage("metadata")}
         resultsHeading={readValueFromPage("results-heading")}

@@ -1,15 +1,27 @@
-import PropTypes from "prop-types";
 import React from "react";
+import { AncestorCodeType, TreePassProps } from "../types";
 import TreeTable from "./TreeTable";
 
-class TreeTables extends React.Component {
-  constructor(props) {
+export interface TreeTablesProps extends TreePassProps {
+  ancestorCodes?: AncestorCodeType[];
+  treeTables: [string, string[]][];
+}
+
+interface ComponentState {
+  visiblePaths: TreePassProps["visiblePaths"];
+}
+
+export default class TreeTables extends React.Component<
+  TreeTablesProps,
+  ComponentState
+> {
+  constructor(props: TreeTablesProps) {
     super(props);
     this.state = { visiblePaths: props.visiblePaths };
     this.toggleVisibility = this.toggleVisibility.bind(this);
   }
 
-  toggleVisibility(path) {
+  toggleVisibility(path: string) {
     this.setState((state) => {
       const visiblePaths = new Set(state.visiblePaths);
       this.props.hierarchy.toggleVisibility(visiblePaths, path);
@@ -45,20 +57,3 @@ class TreeTables extends React.Component {
     ));
   }
 }
-
-export default TreeTables;
-
-TreeTables.propTypes = {
-  codeToStatus: PropTypes.objectOf(PropTypes.string),
-  codeToTerm: PropTypes.objectOf(PropTypes.string),
-  hierarchy: PropTypes.shape({
-    ancestorMap: PropTypes.shape(),
-    childMap: PropTypes.objectOf(PropTypes.array),
-    nodes: PropTypes.shape(),
-    parentMap: PropTypes.objectOf(PropTypes.arrayOf(PropTypes.string)),
-    toggleVisibility: PropTypes.func,
-  }),
-  treeTables: PropTypes.arrayOf(PropTypes.array),
-  updateStatus: PropTypes.func,
-  visiblePaths: PropTypes.objectOf(PropTypes.string),
-};

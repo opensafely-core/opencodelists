@@ -1,5 +1,5 @@
 // From https://docs.djangoproject.com/en/3.0/ref/csrf/
-function getCookie(name) {
+function getCookie(name: string) {
   let cookieValue = undefined;
   if (document.cookie && document.cookie !== "") {
     const cookies = document.cookie.split(";");
@@ -15,7 +15,7 @@ function getCookie(name) {
   return cookieValue;
 }
 
-function readValueFromPage(id) {
+function readValueFromPage(id: string) {
   const scriptId = document.getElementById(id);
   if (scriptId?.textContent) {
     return JSON.parse(scriptId.textContent);

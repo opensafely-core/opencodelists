@@ -9,7 +9,19 @@ import {
 } from "react-bootstrap";
 import { getCookie } from "../_utils";
 
-export default function ManagementForm({ counts }) {
+interface ManagementFormProps {
+  counts: {
+    "!": number;
+    "(+)": number;
+    "(-)": number;
+    "+": number;
+    "-": number;
+    "?": number;
+    total: number;
+  };
+}
+
+export default function ManagementForm({ counts }: ManagementFormProps) {
   const [showDiscardModal, setShowDiscardModal] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
 

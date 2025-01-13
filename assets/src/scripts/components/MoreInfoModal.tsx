@@ -1,5 +1,21 @@
 import React, { useState } from "react";
 import { Button, Modal } from "react-bootstrap";
+import Hierarchy from "../_hierarchy";
+import {
+  AllCodesType,
+  CodeToStatus,
+  StatusState,
+  TreePassProps,
+} from "../types";
+
+interface CreateModalTextProps {
+  allCodes: AllCodesType;
+  code: string;
+  codeToStatus: CodeToStatus;
+  codeToTerm: TreePassProps["codeToTerm"];
+  hierarchy: Hierarchy;
+  status: StatusState;
+}
 
 function createModalText({
   allCodes,
@@ -8,7 +24,7 @@ function createModalText({
   codeToTerm,
   hierarchy,
   status,
-}) {
+}: CreateModalTextProps) {
   const included = allCodes.filter((c) => codeToStatus[c] === "+");
   const excluded = allCodes.filter((c) => codeToStatus[c] === "-");
   const significantAncestors = hierarchy.significantAncestors(
@@ -51,7 +67,17 @@ function createModalText({
   return text;
 }
 
-function MoreInfoModal({
+interface MoreInfoModalProps {
+  allCodes: AllCodesType;
+  code: string;
+  codeToStatus: CodeToStatus;
+  codeToTerm: TreePassProps["codeToTerm"];
+  hierarchy: Hierarchy;
+  status: StatusState;
+  term: string;
+}
+
+export default function MoreInfoModal({
   allCodes,
   code,
   codeToStatus,
@@ -59,7 +85,7 @@ function MoreInfoModal({
   hierarchy,
   status,
   term,
-}) {
+}: MoreInfoModalProps) {
   const [showMoreInfoModal, setShowMoreInfoModal] = useState(false);
 
   const modalText = createModalText({
@@ -95,5 +121,3 @@ function MoreInfoModal({
     </>
   );
 }
-
-export default MoreInfoModal;

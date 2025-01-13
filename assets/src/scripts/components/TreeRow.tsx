@@ -1,12 +1,22 @@
-import PropTypes from "prop-types";
 import React from "react";
 import { ButtonGroup } from "react-bootstrap";
+import { PipesState, StatusState, TreePassProps } from "../types";
 import DescendantToggle from "./DescendantToggle";
 import MoreInfoModal from "./MoreInfoModal";
 import Pipes from "./Pipes";
 import StatusToggle from "./StatusToggle";
 
-function TreeRow({
+export interface TreeRowProps extends Omit<TreePassProps, "visiblePaths"> {
+  code: string;
+  hasDescendants: boolean;
+  isExpanded: boolean;
+  path: string;
+  pipes: PipesState;
+  status: StatusState;
+  term: string;
+}
+
+export default function TreeRow({
   allCodes,
   code,
   codeToStatus,
@@ -21,13 +31,14 @@ function TreeRow({
   term,
   toggleVisibility,
   updateStatus,
-}) {
+}: TreeRowProps) {
   const statusToColour = {
     "+": "text-body",
     "(+)": "text-body",
     "-": "text-secondary",
     "(-)": "text-secondary",
     "!": "text-danger",
+    "?": "text-body",
   };
 
   const rowSpacing = pipes.length === 0 ? "mt-2" : "mt-0";
@@ -79,18 +90,3 @@ function TreeRow({
     </div>
   );
 }
-
-export default TreeRow;
-
-TreeRow.propTypes = {
-  code: PropTypes.string,
-  hasDescendants: PropTypes.bool,
-  isExpanded: PropTypes.bool,
-  path: PropTypes.string,
-  pipes: PropTypes.arrayOf(PropTypes.string),
-  showMoreInfoModal: PropTypes.func,
-  status: PropTypes.string,
-  term: PropTypes.string,
-  toggleVisibility: PropTypes.func,
-  updateStatus: PropTypes.func,
-};

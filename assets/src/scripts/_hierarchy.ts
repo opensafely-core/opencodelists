@@ -1,5 +1,13 @@
+import { CodeToStatus, PipesState, StatusState, TreePassProps } from "./types";
+
 class Hierarchy {
-  constructor(parentMap, childMap) {
+  ancestorMap: Record<string, string[]>;
+  childMap: Record<string, string[]>;
+  descendantMap: Record<string, string[]>;
+  nodes: Set<string>;
+  parentMap: Record<string, string[]>;
+
+  constructor(parentMap: {}, childMap: {}) {
     this.nodes = new Set([...Object.keys(parentMap), ...Object.keys(childMap)]);
     this.parentMap = parentMap;
     this.childMap = childMap;
@@ -7,9 +15,9 @@ class Hierarchy {
     this.descendantMap = {};
   }
 
-  getAncestors(node) {
+  getAncestors(node: string) {
     if (!(node in this.ancestorMap)) {
-      let ancestors = new Set();
+      let ancestors: Set<string> = new Set();
       if (node in this.parentMap) {
         for (let parent of this.parentMap[node]) {
           ancestors.add(parent);
@@ -25,9 +33,10 @@ class Hierarchy {
     return this.ancestorMap[node];
   }
 
-  getDescendants(node) {
+  getDescendants(node: string) {
     if (!(node in this.descendantMap)) {
-      let descendants = new Set();
+      let descendants: Set<string> = new Set();
+
       if (node in this.childMap) {
         for (let child of this.childMap[node]) {
           descendants.add(child);
@@ -43,7 +52,11 @@ class Hierarchy {
     return this.descendantMap[node];
   }
 
-  updateCodeToStatus(codeToStatus, code, status) {
+  updateCodeToStatus(
+    codeToStatus: CodeToStatus,
+    code: string,
+    status: string,
+  ): CodeToStatus {
     // Given mapping from codes to statuses, a code, and that code's new
     // status, return an updated mapping.
 
@@ -60,8 +73,8 @@ class Hierarchy {
       excluded.push(code);
     }
 
-    const updatedCodeToStatus = {};
-    this.nodes.forEach((code1) => {
+    const updatedCodeToStatus: CodeToStatus = {};
+    this.nodes.forEach((code1: string) => {
       if (code1 === code || this.getDescendants(code).includes(code1)) {
         updatedCodeToStatus[code1] = this.codeStatus(code1, included, excluded);
       } else {
@@ -71,7 +84,11 @@ class Hierarchy {
     return updatedCodeToStatus;
   }
 
-  codeStatus(code, included, excluded) {
+  codeStatus(
+    code: string,
+    included: string | string[],
+    excluded: string | string[],
+  ) {
     // Return status of code, given lists of codes that are included and excluded.
 
     if (included.includes(code)) {
@@ -111,7 +128,11 @@ class Hierarchy {
     return "!";
   }
 
-  significantAncestors(code, included, excluded) {
+  significantAncestors(
+    code: string,
+    included: string | string[],
+    excluded: string | string[],
+  ) {
     // Find ancestors of code which are both:
     //   * members of included or excluded, and
     //   * not overridden by any of their descendants
@@ -123,39 +144,57 @@ class Hierarchy {
 
     // these are the ancestors of the code that are directly included or excluded
     const includedOrExcludedAncestors = ancestors.filter(
-      (a) => included.includes(a) || excluded.includes(a),
+      (a: string) => included.includes(a) || excluded.includes(a),
     );
 
     // these are the ancestors of the code that are directly included or excluded,
     // and which are not overridden by any of their descendants
     const significantAncestors = includedOrExcludedAncestors.filter(
-      (a) =>
-        !this.getDescendants(a).some((d) =>
+      (a: string) =>
+        !this.getDescendants(a).some((d: string) =>
           includedOrExcludedAncestors.includes(d),
         ),
     );
 
     return {
-      includedAncestors: significantAncestors.filter((a) =>
+      includedAncestors: significantAncestors.filter((a: string) =>
         included.includes(a),
       ),
-      excludedAncestors: significantAncestors.filter((a) =>
+      excludedAncestors: significantAncestors.filter((a: string) =>
         excluded.includes(a),
       ),
     };
   }
 
-  treeRows(ancestorCode, codeToStatus, codeToTerm, visiblePaths) {
+  treeRows(
+    ancestorCode: string,
+    codeToStatus: CodeToStatus,
+    codeToTerm: TreePassProps["codeToTerm"],
+    visiblePaths: TreePassProps["visiblePaths"],
+  ) {
     // Return array of objects representing rows in a "tree table" whose root
     // is at ancestorCode.  Rows are only included if they are reached by a
     // path which is in visiblePaths.  The returned objects are passed as props
     // to TreeRow components.
 
-    const rows = [];
+    const rows: {
+      code: string;
+      hasDescendants: boolean;
+      isExpanded: boolean;
+      path: string;
+      pipes: PipesState;
+      status: StatusState;
+      term: string;
+    }[] = [];
 
-    const helper = (code, path, prevPipes, isLastSibling) => {
+    const helper = (
+      code: string,
+      path: string,
+      prevPipes: PipesState,
+      isLastSibling: boolean,
+    ) => {
       const childCodes = this.childMap[code] || [];
-      childCodes.sort((code1, code2) => {
+      childCodes.sort((code1: string | number, code2: string | number) => {
         const term1 = codeToTerm[code1];
         const term2 = codeToTerm[code2];
         if (term1 < term2) {
@@ -168,7 +207,7 @@ class Hierarchy {
       });
 
       // A row is expanded if any of its children are visible.
-      const isExpanded = childCodes.some((childCode) => {
+      const isExpanded = childCodes.some((childCode: string) => {
         const childPath = path + ":" + childCode;
         return visiblePaths.has(childPath);
       });
@@ -183,7 +222,7 @@ class Hierarchy {
         isExpanded: isExpanded,
       });
 
-      childCodes.forEach((childCode, ix) => {
+      childCodes.forEach((childCode: string, ix: number) => {
         const childPath = path + ":" + childCode;
         if (visiblePaths.has(childPath)) {
           helper(
@@ -201,7 +240,11 @@ class Hierarchy {
     return rows;
   }
 
-  initiallyVisiblePaths(ancestorCodes, codeToStatus, maxDepth) {
+  initiallyVisiblePaths(
+    ancestorCodes: string[],
+    codeToStatus: CodeToStatus,
+    maxDepth: number,
+  ) {
     // Return set of paths which start at one of ancestorCodes, and end at
     // maxDepth codes below the first code where all descendants of that code
     // have the same status as that code.  These are the paths that should
@@ -237,9 +280,9 @@ class Hierarchy {
     //
     // {a, a:b, a:b:d, a:b:e, a:c, a:c:e, a:c:e:h, a:c:e:i, a:c:f, a:c:f:i, a:c:f:j}
 
-    const paths = new Set();
+    const paths: Set<string> = new Set();
 
-    const helper = (code, path, depth) => {
+    const helper = (code: string, path: string, depth: number) => {
       // Walk the tree depth-first, collecting paths which should be visible.
 
       if (depth === maxDepth + 1) {
@@ -249,7 +292,7 @@ class Hierarchy {
 
       paths.add(path);
 
-      let newDepth;
+      let newDepth: number;
 
       if (depth > 0) {
         // This code is a descendant of a code all of whose descendants have
@@ -267,24 +310,31 @@ class Hierarchy {
       }
 
       const childCodes = this.childMap[code] || [];
-      childCodes.forEach((childCode) => {
+      childCodes.forEach((childCode: string) => {
         helper(childCode, path + ":" + childCode, newDepth);
       });
     };
 
-    ancestorCodes.forEach((ancestorCode) => {
+    ancestorCodes.forEach((ancestorCode: string) => {
       helper(ancestorCode, ancestorCode, 0);
     });
 
     return paths;
   }
 
-  toggleVisibility(visiblePaths, path) {
+  toggleVisibility(
+    visiblePaths: {
+      has: (path: string) => boolean;
+      delete: (path: string) => void;
+      add: (path: string) => void;
+    },
+    path: string,
+  ) {
     // Toggle the visibility of all children of the node at the given path.
 
     const code = path.split(":").slice(-1)[0];
     const childCodes = this.childMap[code] || [];
-    childCodes.forEach((childCode) => {
+    childCodes.forEach((childCode: string) => {
       const childPath = path + ":" + childCode;
       if (visiblePaths.has(childPath)) {
         visiblePaths.delete(childPath);
@@ -295,4 +345,4 @@ class Hierarchy {
   }
 }
 
-export { Hierarchy as default };
+export default Hierarchy;

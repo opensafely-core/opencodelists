@@ -1,7 +1,6 @@
 import PropTypes from "prop-types";
-import React, { useState } from "react";
-import { Button, ButtonGroup, Modal } from "react-bootstrap";
-import { readValueFromPage } from "../_utils";
+import React from "react";
+import { ButtonGroup } from "react-bootstrap";
 import DescendantToggle from "./DescendantToggle";
 import MoreInfoModal from "./MoreInfoModal";
 import Pipes from "./Pipes";

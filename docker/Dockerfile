@@ -48,8 +48,7 @@ RUN --mount=type=cache,target=/usr/src/app/.npm \
 # copy just what npm build needs
 COPY vite.config.mjs ./
 COPY assets ./assets
-RUN --mount=type=cache,target=./npm npm run typecheck
-RUN --mount=type=cache,target=./npm npm run build
+RUN --mount=type=cache,target=./npm npm run typecheck && npm run build
 
 ##################################################
 #

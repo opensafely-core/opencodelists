@@ -10,7 +10,7 @@
     "test:watch": "npx vitest",
     "test:coverage": "npx vitest run --coverage",
     "test:single": "npx vitest -t",
-    "typecheck": "npx tsc"
+    "typecheck": "tsc -p ./"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",

@@ -1,16 +1,31 @@
-import PropTypes from "prop-types";
-import React from "react";
-import { Modal } from "react-bootstrap";
+import React, { useState } from "react";
+import { Button, Modal } from "react-bootstrap";
 
-function MoreInfoModal({
+function createModalText({
+  allCodes,
   code,
-  excludedAncestorsText,
-  hideModal,
-  includedAncestorsText,
+  codeToStatus,
+  codeToTerm,
+  hierarchy,
   status,
-  term,
 }) {
-  let text = null;
+  const included = allCodes.filter((c) => codeToStatus[c] === "+");
+  const excluded = allCodes.filter((c) => codeToStatus[c] === "-");
+  const significantAncestors = hierarchy.significantAncestors(
+    code,
+    included,
+    excluded,
+  );
+
+  const includedAncestorsText = significantAncestors.includedAncestors
+    .map((code) => `${codeToTerm[code]} (${code})`)
+    .join(", ");
+
+  const excludedAncestorsText = significantAncestors.excludedAncestors
+    .map((code) => `${codeToTerm[code]} (${code})`)
+    .join(", ");
+
+  let text = "";
 
   switch (status) {
     case "+":
@@ -33,23 +48,52 @@ function MoreInfoModal({
       break;
   }
 
+  return text;
+}
+
+function MoreInfoModal({
+  allCodes,
+  code,
+  codeToStatus,
+  codeToTerm,
+  hierarchy,
+  status,
+  term,
+}) {
+  const [showMoreInfoModal, setShowMoreInfoModal] = useState(false);
+
+  const modalText = createModalText({
+    allCodes,
+    code,
+    codeToStatus,
+    codeToTerm,
+    hierarchy,
+    status,
+  });
+
   return (
-    <Modal centered onHide={() => hideModal()} show={code !== null}>
-      <Modal.Header closeButton>
-        {term} ({code})
-      </Modal.Header>
-      <Modal.Body>{text}</Modal.Body>
-    </Modal>
+    <>
+      <Button
+        className="py-0 border-0"
+        onClick={() => setShowMoreInfoModal(true)}
+        variant="outline-secondary"
+      >
+        &hellip;
+      </Button>
+
+      <Modal
+        show={showMoreInfoModal}
+        onHide={() => setShowMoreInfoModal(false)}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>
+            {term} ({code})
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>{modalText}</Modal.Body>
+      </Modal>
+    </>
   );
 }
 
 export default MoreInfoModal;
-
-MoreInfoModal.propTypes = {
-  code: PropTypes.string,
-  excludedAncestorsText: PropTypes.string,
-  hideModal: PropTypes.func,
-  includedAncestorsText: PropTypes.string,
-  status: PropTypes.string,
-  term: PropTypes.string,
-};

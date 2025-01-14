@@ -3,11 +3,12 @@ import React from "react";
 import TreeRow from "./TreeRow";
 
 function Tree({
+  allCodes,
   ancestorCode,
   codeToStatus,
   codeToTerm,
   hierarchy,
-  showMoreInfoModal,
+  isEditable,
   toggleVisibility,
   updateStatus,
   visiblePaths,
@@ -16,13 +17,17 @@ function Tree({
     .treeRows(ancestorCode, codeToStatus, codeToTerm, visiblePaths)
     .map((row) => (
       <TreeRow
-        key={row.path}
+        allCodes={allCodes}
         code={row.code}
+        codeToStatus={codeToStatus}
+        codeToTerm={codeToTerm}
         hasDescendants={row.hasDescendants}
+        hierarchy={hierarchy}
+        isEditable={isEditable}
         isExpanded={row.isExpanded}
+        key={row.path}
         path={row.path}
         pipes={row.pipes}
-        showMoreInfoModal={showMoreInfoModal}
         status={row.status}
         term={row.term}
         toggleVisibility={toggleVisibility}
@@ -43,7 +48,6 @@ Tree.propTypes = {
     nodes: PropTypes.shape(),
     parentMap: PropTypes.objectOf(PropTypes.arrayOf(PropTypes.string)),
   }),
-  showMoreInfoModal: PropTypes.func,
   toggleVisibility: PropTypes.func,
   updateStatus: PropTypes.func,
   visiblePaths: PropTypes.shape(),

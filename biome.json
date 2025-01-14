@@ -49,6 +49,7 @@
         "noUnsafeFinally": "error",
         "noUnsafeOptionalChaining": "error",
         "noUnusedLabels": "error",
+        "noUnusedImports": "error",
         "noUnusedVariables": "error",
         "useIsNan": "error",
         "useJsxKeyInIterable": "error",
@@ -99,7 +100,8 @@
       "attributePosition": "auto",
       "bracketSpacing": true
     },
-    "globals": ["global", "$"]
+    "globals": ["global", "$"],
+    "jsxRuntime": "reactClassic"
   },
   "overrides": [
     { "include": ["**/*.test.js", "**/*.test.jsx"] },

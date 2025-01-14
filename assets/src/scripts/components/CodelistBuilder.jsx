@@ -4,7 +4,6 @@ import { Col, Row } from "react-bootstrap";
 import { getCookie } from "../_utils";
 import Filter from "./Filter";
 import ManagementForm from "./ManagementForm";
-import MoreInfoModal from "./MoreInfoModal";
 import Search from "./Search";
 import SearchForm from "./SearchForm";
 import Summary from "./Summary";
@@ -18,7 +17,6 @@ class CodelistBuilder extends React.Component {
     this.state = {
       codeToStatus: props.codeToStatus,
       expandedCompatibleReleases: false,
-      moreInfoModalCode: null,
       updateQueue: [],
       updating: false,
     };
@@ -26,8 +24,6 @@ class CodelistBuilder extends React.Component {
     this.updateStatus = props.isEditable
       ? this.updateStatus.bind(this)
       : () => null;
-    this.showMoreInfoModal = this.showMoreInfoModal.bind(this);
-    this.hideMoreInfoModal = this.hideMoreInfoModal.bind(this);
     this.toggleExpandedCompatibleReleases =
       this.toggleExpandedCompatibleReleases.bind(this);
   }
@@ -109,14 +105,6 @@ class CodelistBuilder extends React.Component {
       });
   }
 
-  showMoreInfoModal(code) {
-    this.setState({ moreInfoModalCode: code });
-  }
-
-  hideMoreInfoModal() {
-    this.setState({ moreInfoModalCode: null });
-  }
-
   counts() {
     let counts = {
       "?": 0,
@@ -138,34 +126,41 @@ class CodelistBuilder extends React.Component {
   }
 
   render() {
-    const moreInfoModal =
-      this.state.moreInfoModalCode &&
-      this.renderMoreInfoModal(this.state.moreInfoModalCode);
-
+    const {
+      allCodes,
+      codeToTerm,
+      draftURL,
+      filter,
+      hierarchy,
+      isEditable,
+      metadata,
+      resultsHeading,
+      searches,
+      searchURL,
+      treeTables,
+      visiblePaths,
+    } = this.props;
     return (
       <>
         <Row>
           <Col md="3">
-            {this.props.isEditable && <ManagementForm counts={this.counts()} />}
+            {isEditable && <ManagementForm counts={this.counts()} />}
 
             <h3 className="h6">Summary</h3>
-            <Filter filter={this.props.filter} />
+            <Filter filter={filter} />
             <Summary counts={this.counts()} />
             <hr />
 
-            {this.props.searches.length > 0 && (
-              <Search
-                draftURL={this.props.draftURL}
-                searches={this.props.searches}
-              />
+            {searches.length > 0 && (
+              <Search draftURL={draftURL} searches={searches} />
             )}
 
-            {this.props.isEditable && (
+            {isEditable && (
               <>
                 <h3 className="h6">New search</h3>
                 <SearchForm
-                  codingSystemName={this.props.metadata.coding_system_name}
-                  searchURL={this.props.searchURL}
+                  codingSystemName={metadata.coding_system_name}
+                  searchURL={searchURL}
                 />
                 <hr />
               </>
@@ -173,30 +168,28 @@ class CodelistBuilder extends React.Component {
 
             <dl>
               <dt>Coding system</dt>
-              <dd>{this.props.metadata.coding_system_name}</dd>
+              <dd>{metadata.coding_system_name}</dd>
 
               <dt>Coding system release</dt>
               <dd>
-                {this.props.metadata.coding_system_release.release_name}
-                {this.props.metadata.coding_system_release.valid_from ? (
-                  <>({this.props.metadata.coding_system_release.valid_from})</>
+                {metadata.coding_system_release.release_name}
+                {metadata.coding_system_release.valid_from ? (
+                  <>({metadata.coding_system_release.valid_from})</>
                 ) : null}
               </dd>
 
-              {this.props.metadata.organisation_name ? (
+              {metadata.organisation_name ? (
                 <>
                   <dt>Organisation</dt>
-                  <dd>{this.props.metadata.organisation_name}</dd>
+                  <dd>{metadata.organisation_name}</dd>
                 </>
               ) : null}
 
               <dt>Codelist ID</dt>
-              <dd className="text-break">
-                {this.props.metadata.codelist_full_slug}
-              </dd>
+              <dd className="text-break">{metadata.codelist_full_slug}</dd>
 
               <dt>ID</dt>
-              <dd>{this.props.metadata.hash}</dd>
+              <dd>{metadata.hash}</dd>
             </dl>
             <hr />
 
@@ -209,55 +202,21 @@ class CodelistBuilder extends React.Component {
           </Col>
 
           <Col md="9" className="overflow-auto">
-            <h3 className="h4">{this.props.resultsHeading}</h3>
+            <h3 className="h4">{resultsHeading}</h3>
             <hr />
             <TreeTables
+              allCodes={allCodes}
               codeToStatus={this.state.codeToStatus}
-              codeToTerm={this.props.codeToTerm}
-              hierarchy={this.props.hierarchy}
-              showMoreInfoModal={this.showMoreInfoModal}
-              treeTables={this.props.treeTables}
+              codeToTerm={codeToTerm}
+              hierarchy={hierarchy}
+              isEditable={isEditable}
+              treeTables={treeTables}
               updateStatus={this.updateStatus}
-              visiblePaths={this.props.visiblePaths}
+              visiblePaths={visiblePaths}
             />
           </Col>
         </Row>
-
-        {moreInfoModal}
       </>
-    );
-  }
-
-  renderMoreInfoModal(code) {
-    const included = this.props.allCodes.filter(
-      (c) => this.state.codeToStatus[c] === "+",
-    );
-    const excluded = this.props.allCodes.filter(
-      (c) => this.state.codeToStatus[c] === "-",
-    );
-    const significantAncestors = this.props.hierarchy.significantAncestors(
-      code,
-      included,
-      excluded,
-    );
-
-    const includedAncestorsText = significantAncestors.includedAncestors
-      .map((code) => `${this.props.codeToTerm[code]} (${code})`)
-      .join(", ");
-
-    const excludedAncestorsText = significantAncestors.excludedAncestors
-      .map((code) => `${this.props.codeToTerm[code]} (${code})`)
-      .join(", ");
-
-    return (
-      <MoreInfoModal
-        code={code}
-        excludedAncestorsText={excludedAncestorsText}
-        hideModal={this.hideMoreInfoModal}
-        includedAncestorsText={includedAncestorsText}
-        status={this.state.codeToStatus[code]}
-        term={this.props.codeToTerm[code]}
-      />
     );
   }
 }

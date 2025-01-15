@@ -48,8 +48,8 @@ class CodingSystemReleaseRouter:
                     return hints["instance"]._state.db
                 raise ValueError(
                     f'"{model._meta.app_label}" models must select a valid version database '
-                    f'with a `using` argument. {hints["instance"]._state.db} is not a valid '
-                    f'database for {hints["instance"]}'
+                    f"with a `using` argument. {hints['instance']._state.db} is not a valid "
+                    f"database for {hints['instance']}"
                 )
             raise ValueError(
                 f'"{model._meta.app_label}" models must be accessed with a `using` argument '

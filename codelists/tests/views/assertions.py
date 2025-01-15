@@ -3,9 +3,9 @@ from opencodelists.models import User
 
 def assert_unauthenticated(client, method, url):
     response = getattr(client, method)(url)
-    assert (
-        response.status_code == 302
-    ), f"Unexpected status code!  Can unauthenticated user {method.upper()} to {url}?"
+    assert response.status_code == 302, (
+        f"Unexpected status code!  Can unauthenticated user {method.upper()} to {url}?"
+    )
     assert response.url.startswith("/accounts/login/")
 
 
@@ -23,9 +23,9 @@ def assert_unauthorised(client, method, url):
     )
     client.force_login(user)
     response = getattr(client, method)(url)
-    assert (
-        response.status_code == 302
-    ), f"Unexpected status code!  Can unauthorised user {method.upper()} to to {url}?"
+    assert response.status_code == 302, (
+        f"Unexpected status code!  Can unauthorised user {method.upper()} to to {url}?"
+    )
     assert response.url == "/"
 
 

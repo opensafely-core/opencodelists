@@ -20,9 +20,9 @@ def import_data(
         logger.info("Extracting", release_zip=release_zip.filename)
         release_zip.extractall(path=tempdir)
         paths = list(Path(tempdir).glob("*.csv"))
-        assert (
-            len(paths) == 1
-        ), f"Expected 1 and only one .csv file (found {len(paths)})"
+        assert len(paths) == 1, (
+            f"Expected 1 and only one .csv file (found {len(paths)})"
+        )
         path = paths[0]
 
         records = {type: set() for type in TYPES}

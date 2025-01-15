@@ -212,12 +212,12 @@ def import_coding_system(release_dir, database_alias):
     # gtin
     elements = next(load_elements(filepaths["gtin"]))
     for element in elements:
-        assert (
-            element[0].tag == "AMPPID"
-        ), f"Expected AMPPID as first element, got {element[0].tag}"
-        assert (
-            element[1].tag == "GTINDATA"
-        ), f"Expected GTINDATA as second element, got {element[1].tag}"
+        assert element[0].tag == "AMPPID", (
+            f"Expected AMPPID as first element, got {element[0].tag}"
+        )
+        assert element[1].tag == "GTINDATA", (
+            f"Expected GTINDATA as second element, got {element[1].tag}"
+        )
 
         element[0].tag = "APPID"
         for gtinelt in element[1]:
@@ -228,9 +228,9 @@ def import_coding_system(release_dir, database_alias):
 
 def get_filepath(release_dir, filename_fragment):
     paths = list(release_dir.glob(f"f_{filename_fragment}2_*.xml"))
-    assert (
-        len(paths) == 1
-    ), f"Expected 1 path for {f'f_{filename_fragment}2_*.xml'}, found {len(paths)}"
+    assert len(paths) == 1, (
+        f"Expected 1 path for {f'f_{filename_fragment}2_*.xml'}, found {len(paths)}"
+    )
     return paths[0]
 
 
@@ -243,9 +243,9 @@ def load_elements(filepath):
     iterelements = root.iterchildren()
     first_element = next(iterelements)
 
-    assert isinstance(
-        first_element, etree._Comment
-    ), f"Expected etree._Comment first row, got {type(first_element)}"
+    assert isinstance(first_element, etree._Comment), (
+        f"Expected etree._Comment first row, got {type(first_element)}"
+    )
     yield from iterelements
 
 

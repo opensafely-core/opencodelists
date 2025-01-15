@@ -79,9 +79,9 @@ class BaseCodingSystem(ABC):
             .filter(coding_system=cls.id)
             .values_list("database_alias", flat=True)
         )
-        assert (
-            database_alias in all_slugs
-        ), f"{database_alias} is not a valid database alias for a {cls.short_name} release."
+        assert database_alias in all_slugs, (
+            f"{database_alias} is not a valid database alias for a {cls.short_name} release."
+        )
         return database_alias
 
     @cached_property

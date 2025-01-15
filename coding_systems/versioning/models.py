@@ -51,9 +51,9 @@ class CodingSystemRelease(models.Model):
             f"{self.coding_system}_{self.release_name}_{self.valid_from.strftime('%Y%m%d')}"
         )
         if self.database_alias:
-            assert (
-                self.database_alias == database_alias
-            ), f"database_alias {self.database_alias} does not follow required pattern (expected '{database_alias}'"
+            assert self.database_alias == database_alias, (
+                f"database_alias {self.database_alias} does not follow required pattern (expected '{database_alias}'"
+            )
         else:
             self.database_alias = database_alias
         return super().save(*args, **kwargs)

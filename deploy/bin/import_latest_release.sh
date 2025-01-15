@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -euo pipefail
-
+source sentry_cron_functions.sh
 # NOTE: this script is run by cron (as the dokku user) weekly
 # For dm+d, it is run every Monday night, to coincide with weekly
 # dm+d releases
@@ -15,9 +15,6 @@ set -euo pipefail
 # Updates to coding systems require restarting the dokku app, so this job is
 # not dokku-managed
 
-# This script should be copied to /var/lib/dokku/data/storage/opencodelists/import_latest_release.sh
-# on dokku3 and run using the cronfile at opencodelists/deploy/bin/import_latest_dmd_cron
-
 # SLACK_WEBHOOK_URL and SLACK_TEAM_WEBHOOK_URL are environment variables set in the cronfile on dokku3
 # General notification messages (import start, complete etc) are posted to the
 # SLACK_WEBHOOK_URL channel (#tech-noise).  Failures are posted to the
@@ -25,6 +22,11 @@ set -euo pipefail
 # for OpenCodelists.
 
 CODING_SYSTEM=$1
+
+SENTRY_MONITOR_NAME="{$0}_{$1}"
+SENTRY_DSN=$(dokku config:get opencodelists SENTRY_DSN)
+CRONTAB=$(extract_crontab "$CODING_SYSTEM" "cronfile")
+SENTRY_CRON_URL=$(sentry_cron_url "$SENTRY_DSN" "$SENTRY_MONITOR_NAME")
 
 REPO_ROOT="/app"
 DOWNLOAD_DIR="/storage/data/${CODING_SYSTEM}"
@@ -56,6 +58,7 @@ function run_dokku_import_command () {
 function post_starting_message() {
   starting_message_text="Starting OpenCodelists import of latest ${CODING_SYSTEM}"
   post_to_slack "${starting_message_text}" "${SLACK_WEBHOOK_URL}"
+  sentry_cron_start "$SENTRY_CRON_URL" "$CRONTAB"
 }
 
 
@@ -67,6 +70,8 @@ function post_success_message_and_cleanup() {
   post_to_slack "${success_message_text}" "${SLACK_WEBHOOK_URL}"
   # remove log file; only persist log files for errors
   rm "${LOG_FILE}"
+  # log success with sentry
+  sentry_cron_ok "$SENTRY_CRON_URL"
 }
 
 
@@ -85,6 +90,8 @@ import_coding_system_data ${CODING_SYSTEM} ${DOWNLOAD_DIR} \
 --valid-from <YYYY-MM-DD> \
 --force && dokku ps:restart opencodelists\`\`\`"
   post_to_slack "${failure_message_text}" "${SLACK_TEAM_WEBHOOK_URL}"
+  # report failure to sentry
+  sentry_cron_error "$SENTRY_CRON_URL"
 }
 
 

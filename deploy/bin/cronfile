@@ -1,0 +1,12 @@
+# /etc/cron.d/dokku-opencodelists-cronfile
+# cron jobs to import latest releases
+# update SLACK_WEBHOOK_URL and SLACK_TEAM_WEBHOOK_URL with relevant channel url
+
+PATH=/usr/local/bin:/usr/bin:/bin
+SHELL=/bin/bash
+SLACK_WEBHOOK_URL=dummy-url
+SLACK_TEAM_WEBHOOK_URL=dummy-url
+
+5 23 * * 1 dokku /var/lib/dokku/data/storage/opencodelists/deploy/bin/run_cron.sh import_latest_release.sh dmd
+5 23 * * 2 dokku /var/lib/dokku/data/storage/opencodelists/deploy/bin/run_cron.sh import_latest_release.sh snomedct
+5 23 * * 3 dokku /var/lib/dokku/data/storage/opencodelists/deploy/bin/run_cron.sh import_latest_release.sh mappings.bnfdmd

@@ -119,19 +119,3 @@ environment first to ensure that there are no issues with it. By convention, we
 place the mapping files to be imported in
 /var/lib/dokku/data/storage/mappings/bnfdmd which is mapped within the
 container to /storage/mappings/bnfdmd.
-
-
-### cron jobs
-
-We use a mixture of dokku-managed (see [Backups](#Backups) ) and
-[self-managed](https://dokku.com/docs/processes/scheduled-cron-tasks/#self-managed-cron)cron jobs.
-
-For the latter, these are configured via a `cronfile` in `deploy/bin/`
-which should be copied to `/etc/cron.d/` using `copy_cronfile.sh` as `sudo`.
-
-All cron jobs (both dokku- and self-managed) call functions from `sentry_cron_functions.sh` to enable
-Sentry cron job monitoring. The contents of `deploy/bin` should be copied to
-`/var/lib/dokku/data/storage/opencodelists/deploy/bin` (outside container)
-or `/storage/deploy/bin` (within container) to support this.
-
-This sentry monitoring requires that the SENTRY_DSN environment variable is set (see above)

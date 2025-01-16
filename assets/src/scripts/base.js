@@ -55,3 +55,11 @@ if (document.location.hostname === "www.opencodelists.org") {
       (window.plausible.q = window.plausible.q || []).push(arguments);
     };
 }
+
+/**
+ * Enable tooltips everywhere
+ * https://getbootstrap.com/docs/4.6/components/tooltips/#example-enable-tooltips-everywhere
+ */
+$(function () {
+  $('[data-toggle="tooltip"]').tooltip();
+});

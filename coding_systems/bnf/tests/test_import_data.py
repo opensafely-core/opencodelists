@@ -43,6 +43,10 @@ def coding_systems_database_tmp_dir(coding_systems_tmp_path):
 
 @pytest.fixture
 def mock_bnf_import_data_path(tmp_path):
+    yield from _mock_bnf_import_data_path(tmp_path)
+
+
+def _mock_bnf_import_data_path(tmp_path):
     MOCK_BNF_IMPORT_DATA = [
         [
             "BNF Chapter",
@@ -116,7 +120,7 @@ def mock_bnf_import_data_path(tmp_path):
     # 3) 3 new concepts, 4 concepts shared with (2)
     # 4) 3 new concepts, 4 DUMMY concepts that are not imported
     csv_dir = tmp_path / "data"
-    csv_dir.mkdir(parents=True)
+    csv_dir.mkdir(parents=True, exist_ok=True)
     with open(csv_dir / "data.csv", "w") as csv_file:
         writer = csv.writer(csv_file)
         writer.writerows(MOCK_BNF_IMPORT_DATA)

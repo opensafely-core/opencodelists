@@ -117,7 +117,7 @@ upgrade env package="": virtualenv
 
 # Upgrade all dev and prod dependencies.
 # This is the default input command to update-dependencies action
-# https://github.com/opensafely-core/update-dependencies-action
+# https://github.com/bennettoxford/update-dependencies-action
 update-dependencies:
     just upgrade prod
     just upgrade dev

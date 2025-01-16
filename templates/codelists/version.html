@@ -237,7 +237,9 @@
                   data-toggle="tooltip"
                   title="When this codelist version was added to OpenCodelists"
                 >Created</abbr>:
-                {{ version.created_at | date:'Y-m-d H:i:s' }}
+                {{ version.created_at | date:'d M Y' }}
+                at
+                {{ version.created_at | date:'H:i' }}
               </span>
             </li>
           {% endfor %}

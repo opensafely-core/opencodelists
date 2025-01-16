@@ -5,6 +5,7 @@ from django.apps import apps
 from django.db import DEFAULT_DB_ALIAS, OperationalError, connections
 
 from codelists.coding_systems import CODING_SYSTEMS
+from coding_systems.base.tests.helpers import DynamicDatabaseTestCase
 from coding_systems.conftest import mock_migrate_coding_system
 from coding_systems.ctv3.models import TPPConcept, TPPRelationship
 from coding_systems.versioning.models import (
@@ -12,6 +13,11 @@ from coding_systems.versioning.models import (
     ReleaseState,
     update_coding_system_database_connections,
 )
+
+
+@pytest.fixture(autouse=True)
+def coding_systems_database_tmp_dir(coding_systems_tmp_path):
+    yield coding_systems_tmp_path
 
 
 @pytest.mark.parametrize(
@@ -26,36 +32,53 @@ def test_coding_system_routing_errors_if_no_using_db_specified(coding_system):
             model_cls.objects.filter(pk=1).first()
 
 
-def test_mismatched_coding_system_database_relations(coding_systems_tmp_path):
-    # Relations are only allowed if the database matches
-    # (Note Mapping instances are an exception; see db_utils.CodingSystemReleaseRouter)
+class VersioningRoutingDynamicDatabaseTestCase(DynamicDatabaseTestCase):
+    # TODO:
+    # Remove autouse?
+    # Find out if every coding system test really needs this.
+    # Find out if we even need to have this setup in the class,
+    # or can we just use the module-level fixture?
+    @pytest.fixture(autouse=True)
+    def _get_tmp_dir(self, coding_systems_database_tmp_dir):
+        self.coding_systems_database_tmp_dir = coding_systems_database_tmp_dir
 
-    # make another ctv3 db connection
-    CodingSystemRelease.objects.create(
-        coding_system="ctv3",
-        release_name="testv2",
-        valid_from=datetime(2022, 11, 1, tzinfo=UTC),
-        state=ReleaseState.READY,
-    )
-    update_coding_system_database_connections()
-    mock_migrate_coding_system(database="ctv3_testv2_20221101")
 
-    ancestor = TPPConcept.objects.using("ctv3_test_20200101").create(
-        read_code="11111", description="11111"
-    )
-    descendant = TPPConcept.objects.using("ctv3_testv2_20221101").create(
-        read_code="22222", description="22222"
-    )
-    # `using` bypasses the router for the creation of the concepts, so it only
-    # raises an error when the relationship is created
-    with pytest.raises(
-        ValueError, match="the current database router prevents this relation"
-    ):
-        TPPRelationship.objects.using("ctv3_test_20200101").create(
-            ancestor=ancestor,
-            descendant=descendant,
-            distance="1",
+class TestMismatchedCodingSystemDatabaseRelations(
+    VersioningRoutingDynamicDatabaseTestCase
+):
+    db_alias = "ctv3_testv2_20221101"
+    coding_system = "ctv3"
+
+    def test_mismatched_coding_system_database_relations(self):
+        # Relations are only allowed if the database matches
+        # (Note Mapping instances are an exception; see db_utils.CodingSystemReleaseRouter)
+
+        # make another ctv3 db connection
+        CodingSystemRelease.objects.create(
+            coding_system="ctv3",
+            release_name="testv2",
+            valid_from=datetime(2022, 11, 1, tzinfo=UTC),
+            state=ReleaseState.READY,
         )
+        update_coding_system_database_connections()
+        mock_migrate_coding_system(database="ctv3_testv2_20221101")
+
+        ancestor = TPPConcept.objects.using("ctv3_test_20200101").create(
+            read_code="11111", description="11111"
+        )
+        descendant = TPPConcept.objects.using("ctv3_testv2_20221101").create(
+            read_code="22222", description="22222"
+        )
+        # `using` bypasses the router for the creation of the concepts, so it only
+        # raises an error when the relationship is created
+        with pytest.raises(
+            ValueError, match="the current database router prevents this relation"
+        ):
+            TPPRelationship.objects.using("ctv3_test_20200101").create(
+                ancestor=ancestor,
+                descendant=descendant,
+                distance="1",
+            )
 
 
 def test_coding_systems_migrate_not_allowed_on_default_db():

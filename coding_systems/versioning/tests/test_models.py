@@ -3,6 +3,7 @@ from datetime import UTC, datetime
 import pytest
 from django.db import connections
 from django.db.utils import OperationalError
+from django.test import TestCase
 from django.utils.connection import ConnectionDoesNotExist
 
 from coding_systems.snomedct.models import Concept
@@ -11,6 +12,56 @@ from coding_systems.versioning.models import (
     ReleaseState,
     update_coding_system_database_connections,
 )
+
+
+# TODO: Consider removing; not needed.
+@pytest.fixture(autouse=True)
+def coding_systems_database_tmp_dir(coding_systems_tmp_path):
+    yield coding_systems_tmp_path
+
+
+class VersioningModelsDynamicDatabaseTestCase(TestCase):
+    @property
+    def db_alias(self):
+        # The db_alias that will be added temporarily to the DB.
+        raise NotImplementedError(
+            "This test class requires a database alias to be set."
+        )
+
+    @property
+    def coding_system(self):
+        raise NotImplementedError("This test class requires a coding system to be set.")
+
+    @pytest.fixture(autouse=True)
+    def _get_tmp_dir(self, coding_systems_database_tmp_dir):
+        self.coding_systems_database_tmp_dir = coding_systems_database_tmp_dir
+
+    def setUp(self):
+        super().setUp()
+
+        # Mutate *class* state, this attribute determines to which databases
+        # SimpleTestCase.ensure_connection_patch_method will allow connections.
+        # We can't patch this directly in the test case as the class is
+        # constructed dynamically. No need to reset as each test case execution
+        # gets a new dynamic class.
+        self.original_databases = type(self).databases
+        type(self).databases |= frozenset({self.db_alias})
+
+        self.expected_db_path = (
+            self.coding_systems_database_tmp_dir
+            / f"{self.coding_system}"
+            / f"{self.db_alias}.sqlite3"
+        )
+        # Set up mock source data.
+        self.mock_versioning_import_data_path_inst = None
+
+        # Not necessary to remove the DB as the temp dir is scoped by test case.
+
+    def tearDown(self):
+        super().tearDown()
+        # Remove the dynamic database from the test class, as Django doesn't
+        # know how to roll back when the transaction wrapping the test case ends.
+        type(self).databases = self.original_databases
 
 
 def test_coding_system_release_most_recent(coding_system_release):
@@ -40,20 +91,28 @@ def test_coding_system_release_most_recent(coding_system_release):
     assert CodingSystemRelease.objects.most_recent("foo") is None
 
 
-def test_update_coding_system_database_connections(
-    coding_systems_tmp_path, coding_system_release
+class TestUpdateCodingSystemDatabaseConnections(
+    VersioningModelsDynamicDatabaseTestCase
 ):
-    # The coding_system_release fixture is created after django setup, so the database
-    # connection isn't there yet
-    assert coding_system_release.database_alias not in connections.databases
-    with pytest.raises(ConnectionDoesNotExist):
-        Concept.objects.using(coding_system_release.database_alias).exists()
+    db_alias = "snomedct_v1_20221001"
+    coding_system = "snomedct"
 
-    update_coding_system_database_connections()
-    assert coding_system_release.database_alias in connections.databases
-    # Now the connection is available, but the database doesn't exist yet
-    with pytest.raises(OperationalError, match="no such table: snomedct_concept"):
-        Concept.objects.using(coding_system_release.database_alias).exists()
+    @pytest.fixture(autouse=True)
+    def _get_coding_system_release(self, coding_system_release):
+        self.coding_system_release = coding_system_release
+
+    def test_update_coding_system_database_connections(self):
+        # The coding_system_release fixture is created after django setup, so the database
+        # connection isn't there yet
+        assert self.coding_system_release.database_alias not in connections.databases
+        with pytest.raises(ConnectionDoesNotExist):
+            Concept.objects.using(self.coding_system_release.database_alias).exists()
+
+        update_coding_system_database_connections()
+        assert self.coding_system_release.database_alias in connections.databases
+        # Now the connection is available, but the database doesn't exist yet
+        with pytest.raises(OperationalError, match="no such table: snomedct_concept"):
+            Concept.objects.using(self.coding_system_release.database_alias).exists()
 
 
 def test_update_dummy_coding_system_database_connections(coding_systems_tmp_path):

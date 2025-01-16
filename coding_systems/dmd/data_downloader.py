@@ -16,4 +16,4 @@ class Downloader(TrudDownloader):
     coding_system_id = "dmd"
 
     def get_release_name_from_release_metadata(self, metadata):
-        return f'{metadata["valid_from"].year} {metadata["release"]}'
+        return f"{metadata['valid_from'].year} {metadata['release']}"

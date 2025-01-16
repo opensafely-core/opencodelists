@@ -107,7 +107,7 @@ class CSVValidationMixin:
         for i, value in enumerate(header):
             if value != value.strip():
                 raise forms.ValidationError(
-                    f'Header {i+1} ("{value}") contains extraneous whitespace'
+                    f'Header {i + 1} ("{value}") contains extraneous whitespace'
                 )
 
         # restrict the headers we expect

@@ -25,9 +25,9 @@ def import_data(
 
         release_zip.extractall(path=tempdir)
         paths = list(Path(tempdir).glob("*.xml"))
-        assert (
-            len(paths) == 1
-        ), f"Expected 1 and only one .xml file (found {len(paths)})"
+        assert len(paths) == 1, (
+            f"Expected 1 and only one .xml file (found {len(paths)})"
+        )
         release_path = paths[0]
 
         with open(release_path) as f:

@@ -211,7 +211,9 @@
         </div>
         <ol class="list-group list-group-flush sidebar-versions">
           {% for version in versions %}
-            <li class="list-group-item px-2 py-3">
+            <li
+              class="list-group-item px-2 py-3 {% if version == clv %}list-group-item-secondary{% endif %}"
+            >
               {% if version.is_under_review %}
                 <span class="badge badge-primary">Review</span>
               {% elif version.is_draft %}

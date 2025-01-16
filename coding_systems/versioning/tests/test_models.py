@@ -5,6 +5,9 @@ from django.db import connections
 from django.db.utils import OperationalError
 from django.utils.connection import ConnectionDoesNotExist
 
+from coding_systems.base.tests.dynamic_db_classes import (
+    DynamicDatabaseTestCaseWithTmpPath,
+)
 from coding_systems.snomedct.models import Concept
 from coding_systems.versioning.models import (
     CodingSystemRelease,
@@ -40,20 +43,27 @@ def test_coding_system_release_most_recent(coding_system_release):
     assert CodingSystemRelease.objects.most_recent("foo") is None
 
 
-def test_update_coding_system_database_connections(
-    coding_systems_tmp_path, coding_system_release
-):
-    # The coding_system_release fixture is created after django setup, so the database
-    # connection isn't there yet
-    assert coding_system_release.database_alias not in connections.databases
-    with pytest.raises(ConnectionDoesNotExist):
-        Concept.objects.using(coding_system_release.database_alias).exists()
+class TestUpdateCodingSystemDatabaseConnections(DynamicDatabaseTestCaseWithTmpPath):
+    db_alias = "snomedct_v1_20221001"
+    coding_system_subpath_name = "snomedct"
 
-    update_coding_system_database_connections()
-    assert coding_system_release.database_alias in connections.databases
-    # Now the connection is available, but the database doesn't exist yet
-    with pytest.raises(OperationalError, match="no such table: snomedct_concept"):
-        Concept.objects.using(coding_system_release.database_alias).exists()
+    @pytest.fixture
+    def _get_coding_system_release(self, coding_system_release):
+        self.coding_system_release = coding_system_release
+
+    @pytest.mark.usefixtures("_get_coding_system_release")
+    def test_update_coding_system_database_connections(self):
+        # The coding_system_release fixture is created after django setup, so the database
+        # connection isn't there yet
+        assert self.coding_system_release.database_alias not in connections.databases
+        with pytest.raises(ConnectionDoesNotExist):
+            Concept.objects.using(self.coding_system_release.database_alias).exists()
+
+        update_coding_system_database_connections()
+        assert self.coding_system_release.database_alias in connections.databases
+        # Now the connection is available, but the database doesn't exist yet
+        with pytest.raises(OperationalError, match="no such table: snomedct_concept"):
+            Concept.objects.using(self.coding_system_release.database_alias).exists()
 
 
 def test_update_dummy_coding_system_database_connections(coding_systems_tmp_path):

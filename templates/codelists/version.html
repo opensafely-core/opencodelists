@@ -230,13 +230,14 @@
                 {% endif %}
               </span>
 
-              <span class="created d-block pt-1">
-                <span>
-                  <a href="#" data-toggle="tooltip" data-placement="right" title="When this codelist version was added to OpenCodelists">Created:</a>
-                </span>
-                <span class="d-block">
-                  {{ version.created_at | date:'Y-m-d H:i:s' }}
-                </span>
+              <span class="created d-block p-0">
+                <abbr
+                  class="font-weight-bold"
+                  data-placement="right"
+                  data-toggle="tooltip"
+                  title="When this codelist version was added to OpenCodelists"
+                >Created</abbr>:
+                {{ version.created_at | date:'Y-m-d H:i:s' }}
               </span>
             </li>
           {% endfor %}

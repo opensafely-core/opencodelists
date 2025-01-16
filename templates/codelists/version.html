@@ -209,7 +209,7 @@
         <div class="card-header p-2">
           <h2 class="h5 mb-0">Versions</h2>
         </div>
-        <ul class="list-group list-group-flush sidebar-versions">
+        <ol class="list-group list-group-flush sidebar-versions">
           {% for version in versions %}
             <li class="list-group-item px-2 py-3">
               {% if version.is_under_review %}
@@ -240,7 +240,7 @@
               </span>
             </li>
           {% endfor %}
-        </ul>
+        </ol>
       </div>
     </div>
 

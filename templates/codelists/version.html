@@ -220,16 +220,14 @@
                 <span class="badge badge-primary">Draft</span>
               {% endif %}
 
-              <span class="d-block pb-1">
-                <code class="font-weight-bold text-body">
-                  {% if version == clv %}
+              <span class="d-block text-monospace font-weight-bold">
+                {% if version == clv %}
+                  {{ version.tag_or_hash }}
+                {% else %}
+                  <a href="{{ version.get_absolute_url }}">
                     {{ version.tag_or_hash }}
-                  {% else %}
-                    <a class="text-monospace" href="{{ version.get_absolute_url }}">
-                      {{ version.tag_or_hash }}
-                    </a>
-                  {% endif %}
-                </code>
+                  </a>
+                {% endif %}
               </span>
 
               <span class="created d-block pt-1">

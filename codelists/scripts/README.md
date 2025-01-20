@@ -137,7 +137,7 @@ Provide a config file in json format
     "column_aliases": {
         "coding_system": "Coding_scheme",
         "codelist_name": "Cluster_description",
-        "code": "SNOMED code"
+        "code": "SNOMED code",
         "term": "SNOMED_Description",
     },
     "codelist_name_aliases": {
@@ -150,6 +150,6 @@ Provide a config file in json format
         "Aspirin & other antiplatelets": "aspirin + other antiplatelet Rx",
         "PPIs and H2 blockers": "Ulcer healing drugs: PPI & H2 blockers Rx"
     },
-    limit_to_named_codelists: false
+    "limit_to_named_codelists": false
 }
 ```

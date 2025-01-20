@@ -2,28 +2,32 @@ import PropTypes from "prop-types";
 import React from "react";
 import { ButtonGroup } from "react-bootstrap";
 import DescendantToggle from "./DescendantToggle";
-import MoreInfoButton from "./MoreInfoButton";
+import MoreInfoModal from "./MoreInfoModal";
 import Pipes from "./Pipes";
 import StatusToggle from "./StatusToggle";
 
 function TreeRow({
+  allCodes,
   code,
+  codeToStatus,
+  codeToTerm,
   hasDescendants,
+  hierarchy,
+  isEditable,
   isExpanded,
   path,
   pipes,
-  showMoreInfoModal,
   status,
   term,
   toggleVisibility,
   updateStatus,
 }) {
   const statusToColour = {
-    "+": "black",
-    "(+)": "black",
-    "-": "gray",
-    "(-)": "gray",
-    "!": "red",
+    "+": "text-body",
+    "(+)": "text-body",
+    "-": "text-secondary",
+    "(-)": "text-secondary",
+    "!": "text-danger",
   };
 
   const rowSpacing = pipes.length === 0 ? "mt-2" : "mt-0";
@@ -46,7 +50,7 @@ function TreeRow({
         />
       </ButtonGroup>
 
-      <div className="pl-2" style={{ whiteSpace: "nowrap" }}>
+      <div className="pl-2 whitespace-nowrap">
         <Pipes pipes={pipes} />
         {hasDescendants ? (
           <DescendantToggle
@@ -55,15 +59,23 @@ function TreeRow({
             toggleVisibility={toggleVisibility}
           />
         ) : null}
-        <span style={{ color: statusToColour[status] }}>{term}</span>
+        <span className={statusToColour[status]}>{term}</span>
         <span className="ml-1">
           (<code>{code}</code>)
         </span>
       </div>
 
-      {showMoreInfoModal && (
-        <MoreInfoButton code={code} showMoreInfoModal={showMoreInfoModal} />
-      )}
+      {isEditable ? (
+        <MoreInfoModal
+          allCodes={allCodes}
+          code={code}
+          codeToStatus={codeToStatus}
+          codeToTerm={codeToTerm}
+          hierarchy={hierarchy}
+          status={status}
+          term={term}
+        />
+      ) : null}
     </div>
   );
 }

@@ -3,12 +3,13 @@ import React from "react";
 import Tree from "./Tree";
 
 function TreeTable({
+  allCodes,
   ancestorCodes,
   codeToStatus,
   codeToTerm,
   heading,
   hierarchy,
-  showMoreInfoModal,
+  isEditable,
   toggleVisibility,
   updateStatus,
   visiblePaths,
@@ -19,12 +20,13 @@ function TreeTable({
 
       {ancestorCodes.map((ancestorCode) => (
         <Tree
-          key={ancestorCode}
+          allCodes={allCodes}
           ancestorCode={ancestorCode}
           codeToStatus={codeToStatus}
           codeToTerm={codeToTerm}
           hierarchy={hierarchy}
-          showMoreInfoModal={showMoreInfoModal}
+          isEditable={isEditable}
+          key={ancestorCode}
           toggleVisibility={toggleVisibility}
           updateStatus={updateStatus}
           visiblePaths={visiblePaths}
@@ -47,7 +49,6 @@ TreeTable.propTypes = {
     nodes: PropTypes.shape(),
     parentMap: PropTypes.objectOf(PropTypes.arrayOf(PropTypes.string)),
   }),
-  showMoreInfoModal: PropTypes.func,
   toggleVisibility: PropTypes.func,
   updateStatus: PropTypes.func,
   visiblePaths: PropTypes.shape(),

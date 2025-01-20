@@ -95,3 +95,7 @@ a:focus {
   word-wrap: break-word;
   word-break: break-word;
 }
+
+.whitespace-nowrap {
+  white-space: nowrap;
+}

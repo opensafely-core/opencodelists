@@ -1,7 +1,16 @@
-import PropTypes from "prop-types";
 import React from "react";
 
-function DescendantToggle({ isExpanded, path, toggleVisibility }) {
+interface DescendantToggleProps {
+  isExpanded: boolean;
+  path: string;
+  toggleVisibility: (path: string) => void;
+}
+
+export default function DescendantToggle({
+  isExpanded,
+  path,
+  toggleVisibility,
+}: DescendantToggleProps) {
   return (
     <button
       className="p-0 bg-white border-0 text-monospace d-inline-block ml-1 mr-2"
@@ -13,11 +22,3 @@ function DescendantToggle({ isExpanded, path, toggleVisibility }) {
     </button>
   );
 }
-
-export default DescendantToggle;
-
-DescendantToggle.propTypes = {
-  isExpanded: PropTypes.bool,
-  path: PropTypes.string,
-  toggleVisibility: PropTypes.func,
-};

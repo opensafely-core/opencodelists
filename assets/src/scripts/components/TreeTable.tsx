@@ -1,8 +1,23 @@
-import PropTypes from "prop-types";
 import React from "react";
+import Hierarchy from "../_hierarchy";
 import Tree from "./Tree";
 
-function TreeTable({
+interface TreeTableProps {
+  allCodes: string[];
+  ancestorCodes: string[];
+  codeToStatus: { [key: string]: "+" | "(+)" | "-" | "(-)" | "!" | "?" };
+  codeToTerm: {
+    [key: string]: string;
+  };
+  heading: string;
+  hierarchy: Hierarchy;
+  isEditable: boolean;
+  toggleVisibility: (path: string) => void;
+  updateStatus: Function;
+  visiblePaths: Set<string>;
+}
+
+export default function TreeTable({
   allCodes,
   ancestorCodes,
   codeToStatus,
@@ -13,7 +28,7 @@ function TreeTable({
   toggleVisibility,
   updateStatus,
   visiblePaths,
-}) {
+}: TreeTableProps) {
   return (
     <div className="mb-4">
       <h5>{heading}</h5>
@@ -35,21 +50,3 @@ function TreeTable({
     </div>
   );
 }
-
-export default TreeTable;
-
-TreeTable.propTypes = {
-  ancestorCodes: PropTypes.arrayOf(PropTypes.string),
-  codeToStatus: PropTypes.objectOf(PropTypes.string),
-  codeToTerm: PropTypes.objectOf(PropTypes.string),
-  heading: PropTypes.string,
-  hierarchy: PropTypes.shape({
-    ancestorMap: PropTypes.shape(),
-    childMap: PropTypes.objectOf(PropTypes.array),
-    nodes: PropTypes.shape(),
-    parentMap: PropTypes.objectOf(PropTypes.arrayOf(PropTypes.string)),
-  }),
-  toggleVisibility: PropTypes.func,
-  updateStatus: PropTypes.func,
-  visiblePaths: PropTypes.shape(),
-};

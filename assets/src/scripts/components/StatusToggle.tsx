@@ -1,8 +1,19 @@
-import PropTypes from "prop-types";
 import React from "react";
 import { Button } from "react-bootstrap";
 
-function StatusToggle({ code, status, symbol, updateStatus }) {
+interface StatusToggleProps {
+  code: string;
+  status: "+" | "(+)" | "-" | "(-)" | "!" | "?";
+  symbol: "+" | "-";
+  updateStatus: Function;
+}
+
+export default function StatusToggle({
+  code,
+  status,
+  symbol,
+  updateStatus,
+}: StatusToggleProps) {
   return (
     <Button
       className="py-0 text-monospace"
@@ -21,12 +32,3 @@ function StatusToggle({ code, status, symbol, updateStatus }) {
     </Button>
   );
 }
-
-export default StatusToggle;
-
-StatusToggle.propTypes = {
-  code: PropTypes.string,
-  status: PropTypes.string,
-  symbol: PropTypes.string,
-  updateStatus: PropTypes.func,
-};

@@ -1,6 +1,6 @@
-import PropTypes from "prop-types";
 import React from "react";
 import { Col, Row } from "react-bootstrap";
+import Hierarchy from "../_hierarchy";
 import { getCookie } from "../_utils";
 import Filter from "./Filter";
 import ManagementForm from "./ManagementForm";
@@ -10,8 +10,56 @@ import Summary from "./Summary";
 import TreeTables from "./TreeTables";
 import Version from "./Version";
 
-class CodelistBuilder extends React.Component {
-  constructor(props) {
+interface CodelistBuilderProps {
+  allCodes: string[];
+  codeToStatus: { [key: string]: "+" | "(+)" | "-" | "(-)" | "!" | "?" };
+  codeToTerm: {
+    [key: string]: string;
+  };
+  draftURL: string;
+  filter: string;
+  hierarchy: Hierarchy;
+  isEditable: boolean;
+  metadata: {
+    codelist_full_slug: string;
+    coding_system_name: string;
+    coding_system_release: {
+      release_name: string;
+      valid_from: string;
+    };
+    hash: string;
+    organisation_name: string;
+  };
+  resultsHeading: string;
+  searches: {
+    active: boolean;
+    delete_url: string;
+    term_or_code: string;
+    url: string;
+  }[];
+  searchURL: string;
+  treeTables: [string, string[]][];
+  updateURL: string;
+  versions: {
+    current: boolean;
+    status: string;
+    tag_or_hash: string;
+    url: string;
+  }[];
+  visiblePaths: Set<string>;
+}
+
+export default class CodelistBuilder extends React.Component<
+  CodelistBuilderProps,
+  {
+    codeToStatus: CodelistBuilderProps["codeToStatus"];
+    expandedCompatibleReleases: boolean;
+    updateQueue: string[][];
+    updating: boolean;
+  }
+> {
+  private _isMounted: boolean = false;
+  constructor(props: CodelistBuilderProps) {
     super(props);
 
     this.state = {
@@ -43,7 +91,7 @@ class CodelistBuilder extends React.Component {
     this._isMounted = false;
   }
 
-  updateStatus(code, status) {
+  updateStatus(code: string, status: string) {
     this.setState(({ codeToStatus, updateQueue }, { hierarchy }) => {
       const newCodeToStatus = hierarchy.updateCodeToStatus(
         codeToStatus,
@@ -140,6 +188,7 @@ class CodelistBuilder extends React.Component {
       treeTables,
       visiblePaths,
     } = this.props;
+
     return (
       <>
         <Row>
@@ -210,6 +259,7 @@ class CodelistBuilder extends React.Component {
               codeToTerm={codeToTerm}
               hierarchy={hierarchy}
               isEditable={isEditable}
+              toggleVisibility={() => null}
               treeTables={treeTables}
               updateStatus={this.updateStatus}
               visiblePaths={visiblePaths}
@@ -220,53 +270,3 @@ class CodelistBuilder extends React.Component {
     );
   }
 }
-
-export default CodelistBuilder;
-
-CodelistBuilder.propTypes = {
-  allCodes: PropTypes.arrayOf(PropTypes.string),
-  codeToStatus: PropTypes.objectOf(PropTypes.string),
-  codeToTerm: PropTypes.objectOf(PropTypes.string),
-  draftURL: PropTypes.string,
-  filter: PropTypes.string,
-  hierarchy: PropTypes.shape({
-    ancestorMap: PropTypes.shape(),
-    childMap: PropTypes.objectOf(PropTypes.array),
-    nodes: PropTypes.shape(),
-    parentMap: PropTypes.objectOf(PropTypes.arrayOf(PropTypes.string)),
-    updateCodeToStatus: PropTypes.func,
-    significantAncestors: PropTypes.func,
-  }),
-  isEditable: PropTypes.bool,
-  metadata: PropTypes.shape({
-    codelist_full_slug: PropTypes.string,
-    coding_system_name: PropTypes.string,
-    hash: PropTypes.string,
-    organisation_name: PropTypes.string,
-    coding_system_release: PropTypes.shape({
-      release_name: PropTypes.string,
-      valid_from: PropTypes.string,
-    }),
-  }),
-  resultsHeading: PropTypes.string,
-  searches: PropTypes.arrayOf(
-    PropTypes.shape({
-      active: PropTypes.bool,
-      delete_url: PropTypes.string,
-      term_or_code: PropTypes.string,
-      url: PropTypes.string,
-    }),
-  ),
-  searchURL: PropTypes.string,
-  treeTables: PropTypes.arrayOf(PropTypes.array),
-  updateURL: PropTypes.string,
-  versions: PropTypes.arrayOf(
-    PropTypes.shape({
-      current: PropTypes.bool,
-      status: PropTypes.string,
-      tag_or_hash: PropTypes.string,
-      url: PropTypes.string,
-    }),
-  ),
-  visiblePaths: PropTypes.object,
-};

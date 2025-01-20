@@ -1,5 +1,19 @@
 import React, { useState } from "react";
 import { Button, Modal } from "react-bootstrap";
+import Hierarchy from "../_hierarchy";
+
+interface CreateModalTextProps {
+  allCodes: string[];
+  code: string;
+  codeToStatus: {
+    [key: string]: "+" | "(+)" | "-" | "(-)" | "!" | "?";
+  };
+  codeToTerm: {
+    [key: string]: string;
+  };
+  hierarchy: Hierarchy;
+  status: "+" | "(+)" | "-" | "(-)" | "!" | "?";
+}
 
 function createModalText({
   allCodes,
@@ -8,7 +22,7 @@ function createModalText({
   codeToTerm,
   hierarchy,
   status,
-}) {
+}: CreateModalTextProps) {
   const included = allCodes.filter((c) => codeToStatus[c] === "+");
   const excluded = allCodes.filter((c) => codeToStatus[c] === "-");
   const significantAncestors = hierarchy.significantAncestors(
@@ -18,11 +32,11 @@ function createModalText({
   );
 
   const includedAncestorsText = significantAncestors.includedAncestors
-    .map((code) => `${codeToTerm[code]} (${code})`)
+    .map((code: string) => `${codeToTerm[code]} (${code})`)
     .join(", ");
 
   const excludedAncestorsText = significantAncestors.excludedAncestors
-    .map((code) => `${codeToTerm[code]} (${code})`)
+    .map((code: string) => `${codeToTerm[code]} (${code})`)
     .join(", ");
 
   let text = "";
@@ -51,6 +65,20 @@ function createModalText({
   return text;
 }
 
+interface MoreInfoModalProps {
+  allCodes: string[];
+  code: string;
+  codeToStatus: {
+    [key: string]: "+" | "(+)" | "-" | "(-)" | "!" | "?";
+  };
+  codeToTerm: {
+    [key: string]: string;
+  };
+  hierarchy: Hierarchy;
+  status: "+" | "(+)" | "-" | "(-)" | "!" | "?";
+  term: string;
+}
+
 function MoreInfoModal({
   allCodes,
   code,
@@ -59,7 +87,7 @@ function MoreInfoModal({
   hierarchy,
   status,
   term,
-}) {
+}: MoreInfoModalProps) {
   const [showMoreInfoModal, setShowMoreInfoModal] = useState(false);
 
   const modalText = createModalText({

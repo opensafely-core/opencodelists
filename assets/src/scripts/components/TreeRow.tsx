@@ -1,12 +1,31 @@
-import PropTypes from "prop-types";
 import React from "react";
 import { ButtonGroup } from "react-bootstrap";
+import Hierarchy from "../_hierarchy";
 import DescendantToggle from "./DescendantToggle";
 import MoreInfoModal from "./MoreInfoModal";
 import Pipes from "./Pipes";
 import StatusToggle from "./StatusToggle";
 
-function TreeRow({
+interface TreeRowProps {
+  allCodes: string[];
+  code: string;
+  codeToStatus: { [key: string]: "+" | "(+)" | "-" | "(-)" | "!" | "?" };
+  codeToTerm: {
+    [key: string]: string;
+  };
+  hasDescendants: boolean;
+  hierarchy: Hierarchy;
+  isEditable: boolean;
+  isExpanded: boolean;
+  path: string;
+  pipes: ("└" | "├" | " " | "│")[];
+  status: "+" | "(+)" | "-" | "(-)" | "!" | "?";
+  term: string;
+  toggleVisibility: (path: string) => void;
+  updateStatus: Function;
+}
+
+export default function TreeRow({
   allCodes,
   code,
   codeToStatus,
@@ -21,7 +40,7 @@ function TreeRow({
   term,
   toggleVisibility,
   updateStatus,
-}) {
+}: TreeRowProps) {
   const statusToColour = {
     "+": "text-body",
     "(+)": "text-body",
@@ -79,18 +98,3 @@ function TreeRow({
     </div>
   );
 }
-
-export default TreeRow;
-
-TreeRow.propTypes = {
-  code: PropTypes.string,
-  hasDescendants: PropTypes.bool,
-  isExpanded: PropTypes.bool,
-  path: PropTypes.string,
-  pipes: PropTypes.arrayOf(PropTypes.string),
-  showMoreInfoModal: PropTypes.func,
-  status: PropTypes.string,
-  term: PropTypes.string,
-  toggleVisibility: PropTypes.func,
-  updateStatus: PropTypes.func,
-};

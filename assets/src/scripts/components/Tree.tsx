@@ -1,8 +1,22 @@
-import PropTypes from "prop-types";
 import React from "react";
+import Hierarchy from "../_hierarchy";
 import TreeRow from "./TreeRow";
 
-function Tree({
+interface TreeProps {
+  allCodes: string[];
+  ancestorCode: string;
+  codeToStatus: { [key: string]: "+" | "(+)" | "-" | "(-)" | "!" | "?" };
+  codeToTerm: {
+    [key: string]: string;
+  };
+  hierarchy: Hierarchy;
+  isEditable: boolean;
+  toggleVisibility: (path: string) => void;
+  updateStatus: Function;
+  visiblePaths: Set<string>;
+}
+
+export default function Tree({
   allCodes,
   ancestorCode,
   codeToStatus,
@@ -12,7 +26,7 @@ function Tree({
   toggleVisibility,
   updateStatus,
   visiblePaths,
-}) {
+}: TreeProps) {
   return hierarchy
     .treeRows(ancestorCode, codeToStatus, codeToTerm, visiblePaths)
     .map((row) => (
@@ -35,20 +49,3 @@ function Tree({
       />
     ));
 }
-
-export default Tree;
-
-Tree.propTypes = {
-  ancestorCode: PropTypes.string,
-  codeToStatus: PropTypes.objectOf(PropTypes.string),
-  codeToTerm: PropTypes.objectOf(PropTypes.string),
-  hierarchy: PropTypes.shape({
-    ancestorMap: PropTypes.shape(),
-    childMap: PropTypes.objectOf(PropTypes.array),
-    nodes: PropTypes.shape(),
-    parentMap: PropTypes.objectOf(PropTypes.arrayOf(PropTypes.string)),
-  }),
-  toggleVisibility: PropTypes.func,
-  updateStatus: PropTypes.func,
-  visiblePaths: PropTypes.shape(),
-};

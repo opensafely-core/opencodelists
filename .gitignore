@@ -16,3 +16,4 @@ staticfiles/
 /docker/docker-staticfiles/*
 docker/storage
 deleted-user-dumps/*
+*.tsbuildinfo

@@ -209,38 +209,41 @@
         <div class="card-header p-2">
           <h2 class="h5 mb-0">Versions</h2>
         </div>
-        <ul class="list-group list-group-flush sidebar-versions">
+        <ol class="list-group list-group-flush sidebar-versions">
           {% for version in versions %}
-            <li class="list-group-item px-2 py-3">
+            <li
+              class="list-group-item px-2 py-3 {% if version == clv %}list-group-item-secondary{% endif %}"
+            >
               {% if version.is_under_review %}
                 <span class="badge badge-primary">Review</span>
               {% elif version.is_draft %}
                 <span class="badge badge-primary">Draft</span>
               {% endif %}
 
-              <span class="d-block pb-1">
-                <code class="font-weight-bold text-body">
-                  {% if version == clv %}
+              <span class="d-block text-monospace font-weight-bold">
+                {% if version == clv %}
+                  {{ version.tag_or_hash }}
+                {% else %}
+                  <a href="{{ version.get_absolute_url }}">
                     {{ version.tag_or_hash }}
-                  {% else %}
-                    <a class="text-monospace" href="{{ version.get_absolute_url }}">
-                      {{ version.tag_or_hash }}
-                    </a>
-                  {% endif %}
-                </code>
+                  </a>
+                {% endif %}
               </span>
 
-              <span class="created d-block pt-1">
-                <span>
-                  <a href="#" data-toggle="tooltip" data-placement="right" title="When this codelist version was added to OpenCodelists">Created:</a>
-                </span>
-                <span class="d-block">
-                  {{ version.created_at | date:'Y-m-d H:i:s' }}
-                </span>
+              <span class="created d-block p-0">
+                <abbr
+                  class="font-weight-bold"
+                  data-placement="right"
+                  data-toggle="tooltip"
+                  title="When this codelist version was added to OpenCodelists"
+                >Created</abbr>:
+                {{ version.created_at | date:'d M Y' }}
+                at
+                {{ version.created_at | date:'H:i' }}
               </span>
             </li>
           {% endfor %}
-        </ul>
+        </ol>
       </div>
     </div>
 

@@ -1,18 +1,9 @@
 import PropTypes from "prop-types";
-import React, { useRef } from "react";
-import {
-  Button,
-  ButtonGroup,
-  Col,
-  Form,
-  ListGroup,
-  OverlayTrigger,
-  Row,
-  Tooltip,
-} from "react-bootstrap";
-import Modal from "react-bootstrap/Modal";
+import React from "react";
+import { Col, Row } from "react-bootstrap";
 import { getCookie } from "../_utils";
 import Filter from "./Filter";
+import ManagementForm from "./ManagementForm";
 import MoreInfoModal from "./MoreInfoModal";
 import Search from "./Search";
 import SearchForm from "./SearchForm";
@@ -28,7 +19,6 @@ class CodelistBuilder extends React.Component {
       codeToStatus: props.codeToStatus,
       expandedCompatibleReleases: false,
       moreInfoModalCode: null,
-      showConfirmDiscardModal: false,
       updateQueue: [],
       updating: false,
     };
@@ -38,10 +28,6 @@ class CodelistBuilder extends React.Component {
       : () => null;
     this.showMoreInfoModal = this.showMoreInfoModal.bind(this);
     this.hideMoreInfoModal = this.hideMoreInfoModal.bind(this);
-    this.ManagementForm = this.ManagementForm.bind(this);
-    this.setShowConfirmDiscardModal =
-      this.setShowConfirmDiscardModal.bind(this);
-    this.renderConfirmDiscardModal = this.renderConfirmDiscardModal.bind(this);
     this.toggleExpandedCompatibleReleases =
       this.toggleExpandedCompatibleReleases.bind(this);
   }
@@ -131,10 +117,6 @@ class CodelistBuilder extends React.Component {
     this.setState({ moreInfoModalCode: null });
   }
 
-  setShowConfirmDiscardModal(value) {
-    this.setState({ showConfirmDiscardModal: value });
-  }
-
   counts() {
     let counts = {
       "?": 0,
@@ -155,11 +137,6 @@ class CodelistBuilder extends React.Component {
     return counts;
   }
 
-  complete() {
-    const counts = this.counts();
-    return counts["!"] === 0 && counts["?"] === 0;
-  }
-
   render() {
     const moreInfoModal =
       this.state.moreInfoModalCode &&
@@ -169,12 +146,7 @@ class CodelistBuilder extends React.Component {
       <>
         <Row>
           <Col md="3">
-            {this.props.isEditable && (
-              <>
-                <this.ManagementForm complete={this.complete()} />
-                <hr />
-              </>
-            )}
+            {this.props.isEditable && <ManagementForm counts={this.counts()} />}
 
             <h3 className="h6">Summary</h3>
             <Filter filter={this.props.filter} />
@@ -256,85 +228,6 @@ class CodelistBuilder extends React.Component {
     );
   }
 
-  ManagementForm(props) {
-    const { complete } = props;
-
-    const management_form = useRef();
-    const confirmDiscardModal =
-      this.state.showConfirmDiscardModal &&
-      this.renderConfirmDiscardModal(management_form);
-
-    const handleConfirmMsg = (e) => {
-      e.preventDefault();
-      this.setShowConfirmDiscardModal(true);
-    };
-
-    return (
-      <>
-        <Form method="POST" ref={management_form}>
-          <Form.Control
-            id="csrfmiddlewaretoken"
-            name="csrfmiddlewaretoken"
-            type="hidden"
-            value={getCookie("csrftoken")}
-          />
-          <Form.Control id="action" name="action" type="hidden" value="" />
-          <ButtonGroup
-            aria-label="Codelist actions"
-            className="d-block"
-            vertical
-          >
-            {complete ? (
-              <Button
-                block
-                name="action"
-                type="submit"
-                value="save-for-review"
-                variant="outline-primary"
-              >
-                Save for review
-              </Button>
-            ) : (
-              <>
-                <OverlayTrigger
-                  placement="right"
-                  overlay={
-                    <Tooltip id="disabled-review">
-                      You cannot save for review until all search results are
-                      included or excluded
-                    </Tooltip>
-                  }
-                >
-                  <Button block disabled variant="outline-secondary">
-                    Save for review
-                  </Button>
-                </OverlayTrigger>
-              </>
-            )}
-            <Button
-              block
-              name="action"
-              type="submit"
-              value="save-draft"
-              variant="outline-primary"
-            >
-              Save draft
-            </Button>
-            <Button
-              block
-              type="button"
-              variant="outline-primary"
-              onClick={handleConfirmMsg}
-            >
-              Discard
-            </Button>
-          </ButtonGroup>
-        </Form>
-        {confirmDiscardModal}
-      </>
-    );
-  }
-
   renderMoreInfoModal(code) {
     const included = this.props.allCodes.filter(
       (c) => this.state.codeToStatus[c] === "+",
@@ -365,33 +258,6 @@ class CodelistBuilder extends React.Component {
         status={this.state.codeToStatus[code]}
         term={this.props.codeToTerm[code]}
       />
-    );
-  }
-
-  renderConfirmDiscardModal(form) {
-    const handleConfirm = () => {
-      form.current[1].value = "discard";
-      form.current.submit();
-    };
-
-    const handleCancel = () => {
-      this.setShowConfirmDiscardModal(false);
-    };
-
-    return (
-      <Modal centered show={this.state.showConfirmDiscardModal}>
-        <Modal.Header>
-          Are you sure you want to discard this draft?
-        </Modal.Header>
-        <Modal.Body>
-          <Button className="mr-2" onClick={handleConfirm} variant="primary">
-            Yes
-          </Button>
-          <Button onClick={handleCancel} variant="secondary">
-            No
-          </Button>
-        </Modal.Body>
-      </Modal>
     );
   }
 }

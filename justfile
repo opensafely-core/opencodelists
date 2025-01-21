@@ -230,6 +230,7 @@ assets-run: assets-install
 
 
 assets-lint: assets-install
+    npm run typecheck
     npm run lint
 
 

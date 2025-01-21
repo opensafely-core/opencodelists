@@ -47,6 +47,7 @@ export default function TreeRow({
     "-": "text-secondary",
     "(-)": "text-secondary",
     "!": "text-danger",
+    "?": "text-body",
   };
 
   const rowSpacing = pipes.length === 0 ? "mt-2" : "mt-0";

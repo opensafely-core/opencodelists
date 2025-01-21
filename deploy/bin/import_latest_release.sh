@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -euo pipefail
-source sentry_cron_functions.sh
+
 # NOTE: this script is run by cron (as the dokku user) weekly
 # For dm+d, it is run every Monday night, to coincide with weekly
 # dm+d releases
@@ -23,6 +23,10 @@ source sentry_cron_functions.sh
 # SLACK_WEBHOOK_URL channel (#tech-noise).  Failures are posted to the
 # SLACK_TEAM_WEBHOOK_URL. This should be set to the channel for the team responsible
 # for OpenCodelists.
+
+# import sentry functions (must be in same dir as this script)
+SCRIPT_DIR=$(dirname "$0")
+source "$SCRIPT_DIR/sentry_cron_functions.sh"
 
 CODING_SYSTEM=$1
 

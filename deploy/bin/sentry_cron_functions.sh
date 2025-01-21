@@ -24,6 +24,10 @@ function extract_crontab() {
 function sentry_cron_url() {
     SENTRY_DSN="$1"
     JOB_NAME="$2"
+
+    # dots not supported in job names, replace with underscores
+    JOB_NAME="${JOB_NAME//\./_}"
+
     # modify the DSN to point it at the cron API
     SENTRY_CRON_URL=$(sed -E "s/([0-9]+$)/api\/\1/g" <<< "$SENTRY_DSN")
     echo "$SENTRY_CRON_URL/cron/$JOB_NAME"

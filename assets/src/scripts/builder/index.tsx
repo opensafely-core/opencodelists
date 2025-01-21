@@ -9,14 +9,16 @@ const hierarchy = new Hierarchy(
   readValueFromPage("child-map"),
 );
 
-const treeTables = readValueFromPage("tree-tables");
-const codeToStatus = readValueFromPage("code-to-status");
+const treeTables: [string, string[]][] = readValueFromPage("tree-tables");
+const codeToStatus: { [key: string]: "+" | "(+)" | "-" | "(-)" | "!" | "?" } =
+  readValueFromPage("code-to-status");
 const codeToTerm = readValueFromPage("code-to-term");
 
 const ancestorCodes = treeTables
   .map(([_, ancestorCodes]) => ancestorCodes)
   .flat();
-const visiblePaths = hierarchy.initiallyVisiblePaths(
+
+const visiblePaths: Set<string> = hierarchy.initiallyVisiblePaths(
   ancestorCodes,
   codeToStatus,
   1,
@@ -32,10 +34,8 @@ if (container) {
         codeToStatus={codeToStatus}
         codeToTerm={codeToTerm}
         draftURL={readValueFromPage("draft-url")}
-        excludedCodes={readValueFromPage("excluded-codes")}
         filter={readValueFromPage("filter")}
         hierarchy={hierarchy}
-        includedCodes={readValueFromPage("included-codes")}
         isEditable={readValueFromPage("is-editable")}
         metadata={readValueFromPage("metadata")}
         resultsHeading={readValueFromPage("results-heading")}

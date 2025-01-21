@@ -9,8 +9,9 @@ const hierarchy = new Hierarchy(
   readValueFromPage("child-map"),
 );
 
-const treeTables = readValueFromPage("tree-tables");
-const codeToStatus = readValueFromPage("code-to-status");
+const treeTables: [string, string[]][] = readValueFromPage("tree-tables");
+const codeToStatus: { [key: string]: "+" | "(+)" | "-" | "(-)" | "!" | "?" } =
+  readValueFromPage("code-to-status");
 const codeToTerm = readValueFromPage("code-to-term");
 
 const ancestorCodes = treeTables
@@ -28,12 +29,14 @@ if (container) {
   root.render(
     <StrictMode>
       <TreeTables
+        allCodes={readValueFromPage("all-codes")}
         codeToStatus={codeToStatus}
         codeToTerm={codeToTerm}
         hierarchy={hierarchy}
         isEditable={false}
         treeTables={treeTables}
-        updateStatus={null}
+        toggleVisibility={() => null}
+        updateStatus={() => null}
         visiblePaths={visiblePaths}
       />
     </StrictMode>,

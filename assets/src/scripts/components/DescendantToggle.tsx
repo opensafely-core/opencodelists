@@ -1,9 +1,10 @@
 import React from "react";
+import { IsExpanded, Path, ToggleVisibility } from "../types";
 
 interface DescendantToggleProps {
-  isExpanded: boolean;
-  path: string;
-  toggleVisibility: (path: string) => void;
+  isExpanded: IsExpanded;
+  path: Path;
+  toggleVisibility: ToggleVisibility;
 }
 
 export default function DescendantToggle({

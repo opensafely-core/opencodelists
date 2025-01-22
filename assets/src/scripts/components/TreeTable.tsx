@@ -1,20 +1,19 @@
 import React from "react";
 import Hierarchy from "../_hierarchy";
+import { AncestorCodes, PageData, ToggleVisibility } from "../types";
 import Tree from "./Tree";
 
 interface TreeTableProps {
-  allCodes: string[];
-  ancestorCodes: string[];
-  codeToStatus: { [key: string]: "+" | "(+)" | "-" | "(-)" | "!" | "?" };
-  codeToTerm: {
-    [key: string]: string;
-  };
+  allCodes: PageData["allCodes"];
+  ancestorCodes: AncestorCodes;
+  codeToStatus: PageData["codeToStatus"];
+  codeToTerm: PageData["codeToTerm"];
   heading: string;
   hierarchy: Hierarchy;
-  isEditable: boolean;
-  toggleVisibility: (path: string) => void;
+  isEditable: PageData["isEditable"];
+  toggleVisibility: ToggleVisibility;
   updateStatus: Function;
-  visiblePaths: Set<string>;
+  visiblePaths: PageData["visiblePaths"];
 }
 
 export default function TreeTable({

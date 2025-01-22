@@ -1,10 +1,11 @@
 import React from "react";
 import { Button, Form } from "react-bootstrap";
 import { getCookie } from "../_utils";
+import { PageData } from "../types";
 
 interface SearchFormProps {
   codingSystemName: string;
-  searchURL: string;
+  searchURL: PageData["searchURL"];
 }
 
 export default function SearchForm({

@@ -1,13 +1,9 @@
 import React from "react";
 import { Badge } from "react-bootstrap";
+import { VersionT } from "../types";
 
 interface VersionProps {
-  version: {
-    current: boolean;
-    status: string;
-    tag_or_hash: string;
-    url: string;
-  };
+  version: VersionT;
 }
 
 export default function Version({ version }: VersionProps) {

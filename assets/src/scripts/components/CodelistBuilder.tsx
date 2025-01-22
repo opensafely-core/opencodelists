@@ -2,6 +2,7 @@ import React from "react";
 import { Col, Row } from "react-bootstrap";
 import Hierarchy from "../_hierarchy";
 import { getCookie } from "../_utils";
+import { Code, PageData, Status } from "../types";
 import Filter from "./Filter";
 import ManagementForm from "./ManagementForm";
 import Search from "./Search";
@@ -10,49 +11,14 @@ import Summary from "./Summary";
 import TreeTables from "./TreeTables";
 import Version from "./Version";
 
-interface CodelistBuilderProps {
-  allCodes: string[];
-  codeToStatus: { [key: string]: "+" | "(+)" | "-" | "(-)" | "!" | "?" };
-  codeToTerm: {
-    [key: string]: string;
-  };
-  draftURL: string;
-  filter: string;
+interface CodelistBuilderProps extends PageData {
   hierarchy: Hierarchy;
-  isEditable: boolean;
-  metadata: {
-    codelist_full_slug: string;
-    coding_system_name: string;
-    coding_system_release: {
-      release_name: string;
-      valid_from: string;
-    };
-    hash: string;
-    organisation_name: string;
-  };
-  resultsHeading: string;
-  searches: {
-    active: boolean;
-    delete_url: string;
-    term_or_code: string;
-    url: string;
-  }[];
-  searchURL: string;
-  treeTables: [string, string[]][];
-  updateURL: string;
-  versions: {
-    current: boolean;
-    status: string;
-    tag_or_hash: string;
-    url: string;
-  }[];
-  visiblePaths: Set<string>;
 }
 
 export default class CodelistBuilder extends React.Component<
   CodelistBuilderProps,
   {
-    codeToStatus: CodelistBuilderProps["codeToStatus"];
+    codeToStatus: PageData["codeToStatus"];
     expandedCompatibleReleases: boolean;
     updateQueue: string[][];
     updating: boolean;
@@ -91,7 +57,7 @@ export default class CodelistBuilder extends React.Component<
     this._isMounted = false;
   }
 
-  updateStatus(code: string, status: string) {
+  updateStatus(code: Code, status: Status) {
     this.setState(({ codeToStatus, updateQueue }, { hierarchy }) => {
       const newCodeToStatus = hierarchy.updateCodeToStatus(
         codeToStatus,

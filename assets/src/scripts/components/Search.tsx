@@ -1,15 +1,11 @@
 import React from "react";
 import { Button, Form, ListGroup } from "react-bootstrap";
 import { getCookie } from "../_utils";
+import { PageData } from "../types";
 
 interface SearchProps {
-  draftURL: string;
-  searches: {
-    active: boolean;
-    delete_url: string;
-    term_or_code: string;
-    url: string;
-  }[];
+  draftURL: PageData["draftURL"];
+  searches: PageData["searches"];
 }
 
 export default function Search({ draftURL, searches }: SearchProps) {

@@ -1,18 +1,15 @@
 import React, { useState } from "react";
 import { Button, Modal } from "react-bootstrap";
 import Hierarchy from "../_hierarchy";
+import { Code, PageData, Status, Term } from "../types";
 
 interface CreateModalTextProps {
-  allCodes: string[];
-  code: string;
-  codeToStatus: {
-    [key: string]: "+" | "(+)" | "-" | "(-)" | "!" | "?";
-  };
-  codeToTerm: {
-    [key: string]: string;
-  };
+  allCodes: PageData["allCodes"];
+  code: Code;
+  codeToStatus: PageData["codeToStatus"];
+  codeToTerm: PageData["codeToTerm"];
   hierarchy: Hierarchy;
-  status: "+" | "(+)" | "-" | "(-)" | "!" | "?";
+  status: Status;
 }
 
 function createModalText({
@@ -32,11 +29,11 @@ function createModalText({
   );
 
   const includedAncestorsText = significantAncestors.includedAncestors
-    .map((code: string) => `${codeToTerm[code]} (${code})`)
+    .map((code: Code) => `${codeToTerm[code]} (${code})`)
     .join(", ");
 
   const excludedAncestorsText = significantAncestors.excludedAncestors
-    .map((code: string) => `${codeToTerm[code]} (${code})`)
+    .map((code: Code) => `${codeToTerm[code]} (${code})`)
     .join(", ");
 
   let text = "";
@@ -66,17 +63,13 @@ function createModalText({
 }
 
 interface MoreInfoModalProps {
-  allCodes: string[];
-  code: string;
-  codeToStatus: {
-    [key: string]: "+" | "(+)" | "-" | "(-)" | "!" | "?";
-  };
-  codeToTerm: {
-    [key: string]: string;
-  };
+  allCodes: PageData["allCodes"];
+  code: Code;
+  codeToStatus: PageData["codeToStatus"];
+  codeToTerm: PageData["codeToTerm"];
   hierarchy: Hierarchy;
-  status: "+" | "(+)" | "-" | "(-)" | "!" | "?";
-  term: string;
+  status: Status;
+  term: Term;
 }
 
 function MoreInfoModal({

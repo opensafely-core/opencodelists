@@ -1,25 +1,24 @@
 import React from "react";
 import Hierarchy from "../_hierarchy";
+import { PageData, Path, ToggleVisibility } from "../types";
 import TreeTable from "./TreeTable";
 
 interface TreeTablesProps {
-  allCodes: string[];
+  allCodes: PageData["allCodes"];
   ancestorCodes?: string[];
-  codeToStatus: { [key: string]: "+" | "(+)" | "-" | "(-)" | "!" | "?" };
-  codeToTerm: {
-    [key: string]: string;
-  };
+  codeToStatus: PageData["codeToStatus"];
+  codeToTerm: PageData["codeToTerm"];
   hierarchy: Hierarchy;
-  isEditable: boolean;
-  toggleVisibility: (path: string) => void;
-  treeTables: [string, string[]][];
+  isEditable: PageData["isEditable"];
+  toggleVisibility: ToggleVisibility;
+  treeTables: PageData["treeTables"];
   updateStatus: Function;
-  visiblePaths: Set<string>;
+  visiblePaths: PageData["visiblePaths"];
 }
 
 export default class TreeTables extends React.Component<
   TreeTablesProps,
-  { visiblePaths: Set<string> }
+  { visiblePaths: PageData["visiblePaths"] }
 > {
   constructor(props: TreeTablesProps) {
     super(props);
@@ -27,7 +26,7 @@ export default class TreeTables extends React.Component<
     this.toggleVisibility = this.toggleVisibility.bind(this);
   }
 
-  toggleVisibility(path: string) {
+  toggleVisibility(path: Path) {
     this.setState((state) => {
       const visiblePaths = new Set(state.visiblePaths);
       this.props.hierarchy.toggleVisibility(visiblePaths, path);

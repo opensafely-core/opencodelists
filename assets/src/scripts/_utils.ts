@@ -16,7 +16,7 @@ export function getCookie(name: string) {
 }
 
 export function readValueFromPage(id: string) {
-  const scriptId = document.getElementById(id);
+  const scriptId = document.getElementById(id) as HTMLScriptElement;
   if (scriptId?.textContent) {
     return JSON.parse(scriptId.textContent);
   }

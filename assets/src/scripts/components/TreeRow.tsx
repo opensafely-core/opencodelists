@@ -1,27 +1,35 @@
 import React from "react";
 import { ButtonGroup } from "react-bootstrap";
 import Hierarchy from "../_hierarchy";
+import {
+  Code,
+  IsExpanded,
+  PageData,
+  Path,
+  Pipe,
+  Status,
+  Term,
+  ToggleVisibility,
+} from "../types";
 import DescendantToggle from "./DescendantToggle";
 import MoreInfoModal from "./MoreInfoModal";
 import Pipes from "./Pipes";
 import StatusToggle from "./StatusToggle";
 
 interface TreeRowProps {
-  allCodes: string[];
-  code: string;
-  codeToStatus: { [key: string]: "+" | "(+)" | "-" | "(-)" | "!" | "?" };
-  codeToTerm: {
-    [key: string]: string;
-  };
+  allCodes: PageData["allCodes"];
+  code: Code;
+  codeToStatus: PageData["codeToStatus"];
+  codeToTerm: PageData["codeToTerm"];
   hasDescendants: boolean;
   hierarchy: Hierarchy;
-  isEditable: boolean;
-  isExpanded: boolean;
-  path: string;
-  pipes: ("└" | "├" | " " | "│")[];
-  status: "+" | "(+)" | "-" | "(-)" | "!" | "?";
-  term: string;
-  toggleVisibility: (path: string) => void;
+  isEditable: PageData["isEditable"];
+  isExpanded: IsExpanded;
+  path: Path;
+  pipes: Pipe[];
+  status: Status;
+  term: Term;
+  toggleVisibility: ToggleVisibility;
   updateStatus: Function;
 }
 

@@ -2,7 +2,10 @@
 
 set -euxo pipefail
 
-source sentry_cron_functions.sh
+# import sentry functions (must be in same dir as this script)
+SCRIPT_DIR=$(dirname "$0")
+source "$SCRIPT_DIR/sentry_cron_functions.sh"
+
 SENTRY_MONITOR_NAME="$0"
 CRONTAB=$(extract_crontab "$SENTRY_MONITOR_NAME" "/app/app.json")
 SENTRY_CRON_URL=$(sentry_cron_url "$SENTRY_DSN" "$SENTRY_MONITOR_NAME")

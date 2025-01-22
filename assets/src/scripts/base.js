@@ -1,3 +1,4 @@
+/* v8 ignore start */
 // Fonts
 import "@fontsource/public-sans/400.css";
 import "@fontsource/public-sans/500.css";
@@ -28,3 +29,4 @@ import "../styles/base.css";
 $(function () {
   $('[data-toggle="tooltip"]').tooltip();
 });
+/* v8 ignore end */

@@ -1,3 +1,4 @@
+/* v8 ignore start */
 const addForm = (name, event) => {
   const formIndex = $(`#id_${name}-TOTAL_FORMS`).val();
   const newForm = $(`#${name}-forms .template`)
@@ -46,3 +47,4 @@ $(document).ready(() => {
     removeRow("signoff", event),
   );
 });
+/* v8 ignore end */

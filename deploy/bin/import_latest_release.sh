@@ -105,9 +105,10 @@ import_coding_system_data ${CODING_SYSTEM} ${DOWNLOAD_DIR} \
 
 function post_no_new_release_message_and_cleanup() {
   message_text="No new ${CODING_SYSTEM} release to import."
-    post_to_slack "${message_text}", "${SLACK_WEBHOOK_URL}"
-    # remove the log file, this wasn't an actual error.
-    rm "$LOG_FILE"
+  post_to_slack "${message_text}", "${SLACK_WEBHOOK_URL}"
+  # remove the log file, this wasn't an actual error.
+  rm "$LOG_FILE"
+  sentry_cron_ok "$SENTRY_CRON_URL"
 }
 
 

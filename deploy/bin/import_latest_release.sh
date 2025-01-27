@@ -28,9 +28,10 @@ set -euo pipefail
 SCRIPT_DIR=$(dirname "$0")
 source "$SCRIPT_DIR/sentry_cron_functions.sh"
 
+SCRIPT_NAME=$(basename "$0")
 CODING_SYSTEM=$1
 
-SENTRY_MONITOR_NAME="{$0}_{$1}"
+SENTRY_MONITOR_NAME="${SCRIPT_NAME}_${CODING_SYSTEM}"
 SENTRY_DSN=$(dokku config:get opencodelists SENTRY_DSN)
 CRONTAB=$(extract_crontab "$CODING_SYSTEM" "cronfile")
 SENTRY_CRON_URL=$(sentry_cron_url "$SENTRY_DSN" "$SENTRY_MONITOR_NAME")

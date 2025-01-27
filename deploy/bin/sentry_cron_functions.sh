@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CRONTAB_PATTERN="([\*\d]+ )+"
+CRONTAB_PATTERN="([\*\d+] ?)+"
 
 function extract_crontab() {
     JOB_IDENTIFIER="$1"
@@ -15,7 +15,7 @@ function extract_crontab() {
         # ensure we only match the terminal argument
         JOB_IDENTIFIER=" $JOB_IDENTIFIER\$"
     fi
-    CRONTAB=$(grep -A "$LINES_AFTER_MATCH" "$JOB_IDENTIFIER" "$CRONTAB_SOURCE" | grep -oP "$CRONTAB_PATTERN")
+    CRONTAB=$(grep -A "$LINES_AFTER_MATCH" "$JOB_IDENTIFIER" "$CRONTAB_SOURCE" | grep -oP "$CRONTAB_PATTERN" | sed -e "s/ $//")
     echo "$CRONTAB"
 }
 

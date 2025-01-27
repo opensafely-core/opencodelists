@@ -10,10 +10,19 @@
     {% vite_hmr_client %}
     {% vite_asset "assets/src/scripts/base.js" %}
 
-    {# The following <meta> tags are for Plausible stats collection. #}
-    <meta name="is_logged_in" content="{% if user.is_authenticated %}true{% else %}false{% endif %}">
-    <meta name="is_admin" content="{% if user.is_admin %}true{% else %}false{% endif %}">
-    {# End of stats-collecting <meta> tags. #}
+    {# The following is for Plausible stats collection. #}
+    <script
+      defer
+      data-domain="opencodelists.org"
+      event-is_logged_in="{% if user.is_authenticated %}true{% else %}false{% endif %}"
+      event-is_admin="{% if user.is_admin %}true{% else %}false{% endif %}"
+      src="https://plausible.io/js/script.pageview-props.tagged-events.js"
+    ></script>
+    <script nonce="{{ request.csp_nonce }}">
+      window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }
+    </script>
+
+    {# End of stats-collecting. #}
 
     {% block extra_styles %}{% endblock %}
 

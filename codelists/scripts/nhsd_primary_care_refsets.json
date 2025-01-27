@@ -1,7 +1,6 @@
 {
     "comment": "For loading of the xxxx_PCD_RefsetContext.txt files downloaded from NHSD PC Refset Portal",
     "organisation": "nhsd-primary-care-domain-refsets",
-    "sheet": "20241205_PCD_Refset_Content",
     "coding_systems": {
         "snomedct": {
             "id": "snomedct",

@@ -137,7 +137,7 @@ Provide a config file in json format
     "column_aliases": {
         "coding_system": "Coding_scheme",
         "codelist_name": "Cluster_description",
-        "code": "SNOMED code"
+        "code": "SNOMED code",
         "term": "SNOMED_Description",
     },
     "codelist_name_aliases": {
@@ -150,6 +150,30 @@ Provide a config file in json format
         "Aspirin & other antiplatelets": "aspirin + other antiplatelet Rx",
         "PPIs and H2 blockers": "Ulcer healing drugs: PPI & H2 blockers Rx"
     },
-    limit_to_named_codelists: false
+    "limit_to_named_codelists": false
 }
 ```
+
+## Source-specific notes
+
+### NHS Digital Primary Care Domain Refsets
+
+A configuration file is provided for loading of the `[release]_PCD_Refset_Content.txt`,
+which contains all the refsets in a single file.
+
+The `tag` and `coding_systems.snomedct.release` config values will need to be updated for each run.
+
+#### Handling Errors
+
+The API may return HTTP 5xx errors for certain resets,
+this is usually because of codes that are present in the refset which are not in the SNOMED CT Clincal edition.
+These are usually drug codes that are only present in the UK Drug Extension,
+which is not loaded into the "SNOMED CT" coding system on OpenCodelists.
+
+For the affected refsets, you will need to manually remove these codes,
+import them as new versions,
+and note their removal in the Description of the Codelist on OpenCodelists.
+
+You may find the problematic codes by uploading a subset of the combined refset file
+containing only the refset of interest as a new codelist in your own account
+which will show the codes causing the errors.

@@ -17,11 +17,17 @@ class DynamicDatabaseTestCase(TestCase):
         raise NotImplementedError("This method is optional.")
 
     import_data_path = None
+    original_databases = None
 
     @staticmethod
     def import_data_fixture(_):
         # Set to an import data fixture if required.
         raise NotImplementedError("This fixture function is optional.")
+
+    def add_to_databases(self, *args):
+        if self.original_databases is None:
+            self.original_databases = type(self).databases
+        type(self).databases |= frozenset({*args})
 
     def setUp(self):
         super().setUp()
@@ -31,8 +37,7 @@ class DynamicDatabaseTestCase(TestCase):
         # We can't patch this directly in the test case as the class is
         # constructed dynamically. No need to reset as each test case execution
         # gets a new dynamic class.
-        self.original_databases = type(self).databases
-        type(self).databases |= frozenset({self.db_alias})
+        self.add_to_databases(self, self.db_alias)
 
         try:
             self.expected_db_path = (

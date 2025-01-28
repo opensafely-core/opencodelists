@@ -37,12 +37,14 @@ def test_extract_crontab_cronfile(tmp_path):
         lines = [
             "#test comment",
             "ENV_VAR=VAR_ENV",
+            "5 23 * * 2 test_user test_command arg_test",
             f"{CRONTAB} test_user test_command test_arg",
+            "5 23 * * 2 test_user test_command test_arg_1234",
         ]
         f.writelines([line + "\n" for line in lines])
 
     proc = subprocess.run(
-        f"source deploy/bin/sentry_cron_functions.sh; extract_crontab test_command {cronfile}",
+        f"source deploy/bin/sentry_cron_functions.sh; extract_crontab test_arg {cronfile}",
         shell=True,
         capture_output=True,
         executable="/bin/bash",

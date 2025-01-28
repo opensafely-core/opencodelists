@@ -11,7 +11,9 @@ function extract_crontab() {
     then
         LINES_AFTER_MATCH=2
     else
-        LINES_AFTER_MATCH=1
+        LINES_AFTER_MATCH=0
+        # ensure we only match the terminal argument
+        JOB_IDENTIFIER=" $JOB_IDENTIFIER\$"
     fi
     CRONTAB=$(grep -A "$LINES_AFTER_MATCH" "$JOB_IDENTIFIER" "$CRONTAB_SOURCE" | grep -oP "$CRONTAB_PATTERN")
     echo "$CRONTAB"

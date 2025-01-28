@@ -7,8 +7,8 @@ from zipfile import ZipFile
 import pytest
 from django.conf import settings
 from django.db import connections
-from django.test import TestCase
 
+from coding_systems.base.tests.helpers import DynamicDatabaseTestCase
 from coding_systems.bnf.import_data import import_data
 from coding_systems.bnf.models import Concept
 from coding_systems.conftest import mock_migrate_coding_system
@@ -167,23 +167,7 @@ def test_import_data_too_many_csv_files(tmp_path):
         )
 
 
-class DynamicDatabaseTestCase(TestCase):
-    @property
-    def db_alias(self):
-        # The db_alias that will be added temporarily to the DB.
-        raise NotImplementedError(
-            "This test class requires a database alias to be set."
-        )
-
-    @property
-    def coding_system(self):
-        raise NotImplementedError("This test class requires a coding system to be set.")
-
-    @staticmethod
-    def import_data_fixture():
-        # Set to an import data fixture if required.
-        raise NotImplementedError("This fixture function is optional.")
-
+class BNFDynamicDatabaseTestCase(DynamicDatabaseTestCase):
     # TODO:
     # Remove autouse?
     # Find out if every coding system test really needs this.
@@ -193,42 +177,8 @@ class DynamicDatabaseTestCase(TestCase):
     def _get_tmp_dir(self, coding_systems_database_tmp_dir):
         self.coding_systems_database_tmp_dir = coding_systems_database_tmp_dir
 
-    def setUp(self):
-        super().setUp()
 
-        # Mutate *class* state, this attribute determines to which databases
-        # SimpleTestCase.ensure_connection_patch_method will allow connections.
-        # We can't patch this directly in the test case as the class is
-        # constructed dynamically. No need to reset as each test case execution
-        # gets a new dynamic class.
-        self.original_databases = type(self).databases
-        type(self).databases |= frozenset({self.db_alias})
-
-        self.expected_db_path = (
-            self.coding_systems_database_tmp_dir
-            / f"{self.coding_system}"
-            / f"{self.db_alias}.sqlite3"
-        )
-
-        # Set up mock source data.
-        try:
-            self.import_data_path = next(
-                # Accessing the function directly on an instance
-                self.import_data_fixture(self.coding_systems_database_tmp_dir)
-            )
-        except NotImplementedError:
-            self.import_data_path = None
-
-        # Not necessary to remove the DB as the temp dir is scoped by test case.
-
-    def tearDown(self):
-        super().tearDown()
-        # Remove the dynamic database from the test class, as Django doesn't
-        # know how to roll back when the transaction wrapping the test case ends.
-        type(self).databases = self.original_databases
-
-
-class TestImportData(DynamicDatabaseTestCase):
+class TestImportData(BNFDynamicDatabaseTestCase):
     db_alias = "bnf_release-1-a_20221001"
     coding_system = "bnf"
     import_data_fixture = staticmethod(_mock_bnf_import_data_path)
@@ -263,7 +213,7 @@ class TestImportData(DynamicDatabaseTestCase):
         assert Concept.objects.using("bnf_release-1-a_20221001").count() == 13
 
 
-class TestImportDataExisting(DynamicDatabaseTestCase):
+class TestImportDataExisting(BNFDynamicDatabaseTestCase):
     db_alias = "bnf_v1-1_20221001"
     coding_system = "bnf"
     import_data_fixture = staticmethod(_mock_bnf_import_data_path)
@@ -397,7 +347,7 @@ def test_import_setup_error_existing_release(
     assert not (db_dir / "bnf_v_error_setup_20221001.sqlite3.bu").exists()
 
 
-class TestImportMigrationError(DynamicDatabaseTestCase):
+class TestImportMigrationError(BNFDynamicDatabaseTestCase):
     db_alias = "bnf_migrate-error_20221001"
     coding_system = "bnf"
     import_data_fixture = staticmethod(_mock_bnf_import_data_path)

@@ -16,6 +16,8 @@ class DynamicDatabaseTestCase(TestCase):
     def _get_tmp_dir(self):
         raise NotImplementedError("This method is optional.")
 
+    import_data_path = None
+
     @staticmethod
     def import_data_fixture():
         # Set to an import data fixture if required.
@@ -42,12 +44,13 @@ class DynamicDatabaseTestCase(TestCase):
             self.expected_db_path = None
 
         # Set up mock source data.
-        try:
-            self.import_data_path = next(
-                self.import_data_fixture(self.coding_systems_database_tmp_dir)
-            )
-        except NotImplementedError:
-            self.import_data_path = None
+        if self.import_data_path is None:
+            try:
+                self.import_data_path = next(
+                    self.import_data_fixture(self.coding_systems_database_tmp_dir)
+                )
+            except NotImplementedError:
+                self.import_data_path = None
 
         # Not necessary to remove the DB as the temp dir is scoped by test case.
 

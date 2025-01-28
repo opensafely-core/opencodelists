@@ -179,6 +179,11 @@ class DynamicDatabaseTestCase(TestCase):
     def coding_system(self):
         raise NotImplementedError("This test class requires a coding system to be set.")
 
+    @staticmethod
+    def import_data_fixture():
+        # Set to an import data fixture if required.
+        raise NotImplementedError("This fixture function is optional.")
+
     # TODO:
     # Remove autouse?
     # Find out if every coding system test really needs this.
@@ -206,9 +211,13 @@ class DynamicDatabaseTestCase(TestCase):
         )
 
         # Set up mock source data.
-        self.mock_bnf_import_data_path_inst = next(
-            _mock_bnf_import_data_path(self.coding_systems_database_tmp_dir)
-        )
+        try:
+            self.import_data_path = next(
+                # Accessing the function directly on an instance
+                self.import_data_fixture(self.coding_systems_database_tmp_dir)
+            )
+        except NotImplementedError:
+            self.import_data_path = None
 
         # Not necessary to remove the DB as the temp dir is scoped by test case.
 
@@ -222,6 +231,7 @@ class DynamicDatabaseTestCase(TestCase):
 class TestImportData(DynamicDatabaseTestCase):
     db_alias = "bnf_release-1-a_20221001"
     coding_system = "bnf"
+    import_data_fixture = staticmethod(_mock_bnf_import_data_path)
 
     def test_import_data(self):
         """Test importing BNF coding system data with dynamic database creation."""
@@ -229,7 +239,7 @@ class TestImportData(DynamicDatabaseTestCase):
 
         # Execute import.
         import_data(
-            self.mock_bnf_import_data_path_inst,
+            self.import_data_path,
             release_name="release 1 A",
             valid_from=date(2022, 10, 1),
             import_ref="Ref",
@@ -256,6 +266,7 @@ class TestImportData(DynamicDatabaseTestCase):
 class TestImportDataExisting(DynamicDatabaseTestCase):
     db_alias = "bnf_v1-1_20221001"
     coding_system = "bnf"
+    import_data_fixture = staticmethod(_mock_bnf_import_data_path)
 
     def test_import_data_existing_coding_system_release(self):
         # Set up an existing CodingSystemRelease and DB file.
@@ -272,7 +283,7 @@ class TestImportDataExisting(DynamicDatabaseTestCase):
 
         # Execute import.
         import_data(
-            self.mock_bnf_import_data_path_inst,
+            self.import_data_path,
             release_name="v1-1",
             valid_from=date(2022, 10, 1),
             import_ref="Ref",
@@ -389,6 +400,7 @@ def test_import_setup_error_existing_release(
 class TestImportMigrationError(DynamicDatabaseTestCase):
     db_alias = "bnf_migrate-error_20221001"
     coding_system = "bnf"
+    import_data_fixture = staticmethod(_mock_bnf_import_data_path)
 
     def test_import_error_during_migration(self):
         cs_release_count = CodingSystemRelease.objects.count()
@@ -400,7 +412,7 @@ class TestImportMigrationError(DynamicDatabaseTestCase):
         ):
             with pytest.raises(Exception, match="expected exception"):
                 import_data(
-                    self.mock_bnf_import_data_path_inst,
+                    self.import_data_path,
                     release_name="migrate error",
                     valid_from=date(2022, 10, 1),
                     import_ref="Ref",

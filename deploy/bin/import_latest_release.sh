@@ -28,9 +28,10 @@ set -euo pipefail
 SCRIPT_DIR=$(dirname "$0")
 source "$SCRIPT_DIR/sentry_cron_functions.sh"
 
+SCRIPT_NAME=$(basename "$0")
 CODING_SYSTEM=$1
 
-SENTRY_MONITOR_NAME="{$0}_{$1}"
+SENTRY_MONITOR_NAME="${SCRIPT_NAME}_${CODING_SYSTEM}"
 SENTRY_DSN=$(dokku config:get opencodelists SENTRY_DSN)
 CRONTAB=$(extract_crontab "$CODING_SYSTEM" "cronfile")
 SENTRY_CRON_URL=$(sentry_cron_url "$SENTRY_DSN" "$SENTRY_MONITOR_NAME")
@@ -104,9 +105,10 @@ import_coding_system_data ${CODING_SYSTEM} ${DOWNLOAD_DIR} \
 
 function post_no_new_release_message_and_cleanup() {
   message_text="No new ${CODING_SYSTEM} release to import."
-    post_to_slack "${message_text}", "${SLACK_WEBHOOK_URL}"
-    # remove the log file, this wasn't an actual error.
-    rm "$LOG_FILE"
+  post_to_slack "${message_text}", "${SLACK_WEBHOOK_URL}"
+  # remove the log file, this wasn't an actual error.
+  rm "$LOG_FILE"
+  sentry_cron_ok "$SENTRY_CRON_URL"
 }
 
 

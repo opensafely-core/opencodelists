@@ -19,7 +19,7 @@ class DynamicDatabaseTestCase(TestCase):
     import_data_path = None
 
     @staticmethod
-    def import_data_fixture():
+    def import_data_fixture(_):
         # Set to an import data fixture if required.
         raise NotImplementedError("This fixture function is optional.")
 

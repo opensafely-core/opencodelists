@@ -1,9 +1,14 @@
-import PropTypes from "prop-types";
 import React from "react";
 import { Button, Form, ListGroup } from "react-bootstrap";
 import { getCookie } from "../_utils";
+import { PageData } from "../types";
 
-function Search({ draftURL, searches }) {
+interface SearchProps {
+  draftURL: PageData["draftURL"];
+  searches: PageData["searches"];
+}
+
+export default function Search({ draftURL, searches }: SearchProps) {
   return (
     <>
       <h3 className="h6">Searches</h3>
@@ -63,14 +68,3 @@ function Search({ draftURL, searches }) {
     </>
   );
 }
-
-export default Search;
-
-Search.propTypes = {
-  search: PropTypes.shape({
-    active: PropTypes.bool,
-    delete_url: PropTypes.string,
-    term_or_code: PropTypes.string,
-    url: PropTypes.string,
-  }),
-};

@@ -10,9 +10,9 @@ export default defineConfig(({ mode }) => ({
     rollupOptions: {
       input: {
         base: "assets/src/scripts/base.js",
-        builder: "assets/src/scripts/builder/index.jsx",
+        builder: "assets/src/scripts/builder/index.tsx",
         codelist: "assets/src/scripts/codelist.js",
-        tree: "assets/src/scripts/tree/index.jsx",
+        tree: "assets/src/scripts/tree/index.tsx",
         "codelists-version": "assets/src/scripts/codelists-version.js",
       },
     },

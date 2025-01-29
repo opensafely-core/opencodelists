@@ -73,6 +73,7 @@
         "noDuplicateObjectKeys": "error",
         "noDuplicateParameters": "error",
         "noEmptyBlockStatements": "error",
+        "noExplicitAny": "error",
         "noFallthroughSwitchClause": "error",
         "noFunctionAssign": "error",
         "noGlobalAssign": "error",
@@ -104,7 +105,7 @@
     "jsxRuntime": "reactClassic"
   },
   "overrides": [
-    { "include": ["**/*.test.js", "**/*.test.jsx"] },
-    { "include": ["**/*.test.js", "**/*.test.jsx"] }
+    { "include": ["**/*.test.{js,ts}", "**/*.test.{jsx,tsx}"] },
+    { "include": ["**/*.test.{js,ts}", "**/*.test.{jsx,tsx}"] }
   ]
 }

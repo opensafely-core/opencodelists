@@ -1,8 +1,12 @@
-import PropTypes from "prop-types";
 import React from "react";
 import { Badge } from "react-bootstrap";
+import { VersionT } from "../types";
 
-function Version({ version }) {
+interface VersionProps {
+  version: VersionT;
+}
+
+export default function Version({ version }: VersionProps) {
   return (
     <li>
       {version.current ? (
@@ -25,14 +29,3 @@ function Version({ version }) {
     </li>
   );
 }
-
-export default Version;
-
-Version.propTypes = {
-  version: PropTypes.shape({
-    current: PropTypes.bool,
-    status: PropTypes.string,
-    tag_or_hash: PropTypes.string,
-    url: PropTypes.string,
-  }),
-};

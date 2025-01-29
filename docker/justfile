@@ -26,7 +26,7 @@ build env="dev":
 
 # run JS linter
 check-js:
-    docker compose run --rm node-assets npm run lint
+    docker compose run --rm node-assets npm run typecheck && npm run lint
 
 
 # run python checks

@@ -1,9 +1,17 @@
-import PropTypes from "prop-types";
 import React from "react";
 import { Button, Form } from "react-bootstrap";
 import { getCookie } from "../_utils";
+import { PageData } from "../types";
 
-function SearchForm({ codingSystemName, searchURL }) {
+interface SearchFormProps {
+  codingSystemName: string;
+  searchURL: PageData["searchURL"];
+}
+
+export default function SearchForm({
+  codingSystemName,
+  searchURL,
+}: SearchFormProps) {
   return (
     <Form action={encodeURI(searchURL)} method="post">
       <Form.Group>
@@ -55,10 +63,3 @@ function SearchForm({ codingSystemName, searchURL }) {
     </Form>
   );
 }
-
-export default SearchForm;
-
-SearchForm.propTypes = {
-  codingSystemName: PropTypes.string,
-  searchURL: PropTypes.string,
-};

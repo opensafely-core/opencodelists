@@ -1,5 +1,16 @@
 import React, { useState } from "react";
 import { Button, Modal } from "react-bootstrap";
+import Hierarchy from "../_hierarchy";
+import { Code, PageData, Status, Term } from "../types";
+
+interface CreateModalTextProps {
+  allCodes: PageData["allCodes"];
+  code: Code;
+  codeToStatus: PageData["codeToStatus"];
+  codeToTerm: PageData["codeToTerm"];
+  hierarchy: Hierarchy;
+  status: Status;
+}
 
 function createModalText({
   allCodes,
@@ -8,7 +19,7 @@ function createModalText({
   codeToTerm,
   hierarchy,
   status,
-}) {
+}: CreateModalTextProps) {
   const included = allCodes.filter((c) => codeToStatus[c] === "+");
   const excluded = allCodes.filter((c) => codeToStatus[c] === "-");
   const significantAncestors = hierarchy.significantAncestors(
@@ -18,11 +29,11 @@ function createModalText({
   );
 
   const includedAncestorsText = significantAncestors.includedAncestors
-    .map((code) => `${codeToTerm[code]} (${code})`)
+    .map((code: Code) => `${codeToTerm[code]} (${code})`)
     .join(", ");
 
   const excludedAncestorsText = significantAncestors.excludedAncestors
-    .map((code) => `${codeToTerm[code]} (${code})`)
+    .map((code: Code) => `${codeToTerm[code]} (${code})`)
     .join(", ");
 
   let text = "";
@@ -51,6 +62,16 @@ function createModalText({
   return text;
 }
 
+interface MoreInfoModalProps {
+  allCodes: PageData["allCodes"];
+  code: Code;
+  codeToStatus: PageData["codeToStatus"];
+  codeToTerm: PageData["codeToTerm"];
+  hierarchy: Hierarchy;
+  status: Status;
+  term: Term;
+}
+
 function MoreInfoModal({
   allCodes,
   code,
@@ -59,7 +80,7 @@ function MoreInfoModal({
   hierarchy,
   status,
   term,
-}) {
+}: MoreInfoModalProps) {
   const [showMoreInfoModal, setShowMoreInfoModal] = useState(false);
 
   const modalText = createModalText({

@@ -1,7 +1,11 @@
-import PropTypes from "prop-types";
 import React from "react";
+import { Pipe } from "../types";
 
-function Pipes({ pipes }) {
+interface PipesProps {
+  pipes: Pipe[];
+}
+
+export default function Pipes({ pipes }: PipesProps) {
   return pipes.map((pipe, ix) => (
     <span
       key={ix}
@@ -11,9 +15,3 @@ function Pipes({ pipes }) {
     </span>
   ));
 }
-
-export default Pipes;
-
-Pipes.propTypes = {
-  pipes: PropTypes.arrayOf(PropTypes.string),
-};

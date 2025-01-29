@@ -89,6 +89,7 @@ class TestImportErrorExistingRelease(CTV3DynamicDatabaseTestCase):
     db_alias = "ctv3_v_error_20221001"
     coding_system = "ctv3"
     import_data_path = MOCK_CTV3_IMPORT_DATA_PATH
+    needs_db_tmp_dir = True
 
     def test_import_error_existing_release(self):
         # set up an existing CodingSystemRelease and db file

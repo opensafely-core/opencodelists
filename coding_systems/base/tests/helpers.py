@@ -23,7 +23,12 @@ class DynamicDatabaseTestCase(TestCase):
     def coding_system(self):
         raise NotImplementedError("This test class requires a coding system to be set.")
 
-    @pytest.fixture(autouse=True)
+    # import_data_path is only used in some tests.
+    import_data_path = None
+    # needs_tmp_dir is only used for tests that write a database.
+    needs_db_tmp_dir = False
+
+    @pytest.fixture
     def _get_tmp_dir(self, coding_systems_database_tmp_dir):
         self.coding_systems_database_tmp_dir = coding_systems_database_tmp_dir
         self.expected_db_path = (
@@ -32,8 +37,16 @@ class DynamicDatabaseTestCase(TestCase):
             / f"{self.db_alias}.sqlite3"
         )
 
-    # import_data_path is only used in some tests.
-    import_data_path = None
+    # This is a workaround to make using the _tmp_dir fixture configurable,
+    # avoiding use of the coding_systems_database_tmp_dir fixture.
+    # It may not be really necessary, nor may it be that useful.
+    # (It's possible that the underlying fixture is run in conftest.py anyway.)
+    # Only fixtures can access fixtures, and fixtures can't be called directly,
+    # so we can't do this in setUp, I don't think.
+    @pytest.fixture(autouse=True)
+    def _configure_tmp_dir(self, request):
+        if self.needs_db_tmp_dir:
+            request.getfixturevalue("_get_tmp_dir")
 
     def add_to_databases(self, *args):
         try:

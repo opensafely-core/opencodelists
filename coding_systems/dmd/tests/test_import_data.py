@@ -127,6 +127,7 @@ class TestImportError(DMDDynamicDatabaseTestCase):
     db_alias = "dmd_2022-101_20220901"
     coding_system = "dmd"
     import_data_path = MOCK_DMD_IMPORT_DATA_PATH
+    needs_db_tmp_dir = True
 
     @pytest.mark.usefixtures("mock_data_download_error")
     def test_import_error(self):

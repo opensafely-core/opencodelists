@@ -169,6 +169,7 @@ class BNFDynamicDatabaseTestCase(DynamicDatabaseTestCase):
 class TestImportData(BNFDynamicDatabaseTestCase):
     db_alias = "bnf_release-1-a_20221001"
     coding_system = "bnf"
+    needs_db_tmp_dir = True
 
     @pytest.fixture(autouse=True)
     def set_import_data(self, mock_bnf_import_data_path):
@@ -207,6 +208,7 @@ class TestImportData(BNFDynamicDatabaseTestCase):
 class TestImportDataExisting(BNFDynamicDatabaseTestCase):
     db_alias = "bnf_v1-1_20221001"
     coding_system = "bnf"
+    needs_db_tmp_dir = True
 
     @pytest.fixture(autouse=True)
     def set_import_data(self, mock_bnf_import_data_path):
@@ -344,6 +346,7 @@ def test_import_setup_error_existing_release(
 class TestImportMigrationError(BNFDynamicDatabaseTestCase):
     db_alias = "bnf_migrate-error_20221001"
     coding_system = "bnf"
+    needs_db_tmp_dir = True
 
     @pytest.fixture(autouse=True)
     def set_import_data(self, mock_bnf_import_data_path):

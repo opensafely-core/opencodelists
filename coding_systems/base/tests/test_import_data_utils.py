@@ -41,7 +41,7 @@ class BaseCodingSystemDynamicDatabaseTestCase(DynamicDatabaseTestCase):
     def _get_bnf_release(self, _bnf_release):
         self.bnf_release = _bnf_release
 
-    @pytest.fixture()
+    @pytest.fixture
     def _bnf_release(self, bnf_csr):
         self.add_to_databases(self.db_alias)
         # setup the database as a duplicate of the fixture one

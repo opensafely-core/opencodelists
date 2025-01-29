@@ -3,9 +3,9 @@ from datetime import UTC, datetime
 import pytest
 from django.db import connections
 from django.db.utils import OperationalError
-from django.test import TestCase
 from django.utils.connection import ConnectionDoesNotExist
 
+from coding_systems.base.tests.helpers import DynamicDatabaseTestCase
 from coding_systems.snomedct.models import Concept
 from coding_systems.versioning.models import (
     CodingSystemRelease,
@@ -20,48 +20,8 @@ def coding_systems_database_tmp_dir(coding_systems_tmp_path):
     yield coding_systems_tmp_path
 
 
-class VersioningModelsDynamicDatabaseTestCase(TestCase):
-    @property
-    def db_alias(self):
-        # The db_alias that will be added temporarily to the DB.
-        raise NotImplementedError(
-            "This test class requires a database alias to be set."
-        )
-
-    @property
-    def coding_system(self):
-        raise NotImplementedError("This test class requires a coding system to be set.")
-
-    @pytest.fixture(autouse=True)
-    def _get_tmp_dir(self, coding_systems_database_tmp_dir):
-        self.coding_systems_database_tmp_dir = coding_systems_database_tmp_dir
-
-    def setUp(self):
-        super().setUp()
-
-        # Mutate *class* state, this attribute determines to which databases
-        # SimpleTestCase.ensure_connection_patch_method will allow connections.
-        # We can't patch this directly in the test case as the class is
-        # constructed dynamically. No need to reset as each test case execution
-        # gets a new dynamic class.
-        self.original_databases = type(self).databases
-        type(self).databases |= frozenset({self.db_alias})
-
-        self.expected_db_path = (
-            self.coding_systems_database_tmp_dir
-            / f"{self.coding_system}"
-            / f"{self.db_alias}.sqlite3"
-        )
-        # Set up mock source data.
-        self.mock_versioning_import_data_path_inst = None
-
-        # Not necessary to remove the DB as the temp dir is scoped by test case.
-
-    def tearDown(self):
-        super().tearDown()
-        # Remove the dynamic database from the test class, as Django doesn't
-        # know how to roll back when the transaction wrapping the test case ends.
-        type(self).databases = self.original_databases
+class VersioningModelsDynamicDatabaseTestCase(DynamicDatabaseTestCase):
+    pass
 
 
 def test_coding_system_release_most_recent(coding_system_release):

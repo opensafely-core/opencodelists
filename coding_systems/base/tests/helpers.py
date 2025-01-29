@@ -28,12 +28,6 @@ class DynamicDatabaseTestCase(TestCase):
     import_data_path = None
     original_databases = None
 
-    @staticmethod
-    # TODO: can we remove this?
-    def import_data_fixture(_):
-        # Set to an import data fixture if required.
-        raise NotImplementedError("This fixture function is optional.")
-
     def add_to_databases(self, *args):
         # TODO: getattr?
         if self.original_databases is None:
@@ -58,15 +52,6 @@ class DynamicDatabaseTestCase(TestCase):
             )
         except NotImplementedError:
             self.expected_db_path = None
-
-        # Set up mock source data.
-        if self.import_data_path is None:
-            try:
-                self.import_data_path = next(
-                    self.import_data_fixture(self.coding_systems_database_tmp_dir)
-                )
-            except NotImplementedError:
-                self.import_data_path = None
 
         # Not necessary to remove the DB as the temp dir is scoped by test case.
 

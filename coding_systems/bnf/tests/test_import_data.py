@@ -171,7 +171,6 @@ class TestImportData(BNFDynamicDatabaseTestCase):
     coding_system = "bnf"
 
     @pytest.fixture(autouse=True)
-    @pytest.mark.usefixtures("mock_bnf_import_data_path")
     def set_import_data(self, mock_bnf_import_data_path):
         self.import_data_path = mock_bnf_import_data_path
 
@@ -210,7 +209,6 @@ class TestImportDataExisting(BNFDynamicDatabaseTestCase):
     coding_system = "bnf"
 
     @pytest.fixture(autouse=True)
-    @pytest.mark.usefixtures("mock_bnf_import_data_path")
     def set_import_data(self, mock_bnf_import_data_path):
         self.import_data_path = mock_bnf_import_data_path
 
@@ -348,7 +346,6 @@ class TestImportMigrationError(BNFDynamicDatabaseTestCase):
     coding_system = "bnf"
 
     @pytest.fixture(autouse=True)
-    @pytest.mark.usefixtures("mock_bnf_import_data_path")
     def set_import_data(self, mock_bnf_import_data_path):
         self.import_data_path = mock_bnf_import_data_path
 

@@ -275,7 +275,6 @@ class TestSaveCodelistDraftUpdatesCompatibilityMultipleReleases(
     def _get_bnf_version_with_search(self, bnf_version_with_search):
         self.bnf_version_with_search = bnf_version_with_search
 
-    # TODO: not sure about this because of the use of multiple bnf_release/bnf_releases
     @pytest.mark.usefixtures("_get_bnf_releases", "_get_bnf_release_excl_last_concept")
     def test_save_codelist_draft_updates_compatibility_multiple_releases(self):
         # In this test, we have a draft created with release `bnf_test_20200101`

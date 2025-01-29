@@ -14,6 +14,11 @@ class DynamicDatabaseTestCase(TestCase):
             "This test class requires a database alias to be set."
         )
 
+    # TODO:
+    # coding_system is not used in every test.
+    # We could consider making it optional.
+    # It's currently required because we set the expected_db_path based on it,
+    # even if that path is not used.
     @property
     def coding_system(self):
         raise NotImplementedError("This test class requires a coding system to be set.")

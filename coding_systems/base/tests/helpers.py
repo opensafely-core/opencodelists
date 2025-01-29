@@ -25,7 +25,7 @@ class DynamicDatabaseTestCase(TestCase):
 
     # import_data_path is only used in some tests.
     import_data_path = None
-    # needs_tmp_dir is only used for tests that write a database.
+    # needs_db_tmp_dir is only used for tests that write a database.
     needs_db_tmp_dir = False
 
     @pytest.fixture

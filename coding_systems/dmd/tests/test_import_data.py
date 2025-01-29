@@ -15,20 +15,8 @@ from mappings.dmdvmpprevmap.models import Mapping as VmpPrevMapping
 from .conftest import MOCK_DMD_IMPORT_DATA_PATH
 
 
-@pytest.fixture(autouse=True)
-def coding_systems_database_tmp_dir(coding_systems_tmp_path):
-    yield coding_systems_tmp_path
-
-
 class DMDDynamicDatabaseTestCase(DynamicDatabaseTestCase):
-    #    # TODO:
-    # Remove autouse?
-    # Find out if every coding system test really needs this.
-    # Find out if we even need to have this setup in the class,
-    # or can we just use the module-level fixture?
-    @pytest.fixture(autouse=True)
-    def _get_tmp_dir(self, coding_systems_database_tmp_dir):
-        self.coding_systems_database_tmp_dir = coding_systems_database_tmp_dir
+    pass
 
 
 class TestImportData(DMDDynamicDatabaseTestCase):

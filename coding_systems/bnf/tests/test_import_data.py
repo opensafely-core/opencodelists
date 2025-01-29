@@ -37,11 +37,6 @@ def mock_migrate_coding_system_with_error(*args, **kwargs):
     raise Exception("expected exception")
 
 
-@pytest.fixture(autouse=True)
-def coding_systems_database_tmp_dir(coding_systems_tmp_path):
-    yield coding_systems_tmp_path
-
-
 @pytest.fixture
 def mock_bnf_import_data_path(tmp_path):
     yield from _mock_bnf_import_data_path(tmp_path)
@@ -168,14 +163,7 @@ def test_import_data_too_many_csv_files(tmp_path):
 
 
 class BNFDynamicDatabaseTestCase(DynamicDatabaseTestCase):
-    # TODO:
-    # Remove autouse?
-    # Find out if every coding system test really needs this.
-    # Find out if we even need to have this setup in the class,
-    # or can we just use the module-level fixture?
-    @pytest.fixture(autouse=True)
-    def _get_tmp_dir(self, coding_systems_database_tmp_dir):
-        self.coding_systems_database_tmp_dir = coding_systems_database_tmp_dir
+    pass
 
 
 class TestImportData(BNFDynamicDatabaseTestCase):

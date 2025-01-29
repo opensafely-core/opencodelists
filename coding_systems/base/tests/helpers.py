@@ -1,6 +1,9 @@
+import pytest
 from django.test import TestCase
 
 
+# TODO: can we avoid using this fixture when not needed?
+@pytest.mark.usefixtures("coding_systems_database_tmp_dir")
 class DynamicDatabaseTestCase(TestCase):
     @property
     def db_alias(self):
@@ -13,8 +16,14 @@ class DynamicDatabaseTestCase(TestCase):
     def coding_system(self):
         raise NotImplementedError("This test class requires a coding system to be set.")
 
-    def _get_tmp_dir(self):
-        raise NotImplementedError("This method is optional.")
+    # TODO:
+    # Remove autouse?
+    # Find out if every coding system test really needs this.
+    # Find out if we even need to have this setup in the class,
+    # or can we just use the module-level fixture?
+    @pytest.fixture(autouse=True)
+    def _get_tmp_dir(self, coding_systems_database_tmp_dir):
+        self.coding_systems_database_tmp_dir = coding_systems_database_tmp_dir
 
     import_data_path = None
     original_databases = None

@@ -7,6 +7,11 @@ from codelists.coding_systems import CODING_SYSTEMS
 from coding_systems.versioning.models import CodingSystemRelease, ReleaseState
 
 
+@pytest.fixture(autouse=True)
+def coding_systems_database_tmp_dir(coding_systems_tmp_path):
+    yield coding_systems_tmp_path
+
+
 @pytest.fixture
 def coding_system_release():
     yield CodingSystemRelease.objects.create(

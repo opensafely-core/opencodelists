@@ -15,11 +15,6 @@ from coding_systems.conftest import mock_migrate_coding_system
 from coding_systems.versioning.models import CodingSystemRelease, ReleaseState
 
 
-@pytest.fixture(autouse=True)
-def coding_systems_database_tmp_dir(coding_systems_tmp_path):
-    yield coding_systems_tmp_path
-
-
 @pytest.fixture
 def bnf_csr():
     def _csr(valid_from=datetime(2022, 11, 1)):
@@ -41,15 +36,6 @@ def bnf_review_version_with_search(bnf_version_with_search):
 
 
 class BaseCodingSystemDynamicDatabaseTestCase(DynamicDatabaseTestCase):
-    # TODO:
-    # Remove autouse?
-    # Find out if every coding system test really needs this.
-    # Find out if we even need to have this setup in the class,
-    # or can we just use the module-level fixture?
-    @pytest.fixture(autouse=True)
-    def _get_tmp_dir(self, coding_systems_database_tmp_dir):
-        self.coding_systems_database_tmp_dir = coding_systems_database_tmp_dir
-
     @pytest.fixture
     @pytest.mark.usefixtures("_bnf_release")
     def _get_bnf_release(self, _bnf_release):

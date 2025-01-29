@@ -20,11 +20,6 @@ MOCK_CTV3_IMPORT_DATA_PATH = (
 
 
 @pytest.fixture(autouse=True)
-def coding_systems_database_tmp_dir(coding_systems_tmp_path):
-    yield coding_systems_tmp_path
-
-
-@pytest.fixture(autouse=True)
 def mock_migrate():
     with patch(
         "coding_systems.base.import_data_utils.call_command", mock_migrate_coding_system
@@ -33,14 +28,7 @@ def mock_migrate():
 
 
 class CTV3DynamicDatabaseTestCase(DynamicDatabaseTestCase):
-    # TODO:
-    # Remove autouse?
-    # Find out if every coding system test really needs this.
-    # Find out if we even need to have this setup in the class,
-    # or can we just use the module-level fixture?
-    @pytest.fixture(autouse=True)
-    def _get_tmp_dir(self, coding_systems_database_tmp_dir):
-        self.coding_systems_database_tmp_dir = coding_systems_database_tmp_dir
+    pass
 
 
 class TestImportData(CTV3DynamicDatabaseTestCase):

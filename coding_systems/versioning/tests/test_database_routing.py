@@ -15,11 +15,6 @@ from coding_systems.versioning.models import (
 )
 
 
-@pytest.fixture(autouse=True)
-def coding_systems_database_tmp_dir(coding_systems_tmp_path):
-    yield coding_systems_tmp_path
-
-
 @pytest.mark.parametrize(
     "coding_system", [cs for cs in CODING_SYSTEMS if cs in apps.app_configs]
 )
@@ -33,14 +28,7 @@ def test_coding_system_routing_errors_if_no_using_db_specified(coding_system):
 
 
 class VersioningRoutingDynamicDatabaseTestCase(DynamicDatabaseTestCase):
-    # TODO:
-    # Remove autouse?
-    # Find out if every coding system test really needs this.
-    # Find out if we even need to have this setup in the class,
-    # or can we just use the module-level fixture?
-    @pytest.fixture(autouse=True)
-    def _get_tmp_dir(self, coding_systems_database_tmp_dir):
-        self.coding_systems_database_tmp_dir = coding_systems_database_tmp_dir
+    pass
 
 
 class TestMismatchedCodingSystemDatabaseRelations(

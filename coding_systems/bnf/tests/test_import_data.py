@@ -163,17 +163,20 @@ def test_import_data_too_many_csv_files(tmp_path):
 
 
 class BNFDynamicDatabaseTestCase(DynamicDatabaseTestCase):
-    pass
+    # The BNF tests in this module are a special case where they use fixtures
+    # to write temporary files, instead of having the fixtures as repository
+    # files.
+    import_data_fixture = "mock_bnf_import_data_path"
+
+    @pytest.fixture(autouse=True)
+    def set_import_data_from_fixture(self, request):
+        self.import_data_path = request.getfixturevalue(self.import_data_fixture)
 
 
 class TestImportData(BNFDynamicDatabaseTestCase):
     db_alias = "bnf_release-1-a_20221001"
     coding_system = "bnf"
     needs_db_tmp_dir = True
-
-    @pytest.fixture(autouse=True)
-    def set_import_data(self, mock_bnf_import_data_path):
-        self.import_data_path = mock_bnf_import_data_path
 
     def test_import_data(self):
         """Test importing BNF coding system data with dynamic database creation."""
@@ -209,10 +212,6 @@ class TestImportDataExisting(BNFDynamicDatabaseTestCase):
     db_alias = "bnf_v1-1_20221001"
     coding_system = "bnf"
     needs_db_tmp_dir = True
-
-    @pytest.fixture(autouse=True)
-    def set_import_data(self, mock_bnf_import_data_path):
-        self.import_data_path = mock_bnf_import_data_path
 
     def test_import_data_existing_coding_system_release(self):
         # Set up an existing CodingSystemRelease and DB file.
@@ -347,10 +346,6 @@ class TestImportMigrationError(BNFDynamicDatabaseTestCase):
     db_alias = "bnf_migrate-error_20221001"
     coding_system = "bnf"
     needs_db_tmp_dir = True
-
-    @pytest.fixture(autouse=True)
-    def set_import_data(self, mock_bnf_import_data_path):
-        self.import_data_path = mock_bnf_import_data_path
 
     def test_import_error_during_migration(self):
         cs_release_count = CodingSystemRelease.objects.count()

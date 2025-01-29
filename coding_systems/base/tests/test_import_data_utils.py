@@ -43,8 +43,7 @@ class BaseCodingSystemDynamicDatabaseTestCase(DynamicDatabaseTestCase):
 
     @pytest.fixture()
     def _bnf_release(self, bnf_csr):
-        self.original_databases = type(self).databases
-        type(self).databases |= frozenset({self.db_alias})
+        self.add_to_databases(self.db_alias)
         # setup the database as a duplicate of the fixture one
         csr = bnf_csr()
         setup_db(csr)
@@ -58,8 +57,7 @@ class BaseCodingSystemDynamicDatabaseTestCase(DynamicDatabaseTestCase):
 
     @pytest.fixture
     def _bnf_release_excl_last_concept(self, bnf_csr):
-        self.original_databases = type(self).databases
-        type(self).databases |= frozenset({self.db_alias})
+        self.add_to_databases(self.db_alias)
         # setup the database as a duplicate of the fixture one, omitting the last concept
         csr = bnf_csr(datetime(2022, 10, 1))
         setup_db(csr, exclude_last_concept=True)
@@ -74,15 +72,12 @@ class BaseCodingSystemDynamicDatabaseTestCase(DynamicDatabaseTestCase):
     @pytest.fixture
     def _bnf_releases(self, bnf_csr):
         # TODO: remove horrible hack for testing.
-        db_alias_override = set(
-            [
-                "bnf_import-data_20190101",
-                "bnf_import-data_20220901",
-                "bnf_import-data_20221201",
-            ]
-        )
-        self.original_databases = type(self).databases
-        type(self).databases |= frozenset(db_alias_override)
+        db_alias_additions = [
+            "bnf_import-data_20190101",
+            "bnf_import-data_20220901",
+            "bnf_import-data_20221201",
+        ]
+        self.add_to_databases(*db_alias_additions)
         # setup multiple databases as duplicates of the fixture one, with different dates
 
         # earlier than the release the codelist versions are created with

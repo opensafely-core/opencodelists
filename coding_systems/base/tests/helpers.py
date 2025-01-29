@@ -29,11 +29,13 @@ class DynamicDatabaseTestCase(TestCase):
     original_databases = None
 
     @staticmethod
+    # TODO: can we remove this?
     def import_data_fixture(_):
         # Set to an import data fixture if required.
         raise NotImplementedError("This fixture function is optional.")
 
     def add_to_databases(self, *args):
+        # TODO: getattr?
         if self.original_databases is None:
             self.original_databases = type(self).databases
         type(self).databases |= frozenset({*args})

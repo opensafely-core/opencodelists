@@ -2,6 +2,10 @@ import pytest
 from django.test import TestCase
 
 
+class DynamicDatabaseStateNotRecordedError(TestCase):
+    pass
+
+
 class DynamicDatabaseTestCase(TestCase):
     @property
     def db_alias(self):
@@ -18,14 +22,30 @@ class DynamicDatabaseTestCase(TestCase):
     def _get_tmp_dir(self, coding_systems_database_tmp_dir):
         self.coding_systems_database_tmp_dir = coding_systems_database_tmp_dir
 
+    # import_data_path is only used in some tests.
     import_data_path = None
-    original_databases = None
 
     def add_to_databases(self, *args):
-        # TODO: getattr?
-        if self.original_databases is None:
+        try:
+            getattr(self, "original_databases")
+        except AttributeError:
+            # Record the original state, so we can later restore it.
             self.original_databases = type(self).databases
+
         type(self).databases |= frozenset({*args})
+
+    def restore_original_databases(self):
+        try:
+            getattr(self, "original_databases")
+        except AttributeError:
+            # The list of original databases was never set.
+            # This should never happen for a test based on this class.
+            # We record the state when first adding to the databases.
+            raise DynamicDatabaseStateNotRecordedError
+        else:
+            # Remove the dynamic database from the test class, as Django doesn't
+            # know how to roll back when the transaction wrapping the test case ends.
+            type(self).databases = self.original_databases
 
     def setUp(self):
         super().setUp()
@@ -50,6 +70,4 @@ class DynamicDatabaseTestCase(TestCase):
 
     def tearDown(self):
         super().tearDown()
-        # Remove the dynamic database from the test class, as Django doesn't
-        # know how to roll back when the transaction wrapping the test case ends.
-        type(self).databases = self.original_databases
+        self.restore_original_databases()

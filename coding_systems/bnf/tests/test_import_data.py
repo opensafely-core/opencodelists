@@ -39,10 +39,6 @@ def mock_migrate_coding_system_with_error(*args, **kwargs):
 
 @pytest.fixture
 def mock_bnf_import_data_path(tmp_path):
-    yield from _mock_bnf_import_data_path(tmp_path)
-
-
-def _mock_bnf_import_data_path(tmp_path):
     MOCK_BNF_IMPORT_DATA = [
         [
             "BNF Chapter",

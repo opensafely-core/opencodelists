@@ -26,6 +26,11 @@ class DynamicDatabaseTestCase(TestCase):
     @pytest.fixture(autouse=True)
     def _get_tmp_dir(self, coding_systems_database_tmp_dir):
         self.coding_systems_database_tmp_dir = coding_systems_database_tmp_dir
+        self.expected_db_path = (
+            self.coding_systems_database_tmp_dir
+            / f"{self.coding_system}"
+            / f"{self.db_alias}.sqlite3"
+        )
 
     # import_data_path is only used in some tests.
     import_data_path = None
@@ -61,15 +66,6 @@ class DynamicDatabaseTestCase(TestCase):
         # constructed dynamically. No need to reset as each test case execution
         # gets a new dynamic class.
         self.add_to_databases(self, self.db_alias)
-
-        try:
-            self.expected_db_path = (
-                self.coding_systems_database_tmp_dir
-                / f"{self.coding_system}"
-                / f"{self.db_alias}.sqlite3"
-            )
-        except NotImplementedError:
-            self.expected_db_path = None
 
         # Not necessary to remove the DB as the temp dir is scoped by test case.
 

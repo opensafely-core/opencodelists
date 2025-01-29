@@ -138,10 +138,6 @@ class TestUpdateCodelistVersionCompatibilityNoSearches(
     def _get_bnf_version_asthma(self, bnf_version_asthma):
         self.bnf_version_asthma = bnf_version_asthma
 
-    #    @pytest.fixture(autouse=True)
-    #    def _get_bnf_release(self, bnf_release):
-    #        self.bnf_release = bnf_release
-
     @pytest.mark.usefixtures("_get_bnf_release")
     def test_update_codelist_version_compatibility_no_searches(self):
         # Draft versions are not checked for compatibility; this version is under review

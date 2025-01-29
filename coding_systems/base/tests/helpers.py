@@ -3,7 +3,6 @@ from django.test import TestCase
 
 
 # TODO: can we avoid using this fixture when not needed?
-@pytest.mark.usefixtures("coding_systems_database_tmp_dir")
 class DynamicDatabaseTestCase(TestCase):
     @property
     def db_alias(self):
@@ -22,6 +21,7 @@ class DynamicDatabaseTestCase(TestCase):
     # Find out if we even need to have this setup in the class,
     # or can we just use the module-level fixture?
     @pytest.fixture(autouse=True)
+    @pytest.mark.usefixtures("coding_systems_database_tmp_dir")
     def _get_tmp_dir(self, coding_systems_database_tmp_dir):
         self.coding_systems_database_tmp_dir = coding_systems_database_tmp_dir
 

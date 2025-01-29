@@ -36,6 +36,7 @@ class TestMismatchedCodingSystemDatabaseRelations(
 ):
     db_alias = "ctv3_testv2_20221101"
     coding_system = "ctv3"
+    needs_db_tmp_dir = True
 
     def test_mismatched_coding_system_database_relations(self):
         # Relations are only allowed if the database matches

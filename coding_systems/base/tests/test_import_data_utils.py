@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from datetime import datetime
 
 import pytest
@@ -14,12 +13,6 @@ from coding_systems.base.tests.helpers import DynamicDatabaseTestCase
 from coding_systems.bnf.models import Concept
 from coding_systems.conftest import mock_migrate_coding_system
 from coding_systems.versioning.models import CodingSystemRelease, ReleaseState
-
-
-@dataclass
-class CSRDetail:
-    creation_date: datetime = datetime(2022, 11, 1)
-    exclude_last_concept: bool = False
 
 
 class BaseCodingSystemDynamicDatabaseTestCase(DynamicDatabaseTestCase):
@@ -46,65 +39,58 @@ class BaseCodingSystemDynamicDatabaseTestCase(DynamicDatabaseTestCase):
         yield bnf_version_with_search
 
     @pytest.fixture
-    def setup_csrs(self, bnf_csr):
-        # setup the databases
-        created_csrs = []
-        for csr in self.csrs:
-            if csr.creation_date is not None:
-                created_csr = bnf_csr(valid_from=csr.creation_date)
-            else:
-                created_csr = bnf_csr()
-            setup_db(created_csr, exclude_last_concept=csr.exclude_last_concept)
-            created_csrs.append(created_csr)
-        yield created_csrs
-
-        for csr in created_csrs:
-            cleanup_db(csr)
-
-    @pytest.fixture
     def _get_bnf_release(self, _bnf_release):
         self.bnf_release = _bnf_release
 
     @pytest.fixture
-    def _bnf_release(self, request):
+    def _bnf_release(self, bnf_csr):
         # Unusually, this setup needs to be done *before* the regular setUp() runs.
         self.add_to_databases(self.db_alias)
-        self.csrs = [CSRDetail()]
-        yield from request.getfixturevalue("setup_csrs")
+        # setup the database as a duplicate of the fixture one
+        csr = bnf_csr()
+        setup_db(csr)
+        yield csr
+        cleanup_db(csr)
 
     @pytest.fixture
     def _get_bnf_release_excl_last_concept(self, _bnf_release_excl_last_concept):
         self.bnf_release = _bnf_release_excl_last_concept
 
     @pytest.fixture
-    def _bnf_release_excl_last_concept(self, request):
+    def _bnf_release_excl_last_concept(self, bnf_csr):
         # This addition needs to be done *before* the regular setUp() runs.
         self.add_to_databases(self.db_alias)
         # setup the database as a duplicate of the fixture one, omitting the last concept
-        self.csrs = [
-            CSRDetail(creation_date=datetime(2022, 10, 1), exclude_last_concept=True)
-        ]
-        yield from request.getfixturevalue("setup_csrs")
+        csr = bnf_csr(datetime(2022, 10, 1))
+        setup_db(csr, exclude_last_concept=True)
+        yield csr
+        cleanup_db(csr)
 
     @pytest.fixture
-    def _bnf_releases(self, request):
-        # This is a one-off unusual case where additional databases
-        # need to be added.
-        # TODO: consider generalising, but it doesn't seem worth it yet.
-        db_aliases = [
+    def _bnf_releases(self, bnf_csr):
+        db_alias_additions = [
             "bnf_import-data_20190101",
             "bnf_import-data_20220901",
             "bnf_import-data_20221201",
         ]
         # This addition needs to be done *before* the regular setUp() runs.
-        self.add_to_databases(*db_aliases)
+        self.add_to_databases(*db_alias_additions)
         # setup multiple databases as duplicates of the fixture one, with different dates
-        self.csrs = [
-            CSRDetail(creation_date=datetime(2019, 1, 1)),
-            CSRDetail(creation_date=datetime(2022, 9, 1)),
-            CSRDetail(creation_date=datetime(2022, 12, 1)),
-        ]
-        yield request.getfixturevalue("setup_csrs")
+
+        # earlier than the release the codelist versions are created with
+        csr_20190101 = bnf_csr(datetime(2019, 1, 1))
+        setup_db(csr_20190101)
+        # earlier than bnf_release_excl_last_concept
+        csr_20220901 = bnf_csr(datetime(2022, 9, 1))
+        setup_db(csr_20220901)
+        # later than bnf_release_excl_last_concept
+        csr_20221201 = bnf_csr(datetime(2022, 12, 1))
+        setup_db(csr_20221201)
+
+        yield
+
+        for csr in [csr_20190101, csr_20220901, csr_20221201]:
+            cleanup_db(csr)
 
     @pytest.fixture
     def _get_bnf_version_with_search(self, bnf_version_with_search):
@@ -269,9 +255,7 @@ class TestSaveCodelistDraftUpdatesCompatibility(
 class TestSaveCodelistDraftUpdatesCompatibilityMultipleReleases(
     BaseCodingSystemDynamicDatabaseTestCase
 ):
-    # This is a one-off unusual case where this actually gets added by
-    # the fixture used, _bnf_releases, before the alias gets added again
-    # by setUp().
+    # TODO: we need to specify multiple aliases.
     db_alias = "bnf_import-data_20190101"
 
     @pytest.mark.usefixtures(

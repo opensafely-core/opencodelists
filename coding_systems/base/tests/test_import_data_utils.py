@@ -15,27 +15,29 @@ from coding_systems.conftest import mock_migrate_coding_system
 from coding_systems.versioning.models import CodingSystemRelease, ReleaseState
 
 
-@pytest.fixture
-def bnf_csr():
-    def _csr(valid_from=datetime(2022, 11, 1)):
-        return CodingSystemRelease.objects.create(
-            coding_system="bnf",
-            release_name="import-data",
-            valid_from=valid_from,
-            state=ReleaseState.READY,
-        )
-
-    return _csr
-
-
-@pytest.fixture
-def bnf_review_version_with_search(bnf_version_with_search):
-    bnf_version_with_search.status = Status.UNDER_REVIEW
-    bnf_version_with_search.save()
-    yield bnf_version_with_search
-
-
 class BaseCodingSystemDynamicDatabaseTestCase(DynamicDatabaseTestCase):
+    # TODO: is there any issue with moving this fixture into the class?
+    @pytest.fixture
+    @staticmethod
+    def bnf_csr():
+        def _csr(valid_from=datetime(2022, 11, 1)):
+            return CodingSystemRelease.objects.create(
+                coding_system="bnf",
+                release_name="import-data",
+                valid_from=valid_from,
+                state=ReleaseState.READY,
+            )
+
+        return _csr
+
+    # TODO: is there any issue with moving this fixture into the class?
+    @pytest.fixture
+    @staticmethod
+    def bnf_review_version_with_search(bnf_version_with_search):
+        bnf_version_with_search.status = Status.UNDER_REVIEW
+        bnf_version_with_search.save()
+        yield bnf_version_with_search
+
     @pytest.fixture
     def _get_bnf_release(self, _bnf_release):
         self.bnf_release = _bnf_release

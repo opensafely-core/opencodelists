@@ -98,6 +98,8 @@ class BaseCodingSystemDynamicDatabaseTestCase(DynamicDatabaseTestCase):
 
     @pytest.fixture
     def _get_bnf_review_version_with_search(self, bnf_review_version_with_search):
+        # TODO: is it worth keeping this as a separate attribute
+        # from bnf_version_with_search?
         self.bnf_review_version_with_search = bnf_review_version_with_search
 
 

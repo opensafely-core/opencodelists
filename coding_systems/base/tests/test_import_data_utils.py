@@ -42,6 +42,7 @@ class BaseCodingSystemDynamicDatabaseTestCase(DynamicDatabaseTestCase):
 
     @pytest.fixture
     def _bnf_release(self, bnf_csr):
+        # Unusually, this setup needs to be done *before* the regular setUp() runs.
         self.add_to_databases(self.db_alias)
         # setup the database as a duplicate of the fixture one
         csr = bnf_csr()
@@ -55,6 +56,7 @@ class BaseCodingSystemDynamicDatabaseTestCase(DynamicDatabaseTestCase):
 
     @pytest.fixture
     def _bnf_release_excl_last_concept(self, bnf_csr):
+        # This addition needs to be done *before* the regular setUp() runs.
         self.add_to_databases(self.db_alias)
         # setup the database as a duplicate of the fixture one, omitting the last concept
         csr = bnf_csr(datetime(2022, 10, 1))
@@ -69,6 +71,7 @@ class BaseCodingSystemDynamicDatabaseTestCase(DynamicDatabaseTestCase):
             "bnf_import-data_20220901",
             "bnf_import-data_20221201",
         ]
+        # This addition needs to be done *before* the regular setUp() runs.
         self.add_to_databases(*db_alias_additions)
         # setup multiple databases as duplicates of the fixture one, with different dates
 
@@ -99,7 +102,7 @@ class BaseCodingSystemDynamicDatabaseTestCase(DynamicDatabaseTestCase):
 
     @pytest.fixture
     # TODO: this is only used in one test, and we could put this in that
-    # specific test class. But then again, every other fixture is here,
+    # specific test class. But then again, other fixtures are here,
     # so this keeps them together.
     def _get_bnf_version_asthma(self, bnf_version_asthma):
         self.bnf_version_asthma = bnf_version_asthma

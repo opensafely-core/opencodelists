@@ -102,6 +102,13 @@ class BaseCodingSystemDynamicDatabaseTestCase(DynamicDatabaseTestCase):
         # from bnf_version_with_search?
         self.bnf_review_version_with_search = bnf_review_version_with_search
 
+    @pytest.fixture
+    # TODO: this is only used in one test, and we could put this in that
+    # specific test class. But then again, every other fixture is here,
+    # so this keeps them together.
+    def _get_bnf_version_asthma(self, bnf_version_asthma):
+        self.bnf_version_asthma = bnf_version_asthma
+
 
 def setup_db(csr, exclude_last_concept=False):
     # At this point, the test databases have been configured as in-memory sqlite dbs
@@ -141,11 +148,7 @@ class TestUpdateCodelistVersionCompatibilityNoSearches(
     db_alias = "bnf_import-data_20221101"
     coding_system = "bnf"
 
-    @pytest.fixture(autouse=True)
-    def _get_bnf_version_asthma(self, bnf_version_asthma):
-        self.bnf_version_asthma = bnf_version_asthma
-
-    @pytest.mark.usefixtures("_get_bnf_release")
+    @pytest.mark.usefixtures("_get_bnf_release", "_get_bnf_version_asthma")
     def test_update_codelist_version_compatibility_no_searches(self):
         # Draft versions are not checked for compatibility; this version is under review
         assert self.bnf_version_asthma.status == Status.PUBLISHED

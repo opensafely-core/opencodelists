@@ -30,7 +30,8 @@ class DynamicDatabaseTestCase(TestCase):
         )
 
     # This is a workaround to make using the _tmp_dir fixture configurable,
-    # avoiding use of the coding_systems_database_tmp_dir fixture.
+    # avoiding use of the coding_systems_database_tmp_dir fixture when not
+    # needed.
     # It may not be really necessary, nor may it be that useful.
     # Only fixtures can access fixtures, and fixtures can't be called directly,
     # so we can't do this in setUp, I don't think.

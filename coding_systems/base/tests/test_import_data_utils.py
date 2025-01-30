@@ -37,7 +37,6 @@ def bnf_review_version_with_search(bnf_version_with_search):
 
 class BaseCodingSystemDynamicDatabaseTestCase(DynamicDatabaseTestCase):
     @pytest.fixture
-    @pytest.mark.usefixtures("_bnf_release")
     def _get_bnf_release(self, _bnf_release):
         self.bnf_release = _bnf_release
 
@@ -51,7 +50,6 @@ class BaseCodingSystemDynamicDatabaseTestCase(DynamicDatabaseTestCase):
         cleanup_db(csr)
 
     @pytest.fixture
-    @pytest.mark.usefixtures("_bnf_release_excl_last_concept")
     def _get_bnf_release_excl_last_concept(self, _bnf_release_excl_last_concept):
         self.bnf_release = _bnf_release_excl_last_concept
 
@@ -65,7 +63,6 @@ class BaseCodingSystemDynamicDatabaseTestCase(DynamicDatabaseTestCase):
         cleanup_db(csr)
 
     @pytest.fixture
-    @pytest.mark.usefixtures("_bnf_releases")
     def _get_bnf_releases(self, _bnf_releases):
         pass
 
@@ -94,6 +91,14 @@ class BaseCodingSystemDynamicDatabaseTestCase(DynamicDatabaseTestCase):
 
         for csr in [csr_20190101, csr_20220901, csr_20221201]:
             cleanup_db(csr)
+
+    @pytest.fixture
+    def _get_bnf_version_with_search(self, bnf_version_with_search):
+        self.bnf_version_with_search = bnf_version_with_search
+
+    @pytest.fixture
+    def _get_bnf_review_version_with_search(self, bnf_review_version_with_search):
+        self.bnf_review_version_with_search = bnf_review_version_with_search
 
 
 def setup_db(csr, exclude_last_concept=False):
@@ -153,11 +158,7 @@ class TestUpdateCodelistVersionDraftVersionExcluded(
     db_alias = "bnf_import-data_20221101"
     coding_system = "bnf"
 
-    @pytest.fixture(autouse=True)
-    def _get_bnf_version_with_search(self, bnf_version_with_search):
-        self.bnf_version_with_search = bnf_version_with_search
-
-    @pytest.mark.usefixtures("_get_bnf_release")
+    @pytest.mark.usefixtures("_get_bnf_release", "_get_bnf_version_with_search")
     def test_update_codelist_draft_version_excluded(self):
         assert self.bnf_version_with_search.status == Status.DRAFT
         update_codelist_version_compatibility("bnf", self.bnf_release.database_alias)
@@ -170,11 +171,7 @@ class TestUpdateCodelistVersionWithSearch(BaseCodingSystemDynamicDatabaseTestCas
     db_alias = "bnf_import-data_20221101"
     coding_system = "bnf"
 
-    @pytest.fixture(autouse=True)
-    def _get_bnf_version_with_search(self, bnf_review_version_with_search):
-        self.bnf_review_version_with_search = bnf_review_version_with_search
-
-    @pytest.mark.usefixtures("_get_bnf_release")
+    @pytest.mark.usefixtures("_get_bnf_release", "_get_bnf_review_version_with_search")
     def test_update_codelist_version_with_search(self):
         assert self.bnf_review_version_with_search.status == Status.UNDER_REVIEW
         update_codelist_version_compatibility("bnf", self.bnf_release.database_alias)
@@ -192,11 +189,9 @@ class TestUpdateCodelistVersionCompatibilityWithMismatchedSearch(
     db_alias = "bnf_import-data_20221001"
     coding_system = "bnf"
 
-    @pytest.fixture(autouse=True)
-    def _get_bnf_version_with_search(self, bnf_review_version_with_search):
-        self.bnf_review_version_with_search = bnf_review_version_with_search
-
-    @pytest.mark.usefixtures("_get_bnf_release_excl_last_concept")
+    @pytest.mark.usefixtures(
+        "_get_bnf_release_excl_last_concept", "_get_bnf_review_version_with_search"
+    )
     def test_update_codelist_version_compatibility_with_mismatched_search(self):
         # setup the db, but omit the last Concept from the existing db, so the search
         # will return different results
@@ -212,11 +207,9 @@ class TestUpdateCodelistVersionCompatibilityWithSearchButMismatchedHierarchy(
     db_alias = "bnf_import-data_20221001"
     coding_system = "bnf"
 
-    @pytest.fixture(autouse=True)
-    def _get_bnf_review_version_with_search(self, bnf_review_version_with_search):
-        self.bnf_review_version_with_search = bnf_review_version_with_search
-
-    @pytest.mark.usefixtures("_get_bnf_release_excl_last_concept")
+    @pytest.mark.usefixtures(
+        "_get_bnf_release_excl_last_concept", "_get_bnf_review_version_with_search"
+    )
     def test_update_codelist_version_compatibility_with_search_but_mismatched_hierarchy(
         self,
     ):
@@ -251,11 +244,7 @@ class TestSaveCodelistDraftUpdatesCompatibility(
     db_alias = "bnf_import-data_20221001"
     coding_system = "bnf"
 
-    @pytest.fixture(autouse=True)
-    def _get_bnf_version_with_search(self, bnf_version_with_search):
-        self.bnf_version_with_search = bnf_version_with_search
-
-    @pytest.mark.usefixtures("_get_bnf_release")
+    @pytest.mark.usefixtures("_get_bnf_release", "_get_bnf_version_with_search")
     def test_save_codelist_draft_updates_compatibility(self):
         assert self.bnf_version_with_search.status == Status.DRAFT
         assert not self.bnf_version_with_search.compatible_releases.exists()
@@ -271,11 +260,11 @@ class TestSaveCodelistDraftUpdatesCompatibilityMultipleReleases(
     db_alias = "bnf_import-data_20190101"
     coding_system = "bnf"
 
-    @pytest.fixture(autouse=True)
-    def _get_bnf_version_with_search(self, bnf_version_with_search):
-        self.bnf_version_with_search = bnf_version_with_search
-
-    @pytest.mark.usefixtures("_get_bnf_releases", "_get_bnf_release_excl_last_concept")
+    @pytest.mark.usefixtures(
+        "_get_bnf_releases",
+        "_get_bnf_release_excl_last_concept",
+        "_get_bnf_version_with_search",
+    )
     def test_save_codelist_draft_updates_compatibility_multiple_releases(self):
         # In this test, we have a draft created with release `bnf_test_20200101`
         # The `bnf_releases` fixture gives us 3 other releases, which are duplicates

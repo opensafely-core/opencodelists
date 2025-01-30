@@ -14,19 +14,11 @@ class DynamicDatabaseTestCase(TestCase):
             "This test class requires a database alias to be set."
         )
 
-    # TODO:
-    # coding_system is not used in every test.
-    # We could consider making it optional.
-    # It's currently required because we set the expected_db_path based on it,
-    # even if that path is not used.
-    @property
-    def coding_system(self):
-        raise NotImplementedError("This test class requires a coding system to be set.")
-
+    # coding_system is used to create a temporary coding system database
+    # directory, only used for some tests.
+    coding_system = None
     # import_data_path is only used in some tests.
     import_data_path = None
-    # needs_db_tmp_dir is only used for tests that write a database.
-    needs_db_tmp_dir = False
 
     @pytest.fixture
     def _get_tmp_dir(self, coding_systems_database_tmp_dir):
@@ -44,7 +36,7 @@ class DynamicDatabaseTestCase(TestCase):
     # so we can't do this in setUp, I don't think.
     @pytest.fixture(autouse=True)
     def _configure_tmp_dir(self, request):
-        if self.needs_db_tmp_dir:
+        if self.coding_system is not None:
             request.getfixturevalue("_get_tmp_dir")
 
     def add_to_databases(self, *args):

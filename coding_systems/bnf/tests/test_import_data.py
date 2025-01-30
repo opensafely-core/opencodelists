@@ -172,7 +172,6 @@ class BNFDynamicDatabaseTestCase(DynamicDatabaseTestCase):
 class TestImportData(BNFDynamicDatabaseTestCase):
     db_alias = "bnf_release-1-a_20221001"
     coding_system = "bnf"
-    needs_db_tmp_dir = True
 
     def test_import_data(self):
         """Test importing BNF coding system data with dynamic database creation."""
@@ -207,7 +206,6 @@ class TestImportData(BNFDynamicDatabaseTestCase):
 class TestImportDataExisting(BNFDynamicDatabaseTestCase):
     db_alias = "bnf_v1-1_20221001"
     coding_system = "bnf"
-    needs_db_tmp_dir = True
 
     def test_import_data_existing_coding_system_release(self):
         # Set up an existing CodingSystemRelease and DB file.
@@ -341,7 +339,6 @@ def test_import_setup_error_existing_release(
 class TestImportMigrationError(BNFDynamicDatabaseTestCase):
     db_alias = "bnf_migrate-error_20221001"
     coding_system = "bnf"
-    needs_db_tmp_dir = True
 
     def test_import_error_during_migration(self):
         cs_release_count = CodingSystemRelease.objects.count()

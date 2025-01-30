@@ -165,7 +165,7 @@ class BNFDynamicDatabaseTestCase(DynamicDatabaseTestCase):
     import_data_fixture = "mock_bnf_import_data_path"
 
     @pytest.fixture(autouse=True)
-    def set_import_data_from_fixture(self, request):
+    def _set_import_data_from_fixture(self, request):
         self.import_data_path = request.getfixturevalue(self.import_data_fixture)
 
 

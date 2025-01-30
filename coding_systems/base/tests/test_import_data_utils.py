@@ -64,7 +64,6 @@ class BaseCodingSystemDynamicDatabaseTestCase(DynamicDatabaseTestCase):
 
     @pytest.fixture
     def _bnf_releases(self, bnf_csr):
-        # TODO: remove horrible hack for testing.
         db_alias_additions = [
             "bnf_import-data_20190101",
             "bnf_import-data_20220901",

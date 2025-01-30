@@ -63,10 +63,6 @@ class BaseCodingSystemDynamicDatabaseTestCase(DynamicDatabaseTestCase):
         cleanup_db(csr)
 
     @pytest.fixture
-    def _get_bnf_releases(self, _bnf_releases):
-        pass
-
-    @pytest.fixture
     def _bnf_releases(self, bnf_csr):
         # TODO: remove horrible hack for testing.
         db_alias_additions = [
@@ -259,7 +255,7 @@ class TestSaveCodelistDraftUpdatesCompatibilityMultipleReleases(
     db_alias = "bnf_import-data_20190101"
 
     @pytest.mark.usefixtures(
-        "_get_bnf_releases",
+        "_bnf_releases",
         "_get_bnf_release_excl_last_concept",
         "_get_bnf_version_with_search",
     )

@@ -164,6 +164,8 @@ class BNFDynamicDatabaseTestCase(DynamicDatabaseTestCase):
     # files.
     import_data_fixture = "mock_bnf_import_data_path"
 
+    # This is set to autouse as all the tests using this class,
+    # use import data from a fixture.
     @pytest.fixture(autouse=True)
     def _set_import_data_from_fixture(self, request):
         self.import_data_path = request.getfixturevalue(self.import_data_fixture)

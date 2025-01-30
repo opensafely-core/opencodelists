@@ -189,9 +189,15 @@ Run the JS tests in docker
 just docker-test-js
 ```
 
-Run a command in the dev docker containter
+Run a command in the dev docker container
 ```sh
 just docker-run <command>
+```
+
+Build and run a prod container locally (for testing/QA)
+```sh
+just docker-build prod
+docker run -it --entrypoint /bin/bash  opencodelists
 ```
 
 ## Other production maintenance tasks

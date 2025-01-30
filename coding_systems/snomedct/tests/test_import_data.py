@@ -19,7 +19,6 @@ class SNOMEDCTDynamicDatabaseTestCase(DynamicDatabaseTestCase):
 
 class TestImportData(SNOMEDCTDynamicDatabaseTestCase):
     db_alias = "snomedct_200_20230101"
-    coding_system = "snomedct"
     import_data_path = MOCK_SNOMEDCT_IMPORT_DATA_PATH
 
     @pytest.mark.usefixtures("mock_data_download")

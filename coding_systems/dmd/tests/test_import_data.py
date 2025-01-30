@@ -150,7 +150,6 @@ class TestImportError(DMDDynamicDatabaseTestCase):
 
 class TestImportDataNoVMPPreviousMapping(DMDDynamicDatabaseTestCase):
     db_alias = "dmd_2022-120_20221001"
-    coding_system = "dmd"
     import_data_path = MOCK_DMD_IMPORT_DATA_PATH
 
     @pytest.mark.usefixtures("dmd_data", "mock_data_download_no_prev_vmp")

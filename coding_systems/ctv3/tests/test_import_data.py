@@ -33,7 +33,6 @@ class CTV3DynamicDatabaseTestCase(DynamicDatabaseTestCase):
 
 class TestImportData(CTV3DynamicDatabaseTestCase):
     db_alias = "ctv3_v1_20221001"
-    coding_system = "ctv3"
     import_data_path = MOCK_CTV3_IMPORT_DATA_PATH
 
     def test_import_data(self):

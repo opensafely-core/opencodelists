@@ -25,7 +25,6 @@ class ICD10DynamicDatabaseTestCase(DynamicDatabaseTestCase):
 
 class TestImportData(ICD10DynamicDatabaseTestCase):
     db_alias = "icd10_release-icd_20221001"
-    coding_system = "icd10"
     import_data_path = MOCK_ICD10_IMPORT_DATA_PATH
 
     def test_import_data(self):

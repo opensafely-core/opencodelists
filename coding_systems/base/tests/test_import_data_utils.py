@@ -146,7 +146,6 @@ class TestUpdateCodelistVersionCompatibilityNoSearches(
     BaseCodingSystemDynamicDatabaseTestCase
 ):
     db_alias = "bnf_import-data_20221101"
-    coding_system = "bnf"
 
     @pytest.mark.usefixtures("_get_bnf_release", "_get_bnf_version_asthma")
     def test_update_codelist_version_compatibility_no_searches(self):
@@ -161,7 +160,6 @@ class TestUpdateCodelistVersionDraftVersionExcluded(
     BaseCodingSystemDynamicDatabaseTestCase
 ):
     db_alias = "bnf_import-data_20221101"
-    coding_system = "bnf"
 
     @pytest.mark.usefixtures("_get_bnf_release", "_get_bnf_version_with_search")
     def test_update_codelist_draft_version_excluded(self):
@@ -174,7 +172,6 @@ class TestUpdateCodelistVersionDraftVersionExcluded(
 
 class TestUpdateCodelistVersionWithSearch(BaseCodingSystemDynamicDatabaseTestCase):
     db_alias = "bnf_import-data_20221101"
-    coding_system = "bnf"
 
     @pytest.mark.usefixtures("_get_bnf_release", "_get_bnf_review_version_with_search")
     def test_update_codelist_version_with_search(self):
@@ -192,7 +189,6 @@ class TestUpdateCodelistVersionCompatibilityWithMismatchedSearch(
     BaseCodingSystemDynamicDatabaseTestCase
 ):
     db_alias = "bnf_import-data_20221001"
-    coding_system = "bnf"
 
     @pytest.mark.usefixtures(
         "_get_bnf_release_excl_last_concept", "_get_bnf_review_version_with_search"
@@ -210,7 +206,6 @@ class TestUpdateCodelistVersionCompatibilityWithSearchButMismatchedHierarchy(
     BaseCodingSystemDynamicDatabaseTestCase
 ):
     db_alias = "bnf_import-data_20221001"
-    coding_system = "bnf"
 
     @pytest.mark.usefixtures(
         "_get_bnf_release_excl_last_concept", "_get_bnf_review_version_with_search"
@@ -247,7 +242,6 @@ class TestSaveCodelistDraftUpdatesCompatibility(
     BaseCodingSystemDynamicDatabaseTestCase
 ):
     db_alias = "bnf_import-data_20221001"
-    coding_system = "bnf"
 
     @pytest.mark.usefixtures("_get_bnf_release", "_get_bnf_version_with_search")
     def test_save_codelist_draft_updates_compatibility(self):
@@ -263,7 +257,6 @@ class TestSaveCodelistDraftUpdatesCompatibilityMultipleReleases(
 ):
     # TODO: we need to specify multiple aliases.
     db_alias = "bnf_import-data_20190101"
-    coding_system = "bnf"
 
     @pytest.mark.usefixtures(
         "_get_bnf_releases",

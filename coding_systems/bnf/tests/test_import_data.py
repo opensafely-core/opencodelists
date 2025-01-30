@@ -162,13 +162,14 @@ class BNFDynamicDatabaseTestCase(DynamicDatabaseTestCase):
     # The BNF tests in this module are a special case where they use fixtures
     # to write temporary files, instead of having the fixtures as repository
     # files.
-    import_data_fixture = "mock_bnf_import_data_path"
-
     # This is set to autouse as all the tests using this class,
     # use import data from a fixture.
+    # It could be generalised by using the "request" fixture and
+    # request.getfixturevalue(), but we don't need to right now.
     @pytest.fixture(autouse=True)
-    def _set_import_data_from_fixture(self, request):
-        self.import_data_path = request.getfixturevalue(self.import_data_fixture)
+    @pytest.mark.usefixtures("mock_bnf_import_data_path")
+    def _set_import_data_from_fixture(self, mock_bnf_import_data_path):
+        self.import_data_path = mock_bnf_import_data_path
 
 
 class TestImportData(BNFDynamicDatabaseTestCase):

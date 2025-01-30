@@ -23,18 +23,13 @@ class TestImportData(DMDDynamicDatabaseTestCase):
     db_alias = "dmd_2022-100_20221001"
     import_data_path = MOCK_DMD_IMPORT_DATA_PATH
 
-    @pytest.fixture(autouse=True)
-    def _get_dmd_data(self, dmd_data):
-        self.dmd_data = dmd_data
-
-    @pytest.fixture(autouse=True)
+    @pytest.fixture
     def _get_dmd_version_asthma_medication(self, dmd_version_asthma_medication):
         self.dmd_version_asthma_medication = dmd_version_asthma_medication
 
-    @pytest.fixture(autouse=True)
-    def _get_mock_data_download(self, mock_data_download):
-        self.mock_data_download = mock_data_download
-
+    @pytest.mark.usefixtures(
+        "mock_data_download", "dmd_data", "_get_dmd_version_asthma_medication"
+    )
     def test_import_data(self):
         cs_release_count = CodingSystemRelease.objects.count()
         assert self.dmd_version_asthma_medication.cached_csv_data == {}

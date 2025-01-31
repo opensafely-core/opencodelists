@@ -5,7 +5,7 @@ import subprocess
 # Dummy organisation and project identifiers in URL
 SENTRY_DSN = "https://ecae920f60aa7a6a3e16d50d121ce4f2@o123456.ingest.sentry.io/7891023"
 SENTRY_CRON_URL = "https://ecae920f60aa7a6a3e16d50d121ce4f2@o123456.ingest.sentry.io/api/7891023/cron/test_monitor"
-CRONTAB = "5 23 * * 1 "
+CRONTAB = "5 23 * * 1"
 
 
 def test_extract_crontab_json(tmp_path):

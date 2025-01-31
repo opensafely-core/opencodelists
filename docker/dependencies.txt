@@ -6,3 +6,5 @@ sqlite3
 tzdata
 # Fast, modern compression utility. Compress backups. Search 'zstd' to find uses.
 zstd
+# Needed to make HTTP calls to the Sentry API
+curl

@@ -34,6 +34,10 @@ dokku$ dokku config:set opencodelists DATABASE_URL='sqlite:////storage/db.sqlite
 dokku$ dokku config:set opencodelists DATABASE_DIR='/storage'
 dokku$ dokku config:set opencodelists SECRET_KEY='xxx'
 dokku$ dokku config:set opencodelists SENTRY_DSN='https://xxx@xxx.ingest.sentry.io/xxx'
+dokku$ dokku config:set opencodelists OTEL_EXPORTER_OLTP_ENDPOINT='https://api.honeycomb.io'
+dokku$ dokku config:set opencodelists OTEL_EXPORTER_OTLP_HEADERS='x-honeycomb-team=VALIDKEY1234,x-honeycomb-dataset=opencodelists'
+dokku$ dokku config:set opencodelists OTEL_SERVICE_NAME='opencodelists'
+dokku$ dokku config:set opencodelists DJANGO_SETTINGS_MODULE="opencodelists.settings"
 dokku$ dokku config:set opencodelists EMAIL_BACKEND='anymail.backends.mailgun.EmailBackend'
 dokku$ dokku config:set opencodelists MAILGUN_API_KEY='xxx'
 ```

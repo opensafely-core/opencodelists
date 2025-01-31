@@ -1,6 +1,14 @@
 import pytest
 from django.db import connections
 from django.test import TestCase
+from opentelemetry import trace
+from opentelemetry.instrumentation.django import DjangoInstrumentor
+from opentelemetry.sdk.resources import Resource
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import SimpleSpanProcessor
+from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
+
+from services.tracing import response_hook
 
 
 # TestCase.databases sets the databases that tests have access to; this allows all tests
@@ -71,3 +79,57 @@ def reset_connections():
     databases_added_during_tests = set(connections.databases.keys()) - initial_databases
     for db in databases_added_during_tests:
         del connections.databases[db]
+
+
+################################################################################################################
+# Setup global tracing infrastructure for testing purposes.
+
+# The test setup is designed to be as close to the prod environment as possible,
+# with only necessary modifications specific to testing.
+
+# Create a resource for testing purposes with a unique 'service.name' value to
+# minimise risk of mixing test and prod telemetry data.
+# https://opentelemetry-python.readthedocs.io/en/latest/sdk/resources.html
+resource = Resource.create(attributes={"service.name": "opencodelists-test"})
+
+# Configure a global default OTel TracerProvider for our tests:
+# The TracerProvider enables access to Tracers, Tracers create Spans.
+# TracerProvider configuration is done once, globally, because the OTel Tracing API
+# should be used to configure and set/register a global default TracerProvider once,
+# at the start of a process (in this case, the pytest session; in prod, a gunicorn
+# worker process)). This means that during the pytest test session any test
+# that uses Django's test client will generate telemetry data (spans)
+# that we can assert against.
+# https://opentelemetry.io/docs/specs/otel/trace/api/#tracerprovider
+provider = TracerProvider(resource=resource)
+trace.set_tracer_provider(provider)
+
+# In prod, we use the OTLPSpanExporter which exports our telemetry data to Honeycomb.
+# In testing, we use InMemorySpanExporter() to collect spans locally, and assert
+# against them during tests using the span_exporter fixture.
+testing_span_exporter = InMemorySpanExporter()
+
+# In prod, we use the BatchSpanProcessor as this is asynchronous, and queues
+# and retries sending telemetry. In testing, we use SimpleSpanProcessor, which is
+# synchronous and easy to inspect the output of within a test.
+provider.add_span_processor(SimpleSpanProcessor(testing_span_exporter))
+
+# Mirror production instrumentation:
+# Use DjangoInstumentor() to instrument OpenCodelists test data, with prod response_hook().
+DjangoInstrumentor().instrument(response_hook=response_hook)
+################################################################################################################
+
+
+@pytest.fixture(autouse=True)
+def clear_testing_span_exporter():
+    """Clear OTel spans from the test exporter after each test"""
+    yield
+    testing_span_exporter.clear()
+
+
+@pytest.fixture()
+def span_exporter():
+    """Provide access to the global span exporter for interrogation.
+    Interrogate it with, for example, get_finished_spans()."""
+    assert not testing_span_exporter.get_finished_spans()
+    yield testing_span_exporter

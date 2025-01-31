@@ -1,4 +1,5 @@
-"""Functions to configure OTel tracing and instrumentation
+"""Functions to configure OTel tracing and instrumentation.
+
 We use OpenTelemetry (OTel) to instrument the app and capture telemetry
 data about requests in traces and spans emitted by our code. We send
 this data to Honeycomb to view and interrogate it, helping us to
@@ -17,6 +18,7 @@ from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
 def set_up_tracing():
     """Setup tracing infrastructure for production.
+
     The resource represents the entity producing telemetry data.
     We configure a global default OTel TracerProvider, because the OTel
     Tracing API should be used to configure and set a TracerProvider
@@ -39,6 +41,7 @@ def set_up_tracing():
 
 def response_hook(span, request, response):
     """Add user data to spans so that we can query this in Honeycomb.
+
     OTel's request_hook and response_hook run at span creation for a request
     and just before span completion for the response. As request_hook
     runs before authentication middleware has added a 'user' attribute

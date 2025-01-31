@@ -94,7 +94,7 @@ resource = Resource.create(attributes={"service.name": "opencodelists-test"})
 
 # Configure a global default OTel TracerProvider for our tests:
 # The TracerProvider enables access to Tracers, Tracers create Spans.
-# TracerProvider configuration is done once, globally because the OTel Tracing API
+# TracerProvider configuration is done once, globally, because the OTel Tracing API
 # should be used to configure and set/register a global default TracerProvider once,
 # at the start of a process (in this case, the pytest session; in prod, a gunicorn
 # worker process)). This means that during the pytest test session any test
@@ -106,7 +106,7 @@ trace.set_tracer_provider(provider)
 
 # In prod, we use the OTLPSpanExporter which exports our telemetry data to Honeycomb.
 # In testing, we use InMemorySpanExporter() to collect spans locally, and assert
-# against them during tests.
+# against them during tests using the span_exporter fixture.
 testing_span_exporter = InMemorySpanExporter()
 
 # In prod, we use the BatchSpanProcessor as this is asynchronous, and queues
@@ -129,7 +129,7 @@ def clear_testing_span_exporter():
 
 @pytest.fixture()
 def span_exporter():
-    """Provide an empty test exporter to export OTel spans for each test.
-    Interrogate it with, for example get_finished_spans()."""
+    """Provide access to the global span exporter for interrogation.
+    Interrogate it with, for example, get_finished_spans()."""
     assert not testing_span_exporter.get_finished_spans()
     yield testing_span_exporter

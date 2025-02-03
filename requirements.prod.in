@@ -17,6 +17,7 @@ django-extensions
 django-structlog
 django-taggit
 django-vite
+faker
 furl
 gunicorn
 lxml

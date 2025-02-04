@@ -19,11 +19,11 @@ from .helpers import build_hierarchy, hierarchies
 # g   h   i   j
 
 
-def id_fn(value):
+def _get_description(value):
     return value["description"]
 
 
-@pytest.mark.parametrize("example", examples, ids=id_fn)
+@pytest.mark.parametrize("example", examples, ids=_get_description)
 def test_from_codes(example):
     hierarchy = build_hierarchy()
 
@@ -33,7 +33,7 @@ def test_from_codes(example):
     assert codeset.codes() == example["codes"]
 
 
-@pytest.mark.parametrize("example", examples, ids=id_fn)
+@pytest.mark.parametrize("example", examples, ids=_get_description)
 def test_codes(example):
     hierarchy = build_hierarchy()
 
@@ -47,7 +47,7 @@ def test_codes(example):
     assert codeset.codes() == example["codes"]
 
 
-@pytest.mark.parametrize("example", examples, ids=id_fn)
+@pytest.mark.parametrize("example", examples, ids=_get_description)
 def test_defining_tree(example):
     hierarchy = build_hierarchy()
 
@@ -59,7 +59,7 @@ def test_defining_tree(example):
     assert codeset.defining_tree() == example["tree"]
 
 
-@pytest.mark.parametrize("example", examples, ids=id_fn)
+@pytest.mark.parametrize("example", examples, ids=_get_description)
 def test_walk_defining_tree(example):
     hierarchy = build_hierarchy()
 

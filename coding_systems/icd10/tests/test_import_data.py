@@ -21,7 +21,7 @@ MOCK_ICD10_IMPORT_DATA_PATH = (
 
 class TestImportData(DynamicDatabaseTestCase):
     db_alias = "icd10_release-icd_20221001"
-    import_data_path = str(MOCK_ICD10_IMPORT_DATA_PATH)
+    import_data_path = MOCK_ICD10_IMPORT_DATA_PATH
 
     def test_import_data(self):
         cs_release_count = CodingSystemRelease.objects.count()

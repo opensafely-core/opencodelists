@@ -15,7 +15,7 @@ from .conftest import MOCK_SNOMEDCT_IMPORT_DATA_PATH
 
 class TestImportData(DynamicDatabaseTestCase):
     db_alias = "snomedct_200_20230101"
-    import_data_path = str(MOCK_SNOMEDCT_IMPORT_DATA_PATH)
+    import_data_path = MOCK_SNOMEDCT_IMPORT_DATA_PATH
 
     @pytest.mark.usefixtures("mock_data_download")
     def test_import_data(self):

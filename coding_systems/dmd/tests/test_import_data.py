@@ -20,7 +20,7 @@ from .conftest import MOCK_DMD_IMPORT_DATA_PATH
 
 class TestImportData(DynamicDatabaseTestCase):
     db_alias = "dmd_2022-100_20221001"
-    import_data_path = str(MOCK_DMD_IMPORT_DATA_PATH)
+    import_data_path = MOCK_DMD_IMPORT_DATA_PATH
 
     @pytest.fixture
     def _get_dmd_version_asthma_medication(self, dmd_version_asthma_medication):
@@ -96,7 +96,7 @@ class TestImportData(DynamicDatabaseTestCase):
 
 class TestImportDataUnexpectedFile(DynamicDatabaseTestCase):
     db_alias = "dmd_2022-110_20221001"
-    import_data_path = str(MOCK_DMD_IMPORT_DATA_PATH)
+    import_data_path = MOCK_DMD_IMPORT_DATA_PATH
 
     @pytest.mark.usefixtures("mock_data_download_bad_zip")
     def test_import_data_unexpected_file(self):
@@ -117,7 +117,7 @@ class TestImportDataUnexpectedFile(DynamicDatabaseTestCase):
 
 class TestImportError(DynamicDatabaseTestCaseWithTmpPath):
     db_alias = "dmd_2022-101_20220901"
-    import_data_path = str(MOCK_DMD_IMPORT_DATA_PATH)
+    import_data_path = MOCK_DMD_IMPORT_DATA_PATH
     coding_system_subpath_name = "dmd"
 
     @pytest.mark.usefixtures("mock_data_download_error")
@@ -147,7 +147,7 @@ class TestImportError(DynamicDatabaseTestCaseWithTmpPath):
 
 class TestImportDataNoVMPPreviousMapping(DynamicDatabaseTestCase):
     db_alias = "dmd_2022-120_20221001"
-    import_data_path = str(MOCK_DMD_IMPORT_DATA_PATH)
+    import_data_path = MOCK_DMD_IMPORT_DATA_PATH
 
     @pytest.mark.usefixtures("dmd_data", "mock_data_download_no_prev_vmp")
     def test_import_data_no_vmp_previous_mapping(self):
@@ -171,7 +171,7 @@ def test_import_no_matching_release(mock_data_download):
         match="No matching release found for release unknown-release, valid from 2022-10-01",
     ):
         import_data(
-            str(MOCK_DMD_IMPORT_DATA_PATH),
+            MOCK_DMD_IMPORT_DATA_PATH,
             release_name="unknown-release",
             valid_from=date(2022, 10, 1),
         )

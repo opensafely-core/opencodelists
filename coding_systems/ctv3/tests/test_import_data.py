@@ -32,7 +32,7 @@ def mock_migrate():
 
 class TestImportData(DynamicDatabaseTestCase):
     db_alias = "ctv3_v1_20221001"
-    import_data_path = str(MOCK_CTV3_IMPORT_DATA_PATH)
+    import_data_path = MOCK_CTV3_IMPORT_DATA_PATH
 
     def test_import_data(self):
         cs_release_count = CodingSystemRelease.objects.count()
@@ -85,7 +85,7 @@ class TestImportData(DynamicDatabaseTestCase):
 
 class TestImportErrorExistingRelease(DynamicDatabaseTestCaseWithTmpPath):
     db_alias = "ctv3_v_error_20221001"
-    import_data_path = str(MOCK_CTV3_IMPORT_DATA_PATH)
+    import_data_path = MOCK_CTV3_IMPORT_DATA_PATH
     coding_system_subpath_name = "ctv3"
 
     def test_import_error_existing_release(self):

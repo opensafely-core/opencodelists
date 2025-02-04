@@ -10,7 +10,6 @@ django-debug-toolbar
 hypothesis
 pytest-cov
 pytest-django
-pytest-subtests
 responses
 
 # dev

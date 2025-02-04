@@ -17,12 +17,11 @@ examples = [
 ]
 
 
-def test_handle(subtests):
-    for expr, included, excluded in examples:
-        with subtests.test(expr):
-            handled = handle(expr)
-            assert handled["included"] == included
-            assert handled["excluded"] == excluded
+@pytest.mark.parametrize("expr,included,excluded", examples)
+def test_handle(expr, included, excluded):
+    handled = handle(expr)
+    assert handled["included"] == included
+    assert handled["excluded"] == excluded
 
 
 def test_parse_error_syntax_error():

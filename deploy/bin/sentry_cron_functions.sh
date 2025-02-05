@@ -44,6 +44,8 @@ function sentry_cron_start() {
                 "type":"crontab",
                 "value": "%s"
                 },
+            "checkin_margin":"5",
+            "max_runtime":"300"
             },
         "status":"in_progress"
         }' "$CRONTAB")

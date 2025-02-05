@@ -37,14 +37,6 @@ function run_backup() {
     ln -sf "$BACKUP_FILENAME.zst" "$BACKUP_DIR/latest-db.sqlite3.zst"
 
     # Keep only the last 30 days of backups.
-    # For now, apply this to both the original backup dir with backups based on the
-    # Django dumpdata management command and the new dir with backups based on
-    # sqlite .backup. Once there are none of the former remaining, the first line can be
-    # removed, along with most of this comment.
-    find "$DATABASE_DIR" -name "core-data-*.json.gz" -type f -mtime +30 -exec rm {} \;
-
-    # We initially compressed with gzip, this can be removed when none left.
-    find "$BACKUP_DIR" -name "*-db.sqlite3.gz" -type f -mtime +30 -exec rm {} \;
     find "$BACKUP_DIR" -name "*-db.sqlite3.zst" -type f -mtime +30 -exec rm {} \;
 }
 

@@ -38,9 +38,18 @@ function sentry_cron_url() {
 function sentry_cron_start() {
     SENTRY_CRON_URL="$1"
     CRONTAB="$2"
+    MONITOR_CONFIG=$(printf '{
+        "monitor_config": {
+            "schedule":{
+                "type":"crontab",
+                "value": "%s"
+                },
+            },
+        "status":"in_progress"
+        }' "$CRONTAB")
     curl -X POST "$SENTRY_CRON_URL" \
         --header 'Content-Type: application/json' \
-        --data-raw "{\"monitor_config\": {\"schedule\": {\"type\": \"crontab\", \"value\": \"$CRONTAB\"}}, \"status\": \"in_progress\"}"
+        --data-raw "$MONITOR_CONFIG"
 }
 
 function sentry_cron_ok() {

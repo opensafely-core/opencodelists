@@ -33,7 +33,7 @@ CODING_SYSTEM=$1
 
 SENTRY_MONITOR_NAME="${SCRIPT_NAME}_${CODING_SYSTEM}"
 SENTRY_DSN=$(dokku config:get opencodelists SENTRY_DSN)
-CRONTAB=$(extract_crontab "$CODING_SYSTEM" "cronfile")
+CRONTAB=$(extract_crontab "$CODING_SYSTEM" "$SCRIPT_DIR/cronfile")
 SENTRY_CRON_URL=$(sentry_cron_url "$SENTRY_DSN" "$SENTRY_MONITOR_NAME")
 
 REPO_ROOT="/app"

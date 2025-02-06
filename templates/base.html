@@ -77,7 +77,10 @@
                   <span class="dropdown-item text-secondary">Signed in as {{ request.user.username }}</span>
                   <div class="dropdown-divider"></div>
                   <a class="dropdown-item" href="{% url 'password_change' %}">Change password</a>
-                  <a class="dropdown-item" href="{% url 'logout' %}">Sign Out</a>
+                  <form action="{% url 'logout' %}" method="POST">
+                    {% csrf_token %}
+                    <button class="dropdown-item" href="{% url 'logout' %}">Sign Out</button>
+                  </form>
                 </div>
               </li>
             {% else %}

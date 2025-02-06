@@ -8,6 +8,9 @@ import pytest
 from django.conf import settings
 from django.db import connections
 
+from coding_systems.base.tests.dynamic_db_classes import (
+    DynamicDatabaseTestCaseWithTmpPath,
+)
 from coding_systems.bnf.import_data import import_data
 from coding_systems.bnf.models import Concept
 from coding_systems.conftest import mock_migrate_coding_system
@@ -34,11 +37,6 @@ def mock_migrate_coding_system_with_error(*args, **kwargs):
         settings.CODING_SYSTEMS_DATABASE_DIR / "bnf" / f"{database}.sqlite3"
     ).exists()
     raise Exception("expected exception")
-
-
-@pytest.fixture(autouse=True)
-def coding_systems_database_tmp_dir(coding_systems_tmp_path):
-    yield coding_systems_tmp_path
 
 
 @pytest.fixture
@@ -162,79 +160,95 @@ def test_import_data_too_many_csv_files(tmp_path):
         )
 
 
-def test_import_data(
-    settings, coding_systems_database_tmp_dir, mock_bnf_import_data_path
-):
-    cs_release_count = CodingSystemRelease.objects.count()
+class BNFDynamicDatabaseTestCaseWithTmpPath(DynamicDatabaseTestCaseWithTmpPath):
+    # The tests in this module are a distinct case
+    # compared with the other coding system tests.
+    # When working with test import data,
+    # the other tests use fixtures in the respository.
+    # These tests instead use a fixture to write out temporary files
+    # that will subsequently get imported.
 
-    # mock CSV data consists of 4 rows, 13 concepts to be imported:
-    # 1) headers
-    # 2) 7 new concepts
-    # 3) 3 new concepts, 4 concepts shared with (2)
-    # 4) 3 new concepts, 4 DUMMY concepts that are not imported
-    import_data(
-        mock_bnf_import_data_path,
-        release_name="release 1 A",
-        valid_from=date(2022, 10, 1),
-        import_ref="Ref",
-    )
-
-    # A new CodingSystemRelease has been created
-    assert CodingSystemRelease.objects.count() == cs_release_count + 1
-    cs_release = CodingSystemRelease.objects.latest("id")
-    assert cs_release.coding_system == "bnf"
-    assert cs_release.release_name == "release 1 A"
-    assert cs_release.valid_from == date(2022, 10, 1)
-    assert cs_release.import_ref == "Ref"
-
-    assert (
-        coding_systems_database_tmp_dir / "bnf" / "bnf_release-1-a_20221001.sqlite3"
-    ).exists()
-    assert cs_release.database_alias in settings.DATABASES
-    assert Concept.objects.using("bnf_release-1-a_20221001").count() == 13
+    # Set this fixture as `autouse`:
+    # all the tests currently using this class use this import data fixture.
+    @pytest.fixture(autouse=True)
+    @pytest.mark.usefixtures("mock_bnf_import_data_path")
+    def _set_import_data_from_fixture(self, mock_bnf_import_data_path):
+        self.import_data_path = mock_bnf_import_data_path
 
 
-def test_import_data_existing_coding_system_release(
-    coding_systems_database_tmp_dir, mock_bnf_import_data_path
-):
-    # set up an existing CodingSystemRelease and db file
-    cs_release = CodingSystemRelease.objects.create(
-        coding_system="bnf",
-        release_name="v1-1",
-        valid_from=date(2022, 10, 1),
-        import_ref="A first ref",
-        state=ReleaseState.READY,
-    )
-    cs_release_count = CodingSystemRelease.objects.count()
-    initial_timestamp = cs_release.import_timestamp
-    db_dir = coding_systems_database_tmp_dir / "bnf"
-    db_file = db_dir / "bnf_v1-1_20221001.sqlite3"
-    db_file.touch()
+class TestImportData(BNFDynamicDatabaseTestCaseWithTmpPath):
+    db_alias = "bnf_release-1-a_20221001"
+    coding_system_subpath_name = "bnf"
 
-    # mock CSV data consists of 4 rows, 13 concepts to be imported:
-    # 1) headers
-    # 2) 7 new concepts
-    # 3) 3 new concepts, 4 concepts shared with (2)
-    # 4) 3 new concepts, 4 DUMMY concepts that are not imported
-    import_data(
-        mock_bnf_import_data_path,
-        release_name="v1-1",
-        valid_from=date(2022, 10, 1),
-        import_ref="Ref",
-    )
+    def test_import_data(self):
+        """Test importing BNF coding system data with dynamic database creation."""
+        cs_release_count = CodingSystemRelease.objects.count()
 
-    # CodingSystemRelease has been updated with new import timestamp and ref
-    assert CodingSystemRelease.objects.count() == cs_release_count
-    cs_release.refresh_from_db()
-    assert cs_release.import_ref == "Ref"
-    assert cs_release.import_timestamp > initial_timestamp
+        # Execute import.
+        import_data(
+            self.import_data_path,
+            release_name="release 1 A",
+            valid_from=date(2022, 10, 1),
+            import_ref="Ref",
+        )
 
-    assert Concept.objects.using("bnf_v1-1_20221001").count() == 13
-    # backup file (created from the existing db file during setup) has been removed
-    assert not (db_dir / f"{db_file}.bu").exists()
+        # Verify CodingSystemRelease creation.
+        assert CodingSystemRelease.objects.count() == cs_release_count + 1
+        cs_release = CodingSystemRelease.objects.latest("id")
+
+        # Verify release details.
+        assert cs_release.coding_system == "bnf"
+        assert cs_release.release_name == "release 1 A"
+        assert cs_release.valid_from == date(2022, 10, 1)
+        assert cs_release.import_ref == "Ref"
+
+        # Verify database file creation and configuration.
+        assert self.expected_db_path.exists()
+        assert cs_release.database_alias in settings.DATABASES
+
+        # Verify imported concepts.
+        assert Concept.objects.using("bnf_release-1-a_20221001").count() == 13
 
 
-def test_import_error(coding_systems_database_tmp_dir, mock_bnf_import_data_path):
+class TestImportDataExisting(BNFDynamicDatabaseTestCaseWithTmpPath):
+    db_alias = "bnf_v1-1_20221001"
+    coding_system_subpath_name = "bnf"
+
+    def test_import_data_existing_coding_system_release(self):
+        # Set up an existing CodingSystemRelease and DB file.
+        cs_release = CodingSystemRelease.objects.create(
+            coding_system="bnf",
+            release_name="v1-1",
+            valid_from=date(2022, 10, 1),
+            import_ref="A first ref",
+            state=ReleaseState.READY,
+        )
+        cs_release_count = CodingSystemRelease.objects.count()
+        initial_timestamp = cs_release.import_timestamp
+        self.expected_db_path.touch()
+
+        # Execute import.
+        import_data(
+            self.import_data_path,
+            release_name="v1-1",
+            valid_from=date(2022, 10, 1),
+            import_ref="Ref",
+        )
+
+        # CodingSystemRelease has been updated with new import timestamp and ref.
+        assert CodingSystemRelease.objects.count() == cs_release_count
+        cs_release.refresh_from_db()
+        assert cs_release.import_ref == "Ref"
+        assert cs_release.import_timestamp > initial_timestamp
+
+        # Verify imported concepts.
+        assert Concept.objects.using("bnf_v1-1_20221001").count() == 13
+
+        # Backup file (created from the existing db file during setup) has been removed.
+        assert not self.expected_db_path.with_suffix(".bu").exists()
+
+
+def test_import_error(coding_systems_tmp_path, mock_bnf_import_data_path):
     cs_release_count = CodingSystemRelease.objects.count()
 
     # raise an exception after the migrate command; i.e after the setup that
@@ -252,11 +266,11 @@ def test_import_error(coding_systems_database_tmp_dir, mock_bnf_import_data_path
     assert CodingSystemRelease.objects.count() == cs_release_count
     # new db path has been removed
     assert not (
-        coding_systems_database_tmp_dir / "bnf" / "bnf_release-2_20221001.sqlite3"
+        coding_systems_tmp_path / "bnf" / "bnf_release-2_20221001.sqlite3"
     ).exists()
 
 
-def test_import_setup_error(coding_systems_database_tmp_dir, mock_bnf_import_data_path):
+def test_import_setup_error(coding_systems_tmp_path, mock_bnf_import_data_path):
     cs_release_count = CodingSystemRelease.objects.count()
 
     # raise an exception during the setup that creates the CodingSystemRelease and the new db file
@@ -276,16 +290,16 @@ def test_import_setup_error(coding_systems_database_tmp_dir, mock_bnf_import_dat
     assert CodingSystemRelease.objects.count() == cs_release_count
     # new db path has been removed
     assert not (
-        coding_systems_database_tmp_dir / "bnf" / "bnf_release-3_20221001.sqlite3"
+        coding_systems_tmp_path / "bnf" / "bnf_release-3_20221001.sqlite3"
     ).exists()
     # no backup db path has been created
     assert not (
-        coding_systems_database_tmp_dir / "bnf" / "bnf_release-3_20221001.sqlite3.bu"
+        coding_systems_tmp_path / "bnf" / "bnf_release-3_20221001.sqlite3.bu"
     ).exists()
 
 
 def test_import_setup_error_existing_release(
-    coding_systems_database_tmp_dir, mock_bnf_import_data_path
+    coding_systems_tmp_path, mock_bnf_import_data_path
 ):
     # set up an existing CodingSystemRelease and db file
     cs_release = CodingSystemRelease.objects.create(
@@ -297,7 +311,7 @@ def test_import_setup_error_existing_release(
     )
     cs_release_count = CodingSystemRelease.objects.count()
     initial_timestamp = cs_release.import_timestamp
-    db_dir = coding_systems_database_tmp_dir / "bnf"
+    db_dir = coding_systems_tmp_path / "bnf"
     db_dir.mkdir(parents=True, exist_ok=True)
     db_file = db_dir / "bnf_v_error_setup_20221001.sqlite3"
     db_file.touch()
@@ -329,27 +343,27 @@ def test_import_setup_error_existing_release(
     assert not (db_dir / "bnf_v_error_setup_20221001.sqlite3.bu").exists()
 
 
-def test_import_error_during_migration(
-    coding_systems_database_tmp_dir, mock_bnf_import_data_path
-):
-    cs_release_count = CodingSystemRelease.objects.count()
+class TestImportMigrationError(BNFDynamicDatabaseTestCaseWithTmpPath):
+    db_alias = "bnf_migrate-error_20221001"
+    coding_system_subpath_name = "bnf"
 
-    # raise an exception during migration, such that the new db file gets created
-    with patch(
-        "coding_systems.base.import_data_utils.call_command",
-        mock_migrate_coding_system_with_error,
-    ):
-        with pytest.raises(Exception, match="expected exception"):
-            import_data(
-                mock_bnf_import_data_path,
-                release_name="migrate error",
-                valid_from=date(2022, 10, 1),
-                import_ref="Ref",
-            )
+    def test_import_error_during_migration(self):
+        cs_release_count = CodingSystemRelease.objects.count()
 
-    # new CodingSystemRelease has been removed
-    assert CodingSystemRelease.objects.count() == cs_release_count
-    # new db path has been removed
-    assert not (
-        coding_systems_database_tmp_dir / "bnf" / "bnf_migrate-error_20221001.sqlite3"
-    ).exists()
+        # Raise an exception during migration, expect rollback.
+        with patch(
+            "coding_systems.base.import_data_utils.call_command",
+            mock_migrate_coding_system_with_error,
+        ):
+            with pytest.raises(Exception, match="expected exception"):
+                import_data(
+                    self.import_data_path,
+                    release_name="migrate error",
+                    valid_from=date(2022, 10, 1),
+                    import_ref="Ref",
+                )
+
+        # New CodingSystemRelease has been removed.
+        assert CodingSystemRelease.objects.count() == cs_release_count
+        # New db path has been removed.
+        assert not self.expected_db_path.exists()

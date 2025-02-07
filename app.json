@@ -2,7 +2,7 @@
     "cron": [
         {
             "command": "/app/deploy/bin/backup.sh",
-            "schedule": "00 01 * * *"
+            "schedule": "00 05 * * *"
         }
     ],
     "healthchecks": {

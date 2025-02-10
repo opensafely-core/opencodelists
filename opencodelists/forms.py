@@ -77,13 +77,21 @@ class CodelistCreateForm(forms.Form):
         if not f:
             return
 
+        try:
+            data = f.read().decode("utf-8-sig")
+        except UnicodeDecodeError as exception:
+            raise forms.ValidationError(
+                "File could not be read. Please ensure the file contains CSV "
+                "data (not Excel, for example). It should be a text file encoded "
+                f"in the UTF-8 format. Error details: {exception}."
+            )
+
         # Eventually coding system version may be a selectable field, but for now it
-        # just defaults to using the most recent one
+        # just defaults to using the most recent one.
         coding_system = CODING_SYSTEMS[
             self.cleaned_data["coding_system_id"]
         ].get_by_release_or_most_recent()
 
-        data = f.read().decode("utf-8-sig")
         codes = [row[0] for row in csv.reader(StringIO(data)) if row]
         validate_csv_data_codes(coding_system, codes)
         return codes

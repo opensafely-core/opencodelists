@@ -174,10 +174,17 @@ WSGI_APPLICATION = "opencodelists.wsgi.application"
 # see coding_systems.versioning.models.update_coding_system_database_connections (called
 # from coding_systems.versioning.apps)
 DATABASES = {
-    "default": dj_database_url.parse(
-        os.environ.get("DATABASE_URL", default="sqlite:///db.sqlite3")
-    ),
-    "OPTIONS": {"timeout": 90},
+    "default": {
+        **dj_database_url.parse(
+            os.environ.get("DATABASE_URL", default="sqlite:///db.sqlite3")
+        ),
+        "OPTIONS": {
+            # Transaction timeout in seconds. 5 is the default applied by the
+            # django backend; uncomment and edit the following line to change
+            # it.
+            # "timeout": 5,
+        },
+    }
 }
 
 DATABASE_DIR = Path(os.environ.get("DATABASE_DIR", default=BASE_DIR))

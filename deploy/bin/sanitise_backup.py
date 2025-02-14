@@ -20,20 +20,40 @@ def hash_password(password, salt=None, iterations=2000):
     b64_hash = base64.b64encode(pw_hash).decode("ascii").strip()
     return "{}${}${}${}".format(ALGORITHM, iterations, salt, b64_hash)
 
-
 def main(backup_file):
     fake = faker.Faker()
     conn = sqlite3.connect(backup_file)
 
-    cur = conn.execute("SELECT name FROM sqlite_schema WHERE type ='table' AND name NOT LIKE 'sqlite_%';")
+    # Get a list of all tables excluding sqlite system tables and versioning table
+    # as these do not contain user, or user-supplied data.
+    cur = conn.execute("""
+                       SELECT name
+                       FROM sqlite_schema
+                       WHERE type ='table'
+                       AND name NOT LIKE 'sqlite_%'
+                       AND name NOT LIKE 'versioning_%';""")
     tables = [t[0] for t in cur.fetchall()]
 
+    # Find tables that have foreign keys that reference the user table
+    # and tables that contain user-supplied freetext data.
     references_user = []
+    contains_user_freetext = {}
     for table in tables:
         cur = conn.execute(f"PRAGMA foreign_key_list('{table}')")
         fks = cur.fetchall()
         references_user.extend([(fk[3],table) for fk in fks if fk[2]=="opencodelists_user" and fk[4]=="username"])
 
+        # Django system tables do not have user-supplied freetexts
+        if table.startswith("django_"):
+            continue
+        cur = conn.execute(f"PRAGMA table_info({table});")
+        columns = cur.fetchall()
+        # Find text columns excluding "data", e.g. codelist csv data
+        text_columns = [c[1] for c in columns if c[2].lower() == "text" and "data" not in c[1]]
+        if text_columns:
+            contains_user_freetext[table] = text_columns
+
+    # Sanitise user data and related
     cur = conn.execute("select username from opencodelists_user;")
     usernames = [row[0] for row in cur.fetchall()]
     fake_usernames = []
@@ -63,6 +83,14 @@ def main(backup_file):
         stmts.append("COMMIT TRANSACTION")
 
         conn.executescript(";\n".join(stmts)+";\n")
+
+
+    # Sanitise freetext fields
+    for table, columns in contains_user_freetext.items():
+        for column in columns:
+            stmt = f"UPDATE {table} SET {column} = '[freetext removed]' WHERE COALESCE({column},'') <> '';"
+            conn.execute(stmt)
+
     conn.commit()
     conn.close()
 

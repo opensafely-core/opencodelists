@@ -58,8 +58,10 @@ def main(backup_file):
     usernames = [row[0] for row in cur.fetchall()]
     fake_usernames = []
     for username in usernames:
-        stmts=["BEGIN TRANSACTION"]
+        # "deferrable" FKs means we can break integrity within a transaction
+        statements=["BEGIN TRANSACTION"]
 
+        # Generate fake username that's not a real username or one we've already had
         while True:
             fake_username = fake.user_name()
             if fake_username not in fake_usernames and fake_username not in usernames:
@@ -69,10 +71,12 @@ def main(backup_file):
         fake_email = f"{username}@example.com"
         fake_password = hash_password(fake.password())
 
+        # Update FK fields (must be done first)
         for user_column, table in references_user:
-            stmts.append(f"UPDATE {table} SET {user_column} = '{fake_username}' WHERE {user_column} = '{username}'")
+            statements.append(f"UPDATE {table} SET {user_column} = '{fake_username}' WHERE {user_column} = '{username}'")
 
-        stmts.append(f"""
+        # Update user fields containing personal data
+        statements.append(f"""
                      UPDATE opencodelists_user
                      SET username = '{fake_username}',
                         name = '{fake_name}',
@@ -80,9 +84,9 @@ def main(backup_file):
                         password = '{fake_password}'
                     WHERE username = '{username}'""")
 
-        stmts.append("COMMIT TRANSACTION")
+        statements.append("COMMIT TRANSACTION")
 
-        conn.executescript(";\n".join(stmts)+";\n")
+        conn.executescript(";\n".join(statements)+";\n")
 
 
     # Sanitise freetext fields

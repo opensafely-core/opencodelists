@@ -174,10 +174,41 @@ WSGI_APPLICATION = "opencodelists.wsgi.application"
 # see coding_systems.versioning.models.update_coding_system_database_connections (called
 # from coding_systems.versioning.apps)
 DATABASES = {
-    "default": dj_database_url.parse(
-        os.environ.get("DATABASE_URL", default="sqlite:///db.sqlite3")
-    ),
-    "OPTIONS": {"timeout": 90},
+    "default": {
+        **dj_database_url.parse(
+            os.environ.get("DATABASE_URL", default="sqlite:///db.sqlite3")
+        ),
+        "OPTIONS": {
+            # Options used here are largely inspired by the article
+            # https://kerkour.com/sqlite-for-servers
+            # Note that Django actually sets the busy_timeout, synchronous, and
+            # foreign_keys pragmas as we would like by default.
+            # Tests of this behaviour in tests/integration/test_db_settings.py.
+            "init_command": (
+                # For documentation of these pragmas, see: https://www.sqlite.org/pragma.html.
+                # Write-ahead logging journal mode writes transaction to a file
+                # and then syncs them to the DB periodically. This stops writes
+                # blocking reads and vice versa, without sacrificing
+                # consistency guarantees.
+                "PRAGMA journal_mode = WAL;"
+                # The default cache size is 2MB but we can afford 125 times more!
+                # Note negative values set cache size in KB, positive numbers
+                # would set it by number of database pages.
+                f"PRAGMA cache_size = -{250 * 1024};"
+            ),
+            # Transaction timeout in seconds. 5 is the default applied by the
+            # django backend; uncomment and edit the following line to change
+            # it. This affects PRAGMA busy_timeout.
+            # "timeout": 5,
+            #
+            # Switch from SQLite's default DEFERRED transaction mode to IMMEDIATE. This
+            # has the effect that write transactions will respect the busy timeout,
+            # rather than failing immediately with "Database locked" if another write
+            # transaction is in progress.
+            # https://www.sqlite.org/lang_transaction.html#deferred_immediate_and_exclusive_transactions
+            "transaction_mode": "IMMEDIATE",
+        },
+    }
 }
 
 DATABASE_DIR = Path(os.environ.get("DATABASE_DIR", default=BASE_DIR))

@@ -20,6 +20,12 @@ def hash_password(password, salt=None, iterations=2000):
     b64_hash = base64.b64encode(pw_hash).decode("ascii").strip()
     return "{}${}${}${}".format(ALGORITHM, iterations, salt, b64_hash)
 
+def extract_text_column_names(sql):
+        column_ddl_start = sql.find("(")
+        column_ddl_end = sql.rfind(")")
+        column_ddl = sql[column_ddl_start+1:column_ddl_end]
+        text_columns = [c.strip() for c in column_ddl.split(",") if " text " in c]
+        return [c.split(" ")[0].replace('"',"") for c in text_columns]
 
 def main(backup_file):
     fake = faker.Faker()
@@ -63,6 +69,17 @@ def main(backup_file):
         stmts.append("COMMIT TRANSACTION")
 
         conn.executescript(";\n".join(stmts)+";\n")
+
+    
+    cur = conn.execute("SELECT name, sql FROM sqlite_schema WHERE type ='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE 'django_%' AND name NOT LIKE 'versioning%' AND sql LIKE '% text %';")
+    freetext_tables = [(t[0],extract_text_column_names(t[1])) for t in cur.fetchall()]
+    for table, columns in freetext_tables:
+        for column in columns:
+            if "data" in column:
+                continue
+            stmt = f"UPDATE {table} SET {column} = '[freetext removed]' WHERE COALESCE({column},'') <> '';"
+            conn.execute(stmt)
+
     conn.commit()
     conn.close()
 

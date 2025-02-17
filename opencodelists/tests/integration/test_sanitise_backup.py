@@ -1,6 +1,7 @@
 import pytest
 import sqlean as sqlite3
 from django.db import connections, models
+from rest_framework.authtoken.models import Token
 
 from deploy.bin.sanitise_backup import main as sanitise_backup
 from opencodelists.models import User
@@ -22,6 +23,27 @@ class TestBackupSanitisation:
     cases explicitly saving model objects to the db that would
     otherwise could have been assumed to be saved there.
     """
+
+    def test_api_keys_removed(self, universe, tmp_path):
+        original_users = [v for v in universe.values() if isinstance(v, User)]
+
+        # Other tests may modify the api_tokens in the db, so save the in-memory users to db
+        # and create new tokens for a subset of them.
+        for i, user in enumerate(original_users):
+            user.save()
+            if i % 2 == 0:
+                Token.objects.filter(user=user).delete()
+                Token.objects.create(user=user)
+
+        api_tokens = {u.api_token for u in original_users if u.api_token}
+
+        backup_path = backup_db(tmp_path)
+
+        conn = sqlite3.connect(backup_path)
+        cur = conn.execute("SELECT key FROM authtoken_token;")
+        sanitised_tokens = {k[0] for k in cur.fetchall()}
+
+        assert api_tokens.isdisjoint(sanitised_tokens)
 
     def test_user_fields_sanitised(self, universe, tmp_path):
         personal_data_fields = ["username", "email", "name", "password"]

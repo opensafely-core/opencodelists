@@ -95,6 +95,14 @@ def main(backup_file):
             stmt = f"UPDATE {table} SET {column} = '[freetext removed]' WHERE COALESCE({column},'') <> '';"
             conn.execute(stmt)
 
+    # Replace API keys
+    cur = conn.execute("SELECT key FROM authtoken_token;")
+    keys = [k[0] for k in cur.fetchall()]
+    for key in keys:
+        conn.execute(
+            f"UPDATE authtoken_token SET key = '{secrets.token_hex(20)}' WHERE key = '{key}';"
+        )
+
     conn.commit()
     conn.close()
 

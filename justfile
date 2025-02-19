@@ -158,7 +158,7 @@ fix: devenv
 # setup/update local dev environment
 dev-setup: devenv assets
     $BIN/python manage.py migrate
-
+    $BIN/python manage.py add_dev_admin_user
 
 # Run the dev project
 run: devenv

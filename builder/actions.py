@@ -6,7 +6,7 @@ from django.db.models import Count
 from django.utils.text import slugify
 
 from codelists.models import CodeObj, SearchResult, Status
-from coding_systems.base.import_data_utils import check_and_update_compatibile_versions
+from coding_systems.base.import_data_utils import check_and_update_compatible_versions
 from coding_systems.versioning.models import CodingSystemRelease
 
 
@@ -123,7 +123,7 @@ def save(*, draft):
         coding_system = draft.coding_system.get_by_release(
             database_alias=coding_system_release.database_alias
         )
-        compatible_count = check_and_update_compatibile_versions(coding_system, [draft])
+        compatible_count = check_and_update_compatible_versions(coding_system, [draft])
         # If this release was not found to be compatible, we can stop checking, as
         # we'd expect later releases to also not be compatible
         if compatible_count == 0:

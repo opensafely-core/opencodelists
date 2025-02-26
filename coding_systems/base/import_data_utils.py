@@ -222,7 +222,7 @@ def update_codelist_version_compatibility(coding_system_id, new_database_alias):
         f"Found {len(versions_to_check)} versions compatible with previous release '{previous_release.database_alias}'."
     )
 
-    compatible_count = check_and_update_compatibile_versions(
+    compatible_count = check_and_update_compatible_versions(
         new_coding_system, versions_to_check
     )
     print(
@@ -263,7 +263,7 @@ def version_is_compatible_with_coding_system_release(coding_system, version):
     ) and _check_version_by_hierarchy(coding_system, version)
 
 
-def check_and_update_compatibile_versions(coding_system, versions):
+def check_and_update_compatible_versions(coding_system, versions):
     """
     Check compatibility of a set of codelist versions against a specific coding system release
     Update the compatible_releases for any version found to be compatible

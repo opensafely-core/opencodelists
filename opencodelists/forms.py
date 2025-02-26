@@ -174,7 +174,7 @@ class RegisterForm(forms.ModelForm):
 
 
 class MembershipCreateForm(forms.Form):
-    user_idenitfier = forms.CharField(
+    user_identifier = forms.CharField(
         max_length=255,
         help_text="Enter a username or email address for an existing user",
         widget=forms.TextInput(
@@ -187,26 +187,26 @@ class MembershipCreateForm(forms.Form):
         self.user = None
         super().__init__(*args, **kwargs)
 
-        if "user_idenitfier" in self.errors:
-            self.fields["user_idenitfier"].widget.attrs.update(
+        if "user_identifier" in self.errors:
+            self.fields["user_identifier"].widget.attrs.update(
                 {"class": "form-control border-danger"}
             )
 
-    def clean_user_idenitfier(self):
-        user_idenitfier = self.cleaned_data["user_idenitfier"]
+    def clean_user_identifier(self):
+        user_identifier = self.cleaned_data["user_identifier"]
         try:
-            self.user = User.objects.get(username=user_idenitfier)
+            self.user = User.objects.get(username=user_identifier)
         except User.DoesNotExist:
             try:
-                self.user = User.objects.get(email=user_idenitfier)
+                self.user = User.objects.get(email=user_identifier)
             except User.DoesNotExist:
                 self.add_error(
-                    "user_idenitfier", f"User {user_idenitfier} does not exist"
+                    "user_identifier", f"User {user_identifier} does not exist"
                 )
 
         if self.user and self.user.is_member(self.organisation):
             self.add_error(
-                "user_idenitfier", f"User {user_idenitfier} is already a member"
+                "user_identifier", f"User {user_identifier} is already a member"
             )
         else:
-            return user_idenitfier
+            return user_identifier

@@ -13,14 +13,14 @@
 <form method='POST'>
     {% csrf_token %}
     <div class="form-group">
-        {{ form.user_idenitfier }}
-        <small id="user_idenitfier_help" class="form-text text-muted">
-            {{ form.user_idenitfier.help_text|safe }}
+        {{ form.user_identifier }}
+        <small id="user_identifier_help" class="form-text text-muted">
+            {{ form.user_identifier.help_text|safe }}
         </small>
 
-        {% if form.user_idenitfier.errors %}
+        {% if form.user_identifier.errors %}
           <ul class="list-unstyled my-2">
-            {% for error in form.user_idenitfier.errors %}
+            {% for error in form.user_identifier.errors %}
             <li class="text-danger">{{ error }}</li>
             {% endfor %}
           </ul>

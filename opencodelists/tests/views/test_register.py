@@ -35,7 +35,7 @@ def test_post_success(client):
     assert not u.is_staff
 
 
-def test_post_failure_pasword_mismatch(client):
+def test_post_failure_password_mismatch(client):
     data = {
         "username": "user",
         "name": "Prof User",

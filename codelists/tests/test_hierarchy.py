@@ -408,7 +408,7 @@ def test_coding_system_changes_replaced_code():
     assert hierarchy_b_release1.child_map != hierarchy_b_release2.child_map
 
     # Similarly, for g, the hierarchies built for each release are different, because the replaced
-    # code d is an ancestory of g
+    # code d is an ancestry of g
     hierarchy_g_release1 = Hierarchy.from_codes(release_1, ["g"])
     hierarchy_g_release2 = Hierarchy.from_codes(release_2, ["g"])
     assert hierarchy_g_release1.parent_map != hierarchy_g_release2.parent_map
@@ -512,7 +512,7 @@ def test_coding_system_changes_new_code():
     release_2 = MockCodingSystem(Hierarchy("a", release_2_edges))
 
     # The coding system changes do not affect the immediate ancestors or descendants of code b
-    # # the hierarchies built from thesef for each release is the same
+    # # the hierarchies built from these for each release is the same
     # A new descendant of a has been added up at the top of the hierarchy, but it doesn't
     # directly impact the branches in which b resides
     hierarchy_b_release1 = Hierarchy.from_codes(release_1, ["b"])

@@ -82,7 +82,7 @@ def test_duplicate_search(version_from_scratch):
     )
 
     # Assert...
-    # that the initally created search was returned
+    # that the initially created search was returned
     assert s1.id == s.id
 
     # that the draft still has the same search and code counts
@@ -145,7 +145,7 @@ def test_delete_search(version_from_scratch):
     # the are also in the search for "epicondylitis"
     assert draft.code_objs.count() == 2
 
-    # Act: delete the remainng search for "epicondylitis"
+    # Act: delete the remaining search for "epicondylitis"
     actions.delete_search(search=s1)
     assert draft.searches.count() == 0
     assert draft.code_objs.count() == 0

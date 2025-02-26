@@ -36,14 +36,14 @@ Any concepts that match your search term, and their descendants, are shown in a 
 
         hierarchy-1.png
 
-In order to keep the page managable, only two levels of the hierarchy are initially visible.
+In order to keep the page manageable, only two levels of the hierarchy are initially visible.
 You can drill down the hierarchy by clicking the `⊞` button next to a concept.
 
         hierarchy-2.png
 
 You include a concept by clicking the `+` button, and exclude a concept by clicking the `-` button.
 When you include or exclude a concept, all of its descendants are also included or excluded.
-Explicity included/excluded concepts have buttons highlighted blue;
+Explicitly included/excluded concepts have buttons highlighted blue;
 their descendants have buttons highlighted grey.
 
         include-exclude.png

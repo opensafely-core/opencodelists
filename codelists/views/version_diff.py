@@ -118,7 +118,7 @@ def get_csv_data_code_to_terms(clv):
     # However, older ones could be uploaded with any column names, so we need to
     # check the headers to identify the most likely one
     # These represent the valid case-insensitive code column names across all existing
-    # old-syle codelists
+    # old-style codelists
     possible_columns_by_coding_system = {
         "dmd": {
             "code": ["code", "dmd_id", "id", "snomed_id", "dmd"],

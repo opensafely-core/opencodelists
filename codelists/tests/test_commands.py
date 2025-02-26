@@ -177,7 +177,7 @@ def test_update_draft_codeset_swapped_codes(minimal_draft):
     # 35185008 was implicitly included by inclusion of 73583000, but now it is the
     # parent of 73583000.  Its status has been updated to '?'; this is OK for the
     # frontend, because it has no ancestors that are included/excluded
-    # 202855006 is still a child of the explicity included 73583000, so it remains
+    # 202855006 is still a child of the explicitly included 73583000, so it remains
     # implicitly included
     assert minimal_draft.codeset.code_to_status == {
         "35185008": "?",

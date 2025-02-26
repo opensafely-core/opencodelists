@@ -136,7 +136,7 @@ def test_get_dmd_diff_no_code_column(
 ):
     # in the fixtures, the column names are: dmd_type, dmd_id, dmd_name, bnf_code
     # rename the code column in one codelist version so no matching code column
-    # will be foung
+    # will be found
     replacement_csv_data = dmd_version_asthma_medication_refill.csv_data.replace(
         "dmd_type,dmd_id,dmd_name,bnf_code",
         "dmd_type,unk_id,dmd_name,bnf_code",

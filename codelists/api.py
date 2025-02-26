@@ -76,7 +76,7 @@ def codelists(request, owner):
 def codelists_get(request, owner=None):
     """Return information about the codelists owned by an organisation.
 
-    HTPP response contains JSON array with one item for each codelist owned by the
+    HTTP response contains JSON array with one item for each codelist owned by the
     organisation.
 
     request.GET may contain the following parameters to filter the returned codelists:
@@ -145,7 +145,7 @@ def codelists_get(request, owner=None):
         codelists.filter(**filter_kwargs).prefetch_related("handles", "versions"),
         key=lambda cl: cl.slug,
     ):
-        # Only include organisaion codelists by default
+        # Only include organisation codelists by default
         if not include_user_codelists and not cl.organisation:
             continue
 
@@ -446,7 +446,7 @@ def codelists_check(requests):
     # similarly-hashed content of the data that would be prepared for a CSV download
     manifest_codelist_ids = set(file["id"] for file in manifest["files"].values())
     current_codelist_ids = set(codelist_download_data.keys())
-    # new files are files that are in the study's codelists.csv but not in the manifest file generatated
+    # new files are files that are in the study's codelists.csv but not in the manifest file generated
     # at the last update
     new_files = current_codelist_ids - manifest_codelist_ids
     # removed files are codelist entries that have been removed from the study's codelists.csv since

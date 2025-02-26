@@ -16,7 +16,7 @@ def test_require_authentication_success(client, user, user_codelist):
 
 def test_require_authentication_failure_no_header(client, user, user_codelist):
     # This tests that we return 401 when DRF's TokenAuthentication ignores a request
-    # becuase no header is provided.
+    # because no header is provided.
 
     rsp = client.post(user_codelist.get_versions_api_url())
     assert rsp.status_code == 401

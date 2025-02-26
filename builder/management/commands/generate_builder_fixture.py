@@ -154,7 +154,7 @@ def set_up_db():
     # this command doesn't use the bnf fixtures explicitly, but `build_fixtures` creates them,
     # so we need the database to the available
     call_command("migrate", "bnf", database="bnf_test_20200101")
-    # This is a belt-and-braces check to ensure that the above hackery has worked.
+    # This is a belt-and-braces check to ensure that the above hack has worked.
     if (
         Codelist.objects.using("default").count() > 0
         or Concept.objects.using("snomedct_test_20200101").count() > 0

@@ -220,7 +220,7 @@ def test_get_with_mapped_vmps_and_fixed_headers(client, dmd_version_asthma_medic
     )
     data = rsp.content.decode("utf8")
     # Includes mapped VMPs by default, and uses fixed headers
-    # No additional column with the original code header when fixed headers are explictly requested
+    # No additional column with the original code header when fixed headers are explicitly requested
     assert csv_data_to_rows(data) == [
         ["code", "term"],
         ["10514511000001106", "Adrenaline (base) 220micrograms/dose inhaler"],

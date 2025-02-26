@@ -99,7 +99,7 @@ export default class CodelistBuilder extends React.Component<
       .then((response) => response.json())
       .then((data) => {
         if (!this._isMounted) {
-          // In tests the compenent is unmounted, and this may happen before
+          // In tests the component is unmounted, and this may happen before
           // the promise is resolved.  Calling setState on an unmounted
           // component is a no-op and may indicate a memory leak, so it triggers
           // a warning.  Exiting early here prevents that warning.

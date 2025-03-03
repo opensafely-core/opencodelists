@@ -27,7 +27,7 @@
     "vitest": "^3.0.5"
   },
   "dependencies": {
-    "@fontsource/public-sans": "^5.1.2",
+    "@fontsource/public-sans": "^5.2.5",
     "bootstrap": "4.6.2",
     "datatables.net-bs4": "1.13.11",
     "jquery": "3.7.1",

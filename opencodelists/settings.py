@@ -213,7 +213,6 @@ DATABASES = {
 
 DATABASE_DIR = Path(os.environ.get("DATABASE_DIR", default=BASE_DIR))
 # location of sqlite files e.g. /storage/
-DATABASE_DUMP_DIR = DATABASE_DIR / "sql_dump"
 CODING_SYSTEMS_DATABASE_DIR = DATABASE_DIR / "coding_systems"
 DATABASE_ROUTERS = ["opencodelists.db_utils.CodingSystemReleaseRouter"]
 

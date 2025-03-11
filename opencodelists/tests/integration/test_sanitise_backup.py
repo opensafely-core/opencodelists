@@ -130,6 +130,10 @@ class TestBackupSanitisation:
             # We will check the counts at the "via"/"through" table for any
             # many-to-many relationships.
             if not isinstance(f, models.fields.reverse_related.ManyToManyRel)
+        ] + [
+            # Usernames may also appear in these fields in the admin log
+            ("logentry_set", "django_admin_log", "object_id"),
+            ("logentry_set", "django_admin_log", "object_repr"),
         ]
 
         original_users = [v for v in universe.values() if isinstance(v, User)]

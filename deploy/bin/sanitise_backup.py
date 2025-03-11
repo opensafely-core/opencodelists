@@ -36,7 +36,11 @@ def main(backup_file):
 
     # Find tables that have foreign keys that reference the user table
     # and tables that contain user-supplied freetext data.
-    references_user = []
+    # Django admin log entires may reference user objects but do not have
+    # the requisite FKs so add manually.
+    references_user = [
+        ("object_id","django_admin_log"),
+        ("object_repr","django_admin_log"),]
     contains_user_freetext = {}
     for table in tables:
         cur = conn.execute(f"PRAGMA foreign_key_list('{table}')")

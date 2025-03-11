@@ -194,6 +194,15 @@ class TestBackupSanitisation:
             )
             assert sanitised_occurrence_count == original_occurrence_count
 
+    def test_django_sessions_removed(self, tmp_path):
+        backup_path = backup_db(tmp_path)
+
+        conn = sqlite3.connect(backup_path)
+        cur = conn.execute("SELECT COUNT(*) FROM django_session;")
+        count = cur.fetchone()[0]
+
+        assert count == 0
+
 
 def backup_db(tmp_path):
     backup_path = tmp_path / "test_backup.db"

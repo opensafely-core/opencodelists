@@ -107,6 +107,9 @@ def main(backup_file):
             f"UPDATE authtoken_token SET key = '{secrets.token_hex(20)}' WHERE key = '{key}';"
         )
 
+    # Remove Django sessions
+    conn.execute("DELETE FROM django_session")
+
     conn.commit()
     conn.close()
 

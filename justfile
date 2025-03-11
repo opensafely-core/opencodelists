@@ -164,6 +164,14 @@ dev-setup: devenv assets
 run: devenv
     $BIN/python manage.py runserver localhost:7000
 
+# Run a Django management command
+manage command *args: devenv
+    $BIN/python manage.py {{command}} {{args}}
+
+# Generate migrations and apply unapplied ones
+migrations: devenv
+    just manage makemigrations
+    just manage migrate
 
 # Remove built assets and collected static files
 assets-clean:

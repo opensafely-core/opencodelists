@@ -81,7 +81,13 @@ When all is confirmed working with the restore, you can delete
 `previous-db.sqlite3` and `restore-db.sqlite3`.
 
 The latest backup is available via symlink at
-`/storage/backup/db/latest-db.sqlite3.zst`. You can use `scp`, `zstd -d` and
+`/storage/backup/db/latest-db.sqlite3.zst`.
+This backup is a verbatim copy of the live data,
+and so contains user personal data and API keys.
+
+For development purposes,you should use the sanitised copy at
+`/storage/backup/db/sanitised-latest-db.sqlite3.zst`.
+You can use `scp`, `zstd -d` and
 `sqlite3 ".restore" to bring your local database into the same state as the
 production database. You may also wish to retrieve the coding systems
 databases, otherwise you will not be able to interact with codelists that

@@ -1,3 +1,5 @@
+{% load slippers %}
+
 <header class="bg-blue-950 text-white py-4">
   <div class="container flex flex-col sm:flex-row gap-y-2 gap-x-8 justify-between items-center">
     <a class="text-xl/tight font-semibold p-1 hover:text-blue-50" href="/">
@@ -7,15 +9,15 @@
     <nav>
       <ul class="flex flex-row flex-wrap sm:flex-nowrap gap-x-4 gap-y-2 md:gap-x-6 text-sm/tight md:text-base/tight">
         {% url 'docs:index' as docs_url %}
-        {% include "_includes/nav-link.html" with title="Docs" link=docs_url %}
+        {% nav_link title="Docs" href=docs_url %}
 
         {% if request.user.is_authenticated %}
           {% url 'user' request.user.username as codelist_url %}
-          {% include "_includes/nav-link.html" with title="My codelists" link=codelist_url %}
+          {% nav_link title="My codelists" href=codelist_url %}
 
           {% if user.memberships.exists %}
             {% url 'organisations' as organisations_url %}
-            {% include "_includes/nav-link.html" with title="My organisations" link=organisations_url %}
+            {% nav_link title="My organisations" href=organisations_url %}
           {% endif %}
 
           <li>
@@ -62,10 +64,10 @@
           </li>
         {% else %}
           {% url 'register' as register_url %}
-          {% include "_includes/nav-link.html" with title="Sign up" link=register_url %}
+          {% nav_link title="Register" href=register_url %}
 
           {% url 'login' as login_url %}
-          {% include "_includes/nav-link.html" with title="Sign in" link=login_url %}
+          {% nav_link title="Log in" href=login_url %}
         {% endif %}
       </ul>
     </nav>

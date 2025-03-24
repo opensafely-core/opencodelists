@@ -115,6 +115,7 @@ INSTALLED_APPS = [
     "anymail",
     "django_structlog",
     "django_vite",
+    "slippers",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",

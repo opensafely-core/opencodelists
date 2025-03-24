@@ -2,14 +2,14 @@
 
 {% load crispy_forms_tags %}
 
-{% block title_extra %}: Sign in{% endblock %}
+{% block title_extra %}: Log in{% endblock %}
 
 {% block content %}
   <div class="flex min-h-full flex-col justify-center py-12 sm:px-6 lg:px-8">
     <div class="sm:mx-auto sm:w-full sm:max-w-md text-center">
-      <h1 class="mt-6 text-2xl/9 font-bold tracking-tight text-slate-900">Sign in to your account</h1>
+      <h1 class="mt-6 text-2xl/9 font-bold tracking-tight text-slate-900">Log in to your account</h1>
       {% if next %}
-        <p class="text-sm text-slate-600">Please log in to see this page.</p>
+        <p class="text-sm text-slate-600">Please log in to continue</p>
       {% endif %}
     </div>
 
@@ -139,7 +139,7 @@
           </div>
 
           <div>
-            <button type="submit" class="flex w-full justify-center cursor-pointer rounded-md bg-blue-700 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs transition-colors hover:bg-blue-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700">Sign in</button>
+            <button type="submit" class="flex w-full justify-center cursor-pointer rounded-md bg-blue-700 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs transition-colors hover:bg-blue-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700">Log in</button>
           </div>
         </form>
       </div>

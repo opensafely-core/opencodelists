@@ -1,6 +1,6 @@
 {% extends "base-tw.html" %}
 
-{% load crispy_forms_tags %}
+{% load slippers %}
 
 {% block title_extra %}: Log in{% endblock %}
 
@@ -41,106 +41,14 @@
         <form class="space-y-6" action="{% url 'login' %}" method="POST">
           {% csrf_token %}
 
-          <div>
-            <label
-              class="block text-sm/6 font-semibold text-slate-900"
-              for="{{ form.username.id_for_label }}"
-            >
-              {{ form.username.label }}
-            </label>
-            <div class="mt-2 grid grid-cols-1">
-              <input
-                autocomplete="username"
-                class="
-                  block w-full rounded-md bg-white px-3 py-1.5 text-base text-slate-900 outline-1 -outline-offset-1 focus:outline-2 focus:-outline-offset-2 sm:text-sm/6
-                  {% if form.username.errors %}
-                    col-start-1 row-start-1 pr-10 pl-3 outline-red-300 focus:outline-red-600 sm:pr-9 sm:text-sm/6
-                  {% else %}
-                    outline-slate-300 focus:outline-blue-700
-                  {% endif %}
-                "
-                id="{{ form.username.id_for_label }}"
-                name="{{ form.username.html_name }}"
-                required
-                type="text"
-                {% if form.username.value %}
-                  value="{{ form.username.value }}"
-                {% endif %}
+          {% form_input field=form.username autocomplete="username" type="text" show_value %}
 
-                {% if form.username.errors %}
-                  aria-invalid="true"
-                  aria-describedby="{{ form.username.html_name }}-error"
-                {% endif %}
-              >
-              {% if form.username.errors %}
-                <svg class="pointer-events-none col-start-1 row-start-1 mr-3 size-5 self-center justify-self-end text-red-500 sm:size-4" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" data-slot="icon">
-                  <path fill-rule="evenodd" d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14ZM8 4a.75.75 0 0 1 .75.75v3a.75.75 0 0 1-1.5 0v-3A.75.75 0 0 1 8 4Zm0 8a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd" />
-                </svg>
-              {% endif %}
-            </div>
-            {% if form.username.errors %}
-              <ul class="mt-2 text-sm text-red-600" id="{{ form.username.html_name }}-error">
-                {% for error in form.username.errors %}
-                  <li>{{ error }}</li>
-                {% endfor %}
-              </ul>
-            {% endif %}
-          </div>
+          {% fragment as label_extra %}
+            <a href="{% url 'password_reset' %}" class="text-sm font-semibold text-blue-700 underline decoration-transparent underline-offset-2 transition-colors hover:text-blue-900 hover:decoration-blue-900">Forgot password?</a>
+          {% endfragment %}
+          {% form_input field=form.password autocomplete="current-password" type="password" label_extra=label_extra %}
 
-          <div>
-            <div class="flex items-center justify-between">
-              <label
-                class="block text-sm/6 font-semibold text-slate-900"
-                for="{{ form.password.id_for_label }}"
-              >
-                {{ form.password.label }}
-              </label>
-              <div class="text-sm">
-                <a href="{% url 'password_reset' %}" class="font-semibold text-blue-700 underline decoration-transparent underline-offset-2 transition-colors hover:text-blue-900 hover:decoration-blue-900">Forgot password?</a>
-              </div>
-            </div>
-            <div class="mt-2 grid grid-cols-1">
-              <input
-                autocomplete="current-password"
-                class="
-                  block w-full rounded-md bg-white px-3 py-1.5 text-base text-slate-900 outline-1 -outline-offset-1 focus:outline-2 focus:-outline-offset-2 sm:text-sm/6
-                  {% if form.password.errors %}
-                    col-start-1 row-start-1 pr-10 pl-3 outline-red-300 focus:outline-red-600 sm:pr-9 sm:text-sm/6
-                  {% else %}
-                    outline-slate-300 focus:outline-blue-700
-                  {% endif %}
-                "
-                id="{{ form.password.id_for_label }}"
-                name="{{ form.password.html_name }}"
-                required
-                type="password"
-                {% if form.password.value %}
-                  value="{{ form.password.value }}"
-                {% endif %}
-
-                {% if form.password.errors %}
-                  aria-invalid="true"
-                  aria-describedby="{{ form.password.html_name }}-error"
-                {% endif %}
-              >
-              {% if form.password.errors %}
-                <svg class="pointer-events-none col-start-1 row-start-1 mr-3 size-5 self-center justify-self-end text-red-500 sm:size-4" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" data-slot="icon">
-                  <path fill-rule="evenodd" d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14ZM8 4a.75.75 0 0 1 .75.75v3a.75.75 0 0 1-1.5 0v-3A.75.75 0 0 1 8 4Zm0 8a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd" />
-                </svg>
-              {% endif %}
-            </div>
-            {% if form.password.errors %}
-              <ul class="mt-2 text-sm text-red-600" id="{{ form.password.html_name }}-error">
-                {% for error in form.password.errors %}
-                  <li>{{ error }}</li>
-                {% endfor %}
-              </ul>
-            {% endif %}
-          </div>
-
-          <div>
-            <button type="submit" class="flex w-full justify-center cursor-pointer rounded-md bg-blue-700 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs transition-colors hover:bg-blue-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700">Log in</button>
-          </div>
+          <button type="submit" class="flex w-full justify-center cursor-pointer rounded-md bg-blue-700 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs transition-colors hover:bg-blue-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700">Log in</button>
         </form>
       </div>
 

@@ -1,2 +1,3 @@
 components:
-    nav_link: "_components/nav-link.html"
+  form_input: "_components/form-input.html"
+  nav_link: "_components/nav-link.html"

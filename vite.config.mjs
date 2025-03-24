@@ -1,4 +1,5 @@
 /// <reference types="vitest" />
+import tailwindcss from '@tailwindcss/vite';
 import react from "@vitejs/plugin-react-swc";
 import { defineConfig } from "vite";
 import liveReload from "vite-plugin-live-reload";
@@ -14,6 +15,7 @@ export default defineConfig(({ mode }) => ({
         codelist: "assets/src/scripts/codelist.js",
         tree: "assets/src/scripts/tree/index.tsx",
         "codelists-version": "assets/src/scripts/codelists-version.js",
+        tw: "assets/src/scripts/tw.js"
       },
     },
     outDir: "assets/dist",
@@ -30,6 +32,7 @@ export default defineConfig(({ mode }) => ({
         })
       : undefined,
     react(),
+    tailwindcss(),
   ],
   test: {
     coverage: {

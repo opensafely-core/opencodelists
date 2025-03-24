@@ -1,0 +1,58 @@
+{% load django_vite %}
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% vite_hmr_client %}
+    {% vite_asset "assets/src/scripts/tw.js" %}
+
+    {# The following is for Plausible stats collection. #}
+    <script
+      defer
+      data-domain="opencodelists.org"
+      event-is_logged_in="{% if user.is_authenticated %}true{% else %}false{% endif %}"
+      event-is_admin="{% if user.is_admin %}true{% else %}false{% endif %}"
+      src="https://plausible.io/js/script.pageview-props.tagged-events.js"
+    ></script>
+    <script nonce="{{ request.csp_nonce }}">
+      window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }
+    </script>
+    {# End of stats-collecting. #}
+
+    {% block extra_styles %}{% endblock %}
+
+    <title>OpenCodelists{% block title_extra %}{% endblock %}</title>
+
+    <link rel="icon" href="{% static 'favicon.ico' %}">
+    <link rel="icon" href="{% static 'icon.svg' %}" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="{% static 'apple-touch-icon.png' %}">
+    <link rel="manifest" href="{% static 'manifest.webmanifest' %}">
+  </head>
+  <body>
+    <header></header>
+
+    <aside>
+      {% if messages %}
+        {% for message in messages %}
+          <div class="{{ message.tags }}" role="alert">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    </aside>
+
+    <main>
+      {% block content %}
+      {% endblock %}
+      {% block full_width_content %}
+      {% endblock %}
+    </main>
+
+    <footer></footer>
+
+    {% block extra_js %}{% endblock %}
+  </body>
+</html>

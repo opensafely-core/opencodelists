@@ -1,5 +1,10 @@
 {
   "name": "opencodelists",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/opensafely-core/opencodelists.git"
+  },
+  "license": "GPL-3.0-or-later",
   "scripts": {
     "build": "vite build",
     "dev": "vite",
@@ -28,17 +33,14 @@
   },
   "dependencies": {
     "@fontsource/public-sans": "^5.2.5",
+    "@tailwindcss/vite": "^4.0.15",
     "bootstrap": "4.6.2",
     "datatables.net-bs4": "1.13.11",
     "jquery": "3.7.1",
     "lite-youtube-embed": "^0.3.3",
     "react": "18.3.1",
     "react-bootstrap": "1.6.8",
-    "react-dom": "18.3.1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/opensafely-core/opencodelists.git"
-  },
-  "license": "GPL-3.0-or-later"
+    "react-dom": "18.3.1",
+    "tailwindcss": "^4.0.15"
+  }
 }

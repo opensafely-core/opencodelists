@@ -47,7 +47,7 @@ function run_backup() {
     find "$BACKUP_DIR" -name "*-db.sqlite3.zst" -type f -mtime +30 -exec rm {} \;
 
     # Keep only the most recent sanitised backup.
-    find "$BACKUP_DIR" -name "*sanitised*-db.sqlite3.zst" ! -name "$SANITISED_BACKUP_FILEPATH.zst" -type f -exec rm {} \;
+    find "$BACKUP_DIR" -name "*sanitised*-db.sqlite3.zst" ! -wholename "$SANITISED_BACKUP_FILEPATH.zst" -type f -exec rm {} \;
 }
 
 # log start of backup in a way that won't fail the whole script if sentry down

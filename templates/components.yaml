@@ -1,3 +1,4 @@
 components:
+  form_input: "_components/form_input.html"
   nav_link: "_components/nav_link.html"
   site_message: "_components/site_message.html"

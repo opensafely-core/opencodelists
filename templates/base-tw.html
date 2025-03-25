@@ -30,6 +30,13 @@
     <link rel="manifest" href="{% static 'manifest.webmanifest' %}">
   </head>
   <body class="min-h-dvh flex flex-col">
-    <div class="container">{% block content %}{% endblock %}</div>
+    {% include "_includes/header.html" %}
+
+    <main>
+      <div class="container">{% block content %}{% endblock %}</div>
+      {% block full_width_content %}{% endblock %}
+    </main>
+
+    {% block extra_js %}{% endblock %}
   </body>
 </html>

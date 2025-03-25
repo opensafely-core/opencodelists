@@ -1,0 +1,35 @@
+{% load django_vite %}
+{% load static %}
+
+<!DOCTYPE html>
+<html class="h-full bg-slate-50">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% vite_hmr_client %}
+    {% vite_asset "assets/src/scripts/tw.js" %}
+
+    {# The following is for Plausible stats collection. #}
+    <script
+      defer
+      data-domain="opencodelists.org"
+      event-is_logged_in="{% if user.is_authenticated %}true{% else %}false{% endif %}"
+      event-is_admin="{% if user.is_admin %}true{% else %}false{% endif %}"
+      src="https://plausible.io/js/script.pageview-props.tagged-events.js"
+    ></script>
+    <script nonce="{{ request.csp_nonce }}">
+      window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }
+    </script>
+    {# End of stats-collecting. #}
+
+    <title>{% block title_extra %}{% endblock %} | OpenCodelists</title>
+
+    <link rel="icon" href="{% static 'favicon.ico' %}">
+    <link rel="icon" href="{% static 'icon.svg' %}" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="{% static 'apple-touch-icon.png' %}">
+    <link rel="manifest" href="{% static 'manifest.webmanifest' %}">
+  </head>
+  <body class="min-h-dvh flex flex-col">
+    <div class="container">{% block content %}{% endblock %}</div>
+  </body>
+</html>

@@ -115,6 +115,7 @@ INSTALLED_APPS = [
     "anymail",
     "django_structlog",
     "django_vite",
+    "slippers",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -154,6 +155,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
             ],
+            "builtins": ["slippers.templatetags.slippers"],
         },
     },
 ]

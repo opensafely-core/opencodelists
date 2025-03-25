@@ -33,3 +33,4 @@ sentry-sdk
 sqlean.py
 structlog
 tqdm
+slippers

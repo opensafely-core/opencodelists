@@ -15,7 +15,8 @@ SENTRY_CRON_URL=$(sentry_cron_url "$SENTRY_DSN" "$SENTRY_MONITOR_NAME")
 BACKUP_DIR="$DATABASE_DIR/backup/db"
 BACKUP_FILENAME="$(date +%F)-db.sqlite3"
 BACKUP_FILEPATH="$BACKUP_DIR/$BACKUP_FILENAME"
-SANITISED_BACKUP_FILEPATH="$BACKUP_DIR/sanitised-$BACKUP_FILENAME"
+SANITISED_BACKUP_FILENAME="sanitised-$BACKUP_FILENAME"
+SANITISED_BACKUP_FILEPATH="$BACKUP_DIR/$SANITISED_BACKUP_FILENAME"
 
 function run_backup() {
     # Make the backup dir if it doesn't exist.
@@ -41,7 +42,7 @@ function run_backup() {
     # Make the target a relative path -- an absolute one won't mean the same thing
     # in the host file system if executed inside a container as we expect.
     ln -sf "$BACKUP_FILENAME.zst" "$BACKUP_DIR/latest-db.sqlite3.zst"
-    ln -sf "$SANITISED_BACKUP_FILEPATH.zst" "$BACKUP_DIR/sanitised-latest-db.sqlite3.zst"
+    ln -sf "$SANITISED_BACKUP_FILENAME.zst" "$BACKUP_DIR/sanitised-latest-db.sqlite3.zst"
 
     # Keep only the last 30 days of raw backups.
     find "$BACKUP_DIR" -name "*-db.sqlite3.zst" -type f -mtime +30 -exec rm {} \;

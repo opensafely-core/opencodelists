@@ -32,6 +32,14 @@
   <body class="min-h-dvh flex flex-col">
     {% include "_includes/header.html" %}
 
+    {% if messages %}
+      <aside class="container py-8 space-y-2">
+        {% for message in messages %}
+          {% site_message message=message level=message.level_tag %}
+        {% endfor %}
+      </aside>
+    {% endif %}
+
     <main>
       <div class="container">{% block content %}{% endblock %}</div>
       {% block full_width_content %}{% endblock %}

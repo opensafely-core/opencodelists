@@ -1,2 +1,3 @@
 components:
   nav_link: "_components/nav_link.html"
+  site_message: "_components/site_message.html"

@@ -3,7 +3,7 @@
 <div>
   <div class="flex items-center justify-between">
     <label class="text-sm/6 font-semibold text-slate-900" for="{{ field.id_for_label }}">
-      {{ field.label }}
+      {{ field.label }} {% if field.field.required %}<span class="text-red-800">*</span>{% endif %}
     </label>
     {% if label_extra %}{{ label_extra }}{% endif %}
   </div>
@@ -25,6 +25,10 @@
         <path fill-rule="evenodd" d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14ZM8 4a.75.75 0 0 1 .75.75v3a.75.75 0 0 1-1.5 0v-3A.75.75 0 0 1 8 4Zm0 8a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd" />
       </svg>
     {% endif %}
+  </div>
+
+  <div class="prose prose-sm mt-2 text-slate-700">
+    {{ field.help_text }}
   </div>
 
   {% if field.errors %}

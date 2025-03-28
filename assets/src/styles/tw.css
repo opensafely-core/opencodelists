@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 @plugin "@tailwindcss/forms";
+@plugin "@tailwindcss/typography";
 
 @source "../../../templates/**/*.html";
 
@@ -19,5 +20,24 @@
 
   @media (width >= theme(--breakpoint-xl)) {
     padding-inline: 3rem;
+  }
+}
+
+@layer utilities {
+  .prose {
+    --tw-prose-body: var(--color-slate-900);
+    --tw-prose-links: var(--color-blue-700);
+    --tw-prose-counters: var(--color-slate-800);
+    --tw-prose-bullets: var(--color-slate-800);
+    --tw-prose-code: var(--color-red-800);
+
+    :where(code):not(
+        :where([class~="not-prose"], [class~="not-prose"] *)
+      )::before,
+    :where(code):not(
+        :where([class~="not-prose"], [class~="not-prose"] *)
+      )::after {
+      content: "";
+    }
   }
 }

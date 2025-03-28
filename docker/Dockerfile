@@ -45,9 +45,10 @@ RUN --mount=type=cache,target=/usr/src/app/.npm \
     npm set cache /usr/src/app/.npm && \
     npm ci
 
-# copy just what npm build needs
+# just copy in the files `npm run build` needs
 COPY vite.config.mjs ./
-COPY assets ./assets
+COPY assets/src ./assets/src
+COPY templates ./templates
 RUN --mount=type=cache,target=./npm npm run build
 
 ##################################################

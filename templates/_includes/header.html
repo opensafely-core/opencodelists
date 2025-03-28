@@ -1,0 +1,74 @@
+<header class="bg-blue-950 text-white py-4">
+  <div class="container flex flex-col sm:flex-row gap-y-2 gap-x-8 justify-between items-center">
+    <a class="text-xl/tight font-semibold p-1 hover:text-blue-50" href="/">
+      OpenCodelists
+    </a>
+
+    <nav>
+      <ul class="flex flex-row flex-wrap sm:flex-nowrap gap-x-4 gap-y-2 md:gap-x-6 text-sm/tight md:text-base/tight">
+        {% url 'docs:index' as docs_url %}
+        {% nav_link title="Docs" href=docs_url %}
+
+        {% if request.user.is_authenticated %}
+          {% url 'user' request.user.username as codelist_url %}
+          {% nav_link title="My codelists" href=codelist_url %}
+
+          {% if user.memberships.exists %}
+            {% url 'organisations' as organisations_url %}
+            {% nav_link title="My organisations" href=organisations_url %}
+          {% endif %}
+
+          <li>
+            <details-utils close-click-outside close-esc>
+              <details class="flex group relative">
+                <summary class="flex relative h-full items-center rounded p-0 cursor-pointer underline decoration-blue-950 underline-offset-4 font-semibold transition-colors hover:decoration-blue-50 hover:text-blue-100">
+                  My account
+                  <span class="opacity-75 ml-1">
+                    {% comment %} Hero Icons: chevron-down (mini) icon {% endcomment %}
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-5 w-5 inline-block group-open:hidden" height="20" width="20">
+                      <path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+                    </svg>
+                    {% comment %} Hero Icons: chevron-up (mini) icon {% endcomment %}
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-5 w-5 hidden group-open:inline-block" height="20" width="20">
+                      <path fill-rule="evenodd" d="M9.47 6.47a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 1 1-1.06 1.06L10 8.06l-3.72 3.72a.75.75 0 0 1-1.06-1.06l4.25-4.25Z" clip-rule="evenodd" />
+                      </svg>
+                  </span>
+                </summary>
+                <ul class="absolute origin-top-right top-full mt-2 right-0 z-10 w-48 rounded-md shadow-lg bg-white text-sm text-slate-800">
+                  <li class="p-2 border-b border-b-slate-200">
+                    Signed in as
+                    <strong class="block">{{ request.user.username }}</strong>
+                  </li>
+                  <li>
+                    <a
+                      class="block p-2 pt-2.5 bg-white text-blue-800 font-semibold transition-colors hover:bg-blue-50 hover:text-blue-950"
+                      href="{% url 'password_change' %}">
+                      Change password
+                    </a>
+                  </li>
+                  <li>
+                    <form action="{% url 'logout' %}" method="POST">
+                      {% csrf_token %}
+                      <button
+                        class="block w-full cursor-pointer text-left p-2 bg-white text-blue-800 font-semibold transition-colors hover:bg-blue-50 hover:text-blue-950"
+                        href="{% url 'logout' %}"
+                      >
+                        Sign Out
+                      </button>
+                    </form>
+                  </li>
+                </ul>
+              </details>
+            </details-utils>
+          </li>
+        {% else %}
+          {% url 'register' as register_url %}
+          {% nav_link title="Register" href=register_url %}
+
+          {% url 'login' as login_url %}
+          {% nav_link title="Log in" href=login_url|add:"?next="|add:request.path %}
+        {% endif %}
+      </ul>
+    </nav>
+  </div>
+</header>

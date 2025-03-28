@@ -1,0 +1,54 @@
+<div class="flex min-h-full flex-col justify-center py-20 sm:px-6 lg:px-8">
+  <div class="sm:mx-auto text-center">
+    <h1 class="text-2xl/9 font-bold tracking-tight text-slate-900">
+      {{ title }}
+    </h1>
+    {% if subtitle %}
+      <p class="mt-2 text-sm text-slate-600">{{ subtitle }}</p>
+    {% endif %}
+  </div>
+
+  <div class="mt-10 space-y-6 sm:mx-auto sm:w-full sm:max-w-[480px]">
+
+    {% if form.non_field_errors %}
+      <div class="rounded-md bg-red-50 p-4">
+        <div class="flex">
+          <div class="shrink-0">
+            {% comment %} Hero Icons: exclamation-circle (mini) icon {% endcomment %}
+            <svg class="size-5 text-red-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM8.28 7.22a.75.75 0 0 0-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 1 0 1.06 1.06L10 11.06l1.72 1.72a.75.75 0 1 0 1.06-1.06L11.06 10l1.72-1.72a.75.75 0 0 0-1.06-1.06L10 8.94 8.28 7.22Z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="ml-3">
+            <h3 class="text-sm font-medium text-red-800">{{ error_title }}</h3>
+            <div class="mt-2 text-sm text-red-700">
+              <ul role="list" class="list-disc space-y-1 pl-5">
+                {% for error in form.non_field_errors %}
+                  <li>{{ error }}</li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
+    <div class="bg-white px-6 py-12 shadow-sm sm:rounded-lg sm:px-12">
+      <form class="space-y-6" method="POST" {% attrs action %}>
+        {% csrf_token %}
+
+        {% if next %}
+          <input type="hidden" name="next" value="{{ next }}" />
+        {% endif %}
+
+        {{ children }}
+
+        <button type="submit" class="flex w-full justify-center cursor-pointer rounded-md bg-blue-700 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs transition-colors hover:bg-blue-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700">
+          {{ button_text }}
+        </button>
+      </form>
+    </div>
+
+    {{ extra_content }}
+  </div>
+</div>

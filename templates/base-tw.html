@@ -41,8 +41,9 @@
     {% endif %}
 
     <main>
+      {% block full_width_main_top %}{% endblock %}
       <div class="container">{% block content %}{% endblock %}</div>
-      {% block full_width_content %}{% endblock %}
+      {% block full_width_main_bottom %}{% endblock %}
     </main>
 
     {% include "_includes/footer.html" %}

@@ -1,61 +1,121 @@
-{% extends 'base.html' %}
+{% extends "base-tw.html" %}
 
 {% load crispy_forms_tags %}
 
-{% block title_extra %}: {{ user.name }}{% endblock %}
+{% block title_extra %}Your codelists{% endblock %}
+
+{% block full_width_main_top %}
+<div class="bg-blue-50 py-8">
+  <div class="container">
+    <h1 class="font-bold text-4xl/tight tracking-tight mb-3">Your codelists</h1>
+    <a
+      class="flex w-max justify-center cursor-pointer rounded-md bg-blue-700 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs transition-colors hover:bg-blue-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
+      href="{% url 'user-create-codelist' user.username %}"
+    >
+      Create a new codelist
+    </a>
+  </div>
+</div>
+{% endblock %}
 
 {% block content %}
-<br />
-<h3>Hello, {{ user.name }}</h3>
-<br />
+  <div class="grid grid-cols-1 gap-y-12 pt-8 pb-18">
+    {% if codelists %}
+      <div class="bg-white max-w-2xl shadow-sm overflow-hidden sm:rounded-lg">
+        <h2 class="px-6 py-4 border-b border-b-slate-200 text-2xl/tight font-bold">
+          Your codelists
+        </h2>
+        <ul class="flex flex-col items-stretch">
+          {% for codelist in codelists %}
+            <li class="flex not-last:border-b border-b-slate-200">
+              <a
+                class="flex flex-col gap-y-0.5 w-full px-6 py-4 bg-white text-blue-600 font-semibold transition-colors hover:bg-blue-50 hover:text-blue-900"
+                href="{{ codelist.get_absolute_url }}"
+              >
+                <span>{{ codelist.name }}</span>
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
 
-<div>
-    <a href="{% url 'user-create-codelist' user.username %}" class="btn btn-primary">
-        Create a codelist!
-    </a>
-</div>
-<br />
+    {% if authored_for_organisation %}
+      <div class="bg-white max-w-2xl shadow-sm overflow-hidden sm:rounded-lg">
+        <h2 class="px-6 py-4 border-b border-b-slate-200 text-2xl/tight font-bold">
+          Organisation codelists
+        </h2>
+        <ul class="flex flex-col items-stretch">
+          {% for codelist in authored_for_organisation %}
+            <li class="flex not-last:border-b border-b-slate-200">
+              <a
+                class="flex flex-col gap-y-0.5 w-full px-6 py-4 bg-white text-blue-600 font-semibold transition-colors hover:bg-blue-50 hover:text-blue-900"
+                href="{{ get_absolute_url }}"
+              >
+                <span>{{ codelist.name }}</span>
+                {% if user.organisations.exists %}
+                  <dl class="text-sm font-medium text-slate-700 flex flex-row gap-1">
+                    <dt class="font-bold">Owner: </dt>
+                    <dd>{{ codelist.owner.name }}</dd>
+                  </dl>
+                {% endif %}
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
 
-{% if codelists %}
-<h4>Your codelists</h4>
+    {% if under_review %}
+      <div class="bg-white max-w-2xl shadow-sm overflow-hidden sm:rounded-lg">
+        <h2 class="px-6 py-4 border-b border-b-slate-200 text-2xl/tight font-bold">
+          Codelists under review
+        </h2>
+        <ul class="flex flex-col items-stretch">
+          {% for version in under_review %}
+            <li class="flex not-last:border-b border-b-slate-200">
+              <a
+                class="flex flex-col gap-y-0.5 w-full px-6 py-4 bg-white text-blue-600 font-semibold transition-colors hover:bg-blue-50 hover:text-blue-900"
+                href="{{ version.get_absolute_url }}"
+              >
+                <span>{{ version.codelist.name }}</span>
+                {% if user.organisations.exists %}
+                  <dl class="text-sm font-medium text-slate-700 flex flex-row gap-1">
+                    <dt class="font-bold">Owner: </dt>
+                    <dd>{{ draft.codelist.owner.name }}</dd>
+                  </dl>
+                {% endif %}
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
 
-<ul>
-        {% for codelist in codelists %}
-        <li><a href="{{ codelist.get_latest_published_url }}">{{ codelist.name }}</a></li>
-        {% endfor %}
-</ul>
-{% endif %}
-
-
-{% if authored_for_organisation %}
-<h4>Your organisation codelists</h4>
-
-<ul>
-        {% for codelist in authored_for_organisation %}
-        <li><a href="{{ codelist.get_latest_published_url }}">{{ codelist.name }} (owned by {{ codelist.owner }})</a></li>
-        {% endfor %}
-</ul>
-{% endif %}
-
-
-{% if under_review %}
-<h4>Your codelists under review</h4>
-
-<ul>
-        {% for version in under_review %}
-        <li><a href="{{ version.get_absolute_url }}">{{ version.codelist.name }} {% if user.organisations.exists %}(owned by {{ version.codelist.owner }}){% endif %}</a></li>
-        {% endfor %}
-</ul>
-{% endif %}
-
-
-{% if drafts %}
-<h4>Your drafts</h4>
-
-<ul>
-        {% for draft in drafts %}
-        <li><a href="{{ draft.get_absolute_url }}">{{ draft.codelist.name }} {% if user.organisations.exists %}(owned by {{ draft.codelist.owner }}){% endif %}</a></li>
-        {% endfor %}
-</ul>
-{% endif %}
+    {% if drafts %}
+      <div class="bg-white max-w-2xl shadow-sm overflow-hidden sm:rounded-lg">
+        <h2 class="px-6 py-4 border-b border-b-slate-200 text-2xl/tight font-bold">
+          Your drafts
+        </h2>
+        <ul class="flex flex-col items-stretch">
+          {% for draft in drafts %}
+            <li class="flex not-last:border-b border-b-slate-200">
+              <a
+                class="flex flex-col gap-y-0.5 w-full px-6 py-4 bg-white text-blue-600 font-semibold transition-colors hover:bg-blue-50 hover:text-blue-900"
+                href="{{ draft.get_absolute_url }}"
+              >
+                <span>{{ draft.codelist.name }}</span>
+                {% if user.organisations.exists %}
+                  <dl class="text-sm font-medium text-slate-700 flex flex-row gap-1">
+                    <dt class="font-bold">Owner: </dt>
+                    <dd>{{ draft.codelist.owner.name }}</dd>
+                  </dl>
+                {% endif %}
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+  </div>
 {% endblock %}

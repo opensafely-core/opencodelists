@@ -1,23 +1,22 @@
-{% extends 'base.html' %}
+{% extends "base-tw.html" %}
 
-{% load crispy_forms_tags %}
-
-{% block title_extra %}: Sign up{% endblock %}
+{% block title_extra %}Register for an OpenCodelists account{% endblock %}
 
 {% block content %}
-<div class="mt-3">
-    <h1>Sign up</h1>
-    <p class="lead">
-        Create an OpenCodelists user account
+  {% url 'register' as register_url %}
+
+  {% fragment as extra_content %}
+    <p class="mt-10 text-center text-sm/6 text-slate-600">
+      Already have an account?
+      <a href="{% url 'login' %}" class="font-semibold text-blue-700 underline decoration-transparent underline-offset-2 transition-colors hover:text-blue-900 hover:decoration-blue-900">Log in now</a>
     </p>
+  {% endfragment extra_content %}
 
-    <form class="auth-form" method="post" action="{% url 'register' %}">
-        {% csrf_token %}
-        {{ form|crispy }}
-
-        <input type="hidden" name="next" value="{{ next }}" />
-
-        <button class="btn btn-primary" type="submit">Sign up</button>
-    </form>
-</div>
+  {% #registration_form action=register_url button_text="Submit" csrf_token=csrf_token extra_content=extra_content form=form title="Register for an OpenCodelists account" %}
+    {% form_input field=form.username autocomplete="username" %}
+    {% form_input field=form.name autocomplete="name" %}
+    {% form_input field=form.email autocomplete="email" %}
+    {% form_input field=form.password1 autocomplete="new-password" %}
+    {% form_input field=form.password2 autocomplete="new-password" %}
+  {% /registration_form %}
 {% endblock %}

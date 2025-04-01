@@ -1,4 +1,5 @@
 components:
   form_input: "_components/form_input.html"
   nav_link: "_components/nav_link.html"
+  registration_form: "_components/registration_form.html"
   site_message: "_components/site_message.html"

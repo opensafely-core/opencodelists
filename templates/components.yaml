@@ -1,5 +1,14 @@
 components:
+  # components
   form_input: "_components/form_input.html"
   nav_link: "_components/nav_link.html"
   registration_form: "_components/registration_form.html"
   site_message: "_components/site_message.html"
+
+  # icons
+  icon_check_circle_mini: "_icons/check_circle_mini.svg"
+  icon_chevron_down_mini: "_icons/chevron_down_mini.svg"
+  icon_chevron_up_mini: "_icons/chevron_up_mini.svg"
+  icon_exclamation_circle_mini: "_icons/exclamation_circle_mini.svg"
+  icon_exclamation_triangle_mini: "_icons/exclamation_triangle_mini.svg"
+  icon_x_circle_mini: "_icons/x_circle_mini.svg"

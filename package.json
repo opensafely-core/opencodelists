@@ -22,7 +22,7 @@
     "@vitest/coverage-v8": "^3.0.9",
     "jsdom": "^26.0.0",
     "typescript": "^5.8.2",
-    "vite": "^6.2.3",
+    "vite": "^6.2.4",
     "vite-plugin-live-reload": "^3.0.4",
     "vitest": "^3.0.5"
   },

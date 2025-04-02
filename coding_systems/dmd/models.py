@@ -711,3 +711,16 @@ class GTIN(models.Model):
     gtin = models.CharField(max_length=18, help_text="GTIN")
     startdt = models.DateField(help_text="GTIN date")
     enddt = models.DateField(null=True, help_text="The date the GTIN became invalid")
+
+
+class VTI(models.Model):
+    class Meta:
+        verbose_name = "Virtual Therapeutic Moiety Ingredient"
+        verbose_name_plural = "Virtual Therapeutic Moiety Ingredients"
+
+    vtm = models.ForeignKey(
+        db_column="vtmid", to="VMP", on_delete=models.CASCADE, help_text="VTM"
+    )
+    ing = models.ForeignKey(
+        db_column="isid", to="Ing", on_delete=models.CASCADE, help_text="Ingredient"
+    )

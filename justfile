@@ -295,3 +295,14 @@ docker-exec *args="bash": _env
 # run tests in docker container
 docker-smoke-test host="http://localhost:7000": _env
     {{ just_executable() }} docker/smoke-test {{ host }}
+
+
+# dump test data
+# "dev-setup" recipe makes sure we've got a venv and migration has been run
+dump-data: dev-setup
+    $BIN/python manage.py dump_test_data
+    # you'll probably need to handle deleting any existing sqlite files before
+    # running this management command, see Iain's comment for an example.
+    # However, you should always be careful when doing such things and you'll
+    # have to be *very* sure that you're only deleting what is neccesary and no
+    # more!

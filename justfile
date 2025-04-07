@@ -295,3 +295,6 @@ docker-exec *args="bash": _env
 # run tests in docker container
 docker-smoke-test host="http://localhost:7000": _env
     {{ just_executable() }} docker/smoke-test {{ host }}
+
+dump-database:
+    pytest -o python_functions=dump_all_test_data opencodelists/tests/lib/database.py

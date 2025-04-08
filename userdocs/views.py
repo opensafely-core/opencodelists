@@ -20,7 +20,6 @@ doc_sections = [
     "editing-a-codelist",
     "viewing-your-codelists",
     "using-a-codelist-in-opensafely-research",
-    "future-plans",
     "reporting-bugs-requesting-features-and-asking-for-help",
 ]
 

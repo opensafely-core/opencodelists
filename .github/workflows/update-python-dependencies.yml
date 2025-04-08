@@ -15,7 +15,7 @@ jobs:
         python-version: "3.12"
         install-just: true
 
-    - uses: actions/create-github-app-token@v1
+    - uses: actions/create-github-app-token@v2
       id: generate-token
       with:
         app-id: 1031449  # opensafely-core Create PR app

@@ -59,6 +59,10 @@ jobs:
           just docker-build prod
           just docker-build dev
 
+      - name: Check migrations
+        run: |
+          just docker-check-migrations
+
       - name: Run unit tests on docker dev image
         run: |
           # build docker and run tests with migrations

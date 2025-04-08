@@ -2,45 +2,90 @@
 
 ## Repo structure
 
-There are the usual config files in the root of the repo.
+There are several config files in the root directory of the repo.
 
 #### `opencodelists/`
 
-The "project root", containing `settings.py` etc. Also an app, with models for users, organisations, and projects.
+The project configuration module, containing the main `settings.py`, `urls.py`
+and `wsgi.py`. Also an app, with models for users and organisations.
 
 #### `codelists/`
 
-The app with models and views for viewing, downloading, creating, and updating codelists.
+App with models and views for viewing, downloading, creating, and updating codelists.
+
+#### `builder/`
+
+App with forms, views, and actions for the codelist builder in the web UI.
 
 #### `coding_systems/`
 
-A directory containing one app per coding system. Each of these apps contains a `coding_system.py` which defines a common interface, and an `import_data.py` which contains
-code for importing new data.
+A directory containing one app per coding system. Each of these apps contains a
+`coding_system.py` which defines a common interface, and an `import_data.py`
+which contains code for importing new data.
 
 Each directory contains a README with information about the underlying data.
 
 ##### `coding_systems/versioning`
 An app that holds information about coding system releases.
 
-Each release of a coding system is imported into a separate sqlite database, and has a `CodingSystemRelease` instance associated with it which allows us to identify the specific
-release database to use to retrieve codes and terms for a codelist version..
+Each release of a coding system is imported into a separate sqlite database,
+and has a `CodingSystemRelease` instance associated with it which allows us to
+identify the specific release database to use to retrieve codes and terms for a
+codelist version.
 
 #### `mappings/`
 
-A directory containing one app per mapping between coding systems. Each of these apps will have a common structure, which has not yet been codified.
+A directory containing one app per mapping between coding systems. Each of
+these apps will have an `import_data.py`, a `mappers.py` and a `models.py`
+containing a `Mapping` class.
+
+#### `conversions/`
+
+App with views/forms for applying a mapping to convert a codelist from one
+coding system to another.
+
+#### `services/`
+
+Code for services used by multiple apps such as logging or OTel tracing.
+
+#### `superusers/`
+
+App with staff/admin-facing functionality. A view to list all the codelists
+(the main `codelists` app index only shows codelists that come from
+organisations).
 
 #### `templates/`
 
-Templates.
+Django templates.
+
+#### `static/`
+
+Static files such as images.
+
+#### `assets/`
+
+Frontend assets such as JavaScript and CSS.
 
 #### `deploy/`
 
 Resources for deployment. Deployment is via dokku (see [deployment notes](DEPLOY.md)).
 
+#### `docker/`
+
+Docker files for building and testing development and production images of the site.
+
 #### `scripts/`
 
 A place to put scripts to be run via [runscript](https://django-extensions.readthedocs.io/en/latest/runscript.html).
 
+#### `docs/`
+
+Developer-facing documentation including architecture decision records (ADRs).
+
+#### `userdocs/`
+
+Simple app serving user-facing documentation at docs/. Each document is a
+markdown file for ease of editing and they are served by a generic view.
 
 # Notes for developers
 

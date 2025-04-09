@@ -99,3 +99,37 @@ a:focus {
 .whitespace-nowrap {
   white-space: nowrap;
 }
+
+#test-tree-only {
+  section {
+    padding-left: 4px;
+    border-left: 1px solid rgba(0, 0, 0, 0.25);
+    font-size: 0.9rem;
+
+    li {
+      display: flex;
+      list-style: disc;
+      width: 100%;
+      padding-left: 0rem;
+      margin-left: 0;
+    }
+
+    details {
+      border-left: 1px solid rgba(0, 0, 0, 0.25);
+      width: 100%;
+
+      summary {
+        display: flex;
+        background-color: #f4f4f4;
+        width: 100%;
+      }
+    }
+  }
+
+  dl {
+    display: flex;
+    flex-direction: row;
+    column-gap: 0.5rem;
+    margin: 0;
+  }
+}

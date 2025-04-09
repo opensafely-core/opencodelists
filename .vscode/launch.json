@@ -1,0 +1,31 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug: Launch opencodelists",
+      "type": "debugpy",
+      "request": "launch",
+      "args": ["runserver", "localhost:7000"],
+      "django": true,
+      "autoStartBrowser": true,
+      "program": "${workspaceFolder}/manage.py",
+      "justMyCode": true
+    },
+    {
+      "name": "Debug: Current test file",
+      "type": "debugpy",
+      "request": "launch",
+      "args": ["${file}"],
+      "module": "pytest",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Debug: Playwright test file",
+      "type": "debugpy",
+      "request": "launch",
+      "args": ["${file}", "--headed"],
+      "module": "pytest",
+      "console": "integratedTerminal"
+    }
+  ]
+}

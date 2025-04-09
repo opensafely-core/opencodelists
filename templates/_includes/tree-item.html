@@ -1,5 +1,5 @@
 {% for code in list %}
-  <li>
+  <li title="{{ code.name }}">
     {% if code.children|length %}
       <details open>
         <summary>

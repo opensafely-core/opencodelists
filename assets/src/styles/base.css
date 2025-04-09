@@ -103,11 +103,18 @@ a:focus {
 #tree {
   section {
     font-size: 0.9rem;
+    margin-bottom: 1.5rem;
 
     ul {
       padding-left: 0.5rem;
       margin-left: 0.5rem;
       border-left: 1px solid rgba(0, 0, 0, 0.25);
+    }
+
+    > ul {
+      padding: 0;
+      margin: 0;
+      border: 0;
     }
 
     li {

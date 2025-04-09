@@ -99,3 +99,46 @@ a:focus {
 .whitespace-nowrap {
   white-space: nowrap;
 }
+
+#tree {
+  section {
+    font-size: 0.9rem;
+
+    ul {
+      padding-left: 0.5rem;
+      margin-left: 0.5rem;
+      border-left: 1px solid rgba(0, 0, 0, 0.25);
+    }
+
+    li {
+      display: flex;
+      list-style: disc;
+      margin-left: 0;
+      padding-left: 0;
+      width: 100%;
+    }
+
+    details {
+      width: 100%;
+
+      summary {
+        display: flex;
+        background-color: #f4f4f4;
+        width: 100%;
+        margin-left: -0.5rem;
+        padding-left: 0.5rem;
+      }
+    }
+  }
+
+  dl {
+    display: flex;
+    flex-direction: row;
+    column-gap: 0.5rem;
+    margin: 0;
+  }
+
+  dd {
+    margin-bottom: 0;
+  }
+}

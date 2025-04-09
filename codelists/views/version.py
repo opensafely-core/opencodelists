@@ -12,13 +12,11 @@ def version(request, clv):
     child_map = None
     code_to_status = None
     code_to_term = None
-    parent_map = None
     tree_tables = None
     if clv.coding_system_id in ["bnf", "ctv3", "icd10", "snomedct"]:
         coding_system = clv.coding_system
 
         hierarchy = clv.codeset.hierarchy
-        parent_map = {p: list(cc) for p, cc in hierarchy.parent_map.items()}
         child_map = {c: list(pp) for c, pp in hierarchy.child_map.items()}
         code_to_term = coding_system.code_to_term(hierarchy.nodes)
         included = set(clv.codes) & hierarchy.nodes
@@ -50,6 +48,27 @@ def version(request, clv):
         status=Status.DRAFT
     ).exists()
 
+    def build_tree_data():
+        def process_node(code: str) -> dict:
+            children = child_map.get(code, [])
+            processed_children = [process_node(child_code) for child_code in children]
+            processed_children.sort(key=lambda x: x["name"])
+
+            return {
+                "id": code,
+                "name": code_to_term[code],
+                "status": code_to_status[code],
+                "children": processed_children,
+            }
+
+        def generate_output_data():
+            return [
+                {"title": title, "children": [process_node(code) for code in children]}
+                for title, children in tree_tables
+            ]
+
+        return generate_output_data()
+
     ctx = {
         "clv": clv,
         "codelist": clv.codelist,
@@ -58,13 +77,9 @@ def version(request, clv):
         "versions": visible_versions,
         "headers": headers,
         "rows": rows,
-        "tree_tables": tree_tables,
-        "parent_map": parent_map,
-        "child_map": child_map,
-        "code_to_term": code_to_term,
-        "code_to_status": code_to_status,
         "search_results": present_search_results(clv, code_to_term),
         "user_can_edit": user_can_edit,
         "can_create_new_version": can_create_new_version,
+        "tree_data": build_tree_data(),
     }
     return render(request, "codelists/version.html", ctx)

@@ -80,11 +80,15 @@ export default function NewTree() {
   function buildTreeData() {
     function processNode(code: string): OutputData {
       const codes = childMap[code as keyof typeof childMap] || [];
+      const processedCodes = codes.map((childCode) => processNode(childCode));
+      // Sort the processed codes by name
+      processedCodes.sort((a, b) => a.name.localeCompare(b.name));
+
       return {
         id: code,
         name: codeToTerm[code],
         status: codeToStatus[code],
-        codes: codes.map((childCode) => processNode(childCode)),
+        codes: processedCodes,
       };
     }
 

@@ -1,4 +1,8 @@
+import pytest
 from playwright.sync_api import expect
+
+
+pytestmark = pytest.mark.order("last")
 
 
 def test_homepage_can_load(page, live_server):

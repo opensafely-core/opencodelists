@@ -665,6 +665,7 @@ pytest==8.3.5 \
     #   pytest-base-url
     #   pytest-cov
     #   pytest-django
+    #   pytest-order
     #   pytest-playwright
 pytest-base-url==2.1.0 \
     --hash=sha256:02748589a54f9e63fcbe62301d6b0496da0d10231b753e950c63e03aee745d45 \
@@ -677,6 +678,10 @@ pytest-cov==6.0.0 \
 pytest-django==4.10.0 \
     --hash=sha256:1091b20ea1491fd04a310fc9aaff4c01b4e8450e3b157687625e16a6b5f3a366 \
     --hash=sha256:57c74ef3aa9d89cae5a5d73fbb69a720a62673ade7ff13b9491872409a3f5918
+    # via -r requirements.dev.in
+pytest-order==1.3.0 \
+    --hash=sha256:2cd562a21380345dd8d5774aa5fd38b7849b6ee7397ca5f6999bbe6e89f07f6e \
+    --hash=sha256:51608fec3d3ee9c0adaea94daa124a5c4c1d2bb99b00269f098f414307f23dde
     # via -r requirements.dev.in
 pytest-playwright==0.7.0 \
     --hash=sha256:2516d0871fa606634bfe32afbcc0342d68da2dbff97fe3459849e9c428486da2 \

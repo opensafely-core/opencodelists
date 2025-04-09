@@ -79,5 +79,11 @@ services:
     extends:
       service: dev
     container_name: opencodelists-test
+    environment:
+      # For Playwright:
+      # Ensure playwright browser binaries are installed to a path in the
+      # mounted volume that the non-root docker user has access to
+      - PLAYWRIGHT_BROWSERS_PATH=/app/.playwright-browsers/
+      - PLAYWRIGHT_BROWSER_EXECUTABLE_PATH=/app/.playwright-browsers/chrome-linux/chrome
     # override command
     command: python -m pytest --cov=. --cov-report html --cov-report term-missing:skip-covered

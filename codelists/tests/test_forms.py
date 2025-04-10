@@ -172,6 +172,7 @@ def test_signoff_form_ordered_by_username(
     # collaborator: charlie
     # user_without_organisation: dave
     # user_with_no_api_token: eve
+    # functional_test_user: functional
 
     # Ordering of users in SignOffForm is by (case insensitive) username
     User.objects.create_user(
@@ -184,7 +185,7 @@ def test_signoff_form_ordered_by_username(
     # ordering just by username puts title case names first
     assert list(
         User.objects.all().order_by("username").values_list("username", flat=True)
-    ) == ["Fred", "alice", "bob", "charlie", "dave", "eve"]
+    ) == ["Fred", "alice", "bob", "charlie", "dave", "eve", "functional_test"]
 
     # the signoff form shows them in the model ordering (i.e. case insensitive)
     form = SignOffForm()
@@ -196,4 +197,5 @@ def test_signoff_form_ordered_by_username(
         "dave",
         "eve",
         "Fred",
+        "functional_test",
     ]

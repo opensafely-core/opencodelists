@@ -1,13 +1,25 @@
 import pytest
 from playwright.sync_api import expect
 
+from opencodelists.models import User
+
 
 pytestmark = pytest.mark.order("last")
 
 
 @pytest.fixture
-def user_cookies(client, user_without_organisation, live_server):
-    client.force_login(user_without_organisation)
+def functional_test_user():
+    return User.objects.create_user(
+        username="functional",
+        password="test_user",
+        email="functional_test_user@example.com",
+        name="Functional Test User",
+    )
+
+
+@pytest.fixture
+def user_cookies(client, functional_test_user, live_server):
+    client.force_login(functional_test_user)
     return {
         "name": "sessionid",
         "value": client.cookies["sessionid"].value,

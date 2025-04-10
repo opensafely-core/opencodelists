@@ -174,7 +174,7 @@ def _draft(request, draft, search_slug):
         "draft": draft,
         "codelist_name": codelist.name,
         # The following values are passed to the CodelistBuilder component.
-        # When any of these chage, use generate_builder_fixture to update
+        # When any of these change, use generate_builder_fixture to update
         # static/test/js/fixtures/elbow.json.
         # {
         "results_heading": results_heading,

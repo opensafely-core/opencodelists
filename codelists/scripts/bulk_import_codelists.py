@@ -148,7 +148,7 @@ def get_headers():
 
 def process_file_to_dataframe(filepath, config):
     """
-    Read a file into a Pandas dataframe and santitise it, ready for
+    Read a file into a Pandas dataframe and sanitise it, ready for
     importing codelists
     """
     column_names = {"coding_system", "codelist_name", "code", "term"}

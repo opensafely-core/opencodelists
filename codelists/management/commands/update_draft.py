@@ -68,9 +68,9 @@ class Command(BaseCommand):
             self.delete_removed_codes(draft)
             logger.info("Checking for new descendants")
             add_new_descendants(version=draft)
-            logger.info("Updating statatus")
+            logger.info("Updating statutes")
             self.update_code_statuses(draft)
-            logger.info("Geting diff")
+            logger.info("Getting diff")
             updates = self.diff(draft.codeset, original_codeset)
             cache_hierarchy(version=draft)
 
@@ -103,7 +103,7 @@ class Command(BaseCommand):
 
     def update_search(self, *, draft, term=None, code=None, codes):
         """
-        Note: this is more or less a copy of builder.actions.create_search, modifed to
+        Note: this is more or less a copy of builder.actions.create_search, modified to
         update searches on an existing draft
         """
         assert bool(term) != bool(code)

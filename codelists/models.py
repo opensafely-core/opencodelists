@@ -190,7 +190,7 @@ class Codelist(models.Model):
 
     def latest_published_version(self):
         """Return URL latest published version, or None if no such version exists."""
-        # the lastest visible version for an anonymous user will be the latest published one
+        # the latest visible version for an anonymous user will be the latest published one
         published = self.visible_versions(user=AnonymousUser())
         return published.first()
 
@@ -500,7 +500,7 @@ class CodelistVersion(models.Model):
             # However, older ones could be uploaded with any column names, so we need to
             # check the headers to identify the most likely one
             # These represent the valid case-insensitive code column names across all existing
-            # old-syle codelists
+            # old-style codelists
             for header in [
                 "ctv3id",
                 "ctv3code",
@@ -540,7 +540,7 @@ class CodelistVersion(models.Model):
 
         include_mapped_vmps: if True, a dm+d codelist will include mapped VMPs in its download.
           This value defaults to True, so that when these downloads are requested by OpenSafely CLI,
-          no additional query params need to be passed that are specidfic to dm+d codelists.
+          no additional query params need to be passed that are specific to dm+d codelists.
         fixed_headers: if True, uploaded csv_data for old-style codelists is converted
           to two columns, headed "code" and "term". Note that new-style codelists, will
           always download with just "code" and "term" headers.
@@ -836,7 +836,7 @@ class CodelistVersion(models.Model):
         def add_row(vmp, description, original_code):
             # copy the row for the original code that this VMP mapped to,
             # and replace the code and term columns
-            # original code is a list, because it's a possiblity that a VMP could
+            # original code is a list, because it's a possibility that a VMP could
             # (although so far hasn't) mapped to more than one code. We just take the
             # first one to get the starting row
             original_code = original_code[0]
@@ -853,7 +853,7 @@ class CodelistVersion(models.Model):
         # can be used to check whether updates to study codelists are required.
         for previous_vmp in sorted(previous_vmps_to_add):
             # add the code to the table data
-            # include its description as the code(s) it was superceded by
+            # include its description as the code(s) it was superseded by
             # sort the codes so that ordering is consistent between downloads
             original_codes = sorted(previous_vmps_to_add[previous_vmp])
             additional_rows.append(
@@ -866,7 +866,7 @@ class CodelistVersion(models.Model):
 
         for subsequent_vmp in sorted(subsequent_vmps_to_add):
             # add the code to the table data
-            # include its description as the code it supercedes
+            # include its description as the code it supersedes
             # sort the codes so that ordering is consistent between downloads
             original_codes = sorted(subsequent_vmps_to_add[subsequent_vmp])
             additional_rows.append(

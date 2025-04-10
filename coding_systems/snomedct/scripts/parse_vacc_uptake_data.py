@@ -3,7 +3,7 @@ import json
 
 
 def run(in_path, out_path):
-    """Create JSON file containing data about PRIMIS vaccine uptake reporting codelits.
+    """Create JSON file containing data about PRIMIS vaccine uptake reporting codelists.
 
     Data comes from a CSV file, which comes from copying and pasting tables from a
     document into a spreadsheet.

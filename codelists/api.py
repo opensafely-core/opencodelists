@@ -446,7 +446,7 @@ def codelists_check(requests):
     # similarly-hashed content of the data that would be prepared for a CSV download
     manifest_codelist_ids = set(file["id"] for file in manifest["files"].values())
     current_codelist_ids = set(codelist_download_data.keys())
-    # new files are files that are in the study's codelists.csv but not in the manifest file generatated
+    # new files are files that are in the study's codelists.csv but not in the manifest file generated
     # at the last update
     new_files = current_codelist_ids - manifest_codelist_ids
     # removed files are codelist entries that have been removed from the study's codelists.csv since

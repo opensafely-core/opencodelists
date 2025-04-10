@@ -217,17 +217,6 @@ def bnf_data(setup_coding_systems, django_db_setup, django_db_blocker):
         )
 
 
-@pytest.fixture
-def bnf_data_testing(setup_coding_systems, django_db_setup, django_db_blocker):
-    with django_db_blocker.unblock():
-        # load a very small amount of the BNF coding system
-        call_command(
-            "loaddata",
-            BNF_FIXTURES_PATH / "asthma.bnf_test_20200101.json",
-            database="bnf_test_20200101",
-        )
-
-
 @pytest.fixture(scope="session")
 def dmd_bnf_mapping_data(setup_coding_systems, django_db_setup, django_db_blocker):
     with django_db_blocker.unblock():

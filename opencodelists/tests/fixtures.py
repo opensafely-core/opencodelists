@@ -365,13 +365,6 @@ def build_fixtures():
         name="Eve",
     )
 
-    functional_test_user = User.objects.create_user(
-        username="functional_test",
-        password="test",
-        email="functional_test@example.com",
-        name="Functional Test User",
-    )
-
     # old_style_codelist
     # - owned by organisation
     # - has one version:
@@ -810,7 +803,6 @@ collaborator = build_fixture("collaborator")
 user_without_organisation = build_fixture("user_without_organisation")
 user = build_fixture("user")
 user_with_no_api_token = build_fixture("user_with_no_api_token")
-functional_test_user = build_fixture("functional_test_user")
 old_style_codelist = build_fixture("old_style_codelist")
 old_style_version = build_fixture("old_style_version")
 dmd_codelist = build_fixture("dmd_codelist")

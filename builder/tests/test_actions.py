@@ -90,6 +90,45 @@ def test_duplicate_search(version_from_scratch):
     assert draft.code_objs.count() == 2
 
 
+def test_quasi_duplicate_search(version_from_scratch):
+    # Test that a user can search for terms that only differ
+    # by non-alphanumeric characters
+
+    draft = version_from_scratch
+
+    ac_code_1 = "1028271000000109"
+    ac_code_2 = "1023491000000104"
+    ac_code_3 = "1027791000000103"
+    ac_code_4 = "250745003"
+
+    # Act: create a term search
+    s = actions.create_search(
+        draft=draft,
+        term="albumin / creatinine",
+        codes={ac_code_1, ac_code_2, ac_code_3},
+    )
+
+    # check we have 1 search with 3 codes
+    assert draft.searches.count() == 1
+    assert draft.code_objs.count() == 3
+
+    # do a search which is identical ignoring non-alphanumeric characters
+    # and stripping white space to single spaces
+    s1 = actions.create_search(
+        draft=draft,
+        term="albumin creatinine",
+        codes={ac_code_1, ac_code_4},
+    )
+
+    # Assert...
+    # that a new search was returned
+    assert s1.id != s.id
+
+    # that the draft now has two searches with 4 codes in total
+    assert draft.searches.count() == 2
+    assert draft.code_objs.count() == 4
+
+
 def test_delete_search(version_from_scratch):
     draft = version_from_scratch
 

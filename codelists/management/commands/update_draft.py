@@ -3,7 +3,8 @@ from collections import defaultdict
 import structlog
 from django.core.management import BaseCommand
 from django.db import transaction
-from django.utils.text import slugify
+
+from builder.actions import create_search_slug
 
 from ...actions import add_new_descendants, cache_hierarchy
 from ...models import CodelistVersion, CodeObj, SearchResult
@@ -106,11 +107,7 @@ class Command(BaseCommand):
         Note: this is more or less a copy of builder.actions.create_search, modified to
         update searches on an existing draft
         """
-        assert bool(term) != bool(code)
-        if term is not None:
-            slug = slugify(term)
-        else:
-            slug = f"code:{code}"
+        slug = create_search_slug(term, code)
 
         search = draft.searches.get(term=term, code=code, slug=slug)
         # Ensure that there is a CodeObj object linked to this draft for each code.

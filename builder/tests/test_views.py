@@ -159,10 +159,10 @@ def test_new_search_no_results(client, draft):
     [
         # standard characters with case
         ("Foo", "foo", True),
-        # spaces and non-slug characters allowed, removed/replaced in slug
-        ("foo 123", "foo-123", True),
+        # spaces and non-slug characters allowed
+        ("foo 123", "foo 123", True),
         ("foo_123", "foo_123", True),
-        ("&123", "123", True),
+        ("&123", "&123", True),
         # code: prefixed terms are not slugified
         ("code:*", "code:*", True),
         ("code:&£%^", "code:&£%^", True),

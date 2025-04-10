@@ -8,7 +8,8 @@ beautifulsoup4
 bleach
 crispy-bootstrap4
 dj-database-url
-django
+# Pin to 5.1.x until we are happy with 5.2 compat
+django>=5.1,<5.2
 djangorestframework
 django-anymail[mailgun]
 django-crispy-forms

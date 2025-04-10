@@ -3,6 +3,7 @@ import { Col, Row } from "react-bootstrap";
 import Hierarchy from "../_hierarchy";
 import { getCookie } from "../_utils";
 import { Code, PageData, Status } from "../types";
+import EmptyState from "./EmptyState";
 import Filter from "./Filter";
 import ManagementForm from "./ManagementForm";
 import Search from "./Search";
@@ -214,21 +215,27 @@ export default class CodelistBuilder extends React.Component<
             </ul>
           </Col>
 
-          <Col md="9" className="overflow-auto">
-            <h3 className="h4">{resultsHeading}</h3>
-            <hr />
-            <TreeTables
-              allCodes={allCodes}
-              codeToStatus={this.state.codeToStatus}
-              codeToTerm={codeToTerm}
-              hierarchy={hierarchy}
-              isEditable={isEditable}
-              toggleVisibility={() => null}
-              treeTables={treeTables}
-              updateStatus={this.updateStatus}
-              visiblePaths={visiblePaths}
-            />
-          </Col>
+          {isEmpty ? (
+            <Col md="9">
+              <EmptyState />
+            </Col>
+          ) : (
+            <Col md="9" className="overflow-auto">
+              <h3 className="h4">{resultsHeading}</h3>
+              <hr />
+              <TreeTables
+                allCodes={allCodes}
+                codeToStatus={this.state.codeToStatus}
+                codeToTerm={codeToTerm}
+                hierarchy={hierarchy}
+                isEditable={isEditable}
+                toggleVisibility={() => null}
+                treeTables={treeTables}
+                updateStatus={this.updateStatus}
+                visiblePaths={visiblePaths}
+              />
+            </Col>
+          )}
         </Row>
       </>
     );

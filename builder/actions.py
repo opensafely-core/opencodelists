@@ -29,10 +29,15 @@ def create_search_slug(term: str, code: str) -> str:
 @transaction.atomic
 def create_search(*, draft, term=None, code=None, codes):
     slug = create_search_slug(term, code)
-    search, new = draft.searches.get_or_create(term=term, code=code, slug=slug)
-    if not new:
+    try:
+        search = draft.searches.get(slug=slug)
+
+        # We already have a search for this slug so we return it
         logger.info("Returned existing Search", search_pk=search.pk)
         return search
+    except draft.searches.model.DoesNotExist:
+        # The slug search doesn't yet exist so we create it
+        search = draft.searches.create(term=term, code=code, slug=slug)
 
     # Ensure that there is a CodeObj object linked to this draft for each code.
     codes_with_existing_code_objs = set(

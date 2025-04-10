@@ -143,6 +143,12 @@ export default class CodelistBuilder extends React.Component<
       visiblePaths,
     } = this.props;
 
+    const isEmpty =
+      searches.length === 0 &&
+      treeTables.length === 0 &&
+      resultsHeading ===
+        "Start building your codelist by searching for a term or a code";
+
     return (
       <>
         <Row>

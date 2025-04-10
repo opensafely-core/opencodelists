@@ -155,10 +155,14 @@ export default class CodelistBuilder extends React.Component<
           <Col md="3">
             {isEditable && <ManagementForm counts={this.counts()} />}
 
-            <h3 className="h6">Summary</h3>
-            <Filter filter={filter} />
-            <Summary counts={this.counts()} />
-            <hr />
+            {!isEmpty ? (
+              <>
+                <Filter filter={filter} />
+                <h3 className="h6">Summary</h3>
+                <Summary counts={this.counts()} />
+                <hr />
+              </>
+            ) : null}
 
             {searches.length > 0 && (
               <Search draftURL={draftURL} searches={searches} />

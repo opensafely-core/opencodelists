@@ -13,7 +13,7 @@ To avoid these pitfalls we recommend:
 
 * Clearly defining your clinical feature of interest. This may include specific features you do not want to capture.
 * Specifying the synonyms that may be used for your clinical feature of interest.
-* Considering balacing sensitivity and specificity of the selected codes
+* Considering balancing sensitivity and specificity of the selected codes
 * Looking for similar codelists on OpenCodelists and understanding what methodology they used for their selection of codes.
 * Where available, using published data on code usage to understand how a clinical area is coded in practice. This doesn't exist for all code terminologies, but helpfully, [NHS Digital provides a dataset on SNOMED CT code usage in primary care](https://digital.nhs.uk/data-and-information/publications/statistical/mi-snomed-code-usage-in-primary-care), which includes data since 2011. This dataset includes annual counts of how often each SNOMED CT code is recorded in GP patient records across England. You can explore recorded usage of individual codes or entire codelists, including those on OpenCodelists, using [this prototype SNOMED CT code usage explorer](https://snomed-code-usage.streamlit.app/). Note, however, that low or no usage for a code may not be indicative of its future use.
 

@@ -21,7 +21,7 @@ class Codeset:
     """
 
     def __init__(self, code_to_status, hierarchy):
-        """Initalise a Codeset with a mapping from code to status, and a hierarchy.
+        """Initialise a Codeset with a mapping from code to status, and a hierarchy.
 
         See class docstring for possible status values.
         """
@@ -134,7 +134,7 @@ class Codeset:
         """Yield tuples of (code, status) found by visiting the defining codes in the
         hierarchy depth first.
 
-        Children are visted in the order of whatever sort_key returns.
+        Children are visited in the order of whatever sort_key returns.
         """
 
         def helper(tree):

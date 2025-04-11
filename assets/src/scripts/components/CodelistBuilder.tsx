@@ -102,7 +102,11 @@ export default class CodelistBuilder extends React.Component<
   }
 
   counts() {
-    let counts = {
+    // Define the list of valid status values that we want to count
+    const validStatuses = ["?", "!", "+", "(+)", "-", "(-)"];
+
+    // Initialize counts object with 0 for each status and total
+    const counts = {
       "?": 0,
       "!": 0,
       "+": 0,
@@ -111,14 +115,16 @@ export default class CodelistBuilder extends React.Component<
       "(-)": 0,
       total: 0,
     };
-    this.props.allCodes.forEach((code) => {
+
+    // Iterate through all codes and count occurrences of each valid status
+    return this.props.allCodes.reduce((acc, code) => {
       const status = this.state.codeToStatus[code];
-      if (["?", "!", "+", "(+)", "-", "(-)"].includes(status)) {
-        counts[status] += 1;
-        counts["total"] += 1;
+      if (validStatuses.includes(status)) {
+        acc[status]++; // Increment count for this status
+        acc.total++; // Increment total count
       }
-    });
-    return counts;
+      return acc;
+    }, counts);
   }
 
   render() {

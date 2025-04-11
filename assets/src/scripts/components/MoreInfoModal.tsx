@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Modal } from "react-bootstrap";
 import Hierarchy from "../_hierarchy";
 import { Code, PageData, Status, Term } from "../types";
@@ -82,15 +82,22 @@ function MoreInfoModal({
   term,
 }: MoreInfoModalProps) {
   const [showMoreInfoModal, setShowMoreInfoModal] = useState(false);
+  const [modalText, setModalText] = useState("");
 
-  const modalText = createModalText({
-    allCodes,
-    code,
-    codeToStatus,
-    codeToTerm,
-    hierarchy,
-    status,
-  });
+  useEffect(() => {
+    if (showMoreInfoModal) {
+      setModalText(
+        createModalText({
+          allCodes,
+          code,
+          codeToStatus,
+          codeToTerm,
+          hierarchy,
+          status,
+        }),
+      );
+    }
+  }, [showMoreInfoModal]);
 
   return (
     <>

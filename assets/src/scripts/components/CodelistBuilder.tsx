@@ -24,7 +24,6 @@ export default class CodelistBuilder extends React.Component<
     updating: boolean;
   }
 > {
-  private _isMounted: boolean = false;
   constructor(props: CodelistBuilderProps) {
     super(props);
 
@@ -46,15 +45,6 @@ export default class CodelistBuilder extends React.Component<
     this.setState({
       expandedCompatibleReleases: !this.state.expandedCompatibleReleases,
     });
-  }
-
-  componentDidMount() {
-    // This is required for testing.  See other uses for _isMounted for explanation.
-    this._isMounted = true;
-  }
-
-  componentWillUnmount() {
-    this._isMounted = false;
   }
 
   updateStatus(code: Code, status: Status) {
@@ -98,14 +88,6 @@ export default class CodelistBuilder extends React.Component<
     })
       .then((response) => response.json())
       .then((data) => {
-        if (!this._isMounted) {
-          // In tests the compenent is unmounted, and this may happen before
-          // the promise is resolved.  Calling setState on an unmounted
-          // component is a no-op and may indicate a memory leak, so it triggers
-          // a warning.  Exiting early here prevents that warning.
-          return;
-        }
-
         const lastUpdates = data.updates;
 
         this.setState(

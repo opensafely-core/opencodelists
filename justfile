@@ -247,6 +247,42 @@ assets-test: assets-install
     npm run test:coverage
 
 
+# Build a lightweight local development setup using test fixture data.
+build-dbs-for-local-development nuclear="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    # WARNING: Passing 'nuclear' to this just recipe will create a
+    # backup copy of your current local db, if it exists, then create a
+    # new empty core `db.sqlite3` in the root directory of your
+    # opencodelists project folder.
+    if [ -n "{{ nuclear }}" ]; then
+
+        if [[ -z "${DATABASE_URL:-}" ]]; then
+            CORE_DB_PATH="db.sqlite3"
+            else
+            CORE_DB_PATH="${DATABASE_URL/sqlite:\/\/\//}"
+            fi
+        echo "Nuclear option enabled: moving $CORE_DB_PATH to $CORE_DB_PATH.backup"
+
+        mv "$CORE_DB_PATH" "$CORE_DB_PATH.backup"
+
+        # Set up or update the local dev environment:
+        # - Recreates core DB and applies migrations
+        just dev-setup
+
+        # Run custom command to:
+        # - Load CodingSystemReleases needed for the test data fixtures
+        # - Remove old coding system release dbs (with confirmation)
+        # - Create and migrate new coding system release dbs
+        # - Load test data into coding system release dbs
+        $BIN/python manage.py setup_local_dev_databases
+    else
+        echo "Skipping creation of a new empty core db.sqlite3. Run with 'nuclear' parameter to enable."
+    fi
+
+
+
 # build docker image env=dev|prod
 docker-build env="dev": _env
     {{ just_executable() }} docker/build {{ env }}

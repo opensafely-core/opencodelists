@@ -5,7 +5,6 @@
 
 antlr4-python3-runtime
 beautifulsoup4
-bleach
 crispy-bootstrap4
 dj-database-url
 # Pin to 5.1.x until we are happy with 5.2 compat
@@ -23,6 +22,7 @@ furl
 gunicorn
 lxml
 markdown2
+nh3
 openpyxl
 opentelemetry-exporter-otlp
 opentelemetry-instrumentation-django

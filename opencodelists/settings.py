@@ -331,7 +331,7 @@ if SENTRY_DSN:
 CORS_ALLOW_ALL_ORIGINS = True
 
 
-MARKDOWN_FILTER_ALLOWLIST_TAGS = [
+MARKDOWN_FILTER_ALLOWLIST_TAGS = {
     "h1",
     "h2",
     "h3",
@@ -347,15 +347,15 @@ MARKDOWN_FILTER_ALLOWLIST_TAGS = [
     "strong",
     "img",
     "hr",
-]
+}
 
-MARKDOWN_FILTER_ALLOWLIST_ATTRIBUTES = [
-    "class",
-    "src",
-    "href",
-]
-
-MARKDOWN_FILTER_ALLOWLIST_STYLES = []
+MARKDOWN_FILTER_ALLOWLIST_ATTRIBUTES = {
+    "*": {
+        "class",
+        "src",
+        "href",
+    }
+}
 
 
 # Login/logout config

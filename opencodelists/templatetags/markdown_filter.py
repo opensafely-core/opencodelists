@@ -14,6 +14,5 @@ def markdown_filter(text):
         text,
         tags=settings.MARKDOWN_FILTER_ALLOWLIST_TAGS,
         attributes=settings.MARKDOWN_FILTER_ALLOWLIST_ATTRIBUTES,
-        css_sanitizer=settings.MARKDOWN_FILTER_ALLOWLIST_STYLES,
     )
     return html

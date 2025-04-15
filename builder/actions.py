@@ -13,13 +13,23 @@ from coding_systems.versioning.models import CodingSystemRelease
 logger = structlog.get_logger()
 
 
-@transaction.atomic
-def create_search(*, draft, term=None, code=None, codes):
+def create_search_slug(term: str, code: str) -> str:
+    """
+    Returns the search slug which is either the slugified search term,
+    or the code prefixed with "code:". Also validates that only one of
+    term and code is set.
+    """
     assert bool(term) != bool(code)
     if term is not None:
         slug = slugify(term)
     else:
         slug = f"code:{code}"
+    return slug
+
+
+@transaction.atomic
+def create_search(*, draft, term=None, code=None, codes):
+    slug = create_search_slug(term, code)
     search, new = draft.searches.get_or_create(term=term, code=code, slug=slug)
     if not new:
         logger.info("Returned existing Search", search_pk=search.pk)

@@ -961,7 +961,6 @@ class Search(models.Model):
     slug = models.SlugField(max_length=255)
 
     class Meta:
-        unique_together = ("version", "slug")
         constraints = [
             models.CheckConstraint(
                 name="%(app_label)s_%(class)s_term_xor_code",

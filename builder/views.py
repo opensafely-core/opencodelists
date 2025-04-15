@@ -25,8 +25,8 @@ def draft(request, draft):
 
 
 @load_draft
-def search(request, draft, search_slug):
-    return _draft(request, draft, search_slug)
+def search(request, draft, search_id, search_slug):
+    return _draft(request, draft, search_id)
 
 
 @load_draft
@@ -58,7 +58,7 @@ def _handle_post(request, draft):
         return HttpResponse(status=400)
 
 
-def _draft(request, draft, search_slug):
+def _draft(request, draft, search_id):
     if request.method == "POST":
         return _handle_post(request, draft)
 
@@ -67,23 +67,23 @@ def _draft(request, draft, search_slug):
     codeset = draft.codeset
     hierarchy = codeset.hierarchy
 
-    if search_slug is None:
+    if search_id is None:
         search = None
         displayed_codes = list(codeset.all_codes())
-    elif search_slug is NO_SEARCH_TERM:
+    elif search_id is NO_SEARCH_TERM:
         search = NO_SEARCH_TERM
         displayed_codes = list(
             draft.code_objs.filter(results=None).values_list("code", flat=True)
         )
     else:
-        search = get_object_or_404(draft.searches, slug=search_slug)
+        search = get_object_or_404(draft.searches, id=search_id)
         displayed_codes = list(search.results.values_list("code_obj__code", flat=True))
 
     searches = [
         {
             "term_or_code": s.term_or_code,
-            "url": draft.get_builder_search_url(s.slug),
-            "delete_url": draft.get_builder_delete_search_url(s.slug),
+            "url": draft.get_builder_search_url(s.id, s.slug),
+            "delete_url": draft.get_builder_delete_search_url(s.id, s.slug),
             "active": s == search,
         }
         for s in draft.searches.order_by("term")
@@ -94,7 +94,7 @@ def _draft(request, draft, search_slug):
             {
                 "term_or_code": "[no search term]",
                 "url": draft.get_builder_no_search_term_url(),
-                "active": search_slug == NO_SEARCH_TERM,
+                "active": search_id == NO_SEARCH_TERM,
             }
         )
 
@@ -121,9 +121,9 @@ def _draft(request, draft, search_slug):
         ).items()
     )
 
-    if search_slug == NO_SEARCH_TERM:
+    if search_id == NO_SEARCH_TERM:
         results_heading = "Showing concepts with no matching search term"
-    elif search_slug is not None:
+    elif search_id is not None:
         results_heading = f'Showing concepts matching "{search.term_or_code}"'
     elif codeset.all_codes():
         results_heading = "Showing all matching concepts"
@@ -233,15 +233,15 @@ def new_search(request, draft):
     if not codes:
         messages.info(request, f'There are no results for "{code or term}"')
 
-    return redirect(draft.get_builder_search_url(search.slug))
+    return redirect(draft.get_builder_search_url(search.id, search.slug))
 
 
 @login_required
 @require_http_methods(["POST"])
 @load_draft
 @require_permission
-def delete_search(request, draft, search_slug):
-    search = get_object_or_404(Search, version=draft, slug=search_slug)
+def delete_search(request, draft, search_id, search_slug):
+    search = get_object_or_404(Search, version=draft, id=search_id)
     actions.delete_search(search=search)
     messages.info(
         request,

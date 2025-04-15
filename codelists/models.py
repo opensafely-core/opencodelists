@@ -354,11 +354,13 @@ class CodelistVersion(models.Model):
     def get_builder_new_search_url(self):
         return reverse("builder:new-search", args=[self.hash])
 
-    def get_builder_search_url(self, search_slug):
-        return reverse("builder:search", args=[self.hash, search_slug])
+    def get_builder_search_url(self, search_id, search_slug):
+        return reverse("builder:search", args=[self.hash, search_id, search_slug])
 
-    def get_builder_delete_search_url(self, search_slug):
-        return reverse("builder:delete-search", args=[self.hash, search_slug])
+    def get_builder_delete_search_url(self, search_id, search_slug):
+        return reverse(
+            "builder:delete-search", args=[self.hash, search_id, search_slug]
+        )
 
     def get_builder_no_search_term_url(self):
         return reverse("builder:no-search-term", args=[self.hash])

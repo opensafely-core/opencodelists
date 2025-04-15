@@ -40,10 +40,15 @@ def test_version_from_scratch(client, version_from_scratch):
 
 
 def test_search(client, draft_with_some_searches):
-    rsp = client.get(draft_with_some_searches.get_builder_search_url("arthritis"))
+    slug = "arthritis"
+    for search in draft_with_some_searches.searches.all():
+        if search.term == slug:
+            search_id = search.id
+
+    rsp = client.get(draft_with_some_searches.get_builder_search_url(search_id, slug))
 
     assert rsp.status_code == 200
-    assert rsp.context["results_heading"] == 'Showing concepts matching "arthritis"'
+    assert rsp.context["results_heading"] == f'Showing concepts matching "{slug}"'
 
 
 def test_no_search_term(client, draft_with_some_searches):
@@ -117,7 +122,10 @@ def test_new_search_for_term(client, draft):
         )
 
     assert rsp.status_code == 200
-    assert rsp.redirect_chain[-1][0] == draft.get_builder_search_url("epicondylitis")
+    last_search_id = draft.searches.last().id
+    assert rsp.redirect_chain[-1][0] == draft.get_builder_search_url(
+        last_search_id, "epicondylitis"
+    )
 
 
 def test_new_search_for_code(client, draft):
@@ -131,7 +139,10 @@ def test_new_search_for_code(client, draft):
         )
 
     assert rsp.status_code == 200
-    assert rsp.redirect_chain[-1][0] == draft.get_builder_search_url("code:128133004")
+    last_search_id = draft.searches.last().id
+    assert rsp.redirect_chain[-1][0] == draft.get_builder_search_url(
+        last_search_id, "code:128133004"
+    )
 
 
 def test_new_search_no_results(client, draft):
@@ -173,8 +184,11 @@ def test_new_search_check_slugified_terms(client, draft, term, valid, slug):
         {"search": term},
     )
     assert rsp.status_code == 302
+    last_search_id = draft.searches.last().id
+    last_search_slug = draft.searches.last().slug
     if valid:
-        assert rsp.url == draft.get_builder_search_url(slug)
+        assert slug == last_search_slug
+        assert rsp.url == draft.get_builder_search_url(last_search_id, last_search_slug)
     else:
         assert rsp.url == draft.get_builder_draft_url()
 

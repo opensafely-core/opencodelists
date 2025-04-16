@@ -3,6 +3,7 @@ import { Col, Row } from "react-bootstrap";
 import Hierarchy from "../_hierarchy";
 import { getCookie } from "../_utils";
 import { Code, PageData, Status } from "../types";
+import EmptyState from "./EmptyState";
 import Filter from "./Filter";
 import ManagementForm from "./ManagementForm";
 import Search from "./Search";
@@ -143,16 +144,26 @@ export default class CodelistBuilder extends React.Component<
       visiblePaths,
     } = this.props;
 
+    const isEmpty =
+      searches.length === 0 &&
+      treeTables.length === 0 &&
+      resultsHeading ===
+        "Start building your codelist by searching for a term or a code";
+
     return (
       <>
         <Row>
           <Col md="3">
             {isEditable && <ManagementForm counts={this.counts()} />}
 
-            <h3 className="h6">Summary</h3>
-            <Filter filter={filter} />
-            <Summary counts={this.counts()} />
-            <hr />
+            {!isEmpty ? (
+              <>
+                <Filter filter={filter} />
+                <h3 className="h6">Summary</h3>
+                <Summary counts={this.counts()} />
+                <hr />
+              </>
+            ) : null}
 
             {searches.length > 0 && (
               <Search draftURL={draftURL} searches={searches} />
@@ -204,21 +215,27 @@ export default class CodelistBuilder extends React.Component<
             </ul>
           </Col>
 
-          <Col md="9" className="overflow-auto">
-            <h3 className="h4">{resultsHeading}</h3>
-            <hr />
-            <TreeTables
-              allCodes={allCodes}
-              codeToStatus={this.state.codeToStatus}
-              codeToTerm={codeToTerm}
-              hierarchy={hierarchy}
-              isEditable={isEditable}
-              toggleVisibility={() => null}
-              treeTables={treeTables}
-              updateStatus={this.updateStatus}
-              visiblePaths={visiblePaths}
-            />
-          </Col>
+          {isEmpty ? (
+            <Col md="9">
+              <EmptyState />
+            </Col>
+          ) : (
+            <Col md="9" className="overflow-auto">
+              <h3 className="h4">{resultsHeading}</h3>
+              <hr />
+              <TreeTables
+                allCodes={allCodes}
+                codeToStatus={this.state.codeToStatus}
+                codeToTerm={codeToTerm}
+                hierarchy={hierarchy}
+                isEditable={isEditable}
+                toggleVisibility={() => null}
+                treeTables={treeTables}
+                updateStatus={this.updateStatus}
+                visiblePaths={visiblePaths}
+              />
+            </Col>
+          )}
         </Row>
       </>
     );

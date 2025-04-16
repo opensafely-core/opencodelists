@@ -41,9 +41,7 @@ def test_version_from_scratch(client, version_from_scratch):
 
 def test_search(client, draft_with_some_searches):
     slug = "arthritis"
-    for search in draft_with_some_searches.searches.all():
-        if search.term == slug:
-            search_id = search.id
+    search_id = draft_with_some_searches.searches.filter(term=slug).first().id
 
     rsp = client.get(draft_with_some_searches.get_builder_search_url(search_id, slug))
 

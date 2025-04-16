@@ -40,10 +40,13 @@ def test_version_from_scratch(client, version_from_scratch):
 
 
 def test_search(client, draft_with_some_searches):
-    rsp = client.get(draft_with_some_searches.get_builder_search_url("arthritis"))
+    slug = "arthritis"
+    search_id = draft_with_some_searches.searches.filter(term=slug).first().id
+
+    rsp = client.get(draft_with_some_searches.get_builder_search_url(search_id, slug))
 
     assert rsp.status_code == 200
-    assert rsp.context["results_heading"] == 'Showing concepts matching "arthritis"'
+    assert rsp.context["results_heading"] == f'Showing concepts matching "{slug}"'
 
 
 def test_no_search_term(client, draft_with_some_searches):
@@ -117,7 +120,10 @@ def test_new_search_for_term(client, draft):
         )
 
     assert rsp.status_code == 200
-    assert rsp.redirect_chain[-1][0] == draft.get_builder_search_url("epicondylitis")
+    last_search_id = draft.searches.last().id
+    assert rsp.redirect_chain[-1][0] == draft.get_builder_search_url(
+        last_search_id, "epicondylitis"
+    )
 
 
 def test_new_search_for_code(client, draft):
@@ -131,7 +137,10 @@ def test_new_search_for_code(client, draft):
         )
 
     assert rsp.status_code == 200
-    assert rsp.redirect_chain[-1][0] == draft.get_builder_search_url("code:128133004")
+    last_search_id = draft.searches.last().id
+    assert rsp.redirect_chain[-1][0] == draft.get_builder_search_url(
+        last_search_id, "code:128133004"
+    )
 
 
 def test_new_search_no_results(client, draft):
@@ -146,6 +155,75 @@ def test_new_search_no_results(client, draft):
 
     assert rsp.status_code == 200
     assert b"bananas" in rsp.content
+
+
+def test_new_search_first_non_alphanumeric_second_normal(
+    client, draft_with_no_searches
+):
+    client.force_login(draft_with_no_searches.author)
+
+    num_codes_before = len(draft_with_no_searches.codeset.all_codes())
+    # The string with the non-alphanumeric character doesn't return any
+    # matches, but it should still be counted as a search
+    with assert_difference(
+        draft_with_no_searches.searches.count, expected_difference=1
+    ):
+        client.post(
+            draft_with_no_searches.get_builder_new_search_url(),
+            {"search": "epicondylitis*"},
+            follow=True,
+        )
+
+    # We expect the first search to return no codes
+    assert len(draft_with_no_searches.codeset.all_codes()) == num_codes_before
+
+    # The second search without the non-alphanumric chars should still be
+    # classed as a search, even though the slug is the same
+    with assert_difference(
+        draft_with_no_searches.searches.count, expected_difference=1
+    ):
+        client.post(
+            draft_with_no_searches.get_builder_new_search_url(),
+            {"search": "epicondylitis"},
+            follow=True,
+        )
+
+    # This search returns should have returned some codes
+    assert len(draft_with_no_searches.codeset.all_codes()) > num_codes_before
+
+
+def test_new_search_first_normal_second_non_alphanumeric(
+    client, draft_with_no_searches
+):
+    client.force_login(draft_with_no_searches.author)
+
+    num_codes_before = len(draft_with_no_searches.codeset.all_codes())
+    with assert_difference(
+        draft_with_no_searches.searches.count, expected_difference=1
+    ):
+        client.post(
+            draft_with_no_searches.get_builder_new_search_url(),
+            {"search": "epicondylitis"},
+            follow=True,
+        )
+
+    # We expect the first search to return codes
+    num_codes_after = len(draft_with_no_searches.codeset.all_codes())
+    assert num_codes_after > num_codes_before
+
+    # The second search with the non-alphanumric chars should still be
+    # classed as a search, even though the slug is the same
+    with assert_difference(
+        draft_with_no_searches.searches.count, expected_difference=1
+    ):
+        client.post(
+            draft_with_no_searches.get_builder_new_search_url(),
+            {"search": "epicondylitis*"},
+            follow=True,
+        )
+
+    # The last search returns no codes, so the number shouldn't have changed
+    assert num_codes_after == len(draft_with_no_searches.codeset.all_codes())
 
 
 @pytest.mark.parametrize(
@@ -173,8 +251,11 @@ def test_new_search_check_slugified_terms(client, draft, term, valid, slug):
         {"search": term},
     )
     assert rsp.status_code == 302
+    last_search_id = draft.searches.last().id
+    last_search_slug = draft.searches.last().slug
     if valid:
-        assert rsp.url == draft.get_builder_search_url(slug)
+        assert slug == last_search_slug
+        assert rsp.url == draft.get_builder_search_url(last_search_id, last_search_slug)
     else:
         assert rsp.url == draft.get_builder_draft_url()
 

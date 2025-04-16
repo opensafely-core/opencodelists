@@ -157,6 +157,75 @@ def test_new_search_no_results(client, draft):
     assert b"bananas" in rsp.content
 
 
+def test_new_search_first_non_alphanumeric_second_normal(
+    client, draft_with_no_searches
+):
+    client.force_login(draft_with_no_searches.author)
+
+    num_codes_before = len(draft_with_no_searches.codeset.all_codes())
+    # The string with the non-alphanumeric character doesn't return any
+    # matches, but it should still be counted as a search
+    with assert_difference(
+        draft_with_no_searches.searches.count, expected_difference=1
+    ):
+        client.post(
+            draft_with_no_searches.get_builder_new_search_url(),
+            {"search": "epicondylitis*"},
+            follow=True,
+        )
+
+    # We expect the first search to return no codes
+    assert len(draft_with_no_searches.codeset.all_codes()) == num_codes_before
+
+    # The second search without the non-alphanumric chars should still be
+    # classed as a search, even though the slug is the same
+    with assert_difference(
+        draft_with_no_searches.searches.count, expected_difference=1
+    ):
+        client.post(
+            draft_with_no_searches.get_builder_new_search_url(),
+            {"search": "epicondylitis"},
+            follow=True,
+        )
+
+    # This search returns should have returned some codes
+    assert len(draft_with_no_searches.codeset.all_codes()) > num_codes_before
+
+
+def test_new_search_first_normal_second_non_alphanumeric(
+    client, draft_with_no_searches
+):
+    client.force_login(draft_with_no_searches.author)
+
+    num_codes_before = len(draft_with_no_searches.codeset.all_codes())
+    with assert_difference(
+        draft_with_no_searches.searches.count, expected_difference=1
+    ):
+        client.post(
+            draft_with_no_searches.get_builder_new_search_url(),
+            {"search": "epicondylitis"},
+            follow=True,
+        )
+
+    # We expect the first search to return codes
+    num_codes_after = len(draft_with_no_searches.codeset.all_codes())
+    assert num_codes_after > num_codes_before
+
+    # The second search with the non-alphanumric chars should still be
+    # classed as a search, even though the slug is the same
+    with assert_difference(
+        draft_with_no_searches.searches.count, expected_difference=1
+    ):
+        client.post(
+            draft_with_no_searches.get_builder_new_search_url(),
+            {"search": "epicondylitis*"},
+            follow=True,
+        )
+
+    # The last search returns no codes, so the number shouldn't have changed
+    assert num_codes_after == len(draft_with_no_searches.codeset.all_codes())
+
+
 @pytest.mark.parametrize(
     "term,slug,valid",
     [

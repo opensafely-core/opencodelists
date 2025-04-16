@@ -1,10 +1,11 @@
 import pytest
 import sqlean as sqlite3
-from django.db import connections, models
+from django.db import models
 from rest_framework.authtoken.models import Token
 
 from deploy.bin.sanitise_backup import main as sanitise_backup
 from opencodelists.models import User
+from opencodelists.tests.lib.database import backup
 
 
 @pytest.mark.django_db(transaction=True)
@@ -37,7 +38,7 @@ class TestBackupSanitisation:
 
         api_tokens = {u.api_token for u in original_users if u.api_token}
 
-        backup_path = backup_db(tmp_path)
+        backup_path = self.backup_and_sanitise(tmp_path)
 
         conn = sqlite3.connect(backup_path)
         cur = conn.execute("SELECT key FROM authtoken_token;")
@@ -49,7 +50,7 @@ class TestBackupSanitisation:
         personal_data_fields = ["username", "email", "name", "password"]
         original_users = [v for v in universe.values() if isinstance(v, User)]
 
-        backup_path = backup_db(tmp_path)
+        backup_path = self.backup_and_sanitise(tmp_path)
 
         conn = sqlite3.connect(backup_path)
         cur = conn.execute(
@@ -90,7 +91,7 @@ class TestBackupSanitisation:
             )
         }
 
-        backup_path = backup_db(tmp_path)
+        backup_path = self.backup_and_sanitise(tmp_path)
 
         conn = sqlite3.connect(backup_path)
         for original_fixture, freetext_fields in fixtures_with_freetext.items():
@@ -156,7 +157,7 @@ class TestBackupSanitisation:
                 related_counts[related_field] = related_count
             original_related_object_counts[original_user] = related_counts
 
-        backup_path = backup_db(tmp_path)
+        backup_path = self.backup_and_sanitise(tmp_path)
 
         conn = sqlite3.connect(backup_path)
 
@@ -195,7 +196,7 @@ class TestBackupSanitisation:
             assert sanitised_occurrence_count == original_occurrence_count
 
     def test_django_sessions_removed(self, tmp_path):
-        backup_path = backup_db(tmp_path)
+        backup_path = self.backup_and_sanitise(tmp_path)
 
         conn = sqlite3.connect(backup_path)
         cur = conn.execute("SELECT COUNT(*) FROM django_session;")
@@ -203,10 +204,8 @@ class TestBackupSanitisation:
 
         assert count == 0
 
-
-def backup_db(tmp_path):
-    backup_path = tmp_path / "test_backup.db"
-    cur = connections["default"].cursor()
-    cur.execute(f"VACUUM main INTO '{backup_path}';")
-    sanitise_backup(backup_path)
-    return backup_path
+    def backup_and_sanitise(self, tmp_path):
+        backup_path = tmp_path / "test_backup.db"
+        backup(backup_path)
+        sanitise_backup(backup_path)
+        return backup_path

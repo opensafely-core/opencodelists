@@ -72,7 +72,7 @@ def main(backup_file):
                 fake_usernames.append(fake_username)
                 break;
         fake_name = fake.name()
-        fake_email = f"{username}@example.com"
+        fake_email = f"{fake_username}@example.com"
         fake_password = hash_password(fake.password())
 
         # Update FK fields (must be done first)

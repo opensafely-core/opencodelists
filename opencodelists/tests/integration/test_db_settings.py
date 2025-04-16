@@ -42,10 +42,10 @@ class TestDatabaseSettings:
     def test_database_pragma_busy_timeout(self, fresh_db_cursor):
         """Test that the `busy_timeout` parameter is set as we expect.
 
-        We don't set this explicitly in settings, but Django defaults it to 5s. Let's check."""
+        Django defaults it to 5s but we override in settings. Let's check."""
         # https://www.sqlite.org/pragma.html#pragma_busy_timeout
-        # 5 seconds in milliseconds == 5000.
-        _assert_pragma(fresh_db_cursor, "busy_timeout", 5000)
+        # 15 seconds in milliseconds == 15000.
+        _assert_pragma(fresh_db_cursor, "busy_timeout", 15000)
 
     def test_database_pragma_journal_mode(self, fresh_db_cursor):
         """Test that the `journal_mode` parameter is set as we expect."""

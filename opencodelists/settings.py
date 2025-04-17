@@ -198,10 +198,12 @@ DATABASES = {
                 # would set it by number of database pages.
                 f"PRAGMA cache_size = -{250 * 1024};"
             ),
-            # Transaction timeout in seconds. 5 is the default applied by the
-            # django backend; uncomment and edit the following line to change
-            # it. This affects PRAGMA busy_timeout.
-            # "timeout": 5,
+            # Transaction timeout in seconds. Increased from the default 5s as
+            # it may help with the remaining "Database is locked" errors. See
+            # https://github.com/opensafely-core/opencodelists/issues/2251 for
+            # discussion. This affects PRAGMA busy_timeout. Increasing it
+            # excessively may lead to worse UX for users that time out.
+            "timeout": 15,
             #
             # Switch from SQLite's default DEFERRED transaction mode to IMMEDIATE. This
             # has the effect that write transactions will respect the busy timeout,

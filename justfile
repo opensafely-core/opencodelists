@@ -295,3 +295,8 @@ docker-exec *args="bash": _env
 # run tests in docker container
 docker-smoke-test host="http://localhost:7000": _env
     {{ just_executable() }} docker/smoke-test {{ host }}
+
+
+# check migrations in the dev docker container
+docker-check-migrations *args="":
+    {{ just_executable() }} docker/check-migrations {{ args }}

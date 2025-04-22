@@ -50,6 +50,27 @@ def version(request, clv):
         status=Status.DRAFT
     ).exists()
 
+    def build_tree_data():
+        def process_node(code):
+            children = child_map.get(code, [])
+            processed_children = [process_node(child_code) for child_code in children]
+            processed_children.sort(key=lambda x: x["name"])
+
+            return {
+                "id": code,
+                "name": code_to_term[code],
+                "status": code_to_status[code],
+                "children": processed_children,
+            }
+
+        def generate_output_data():
+            return [
+                {"title": title, "children": [process_node(code) for code in children]}
+                for title, children in tree_tables
+            ]
+
+        return generate_output_data()
+
     ctx = {
         "clv": clv,
         "codelist": clv.codelist,
@@ -66,5 +87,6 @@ def version(request, clv):
         "search_results": present_search_results(clv, code_to_term),
         "user_can_edit": user_can_edit,
         "can_create_new_version": can_create_new_version,
+        "tree_data": build_tree_data(),
     }
     return render(request, "codelists/version.html", ctx)

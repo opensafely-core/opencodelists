@@ -253,7 +253,7 @@
 
         {% include "./_tab_nav.html" with label="Full list" tabname="full-list" %}
 
-        {% if tree_tables %}
+        {% if tree_data %}
           {% include "./_tab_nav.html" with label="Tree" tabname="tree" %}
         {% endif %}
 
@@ -267,7 +267,7 @@
 
         {% include "./_tab_pane.html" with tabname="full-list" partial="codelists/_full_list_tab.html" %}
 
-        {% if tree_tables %}
+        {% if tree_data %}
           {% include "./_tab_pane.html" with tabname="tree" partial="codelists/_tree_tables_tab.html" %}
         {% endif %}
 

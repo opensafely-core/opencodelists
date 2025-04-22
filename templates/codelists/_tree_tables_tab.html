@@ -2,4 +2,11 @@
   Codes not in the <a href="#full-list">full codelist</a> are in faint grey.
 </p>
 
-<div id="codelist-tree"></div>
+{% for section in tree_data %}
+  <section aria-labelledby="tree-{{ section.title|lower|urlize }}">
+    <h3 id="tree-{{ section.title|lower|urlize }}">{{ section.title }}</h3>
+    <ul title="Codes within the {{ section.title }} section">
+      {% include "_includes/tree_item.html" with list=section.children %}
+    </ul>
+  </section>
+{% endfor %}

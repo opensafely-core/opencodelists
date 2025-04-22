@@ -1,0 +1,42 @@
+{% for code in list %}
+  <li title="{{ code.name }}">
+    {% if code.children|length %}
+      <details open>
+        <summary>
+          <dl>
+            <dt class="sr-only">Status:</dt>
+            <dd>
+              {% if code.status == "+" %}
+                <span class="badge badge-primary">Included</span>
+              {% else %}
+                <span class="badge badge-secondary">Excluded</span>
+              {% endif %}
+              </dd>
+            <dt class="sr-only">Name:</dt>
+            <dd>{{ code.name }}</dd>
+            <dt class="sr-only">Code:</dt>
+            <dd>(<code>{{ code.id }}</code>)</dd>
+          </dl>
+        </summary>
+        <ul>
+          {% include "_includes/tree_item.html" with list=code.children %}
+        </ul>
+      </details>
+    {% else %}
+      <dl>
+        <dt class="sr-only">Status:</dt>
+        <dd>
+          {% if code.status == "+" %}
+            <span class="badge badge-primary">Included</span>
+          {% else %}
+            <span class="badge badge-secondary">Excluded</span>
+          {% endif %}
+          </dd>
+        <dt class="sr-only">Name:</dt>
+        <dd>{{ code.name }}</dd>
+        <dt class="sr-only">Code:</dt>
+        <dd>(<code>{{ code.id }}</code>)</dd>
+      </dl>
+    {% endif %}
+    </li>
+{% endfor %}

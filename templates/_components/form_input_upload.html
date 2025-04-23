@@ -1,0 +1,39 @@
+{% load widget_with_classes_filter %}
+
+<div>
+  <div class="flex items-center justify-between">
+    <label class="text-sm/6 font-semibold text-slate-900" for="{{ field.id_for_label }}">
+      {{ field.label }} {% if field.field.required %}<span class="text-red-800">*</span>{% endif %}
+    </label>
+    {% if label_extra %}{{ label_extra }}{% endif %}
+  </div>
+
+  <div class="mt-2 grid grid-cols-1">
+    {% fragment as field_classes %}
+      block w-full rounded-md bg-white text-base text-slate-900 outline-1 -outline-offset-1 focus:outline-2 focus:-outline-offset-2 sm:text-sm/6
+      file:cursor-pointer cursor-pointer file:border-0 file:py-3 file:px-4 file:mr-4 file:bg-slate-100 file:hover:bg-slate-200 file:text-slate-500
+      {% if field.errors %}
+        col-start-1 row-start-1 pr-10 pl-3 outline-red-300 focus:outline-red-600 sm:pr-9 sm:text-sm/6
+      {% else %}
+        outline-slate-300 focus:outline-blue-700
+      {% endif %}
+    {% endfragment %}
+    {{ field|widget_with_classes:field_classes }}
+
+    {% if field.errors %}
+      {% icon_exclamation_circle_mini class="pointer-events-none col-start-1 row-start-1 mr-3 size-5 self-center justify-self-end text-red-500 sm:size-4" %}
+    {% endif %}
+  </div>
+
+  <div class="prose prose-sm mt-2 text-slate-700">
+    {{ field.help_text }}
+  </div>
+
+  {% if field.errors %}
+    <ul class="mt-2 text-sm text-red-600" id="{{ field.html_name }}-error">
+      {% for error in field.errors %}
+        <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+</div>

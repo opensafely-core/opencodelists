@@ -4,6 +4,9 @@ from playwright.sync_api import expect
 from opencodelists.models import User
 
 
+pytestmark = pytest.mark.functional
+
+
 @pytest.fixture
 def functional_test_user():
     return User.objects.create_user(

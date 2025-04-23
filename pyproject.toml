@@ -25,6 +25,9 @@ addopts = "--tb=native --ignore=node_modules --no-migrations"
 filterwarnings = [
   "ignore:The FORMS_URLFIELD_ASSUME_HTTPS transitional setting is deprecated.",
 ]
+markers = [
+  "functional: tests that use Playwright in functional tests",
+]
 
 [tool.ruff]
 line-length = 88

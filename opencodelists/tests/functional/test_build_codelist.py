@@ -40,7 +40,8 @@ def login_context(browser, user_cookies):
         "snomedct_test_20200101",
         "dmd_test_20200101",
         "bnf_test_20200101",
-    ]
+    ],
+    transaction=True,
 )
 def test_codelist_builder(login_context, user_without_organisation, live_server):
     page = login_context.new_page()

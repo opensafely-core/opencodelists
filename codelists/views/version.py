@@ -49,9 +49,11 @@ def version(request, clv):
     ).exists()
 
     def build_tree_data():
-        def process_node(code):
+        def process_node(code, depth=0):
             children = child_map.get(code, [])
-            processed_children = [process_node(child_code) for child_code in children]
+            processed_children = [
+                process_node(child_code, depth + 1) for child_code in children
+            ]
             processed_children.sort(key=lambda x: x["name"])
 
             return {
@@ -59,6 +61,7 @@ def version(request, clv):
                 "name": code_to_term[code],
                 "status": code_to_status[code],
                 "children": processed_children,
+                "depth": depth,
             }
 
         def generate_output_data():

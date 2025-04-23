@@ -6,7 +6,6 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("codelists", "0014_remove_codelist_project"),
         ("opencodelists", "0002_auto_20200424_1017"),
     ]
 

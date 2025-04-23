@@ -3,7 +3,7 @@
 {% block title_extra %}Create a new codelist{% endblock %}
 
 {% block content %}
-  {% #registration_form button_text="Create" csrf_token=csrf_token form=form title="Create a new codelist" %}
+  {% #registration_form button_text="Create" csrf_token=csrf_token form=form title="Create a new codelist" enctype="multipart/form-data"%}
     {% form_input field=form.name %}
     {% form_input field=form.coding_system_id %}
     {% form_input field=form.csv_data %}

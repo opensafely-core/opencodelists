@@ -31,7 +31,7 @@
     {% endif %}
 
     <div class="bg-white px-6 py-12 shadow-sm sm:rounded-lg sm:px-12">
-      <form class="space-y-6" method="POST" {% attrs action %}>
+      <form class="space-y-6" method="POST" {% attrs action enctype %}>
         {% csrf_token %}
 
         {% if next %}

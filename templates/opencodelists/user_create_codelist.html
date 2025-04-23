@@ -1,17 +1,11 @@
-{% extends 'base.html' %}
+{% extends "base-tw.html" %}
 
-{% load crispy_forms_tags %}
+{% block title_extra %}Create a new codelist{% endblock %}
 
 {% block content %}
-
-<div class="row my-5">
-  <div class="col-8 offset-2">
-
-    <h3 class="mb-5">Create new codelist</h3>
-
-    {% crispy form %}
-
-  </div>
-</div>
-
+  {% #registration_form button_text="Create" csrf_token=csrf_token form=form title="Create a new codelist" %}
+    {% form_input field=form.name %}
+    {% form_input field=form.coding_system_id %}
+    {% form_input field=form.csv_data %}
+  {% /registration_form %}
 {% endblock %}

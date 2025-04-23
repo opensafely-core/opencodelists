@@ -34,10 +34,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('opencodelists', '0001_initial'),
-        ('opencodelists', '0002_auto_20200424_1017'),
-        ('opencodelists', '0006_remove_user_organisation'),
-        ('opencodelists', '0007_auto_20210114_1139'),
+        ('opencodelists', '0001_squashed_0009_20250423'),
         ('taggit', '0005_auto_20220424_2025'),
         ('versioning', '0003_rename_slug_codingsystemrelease_database_alias_and_more'),
         ('versioning', '0004_codingsystemrelease_state'),

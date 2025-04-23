@@ -1,41 +1,40 @@
 {% for code in list %}
-  <li title="{{ code.name }}">
+  <li class="tree__item" title="{{ code.name }}">
     {% if code.children|length %}
-      <details open>
-        <summary>
-          <dl>
+      <details class="tree__details" {% if code.depth < 2 %}open{% endif %}>
+        <summary class="tree__summary">
+          <svg class="tree__arrow" width="20" height="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+          </svg>
+          <dl class="tree__dl tree__dl--dropdown">
             <dt class="sr-only">Status:</dt>
-            <dd>
-              {% if code.status == "+" %}
-                <span class="badge badge-primary">Included</span>
-              {% else %}
-                <span class="badge badge-secondary">Excluded</span>
-              {% endif %}
-              </dd>
+            <dd class="tree__dd tree__badge {% if code.status == "+" %}tree__badge--included{% else %}tree__badge--excluded{% endif %}">
+              {% if code.status == "+" %}Included{% else %}Excluded{% endif %}
+            </dd>
             <dt class="sr-only">Name:</dt>
-            <dd>{{ code.name }}</dd>
+            <dd class="tree__dd tree__name {% if code.status == "-" %}tree__name--excluded{% endif %}">
+              {{ code.name }}
+            </dd>
             <dt class="sr-only">Code:</dt>
-            <dd>(<code>{{ code.id }}</code>)</dd>
+            <dd class="tree__dd">(<code>{{ code.id }}</code>)</dd>
           </dl>
         </summary>
-        <ul>
-          {% include "_includes/tree_item.html" with list=code.children %}
+        <ul class="tree__list" title="Codes within the {{ section.title }} section">
+          {% include "_includes/tree_item.html" with list=code.children depth=code.depth %}
         </ul>
       </details>
     {% else %}
-      <dl>
+      <dl class="tree__dl">
         <dt class="sr-only">Status:</dt>
-        <dd>
-          {% if code.status == "+" %}
-            <span class="badge badge-primary">Included</span>
-          {% else %}
-            <span class="badge badge-secondary">Excluded</span>
-          {% endif %}
-          </dd>
+        <dd class="tree__dd tree__badge {% if code.status == "+" %}tree__badge--included{% else %}tree__badge--excluded{% endif %}">
+          {% if code.status == "+" %}Included{% else %}Excluded{% endif %}
+        </dd>
         <dt class="sr-only">Name:</dt>
-        <dd>{{ code.name }}</dd>
+        <dd class="tree__dd tree__name {% if code.status == "-" %}tree__name--excluded{% endif %}">
+          {{ code.name }}
+        </dd>
         <dt class="sr-only">Code:</dt>
-        <dd>(<code>{{ code.id }}</code>)</dd>
+        <dd class="tree__dd">(<code>{{ code.id }}</code>)</dd>
       </dl>
     {% endif %}
     </li>

@@ -3,9 +3,10 @@
 </p>
 
 {% for section in tree_data %}
-  <section aria-labelledby="tree-{{ section.title|lower|urlize }}">
-    <h3 id="tree-{{ section.title|lower|urlize }}">{{ section.title }}</h3>
-    <ul title="Codes within the {{ section.title }} section">
+  <section class="tree" aria-labelledby="tree-{{ section.title|lower|urlize }}">
+    <h3 class="tree__title" id="tree-{{ section.title|lower|urlize }}">{{ section.title }}</h3>
+    <ul class="tree__list tree__list--root" title="Codes within the {{ section.title }} section">
+      {{ section.depth }}
       {% include "_includes/tree_item.html" with list=section.children %}
     </ul>
   </section>

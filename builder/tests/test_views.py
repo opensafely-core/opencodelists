@@ -3,7 +3,7 @@ from django.urls import reverse
 
 from codelists.actions import create_codelist_from_scratch
 from codelists.coding_systems import most_recent_database_alias
-from codelists.models import Codelist
+from codelists.models import Codelist, Search
 from codelists.tests.views.assertions import (
     assert_post_unauthenticated,
     assert_post_unauthorised,
@@ -296,3 +296,73 @@ def test_discard_one_draft_version(client, draft):
         rsp.redirect_chain[-1][0]
         == draft.codelist.latest_visible_version(draft.author).get_absolute_url()
     )
+
+
+def test_search_length_validation(client, draft_with_no_searches):
+    client.force_login(draft_with_no_searches.author)
+
+    max_search_term_length = Search._meta.get_field("term").max_length
+    term_with_max_chars = "a" * max_search_term_length
+    term_with_too_many_chars = "a" * (max_search_term_length + 1)
+    expected_term_error = (
+        f"Ensure this value has at most {max_search_term_length} characters".encode()
+    )
+
+    # If the search term length is at the limit then it is a valid search so the
+    # search count increments by one and the error message is not in the response
+    with assert_difference(
+        draft_with_no_searches.searches.count, expected_difference=1
+    ):
+        rsp = client.post(
+            draft_with_no_searches.get_builder_new_search_url(),
+            {"search": term_with_max_chars},
+            follow=True,
+        )
+    assert rsp.status_code == 200
+    assert expected_term_error not in rsp.content
+
+    # If the search term length is over the limit then it is an invalid search so
+    # the search count does not increment and the error message is in the response
+    with assert_difference(
+        draft_with_no_searches.searches.count, expected_difference=0
+    ):
+        rsp = client.post(
+            draft_with_no_searches.get_builder_new_search_url(),
+            {"search": term_with_too_many_chars},
+            follow=True,
+        )
+    assert rsp.status_code == 200
+    assert expected_term_error in rsp.content
+
+    max_search_code_length = Search._meta.get_field("code").max_length
+    code_with_max_chars = "code:" + "a" * max_search_code_length
+    code_with_too_many_chars = "code:" + "a" * (max_search_code_length + 1)
+    expected_code_error = (
+        f"Ensure this value has at most {max_search_code_length} characters".encode()
+    )
+
+    # If the search code length is at the limit then it is a valid search so the
+    # search count increments by one and the error message is not in the response
+    with assert_difference(
+        draft_with_no_searches.searches.count, expected_difference=1
+    ):
+        rsp = client.post(
+            draft_with_no_searches.get_builder_new_search_url(),
+            {"search": code_with_max_chars},
+            follow=True,
+        )
+    assert rsp.status_code == 200
+    assert expected_code_error not in rsp.content
+
+    # If the search code length is over the limit then it is an invalid search so
+    # the search count does not increment and the error message is in the response
+    with assert_difference(
+        draft_with_no_searches.searches.count, expected_difference=0
+    ):
+        rsp = client.post(
+            draft_with_no_searches.get_builder_new_search_url(),
+            {"search": code_with_too_many_chars},
+            follow=True,
+        )
+    assert rsp.status_code == 200
+    assert expected_code_error in rsp.content

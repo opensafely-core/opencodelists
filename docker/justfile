@@ -36,7 +36,7 @@ check-py: build
 check-migrations *args="": build
     docker compose run --rm dev python manage.py makemigrations --check {{ args }}
 
-# run tests in docker container
+# run Python (non-functional) tests in docker container
 test-py *args="":
     docker compose run --rm test python -m pytest \
     --cov=builder \
@@ -45,12 +45,18 @@ test-py *args="":
     --cov=mappings \
     --cov=opencodelists \
     --cov-report html \
-    --cov-report term-missing:skip-covered {{ args }}
+    --cov-report term-missing:skip-covered \
+    -m "not functional" {{ args }}
+
+# run functional tests in docker container
+test-functional *args="":
+    docker compose run --rm test python -m pytest \
+    -m "functional" {{ args }}
 
 test-js:
     docker compose run --rm node-assets npm run test
 
-test: test-js test-py
+test: test-js test-py test-functional
 
 _create_storage env:
     #!/usr/bin/env bash

@@ -124,7 +124,7 @@ update-dependencies:
 
 
 # *ARGS is variadic, 0 or more. This allows us to do `just test -k match`, for example.
-# Run the python tests
+# Run the python tests, excluding the functional tests.
 test-py *ARGS: devenv
     $BIN/python manage.py collectstatic --no-input && \
     $BIN/python -m pytest \
@@ -134,10 +134,17 @@ test-py *ARGS: devenv
     --cov=mappings \
     --cov=opencodelists \
     --cov-report html \
-    --cov-report term-missing:skip-covered {{ ARGS }}
+    --cov-report term-missing:skip-covered \
+    -m "not functional" {{ ARGS }}
+
+# Run the Python functional tests, using Playwright.
+test-functional *ARGS: devenv
+    $BIN/python manage.py collectstatic --no-input && \
+    $BIN/python -m pytest \
+    -m "functional" {{ ARGS }}
 
 # Run all the tests
-test: assets-test test-py
+test: assets-test test-py test-functional
 
 # Run formatting checks
 format *args=".": devenv
@@ -298,10 +305,13 @@ docker-check-py: _env
     {{ just_executable() }} docker/check-py
 
 
-# run python tests in docker container
+# run python non-functional tests in docker container
 docker-test-py *args="": _env
     {{ just_executable() }} docker/test-py {{ args }}
 
+# run functional tests in docker container
+docker-test-functional *args="": _env
+    {{ just_executable() }} docker/test-functional {{ args }}
 
 # run js tests in docker container
 docker-test-js: _env

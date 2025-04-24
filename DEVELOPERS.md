@@ -212,6 +212,18 @@ just test-py
 # run specific test with usual pytest syntax
 just test-py <path/to/test>::<test name>
 
+# run Playwright functional tests
+just test-functional
+
+# watch a specific functional test in browser, slowed down
+# This is useful in combination with script pausing when writing tests:
+# https://playwright.dev/python/docs/api/class-page#page-pause
+just test-functional <path/to/test>::<test name> --headed --slowmo=500
+
+# debug a specific functional test
+# See https://playwright.dev/python/docs/debug for more information.
+PWDEBUG=1 just test-functional <path/to/test>::<test name>
+
 # js tests
 just assets-test
 

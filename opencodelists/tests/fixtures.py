@@ -138,6 +138,12 @@ CODING_SYSTEM_RELEASES_FIXTURES_PATH = Path(
 )
 
 
+def get_fixture_scope(fixture_name, config):
+    if config.getoption("-m") == "functional":
+        return "function"
+    return "session"
+
+
 def build_fixture(fixture_name):
     """Build a fixture function that returns the fixture object with the given name."""
 
@@ -164,7 +170,7 @@ def build_fixture(fixture_name):
     return pytest.fixture()(fixture)
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope=get_fixture_scope)
 def setup_coding_systems(django_db_setup, django_db_blocker):
     with django_db_blocker.unblock():
         # load the CodingSystemReleases needed for the snomed and dmd fixtures
@@ -174,7 +180,7 @@ def setup_coding_systems(django_db_setup, django_db_blocker):
         )
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope=get_fixture_scope)
 def snomedct_data(setup_coding_systems, django_db_setup, django_db_blocker):
     with django_db_blocker.unblock():
         # load enough of the SNOMED CT hierarchy to be useful
@@ -195,7 +201,7 @@ def snomedct_data(setup_coding_systems, django_db_setup, django_db_blocker):
         )
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope=get_fixture_scope)
 def dmd_data(setup_coding_systems, django_db_setup, django_db_blocker):
     with django_db_blocker.unblock():
         # load a very small amount of the DMD coding system
@@ -206,7 +212,7 @@ def dmd_data(setup_coding_systems, django_db_setup, django_db_blocker):
         )
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope=get_fixture_scope)
 def bnf_data(setup_coding_systems, django_db_setup, django_db_blocker):
     with django_db_blocker.unblock():
         # load a very small amount of the BNF coding system
@@ -217,7 +223,7 @@ def bnf_data(setup_coding_systems, django_db_setup, django_db_blocker):
         )
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope=get_fixture_scope)
 def dmd_bnf_mapping_data(setup_coding_systems, django_db_setup, django_db_blocker):
     with django_db_blocker.unblock():
         # load a very small amount of the BNF coding system
@@ -228,7 +234,7 @@ def dmd_bnf_mapping_data(setup_coding_systems, django_db_setup, django_db_blocke
         )
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope=get_fixture_scope)
 def universe(snomedct_data, dmd_data, bnf_data, django_db_setup, django_db_blocker):
     """Create universe of fixture objects.
 

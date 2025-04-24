@@ -2,8 +2,6 @@ import csv
 import operator
 from io import StringIO
 
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit
 from django import forms
 from django.contrib.auth import password_validation
 
@@ -64,8 +62,6 @@ class CodelistCreateForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         owner_choices = kwargs.pop("owner_choices")
-        self.helper = FormHelper()
-        self.helper.add_input(Submit("submit", "Create"))
         super().__init__(*args, **kwargs)
         if owner_choices:
             self.fields["owner"] = forms.ChoiceField(choices=owner_choices)

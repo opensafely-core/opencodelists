@@ -33,6 +33,8 @@ check-js:
 check-py: build
     docker compose run --rm dev /app/docker/entrypoints/check.sh
 
+check-migrations *args="": build
+    docker compose run --rm dev python manage.py makemigrations --check {{ args }}
 
 # run tests in docker container
 test-py *args="":

@@ -4,6 +4,9 @@
 
 {% block content %}
   {% #registration_form button_text="Create" csrf_token=csrf_token form=form title="Create a new codelist" enctype="multipart/form-data"%}
+    {% if form.owner %}
+      {% form_input field=form.owner %}
+    {% endif %}
     {% form_input field=form.name %}
     {% form_input field=form.coding_system_id %}
     {% form_input_upload field=form.csv_data %}

@@ -3,6 +3,7 @@ from datetime import date
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.forms import ValidationError
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -225,6 +226,16 @@ def new_search(request, draft):
         term = None
     else:
         code = None
+
+    # Create temporary model instance to validate the term and code fields to
+    # ensure e.g. that max_length constraints are enforced
+    search = draft.searches.model(term=term, code=code)
+    try:
+        search.clean_fields(exclude=["slug", "version"])  # validate only term and code
+    except ValidationError as e:
+        for field, errors in e.message_dict.items():
+            messages.error(request, f"{field}: {', '.join(errors)}")
+        return redirect(draft.get_builder_draft_url())
 
     codes = do_search(draft.coding_system, term=term, code=code)["all_codes"]
 

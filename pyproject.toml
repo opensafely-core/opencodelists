@@ -25,6 +25,10 @@ addopts = "--tb=native --ignore=node_modules --no-migrations"
 filterwarnings = [
   "ignore:The FORMS_URLFIELD_ASSUME_HTTPS transitional setting is deprecated.",
 ]
+markers = [
+  "functional: tests that use Playwright in functional tests",
+]
+
 # This is the pytest-django default. We're setting it explicitly, to
 # make it clear that tests are not run in debug mode.
 django_debug_mode = false

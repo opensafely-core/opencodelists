@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button, Form } from "react-bootstrap";
 import { getCookie } from "../_utils";
 import { PageData } from "../types";
@@ -12,6 +12,19 @@ export default function SearchForm({
   codingSystemName,
   searchURL,
 }: SearchFormProps) {
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // NB, if you change the max search length, remember to change it on
+  // the server side as well (codelists/models.py - Search - term)
+  const MAX_SEARCH_LENGTH = 255;
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (value.length <= MAX_SEARCH_LENGTH) {
+      setSearchTerm(value);
+    }
+  };
+
   return (
     <Form action={encodeURI(searchURL)} method="post">
       <Form.Group>
@@ -20,7 +33,21 @@ export default function SearchForm({
           type="hidden"
           value={getCookie("csrftoken")}
         />
-        <Form.Control name="search" placeholder="Term or code" type="search" />
+        <Form.Control
+          name="search"
+          placeholder="Term or code"
+          type="search"
+          value={searchTerm}
+          onInput={handleSearchChange}
+          maxLength={MAX_SEARCH_LENGTH}
+          isInvalid={searchTerm.length >= MAX_SEARCH_LENGTH}
+        />
+        {searchTerm.length >= MAX_SEARCH_LENGTH && (
+          <Form.Control.Feedback type="invalid">
+            Your search term has reached the maximum length of{" "}
+            {MAX_SEARCH_LENGTH} characters
+          </Form.Control.Feedback>
+        )}
       </Form.Group>
       <Form.Group>
         <Button

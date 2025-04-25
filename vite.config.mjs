@@ -14,6 +14,7 @@ export default defineConfig(({ mode }) => ({
         builder: "assets/src/scripts/builder/index.tsx",
         codelist: "assets/src/scripts/codelist.js",
         "codelists-version": "assets/src/scripts/codelists-version.js",
+        tree: "assets/src/scripts/tree/index.tsx",
         tw: "assets/src/scripts/tw.js"
       },
     },

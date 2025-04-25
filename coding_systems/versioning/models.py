@@ -76,13 +76,19 @@ def update_coding_system_database_connections():
         for coding_system_release in CodingSystemRelease.objects.all():
             if not CODING_SYSTEMS[coding_system_release.coding_system].has_database:
                 continue
-            db_path = (
-                settings.CODING_SYSTEMS_DATABASE_DIR
-                / coding_system_release.coding_system
-                / f"{coding_system_release.database_alias}.sqlite3"
-            )
+            db_path = build_db_path(coding_system_release)
             database_dict = {
                 **connections.databases[DEFAULT_DB_ALIAS],
                 **dj_database_url.parse(f"sqlite:///{db_path}"),
             }
             connections.databases[coding_system_release.database_alias] = database_dict
+
+
+def build_db_path(coding_system_release):
+    db_path = (
+        settings.CODING_SYSTEMS_DATABASE_DIR
+        / coding_system_release.coding_system
+        / f"{coding_system_release.database_alias}.sqlite3"
+    )
+
+    return db_path

@@ -168,6 +168,8 @@ def _draft(request, draft, search_id):
         ),
         "codelist_full_slug": codelist.full_slug(),
         "hash": draft.hash,
+        "codelist_name": codelist.name,
+        "draft": True,
     }
 
     ctx = {

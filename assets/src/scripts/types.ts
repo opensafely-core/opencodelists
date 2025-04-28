@@ -26,11 +26,13 @@ export interface PageData {
   isEditable: boolean;
   metadata: {
     codelist_full_slug: string;
+    codelist_name: string;
     coding_system_name: string;
     coding_system_release: {
       release_name: string;
       valid_from: string;
     };
+    draft: boolean;
     hash: string;
     organisation_name: string;
   };

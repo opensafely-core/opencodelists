@@ -81,10 +81,6 @@ export default function SearchForm({
             Otherwise, searching will return all concepts with a description
             containing the search term.
           </p>
-          <p>
-            We plan to support boolean search operators (eg{" "}
-            <code>ambulatory AND blood pressure</code>) in future.
-          </p>
         </Form.Text>
       </Form.Group>
     </Form>

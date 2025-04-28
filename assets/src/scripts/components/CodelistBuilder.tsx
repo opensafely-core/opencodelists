@@ -9,6 +9,7 @@ import ManagementForm from "./ManagementForm";
 import Search from "./Search";
 import SearchForm from "./SearchForm";
 import Summary from "./Summary";
+import Title from "./Title";
 import TreeTables from "./TreeTables";
 import Version from "./Version";
 
@@ -152,6 +153,7 @@ export default class CodelistBuilder extends React.Component<
 
     return (
       <>
+        <Title name={metadata.codelist_name} />
         <Row>
           <Col md="3">
             {isEditable && <ManagementForm counts={this.counts()} />}

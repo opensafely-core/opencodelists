@@ -18,28 +18,20 @@ class CodingSystem(BaseCodingSystem):
     def ancestor_relationships(self, codes):
         amps = AMP.objects.using(self.database_alias).filter(id__in=codes)
         vmps = VMP.objects.using(self.database_alias).filter(
-            Q(vtm__id__in=(codes))
-            | Q(id__in=(set(codes) | {amp.vmp_id for amp in amps}))
+            id__in=set(codes) | {amp.vmp_id for amp in amps}
         )
 
         return {(amp.vmp_id, amp.id) for amp in amps} | {
-            (vmp.vtm_id, vmp.id) for vmp in vmps
+            (vmp.vtm_id, vmp.id) for vmp in vmps if vmp.vtm_id
         }
 
     def descendant_relationships(self, codes):
         vmps_from_vtms = VMP.objects.using(self.database_alias).filter(vtm__in=codes)
-        vmps_from_ings = VMP.objects.using(self.database_alias).filter(
-            vpi__ing_id__in=codes
-        )
-        amps_from_ings = AMP.objects.using(self.database_alias).filter(
-            vmp_id__in=[vmp.id for vmp in vmps_from_ings]
-        )
         amps_from_vmps = AMP.objects.using(self.database_alias).filter(vmp_id__in=codes)
 
         rv = (
             {(vmp.vtm_id, vmp.id) for vmp in vmps_from_vtms}
-            | {(vmp.vtm_id, vmp.id) for vmp in vmps_from_vtms}
-            | {(amp.vmp_id, amp.id) for amp in amps_from_ings}
+            | {(vmp.vtm_id, vmp.id) for vmp in vmps_from_vtms if vmp.vtm_id}
             | {(amp.vmp_id, amp.id) for amp in amps_from_vmps}
         )
         return rv
@@ -61,26 +53,33 @@ class CodingSystem(BaseCodingSystem):
             .filter(nm__contains=term)
             .values_list("id", flat=True)
         )
-        vmps = set(
+        vmps_from_ings = set(
             VMP.objects.using(self.database_alias)
-            .filter(Q(nm__contains=term) | Q(vpi__ing_id__in=ings))
+            .filter(vpi__ing_id__in=ings)
             .values_list("id", flat=True)
         )
         vtms = set(
             VTM.objects.using(self.database_alias)
-            .filter(Q(nm__contains=term) | Q(vmp__id__in=vmps))
+            .filter(Q(nm__contains=term) | Q(vmp__id__in=vmps_from_ings))
+            .values_list("id", flat=True)
+        )
+        vmps = set(
+            VMP.objects.using(self.database_alias)
+            .filter(nm__contains=term)
+            .values_list("id", flat=True)
+        )
+        vmps_from_vtms = set(
+            VMP.objects.using(self.database_alias)
+            .filter(vtm__id__in=vtms)
+            .values_list("id", flat=True)
+        )
+        amps = set(
+            AMP.objects.using(self.database_alias)
+            .filter(Q(nm__contains=term) | Q(descr__contains=term))
             .values_list("id", flat=True)
         )
 
-        return (
-            vtms
-            | vmps
-            | set(
-                AMP.objects.using(self.database_alias)
-                .filter(Q(nm__contains=term) | Q(descr__contains=term))
-                .values_list("id", flat=True)
-            )
-        )
+        return vtms | vmps | vmps_from_vtms | vmps_from_ings | amps
 
     def search_by_code(self, code):
         """
@@ -127,21 +126,30 @@ class CodingSystem(BaseCodingSystem):
         displaying them in separate "type" sections doesn't make
         sense.
         """
-        d = {
-            "Ingredient": Ing.objects.using(self.database_alias)
-            .filter(id__in=codes)
-            .values_list("id", flat=True),
-            "VTM": VTM.objects.using(self.database_alias)
-            .filter(id__in=codes)
-            .values_list("id", flat=True),
-            "VMP": VMP.objects.using(self.database_alias)
-            .filter(id__in=codes)
-            .values_list("id", flat=True),
-            "AMP": AMP.objects.using(self.database_alias)
-            .filter(id__in=codes)
-            .values_list("id", flat=True),
-        }
-        return {"Product": v for _, v in d.items() if v}
+        codes = (
+            list(
+                Ing.objects.using(self.database_alias)
+                .filter(id__in=codes)
+                .values_list("id", flat=True)
+            )
+            + list(
+                VTM.objects.using(self.database_alias)
+                .filter(id__in=codes)
+                .values_list("id", flat=True)
+            )
+            + list(
+                VMP.objects.using(self.database_alias)
+                .filter(id__in=codes)
+                .values_list("id", flat=True)
+            )
+            + list(
+                AMP.objects.using(self.database_alias)
+                .filter(id__in=codes)
+                .values_list("id", flat=True)
+            )
+        )
+
+        return {"Product": codes}
 
     def matching_codes(self, codes):
         return (

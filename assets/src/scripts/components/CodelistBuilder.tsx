@@ -152,8 +152,10 @@ export default class CodelistBuilder extends React.Component<
 
     return (
       <>
-        <Title name={metadata.codelist_name} />
+        <div className="border-bottom mb-3 pb-3">
+          <Title name={metadata.codelist_name} />
           <Metadata data={metadata} />
+        </div>
         <Row>
           <Col md="3">
             {isEditable && <ManagementForm counts={this.counts()} />}

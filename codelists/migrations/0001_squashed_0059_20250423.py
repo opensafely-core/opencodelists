@@ -36,8 +36,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ('opencodelists', '0001_squashed_0009_20250423'),
         ('taggit', '0005_auto_20220424_2025'),
-        ('versioning', '0003_rename_slug_codingsystemrelease_database_alias_and_more'),
-        ('versioning', '0004_codingsystemrelease_state'),
+        ('versioning', '0001_squashed_0004_20250425'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 

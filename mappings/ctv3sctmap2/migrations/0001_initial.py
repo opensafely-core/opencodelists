@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ("snomedct", "0003_auto_20200806_1428"),
+        ("snomedct", "0001_squashed_0004_20250425"),
         ("ctv3", "0001_initial"),
     ]
 

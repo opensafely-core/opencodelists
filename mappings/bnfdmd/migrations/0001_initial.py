@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ("bnf", "0002_auto_20200930_0928"),
+        ("bnf", "0001_squashed_0002_20250425"),
     ]
 
     operations = [

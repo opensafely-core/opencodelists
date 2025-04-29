@@ -6,7 +6,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    replaces = [('bnf', '0001_initial'), ('bnf', '0002_auto_20200930_0928')]
+    # replaces = [('bnf', '0001_initial'), ('bnf', '0002_auto_20200930_0928')]
 
     initial = True
 

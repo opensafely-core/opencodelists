@@ -5,7 +5,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    replaces = [('versioning', '0001_initial'), ('versioning', '0002_rename_codingsystemversion_codingsystemrelease'), ('versioning', '0003_rename_slug_codingsystemrelease_database_alias_and_more'), ('versioning', '0004_codingsystemrelease_state')]
+    # replaces = [('versioning', '0001_initial'), ('versioning', '0002_rename_codingsystemversion_codingsystemrelease'), ('versioning', '0003_rename_slug_codingsystemrelease_database_alias_and_more'), ('versioning', '0004_codingsystemrelease_state')]
 
     initial = True
 

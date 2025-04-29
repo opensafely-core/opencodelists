@@ -6,7 +6,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    replaces = [('snomedct', '0001_initial'), ('snomedct', '0002_historysubstitution_querytablerecord'), ('snomedct', '0003_auto_20200806_1428'), ('snomedct', '0004_remove_querytablerecord_and_historysubstitution')]
+    # replaces = [('snomedct', '0001_initial'), ('snomedct', '0002_historysubstitution_querytablerecord'), ('snomedct', '0003_auto_20200806_1428'), ('snomedct', '0004_remove_querytablerecord_and_historysubstitution')]
 
     initial = True
 

@@ -14,17 +14,17 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-    replaces = [
-        ("opencodelists", "0001_initial"),
-        ("opencodelists", "0002_auto_20200424_1017"),
-        ("opencodelists", "0003_delete_project"),
-        ("opencodelists", "0004_auto_20201112_1200"),
-        ("opencodelists", "0005_auto_20201112_1231"),
-        ("opencodelists", "0006_remove_user_organisation"),
-        ("opencodelists", "0007_auto_20210114_1139"),
-        ("opencodelists", "0008_alter_user_username"),
-        ("opencodelists", "0009_alter_user_options"),
-    ]
+    # replaces = [
+    #     ("opencodelists", "0001_initial"),
+    #     ("opencodelists", "0002_auto_20200424_1017"),
+    #     ("opencodelists", "0003_delete_project"),
+    #     ("opencodelists", "0004_auto_20201112_1200"),
+    #     ("opencodelists", "0005_auto_20201112_1231"),
+    #     ("opencodelists", "0006_remove_user_organisation"),
+    #     ("opencodelists", "0007_auto_20210114_1139"),
+    #     ("opencodelists", "0008_alter_user_username"),
+    #     ("opencodelists", "0009_alter_user_options"),
+    # ]
 
     initial = True
 

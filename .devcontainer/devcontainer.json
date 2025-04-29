@@ -1,0 +1,6 @@
+{
+    "name": "OpenCodelists",
+    "features": {
+        "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+    }
+}

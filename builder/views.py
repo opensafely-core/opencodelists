@@ -124,8 +124,10 @@ def _draft(request, draft, search_id):
 
     if search_id == NO_SEARCH_TERM:
         results_heading = "Showing concepts with no matching search term"
+    elif search_id is not None and search.term:
+        results_heading = f'Showing concepts matching "{search.term}"'
     elif search_id is not None:
-        results_heading = f'Showing concepts matching "{search.term_or_code}"'
+        results_heading = f"Showing concepts matching the code: {search.code}"
     elif codeset.all_codes():
         results_heading = "Showing all matching concepts"
     else:

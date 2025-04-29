@@ -89,4 +89,5 @@ exec env="dev" *args="bash":
 smoke-test host="http://localhost:7000":
     #!/bin/bash
     set -eu
+    docker compose exec prod bash /app/deploy/prod.sh
     curl -I {{ host }} -s --compressed --fail --retry 20 --retry-delay 1 --retry-all-errors

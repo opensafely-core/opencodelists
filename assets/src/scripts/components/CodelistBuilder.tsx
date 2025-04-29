@@ -173,7 +173,6 @@ export default class CodelistBuilder extends React.Component<
 
             {isEditable && (
               <>
-                <h3 className="h6">New search</h3>
                 <SearchForm
                   codingSystemName={metadata.coding_system_name}
                   searchURL={searchURL}

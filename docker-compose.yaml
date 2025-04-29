@@ -1,0 +1,24 @@
+services:
+  dokku:
+    image: dokku/dokku:0.32.4
+    container_name: dokku
+    network_mode: bridge
+    ports:
+      - "3022:22"
+      - "8080:80"
+      - "8443:443"
+      - "7000:7000"
+    volumes:
+      - "/var/lib/dokku:/mnt/dokku"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    environment:
+      DOKKU_HOSTNAME: dokku.me
+      DOKKU_HOST_ROOT: /var/lib/dokku/home/dokku
+      DOKKU_LIB_HOST_ROOT: /var/lib/dokku/var/lib/dokku
+    restart: unless-stopped
+  otel-collector:
+    image: otel/opentelemetry-collector:latest
+    container_name: otel-collector
+    network_mode: bridge
+    ports:
+      - "4318:4318"

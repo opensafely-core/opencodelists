@@ -1,0 +1,8 @@
+{
+    "name": "OpenCodelists",
+    "features": {
+        "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+    },
+    "image": "mcr.microsoft.com/devcontainers/universal:3",
+    "postCreateCommand": "containerWorkspaceFolder=${containerWorkspaceFolder} ./local-deploy.sh"
+}

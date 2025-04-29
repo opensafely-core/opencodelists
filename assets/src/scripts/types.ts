@@ -32,7 +32,6 @@ export interface PageData {
       release_name: string;
       valid_from: string;
     };
-    draft: boolean;
     hash: string;
     organisation_name: string;
   };

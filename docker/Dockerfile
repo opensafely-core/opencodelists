@@ -171,8 +171,6 @@ COPY . /app
 RUN TRUD_API_KEY=dummy-key SECRET_KEY=dummy-key \
     python /app/manage.py collectstatic --no-input
 
-ENTRYPOINT ["/app/docker/entrypoints/prod.sh"]
-
 # We set command rather than entrypoint, to make it easier to run different
 # things from the cli
 CMD ["gunicorn", "--config", "/app/deploy/gunicorn/conf.py", "opencodelists.wsgi"]

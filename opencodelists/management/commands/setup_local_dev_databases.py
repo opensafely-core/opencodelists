@@ -104,6 +104,9 @@ class Command(BaseCommand):
         # instantiate the test data universe
         build_fixtures()
 
+        self.stdout.write(
+            "Creating Django superuser; you will be prompted to create a password"
+        )
         call_command(
             "createsuperuser",
             no_input=True,

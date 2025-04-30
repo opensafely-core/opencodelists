@@ -4,7 +4,8 @@ import pytest
 from django.core.management import call_command
 
 
-def test_setup_local_dev_databases_exits_early_when_in_prod_environment():
+def test_setup_local_dev_databases_exits_early_when_in_prod_environment(settings):
+    settings.DEBUG = False
     with pytest.raises(SystemExit) as error:
         call_command("setup_local_dev_databases")
 

@@ -1,5 +1,6 @@
 import sys
 
+from django.conf import settings
 from django.core.management import BaseCommand, call_command
 
 from coding_systems.versioning.models import (
@@ -7,7 +8,6 @@ from coding_systems.versioning.models import (
     build_db_path,
     update_coding_system_database_connections,
 )
-from opencodelists import settings
 from opencodelists.tests.fixtures import build_fixtures
 
 

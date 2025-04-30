@@ -22,6 +22,9 @@ addopts = "--tb=native --ignore=node_modules --no-migrations"
 filterwarnings = [
   "ignore:The FORMS_URLFIELD_ASSUME_HTTPS transitional setting is deprecated.",
 ]
+# This is the pytest-django default. We're setting it explicitly, to
+# make it clear that tests are not run in debug mode.
+django_debug_mode = false
 
 [tool.ruff]
 line-length = 88

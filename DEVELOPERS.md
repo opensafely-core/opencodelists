@@ -133,10 +133,11 @@ and so contains user personal data and API keys.
 For development purposes,you should use the sanitised copy at
 `/storage/backup/db/sanitised-latest-db.sqlite3.zst`.  You can use `scp`, `zstd
 -d` and `sqlite3 ".restore" to bring your local database into the same state as
-the production database. Refer to the team manual [OpenCodelists
-playbook](https://bennett.wiki/tech-group/playbooks/opencodelists/) for
-commands.  You may also wish to retrieve the coding systems databases,
-otherwise you will not be able to interact with codelists that require them.
+the production database.  You may also wish to retrieve some or all of the
+coding systems databases, otherwise you will not be able to view codelists that
+require them or build codelists.  Refer to the team manual [OpenCodelists
+playbook](https://bennett.wiki/tech-group/playbooks/opencodelists/) for how to
+do those tasks on our infrastructure.
 
 ## Local development
 

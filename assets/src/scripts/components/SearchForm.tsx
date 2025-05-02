@@ -13,9 +13,9 @@ export default function SearchForm({
   searchURL,
 }: SearchFormProps) {
   // NB, if you change the max search length, remember to change it on
-  // the server side as well (codelists/models.py - Search - term)
-  const MAX_SEARCH_LENGTH = 255;
-  const MAX_CODE_LENGTH = 18;
+  // the server side as well in the models.py file
+  const MAX_SEARCH_LENGTH = 255; // (codelists/models.py - Search - term)
+  const MAX_CODE_LENGTH = 18; // (codelists/models.py - Search - code)
 
   type SearchOptionKeys = "term" | "code";
   const SEARCH_OPTIONS: {

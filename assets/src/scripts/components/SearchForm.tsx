@@ -69,9 +69,11 @@ export default function SearchForm({
           type="hidden"
           value={getCookie("csrftoken")}
         />
-        <Form.Group>
-          <Form.Label>Search by:</Form.Label>
-          <div>
+        <fieldset>
+          <Form.Group>
+            <Form.Label className="h6 mt-1" as="legend">
+              Search by:
+            </Form.Label>
             {Object.values(SEARCH_OPTIONS).map((option) => (
               <Form.Check
                 key={option.value}
@@ -85,11 +87,15 @@ export default function SearchForm({
                 onChange={handleSearchTypeChange}
               />
             ))}
-          </div>
-        </Form.Group>
+          </Form.Group>
+        </fieldset>
         <Form.Group>
           <InputGroup className="mb-3">
+            <Form.Label srOnly htmlFor="searchInput">
+              {SEARCH_OPTIONS[searchType].placeholder}
+            </Form.Label>
             <Form.Control
+              id="searchInput"
               name="search"
               placeholder={SEARCH_OPTIONS[searchType].placeholder}
               type="search"

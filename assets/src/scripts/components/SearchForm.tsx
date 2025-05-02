@@ -30,14 +30,14 @@ export default function SearchForm({
     term: {
       label: "Term",
       value: "term",
-      placeholder: "Enter a search term...",
+      placeholder: "Enter a search term…",
       maxLength: MAX_SEARCH_LENGTH,
       validationMsg: `Your search term has reached the maximum length of ${MAX_SEARCH_LENGTH} characters`,
     },
     code: {
       label: "Code",
       value: "code",
-      placeholder: "Enter a clinical code...",
+      placeholder: "Enter a clinical code…",
       maxLength: MAX_CODE_LENGTH,
       validationMsg: `Your clinical code has reached the maximum length of ${MAX_CODE_LENGTH} characters`,
     },

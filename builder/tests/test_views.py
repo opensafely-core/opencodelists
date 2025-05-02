@@ -115,7 +115,7 @@ def test_new_search_for_term(client, draft):
     with assert_difference(draft.searches.count, expected_difference=1):
         rsp = client.post(
             draft.get_builder_new_search_url(),
-            {"search": "epicondylitis"},
+            {"search": "epicondylitis", "search-type": "term"},
             follow=True,
         )
 
@@ -132,7 +132,7 @@ def test_new_search_for_code(client, draft):
     with assert_difference(draft.searches.count, expected_difference=1):
         rsp = client.post(
             draft.get_builder_new_search_url(),
-            {"search": "code:128133004"},
+            {"search": "128133004", "search-type": "code"},
             follow=True,
         )
 
@@ -149,7 +149,7 @@ def test_new_search_no_results(client, draft):
     with assert_difference(draft.searches.count, expected_difference=1):
         rsp = client.post(
             draft.get_builder_new_search_url(),
-            {"search": "bananas"},
+            {"search": "bananas", "search-type": "term"},
             follow=True,
         )
 
@@ -170,7 +170,7 @@ def test_new_search_first_non_alphanumeric_second_normal(
     ):
         client.post(
             draft_with_no_searches.get_builder_new_search_url(),
-            {"search": "epicondylitis*"},
+            {"search": "epicondylitis*", "search-type": "term"},
             follow=True,
         )
 
@@ -184,7 +184,7 @@ def test_new_search_first_non_alphanumeric_second_normal(
     ):
         client.post(
             draft_with_no_searches.get_builder_new_search_url(),
-            {"search": "epicondylitis"},
+            {"search": "epicondylitis", "search-type": "term"},
             follow=True,
         )
 
@@ -203,7 +203,7 @@ def test_new_search_first_normal_second_non_alphanumeric(
     ):
         client.post(
             draft_with_no_searches.get_builder_new_search_url(),
-            {"search": "epicondylitis"},
+            {"search": "epicondylitis", "search-type": "term"},
             follow=True,
         )
 
@@ -218,7 +218,7 @@ def test_new_search_first_normal_second_non_alphanumeric(
     ):
         client.post(
             draft_with_no_searches.get_builder_new_search_url(),
-            {"search": "epicondylitis*"},
+            {"search": "epicondylitis*", "search-type": "term"},
             follow=True,
         )
 
@@ -227,28 +227,30 @@ def test_new_search_first_normal_second_non_alphanumeric(
 
 
 @pytest.mark.parametrize(
-    "term,slug,valid",
+    "term,search_type,slug,valid",
     [
         # standard characters with case
-        ("Foo", "foo", True),
+        ("Foo", "term", "foo", True),
         # spaces and non-slug characters allowed, removed/replaced in slug
-        ("foo 123", "foo-123", True),
-        ("foo_123", "foo_123", True),
-        ("&123", "123", True),
-        # code: prefixed terms are not slugified
-        ("code:*", "code:*", True),
-        ("code:&£%^", "code:&£%^", True),
+        ("foo 123", "term", "foo-123", True),
+        ("foo_123", "term", "foo_123", True),
+        ("&123", "term", "123", True),
+        # code searches gain a "code:" prefix but remain unchanged
+        ("123", "code", "code:123", True),
+        ("12 34", "code", "code:12 34", True),
         # search terms that result in an empty slug are not allowed
-        ("*", "", False),
-        ("&£%^", "", False),
+        ("*", "term", "", False),
+        ("&£%^", "term", "", False),
     ],
 )
-def test_new_search_check_slugified_terms(client, draft, term, valid, slug):
+def test_new_search_check_slugified_terms(
+    client, draft, term, search_type, valid, slug
+):
     client.force_login(draft.author)
 
     rsp = client.post(
         draft.get_builder_new_search_url(),
-        {"search": term},
+        {"search": term, "search-type": search_type},
     )
     assert rsp.status_code == 302
     last_search_id = draft.searches.last().id
@@ -315,7 +317,7 @@ def test_search_length_validation(client, draft_with_no_searches):
     ):
         rsp = client.post(
             draft_with_no_searches.get_builder_new_search_url(),
-            {"search": term_with_max_chars},
+            {"search": term_with_max_chars, "search-type": "term"},
             follow=True,
         )
     assert rsp.status_code == 200
@@ -328,15 +330,15 @@ def test_search_length_validation(client, draft_with_no_searches):
     ):
         rsp = client.post(
             draft_with_no_searches.get_builder_new_search_url(),
-            {"search": term_with_too_many_chars},
+            {"search": term_with_too_many_chars, "search-type": "term"},
             follow=True,
         )
     assert rsp.status_code == 200
     assert expected_term_error in rsp.content
 
     max_search_code_length = Search._meta.get_field("code").max_length
-    code_with_max_chars = "code:" + "a" * max_search_code_length
-    code_with_too_many_chars = "code:" + "a" * (max_search_code_length + 1)
+    code_with_max_chars = "a" * max_search_code_length
+    code_with_too_many_chars = "a" * (max_search_code_length + 1)
     expected_code_error = (
         f"Ensure this value has at most {max_search_code_length} characters".encode()
     )
@@ -348,7 +350,7 @@ def test_search_length_validation(client, draft_with_no_searches):
     ):
         rsp = client.post(
             draft_with_no_searches.get_builder_new_search_url(),
-            {"search": code_with_max_chars},
+            {"search": code_with_max_chars, "search-type": "code"},
             follow=True,
         )
     assert rsp.status_code == 200
@@ -361,7 +363,7 @@ def test_search_length_validation(client, draft_with_no_searches):
     ):
         rsp = client.post(
             draft_with_no_searches.get_builder_new_search_url(),
-            {"search": code_with_too_many_chars},
+            {"search": code_with_too_many_chars, "search-type": "code"},
             follow=True,
         )
     assert rsp.status_code == 200

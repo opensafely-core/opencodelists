@@ -124,8 +124,10 @@ def _draft(request, draft, search_id):
 
     if search_id == NO_SEARCH_TERM:
         results_heading = "Showing concepts with no matching search term"
+    elif search_id is not None and search.term:
+        results_heading = f'Showing concepts matching "{search.term}"'
     elif search_id is not None:
-        results_heading = f'Showing concepts matching "{search.term_or_code}"'
+        results_heading = f"Showing concepts matching the code: {search.code}"
     elif codeset.all_codes():
         results_heading = "Showing all matching concepts"
     else:
@@ -217,13 +219,14 @@ def update(request, draft):
 @require_permission
 def new_search(request, draft):
     term = request.POST["search"].strip()
+    search_type = request.POST["search-type"]
     # Ensure that the term is not an empty string after slugifying
     # (e.g. if the user entered "*" as a search term)
     if not slugify(term):
         messages.info(request, f'"{term}" is not a valid search term')
         return redirect(draft.get_builder_draft_url())
-    if term.startswith("code:"):
-        code = term[5:].strip()
+    if search_type == "code":
+        code = term
         term = None
     else:
         code = None

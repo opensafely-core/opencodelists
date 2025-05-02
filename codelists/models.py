@@ -956,8 +956,9 @@ class Search(models.Model):
     version = models.ForeignKey(
         "CodelistVersion", related_name="searches", on_delete=models.CASCADE
     )
-    # NB, the "term" max_length is enforced client-side as well, so if you change
-    # the max search length here, remember to change it on the client side as well:
+    # NB, the "term" max_length and the "code" max_length are enforced client-side
+    # as well, so if you change the max search length here, remember to change it
+    # on the client side as well:
     # assets/src/scripts/components/SearchForm.tsx
     term = models.CharField(max_length=255, null=True, blank=True)
     code = models.CharField(max_length=18, null=True, blank=True)

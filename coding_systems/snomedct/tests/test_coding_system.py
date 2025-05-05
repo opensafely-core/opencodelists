@@ -34,7 +34,7 @@ def test_code_to_term(snomedct_data, coding_system):
     }
 
 
-def test_matching_codes(icd10_data, coding_system):
+def test_matching_codes(snomedct_data, coding_system):
     assert coding_system.matching_codes(["705115006", "239964003", "99999"]) == {
         "705115006",
         "239964003",

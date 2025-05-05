@@ -180,6 +180,7 @@ class TestImportData(BNFDynamicDatabaseTestCaseWithTmpPath):
     db_alias = "bnf_release-1-a_20221001"
     coding_system_subpath_name = "bnf"
 
+    @pytest.mark.usefixtures("setup_coding_systems")
     def test_import_data(self):
         """Test importing BNF coding system data with dynamic database creation."""
         cs_release_count = CodingSystemRelease.objects.count()
@@ -214,6 +215,7 @@ class TestImportDataExisting(BNFDynamicDatabaseTestCaseWithTmpPath):
     db_alias = "bnf_v1-1_20221001"
     coding_system_subpath_name = "bnf"
 
+    @pytest.mark.usefixtures("setup_coding_systems")
     def test_import_data_existing_coding_system_release(self):
         # Set up an existing CodingSystemRelease and DB file.
         cs_release = CodingSystemRelease.objects.create(

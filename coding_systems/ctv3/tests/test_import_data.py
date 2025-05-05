@@ -34,6 +34,7 @@ class TestImportData(DynamicDatabaseTestCase):
     db_alias = "ctv3_v1_20221001"
     import_data_path = MOCK_CTV3_IMPORT_DATA_PATH
 
+    @pytest.mark.usefixtures("setup_coding_systems")
     def test_import_data(self):
         cs_release_count = CodingSystemRelease.objects.count()
 

@@ -36,6 +36,21 @@ def enable_db_access_for_all_tests(db):
     pass
 
 
+@pytest.fixture(scope="session", autouse=True)
+def testing_db_setup(django_db_modify_db_settings, django_db_blocker):
+    """
+    Set up the test databases for all configured databases aliases, including
+    schema creation, before any test plan execution.
+
+    For pytest to do this natively, we could alternatively mark up tests/modules with:
+        pytest.mark.django_db(databases=['default', 'snomedct_test_20200101', 'dmd_test_20200101', 'bnf_test_20200101'])
+    """
+    for alias in connections.databases.keys():
+        with django_db_blocker.unblock():
+            # Does nothing if already exists -- as for 'default'.
+            connections[alias].creation.create_test_db(verbosity=0, autoclobber=False)
+
+
 @pytest.fixture(scope="session")
 def django_db_modify_db_settings():
     """

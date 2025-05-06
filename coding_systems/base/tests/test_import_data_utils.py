@@ -46,7 +46,7 @@ class BaseCodingSystemDynamicDatabaseTestCase(DynamicDatabaseTestCase):
         # *before* the class's setUp() runs.
         # This fixture is run before setUp() and
         # other fixtures required by this fixture access the database.
-        self.add_to_testcase_allowed_db_aliases(self.db_alias)
+        self.add_to_testcase_allowed_db_aliases(*self.db_alias)
 
         # setup the database as a duplicate of the fixture one
         csr = _bnf_csr()
@@ -246,9 +246,13 @@ class TestUpdateCodelistVersionCompatibilityWithSearchButMismatchedHierarchy(
 class TestSaveCodelistDraftUpdatesCompatibility(
     BaseCodingSystemDynamicDatabaseTestCase
 ):
-    db_alias = "bnf_import-data_20221001"
+    db_alias = ["bnf_import-data_20190101", "bnf_import-data_20221001"]
 
-    @pytest.mark.usefixtures("_get_bnf_release", "_get_bnf_version_with_search")
+    @pytest.mark.usefixtures(
+        "_bnf_releases",
+        "_get_bnf_version_with_search",
+        "_get_bnf_release_excl_last_concept",
+    )
     def test_save_codelist_draft_updates_compatibility(self):
         assert self.bnf_version_with_search.status == Status.DRAFT
         assert not self.bnf_version_with_search.compatible_releases.exists()

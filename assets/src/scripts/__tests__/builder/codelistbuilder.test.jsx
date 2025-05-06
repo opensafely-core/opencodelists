@@ -147,6 +147,7 @@ it("does the right thing when clicking around", async () => {
 
   const checkSummary = () => {
     Object.keys(summaryCounts).forEach((key) => {
+      if (key === "total") return; // We don't display the total
       if (summaryCounts[key] === 0) {
         expect(document.querySelector(`#summary-${key}`)).toBe(null);
       } else {

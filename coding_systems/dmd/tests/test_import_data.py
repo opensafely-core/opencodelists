@@ -19,7 +19,9 @@ from .conftest import MOCK_DMD_IMPORT_DATA_PATH
 
 
 class TestImportData(DynamicDatabaseTestCase):
-    db_alias = "dmd_2022-100_20221001"
+    db_aliases = [
+        "dmd_2022-100_20221001",
+    ]
     import_data_path = MOCK_DMD_IMPORT_DATA_PATH
 
     @pytest.fixture
@@ -95,7 +97,9 @@ class TestImportData(DynamicDatabaseTestCase):
 
 
 class TestImportDataUnexpectedFile(DynamicDatabaseTestCase):
-    db_alias = "dmd_2022-110_20221001"
+    db_aliases = [
+        "dmd_2022-110_20221001",
+    ]
     import_data_path = MOCK_DMD_IMPORT_DATA_PATH
 
     @pytest.mark.usefixtures("mock_data_download_bad_zip")
@@ -116,7 +120,9 @@ class TestImportDataUnexpectedFile(DynamicDatabaseTestCase):
 
 
 class TestImportError(DynamicDatabaseTestCaseWithTmpPath):
-    db_alias = "dmd_2022-101_20220901"
+    db_aliases = [
+        "dmd_2022-101_20220901",
+    ]
     import_data_path = MOCK_DMD_IMPORT_DATA_PATH
     coding_system_subpath_name = "dmd"
 
@@ -146,7 +152,9 @@ class TestImportError(DynamicDatabaseTestCaseWithTmpPath):
 
 
 class TestImportDataNoVMPPreviousMapping(DynamicDatabaseTestCase):
-    db_alias = "dmd_2022-120_20221001"
+    db_aliases = [
+        "dmd_2022-120_20221001",
+    ]
     import_data_path = MOCK_DMD_IMPORT_DATA_PATH
 
     @pytest.mark.usefixtures("dmd_data", "mock_data_download_no_prev_vmp")

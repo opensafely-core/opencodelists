@@ -27,15 +27,13 @@ class DynamicDatabaseTestCase(TestCase):
     """
 
     @property
-    def db_alias(self):
-        """The database alias that needs to be accessed in this test class, str."""
-        raise NotImplementedError(
-            "This test class requires a database alias to be set."
-        )
+    def db_aliases(self):
+        """The database aliases that need to be accessed in this test class, list[str]."""
+        raise NotImplementedError("This test class requires db_aliases to be set.")
 
     import_data_path = None
 
-    def add_to_testcase_allowed_db_aliases(self, *db_aliases):
+    def add_to_testcase_allowed_db_aliases(self, db_aliases):
         """Add database names to the test instance's allowed database aliases.
 
         This mutates the *class* state by changing the `databases` attribute.
@@ -61,7 +59,7 @@ class DynamicDatabaseTestCase(TestCase):
             # Record the original state, so we can later restore it.
             self.original_databases = type(self).databases
 
-        type(self).databases |= frozenset({*db_aliases})
+        type(self).databases |= frozenset(db_aliases)
 
     def restore_original_testcase_db_aliases(self):
         """Restore the original `databases` attribute on the test case.
@@ -79,7 +77,7 @@ class DynamicDatabaseTestCase(TestCase):
     def setUp(self):
         super().setUp()
 
-        self.add_to_testcase_allowed_db_aliases(self, self.db_alias)
+        self.add_to_testcase_allowed_db_aliases(self.db_aliases)
 
     def tearDown(self):
         self.restore_original_testcase_db_aliases()
@@ -119,8 +117,11 @@ class DynamicDatabaseTestCaseWithTmpPath(DynamicDatabaseTestCase):
             )
 
         self.coding_systems_tmp_path = coding_systems_tmp_path
+        # These tests currently only use one database alias.
+        assert len(self.db_aliases) == 1
+
         self.expected_db_path = (
             self.coding_systems_tmp_path
             / f"{self.coding_system_subpath_name}"
-            / f"{self.db_alias}.sqlite3"
+            / f"{self.db_aliases[0]}.sqlite3"
         )

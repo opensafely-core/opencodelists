@@ -61,7 +61,7 @@ class DynamicDatabaseTestCase(TestCase):
             # Record the original state, so we can later restore it.
             self.original_databases = type(self).databases
 
-        type(self).databases |= frozenset({*db_aliases})
+        type(self).databases |= frozenset(db_aliases)
 
     def restore_original_testcase_db_aliases(self):
         """Restore the original `databases` attribute on the test case.
@@ -79,7 +79,7 @@ class DynamicDatabaseTestCase(TestCase):
     def setUp(self):
         super().setUp()
 
-        self.add_to_testcase_allowed_db_aliases(self, self.db_alias)
+        self.add_to_testcase_allowed_db_aliases(self, *self.db_alias)
 
     def tearDown(self):
         self.restore_original_testcase_db_aliases()

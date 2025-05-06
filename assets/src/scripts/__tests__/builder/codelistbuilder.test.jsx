@@ -36,7 +36,6 @@ const testRender = (data) => {
       codeToStatus={data.code_to_status}
       codeToTerm={data.code_to_term}
       excludedCodes={data.excluded_codes}
-      filter={data.filter}
       hierarchy={hierarchy}
       includedCodes={data.included_codes}
       isEditable={data.is_editable}
@@ -171,7 +170,6 @@ it("does the right thing when clicking around", async () => {
       codeToStatus={data.code_to_status}
       codeToTerm={data.code_to_term}
       excludedCodes={data.excluded_codes}
-      filter={data.filter}
       hierarchy={hierarchy}
       includedCodes={data.included_codes}
       isEditable={data.is_editable}

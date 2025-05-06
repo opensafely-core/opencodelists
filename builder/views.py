@@ -186,7 +186,6 @@ def _draft(request, draft, search_id):
         # {
         "results_heading": results_heading,
         "searches": searches,
-        "filter": filter,
         "tree_tables": tree_tables,
         "all_codes": list(codeset.all_codes()),
         "included_codes": list(codeset.codes("+")),

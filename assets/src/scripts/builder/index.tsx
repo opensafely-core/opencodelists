@@ -35,7 +35,6 @@ if (container) {
         codeToStatus={codeToStatus}
         codeToTerm={codeToTerm}
         draftURL={readValueFromPage("draft-url")}
-        filter={readValueFromPage("filter")}
         hierarchy={hierarchy}
         isEditable={readValueFromPage("is-editable")}
         metadata={readValueFromPage("metadata")}

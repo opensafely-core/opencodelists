@@ -1,4 +1,6 @@
 import React from "react";
+import { Card, ListGroup } from "react-bootstrap";
+import { PageData } from "../types";
 
 interface SummaryProps {
   counts: {
@@ -10,39 +12,75 @@ interface SummaryProps {
     "?": number;
     total: number;
   };
+  draftURL: PageData["draftURL"];
 }
 
-export default function Summary({ counts }: SummaryProps) {
+export default function Summary({ counts, draftURL }: SummaryProps) {
+  const currentFilter = new URLSearchParams(window.location.search).get(
+    "filter",
+  );
+
   return (
-    <>
-      <p>
-        Found <span id="summary-total">{counts.total}</span> matching concepts
-        (including descendants).
-      </p>
-      {counts["+"] > 0 && (
-        <p>
-          <span id="summary-included">{counts["+"] + counts["(+)"]}</span> have
-          been <a href="?filter=included">included</a> in the codelist.
-        </p>
-      )}
-      {counts["-"] > 0 && (
-        <p>
-          <span id="summary-excluded">{counts["-"] + counts["(-)"]}</span> have
-          been <a href="?filter=excluded">excluded</a> from the codelist.
-        </p>
-      )}
-      {counts["?"] > 0 && (
-        <p>
-          <span id="summary-unresolved">{counts["?"]}</span> are{" "}
-          <a href="?filter=unresolved">unresolved</a>.
-        </p>
-      )}
-      {counts["!"] > 0 && (
-        <p>
-          <span id="summary-in-conflict">{counts["!"]}</span> are{" "}
-          <a href="?filter=in-conflict">in conflict</a>.
-        </p>
-      )}
-    </>
+    <Card>
+      <Card.Header as="h6" className="p-2">
+        Concepts found ({counts.total})
+      </Card.Header>
+      <ListGroup variant="flush">
+        {counts["+"] > 0 && (
+          <ListGroup.Item
+            action
+            href={encodeURI(draftURL + "?filter=included")}
+            active={currentFilter === "included"}
+            className="p-2 pl-3"
+            as="a"
+          >
+            <span id="summary-included">{counts["+"] + counts["(+)"]}</span>{" "}
+            included concepts
+          </ListGroup.Item>
+        )}
+        {counts["-"] > 0 && (
+          <ListGroup.Item
+            action
+            href={encodeURI(draftURL + "?filter=excluded")}
+            active={currentFilter === "excluded"}
+            className="p-2 pl-3"
+          >
+            <span id="summary-excluded">{counts["-"] + counts["(-)"]}</span>{" "}
+            excluded concepts
+          </ListGroup.Item>
+        )}
+        {counts["?"] > 0 && (
+          <ListGroup.Item
+            action
+            href={encodeURI(draftURL + "?filter=unresolved")}
+            active={currentFilter === "unresolved"}
+            className="p-2 pl-3"
+          >
+            <span id="summary-unresolved">{counts["?"]}</span> unresolved
+            concepts
+          </ListGroup.Item>
+        )}
+        {counts["!"] > 0 && (
+          <ListGroup.Item
+            action
+            href={encodeURI(draftURL + "?filter=in-conflict")}
+            active={currentFilter === "in-conflict"}
+            className="p-2 pl-3"
+          >
+            <span id="summary-in-conflict">{counts["!"]}</span> conflicted
+            concepts
+          </ListGroup.Item>
+        )}
+        {currentFilter ? (
+          <ListGroup.Item
+            action
+            className="py-1 px-2 font-italic"
+            href={encodeURI(draftURL)}
+          >
+            show all {counts.total} matching concepts
+          </ListGroup.Item>
+        ) : null}
+      </ListGroup>
+    </Card>
   );
 }

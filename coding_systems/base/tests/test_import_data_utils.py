@@ -256,11 +256,12 @@ class TestUpdateCodelistVersionCompatibilityWithSearchButMismatchedHierarchy(
 class TestSaveCodelistDraftUpdatesCompatibility(
     BaseCodingSystemDynamicDatabaseTestCase
 ):
-    db_aliases = [
-        "bnf_import-data_20221001",
-    ]
+    db_aliases = []
 
-    @pytest.mark.usefixtures("_get_bnf_release", "_get_bnf_version_with_search")
+    @pytest.mark.usefixtures(
+        "_bnf_releases",
+        "_get_bnf_version_with_search",
+    )
     def test_save_codelist_draft_updates_compatibility(self):
         assert self.bnf_version_with_search.status == Status.DRAFT
         assert not self.bnf_version_with_search.compatible_releases.exists()
@@ -275,12 +276,12 @@ class TestSaveCodelistDraftUpdatesCompatibilityMultipleReleases(
     BaseCodingSystemDynamicDatabaseTestCase
 ):
     db_aliases = [
-        "bnf_import-data_20190101",
+        "bnf_import-data_20221001",
     ]
 
     @pytest.mark.usefixtures(
         "_bnf_releases",
-        "_get_bnf_release_excl_last_concept",
+        "_bnf_release_excl_last_concept",
         "_get_bnf_version_with_search",
     )
     def test_save_codelist_draft_updates_compatibility_multiple_releases(self):

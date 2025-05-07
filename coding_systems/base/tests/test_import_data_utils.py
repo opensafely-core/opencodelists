@@ -38,6 +38,12 @@ def _bnf_review_version_with_search(bnf_version_with_search):
 class BaseCodingSystemDynamicDatabaseTestCase(DynamicDatabaseTestCase):
     @pytest.fixture
     def _get_bnf_release(self, _bnf_release):
+        # This attribute is necessary for tests that need to access
+        # the underlying CodingSystemRelease.
+        # Currently, all tests only use one CodingSystemRelease.
+        # It might be necessary to refactor how this attribute works
+        # (maybe as a dictionary or similar) if any future tests require
+        # accessing multiple CodingSystemReleases
         self.bnf_release = _bnf_release
 
     @pytest.fixture
@@ -274,8 +280,6 @@ class TestSaveCodelistDraftUpdatesCompatibility(
         assert self.bnf_version_with_search.compatible_releases.exists()
 
 
-# This test is particularly unusual compared with the other coding systems
-# tests that use dynamic databases, in that multiple databases are used.
 class TestSaveCodelistDraftUpdatesCompatibilityMultipleReleases(
     BaseCodingSystemDynamicDatabaseTestCase
 ):

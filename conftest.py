@@ -142,7 +142,7 @@ def clear_testing_span_exporter():
     testing_span_exporter.clear()
 
 
-@pytest.fixture()
+@pytest.fixture
 def span_exporter():
     """Provide access to the global span exporter for interrogation.
     Interrogate it with, for example, get_finished_spans()."""

@@ -99,3 +99,8 @@ a:focus {
 .whitespace-nowrap {
   white-space: nowrap;
 }
+
+#codelist-builder-container {
+  overflow-x: hidden;
+  padding: 0.25rem;
+}

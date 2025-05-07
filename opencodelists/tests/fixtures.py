@@ -866,15 +866,6 @@ def draft_with_complete_searches(version_with_complete_searches, organisation_us
 
 
 @pytest.fixture(scope="function")
-def draft_from_scratch(version_with_complete_searches, organisation_user):
-    return export_to_builder(
-        version=version_with_complete_searches,
-        author=organisation_user,
-        coding_system_database_alias=most_recent_database_alias("snomedct"),
-    )
-
-
-@pytest.fixture(scope="function")
 def draft(draft_with_complete_searches):
     return draft_with_complete_searches
 

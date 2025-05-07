@@ -20,61 +20,59 @@ export default function Summary({ counts, draftURL }: SummaryProps) {
     "filter",
   );
 
+  const itemHref = (filter: string) =>
+    encodeURI(`${draftURL}?filter=${filter}`);
+
   return (
     <Card>
-      <Card.Header as="h6" className="p-2">
+      <Card.Header as="h2" className="h6 font-weight-bold">
         Concepts found ({counts.total})
       </Card.Header>
       <ListGroup variant="flush">
         {counts["+"] > 0 && (
           <ListGroup.Item
             action
-            href={encodeURI(draftURL + "?filter=included")}
             active={currentFilter === "included"}
-            className="p-2 pl-3"
-            as="a"
+            href={itemHref("included")}
+            id="summary-included"
           >
-            <span id="summary-included">{counts["+"] + counts["(+)"]}</span>{" "}
-            included concepts
+            {counts["+"] + counts["(+)"]} included concepts
           </ListGroup.Item>
         )}
         {counts["-"] > 0 && (
           <ListGroup.Item
             action
-            href={encodeURI(draftURL + "?filter=excluded")}
             active={currentFilter === "excluded"}
-            className="p-2 pl-3"
+            href={itemHref("excluded")}
+            id="summary-excluded"
           >
-            <span id="summary-excluded">{counts["-"] + counts["(-)"]}</span>{" "}
-            excluded concepts
+            {counts["-"] + counts["(-)"]} excluded concepts
           </ListGroup.Item>
         )}
         {counts["?"] > 0 && (
           <ListGroup.Item
             action
-            href={encodeURI(draftURL + "?filter=unresolved")}
             active={currentFilter === "unresolved"}
-            className="p-2 pl-3"
+            href={itemHref("unresolved")}
+            id="summary-unresolved"
           >
-            <span id="summary-unresolved">{counts["?"]}</span> unresolved
-            concepts
+            {counts["?"]} unresolved concepts
           </ListGroup.Item>
         )}
         {counts["!"] > 0 && (
           <ListGroup.Item
             action
-            href={encodeURI(draftURL + "?filter=in-conflict")}
             active={currentFilter === "in-conflict"}
-            className="p-2 pl-3"
+            href={itemHref("in-conflict")}
+            id="summary-in-conflict"
           >
-            <span id="summary-in-conflict">{counts["!"]}</span> conflicted
-            concepts
+            {counts["!"]} conflicted concepts
           </ListGroup.Item>
         )}
         {currentFilter ? (
           <ListGroup.Item
             action
-            className="py-1 px-2 font-italic"
+            className="font-italic"
             href={encodeURI(draftURL)}
           >
             show all {counts.total} matching concepts

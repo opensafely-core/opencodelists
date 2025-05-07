@@ -120,11 +120,11 @@ def test_coding_system_invalid_database_alias():
         state=ReleaseState.READY,
     )
     # if any of the component fields are changed, the db alias must be updated too
+    csr.release_name = "Version 2"
+
     with pytest.raises(AssertionError):
-        csr.release_name = "Version 2"
         csr.save()
 
-    csr.release_name = "Version 2"
     csr.database_alias = "null_version-2_20221001"
     csr.save()
 

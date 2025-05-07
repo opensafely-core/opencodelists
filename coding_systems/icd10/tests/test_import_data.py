@@ -2,6 +2,7 @@ from datetime import date
 from pathlib import Path
 from unittest.mock import patch
 
+import pytest
 from django.conf import settings
 
 from coding_systems.base.tests.dynamic_db_classes import DynamicDatabaseTestCase
@@ -23,6 +24,7 @@ class TestImportData(DynamicDatabaseTestCase):
     db_alias = "icd10_release-icd_20221001"
     import_data_path = MOCK_ICD10_IMPORT_DATA_PATH
 
+    @pytest.mark.usefixtures("setup_coding_systems")
     def test_import_data(self):
         cs_release_count = CodingSystemRelease.objects.count()
 

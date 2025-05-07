@@ -102,7 +102,7 @@ def test_codelistform_incorrect_header(bnf_data):
     assert e.value.messages[0] == 'Header 1 ("code ") contains extraneous whitespace'
 
 
-def test_codelistform_no_code_header():
+def test_codelistform_no_code_header(setup_coding_systems):
     form = CSVValidationMixin()
 
     # wrap CSV up in SimpleUploadedFile to mirror how a Django view would
@@ -122,7 +122,7 @@ def test_codelistform_no_code_header():
     )
 
 
-def test_codelistform_ambiguous_code_header():
+def test_codelistform_ambiguous_code_header(setup_coding_systems):
     form = CSVValidationMixin()
 
     # wrap CSV up in SimpleUploadedFile to mirror how a Django view would
@@ -139,7 +139,7 @@ def test_codelistform_ambiguous_code_header():
     assert e.value.messages[0] == "Ambiguous headers: both 'dmd_id' and 'code' found"
 
 
-def test_codelistform_invalid_codes():
+def test_codelistform_invalid_codes(setup_coding_systems):
     form = CSVValidationMixin()
 
     # wrap CSV up in SimpleUploadedFile to mirror how a Django view would

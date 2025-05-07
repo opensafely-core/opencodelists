@@ -161,7 +161,7 @@ def build_fixture(fixture_name):
 
     # This docstring is used in the output of `pytest --fixtures`
     fixture.__doc__ = f"Return {fixture_name} from the universe fixture"
-    return pytest.fixture(scope="function")(fixture)
+    return pytest.fixture()(fixture)
 
 
 @pytest.fixture(scope="session")
@@ -838,7 +838,7 @@ null_codelist = build_fixture("null_codelist")
 
 
 # These extra fixtures make modifications to those built in build_fixtures
-@pytest.fixture(scope="function")
+@pytest.fixture
 def draft_with_no_searches(version_with_no_searches, organisation_user):
     return export_to_builder(
         version=version_with_no_searches,
@@ -847,7 +847,7 @@ def draft_with_no_searches(version_with_no_searches, organisation_user):
     )
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def draft_with_some_searches(version_with_some_searches, organisation_user):
     return export_to_builder(
         version=version_with_some_searches,
@@ -856,7 +856,7 @@ def draft_with_some_searches(version_with_some_searches, organisation_user):
     )
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def draft_with_complete_searches(version_with_complete_searches, organisation_user):
     return export_to_builder(
         version=version_with_complete_searches,
@@ -865,7 +865,7 @@ def draft_with_complete_searches(version_with_complete_searches, organisation_us
     )
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def draft_from_scratch(version_with_complete_searches, organisation_user):
     return export_to_builder(
         version=version_with_complete_searches,
@@ -874,7 +874,7 @@ def draft_from_scratch(version_with_complete_searches, organisation_user):
     )
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def draft(draft_with_complete_searches):
     return draft_with_complete_searches
 
@@ -883,7 +883,6 @@ def draft(draft_with_complete_searches):
 # each of version_with_no_searches, version_with_some_searches,
 # version_with_complete_searches.
 @pytest.fixture(
-    scope="function",
     params=[
         "version_with_no_searches",
         "version_with_some_searches",
@@ -896,7 +895,6 @@ def new_style_version(universe, request):
 
 
 @pytest.fixture(
-    scope="function",
     params=[
         "version_with_no_searches",
         "version_with_some_searches",

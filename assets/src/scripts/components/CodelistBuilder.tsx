@@ -153,13 +153,14 @@ export default class CodelistBuilder extends React.Component<
     return (
       <>
         <div className="border-bottom mb-3 pb-3">
-          <Title name={metadata.codelist_name} />
+          <div className="d-flex flex-row justify-content-between gap-2 mb-2">
+            <Title name={metadata.codelist_name} />
+            {isEditable && <ManagementForm counts={this.counts()} />}
+          </div>
           <Metadata data={metadata} />
         </div>
         <Row>
           <Col md="3">
-            {isEditable && <ManagementForm counts={this.counts()} />}
-
             {!isEmpty ? (
               <>
                 <Summary counts={this.counts()} draftURL={draftURL} />

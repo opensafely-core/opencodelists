@@ -5,6 +5,7 @@ import { getCookie } from "../_utils";
 import { Code, PageData, Status } from "../types";
 import EmptyState from "./EmptyState";
 import ManagementForm from "./ManagementForm";
+import Metadata from "./Metadata";
 import Search from "./Search";
 import SearchForm from "./SearchForm";
 import Summary from "./Summary";
@@ -151,7 +152,10 @@ export default class CodelistBuilder extends React.Component<
 
     return (
       <>
-        <Title name={metadata.codelist_name} />
+        <div className="border-bottom mb-3 pb-3">
+          <Title name={metadata.codelist_name} />
+          <Metadata data={metadata} />
+        </div>
         <Row>
           <Col md="3">
             {isEditable && <ManagementForm counts={this.counts()} />}
@@ -176,33 +180,6 @@ export default class CodelistBuilder extends React.Component<
                 <hr />
               </>
             )}
-
-            <dl>
-              <dt>Coding system</dt>
-              <dd>{metadata.coding_system_name}</dd>
-
-              <dt>Coding system release</dt>
-              <dd>
-                {metadata.coding_system_release.release_name}
-                {metadata.coding_system_release.valid_from ? (
-                  <>({metadata.coding_system_release.valid_from})</>
-                ) : null}
-              </dd>
-
-              {metadata.organisation_name ? (
-                <>
-                  <dt>Organisation</dt>
-                  <dd>{metadata.organisation_name}</dd>
-                </>
-              ) : null}
-
-              <dt>Codelist ID</dt>
-              <dd className="text-break">{metadata.codelist_full_slug}</dd>
-
-              <dt>ID</dt>
-              <dd>{metadata.hash}</dd>
-            </dl>
-            <hr />
 
             <h3 className="h6">Versions</h3>
             <ul className="pl-3">

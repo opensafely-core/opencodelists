@@ -267,11 +267,6 @@ def build_fixtures():
         "disorder-of-elbow.csv"
     )
 
-    # disorder_of_elbow_excl_arthritis_csv_data_no_header
-    disorder_of_elbow_excl_arthritis_csv_data_no_header = load_csv_data_no_header(
-        "disorder-of-elbow-excl-arthritis.csv"
-    )
-
     # enthesopathy_of_elbow_region_plus_tennis_toe
     enthesopathy_of_elbow_region_plus_tennis_toe = load_codes_from_csv(
         "enthesopathy-of-elbow-region-plus-tennis-toe.csv"
@@ -791,9 +786,6 @@ disorder_of_elbow_excl_arthritis_csv_data = build_fixture(
 )
 disorder_of_elbow_csv_data_no_header = build_fixture(
     "disorder_of_elbow_csv_data_no_header"
-)
-disorder_of_elbow_excl_arthritis_csv_data_no_header = build_fixture(
-    "disorder_of_elbow_excl_arthritis_csv_data_no_header"
 )
 organisation = build_fixture("organisation")
 another_organisation = build_fixture("another_organisation")

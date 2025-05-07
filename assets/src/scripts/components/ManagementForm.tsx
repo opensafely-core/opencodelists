@@ -27,7 +27,7 @@ export default function ManagementForm({ counts }: ManagementFormProps) {
 
   useEffect(
     function calculateCounts() {
-      if (counts["!"] === 0 && counts["?"] === 0) {
+      if (counts.total > 0 && counts["!"] === 0 && counts["?"] === 0) {
         return setIsComplete(true);
       }
       return setIsComplete(false);

@@ -4,7 +4,6 @@ import Hierarchy from "../_hierarchy";
 import { getCookie } from "../_utils";
 import { Code, PageData, Status } from "../types";
 import EmptyState from "./EmptyState";
-import Filter from "./Filter";
 import ManagementForm from "./ManagementForm";
 import Search from "./Search";
 import SearchForm from "./SearchForm";
@@ -134,7 +133,6 @@ export default class CodelistBuilder extends React.Component<
       allCodes,
       codeToTerm,
       draftURL,
-      filter,
       hierarchy,
       isEditable,
       metadata,
@@ -160,9 +158,7 @@ export default class CodelistBuilder extends React.Component<
 
             {!isEmpty ? (
               <>
-                <Filter filter={filter} />
-                <h3 className="h6">Summary</h3>
-                <Summary counts={this.counts()} />
+                <Summary counts={this.counts()} draftURL={draftURL} />
                 <hr />
               </>
             ) : null}

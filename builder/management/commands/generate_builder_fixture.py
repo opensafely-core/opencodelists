@@ -93,7 +93,6 @@ class Command(BaseCommand):
                 context_key: rsp.context[context_key]
                 for context_key in [
                     "searches",
-                    "filter",
                     "tree_tables",
                     "all_codes",
                     "included_codes",

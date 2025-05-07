@@ -129,7 +129,10 @@ def _draft(request, draft, search_id):
     elif search_id is not None:
         results_heading = f"Showing concepts matching the code: {search.code}"
     elif codeset.all_codes():
-        results_heading = "Showing all matching concepts"
+        if filter:
+            results_heading = f"Showing all {filter} concepts"
+        else:
+            results_heading = "Showing all matching concepts"
     else:
         results_heading = (
             "Start building your codelist by searching for a term or a code"
@@ -183,7 +186,6 @@ def _draft(request, draft, search_id):
         # {
         "results_heading": results_heading,
         "searches": searches,
-        "filter": filter,
         "tree_tables": tree_tables,
         "all_codes": list(codeset.all_codes()),
         "included_codes": list(codeset.codes("+")),

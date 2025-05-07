@@ -36,7 +36,6 @@ const testRender = (data) => {
       codeToStatus={data.code_to_status}
       codeToTerm={data.code_to_term}
       excludedCodes={data.excluded_codes}
-      filter={data.filter}
       hierarchy={hierarchy}
       includedCodes={data.included_codes}
       isEditable={data.is_editable}
@@ -148,6 +147,7 @@ it("does the right thing when clicking around", async () => {
 
   const checkSummary = () => {
     Object.keys(summaryCounts).forEach((key) => {
+      if (key === "total") return; // We don't display the total
       if (summaryCounts[key] === 0) {
         expect(document.querySelector(`#summary-${key}`)).toBe(null);
       } else {
@@ -171,7 +171,6 @@ it("does the right thing when clicking around", async () => {
       codeToStatus={data.code_to_status}
       codeToTerm={data.code_to_term}
       excludedCodes={data.excluded_codes}
-      filter={data.filter}
       hierarchy={hierarchy}
       includedCodes={data.included_codes}
       isEditable={data.is_editable}

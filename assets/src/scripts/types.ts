@@ -22,7 +22,6 @@ export interface PageData {
   codeToStatus: { [key: string]: Status };
   codeToTerm: { [key: string]: string };
   draftURL: string;
-  filter: string;
   isEditable: boolean;
   metadata: {
     codelist_full_slug: string;

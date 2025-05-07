@@ -1,4 +1,6 @@
 import React from "react";
+import { Card, ListGroup } from "react-bootstrap";
+import { PageData } from "../types";
 
 interface SummaryProps {
   counts: {
@@ -10,39 +12,73 @@ interface SummaryProps {
     "?": number;
     total: number;
   };
+  draftURL: PageData["draftURL"];
 }
 
-export default function Summary({ counts }: SummaryProps) {
+export default function Summary({ counts, draftURL }: SummaryProps) {
+  const currentFilter = new URLSearchParams(window.location.search).get(
+    "filter",
+  );
+
+  const itemHref = (filter: string) =>
+    encodeURI(`${draftURL}?filter=${filter}`);
+
   return (
-    <>
-      <p>
-        Found <span id="summary-total">{counts.total}</span> matching concepts
-        (including descendants).
-      </p>
-      {counts["+"] > 0 && (
-        <p>
-          <span id="summary-included">{counts["+"] + counts["(+)"]}</span> have
-          been <a href="?filter=included">included</a> in the codelist.
-        </p>
-      )}
-      {counts["-"] > 0 && (
-        <p>
-          <span id="summary-excluded">{counts["-"] + counts["(-)"]}</span> have
-          been <a href="?filter=excluded">excluded</a> from the codelist.
-        </p>
-      )}
-      {counts["?"] > 0 && (
-        <p>
-          <span id="summary-unresolved">{counts["?"]}</span> are{" "}
-          <a href="?filter=unresolved">unresolved</a>.
-        </p>
-      )}
-      {counts["!"] > 0 && (
-        <p>
-          <span id="summary-in-conflict">{counts["!"]}</span> are{" "}
-          <a href="?filter=in-conflict">in conflict</a>.
-        </p>
-      )}
-    </>
+    <Card>
+      <Card.Header as="h2" className="h6 font-weight-bold">
+        Concepts found ({counts.total})
+      </Card.Header>
+      <ListGroup variant="flush">
+        {counts["+"] > 0 && (
+          <ListGroup.Item
+            action
+            active={currentFilter === "included"}
+            href={itemHref("included")}
+            id="summary-included"
+          >
+            {counts["+"] + counts["(+)"]} included concepts
+          </ListGroup.Item>
+        )}
+        {counts["-"] > 0 && (
+          <ListGroup.Item
+            action
+            active={currentFilter === "excluded"}
+            href={itemHref("excluded")}
+            id="summary-excluded"
+          >
+            {counts["-"] + counts["(-)"]} excluded concepts
+          </ListGroup.Item>
+        )}
+        {counts["?"] > 0 && (
+          <ListGroup.Item
+            action
+            active={currentFilter === "unresolved"}
+            href={itemHref("unresolved")}
+            id="summary-unresolved"
+          >
+            {counts["?"]} unresolved concepts
+          </ListGroup.Item>
+        )}
+        {counts["!"] > 0 && (
+          <ListGroup.Item
+            action
+            active={currentFilter === "in-conflict"}
+            href={itemHref("in-conflict")}
+            id="summary-in-conflict"
+          >
+            {counts["!"]} conflicted concepts
+          </ListGroup.Item>
+        )}
+        {currentFilter ? (
+          <ListGroup.Item
+            action
+            className="font-italic"
+            href={encodeURI(draftURL)}
+          >
+            show all {counts.total} matching concepts
+          </ListGroup.Item>
+        ) : null}
+      </ListGroup>
+    </Card>
   );
 }

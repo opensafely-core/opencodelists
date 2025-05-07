@@ -174,9 +174,9 @@ describe("ManagementForm", () => {
     });
     await user.click(discardButton);
 
-    const discardDraftButton = screen.getByText("Discard draft");
-    expect(discardDraftButton.closest("form")).toContainElement(
-      screen.getByDisplayValue("discard"),
-    );
+    const discardDraftButton = screen.getByRole("button", {
+      name: "Discard draft",
+    });
+    expect(discardDraftButton).toHaveAttribute("value", "discard");
   });
 });

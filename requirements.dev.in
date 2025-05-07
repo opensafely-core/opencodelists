@@ -10,6 +10,7 @@ django-debug-toolbar
 hypothesis
 pytest-cov
 pytest-django
+pytest-xdist
 responses
 
 # dev

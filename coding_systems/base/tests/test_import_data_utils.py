@@ -74,16 +74,11 @@ class BaseCodingSystemDynamicDatabaseTestCase(DynamicDatabaseTestCase):
 
     @pytest.fixture
     def _bnf_releases(self, _bnf_csr):
-        db_aliases_additions = [
-            "bnf_import-data_20190101",
-            "bnf_import-data_20220901",
-            "bnf_import-data_20221201",
-        ]
         # This addition of a allowed database alias needs to be done
         # *before* the class's setUp() runs.
         # This fixture is run before setUp() and
         # other fixtures required by this fixture access the database.
-        self.add_to_testcase_allowed_db_aliases(db_aliases_additions)
+        self.add_to_testcase_allowed_db_aliases(self.db_aliases)
 
         # setup multiple databases as duplicates of the fixture one, with different dates
 
@@ -167,6 +162,7 @@ class TestUpdateCodelistVersionDraftVersionExcluded(
     BaseCodingSystemDynamicDatabaseTestCase
 ):
     db_aliases = [
+        # _bnf_release
         "bnf_import-data_20221101",
     ]
 
@@ -181,6 +177,7 @@ class TestUpdateCodelistVersionDraftVersionExcluded(
 
 class TestUpdateCodelistVersionWithSearch(BaseCodingSystemDynamicDatabaseTestCase):
     db_aliases = [
+        # _bnf_release
         "bnf_import-data_20221101",
     ]
 
@@ -200,6 +197,7 @@ class TestUpdateCodelistVersionCompatibilityWithMismatchedSearch(
     BaseCodingSystemDynamicDatabaseTestCase
 ):
     db_aliases = [
+        # _bnf_release_excl_last_concept
         "bnf_import-data_20221001",
     ]
 
@@ -219,6 +217,7 @@ class TestUpdateCodelistVersionCompatibilityWithSearchButMismatchedHierarchy(
     BaseCodingSystemDynamicDatabaseTestCase
 ):
     db_aliases = [
+        # _bnf_release_excl_last_concept
         "bnf_import-data_20221001",
     ]
 
@@ -256,7 +255,12 @@ class TestUpdateCodelistVersionCompatibilityWithSearchButMismatchedHierarchy(
 class TestSaveCodelistDraftUpdatesCompatibility(
     BaseCodingSystemDynamicDatabaseTestCase
 ):
-    db_aliases = []
+    db_aliases = [
+        # _bnf_releases
+        "bnf_import-data_20190101",
+        "bnf_import-data_20220901",
+        "bnf_import-data_20221201",
+    ]
 
     @pytest.mark.usefixtures(
         "_bnf_releases",
@@ -276,6 +280,11 @@ class TestSaveCodelistDraftUpdatesCompatibilityMultipleReleases(
     BaseCodingSystemDynamicDatabaseTestCase
 ):
     db_aliases = [
+        # _bnf_releases
+        "bnf_import-data_20190101",
+        "bnf_import-data_20220901",
+        "bnf_import-data_20221201",
+        # _bnf_release_excl_last_concept
         "bnf_import-data_20221001",
     ]
 

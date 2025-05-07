@@ -21,7 +21,7 @@ skip_covered = true
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "opencodelists.settings"
-addopts = "--tb=native --ignore=node_modules --no-migrations"
+addopts = "--tb=native --ignore=node_modules --no-migrations --strict-markers"
 filterwarnings = [
   "ignore:The FORMS_URLFIELD_ASSUME_HTTPS transitional setting is deprecated.",
 ]

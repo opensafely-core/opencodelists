@@ -1,12 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  Button,
-  ButtonGroup,
-  Form,
-  Modal,
-  OverlayTrigger,
-  Tooltip,
-} from "react-bootstrap";
+import { Button, Form, Modal, OverlayTrigger, Tooltip } from "react-bootstrap";
 import { getCookie } from "../_utils";
 
 interface ManagementFormProps {
@@ -37,7 +30,7 @@ export default function ManagementForm({ counts }: ManagementFormProps) {
 
   return (
     <>
-      <Form method="POST">
+      <Form method="POST" className="d-flex flex-row">
         <Form.Control
           id="csrfmiddlewaretoken"
           name="csrfmiddlewaretoken"
@@ -45,54 +38,51 @@ export default function ManagementForm({ counts }: ManagementFormProps) {
           value={getCookie("csrftoken")}
         />
         <Form.Control id="action" name="action" type="hidden" value="" />
-        <ButtonGroup aria-label="Codelist actions" className="d-block" vertical>
-          {isComplete ? (
-            <Button
-              block
-              name="action"
-              type="submit"
-              value="save-for-review"
-              variant="outline-primary"
-            >
-              Save for review
-            </Button>
-          ) : (
-            <>
-              <OverlayTrigger
-                placement="right"
-                overlay={
-                  <Tooltip id="disabled-review">
-                    You cannot save for review until all search results are
-                    included or excluded
-                  </Tooltip>
-                }
-              >
-                <Button block disabled variant="outline-secondary">
-                  Save for review
-                </Button>
-              </OverlayTrigger>
-            </>
-          )}
+        {isComplete ? (
           <Button
-            block
             name="action"
             type="submit"
-            value="save-draft"
-            variant="outline-primary"
+            value="save-for-review"
+            variant="outline-success"
           >
-            Save draft
+            Save for review
           </Button>
-          <Button
-            block
-            type="button"
-            variant="outline-primary"
-            onClick={() => setShowDiscardModal(true)}
-          >
-            Discard
-          </Button>
-        </ButtonGroup>
+        ) : (
+          <>
+            <OverlayTrigger
+              placement="right"
+              overlay={
+                <Tooltip id="disabled-review">
+                  You cannot save for review until all search results are
+                  included or excluded
+                </Tooltip>
+              }
+            >
+              <Button disabled variant="outline-secondary">
+                Save for review
+              </Button>
+            </OverlayTrigger>
+          </>
+        )}
+        <Button
+          className="ml-2"
+          name="action"
+          type="submit"
+          value="save-draft"
+          variant="outline-primary"
+        >
+          Save draft
+        </Button>
+        <Button
+          className="ml-2"
+          onClick={() => setShowDiscardModal(true)}
+          type="button"
+          variant="outline-danger"
+        >
+          Discard
+        </Button>
       </Form>
-      <hr />
+
       <Modal centered show={showDiscardModal}>
         <Modal.Header>
           Are you sure you want to discard this draft?
@@ -115,16 +105,16 @@ export default function ManagementForm({ counts }: ManagementFormProps) {
               className="mr-2"
               type="submit"
               value="discard"
-              variant="primary"
+              variant="danger"
             >
-              Yes
+              Discard draft
             </Button>
           </Form>
           <Button
-            variant="secondary"
+            variant="outline-secondary"
             onClick={() => setShowDiscardModal(false)}
           >
-            No
+            Continue editing
           </Button>
         </Modal.Body>
       </Modal>

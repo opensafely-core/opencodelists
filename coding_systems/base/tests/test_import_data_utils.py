@@ -37,16 +37,6 @@ def _bnf_review_version_with_search(bnf_version_with_search):
 
 class BaseCodingSystemDynamicDatabaseTestCase(DynamicDatabaseTestCase):
     @pytest.fixture
-    def _get_bnf_release(self, _bnf_release):
-        # This attribute is necessary for tests that need to access
-        # the underlying CodingSystemRelease.
-        # Currently, all tests only use one CodingSystemRelease.
-        # It might be necessary to refactor how this attribute works
-        # (maybe as a dictionary or similar) if any future tests require
-        # accessing multiple CodingSystemReleases
-        self.bnf_release = _bnf_release
-
-    @pytest.fixture
     def _bnf_release(self, _bnf_csr):
         # This addition of a allowed database alias needs to be done
         # *before* the class's setUp() runs.
@@ -61,8 +51,14 @@ class BaseCodingSystemDynamicDatabaseTestCase(DynamicDatabaseTestCase):
         _cleanup_db(csr)
 
     @pytest.fixture
-    def _get_bnf_release_excl_last_concept(self, _bnf_release_excl_last_concept):
-        self.bnf_release = _bnf_release_excl_last_concept
+    def _get_bnf_release(self, _bnf_release):
+        # This attribute is necessary for tests that need to access
+        # the underlying CodingSystemRelease.
+        # Currently, all tests only use one CodingSystemRelease.
+        # It might be necessary to refactor how this attribute works
+        # (maybe as a dictionary or similar) if any future tests require
+        # accessing multiple CodingSystemReleases
+        self.bnf_release = _bnf_release
 
     @pytest.fixture
     def _bnf_release_excl_last_concept(self, _bnf_csr):
@@ -77,6 +73,10 @@ class BaseCodingSystemDynamicDatabaseTestCase(DynamicDatabaseTestCase):
         _setup_db(csr, exclude_last_concept=True)
         yield csr
         _cleanup_db(csr)
+
+    @pytest.fixture
+    def _get_bnf_release_excl_last_concept(self, _bnf_release_excl_last_concept):
+        self.bnf_release = _bnf_release_excl_last_concept
 
     @pytest.fixture
     def _bnf_releases(self, _bnf_csr):

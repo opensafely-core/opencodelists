@@ -30,7 +30,9 @@ def test_coding_system_routing_errors_if_no_using_db_specified(coding_system):
 
 
 class TestMismatchedCodingSystemDatabaseRelations(DynamicDatabaseTestCaseWithTmpPath):
-    db_alias = "ctv3_testv2_20221101"
+    db_aliases = [
+        "ctv3_testv2_20221101",
+    ]
     coding_system_subpath_name = "ctv3"
 
     def test_mismatched_coding_system_database_relations(self):

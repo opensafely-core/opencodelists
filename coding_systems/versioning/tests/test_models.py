@@ -44,7 +44,9 @@ def test_coding_system_release_most_recent(coding_system_release):
 
 
 class TestUpdateCodingSystemDatabaseConnections(DynamicDatabaseTestCaseWithTmpPath):
-    db_alias = "snomedct_v1_20221001"
+    db_aliases = [
+        "snomedct_v1_20221001",
+    ]
     coding_system_subpath_name = "snomedct"
 
     @pytest.fixture

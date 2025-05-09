@@ -125,13 +125,14 @@ def mock_bnf_import_data_path(tmp_path):
 
 
 def test_import_data_no_csv_files(tmp_path):
+    other_file = tmp_path / "test.txt"
+    other_file.touch()
+    with ZipFile(tmp_path / "test.zip", "w") as zip_file:
+        zip_file.write(other_file, arcname=other_file.name)
+
     with pytest.raises(
         AssertionError, match=re.escape("Expected 1 and only one .csv file (found 0)")
     ):
-        other_file = tmp_path / "test.txt"
-        other_file.touch()
-        with ZipFile(tmp_path / "test.zip", "w") as zip_file:
-            zip_file.write(other_file, arcname=other_file.name)
         import_data(
             str(tmp_path / "test.zip"), release_name="v1", valid_from=date(2022, 10, 1)
         )
@@ -171,7 +172,6 @@ class BNFDynamicDatabaseTestCaseWithTmpPath(DynamicDatabaseTestCaseWithTmpPath):
     # Set this fixture as `autouse`:
     # all the tests currently using this class use this import data fixture.
     @pytest.fixture(autouse=True)
-    @pytest.mark.usefixtures("mock_bnf_import_data_path")
     def _set_import_data_from_fixture(self, mock_bnf_import_data_path):
         self.import_data_path = mock_bnf_import_data_path
 

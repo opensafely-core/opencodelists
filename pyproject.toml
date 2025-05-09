@@ -11,6 +11,9 @@ omit = [
   "scripts/fetch_vmp_prev.py"
 ]
 
+# Required to get full coverage when using Playwright
+concurrency = ["greenlet", "thread"]
+
 [tool.coverage.report]
 skip_covered = true
 
@@ -18,10 +21,14 @@ skip_covered = true
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "opencodelists.settings"
-addopts = "--tb=native --ignore=node_modules --no-migrations"
+addopts = "--tb=native --ignore=node_modules --no-migrations --strict-markers"
 filterwarnings = [
   "ignore:The FORMS_URLFIELD_ASSUME_HTTPS transitional setting is deprecated.",
 ]
+markers = [
+  "functional: tests that use Playwright in functional tests",
+]
+
 # This is the pytest-django default. We're setting it explicitly, to
 # make it clear that tests are not run in debug mode.
 django_debug_mode = false

@@ -199,6 +199,18 @@ just test-py
 # run specific test with usual pytest syntax
 just test-py <path/to/test>::<test name>
 
+# run Playwright functional tests
+just test-functional
+
+# run Playwright functional tests with a visible browser
+# This is useful in combination with script pausing when writing tests:
+# https://playwright.dev/python/docs/api/class-page#page-pause
+#
+# Playwright also has other debugging options configurable
+# via the PWDEBUG environment variables, see:
+# https://playwright.dev/python/docs/debug
+just test-functional --headed
+
 # js tests
 just assets-test
 

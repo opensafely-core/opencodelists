@@ -122,18 +122,25 @@ def _draft(request, draft, search_id):
         ).items()
     )
 
-    if search_id == NO_SEARCH_TERM:
-        results_heading = "Showing concepts with no matching search term"
-    elif search_id is not None and search.term:
-        results_heading = f'Showing concepts matching "{search.term}"'
-    elif search_id is not None:
-        results_heading = f"Showing concepts matching the code: {search.code}"
+    if search_id:
+        # A search term has been selected
+        if search_id == NO_SEARCH_TERM:
+            results_heading = "Showing concepts with no matching search term"
+        elif search.term:
+            results_heading = f'Showing concepts matching "{search.term}"'
+        else:
+            results_heading = f"Showing concepts matching the code: {search.code}"
     elif codeset.all_codes():
+        # No search term selected, but we have >0 codes
         if filter:
             results_heading = f"Showing all {filter} concepts"
         else:
             results_heading = "Showing all matching concepts"
+    elif searches:
+        # No search term selected and there are no codes, but there are >0 searches
+        results_heading = "None of your searches match any concepts"
     else:
+        # No codes or searches
         results_heading = (
             "Start building your codelist by searching for a term or a code"
         )

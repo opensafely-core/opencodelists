@@ -185,12 +185,7 @@ export default class CodelistBuilder extends React.Component<
               </>
             )}
 
-            <h3 className="h6">Versions</h3>
-            <ul className="pl-3">
-              {this.props.versions.map((version) => (
-                <Version key={version.tag_or_hash} version={version} />
-              ))}
-            </ul>
+            <Version versions={this.props.versions} />
           </Col>
 
           {isEmpty ? (

@@ -35,7 +35,11 @@ export default function Search({ draftURL, searches }: SearchProps) {
                 href={search.url}
                 onClick={handleClick(search.url)}
               >
-                <Form action={search.delete_url} method="post">
+                <Form
+                  action={search.delete_url}
+                  className="d-flex justify-content-between align-items-center"
+                  method="post"
+                >
                   <Form.Control
                     name="csrfmiddlewaretoken"
                     type="hidden"
@@ -44,7 +48,7 @@ export default function Search({ draftURL, searches }: SearchProps) {
                   {search.term_or_code}
                   <Button
                     aria-label="remove search"
-                    className="float-right p-0 px-1"
+                    className="ml-2"
                     name="delete-search"
                     type="submit"
                     size="sm"

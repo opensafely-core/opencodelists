@@ -122,23 +122,24 @@ def _draft(request, draft, search_id):
         ).items()
     )
 
+    num_displayed_codes = len(displayed_codes)
     if search_id:
         # A search term has been selected OR there are codes orphaned from their search
         # term. In either case this is not an empty codelist
         is_empty_codelist = False
+        heading_prefix = f"Showing {num_displayed_codes} concept{'s' if num_displayed_codes != 1 else ''}"
         if search_id == NO_SEARCH_TERM:
-            results_heading = "Showing concepts with no matching search term"
+            results_heading = f"{heading_prefix} with no matching search term"
         elif search.term:
-            results_heading = f'Showing concepts matching "{search.term}"'
+            results_heading = f'{heading_prefix} matching "{search.term}"'
         else:
-            results_heading = f"Showing concepts matching the code: {search.code}"
+            results_heading = f"{heading_prefix} matching the code: {search.code}"
     elif codeset.all_codes():
         # No search term selected, but we have >0 codes, so this is not an empty codelist
         is_empty_codelist = False
-        if filter:
-            results_heading = f"Showing all {filter} concepts"
-        else:
-            results_heading = "Showing all matching concepts"
+        results_heading = (
+            f"Showing all {filter or 'matching'} concepts ({num_displayed_codes})"
+        )
     elif searches:
         # No search term selected and there are no codes, but there are >0 searches
         is_empty_codelist = False

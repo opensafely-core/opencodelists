@@ -41,21 +41,32 @@ def test_version_from_scratch(client, version_from_scratch):
 
 def test_search(client, draft_with_some_searches):
     slug = "arthritis"
-    search_id = draft_with_some_searches.searches.filter(term=slug).first().id
+    search = draft_with_some_searches.searches.filter(term=slug).first()
+    search_id = search.id
+
+    num_concepts = len(search.results.values_list("code_obj__code", flat=True))
 
     rsp = client.get(draft_with_some_searches.get_builder_search_url(search_id, slug))
 
     assert rsp.status_code == 200
-    assert rsp.context["results_heading"] == f'Showing concepts matching "{slug}"'
+    assert (
+        rsp.context["results_heading"]
+        == f'Showing {num_concepts} concepts matching "{slug}"'
+    )
 
 
 def test_no_search_term(client, draft_with_some_searches):
     rsp = client.get(draft_with_some_searches.get_builder_no_search_term_url())
+    num_concepts = len(
+        draft_with_some_searches.code_objs.filter(results=None).values_list(
+            "code", flat=True
+        )
+    )
 
     assert rsp.status_code == 200
     assert (
         rsp.context["results_heading"]
-        == "Showing concepts with no matching search term"
+        == f"Showing {num_concepts} concepts with no matching search term"
     )
 
 

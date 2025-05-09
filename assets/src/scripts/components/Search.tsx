@@ -1,5 +1,5 @@
-import React from "react";
-import { Button, Form, ListGroup } from "react-bootstrap";
+import React, { useState } from "react";
+import { Button, Card, Form, ListGroup } from "react-bootstrap";
 import { getCookie } from "../_utils";
 import { PageData } from "../types";
 
@@ -9,20 +9,37 @@ interface SearchProps {
 }
 
 export default function Search({ draftURL, searches }: SearchProps) {
+  const [activeUrl, setActiveUrl] = useState<string>(
+    () => searches.find((search) => search.active)?.url || "",
+  );
+
+  const handleClick = (url: string) => (e: React.MouseEvent) => {
+    // Don't trigger if clicking the Remove button
+    if (!(e.target as HTMLElement).closest("button")) {
+      setActiveUrl(url);
+    }
+  };
+
   return (
-    <>
-      <h3 className="h6">Searches</h3>
-      <ListGroup>
+    <Card>
+      <Card.Header as="h2" className="h6 font-weight-bold">
+        Previous searches
+      </Card.Header>
+      <ListGroup variant="flush">
         {searches.map((search) => (
           <React.Fragment key={search.url}>
             {search.delete_url ? (
               <ListGroup.Item
                 action
-                active={search.active}
-                className="py-1 px-2"
+                active={search.url === activeUrl}
                 href={search.url}
+                onClick={handleClick(search.url)}
               >
-                <Form action={search.delete_url} method="post">
+                <Form
+                  action={search.delete_url}
+                  className="d-flex justify-content-between align-items-center"
+                  method="post"
+                >
                   <Form.Control
                     name="csrfmiddlewaretoken"
                     type="hidden"
@@ -31,13 +48,15 @@ export default function Search({ draftURL, searches }: SearchProps) {
                   {search.term_or_code}
                   <Button
                     aria-label="remove search"
-                    className="float-right p-0 px-1"
+                    className="ml-2"
                     name="delete-search"
                     type="submit"
                     size="sm"
-                    variant="secondary"
+                    variant={
+                      search.url === activeUrl ? "light" : "outline-danger"
+                    }
                   >
-                    &times;
+                    Remove
                   </Button>
                 </Form>
               </ListGroup.Item>
@@ -45,7 +64,6 @@ export default function Search({ draftURL, searches }: SearchProps) {
               <ListGroup.Item
                 action
                 active={search.active}
-                className="py-1 px-2"
                 href={encodeURI(search.url)}
               >
                 {search.term_or_code}
@@ -57,14 +75,14 @@ export default function Search({ draftURL, searches }: SearchProps) {
         {searches.some((search) => search.active) ? (
           <ListGroup.Item
             action
-            className="py-1 px-2 font-italic"
+            className="font-italic"
             href={encodeURI(draftURL)}
+            onClick={handleClick(draftURL)}
           >
             show all
           </ListGroup.Item>
         ) : null}
       </ListGroup>
-      <hr />
-    </>
+    </Card>
   );
 }

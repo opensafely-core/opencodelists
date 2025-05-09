@@ -60,79 +60,81 @@ export default function SearchForm({
 
   return (
     <Card>
-      <Card.Header as="h6" className="p-2">
+      <Card.Header as="h2" className="h6 font-weight-bold">
         Search the {codingSystemName} dictionary
       </Card.Header>
-      <Form action={encodeURI(searchURL)} method="post" className="p-2">
-        <Form.Control
-          name="csrfmiddlewaretoken"
-          type="hidden"
-          value={getCookie("csrftoken")}
-        />
-        <fieldset>
+      <Card.Body className="pt-2 pb-1">
+        <Form action={encodeURI(searchURL)} method="post">
+          <Form.Control
+            name="csrfmiddlewaretoken"
+            type="hidden"
+            value={getCookie("csrftoken")}
+          />
+          <fieldset>
+            <Form.Group>
+              <Form.Label className="h6 mt-1" as="legend">
+                Search by:
+              </Form.Label>
+              {Object.values(SEARCH_OPTIONS).map((option) => (
+                <Form.Check
+                  key={option.value}
+                  inline
+                  label={option.label}
+                  name="search-type"
+                  type="radio"
+                  id={`search-type-${option.value}`}
+                  value={option.value}
+                  checked={searchType === option.value}
+                  onChange={handleSearchTypeChange}
+                />
+              ))}
+            </Form.Group>
+          </fieldset>
           <Form.Group>
-            <Form.Label className="h6 mt-1" as="legend">
-              Search by:
-            </Form.Label>
-            {Object.values(SEARCH_OPTIONS).map((option) => (
-              <Form.Check
-                key={option.value}
-                inline
-                label={option.label}
-                name="search-type"
-                type="radio"
-                id={`search-type-${option.value}`}
-                value={option.value}
-                checked={searchType === option.value}
-                onChange={handleSearchTypeChange}
+            <InputGroup>
+              <Form.Label srOnly htmlFor="searchInput">
+                {SEARCH_OPTIONS[searchType].placeholder}
+              </Form.Label>
+              <Form.Control
+                id="searchInput"
+                name="search"
+                placeholder={SEARCH_OPTIONS[searchType].placeholder}
+                type="search"
+                value={searchTerm}
+                onInput={handleSearchChange}
+                maxLength={SEARCH_OPTIONS[searchType].maxLength}
+                isInvalid={
+                  searchTerm.length >= SEARCH_OPTIONS[searchType].maxLength
+                }
               />
-            ))}
+              <InputGroup.Append>
+                <Button name="field" type="submit" variant="primary">
+                  Search
+                </Button>
+              </InputGroup.Append>
+              {searchTerm.length >= SEARCH_OPTIONS[searchType].maxLength && (
+                <Form.Control.Feedback type="invalid">
+                  {SEARCH_OPTIONS[searchType].validationMsg}
+                </Form.Control.Feedback>
+              )}
+            </InputGroup>
           </Form.Group>
-        </fieldset>
-        <Form.Group>
-          <InputGroup className="mb-3">
-            <Form.Label srOnly htmlFor="searchInput">
-              {SEARCH_OPTIONS[searchType].placeholder}
-            </Form.Label>
-            <Form.Control
-              id="searchInput"
-              name="search"
-              placeholder={SEARCH_OPTIONS[searchType].placeholder}
-              type="search"
-              value={searchTerm}
-              onInput={handleSearchChange}
-              maxLength={SEARCH_OPTIONS[searchType].maxLength}
-              isInvalid={
-                searchTerm.length >= SEARCH_OPTIONS[searchType].maxLength
-              }
-            />
-            <InputGroup.Append>
-              <Button name="field" type="submit" variant="primary">
-                Search
-              </Button>
-            </InputGroup.Append>
-            {searchTerm.length >= SEARCH_OPTIONS[searchType].maxLength && (
-              <Form.Control.Feedback type="invalid">
-                {SEARCH_OPTIONS[searchType].validationMsg}
-              </Form.Control.Feedback>
-            )}
-          </InputGroup>
-        </Form.Group>
 
-        <Form.Group>
-          <Form.Text className="text-muted">
-            {codingSystemName === "ICD-10" &&
-            searchType === SEARCH_OPTIONS.code.value ? (
-              <p>
-                You can use a wildcard search to find all ICD-10 codes starting
-                with a certain string. E.g. use <code>xyz*</code> to find all
-                codes starting with <code>xyz</code>. (Wildcard search only
-                available for ICD-10.)
-              </p>
-            ) : null}
-          </Form.Text>
-        </Form.Group>
-      </Form>
+          <Form.Group>
+            <Form.Text className="text-muted">
+              {codingSystemName === "ICD-10" &&
+              searchType === SEARCH_OPTIONS.code.value ? (
+                <p>
+                  You can use a wildcard search to find all ICD-10 codes
+                  starting with a certain string. E.g. use <code>xyz*</code> to
+                  find all codes starting with <code>xyz</code>. (Wildcard
+                  search only available for ICD-10.)
+                </p>
+              ) : null}
+            </Form.Text>
+          </Form.Group>
+        </Form>
+      </Card.Body>
     </Card>
   );
 }

@@ -53,7 +53,7 @@ export default function Search({ draftURL, searches }: SearchProps) {
                     type="submit"
                     size="sm"
                     variant={
-                      search.url === activeUrl ? "light" : "outline-primary"
+                      search.url === activeUrl ? "light" : "outline-danger"
                     }
                   >
                     Remove

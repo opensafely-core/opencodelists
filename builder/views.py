@@ -122,21 +122,35 @@ def _draft(request, draft, search_id):
         ).items()
     )
 
-    if search_id == NO_SEARCH_TERM:
-        results_heading = "Showing concepts with no matching search term"
-    elif search_id is not None and search.term:
-        results_heading = f'Showing concepts matching "{search.term}"'
-    elif search_id is not None:
-        results_heading = f"Showing concepts matching the code: {search.code}"
-    elif codeset.all_codes():
-        if filter:
-            results_heading = f"Showing all {filter} concepts"
+    num_displayed_codes = len(displayed_codes)
+    if search_id:
+        # A search term has been selected OR there are codes orphaned from their search
+        # term. In either case this is not an empty codelist
+        is_empty_codelist = False
+        heading_prefix = f"Showing {num_displayed_codes} concept{'s' if num_displayed_codes != 1 else ''}"
+        if search_id == NO_SEARCH_TERM:
+            results_heading = f"{heading_prefix} with no matching search term"
+        elif search.term:
+            results_heading = f'{heading_prefix} matching "{search.term}"'
         else:
-            results_heading = "Showing all matching concepts"
-    else:
+            results_heading = f"{heading_prefix} matching the code: {search.code}"
+    elif codeset.all_codes():
+        # No search term selected, but we have >0 codes, so this is not an empty codelist
+        is_empty_codelist = False
         results_heading = (
-            "Start building your codelist by searching for a term or a code"
+            f"Showing all {filter or 'matching'} concepts ({num_displayed_codes})"
         )
+    elif searches:
+        # No search term selected and there are no codes, but there are >0 searches
+        is_empty_codelist = False
+        results_heading = "None of your searches match any concepts"
+    else:
+        # No codes or searches
+        is_empty_codelist = True
+        # No need to provide a value for the results_heading as this is no longer
+        # used for an empty codelist. We need to give it a value though to prevent
+        # errors
+        results_heading = ""
 
     draft_url = draft.get_builder_draft_url()
     update_url = draft.get_builder_update_url()
@@ -200,6 +214,7 @@ def _draft(request, draft, search_id):
         "search_url": search_url,
         "versions": versions,
         "metadata": metadata,
+        "is_empty_codelist": is_empty_codelist,
     }
 
     return render(request, "builder/draft.html", ctx)

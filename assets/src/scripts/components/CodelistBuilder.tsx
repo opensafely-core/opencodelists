@@ -136,6 +136,7 @@ export default class CodelistBuilder extends React.Component<
       draftURL,
       hierarchy,
       isEditable,
+      isEmptyCodelist,
       metadata,
       resultsHeading,
       searches,
@@ -143,12 +144,6 @@ export default class CodelistBuilder extends React.Component<
       treeTables,
       visiblePaths,
     } = this.props;
-
-    const isEmpty =
-      searches.length === 0 &&
-      treeTables.length === 0 &&
-      resultsHeading ===
-        "Start building your codelist by searching for a term or a code";
 
     return (
       <>
@@ -161,7 +156,9 @@ export default class CodelistBuilder extends React.Component<
         </div>
         <Row>
           <Col className="builder__sidebar" md="3">
-            {!isEmpty && <Summary counts={this.counts()} draftURL={draftURL} />}
+            {!isEmptyCodelist && (
+              <Summary counts={this.counts()} draftURL={draftURL} />
+            )}
 
             {searches.length > 0 && (
               <Search draftURL={draftURL} searches={searches} />
@@ -177,7 +174,7 @@ export default class CodelistBuilder extends React.Component<
             <Version versions={this.props.versions} />
           </Col>
 
-          {isEmpty ? (
+          {isEmptyCodelist ? (
             <Col md="9">
               <EmptyState />
             </Col>

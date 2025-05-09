@@ -23,6 +23,7 @@ export interface PageData {
   codeToTerm: { [key: string]: string };
   draftURL: string;
   isEditable: boolean;
+  isEmptyCodelist: boolean;
   metadata: {
     codelist_full_slug: string;
     codelist_name: string;

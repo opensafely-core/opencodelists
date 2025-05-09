@@ -37,6 +37,7 @@ if (container) {
         draftURL={readValueFromPage("draft-url")}
         hierarchy={hierarchy}
         isEditable={readValueFromPage("is-editable")}
+        isEmptyCodelist={readValueFromPage("is-empty-codelist")}
         metadata={readValueFromPage("metadata")}
         resultsHeading={readValueFromPage("results-heading")}
         searches={readValueFromPage("searches")}

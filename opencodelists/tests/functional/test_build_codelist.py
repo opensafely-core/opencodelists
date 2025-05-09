@@ -179,7 +179,16 @@ def verify_review_codelist_codes(
     # TODO: find a better way to match this if possible.
     # There aren't nice clean selectors for some of this.
     expect(page.get_by_text(concepts_text)).to_have_text(concepts_text)
+
     # TODO: Validate search terms properly.
+    concept_html_list_items = page.locator("div#search-results").locator(
+        "details ul li"
+    )
+    for list_item in concept_html_list_items.all():
+        # TODO: extract the colour and use that to determine included
+        # TODO: if included, extract name and code from text content
+        print(list_item.text_content())
+    # page.pause()
 
 
 def publish_codelist(page, codelist_name):

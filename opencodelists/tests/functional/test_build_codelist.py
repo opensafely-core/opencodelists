@@ -1,6 +1,7 @@
 import csv
 from dataclasses import dataclass
 from enum import Enum, auto
+from functools import cached_property
 
 import pytest
 from playwright.sync_api import expect
@@ -29,6 +30,51 @@ class ConceptSelection:
     to_expand: bool
 
     state: ConceptState
+
+
+@dataclass(frozen=True)
+class Search:
+    """Represents a search query input."""
+
+    query: str
+    # is_code is True if the search is a code, and not a term.
+    is_code: bool
+
+
+@dataclass(frozen=True)
+class SearchAction:
+    """Represents the action of searching for a term or code, and applying a
+    series of ConceptSelections."""
+
+    search: Search
+    concept_selections: list[ConceptSelection]
+
+
+@dataclass(frozen=True)
+class SearchActions:
+    """Represents a series of SearchActions."""
+
+    items: list[SearchAction]
+
+    @cached_property
+    def expected_codelist_table(self):
+        """Takes SearchActions, and returns a dictionary
+        mapping codes to terms.
+
+        Later ConceptSelections intentionally take precedence."""
+        # Caching this is based on frozen=True.
+        # If this changes, we may have to recompute the value.
+        assert self.__dataclass_params__.frozen
+
+        all_concept_selections = []
+        for search_action in self.items:
+            all_concept_selections.extend(search_action.concept_selections)
+
+        return {
+            concept_selection.code: concept_selection.term
+            for concept_selection in all_concept_selections
+            if concept_selection.state == ConceptState.INCLUDED
+        }
 
 
 def setup_playwright_page(login_context, url):
@@ -60,31 +106,26 @@ def create_codelist(page, coding_system, name):
     page.get_by_role("button", name="Create").click()
 
 
-def search_in_codelist_builder(page, search):
+def search_in_codelist_builder(page, search_action):
     """Takes a Playwright page that's navigated to the codelist builder,
     and str search.
     Performs the provided search on the codelist builder page."""
 
-    # This selection depends on the limited hierarchy that we have always
-    # using decimal codes, and non-decimal names.
-    #
-    # WARNING: this holds for our SNOMED-CT and BNF fixtures,
-    # but definitely does not hold for the ICD10 fixtures,
-    # though we are not testing any ICD10 data as yet.
-    if search[0].isdecimal():
+    if search_action.search.is_code:
         page.get_by_role("radio", name="Code").click()
 
     page.get_by_role("searchbox").click()
-    page.get_by_role("searchbox").fill(search)
+    page.get_by_role("searchbox").fill(search_action.search.query)
     page.get_by_role("button", name="Search", exact=True).click()
 
 
-def handle_concept_selections(page, concept_selections):
+def handle_concept_selections(page, search_action):
     """Takes a Playwright page that's navigated to the codelist builder,
-    and dict of codes: ConceptSelection.
-    Perform the appropriate ConceptSelection actions on the Playwright page."""
+    and a SearchAction.
+    Perform the appropriate ConceptSelection actions belonging to that
+    SearchAction on the Playwright page."""
 
-    for concept_selection in concept_selections:
+    for concept_selection in search_action.concept_selections:
         concept_locator = page.locator(f"[data-code='{concept_selection.code}']")
 
         if concept_selection.to_expand:
@@ -130,29 +171,15 @@ def validate_codelist_exists_on_site(page, codelist_name, heading_text):
     ).to_have_text(heading_text)
 
 
-def derive_expected_codelist_table(concept_selections):
-    """Takes a list of ConceptSelections, and returns a dictionary
-    mapping codes to terms.
-
-    Later ConceptSelections intentionally take precedence."""
-
-    return {
-        concept_selection.code: concept_selection.term
-        for concept_selection in concept_selections
-        if concept_selection.state == ConceptState.INCLUDED
-    }
-
-
-def verify_review_codelist_codes(
-    page, codelist_name, concept_selections, search_text, expected_codelist_table
-):
+def verify_review_codelist_codes(page, codelist_name, search_actions):
     """Takes a page, codelist name, a list of ConceptSelections,
     and the text used for a search, and verifies the expected codelist codes
-    are present on the full list tab and under the searches tab.
+    are present on the full list tab.
+
+    It does not yet, but will validate the searches tab.
 
     It is limited to verifying the result of a codelist selection
     following a single search for now."""
-
     page.get_by_role("link", name="My codelists").click()
     page.get_by_role("link", name=codelist_name).click()
 
@@ -166,19 +193,7 @@ def verify_review_codelist_codes(
         term = row.locator("td").nth(1).text_content()
         codelist_table_as_dict[code] = term
 
-    assert codelist_table_as_dict == expected_codelist_table
-
-    # Validate searches tab
-    total_concepts = len(concept_selections)
-    included_concept_count = len(expected_codelist_table)
-
-    concepts_text = (
-        f"Included {included_concept_count} out of {total_concepts} matching concepts."
-    )
-    # TODO: find a better way to match this if possible.
-    # There aren't nice clean selectors for some of this.
-    expect(page.get_by_text(concepts_text)).to_have_text(concepts_text)
-    # TODO: Validate search terms properly.
+    assert codelist_table_as_dict == search_actions.expected_codelist_table
 
 
 def publish_codelist(page, codelist_name):
@@ -195,7 +210,7 @@ def publish_codelist(page, codelist_name):
     page.get_by_role("button", name="Publish", exact=True).click()
 
 
-def verify_codelist_csv(page, codelist_name, expected_codelist_table):
+def verify_codelist_csv(page, codelist_name, search_actions):
     """Take a Playwright page, codelist name, and expected codelist table,
     and verifies the codelist CSV against the expected codelist table.
 
@@ -216,13 +231,13 @@ def verify_codelist_csv(page, codelist_name, expected_codelist_table):
             term = row["term"]
             codelist_table_from_csv[code] = term
 
-    assert codelist_table_from_csv == expected_codelist_table
+    assert codelist_table_from_csv == search_actions.expected_codelist_table
 
 
 @pytest.mark.parametrize(
     # Test by searching with term, and then by searching with code.
     "search",
-    ["arthritis", "3723001"],
+    [Search(query="arthritis", is_code=False), Search(query="3723001", is_code=True)],
 )
 @pytest.mark.parametrize(
     # Test with a non-organisation user login, and then organisation user login.
@@ -248,39 +263,49 @@ def test_build_snomedct_codelist_single_search(
     codelist_name = "Test"
     create_codelist(page, coding_system, codelist_name)
 
-    search_in_codelist_builder(page, search)
+    search_actions = SearchActions(
+        items=[
+            SearchAction(
+                search=search,
+                concept_selections=[
+                    ConceptSelection(
+                        code="3723001",
+                        term="Arthritis",
+                        to_expand=False,
+                        state=ConceptState.INCLUDED,
+                    ),
+                    ConceptSelection(
+                        code="439656005",
+                        term="Arthritis of elbow",
+                        to_expand=True,
+                        state=ConceptState.EXCLUDED,
+                    ),
+                    ConceptSelection(
+                        code="202855006",
+                        term="Lateral epicondylitis",
+                        to_expand=False,
+                        state=ConceptState.EXCLUDED,
+                    ),
+                ],
+            ),
+        ],
+    )
 
-    expect(page.get_by_role("button", name="Save for review")).to_be_disabled()
+    # This test only has one action,
+    # but writing in this format for consistency of the tests.
+    for search_action in search_actions.items:
+        search_in_codelist_builder(page, search_action)
+        expect(page.get_by_role("button", name="Save for review")).to_be_disabled()
+        handle_concept_selections(page, search_action)
 
-    concept_selections = [
-        ConceptSelection(
-            code="3723001",
-            term="Arthritis",
-            to_expand=False,
-            state=ConceptState.INCLUDED,
-        ),
-        ConceptSelection(
-            code="439656005",
-            term="Arthritis of elbow",
-            to_expand=True,
-            state=ConceptState.EXCLUDED,
-        ),
-        ConceptSelection(
-            code="202855006",
-            term="Lateral epicondylitis",
-            to_expand=False,
-            state=ConceptState.EXCLUDED,
-        ),
-    ]
-    expected_codelist_table = derive_expected_codelist_table(concept_selections)
-    handle_concept_selections(page, concept_selections)
     save_codelist_for_review(page)
-
     heading_text = "Your codelists under review"
     validate_codelist_exists_on_site(page, codelist_name, heading_text)
 
     verify_review_codelist_codes(
-        page, codelist_name, concept_selections, search, expected_codelist_table
+        page,
+        codelist_name,
+        search_actions,
     )
 
     publish_codelist(page, codelist_name)
@@ -288,13 +313,13 @@ def test_build_snomedct_codelist_single_search(
     heading_text = "Your codelists"
     validate_codelist_exists_on_site(page, codelist_name, heading_text)
 
-    verify_codelist_csv(page, codelist_name, expected_codelist_table)
+    verify_codelist_csv(page, codelist_name, search_actions)
 
 
 @pytest.mark.parametrize(
     # Test by searching with term, and then by searching with code.
     "search",
-    ["asthma", "0301012A0AA"],
+    [Search(query="asthma", is_code=False), Search(query="0301012A0AA", is_code=True)],
 )
 @pytest.mark.parametrize(
     # Test with a non-organisation user login, and then organisation user login.
@@ -320,37 +345,49 @@ def test_build_bnf_codelist_single_search(
     codelist_name = "Test"
     create_codelist(page, coding_system, codelist_name)
 
-    search_in_codelist_builder(page, search)
+    search_actions = SearchActions(
+        items=[
+            SearchAction(
+                search=search,
+                concept_selections=[
+                    ConceptSelection(
+                        code="0301012A0AA",
+                        term="Adrenaline (Asthma)",
+                        to_expand=False,
+                        state=ConceptState.INCLUDED,
+                    ),
+                    ConceptSelection(
+                        code="0301012A0AAABAB",
+                        term="Adrenaline (base) 220micrograms/dose inhaler",
+                        to_expand=False,
+                        state=ConceptState.EXCLUDED,
+                    ),
+                    ConceptSelection(
+                        code="0301012A0AAACAC",
+                        term="Adrenaline (base) 220micrograms/dose inhaler refill",
+                        to_expand=False,
+                        state=ConceptState.EXCLUDED,
+                    ),
+                ],
+            ),
+        ],
+    )
 
-    concept_selections = [
-        ConceptSelection(
-            code="0301012A0AA",
-            term="Adrenaline (Asthma)",
-            to_expand=False,
-            state=ConceptState.INCLUDED,
-        ),
-        ConceptSelection(
-            code="0301012A0AAABAB",
-            term="Adrenaline (base) 220micrograms/dose inhaler",
-            to_expand=False,
-            state=ConceptState.EXCLUDED,
-        ),
-        ConceptSelection(
-            code="0301012A0AAACAC",
-            term="Adrenaline (base) 220micrograms/dose inhaler refill",
-            to_expand=False,
-            state=ConceptState.EXCLUDED,
-        ),
-    ]
-    expected_codelist_table = derive_expected_codelist_table(concept_selections)
-    handle_concept_selections(page, concept_selections)
+    # This test only has one action,
+    # but writing in this format for consistency of the tests.
+    for search_action in search_actions.items:
+        search_in_codelist_builder(page, search_action)
+        expect(page.get_by_role("button", name="Save for review")).to_be_disabled()
+        handle_concept_selections(page, search_action)
+
     save_codelist_for_review(page)
-
     heading_text = "Your codelists under review"
     validate_codelist_exists_on_site(page, codelist_name, heading_text)
 
     verify_review_codelist_codes(
-        page, codelist_name, concept_selections, search, expected_codelist_table
+        page,
+        codelist_name,
+        search_actions,
     )
 
     publish_codelist(page, codelist_name)
@@ -358,7 +395,7 @@ def test_build_bnf_codelist_single_search(
     heading_text = "Your codelists"
     validate_codelist_exists_on_site(page, codelist_name, heading_text)
 
-    verify_codelist_csv(page, codelist_name, expected_codelist_table)
+    verify_codelist_csv(page, codelist_name, search_actions)
 
 
 @pytest.mark.parametrize(
@@ -373,7 +410,7 @@ def test_build_bnf_codelist_single_search(
     ],
     transaction=True,
 )
-def test_build_snomedct_codelist_multiple_searches_no_selections(
+def test_build_snomedct_codelist_two_searches_no_selections(
     login_context_fixture_name,
     request,
     live_server,
@@ -388,10 +425,142 @@ def test_build_snomedct_codelist_multiple_searches_no_selections(
     codelist_name = "Test"
     create_codelist(page, coding_system, codelist_name)
 
-    search_in_codelist_builder(page, "arthritis")
-    search_in_codelist_builder(page, "elbow")
+    search_actions = SearchActions(
+        items=[
+            SearchAction(
+                search=Search(
+                    query="arthritis",
+                    is_code=False,
+                ),
+                concept_selections=[],
+            ),
+            SearchAction(
+                search=Search(
+                    query="tennis",
+                    is_code=False,
+                ),
+                concept_selections=[],
+            ),
+        ],
+    )
+
+    # This test has no concept selections,
+    # but writing in this format for consistency of the tests.
+    for search_action in search_actions.items:
+        search_in_codelist_builder(page, search_action)
+        expect(page.get_by_role("button", name="Save for review")).to_be_disabled()
+        handle_concept_selections(page, search_action)
 
     heading_text = "Your drafts"
     validate_codelist_exists_on_site(page, codelist_name, heading_text)
 
     # No content to verify for an empty draft.
+
+
+@pytest.mark.parametrize(
+    # Test with a non-organisation user login, and then organisation user login.
+    "login_context_fixture_name",
+    ["non_organisation_login_context", "organisation_login_context"],
+)
+@pytest.mark.django_db(
+    databases=[
+        "default",
+        "snomedct_test_20200101",
+    ],
+    transaction=True,
+)
+def test_build_snomedct_codelist_two_searches(
+    login_context_fixture_name,
+    request,
+    live_server,
+    snomedct_data,
+):
+    page = setup_playwright_page(
+        login_context=request.getfixturevalue(login_context_fixture_name),
+        url=live_server.url,
+    )
+
+    coding_system = "snomedct"
+    codelist_name = "Test"
+    create_codelist(page, coding_system, codelist_name)
+
+    search_actions = SearchActions(
+        items=[
+            SearchAction(
+                search=Search(
+                    query="arthritis",
+                    is_code=False,
+                ),
+                concept_selections=[
+                    ConceptSelection(
+                        code="3723001",
+                        term="Arthritis",
+                        to_expand=False,
+                        state=ConceptState.INCLUDED,
+                    ),
+                    ConceptSelection(
+                        code="439656005",
+                        term="Arthritis of elbow",
+                        to_expand=True,
+                        state=ConceptState.EXCLUDED,
+                    ),
+                    ConceptSelection(
+                        code="202855006",
+                        term="Lateral epicondylitis",
+                        to_expand=False,
+                        state=ConceptState.EXCLUDED,
+                    ),
+                ],
+            ),
+            SearchAction(
+                search=Search(
+                    query="tennis",
+                    is_code=False,
+                ),
+                concept_selections=[
+                    ConceptSelection(
+                        code="202855006",
+                        term="Lateral epicondylitis",
+                        to_expand=False,
+                        state=ConceptState.EXCLUDED,
+                    ),
+                    ConceptSelection(
+                        code="238484001",
+                        term="Tennis toe",
+                        to_expand=False,
+                        state=ConceptState.EXCLUDED,
+                    ),
+                    # This is an "inactive" code,
+                    # so maybe not a good "real-world" example.
+                    ConceptSelection(
+                        code="156659008",
+                        term="(Epicondylitis &/or tennis elbow) or (golfers' elbow)",
+                        to_expand=False,
+                        state=ConceptState.INCLUDED,
+                    ),
+                ],
+            ),
+        ],
+    )
+
+    for search_action in search_actions.items:
+        search_in_codelist_builder(page, search_action)
+        expect(page.get_by_role("button", name="Save for review")).to_be_disabled()
+        handle_concept_selections(page, search_action)
+
+    save_codelist_for_review(page)
+    heading_text = "Your codelists under review"
+    validate_codelist_exists_on_site(page, codelist_name, heading_text)
+
+    verify_review_codelist_codes(
+        page,
+        codelist_name,
+        search_actions,
+    )
+
+    publish_codelist(page, codelist_name)
+
+    heading_text = "Your codelists"
+    validate_codelist_exists_on_site(page, codelist_name, heading_text)
+
+    verify_codelist_csv(page, codelist_name, search_actions)

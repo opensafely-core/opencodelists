@@ -445,6 +445,7 @@ def build_fixtures():
             {"user": organisation_user, "date": "2020-02-29"},
             {"user": collaborator, "date": "2020-02-29"},
         ],
+        status=Status.PUBLISHED,
     )
     bnf_version_asthma = bnf_codelist.versions.first()
 
@@ -492,6 +493,7 @@ def build_fixtures():
             {"user": organisation_user, "date": "2020-02-29"},
             {"user": collaborator, "date": "2020-02-29"},
         ],
+        status=Status.PUBLISHED,
     )
     add_codelist_tag(codelist=new_style_codelist, tag="new-style")
 
@@ -673,6 +675,7 @@ def build_fixtures():
         coding_system_id="snomedct",
         coding_system_database_alias=most_recent_database_alias("snomedct"),
         codes=disorder_of_elbow_excl_arthritis_codes,
+        status=Status.PUBLISHED,
     )
     add_codelist_tag(codelist=user_codelist, tag="new-style")
 
@@ -691,6 +694,7 @@ def build_fixtures():
         coding_system_id="snomedct",
         coding_system_database_alias=most_recent_database_alias("snomedct"),
         codes=enthesopathy_of_elbow_region_plus_tennis_toe,
+        status=Status.PUBLISHED,
     )
     # minimal_version
     # - belongs to minimal_codelist

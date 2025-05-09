@@ -90,7 +90,7 @@ def test_create_codelist_with_codes(user, disorder_of_elbow_excl_arthritis_codes
         codes=disorder_of_elbow_excl_arthritis_codes,
     )
     clv = cl.versions.get()
-    assert clv.is_published
+    assert clv.is_draft
     assert len(clv.codes) == len(disorder_of_elbow_excl_arthritis_codes)
 
     code_to_status = {

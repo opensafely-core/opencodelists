@@ -31,8 +31,8 @@ def test_post_with_csv(client, organisation_user, disorder_of_elbow_csv_data_no_
     codelist = organisation_user.codelists.get(handles__name="Test")
     version = codelist.versions.get()
 
-    assert response.redirect_chain[-1][0] == version.get_absolute_url()
-    assert version.is_published
+    assert response.redirect_chain[-1][0] == version.get_builder_draft_url()
+    assert version.is_draft
     assert version.author == organisation_user
 
 
@@ -91,8 +91,8 @@ def test_post_create_organisation_codelist_with_csv(
     codelist = organisation.codelists.get(handles__name="Test")
     version = codelist.versions.get()
 
-    assert response.redirect_chain[-1][0] == version.get_absolute_url()
-    assert version.is_published
+    assert response.redirect_chain[-1][0] == version.get_builder_draft_url()
+    assert version.is_draft
     assert version.author == organisation_user
 
 

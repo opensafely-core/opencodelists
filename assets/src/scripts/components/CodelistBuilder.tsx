@@ -160,37 +160,21 @@ export default class CodelistBuilder extends React.Component<
           <Metadata data={metadata} />
         </div>
         <Row>
-          <Col md="3">
-            {!isEmpty ? (
-              <>
-                <Summary counts={this.counts()} draftURL={draftURL} />
-                <hr />
-              </>
-            ) : null}
+          <Col className="builder__sidebar" md="3">
+            {!isEmpty && <Summary counts={this.counts()} draftURL={draftURL} />}
 
             {searches.length > 0 && (
-              <>
-                <Search draftURL={draftURL} searches={searches} />
-                <hr />
-              </>
+              <Search draftURL={draftURL} searches={searches} />
             )}
 
             {isEditable && (
-              <>
-                <SearchForm
-                  codingSystemName={metadata.coding_system_name}
-                  searchURL={searchURL}
-                />
-                <hr />
-              </>
+              <SearchForm
+                codingSystemName={metadata.coding_system_name}
+                searchURL={searchURL}
+              />
             )}
 
-            <h3 className="h6">Versions</h3>
-            <ul className="pl-3">
-              {this.props.versions.map((version) => (
-                <Version key={version.tag_or_hash} version={version} />
-              ))}
-            </ul>
+            <Version versions={this.props.versions} />
           </Col>
 
           {isEmpty ? (

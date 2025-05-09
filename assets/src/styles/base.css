@@ -104,3 +104,9 @@ a:focus {
   overflow-x: hidden;
   padding: 0.25rem;
 }
+
+.builder__sidebar {
+  display: flex;
+  flex-direction: column;
+  row-gap: 1rem;
+}

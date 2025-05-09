@@ -146,9 +146,10 @@ def _draft(request, draft, search_id):
     else:
         # No codes or searches
         is_empty_codelist = True
-        results_heading = (
-            "Start building your codelist by searching for a term or a code"
-        )
+        # No need to provide a value for the results_heading as this is no longer
+        # used for an empty codelist. We need to give it a value though to prevent
+        # errors
+        results_heading = ""
 
     draft_url = draft.get_builder_draft_url()
     update_url = draft.get_builder_update_url()

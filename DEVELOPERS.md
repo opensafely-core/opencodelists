@@ -168,6 +168,19 @@ just #  shortcut for just --list
 
 See https://github.com/Schniz/fnm#installation.
 
+### Build a lightweight local development setup
+Run the `just build-dbs-for-local-development` recipe to create a new local core database and a few coding system release databases, then populate them with test fixture data.
+
+Before running, refer to the [justfile](/justfile) and the [setup_local_dev_databases.py](opencodelists/management/commands/setup_local_dev_databases.py) management command for implementation details.
+
+After setup is complete, you can:
+ - Log in as `localdev`
+ - Search for 'arthritis', 'tennis', and 'elbow'
+ - Build codelists with the concepts returned from these searches
+ - View a BNF codelist, a minimal codelist, and a new-style SNOMED CT codelist
+
+Note: This setup does not support local development using mappings.
+
 ### Run local development server
 
 The development server can be run locally, as described below, or in [docker](#using-docker-for-development-and-tests).

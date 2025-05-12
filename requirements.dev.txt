@@ -252,9 +252,9 @@ cli-helpers[styles]==2.4.0 \
     --hash=sha256:3c75857fa132914f504592685648e9ab9deb5a6f2c3570d1f5f3086ea613b04d \
     --hash=sha256:55903b705a212a473731db20fa26f58655e354078b99cb13c99ec06940287a4d
     # via litecli
-click==8.1.8 \
-    --hash=sha256:63c132bbbed01578a06712a2d1f497bb62d9c1c0d329b7903a866228027263b2 \
-    --hash=sha256:ed53c9d8990d83c2a27deae68e4ee337473f6330c040a31d4225c9574d16096a
+click==8.2.0 \
+    --hash=sha256:6b303f0b2aa85f1cb4e5303078fadcbcd4e476f114fab9b5007005711839325c \
+    --hash=sha256:f5452aeddd9988eefa20f90f05ab66f17fce1ee2a36907fd30b05bbb5953814d
     # via
     #   litecli
     #   pip-tools
@@ -372,9 +372,9 @@ distlib==0.3.9 \
     --hash=sha256:47f8c22fd27c27e25a65601af709b38e4f0a45ea4fc2e710f65755fa8caaaf87 \
     --hash=sha256:a60f20dea646b8a33f3e7772f74dc0b2d0772d2837ee1342a00645c81edf9403
     # via virtualenv
-django==5.1.8 \
-    --hash=sha256:11b28fa4b00e59d0def004e9ee012fefbb1065a5beb39ee838983fd24493ad4f \
-    --hash=sha256:42e92a1dd2810072bcc40a39a212b693f94406d0ba0749e68eb642f31dc770b4
+django==5.1.9 \
+    --hash=sha256:2fd1d4a0a66a5ba702699eb692e75b0d828b73cc2f4e1fc4b6a854a918967411 \
+    --hash=sha256:565881bdd0eb67da36442e9ac788bda90275386b549070d70aee86327781a4fc
     # via
     #   -c /home/runner/work/opencodelists/opencodelists/requirements.prod.txt
     #   django-debug-toolbar
@@ -386,9 +386,9 @@ filelock==3.18.0 \
     --hash=sha256:adbc88eabb99d2fec8c9c1b229b171f18afa655400173ddc653d5d01501fb9f2 \
     --hash=sha256:c401f4f8377c4464e6db25fff06205fd89bdd83b65eb0488ed1b160f780e21de
     # via virtualenv
-hypothesis==6.131.9 \
-    --hash=sha256:7c2d9d6382e98e5337b27bd34e5b223bac23956787a827e1d087e00d893561d6 \
-    --hash=sha256:ee9b0e1403e1121c91921dbdc79d7f509fdb96d457a0389222d2a68d6c8a8f8e
+hypothesis==6.131.15 \
+    --hash=sha256:11849998ae5eecc8c586c6c98e47677fcc02d97475065f62768cfffbcc15ef7a \
+    --hash=sha256:e02e67e9f3cfd4cd4a67ccc03bf7431beccc1a084c5e90029799ddd36ce006d7
     # via -r requirements.dev.in
 identify==2.6.10 \
     --hash=sha256:45e92fd704f3da71cc3880036633f48b4b7265fd4de2b57627cb157216eb7eb8 \
@@ -528,9 +528,9 @@ pip-tools==7.4.1 \
     --hash=sha256:4c690e5fbae2f21e87843e89c26191f0d9454f362d8acdbd695716493ec8b3a9 \
     --hash=sha256:864826f5073864450e24dbeeb85ce3920cdfb09848a3d69ebf537b521f14bcc9
     # via -r requirements.dev.in
-platformdirs==4.3.7 \
-    --hash=sha256:a03875334331946f13c549dbd8f4bac7a13a50a895a0eb1e8c6a8ace80d40a94 \
-    --hash=sha256:eb437d586b6a0986388f0d6f74aa0cde27b48d0e3d66843640bfb6bdcdb6e351
+platformdirs==4.3.8 \
+    --hash=sha256:3d512d96e16bcb959a814c9f348431070822a6496326a4be0911c40b5a74c2bc \
+    --hash=sha256:ff7059bb7eb1179e2685604f4aaf157cfd9535242bd23742eadc3c13542139b4
     # via virtualenv
 pluggy==1.5.0 \
     --hash=sha256:2cffa88e94fdc978c4c574f15f9e59b7f4201d439195c3715ca9e2486f1d0cf1 \
@@ -662,25 +662,25 @@ responses==0.25.7 \
     --hash=sha256:8ebae11405d7a5df79ab6fd54277f6f2bc29b2d002d0dd2d5c632594d1ddcedb \
     --hash=sha256:92ca17416c90fe6b35921f52179bff29332076bb32694c0df02dcac2c6bc043c
     # via -r requirements.dev.in
-ruff==0.11.8 \
-    --hash=sha256:0eba551324733efc76116d9f3a0d52946bc2751f0cd30661564117d6fd60897c \
-    --hash=sha256:161eb4cff5cfefdb6c9b8b3671d09f7def2f960cee33481dd898caf2bcd02304 \
-    --hash=sha256:258f3585057508d317610e8a412788cf726efeefa2fec4dba4001d9e6f90d46c \
-    --hash=sha256:304432e4c4a792e3da85b7699feb3426a0908ab98bf29df22a31b0cdd098fac2 \
-    --hash=sha256:3dca977cc4fc8f66e89900fa415ffe4dbc2e969da9d7a54bfca81a128c5ac219 \
-    --hash=sha256:4d9aaa91035bdf612c8ee7266153bcf16005c7c7e2f5878406911c92a31633cb \
-    --hash=sha256:5b18caa297a786465cc511d7f8be19226acf9c0a1127e06e736cd4e1878c3ea2 \
-    --hash=sha256:6d742d10626f9004b781f4558154bb226620a7242080e11caeffab1a40e99df8 \
-    --hash=sha256:6e70d11043bef637c5617297bdedec9632af15d53ac1e1ba29c448da9341b0c4 \
-    --hash=sha256:727d01702f7c30baed3fc3a34901a640001a2828c793525043c29f7614994a8c \
-    --hash=sha256:7f024d32e62faad0f76b2d6afd141b8c171515e4fb91ce9fd6464335c81244e5 \
-    --hash=sha256:896a37516c594805e34020c4a7546c8f8a234b679a7716a3f08197f38913e1a3 \
-    --hash=sha256:ab86d22d3d721a40dd3ecbb5e86ab03b2e053bc93c700dc68d1c3346b36ce835 \
-    --hash=sha256:c1dba3135ca503727aa4648152c0fa67c3b1385d3dc81c75cd8a229c4b2a1458 \
-    --hash=sha256:c657fa987d60b104d2be8b052d66da0a2a88f9bd1d66b2254333e84ea2720c7f \
-    --hash=sha256:d365618d3ad747432e1ae50d61775b78c055fee5936d77fb4d92c6f559741948 \
-    --hash=sha256:f2e74b021d0de5eceb8bd32919f6ff8a9b40ee62ed97becd44993ae5b9949474 \
-    --hash=sha256:f9b5ef39820abc0f2c62111f7045009e46b275f5b99d5e59dda113c39b7f4f38
+ruff==0.11.9 \
+    --hash=sha256:0f3f46f759ac623e94824b1e5a687a0df5cd7f5b00718ff9c24f0a894a683be7 \
+    --hash=sha256:440ac6a7029f3dee7d46ab7de6f54b19e34c2b090bb4f2480d0a2d635228f381 \
+    --hash=sha256:52edaa4a6d70f8180343a5b7f030c7edd36ad180c9f4d224959c2d689962d964 \
+    --hash=sha256:537c82c9829d7811e3aa680205f94c81a2958a122ac391c0eb60336ace741a70 \
+    --hash=sha256:5b1d18b4be8182cc6fddf859ce432cc9631556e9f371ada52f3eaefc10d878de \
+    --hash=sha256:66bc18ca783b97186a1f3100e91e492615767ae0a3be584e1266aa9051990722 \
+    --hash=sha256:71c539bac63d0788a30227ed4d43b81353c89437d355fdc52e0cda4ce5651787 \
+    --hash=sha256:7b27613a683b086f2aca8996f63cb3dd7bc49e6eccf590563221f7b43ded3f65 \
+    --hash=sha256:7fe1bc950e7d7b42caaee2a8a3bc27410547cc032c9558ee2e0f6d3b209e845a \
+    --hash=sha256:9e0d88756e63e8302e630cee3ce2ffb77859797cc84a830a24473939e6da3ca6 \
+    --hash=sha256:a31a1d143a5e6f499d1fb480f8e1e780b4dfdd580f86e05e87b835d22c5c6f8c \
+    --hash=sha256:bcf42689c22f2e240f496d0c183ef2c6f7b35e809f12c1db58f75d9aa8d630ca \
+    --hash=sha256:bd576cd06962825de8aece49f28707662ada6a1ff2db848d1348e12c580acbf1 \
+    --hash=sha256:c67117bc82457e4501473c5f5217d49d9222a360794bfb63968e09e70f340abd \
+    --hash=sha256:e4b78454f97aa454586e8a5557facb40d683e74246c97372af3c2d76901d697b \
+    --hash=sha256:ebd58d4f67a00afb3a30bf7d383e52d0e036e6195143c6db7019604a05335517 \
+    --hash=sha256:f33b15e00435773df97cddcd263578aa83af996b913721d86f47f4e0ee0ff271 \
+    --hash=sha256:f34847eea11932d97b521450cf3e1d17863cfa5a94f21a056b93fb86f3f3dba2
     # via -r requirements.dev.in
 six==1.17.0 \
     --hash=sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274 \
@@ -717,9 +717,9 @@ urllib3==2.4.0 \
     #   -c /home/runner/work/opencodelists/opencodelists/requirements.prod.txt
     #   requests
     #   responses
-virtualenv==20.30.0 \
-    --hash=sha256:800863162bcaa5450a6e4d721049730e7f2dae07720e0902b0e4040bd6f9ada8 \
-    --hash=sha256:e34302959180fca3af42d1800df014b35019490b119eba981af27f2fa486e5d6
+virtualenv==20.31.2 \
+    --hash=sha256:36efd0d9650ee985f0cad72065001e66d49a6f24eb44d98980f630686243cf11 \
+    --hash=sha256:e10c0a9d02835e592521be48b332b6caee6887f332c111aa79a09b9e79efc2af
     # via pre-commit
 wcwidth==0.2.13 \
     --hash=sha256:3da69048e4540d84af32131829ff948f1e022c1c6bdb8d6102117aac784f6859 \
@@ -740,9 +740,9 @@ pip==25.0.1 \
     #   -r requirements.dev.in
     #   litecli
     #   pip-tools
-setuptools==80.3.1 \
-    --hash=sha256:31e2c58dbb67c99c289f51c16d899afedae292b978f8051efaf6262d8212f927 \
-    --hash=sha256:ea8e00d7992054c4c592aeb892f6ad51fe1b4d90cc6947cc45c45717c40ec537
+setuptools==80.4.0 \
+    --hash=sha256:5a78f61820bc088c8e4add52932ae6b8cf423da2aff268c23f813cfbb13b4006 \
+    --hash=sha256:6cdc8cb9a7d590b237dbe4493614a9b75d0559b888047c1f67d49ba50fc3edb2
     # via
     #   litecli
     #   pip-tools

@@ -92,28 +92,10 @@ class BaseCodingSystem(ABC):
     def release_name(self):
         return self.release.release_name
 
-    def search_by_term(self, term):  # pragma: no cover
-        raise NotImplementedError
-
-    def search_by_code(self, code):  # pragma: no cover
-        raise NotImplementedError
-
     def lookup_names(self, codes):  # pragma: no cover
         raise NotImplementedError
 
     def code_to_term(self, codes):  # pragma: no cover
-        raise NotImplementedError
-
-    def codes_by_type(self, codes, hierarchy):  # pragma: no cover
-        raise NotImplementedError
-
-    def matching_codes(self, codes):
-        """
-        Given a set/list of codes, return the subset of those codes
-        that are found in the coding system. This is used to identify
-        codes on a codelist version that have been removed in the
-        current release of the coding system.
-        """
         raise NotImplementedError
 
 
@@ -126,3 +108,29 @@ class DummyCodingSystem(BaseCodingSystem):
 
     def code_to_term(self, codes):
         return {code: "unknown" for code in codes}
+
+
+class BuilderCompatibleCodingSystem(BaseCodingSystem):
+    def ancestor_relationships(self, codes):  # pragma: no cover
+        raise NotImplementedError
+
+    def codes_by_type(self, codes, hierarchy):  # pragma: no cover
+        raise NotImplementedError
+
+    def descendant_relationships(self, codes):  # pragma: no cover
+        raise NotImplementedError
+
+    def matching_codes(self, codes):
+        """
+        Given a set/list of codes, return the subset of those codes
+        that are found in the coding system. This is used to identify
+        codes on a codelist version that have been removed in the
+        current release of the coding system.
+        """
+        raise NotImplementedError
+
+    def search_by_term(self, term):  # pragma: no cover
+        raise NotImplementedError
+
+    def search_by_code(self, code):  # pragma: no cover
+        raise NotImplementedError

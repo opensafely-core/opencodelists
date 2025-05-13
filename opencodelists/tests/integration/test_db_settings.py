@@ -8,14 +8,14 @@ def _assert_pragma(cursor: CursorWrapper, name: str, value: str | int):
     assert cursor.execute(f"PRAGMA {name}").fetchone()[0] == value
 
 
-@pytest.mark.django_db()
+@pytest.mark.django_db
 class TestDatabaseSettings:
     """Tests that our intended core DB settings will be correctly applied.
 
     I say 'will be' because tests can't actually access the prod core DB. So
     the tests that rely on the database state can't test that directly."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def fresh_db_cursor(self, settings, tmp_path):
         """Provide a cursor for a connection to a freshly-created
         filesystem-based database based on the core default configuration.

@@ -37,16 +37,12 @@ def _bnf_review_version_with_search(bnf_version_with_search):
 
 class BaseCodingSystemDynamicDatabaseTestCase(DynamicDatabaseTestCase):
     @pytest.fixture
-    def _get_bnf_release(self, _bnf_release):
-        self.bnf_release = _bnf_release
-
-    @pytest.fixture
     def _bnf_release(self, _bnf_csr):
         # This addition of a allowed database alias needs to be done
         # *before* the class's setUp() runs.
         # This fixture is run before setUp() and
         # other fixtures required by this fixture access the database.
-        self.add_to_testcase_allowed_db_aliases(self.db_alias)
+        self.add_to_testcase_allowed_db_aliases(self.db_aliases)
 
         # setup the database as a duplicate of the fixture one
         csr = _bnf_csr()
@@ -55,8 +51,14 @@ class BaseCodingSystemDynamicDatabaseTestCase(DynamicDatabaseTestCase):
         _cleanup_db(csr)
 
     @pytest.fixture
-    def _get_bnf_release_excl_last_concept(self, _bnf_release_excl_last_concept):
-        self.bnf_release = _bnf_release_excl_last_concept
+    def _get_bnf_release(self, _bnf_release):
+        # This attribute is necessary for tests that need to access
+        # the underlying CodingSystemRelease.
+        # Currently, all tests only use one CodingSystemRelease.
+        # It might be necessary to refactor how this attribute works
+        # (maybe as a dictionary or similar) if any future tests require
+        # accessing multiple CodingSystemReleases
+        self.bnf_release = _bnf_release
 
     @pytest.fixture
     def _bnf_release_excl_last_concept(self, _bnf_csr):
@@ -64,7 +66,7 @@ class BaseCodingSystemDynamicDatabaseTestCase(DynamicDatabaseTestCase):
         # *before* the class's setUp() runs.
         # This fixture is run before setUp() and
         # other fixtures required by this fixture access the database.
-        self.add_to_testcase_allowed_db_aliases(self.db_alias)
+        self.add_to_testcase_allowed_db_aliases(self.db_aliases)
 
         # setup the database as a duplicate of the fixture one, omitting the last concept
         csr = _bnf_csr(datetime(2022, 10, 1))
@@ -73,17 +75,16 @@ class BaseCodingSystemDynamicDatabaseTestCase(DynamicDatabaseTestCase):
         _cleanup_db(csr)
 
     @pytest.fixture
+    def _get_bnf_release_excl_last_concept(self, _bnf_release_excl_last_concept):
+        self.bnf_release = _bnf_release_excl_last_concept
+
+    @pytest.fixture
     def _bnf_releases(self, _bnf_csr):
-        db_alias_additions = [
-            "bnf_import-data_20190101",
-            "bnf_import-data_20220901",
-            "bnf_import-data_20221201",
-        ]
         # This addition of a allowed database alias needs to be done
         # *before* the class's setUp() runs.
         # This fixture is run before setUp() and
         # other fixtures required by this fixture access the database.
-        self.add_to_testcase_allowed_db_aliases(*db_alias_additions)
+        self.add_to_testcase_allowed_db_aliases(self.db_aliases)
 
         # setup multiple databases as duplicates of the fixture one, with different dates
 
@@ -150,7 +151,9 @@ def _cleanup_db(csr):
 class TestUpdateCodelistVersionCompatibilityNoSearches(
     BaseCodingSystemDynamicDatabaseTestCase
 ):
-    db_alias = "bnf_import-data_20221101"
+    db_aliases = [
+        "bnf_import-data_20221101",
+    ]
 
     @pytest.mark.usefixtures("_get_bnf_release", "_get_bnf_version_asthma")
     def test_update_codelist_version_compatibility_no_searches(self):
@@ -164,7 +167,10 @@ class TestUpdateCodelistVersionCompatibilityNoSearches(
 class TestUpdateCodelistVersionDraftVersionExcluded(
     BaseCodingSystemDynamicDatabaseTestCase
 ):
-    db_alias = "bnf_import-data_20221101"
+    db_aliases = [
+        # _bnf_release
+        "bnf_import-data_20221101",
+    ]
 
     @pytest.mark.usefixtures("_get_bnf_release", "_get_bnf_version_with_search")
     def test_update_codelist_draft_version_excluded(self):
@@ -176,7 +182,10 @@ class TestUpdateCodelistVersionDraftVersionExcluded(
 
 
 class TestUpdateCodelistVersionWithSearch(BaseCodingSystemDynamicDatabaseTestCase):
-    db_alias = "bnf_import-data_20221101"
+    db_aliases = [
+        # _bnf_release
+        "bnf_import-data_20221101",
+    ]
 
     @pytest.mark.usefixtures("_get_bnf_release", "_get_bnf_review_version_with_search")
     def test_update_codelist_version_with_search(self):
@@ -193,7 +202,10 @@ class TestUpdateCodelistVersionWithSearch(BaseCodingSystemDynamicDatabaseTestCas
 class TestUpdateCodelistVersionCompatibilityWithMismatchedSearch(
     BaseCodingSystemDynamicDatabaseTestCase
 ):
-    db_alias = "bnf_import-data_20221001"
+    db_aliases = [
+        # _bnf_release_excl_last_concept
+        "bnf_import-data_20221001",
+    ]
 
     @pytest.mark.usefixtures(
         "_get_bnf_release_excl_last_concept", "_get_bnf_review_version_with_search"
@@ -210,7 +222,10 @@ class TestUpdateCodelistVersionCompatibilityWithMismatchedSearch(
 class TestUpdateCodelistVersionCompatibilityWithSearchButMismatchedHierarchy(
     BaseCodingSystemDynamicDatabaseTestCase
 ):
-    db_alias = "bnf_import-data_20221001"
+    db_aliases = [
+        # _bnf_release_excl_last_concept
+        "bnf_import-data_20221001",
+    ]
 
     @pytest.mark.usefixtures(
         "_get_bnf_release_excl_last_concept", "_get_bnf_review_version_with_search"
@@ -246,9 +261,17 @@ class TestUpdateCodelistVersionCompatibilityWithSearchButMismatchedHierarchy(
 class TestSaveCodelistDraftUpdatesCompatibility(
     BaseCodingSystemDynamicDatabaseTestCase
 ):
-    db_alias = "bnf_import-data_20221001"
+    db_aliases = [
+        # _bnf_releases
+        "bnf_import-data_20190101",
+        "bnf_import-data_20220901",
+        "bnf_import-data_20221201",
+    ]
 
-    @pytest.mark.usefixtures("_get_bnf_release", "_get_bnf_version_with_search")
+    @pytest.mark.usefixtures(
+        "_bnf_releases",
+        "_get_bnf_version_with_search",
+    )
     def test_save_codelist_draft_updates_compatibility(self):
         assert self.bnf_version_with_search.status == Status.DRAFT
         assert not self.bnf_version_with_search.compatible_releases.exists()
@@ -257,16 +280,21 @@ class TestSaveCodelistDraftUpdatesCompatibility(
         assert self.bnf_version_with_search.compatible_releases.exists()
 
 
-# This test is particularly unusual compared with the other coding systems
-# tests that use dynamic databases, in that multiple databases are used.
 class TestSaveCodelistDraftUpdatesCompatibilityMultipleReleases(
     BaseCodingSystemDynamicDatabaseTestCase
 ):
-    db_alias = "bnf_import-data_20190101"
+    db_aliases = [
+        # _bnf_releases
+        "bnf_import-data_20190101",
+        "bnf_import-data_20220901",
+        "bnf_import-data_20221201",
+        # _bnf_release_excl_last_concept
+        "bnf_import-data_20221001",
+    ]
 
     @pytest.mark.usefixtures(
         "_bnf_releases",
-        "_get_bnf_release_excl_last_concept",
+        "_bnf_release_excl_last_concept",
         "_get_bnf_version_with_search",
     )
     def test_save_codelist_draft_updates_compatibility_multiple_releases(self):

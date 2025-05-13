@@ -31,7 +31,9 @@ def mock_migrate():
 
 
 class TestImportData(DynamicDatabaseTestCase):
-    db_alias = "ctv3_v1_20221001"
+    db_aliases = [
+        "ctv3_v1_20221001",
+    ]
     import_data_path = MOCK_CTV3_IMPORT_DATA_PATH
 
     @pytest.mark.usefixtures("setup_coding_systems")
@@ -85,7 +87,9 @@ class TestImportData(DynamicDatabaseTestCase):
 
 
 class TestImportErrorExistingRelease(DynamicDatabaseTestCaseWithTmpPath):
-    db_alias = "ctv3_v_error_20221001"
+    db_aliases = [
+        "ctv3_v_error_20221001",
+    ]
     import_data_path = MOCK_CTV3_IMPORT_DATA_PATH
     coding_system_subpath_name = "ctv3"
 

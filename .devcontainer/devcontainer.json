@@ -1,0 +1,7 @@
+{
+    "name": "OpenCodelists",
+    "features": {
+        "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+    },
+    "postCreateCommand": "/bin/bash /workspaces/opencodelists/dokku.sh"
+}

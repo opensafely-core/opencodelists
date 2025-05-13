@@ -113,6 +113,7 @@ def create_or_update_codelist(
             methodology=methodology,
             references=references,
             signoffs=signoffs,
+            status=Status.PUBLISHED,
         )
 
 
@@ -131,6 +132,7 @@ def create_codelist_with_codes(
     references=None,
     signoffs=None,
     author=None,
+    status=Status.DRAFT,
 ):
     """Create a new Codelist with a new-style version with given codes."""
 
@@ -150,7 +152,7 @@ def create_codelist_with_codes(
     _create_version_with_codes(
         codelist=codelist,
         codes=codes,
-        status=Status.PUBLISHED,
+        status=status,
         coding_system_release=coding_system.release,
         tag=tag,
         author=author,

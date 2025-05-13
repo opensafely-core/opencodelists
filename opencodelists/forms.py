@@ -6,6 +6,7 @@ from django import forms
 from django.contrib.auth import password_validation
 
 from codelists.coding_systems import CODING_SYSTEMS
+from coding_systems.base.coding_system_base import BuilderCompatibleCodingSystem
 
 from .models import User
 
@@ -46,7 +47,7 @@ class CodelistCreateForm(forms.Form):
     CODING_SYSTEM_CHOICES = [("", "---")] + sorted(
         (id, system.name)
         for id, system in CODING_SYSTEMS.items()
-        if hasattr(system, "ancestor_relationships")
+        if issubclass(system, BuilderCompatibleCodingSystem)
     )
 
     owner = forms.ChoiceField()

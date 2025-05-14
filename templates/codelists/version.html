@@ -5,11 +5,17 @@
 {% block title_extra %}: {{ codelist.name }}{% endblock %}
 
 {% block full_width_content %}
-  <div class="border-bottom mb-3">
-    <h1 class="h3">{{ codelist.name }}</h1>
+  <div class="border-bottom mb-3 pb-3">
+    <div class="d-flex flex-row justify-content-between gap-2 mb-2">
+      <h1 class="h3">
+        {{ codelist.name }}
     {% if clv.is_under_review %}
-      <p class="text-muted">This version is under review</p>
+          <span class="align-text-bottom ml-1 badge badge-primary">
+            Review
+          </span>
     {% endif %}
+      </h1>
+    </div>
 
     <section class="mb-3">
       <h2 class="sr-only">Codelist metadata</h2>

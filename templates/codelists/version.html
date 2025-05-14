@@ -10,6 +10,76 @@
     {% if clv.is_under_review %}
       <p class="text-muted">This version is under review</p>
     {% endif %}
+
+    <section class="mb-3">
+      <h2 class="sr-only">Codelist metadata</h2>
+      <dl class="break-word list-group list-group-horizontal small">
+        <div class="list-group-item py-1 px-2">
+          <dt>
+            Coding system
+          </dt>
+          <dd class="mb-0">{{ clv.coding_system.name }}</dd>
+        </div>
+
+        <div class="list-group-item py-1 px-2">
+          <dt>
+            Coding system release
+          </dt>
+          <dd class="mb-0">
+            {{ clv.coding_system.release_name }}
+          </dd>
+        </div>
+
+        {% if clv.compatible_releases.exists %}
+          <div class="list-group-item py-1 px-2">
+            <dt>
+              Other compatible releases
+            </dt>
+            <dd class="mb-0">
+              <ul class="list-inline">
+                {% for release in clv.compatible_releases.all %}
+                  <li>
+                    {{ release.release_name }} ({{ release.valid_from|date:'Y-m-d'}}){% if not forloop.last %};{% endif %}
+                  </li>
+                {% endfor %}
+              </ul>
+            </dd>
+          </div>
+        {% endif %}
+
+        {% if codelist.organisation %}
+          <div class="list-group-item py-1 px-2">
+            <dt>
+              Organisation
+            </dt>
+            <dd class="mb-0">{{ codelist.organisation.name }}</dd>
+          </div>
+        {% endif %}
+
+        <div class="list-group-item py-1 px-2">
+          <dt>
+            Codelist ID
+          </dt>
+          <dd class="mb-0">{{ codelist.full_slug }}</dd>
+        </div>
+
+        {% if clv.tag %}
+          <div class="list-group-item py-1 px-2">
+            <dt>
+              Version Tag
+            </dt>
+            <dd class="mb-0">{{ clv.tag }}</dd>
+          </div>
+        {% endif %}
+
+        <div class="list-group-item py-1 px-2">
+          <dt>
+            Version ID
+          </dt>
+          <dd class="mb-0">{{ clv.hash }}</dd>
+        </div>
+      </dl>
+    </section>
   </div>
 
   <div class="row">
@@ -80,53 +150,6 @@
         </div>
       </form>
 
-      <h2 class="sr-only">Codelist metadata</h2>
-      <dl class="break-word">
-        <dt>
-          <h3 class="h6 font-weight-bold mb-1">Coding system</h3>
-        </dt>
-        <dd class="pb-2 border-bottom">{{ clv.coding_system.name }}</dd>
-
-        <dt>
-          <h3 class="h6 font-weight-bold">Coding system release</h3>
-        </dt>
-        <dd class="pb-2 border-bottom">{{ clv.coding_system.release_name }}</dd>
-
-        {% if clv.compatible_releases.exists %}
-          <details>
-            <summary>Show other compatible releases</summary>
-            <ul>
-              {% for release in clv.compatible_releases.all %}
-                <li><small>{{ release.release_name }} ({{ release.valid_from|date:'Y-m-d'}})</small></li>
-              {% endfor %}
-            </ul>
-          </details>
-        {% endif %}
-
-        {% if codelist.organisation %}
-          <dt>
-            <h3 class="h6 font-weight-bold">Organisation</h3>
-          </dt>
-          <dd class="pb-2 border-bottom">{{ codelist.organisation.name }}</dd>
-        {% endif %}
-
-        <dt>
-          <h3 class="h6 font-weight-bold">Codelist ID</h3>
-        </dt>
-        <dd class="pb-2 border-bottom">{{ codelist.full_slug }}</dd>
-
-        {% if clv.tag %}
-          <dt>
-            <h3 class="h6 font-weight-bold">Version Tag</h3>
-          </dt>
-          <dd class="pb-2 border-bottom">{{ clv.tag }}</dd>
-        {% endif %}
-
-        <dt>
-          <h3 class="h6 font-weight-bold">Version ID</h3>
-        </dt>
-        <dd class="pb-2 border-bottom">{{ clv.hash }}</dd>
-      </dl>
 
       {% if user_can_edit %}
         <div class="btn-group-vertical btn-block" role="group">

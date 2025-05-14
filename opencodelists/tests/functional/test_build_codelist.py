@@ -4,10 +4,43 @@ from enum import Enum, StrEnum, auto
 from functools import cached_property
 
 import pytest
-from playwright.sync_api import expect
+from playwright.sync_api import Page, expect
 
 
 pytestmark = pytest.mark.functional
+
+
+@dataclass(frozen=True)
+class Navigator:
+    """Represents navigation to different OpenCodelists pages using
+    a Playwright Page."""
+
+    page: Page
+    codelist_name: str
+
+    def go_to_create_codelist_page(self):
+        """Navigates the Playwright Page to the "create a codelist" page."""
+
+        self.go_to_my_codelists_page()
+        self.page.get_by_role("link", name="Create a codelist!").click()
+
+    def go_to_codelist(self):
+        """Navigates the Playwright Page to the link for the codelist
+        from the My Codelists page.
+
+        Note that this codelist link behaves contextually; for example:
+
+        * it's the builder when creating a codelist
+        * it's the codelist page when saved for review."""
+        self.go_to_my_codelists_page()
+        codelist_link = self.page.get_by_role("link", name=self.codelist_name)
+        expect(codelist_link).to_be_visible()
+        codelist_link.click()
+
+    def go_to_my_codelists_page(self):
+        """Navigates the Playwright Page to the 'My Codelists' page."""
+
+        self.page.get_by_role("link", name="My codelists").click()
 
 
 class ConceptState(Enum):
@@ -49,26 +82,27 @@ class SearchAction:
     search: Search
     concept_selections: list[ConceptSelection]
 
-    def search_in_codelist_builder(self, page):
-        """Takes a Playwright page that's navigated to the codelist builder,
-        and str search.
-        Performs the provided search on the codelist builder page."""
+    def apply(self, navigator, initial_page_navigation=True):
+        """Takes a Navigator, and performs the provided SearchAction
+        on the codelist builder page."""
+        if initial_page_navigation:
+            navigator.go_to_codelist()
 
         if self.search.is_code:
-            page.get_by_role("radio", name="Code").click()
+            navigator.page.get_by_role("radio", name="Code").click()
 
-        page.get_by_role("searchbox").click()
-        page.get_by_role("searchbox").fill(self.search.query)
-        page.get_by_role("button", name="Search", exact=True).click()
+        navigator.page.get_by_role("searchbox").click()
+        navigator.page.get_by_role("searchbox").fill(self.search.query)
+        navigator.page.get_by_role("button", name="Search", exact=True).click()
 
-    def handle_concept_selections(self, page):
-        """Takes a Playwright page that's navigated to the codelist builder,
-        and a SearchAction.
-        Perform the appropriate ConceptSelection actions belonging to that
-        SearchAction on the Playwright page."""
+        expect(
+            navigator.page.get_by_role("button", name="Save for review")
+        ).to_be_disabled()
 
         for concept_selection in self.concept_selections:
-            concept_locator = page.locator(f"[data-code='{concept_selection.code}']")
+            concept_locator = navigator.page.locator(
+                f"[data-code='{concept_selection.code}']"
+            )
 
             if concept_selection.to_expand:
                 concept_locator.get_by_role("button", name="⊞").click()
@@ -110,12 +144,17 @@ class SearchActions:
             if concept_selection.state == ConceptState.INCLUDED
         }
 
-    def apply(self, page):
-        """Applies each SearchAction in turn: searching and selecting concepts."""
+    def apply_all(
+        self,
+        navigator,
+        initial_page_navigation=True,
+    ):
+        """Applies each SearchAction in turn for the codelist builder:
+        searching and selecting concepts."""
         for search_action in self.items:
-            search_action.search_in_codelist_builder(page)
-            expect(page.get_by_role("button", name="Save for review")).to_be_disabled()
-            search_action.handle_concept_selections(page)
+            search_action.apply(
+                navigator, initial_page_navigation=initial_page_navigation
+            )
 
 
 class CodelistHeading(StrEnum):
@@ -136,37 +175,39 @@ def setup_playwright_page(login_context, url):
     return page
 
 
-def create_codelist(page, coding_system, name):
-    """Takes a Playwright page, navigates to the codelist creation page
-    and, for supported coding systems, fills in the form to create a new codelist."""
+def create_codelist(navigator, coding_system, initial_page_navigation=True):
+    """Takes a Navigator, and a coding system, and, for supported coding
+    systems, fills in the form to create a new codelist."""
 
     if coding_system not in ["bnf", "snomedct"]:
-        # For example:
-        # * database fixtures may need properly enabling
-        # * we need to implement proper search-by-term/code switching
-        #   for ICD10 where we can't distinguish between terms and codes
-        #   by looking at the search string (see search_in_codelist_builder())
+        # Database fixtures that work with these tests are needed for other coding systems.
         assert False, "Coding system {coding_system} not yet supported by the tests"
 
-    page.get_by_role("link", name="My codelists").click()
-    page.get_by_role("link", name="Create a codelist!").click()
+    if initial_page_navigation:
+        navigator.go_to_create_codelist_page()
 
-    page.get_by_role("textbox", name="Codelist name *").fill(name)
-    page.get_by_label("Coding system *").select_option(coding_system)
-    page.get_by_role("button", name="Create").click()
+    navigator.page.get_by_role("textbox", name="Codelist name *").fill(
+        navigator.codelist_name
+    )
+    navigator.page.get_by_label("Coding system *").select_option(coding_system)
+    navigator.page.get_by_role("button", name="Create").click()
 
 
-def save_codelist_for_review(page):
-    """Takes a Playwright page on a codelist builder page,
-    with a completed codelist, and saves the codelist for review."""
+def save_codelist_for_review(navigator, initial_page_navigation=True):
+    """Takes a Navigator, and saves the codelist for review."""
 
-    save_for_review_link = page.get_by_role("button", name="Save for review")
+    if initial_page_navigation:
+        navigator.go_to_codelist()
+
+    save_for_review_link = navigator.page.get_by_role("button", name="Save for review")
     expect(save_for_review_link).to_be_enabled()
     save_for_review_link.click()
 
 
-def validate_codelist_exists_on_site(page, codelist_name, codelist_heading):
-    """Takes a Playwright page, a codelist name, and CodelistHeading to match
+def validate_codelist_exists_on_site(
+    navigator, codelist_heading, initial_page_navigation=True
+):
+    """Takes a Navigator, a codelist name, and CodelistHeading to match,
     and validates that the codelist name exists under that heading.
 
     It does not currently go for an exact match because organisation users get
@@ -174,30 +215,31 @@ def validate_codelist_exists_on_site(page, codelist_name, codelist_heading):
 
     We could improve this matching in future."""
 
-    page.get_by_role("link", name="My codelists").click()
-    codelist_link = page.get_by_role("link", name=codelist_name)
-    expect(codelist_link).to_be_visible()
+    if initial_page_navigation:
+        navigator.go_to_my_codelists_page()
     expect(
-        page.get_by_role("link", name=codelist_name)
+        navigator.page.get_by_role("link", name=navigator.codelist_name)
         .locator("xpath=preceding::h4")
         .nth(-1)
     ).to_have_text(codelist_heading.value)
 
 
-def verify_review_codelist_codes(page, codelist_name, search_actions):
-    """Takes a page, codelist name, a list of ConceptSelections,
-    and the text used for a search, and verifies the expected codelist codes
-    are present on the full list tab.
+def verify_review_codelist_codes(
+    navigator, search_actions, initial_page_navigation=True
+):
+    """Takes a Navigator, SearchActions and verifies the expected codelist codes
+    from the SearchActions are present on the full list tab.
 
     It does not yet, but will validate the searches tab.
 
     It is limited to verifying the result of a codelist selection
     following a single search for now."""
-    page.get_by_role("link", name="My codelists").click()
-    page.get_by_role("link", name=codelist_name).click()
 
-    page.get_by_role("tab", name="Full list").click()
-    codelist_table_rows = page.locator("div#full-list").locator("table tr")
+    if initial_page_navigation:
+        navigator.go_to_codelist()
+
+    navigator.page.get_by_role("tab", name="Full list").click()
+    codelist_table_rows = navigator.page.locator("div#full-list").locator("table tr")
     codelist_table_as_dict = {}
 
     # Collate the codes; skipping the table header row.
@@ -209,31 +251,26 @@ def verify_review_codelist_codes(page, codelist_name, search_actions):
     assert codelist_table_as_dict == search_actions.expected_codelist_table
 
 
-def publish_codelist(page, codelist_name):
-    """Take a Playwright page and codelist name,
-    and publish the codelist.
+def publish_codelist(navigator, initial_page_navigation=True):
+    """Take a Navigator, and publish the codelist.
 
     Requires that the codelist has been saved for review
     and is ready to be published."""
+    if initial_page_navigation:
+        navigator.go_to_codelist()
 
-    page.get_by_role("link", name="My codelists").click()
-    page.get_by_role("link", name=codelist_name).click()
-
-    page.get_by_role("button", name="Publish version").click()
-    page.get_by_role("button", name="Publish", exact=True).click()
+    navigator.page.get_by_role("button", name="Publish version").click()
+    navigator.page.get_by_role("button", name="Publish", exact=True).click()
 
 
-def verify_codelist_csv(page, codelist_name, search_actions):
-    """Take a Playwright page, codelist name, and expected codelist table,
-    and verifies the codelist CSV against the expected codelist table.
+def verify_codelist_csv(navigator, search_actions, initial_page_navigation=True):
+    """Take a Navigator, SearchActions, and verifies the codelist CSV
+    against the expected codelist table."""
+    if initial_page_navigation:
+        navigator.go_to_codelist()
 
-    Requires that the codelist has been published."""
-
-    page.get_by_role("link", name="My codelists").click()
-    page.get_by_role("link", name=codelist_name).click()
-
-    with page.expect_download() as download_info:
-        page.get_by_role("button", name="Download CSV").click()
+    with navigator.page.expect_download() as download_info:
+        navigator.page.get_by_role("button", name="Download CSV").click()
 
     codelist_table_from_csv = {}
 
@@ -247,6 +284,12 @@ def verify_codelist_csv(page, codelist_name, search_actions):
     assert codelist_table_from_csv == search_actions.expected_codelist_table
 
 
+@pytest.mark.parametrize(
+    # Test either by always explicitly navigating to the page that's needed,
+    # or follow on from previous navigations where possible.
+    "navigate_to_page",
+    [True, False],
+)
 @pytest.mark.parametrize(
     # Test by searching with term, and then by searching with code.
     "search",
@@ -265,7 +308,12 @@ def verify_codelist_csv(page, codelist_name, search_actions):
     transaction=True,
 )
 def test_build_snomedct_codelist_single_search(
-    login_context_fixture_name, search, request, live_server, snomedct_data
+    login_context_fixture_name,
+    search,
+    navigate_to_page,
+    request,
+    live_server,
+    snomedct_data,
 ):
     page = setup_playwright_page(
         login_context=request.getfixturevalue(login_context_fixture_name),
@@ -274,7 +322,9 @@ def test_build_snomedct_codelist_single_search(
 
     coding_system = "snomedct"
     codelist_name = "Test"
-    create_codelist(page, coding_system, codelist_name)
+    navigator = Navigator(page, codelist_name)
+
+    create_codelist(navigator, coding_system, initial_page_navigation=True)
 
     search_actions = SearchActions(
         items=[
@@ -305,20 +355,32 @@ def test_build_snomedct_codelist_single_search(
     )
     # This test only has one action,
     # but writing in this format for consistency of the tests.
-    search_actions.apply(page)
+    search_actions.apply_all(navigator, initial_page_navigation=navigate_to_page)
 
-    save_codelist_for_review(page)
-    validate_codelist_exists_on_site(page, codelist_name, CodelistHeading.REVIEW)
+    save_codelist_for_review(navigator, initial_page_navigation=navigate_to_page)
+    validate_codelist_exists_on_site(
+        navigator, CodelistHeading.REVIEW, initial_page_navigation=True
+    )
 
-    verify_review_codelist_codes(page, codelist_name, search_actions)
+    verify_review_codelist_codes(
+        navigator, search_actions, initial_page_navigation=True
+    )
 
-    publish_codelist(page, codelist_name)
+    publish_codelist(navigator, initial_page_navigation=navigate_to_page)
 
-    validate_codelist_exists_on_site(page, codelist_name, CodelistHeading.USER_OWNED)
+    validate_codelist_exists_on_site(
+        navigator, CodelistHeading.USER_OWNED, initial_page_navigation=True
+    )
 
-    verify_codelist_csv(page, codelist_name, search_actions)
+    verify_codelist_csv(navigator, search_actions, initial_page_navigation=True)
 
 
+@pytest.mark.parametrize(
+    # Test either by always explicitly navigating to the page that's needed,
+    # or follow on from previous navigations where possible.
+    "navigate_to_page",
+    [True, False],
+)
 @pytest.mark.parametrize(
     # Test by searching with term, and then by searching with code.
     "search",
@@ -337,7 +399,7 @@ def test_build_snomedct_codelist_single_search(
     transaction=True,
 )
 def test_build_bnf_codelist_single_search(
-    login_context_fixture_name, search, request, live_server, bnf_data
+    login_context_fixture_name, search, navigate_to_page, request, live_server, bnf_data
 ):
     page = setup_playwright_page(
         login_context=request.getfixturevalue(login_context_fixture_name),
@@ -346,7 +408,9 @@ def test_build_bnf_codelist_single_search(
 
     coding_system = "bnf"
     codelist_name = "Test"
-    create_codelist(page, coding_system, codelist_name)
+    navigator = Navigator(page, codelist_name)
+
+    create_codelist(navigator, coding_system, initial_page_navigation=True)
 
     search_actions = SearchActions(
         items=[
@@ -377,24 +441,32 @@ def test_build_bnf_codelist_single_search(
     )
     # This test only has one action,
     # but writing in this format for consistency of the tests.
-    search_actions.apply(page)
+    search_actions.apply_all(navigator, initial_page_navigation=navigate_to_page)
 
-    save_codelist_for_review(page)
-    validate_codelist_exists_on_site(page, codelist_name, CodelistHeading.REVIEW)
-
-    verify_review_codelist_codes(
-        page,
-        codelist_name,
-        search_actions,
+    save_codelist_for_review(navigator, initial_page_navigation=navigate_to_page)
+    validate_codelist_exists_on_site(
+        navigator, CodelistHeading.REVIEW, initial_page_navigation=True
     )
 
-    publish_codelist(page, codelist_name)
+    verify_review_codelist_codes(
+        navigator, search_actions, initial_page_navigation=True
+    )
 
-    validate_codelist_exists_on_site(page, codelist_name, CodelistHeading.USER_OWNED)
+    publish_codelist(navigator, initial_page_navigation=navigate_to_page)
 
-    verify_codelist_csv(page, codelist_name, search_actions)
+    validate_codelist_exists_on_site(
+        navigator, CodelistHeading.USER_OWNED, initial_page_navigation=True
+    )
+
+    verify_codelist_csv(navigator, search_actions, initial_page_navigation=True)
 
 
+@pytest.mark.parametrize(
+    # Test either by always explicitly navigating to the page that's needed,
+    # or follow on from previous navigations where possible.
+    "navigate_to_page",
+    [True, False],
+)
 @pytest.mark.parametrize(
     # Test with a non-organisation user login, and then organisation user login.
     "login_context_fixture_name",
@@ -408,10 +480,7 @@ def test_build_bnf_codelist_single_search(
     transaction=True,
 )
 def test_build_snomedct_codelist_two_searches_no_selections(
-    login_context_fixture_name,
-    request,
-    live_server,
-    snomedct_data,
+    login_context_fixture_name, navigate_to_page, request, live_server, snomedct_data
 ):
     page = setup_playwright_page(
         login_context=request.getfixturevalue(login_context_fixture_name),
@@ -420,7 +489,9 @@ def test_build_snomedct_codelist_two_searches_no_selections(
 
     coding_system = "snomedct"
     codelist_name = "Test"
-    create_codelist(page, coding_system, codelist_name)
+    navigator = Navigator(page, codelist_name)
+
+    create_codelist(navigator, coding_system, initial_page_navigation=True)
 
     search_actions = SearchActions(
         items=[
@@ -442,13 +513,21 @@ def test_build_snomedct_codelist_two_searches_no_selections(
     )
     # This test has no concept selections,
     # but writing in this format for consistency of the tests.
-    search_actions.apply(page)
+    search_actions.apply_all(navigator, initial_page_navigation=navigate_to_page)
 
-    validate_codelist_exists_on_site(page, codelist_name, CodelistHeading.DRAFT)
+    validate_codelist_exists_on_site(
+        navigator, CodelistHeading.DRAFT, initial_page_navigation=True
+    )
 
     # No content to verify for an empty draft.
 
 
+@pytest.mark.parametrize(
+    # Test either by always explicitly navigating to the page that's needed,
+    # or follow on from previous navigations where possible.
+    "navigate_to_page",
+    [True, False],
+)
 @pytest.mark.parametrize(
     # Test with a non-organisation user login, and then organisation user login.
     "login_context_fixture_name",
@@ -462,10 +541,7 @@ def test_build_snomedct_codelist_two_searches_no_selections(
     transaction=True,
 )
 def test_build_snomedct_codelist_two_searches(
-    login_context_fixture_name,
-    request,
-    live_server,
-    snomedct_data,
+    login_context_fixture_name, navigate_to_page, request, live_server, snomedct_data
 ):
     page = setup_playwright_page(
         login_context=request.getfixturevalue(login_context_fixture_name),
@@ -474,7 +550,9 @@ def test_build_snomedct_codelist_two_searches(
 
     coding_system = "snomedct"
     codelist_name = "Test"
-    create_codelist(page, coding_system, codelist_name)
+    navigator = Navigator(page, codelist_name)
+
+    create_codelist(navigator, coding_system, initial_page_navigation=True)
 
     search_actions = SearchActions(
         items=[
@@ -534,15 +612,21 @@ def test_build_snomedct_codelist_two_searches(
             ),
         ],
     )
-    search_actions.apply(page)
+    search_actions.apply_all(navigator, initial_page_navigation=navigate_to_page)
 
-    save_codelist_for_review(page)
-    validate_codelist_exists_on_site(page, codelist_name, CodelistHeading.REVIEW)
+    save_codelist_for_review(navigator, initial_page_navigation=navigate_to_page)
+    validate_codelist_exists_on_site(
+        navigator, CodelistHeading.REVIEW, initial_page_navigation=True
+    )
 
-    verify_review_codelist_codes(page, codelist_name, search_actions)
+    verify_review_codelist_codes(
+        navigator, search_actions, initial_page_navigation=True
+    )
 
-    publish_codelist(page, codelist_name)
+    publish_codelist(navigator, initial_page_navigation=navigate_to_page)
 
-    validate_codelist_exists_on_site(page, codelist_name, CodelistHeading.USER_OWNED)
+    validate_codelist_exists_on_site(
+        navigator, CodelistHeading.USER_OWNED, initial_page_navigation=True
+    )
 
-    verify_codelist_csv(page, codelist_name, search_actions)
+    verify_codelist_csv(navigator, search_actions, initial_page_navigation=True)

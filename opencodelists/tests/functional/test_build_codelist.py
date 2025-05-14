@@ -1,6 +1,6 @@
 import csv
 from dataclasses import dataclass
-from enum import Enum, auto
+from enum import Enum, StrEnum, auto
 from functools import cached_property
 
 import pytest
@@ -118,6 +118,15 @@ class SearchActions:
             search_action.handle_concept_selections(page)
 
 
+class CodelistHeading(StrEnum):
+    """Represents the heading for a codelist on the My Codelists page."""
+
+    USER_OWNED = "Your published codelists"
+    ORGANISATION_OWNED = "Your organisation codelists"
+    REVIEW = "Your codelists under review"
+    DRAFT = "Your draft codelists"
+
+
 def setup_playwright_page(login_context, url):
     """Takes a login context, and returns a Playwright page."""
 
@@ -156,8 +165,8 @@ def save_codelist_for_review(page):
     save_for_review_link.click()
 
 
-def validate_codelist_exists_on_site(page, codelist_name, heading_text):
-    """Takes a Playwright page, a codelist name, and heading text to match
+def validate_codelist_exists_on_site(page, codelist_name, codelist_heading):
+    """Takes a Playwright page, a codelist name, and CodelistHeading to match
     and validates that the codelist name exists under that heading.
 
     It does not currently go for an exact match because organisation users get
@@ -172,7 +181,7 @@ def validate_codelist_exists_on_site(page, codelist_name, heading_text):
         page.get_by_role("link", name=codelist_name)
         .locator("xpath=preceding::h4")
         .nth(-1)
-    ).to_have_text(heading_text)
+    ).to_have_text(codelist_heading.value)
 
 
 def verify_review_codelist_codes(page, codelist_name, search_actions):
@@ -299,19 +308,13 @@ def test_build_snomedct_codelist_single_search(
     search_actions.apply(page)
 
     save_codelist_for_review(page)
-    heading_text = "Your codelists under review"
-    validate_codelist_exists_on_site(page, codelist_name, heading_text)
+    validate_codelist_exists_on_site(page, codelist_name, CodelistHeading.REVIEW)
 
-    verify_review_codelist_codes(
-        page,
-        codelist_name,
-        search_actions,
-    )
+    verify_review_codelist_codes(page, codelist_name, search_actions)
 
     publish_codelist(page, codelist_name)
 
-    heading_text = "Your codelists"
-    validate_codelist_exists_on_site(page, codelist_name, heading_text)
+    validate_codelist_exists_on_site(page, codelist_name, CodelistHeading.USER_OWNED)
 
     verify_codelist_csv(page, codelist_name, search_actions)
 
@@ -377,8 +380,7 @@ def test_build_bnf_codelist_single_search(
     search_actions.apply(page)
 
     save_codelist_for_review(page)
-    heading_text = "Your codelists under review"
-    validate_codelist_exists_on_site(page, codelist_name, heading_text)
+    validate_codelist_exists_on_site(page, codelist_name, CodelistHeading.REVIEW)
 
     verify_review_codelist_codes(
         page,
@@ -388,8 +390,7 @@ def test_build_bnf_codelist_single_search(
 
     publish_codelist(page, codelist_name)
 
-    heading_text = "Your codelists"
-    validate_codelist_exists_on_site(page, codelist_name, heading_text)
+    validate_codelist_exists_on_site(page, codelist_name, CodelistHeading.USER_OWNED)
 
     verify_codelist_csv(page, codelist_name, search_actions)
 
@@ -443,8 +444,7 @@ def test_build_snomedct_codelist_two_searches_no_selections(
     # but writing in this format for consistency of the tests.
     search_actions.apply(page)
 
-    heading_text = "Your drafts"
-    validate_codelist_exists_on_site(page, codelist_name, heading_text)
+    validate_codelist_exists_on_site(page, codelist_name, CodelistHeading.DRAFT)
 
     # No content to verify for an empty draft.
 
@@ -537,18 +537,12 @@ def test_build_snomedct_codelist_two_searches(
     search_actions.apply(page)
 
     save_codelist_for_review(page)
-    heading_text = "Your codelists under review"
-    validate_codelist_exists_on_site(page, codelist_name, heading_text)
+    validate_codelist_exists_on_site(page, codelist_name, CodelistHeading.REVIEW)
 
-    verify_review_codelist_codes(
-        page,
-        codelist_name,
-        search_actions,
-    )
+    verify_review_codelist_codes(page, codelist_name, search_actions)
 
     publish_codelist(page, codelist_name)
 
-    heading_text = "Your codelists"
-    validate_codelist_exists_on_site(page, codelist_name, heading_text)
+    validate_codelist_exists_on_site(page, codelist_name, CodelistHeading.USER_OWNED)
 
     verify_codelist_csv(page, codelist_name, search_actions)

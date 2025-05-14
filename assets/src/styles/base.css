@@ -110,3 +110,9 @@ a:focus {
   flex-direction: column;
   row-gap: 1rem;
 }
+
+.version__sidebar {
+  display: flex;
+  flex-direction: column;
+  row-gap: 2rem;
+}

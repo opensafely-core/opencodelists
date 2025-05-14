@@ -83,8 +83,8 @@
   </div>
 
   <div class="row">
-    <div class="col-md-3">
-      <form action={{ clv.get_dmd_convert_url }} class="border-bottom pb-3 mb-3" method="POST">
+    <div class="col-md-3 version__sidebar">
+      <form action="{{ clv.get_dmd_convert_url }}" method="POST">
         {% csrf_token %}
         <div class="btn-group-vertical btn-block" role="group">
           {% if clv.coding_system_id == "dmd" %}
@@ -160,9 +160,8 @@
           </a>
         </div>
 
-        <hr />
 
-        <form method="POST" action={{ clv.get_create_url }}>
+        <form method="POST" action="{{ clv.get_create_url }}">
           {% csrf_token %}
           <div class="btn-group-vertical btn-block" role="group">
             {% if codelist.is_new_style %}

@@ -49,6 +49,41 @@ class SearchAction:
     search: Search
     concept_selections: list[ConceptSelection]
 
+    def search_in_codelist_builder(self, page):
+        """Takes a Playwright page that's navigated to the codelist builder,
+        and str search.
+        Performs the provided search on the codelist builder page."""
+
+        if self.search.is_code:
+            page.get_by_role("radio", name="Code").click()
+
+        page.get_by_role("searchbox").click()
+        page.get_by_role("searchbox").fill(self.search.query)
+        page.get_by_role("button", name="Search", exact=True).click()
+
+    def handle_concept_selections(self, page):
+        """Takes a Playwright page that's navigated to the codelist builder,
+        and a SearchAction.
+        Perform the appropriate ConceptSelection actions belonging to that
+        SearchAction on the Playwright page."""
+
+        for concept_selection in self.concept_selections:
+            concept_locator = page.locator(f"[data-code='{concept_selection.code}']")
+
+            if concept_selection.to_expand:
+                concept_locator.get_by_role("button", name="⊞").click()
+
+            match concept_selection.state:
+                case ConceptState.INCLUDED:
+                    button_icon = "+"
+                case ConceptState.EXCLUDED:
+                    button_icon = "−"
+                case _:
+                    # Guard against adding another ConceptState value.
+                    assert False
+
+            concept_locator.get_by_role("button", name=button_icon).click()
+
 
 @dataclass(frozen=True)
 class SearchActions:
@@ -58,8 +93,7 @@ class SearchActions:
 
     @cached_property
     def expected_codelist_table(self):
-        """Takes SearchActions, and returns a dictionary
-        mapping codes to terms.
+        """Returns a dictionary mapping codes to terms.
 
         Later ConceptSelections intentionally take precedence."""
         # Caching this is based on frozen=True.
@@ -75,6 +109,13 @@ class SearchActions:
             for concept_selection in all_concept_selections
             if concept_selection.state == ConceptState.INCLUDED
         }
+
+    def apply(self, page):
+        """Applies each SearchAction in turn: searching and selecting concepts."""
+        for search_action in self.items:
+            search_action.search_in_codelist_builder(page)
+            expect(page.get_by_role("button", name="Save for review")).to_be_disabled()
+            search_action.handle_concept_selections(page)
 
 
 def setup_playwright_page(login_context, url):
@@ -104,43 +145,6 @@ def create_codelist(page, coding_system, name):
     page.get_by_role("textbox", name="Codelist name *").fill(name)
     page.get_by_label("Coding system *").select_option(coding_system)
     page.get_by_role("button", name="Create").click()
-
-
-def search_in_codelist_builder(page, search_action):
-    """Takes a Playwright page that's navigated to the codelist builder,
-    and str search.
-    Performs the provided search on the codelist builder page."""
-
-    if search_action.search.is_code:
-        page.get_by_role("radio", name="Code").click()
-
-    page.get_by_role("searchbox").click()
-    page.get_by_role("searchbox").fill(search_action.search.query)
-    page.get_by_role("button", name="Search", exact=True).click()
-
-
-def handle_concept_selections(page, search_action):
-    """Takes a Playwright page that's navigated to the codelist builder,
-    and a SearchAction.
-    Perform the appropriate ConceptSelection actions belonging to that
-    SearchAction on the Playwright page."""
-
-    for concept_selection in search_action.concept_selections:
-        concept_locator = page.locator(f"[data-code='{concept_selection.code}']")
-
-        if concept_selection.to_expand:
-            concept_locator.get_by_role("button", name="⊞").click()
-
-        match concept_selection.state:
-            case ConceptState.INCLUDED:
-                button_icon = "+"
-            case ConceptState.EXCLUDED:
-                button_icon = "−"
-            case _:
-                # Guard against adding another ConceptState value.
-                assert False
-
-        concept_locator.get_by_role("button", name=button_icon).click()
 
 
 def save_codelist_for_review(page):
@@ -290,13 +294,9 @@ def test_build_snomedct_codelist_single_search(
             ),
         ],
     )
-
     # This test only has one action,
     # but writing in this format for consistency of the tests.
-    for search_action in search_actions.items:
-        search_in_codelist_builder(page, search_action)
-        expect(page.get_by_role("button", name="Save for review")).to_be_disabled()
-        handle_concept_selections(page, search_action)
+    search_actions.apply(page)
 
     save_codelist_for_review(page)
     heading_text = "Your codelists under review"
@@ -372,13 +372,9 @@ def test_build_bnf_codelist_single_search(
             ),
         ],
     )
-
     # This test only has one action,
     # but writing in this format for consistency of the tests.
-    for search_action in search_actions.items:
-        search_in_codelist_builder(page, search_action)
-        expect(page.get_by_role("button", name="Save for review")).to_be_disabled()
-        handle_concept_selections(page, search_action)
+    search_actions.apply(page)
 
     save_codelist_for_review(page)
     heading_text = "Your codelists under review"
@@ -443,13 +439,9 @@ def test_build_snomedct_codelist_two_searches_no_selections(
             ),
         ],
     )
-
     # This test has no concept selections,
     # but writing in this format for consistency of the tests.
-    for search_action in search_actions.items:
-        search_in_codelist_builder(page, search_action)
-        expect(page.get_by_role("button", name="Save for review")).to_be_disabled()
-        handle_concept_selections(page, search_action)
+    search_actions.apply(page)
 
     heading_text = "Your drafts"
     validate_codelist_exists_on_site(page, codelist_name, heading_text)
@@ -542,11 +534,7 @@ def test_build_snomedct_codelist_two_searches(
             ),
         ],
     )
-
-    for search_action in search_actions.items:
-        search_in_codelist_builder(page, search_action)
-        expect(page.get_by_role("button", name="Save for review")).to_be_disabled()
-        handle_concept_selections(page, search_action)
+    search_actions.apply(page)
 
     save_codelist_for_review(page)
     heading_text = "Your codelists under review"

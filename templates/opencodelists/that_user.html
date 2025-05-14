@@ -12,10 +12,6 @@
 {% if codelists %}
 <h4>Codelists</h4>
 
-<ul>
-        {% for codelist in codelists %}
-        <li><a href="{{ codelist.get_absolute_url }}">{{ codelist.name }}</a></li>
-        {% endfor %}
-</ul>
+{% include "opencodelists/_codelist_links.html" with codelist_versions=codelists show_ownership=False %}
 {% endif %}
 {% endblock %}

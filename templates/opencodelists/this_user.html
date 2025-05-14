@@ -17,45 +17,26 @@
 <br />
 
 {% if codelists %}
-<h4>Your codelists</h4>
+<h4>Your published codelists</h4>
 
-<ul>
-        {% for codelist in codelists %}
-        <li><a href="{{ codelist.get_latest_published_url }}">{{ codelist.name }}</a></li>
-        {% endfor %}
-</ul>
+{% include "opencodelists/_codelist_links.html" with codelist_versions=codelists show_ownership=False %}
 {% endif %}
 
 
 {% if authored_for_organisation %}
 <h4>Your organisation codelists</h4>
-
-<ul>
-        {% for codelist in authored_for_organisation %}
-        <li><a href="{{ codelist.get_latest_published_url }}">{{ codelist.name }} (owned by {{ codelist.owner }})</a></li>
-        {% endfor %}
-</ul>
+{% include "opencodelists/_codelist_links.html" with codelist_versions=authored_for_organisation show_ownership=True %}
 {% endif %}
 
 
 {% if under_review %}
 <h4>Your codelists under review</h4>
-
-<ul>
-        {% for version in under_review %}
-        <li><a href="{{ version.get_absolute_url }}">{{ version.codelist.name }} {% if user.organisations.exists %}(owned by {{ version.codelist.owner }}){% endif %}</a></li>
-        {% endfor %}
-</ul>
+{% include "opencodelists/_codelist_links.html" with codelist_versions=under_review show_ownership=user.organisations.exists %}
 {% endif %}
 
 
 {% if drafts %}
-<h4>Your drafts</h4>
-
-<ul>
-        {% for draft in drafts %}
-        <li><a href="{{ draft.get_absolute_url }}">{{ draft.codelist.name }} {% if user.organisations.exists %}(owned by {{ draft.codelist.owner }}){% endif %}</a></li>
-        {% endfor %}
-</ul>
+<h4>Your draft codelists</h4>
+{% include "opencodelists/_codelist_links.html" with codelist_versions=drafts show_ownership=user.organisations.exists %}
 {% endif %}
 {% endblock %}

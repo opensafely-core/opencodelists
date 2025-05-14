@@ -83,12 +83,14 @@ def test_user_codelists(
     save_for_review(draft=codelist.versions.first())
     publish_version(version=codelist.versions.last())
     publish_version(version=organisation_codelist.versions.last())
+    user_codelist_version_id = codelist.latest_published_version().id
+    org_codelist_version_id = organisation_codelist.latest_published_version().id
     response = client.get(user_url)
     for codelist_category in ["under_review", "drafts"]:
         assert not response.context[codelist_category]
-    assert [cl.id for cl in response.context["codelists"]] == [codelist.id]
+    assert [cl.id for cl in response.context["codelists"]] == [user_codelist_version_id]
     assert [cl.id for cl in response.context["authored_for_organisation"]] == [
-        organisation_codelist.id
+        org_codelist_version_id
     ]
 
     # change the owner for the user-owned codelist to an organisation
@@ -107,6 +109,6 @@ def test_user_codelists(
     for codelist_category in ["codelists", "under_review", "drafts"]:
         assert not response.context[codelist_category]
     assert [cl.id for cl in response.context["authored_for_organisation"]] == [
-        organisation_codelist.id,
-        codelist.id,
+        org_codelist_version_id,
+        user_codelist_version_id,
     ]

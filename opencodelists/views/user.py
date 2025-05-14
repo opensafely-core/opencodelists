@@ -19,7 +19,10 @@ def user(request, username):
     )
     ctx = {
         "user": user,
-        "codelists": owned_codelists.order_by("handles__name"),
+        "codelists": [
+            codelist.latest_published_version()
+            for codelist in owned_codelists.order_by("handles__name")
+        ],
         # note that name is a property on a codelist, not an attribute, and it comes from the current handle.
         # If we want to order codelists or versions by codelist name, we actually need to order them by handle name.
         # We can't use a queryset order_by in the following cases (where versions_under_review/drafts are querysets of
@@ -27,9 +30,12 @@ def user(request, username):
         # and this results in duplicates in the returned queryset.
         # See https://code.djangoproject.com/ticket/18165
         # Sort by organisation then name
-        "authored_for_organisation": sorted(
-            authored_for_organisation, key=lambda x: (x.owner.name, x.name)
-        ),
+        "authored_for_organisation": [
+            codelist.latest_published_version()
+            for codelist in sorted(
+                authored_for_organisation, key=lambda x: (x.owner.name, x.name)
+            )
+        ],
         "under_review": sorted(
             user.versions_under_review.select_related("codelist"),
             key=lambda x: x.codelist.name,

@@ -212,6 +212,9 @@ just test-py
 # run specific test with usual pytest syntax
 just test-py <path/to/test>::<test name>
 
+# disable pytest-xdist for debugging/capturing output
+just test-py -n 0
+
 # js tests
 just assets-test
 

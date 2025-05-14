@@ -9,12 +9,87 @@
     <div class="d-flex flex-row justify-content-between gap-2 mb-2">
       <h1 class="h3">
         {{ codelist.name }}
-    {% if clv.is_under_review %}
+        {% if clv.is_under_review %}
           <span class="align-text-bottom ml-1 badge badge-primary">
             Review
           </span>
-    {% endif %}
+        {% endif %}
       </h1>
+      {% if user_can_edit %}
+        <form method="POST" action="{{ clv.get_create_url }}" class="version__buttons">
+          {% csrf_token %}
+
+          {% if codelist.is_new_style %}
+            {% if can_create_new_version %}
+              <input type="hidden" name="coding_system_database_alias" value="" />
+              <button
+                class="btn btn-outline-primary"
+                type="submit"
+              >
+                Create new version
+              </button>
+            {% else %}
+              <button
+                aria-disabled="true"
+                class="disabled btn btn-outline-secondary"
+                data-toggle="tooltip"
+                data-placement="bottom"
+                title="This codelist already has a draft version"
+                type="button"
+              >
+                Create new version
+              </button>
+            {% endif %}
+          {% else %}
+            <a
+              class="btn btn-outline-primary"
+              href="{{ codelist.get_version_upload_url }}"
+            >
+              Upload new version
+            </a>
+          {% endif %}
+
+          {% if clv.is_under_review %}
+            <button
+              class="btn btn-outline-success"
+              data-target="#js-publish-version-form"
+              data-toggle="modal"
+              type="button"
+            >
+              Publish version
+            </button>
+            <button
+              class="btn btn-outline-danger"
+              data-target="#js-delete-version-form"
+              data-toggle="modal"
+              type="button"
+            >
+              Delete version
+            </button>
+          {% else %}
+            <button
+              aria-disabled="true"
+              class="disabled btn btn-outline-secondary"
+              data-toggle="tooltip"
+              data-placement="bottom"
+              title="This version has already been published"
+              type="button"
+            >
+              Publish version
+            </button>
+            <button
+              aria-disabled="true"
+              class="disabled btn btn-outline-secondary"
+              data-toggle="tooltip"
+              data-placement="bottom"
+              title="This version has already been published, so cannot be deleted"
+              type="button"
+            >
+              Delete version
+            </button>
+          {% endif %}
+        </form>
+      {% endif %}
     </div>
 
     <section class="mb-3">
@@ -165,72 +240,6 @@
             Edit metadata
           </a>
         </div>
-
-
-        <form method="POST" action="{{ clv.get_create_url }}">
-          {% csrf_token %}
-          <div class="btn-group-vertical btn-block" role="group">
-            {% if codelist.is_new_style %}
-              {% if can_create_new_version %}
-                <input type="hidden" name="coding_system_database_alias" value="" />
-                <button
-                  type="submit"
-                  class="btn btn-outline-primary btn-block">
-                  Create new version
-                </button>
-              {% else %}
-                <button
-                  type="button"
-                  class="disabled btn btn-outline-secondary btn-block"
-                  aria-disabled="true"
-                  data-toggle="tooltip"
-                  title="This codelist already has a draft version">
-                  Create new version
-                </button>
-              {% endif %}
-            {% else %}
-              <a
-                class="btn btn-outline-primary btn-block"
-                href="{{ codelist.get_version_upload_url }}">
-                Upload new version
-              </a>
-            {% endif %}
-
-            {% if clv.is_under_review %}
-              <button
-                type="button"
-                class="btn btn-outline-primary btn-block"
-                data-toggle="modal"
-                data-target="#js-publish-version-form">
-                Publish version
-              </button>
-              <button
-                type="button"
-                class="btn btn-outline-primary btn-block"
-                data-toggle="modal"
-                data-target="#js-delete-version-form">
-                Delete version
-              </button>
-            {% else %}
-              <button
-                type="button"
-                class="disabled btn btn-outline-secondary btn-block"
-                aria-disabled="true"
-                data-toggle="tooltip"
-                title="This version has already been published">
-                Publish version
-              </button>
-              <button
-                type="button"
-                class="disabled btn btn-outline-secondary btn-block"
-                aria-disabled="true"
-                data-toggle="tooltip"
-                title="This version has already been published, so cannot be deleted">
-                Delete version
-              </button>
-            {% endif %}
-          </div>
-        </form>
       {% endif %}
 
       <div class="card">

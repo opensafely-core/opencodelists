@@ -116,3 +116,9 @@ a:focus {
   flex-direction: column;
   row-gap: 2rem;
 }
+
+.version__buttons {
+  display: flex;
+  flex-direction: row;
+  column-gap: 0.5rem;
+}

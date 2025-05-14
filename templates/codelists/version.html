@@ -92,9 +92,9 @@
       {% endif %}
     </div>
 
-    <section class="mb-3">
+    <section>
       <h2 class="sr-only">Codelist metadata</h2>
-      <dl class="break-word list-group list-group-horizontal small">
+      <dl class="list-group list-group-horizontal small">
         <div class="list-group-item py-1 px-2">
           <dt>
             Coding system
@@ -141,7 +141,7 @@
           <dt>
             Codelist ID
           </dt>
-          <dd class="mb-0">{{ codelist.full_slug }}</dd>
+          <dd class="mb-0 break-word">{{ codelist.full_slug }}</dd>
         </div>
 
         {% if clv.tag %}
@@ -243,29 +243,33 @@
       {% endif %}
 
       <div class="card">
-        <div class="card-header p-2">
-          <h2 class="h5 mb-0">Versions</h2>
-        </div>
+        <h2 class="card-header h6 font-weight-bold">Versions</h2>
         <ol class="list-group list-group-flush sidebar-versions">
           {% for version in versions %}
             <li
-              class="list-group-item px-2 py-3 {% if version == clv %}list-group-item-secondary{% endif %}"
+              class="
+                list-group-item
+                {% if version == clv %}list-group-item-secondary{% endif %}
+              "
             >
-              {% if version.is_under_review %}
-                <span class="badge badge-primary">Review</span>
-              {% elif version.is_draft %}
-                <span class="badge badge-primary">Draft</span>
-              {% endif %}
-
-              <span class="d-block text-monospace font-weight-bold">
-                {% if version == clv %}
-                  {{ version.tag_or_hash }}
-                {% else %}
-                  <a href="{{ version.get_absolute_url }}">
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="d-block text-monospace font-weight-bold">
+                  {% if version == clv %}
                     {{ version.tag_or_hash }}
-                  </a>
+                  {% else %}
+                    <a href="{{ version.get_absolute_url }}">
+                      {{ version.tag_or_hash }}
+                    </a>
+                  {% endif %}
+                </span>
+                {% if version.is_under_review %}
+                  <span class="badge badge-info">Review</span>
+                {% elif version.is_draft %}
+                  <span class="badge badge-secondary">Draft</span>
+                {% elif version.is_published %}
+                <span class="badge badge-success">Pubished</span>
                 {% endif %}
-              </span>
+              </div>
 
               <span class="created d-block p-0">
                 <abbr

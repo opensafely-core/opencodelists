@@ -36,7 +36,7 @@
 
 
 {% if drafts %}
-<h4>Your drafts</h4>
+<h4>Your draft codelists</h4>
 {% include "opencodelists/_codelist_links.html" with codelist_versions=drafts show_ownership=user.organisations.exists %}
 {% endif %}
 {% endblock %}

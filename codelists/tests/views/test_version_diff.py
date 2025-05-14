@@ -61,12 +61,17 @@ def test_get_dmd_diff_codes_differ(
     assert rsp.context["lhs_only_codes"] == {"10514511000001106"}
     assert rsp.context["rhs_only_codes"] == {"123"}
     assert rsp.context["rhs_only_summary"] == [
-        {"code": "123", "term": "[Unknown] Test refill (VMP)"}
+        {
+            "code": "123",
+            "term": "[Unknown] Test refill (VMP)",
+            "descendants": [],
+        }
     ]
     assert rsp.context["common_summary"] == [
         {
             "code": "10525011000001107",
             "term": "Adrenaline (base) 220micrograms/dose inhaler refill (VMP)",
+            "descendants": [],
         }
     ]
 
@@ -119,12 +124,17 @@ def test_get_dmd_diff_alternative_column_names(
     assert rsp.context["lhs_only_codes"] == {"10514511000001106"}
     assert rsp.context["rhs_only_codes"] == {"123"}
     assert rsp.context["rhs_only_summary"] == [
-        {"code": "123", "term": expected_unknown_term}
+        {
+            "code": "123",
+            "term": expected_unknown_term,
+            "descendants": [],
+        }
     ]
     assert rsp.context["common_summary"] == [
         {
             "code": "10525011000001107",
             "term": "Adrenaline (base) 220micrograms/dose inhaler refill (VMP)",
+            "descendants": [],
         }
     ]
 

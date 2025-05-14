@@ -1,5 +1,12 @@
 <ul>
   {% for version in codelist_versions %}
-  <li><a href="{{ version.get_absolute_url }}">{{ version.codelist.name }} {% if show_ownership %}(owned by {{ version.codelist.owner }}){% endif %}</a></li>
+  <li>
+    <div class="d-flex align-items-center">
+      <a href="{{ version.get_absolute_url }}">{{ version.codelist.name }} {% if show_ownership %}(owned by {{ version.codelist.owner }}){% endif %}</a>
+      <span class="badge badge-secondary ml-2">{{ version.codelist.coding_system_short_name }}</span>
+      <span class="badge badge-primary ml-1">{{ version.codes | length }} code{% if version.codes|length != 1 %}s{% endif %}</span>
+      <span class="badge ml-1">Last updated {{ version.updated_at | date:'d M Y' }} at {{ version.updated_at | date:'H:i' }}</span>
+    </div>
+  </li>
   {% endfor %}
 </ul>

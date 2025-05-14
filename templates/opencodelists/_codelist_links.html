@@ -1,0 +1,5 @@
+<ul>
+  {% for version in codelist_versions %}
+  <li><a href="{{ version.get_absolute_url }}">{{ version.codelist.name }} {% if show_ownership %}(owned by {{ version.codelist.owner }}){% endif %}</a></li>
+  {% endfor %}
+</ul>

@@ -4,11 +4,11 @@ from django.db.models import Q
 
 from opencodelists.db_utils import query
 
-from ..base.coding_system_base import BaseCodingSystem
+from ..base.coding_system_base import BuilderCompatibleCodingSystem
 from .models import RawConceptTermMapping, TPPConcept, TPPRelationship
 
 
-class CodingSystem(BaseCodingSystem):
+class CodingSystem(BuilderCompatibleCodingSystem):
     id = "ctv3"
     name = "CTV3 (Read V3)"
     short_name = "CTV3"

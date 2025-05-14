@@ -2,11 +2,11 @@ from collections import defaultdict
 
 from opencodelists.db_utils import query
 
-from ..base.coding_system_base import BaseCodingSystem
+from ..base.coding_system_base import BuilderCompatibleCodingSystem
 from .models import Concept
 
 
-class CodingSystem(BaseCodingSystem):
+class CodingSystem(BuilderCompatibleCodingSystem):
     id = "bnf"
     name = "Pseudo BNF"
     short_name = "BNF"

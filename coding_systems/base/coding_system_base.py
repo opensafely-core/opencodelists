@@ -92,28 +92,10 @@ class BaseCodingSystem(ABC):
     def release_name(self):
         return self.release.release_name
 
-    def search_by_term(self, term):  # pragma: no cover
-        raise NotImplementedError
-
-    def search_by_code(self, code):  # pragma: no cover
-        raise NotImplementedError
-
     def lookup_names(self, codes):  # pragma: no cover
         raise NotImplementedError
 
     def code_to_term(self, codes):  # pragma: no cover
-        raise NotImplementedError
-
-    def codes_by_type(self, codes, hierarchy):  # pragma: no cover
-        raise NotImplementedError
-
-    def matching_codes(self, codes):
-        """
-        Given a set/list of codes, return the subset of those codes
-        that are found in the coding system. This is used to identify
-        codes on a codelist version that have been removed in the
-        current release of the coding system.
-        """
         raise NotImplementedError
 
 
@@ -126,3 +108,77 @@ class DummyCodingSystem(BaseCodingSystem):
 
     def code_to_term(self, codes):
         return {code: "unknown" for code in codes}
+
+
+class BuilderCompatibleCodingSystem(BaseCodingSystem):
+    """
+    A base class for coding systems that implement the methods required
+    by the codelist builder SPA.
+
+    This class is used to clearly define the requirements of this interface
+    and for easy identification of coding systems that implement it.
+    """
+
+    def ancestor_relationships(self, codes):  # pragma: no cover
+        """
+        This method, in combination with `descendant_relationships`, defines
+        the hierarchical structure of a codelist.
+
+        It defines which codes should be considered ancestors/parents of the
+        provided `codes`.
+        """
+        raise NotImplementedError
+
+    def codes_by_type(self, codes, hierarchy):  # pragma: no cover
+        """
+        This method defines the top-level categorisation/typing of codes in a
+        coding system and thus how they are displayed to users in the builder SPA
+        """
+        raise NotImplementedError
+
+    def descendant_relationships(self, codes):  # pragma: no cover
+        """
+        This method, in combination with `descendant_relationships`, defines
+        the hierarchical structure of a codelist.
+
+        It defines which codes should be considered descendants/children of the
+        provided `codes`.
+        """
+        raise NotImplementedError
+
+    def matching_codes(self, codes):
+        """
+        Given a set/list of codes, return the subset of those codes
+        that are found in the coding system. This is used to identify
+        codes on a codelist version that have been removed in the
+        current release of the coding system.
+        """
+        raise NotImplementedError
+
+    def search_by_term(self, term):  # pragma: no cover
+        """
+        Return the codes within a coding system that match a "term"-based search,
+        for example codes which contain the term within codes' names or descriptions.
+
+        Implementation may vary from coding system to coding system according to its
+        structure and the desired search logic.
+
+        Where a coding system contains multiple entity types, this method (along with
+        `search_by_code`) also defines which of those are searched and therefore eligible
+        for inclusion in a codelist of that coding system.
+        """
+        raise NotImplementedError
+
+    def search_by_code(self, code):  # pragma: no cover
+        """
+        Return the codes within a coding system that match a "code"-based search,
+        which may be exact or fuzzy matched according to user requirements.
+
+        Implementation may vary from coding system to coding system according to its
+        structure and the desired search logic.
+
+        Where a coding system contains multiple entity types, this method (along with
+        `search_by_code`) also defines which of those are searched and therefore eligible
+        for inclusion in a codelist of that coding system.
+        """
+        raise NotImplementedError

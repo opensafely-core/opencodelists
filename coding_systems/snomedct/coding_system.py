@@ -3,14 +3,14 @@ import re
 
 from opencodelists.db_utils import query
 
-from ..base.coding_system_base import BaseCodingSystem
+from ..base.coding_system_base import BuilderCompatibleCodingSystem
 from .models import FULLY_SPECIFIED_NAME, IS_A, Concept, Description
 
 
 term_and_type_pat = re.compile(r"(^.*) \(([\w/ ]+)\)$")
 
 
-class CodingSystem(BaseCodingSystem):
+class CodingSystem(BuilderCompatibleCodingSystem):
     id = "snomedct"
     name = "SNOMED CT"
     short_name = "SNOMED CT"

@@ -3,11 +3,11 @@ from functools import lru_cache
 
 from opencodelists.db_utils import query
 
-from ..base.coding_system_base import BaseCodingSystem
+from ..base.coding_system_base import BuilderCompatibleCodingSystem
 from .models import Concept
 
 
-class CodingSystem(BaseCodingSystem):
+class CodingSystem(BuilderCompatibleCodingSystem):
     id = "icd10"
     name = "ICD-10"
     short_name = "ICD-10"

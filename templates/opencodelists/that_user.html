@@ -13,8 +13,8 @@
 <h4>Codelists</h4>
 
 <ul>
-        {% for codelist in codelists %}
-        <li><a href="{{ codelist.get_absolute_url }}">{{ codelist.name }}</a></li>
+        {% for version in codelists %}
+        <li><a href="{{ version.get_absolute_url }}">{{ version.codelist.name }}</a></li>
         {% endfor %}
 </ul>
 {% endif %}

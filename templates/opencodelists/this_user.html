@@ -20,8 +20,8 @@
 <h4>Your codelists</h4>
 
 <ul>
-        {% for codelist in codelists %}
-        <li><a href="{{ codelist.get_latest_published_url }}">{{ codelist.name }}</a></li>
+        {% for version in codelists %}
+        <li><a href="{{ version.get_absolute_url }}">{{ version.codelist.name }}</a></li>
         {% endfor %}
 </ul>
 {% endif %}
@@ -31,8 +31,8 @@
 <h4>Your organisation codelists</h4>
 
 <ul>
-        {% for codelist in authored_for_organisation %}
-        <li><a href="{{ codelist.get_latest_published_url }}">{{ codelist.name }} (owned by {{ codelist.owner }})</a></li>
+        {% for version in authored_for_organisation %}
+        <li><a href="{{ version.get_absolute_url }}">{{ version.codelist.name }} (owned by {{ version.codelist.owner }})</a></li>
         {% endfor %}
 </ul>
 {% endif %}

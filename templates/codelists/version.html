@@ -11,7 +11,7 @@
         {{ codelist.name }}
         {% if clv.is_under_review %}
           <span class="align-text-bottom ml-1 badge badge-info">
-            Review
+            Under review
           </span>
         {% endif %}
       </h1>
@@ -263,7 +263,7 @@
                   {% endif %}
                 </span>
                 {% if version.is_under_review %}
-                  <span class="badge badge-info">Review</span>
+                  <span class="badge badge-info">Under review</span>
                 {% elif version.is_draft %}
                   <span class="badge badge-secondary">Draft</span>
                 {% elif version.is_published %}

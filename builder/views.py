@@ -262,9 +262,6 @@ def new_search(request, draft):
 
     search = actions.create_search(draft=draft, term=term, code=code, codes=codes)
 
-    if not codes:
-        messages.info(request, f'There are no results for "{code or term}"')
-
     return redirect(draft.get_builder_search_url(search.id, search.slug))
 
 

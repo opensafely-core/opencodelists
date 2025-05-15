@@ -5,10 +5,15 @@ import { PageData } from "../types";
 
 interface SearchProps {
   draftURL: PageData["draftURL"];
+  isEditable: PageData["isEditable"];
   searches: PageData["searches"];
 }
 
-export default function Search({ draftURL, searches }: SearchProps) {
+export default function Search({
+  draftURL,
+  isEditable,
+  searches,
+}: SearchProps) {
   const [activeUrl, setActiveUrl] = useState<string>(
     () => searches.find((search) => search.active)?.url || "",
   );
@@ -28,7 +33,7 @@ export default function Search({ draftURL, searches }: SearchProps) {
       <ListGroup variant="flush">
         {searches.map((search) => (
           <React.Fragment key={search.url}>
-            {search.delete_url ? (
+            {search.delete_url && isEditable ? (
               <ListGroup.Item
                 action
                 active={search.url === activeUrl}

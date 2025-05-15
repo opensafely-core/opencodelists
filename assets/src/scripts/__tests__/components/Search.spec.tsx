@@ -27,27 +27,32 @@ describe("Search Component", () => {
   };
 
   it("renders the search card with header", () => {
-    render(<Search {...baseProps} />);
+    render(<Search {...baseProps} isEditable={true} />);
     expect(
       screen.getByRole("heading", { name: "Previous searches" }),
     ).toBeVisible();
   });
 
-  it("renders remove link only when delete_url exists", () => {
-    render(<Search {...baseProps} />);
+  it("renders remove link only when isEditable is true and delete_url exists", () => {
+    render(<Search {...baseProps} isEditable={true} />);
     const removeLinks = screen.getAllByRole("link", { name: /Remove/ });
     expect(removeLinks.length).toBe(1); // Only one item has delete_url.
     expect(removeLinks[0]).toBeVisible();
   });
 
+  it("does not render remove link when isEditable is false", () => {
+    render(<Search {...baseProps} isEditable={false} />);
+    expect(screen.queryByRole("link", { name: /Remove/ })).toBeNull();
+  });
+
   it("renders the correct number of search items", () => {
-    render(<Search {...baseProps} />);
+    render(<Search {...baseProps} isEditable={true} />);
     const items = screen.getAllByRole("link");
     expect(items.length).toBe(mockSearches.length + 1); // +1 for the "show all" item.
   });
 
   it("renders 'show all' link when there's an active search", () => {
-    render(<Search {...baseProps} />);
+    render(<Search {...baseProps} isEditable={true} />);
     expect(screen.queryByRole("link", { name: "show all" })).toBeVisible();
   });
 
@@ -67,7 +72,13 @@ describe("Search Component", () => {
       },
     ];
 
-    render(<Search {...baseProps} searches={mockSearchesNoActiveSearch} />);
+    render(
+      <Search
+        {...baseProps}
+        searches={mockSearchesNoActiveSearch}
+        isEditable={true}
+      />,
+    );
     expect(screen.queryByRole("link", { name: "show all" })).toBeNull();
   });
 });

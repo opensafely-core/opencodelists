@@ -59,7 +59,7 @@ class CodelistCreateForm(forms.Form):
     csv_data = forms.FileField(
         label="CSV data",
         required=False,
-        help_text="Optional.  If provided, the CSV file should not have a header, and its first column must contain valid codes in the chosen coding system.",
+        help_text="The CSV file should not have a header, and its first column must contain valid codes in the chosen coding system.",
     )
 
     def __init__(self, *args, **kwargs):

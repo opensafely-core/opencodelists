@@ -102,11 +102,22 @@ a:focus {
 
 #codelist-builder-container {
   overflow-x: hidden;
-  padding: 0.25rem;
 }
 
 .builder__sidebar {
   display: flex;
   flex-direction: column;
   row-gap: 1rem;
+}
+
+.version__sidebar {
+  display: flex;
+  flex-direction: column;
+  row-gap: 2rem;
+}
+
+.version__buttons {
+  display: flex;
+  flex-direction: row;
+  column-gap: 0.5rem;
 }

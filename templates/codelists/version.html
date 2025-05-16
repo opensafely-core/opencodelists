@@ -5,16 +5,167 @@
 {% block title_extra %}: {{ codelist.name }}{% endblock %}
 
 {% block full_width_content %}
-  <div class="border-bottom mb-3">
-    <h1 class="h3">{{ codelist.name }}</h1>
-    {% if clv.is_under_review %}
-      <p class="text-muted">This version is under review</p>
-    {% endif %}
+  <div class="border-bottom mb-3 pb-3">
+    <div class="d-flex flex-row justify-content-between gap-2 mb-2">
+      <h1 class="h3">
+        {{ codelist.name }}
+        {% if clv.is_under_review %}
+          <span class="align-text-bottom ml-1 badge badge-info">
+            Under review
+          </span>
+        {% endif %}
+      </h1>
+      {% if user_can_edit %}
+        <form method="POST" action="{{ clv.get_create_url }}" class="version__buttons">
+          {% csrf_token %}
+
+          {% if codelist.is_new_style %}
+            {% if can_create_new_version %}
+              <input type="hidden" name="coding_system_database_alias" value="" />
+              <button
+                class="btn btn-outline-primary"
+                type="submit"
+              >
+                Create new version
+              </button>
+            {% else %}
+              <button
+                aria-disabled="true"
+                class="disabled btn btn-outline-secondary"
+                data-toggle="tooltip"
+                data-placement="bottom"
+                title="This codelist already has a draft version"
+                type="button"
+              >
+                Create new version
+              </button>
+            {% endif %}
+          {% else %}
+            <a
+              class="btn btn-outline-primary"
+              href="{{ codelist.get_version_upload_url }}"
+            >
+              Upload new version
+            </a>
+          {% endif %}
+
+          {% if clv.is_under_review %}
+            <button
+              class="btn btn-outline-success"
+              data-target="#js-publish-version-form"
+              data-toggle="modal"
+              type="button"
+            >
+              Publish version
+            </button>
+            <button
+              class="btn btn-outline-danger"
+              data-target="#js-delete-version-form"
+              data-toggle="modal"
+              type="button"
+            >
+              Delete version
+            </button>
+          {% else %}
+            <button
+              aria-disabled="true"
+              class="disabled btn btn-outline-secondary"
+              data-toggle="tooltip"
+              data-placement="bottom"
+              title="This version has already been published"
+              type="button"
+            >
+              Publish version
+            </button>
+            <button
+              aria-disabled="true"
+              class="disabled btn btn-outline-secondary"
+              data-toggle="tooltip"
+              data-placement="bottom"
+              title="This version has already been published, so cannot be deleted"
+              type="button"
+            >
+              Delete version
+            </button>
+          {% endif %}
+        </form>
+      {% endif %}
+    </div>
+
+    <section>
+      <h2 class="sr-only">Codelist metadata</h2>
+      <dl class="list-group list-group-horizontal small">
+        <div class="list-group-item py-1 px-2">
+          <dt>
+            Coding system
+          </dt>
+          <dd class="mb-0">{{ clv.coding_system.name }}</dd>
+        </div>
+
+        <div class="list-group-item py-1 px-2">
+          <dt>
+            Coding system release
+          </dt>
+          <dd class="mb-0">
+            {{ clv.coding_system.release_name }}
+          </dd>
+        </div>
+
+        {% if clv.compatible_releases.exists %}
+          <div class="list-group-item py-1 px-2">
+            <dt>
+              Other compatible releases
+            </dt>
+            <dd class="mb-0">
+              <ul class="list-inline">
+                {% for release in clv.compatible_releases.all %}
+                  <li>
+                    {{ release.release_name }} ({{ release.valid_from|date:'Y-m-d'}}){% if not forloop.last %};{% endif %}
+                  </li>
+                {% endfor %}
+              </ul>
+            </dd>
+          </div>
+        {% endif %}
+
+        {% if codelist.organisation %}
+          <div class="list-group-item py-1 px-2">
+            <dt>
+              Organisation
+            </dt>
+            <dd class="mb-0">{{ codelist.organisation.name }}</dd>
+          </div>
+        {% endif %}
+
+        <div class="list-group-item py-1 px-2">
+          <dt>
+            Codelist ID
+          </dt>
+          <dd class="mb-0 break-word">{{ codelist.full_slug }}</dd>
+        </div>
+
+        {% if clv.tag %}
+          <div class="list-group-item py-1 px-2">
+            <dt>
+              Version Tag
+            </dt>
+            <dd class="mb-0">{{ clv.tag }}</dd>
+          </div>
+        {% endif %}
+
+        <div class="list-group-item py-1 px-2">
+          <dt>
+            Version ID
+          </dt>
+          <dd class="mb-0">{{ clv.hash }}</dd>
+        </div>
+      </dl>
+    </section>
   </div>
 
   <div class="row">
-    <div class="col-md-3">
-      <form action={{ clv.get_dmd_convert_url }} class="border-bottom pb-3 mb-3" method="POST">
+    <div class="col-md-3 version__sidebar">
+      <form action="{{ clv.get_dmd_convert_url }}" method="POST">
         {% csrf_token %}
         <div class="btn-group-vertical btn-block" role="group">
           {% if clv.coding_system_id == "dmd" %}
@@ -80,53 +231,6 @@
         </div>
       </form>
 
-      <h2 class="sr-only">Codelist metadata</h2>
-      <dl class="break-word">
-        <dt>
-          <h3 class="h6 font-weight-bold mb-1">Coding system</h3>
-        </dt>
-        <dd class="pb-2 border-bottom">{{ clv.coding_system.name }}</dd>
-
-        <dt>
-          <h3 class="h6 font-weight-bold">Coding system release</h3>
-        </dt>
-        <dd class="pb-2 border-bottom">{{ clv.coding_system.release_name }}</dd>
-
-        {% if clv.compatible_releases.exists %}
-          <details>
-            <summary>Show other compatible releases</summary>
-            <ul>
-              {% for release in clv.compatible_releases.all %}
-                <li><small>{{ release.release_name }} ({{ release.valid_from|date:'Y-m-d'}})</small></li>
-              {% endfor %}
-            </ul>
-          </details>
-        {% endif %}
-
-        {% if codelist.organisation %}
-          <dt>
-            <h3 class="h6 font-weight-bold">Organisation</h3>
-          </dt>
-          <dd class="pb-2 border-bottom">{{ codelist.organisation.name }}</dd>
-        {% endif %}
-
-        <dt>
-          <h3 class="h6 font-weight-bold">Codelist ID</h3>
-        </dt>
-        <dd class="pb-2 border-bottom">{{ codelist.full_slug }}</dd>
-
-        {% if clv.tag %}
-          <dt>
-            <h3 class="h6 font-weight-bold">Version Tag</h3>
-          </dt>
-          <dd class="pb-2 border-bottom">{{ clv.tag }}</dd>
-        {% endif %}
-
-        <dt>
-          <h3 class="h6 font-weight-bold">Version ID</h3>
-        </dt>
-        <dd class="pb-2 border-bottom">{{ clv.hash }}</dd>
-      </dl>
 
       {% if user_can_edit %}
         <div class="btn-group-vertical btn-block" role="group">
@@ -136,99 +240,36 @@
             Edit metadata
           </a>
         </div>
-
-        <hr />
-
-        <form method="POST" action={{ clv.get_create_url }}>
-          {% csrf_token %}
-          <div class="btn-group-vertical btn-block" role="group">
-            {% if codelist.is_new_style %}
-              {% if can_create_new_version %}
-                <input type="hidden" name="coding_system_database_alias" value="" />
-                <button
-                  type="submit"
-                  class="btn btn-outline-primary btn-block">
-                  Create new version
-                </button>
-              {% else %}
-                <button
-                  type="button"
-                  class="disabled btn btn-outline-secondary btn-block"
-                  aria-disabled="true"
-                  data-toggle="tooltip"
-                  title="This codelist already has a draft version">
-                  Create new version
-                </button>
-              {% endif %}
-            {% else %}
-              <a
-                class="btn btn-outline-primary btn-block"
-                href="{{ codelist.get_version_upload_url }}">
-                Upload new version
-              </a>
-            {% endif %}
-
-            {% if clv.is_under_review %}
-              <button
-                type="button"
-                class="btn btn-outline-primary btn-block"
-                data-toggle="modal"
-                data-target="#js-publish-version-form">
-                Publish version
-              </button>
-              <button
-                type="button"
-                class="btn btn-outline-primary btn-block"
-                data-toggle="modal"
-                data-target="#js-delete-version-form">
-                Delete version
-              </button>
-            {% else %}
-              <button
-                type="button"
-                class="disabled btn btn-outline-secondary btn-block"
-                aria-disabled="true"
-                data-toggle="tooltip"
-                title="This version has already been published">
-                Publish version
-              </button>
-              <button
-                type="button"
-                class="disabled btn btn-outline-secondary btn-block"
-                aria-disabled="true"
-                data-toggle="tooltip"
-                title="This version has already been published, so cannot be deleted">
-                Delete version
-              </button>
-            {% endif %}
-          </div>
-        </form>
       {% endif %}
 
       <div class="card">
-        <div class="card-header p-2">
-          <h2 class="h5 mb-0">Versions</h2>
-        </div>
+        <h2 class="card-header h6 font-weight-bold">Versions</h2>
         <ol class="list-group list-group-flush sidebar-versions">
           {% for version in versions %}
             <li
-              class="list-group-item px-2 py-3 {% if version == clv %}list-group-item-secondary{% endif %}"
+              class="
+                list-group-item
+                {% if version == clv %}list-group-item-secondary{% endif %}
+              "
             >
-              {% if version.is_under_review %}
-                <span class="badge badge-primary">Review</span>
-              {% elif version.is_draft %}
-                <span class="badge badge-primary">Draft</span>
-              {% endif %}
-
-              <span class="d-block text-monospace font-weight-bold">
-                {% if version == clv %}
-                  {{ version.tag_or_hash }}
-                {% else %}
-                  <a href="{{ version.get_absolute_url }}">
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="d-block text-monospace font-weight-bold">
+                  {% if version == clv %}
                     {{ version.tag_or_hash }}
-                  </a>
+                  {% else %}
+                    <a href="{{ version.get_absolute_url }}">
+                      {{ version.tag_or_hash }}
+                    </a>
+                  {% endif %}
+                </span>
+                {% if version.is_under_review %}
+                  <span class="badge badge-info">Under review</span>
+                {% elif version.is_draft %}
+                  <span class="badge badge-secondary">Draft</span>
+                {% elif version.is_published %}
+                <span class="badge badge-success">Pubished</span>
                 {% endif %}
-              </span>
+              </div>
 
               <span class="created d-block p-0">
                 <abbr

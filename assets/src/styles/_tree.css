@@ -1,0 +1,115 @@
+.tree {
+  --color-neutral-50: oklch(98.5% 0 0);
+  --color-neutral-200: oklch(92.2% 0 0);
+  --color-neutral-500: oklch(55.6% 0 0);
+
+  --color-sky-50: oklch(97.7% 0.013 236.62);
+  --color-sky-100: oklch(95.1% 0.026 236.824);
+  --color-sky-600: oklch(58.8% 0.158 241.966);
+
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+  overflow-x: auto;
+  padding-bottom: 1rem;
+}
+
+.tree__title {
+  border-bottom: 1px solid var(--color-neutral-200);
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.0125em;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+}
+
+.tree__list {
+  border-left: 1px dotted var(--color-neutral-500);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  list-style: none;
+  margin: 0.25rem 0 0 0.5rem;
+  padding-left: 0.5rem;
+}
+
+.tree__list--root {
+  border-left: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.tree__item {
+  width: fit-content;
+}
+
+.tree__summary {
+  align-items: center;
+  background-color: white;
+  border-radius: 0.25rem;
+  display: flex;
+  flex-direction: row;
+  gap: 0.25rem;
+  transition: background-color 0.2s ease-in-out;
+  width: fit-content;
+
+  &:hover {
+    background-color: color-mix(in oklch, var(--color-sky-100) 50%, white);
+  }
+}
+
+.tree__arrow {
+  height: 1rem;
+  transition: 200ms transform ease-in-out;
+  width: 1rem;
+}
+
+.tree__details[open] > .tree__summary > .tree__arrow {
+  transform: rotate(90deg);
+}
+
+.tree__dl {
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  line-height: 1;
+  margin: 0;
+  padding: 0.125rem 0.25rem 0.125rem 1.25rem;
+}
+
+.tree__dl--dropdown {
+  padding-left: 0;
+}
+
+.tree__dd {
+  flex-shrink: 0;
+  margin: 0;
+}
+
+.tree__name--excluded {
+  color: var(--color-neutral-500);
+}
+
+.tree__badge {
+  border-radius: 0.25rem;
+  display: inline-block;
+  font-family: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, Consolas,
+    "DejaVu Sans Mono", monospace;
+  font-size: 0.7rem;
+  font-weight: 600;
+  line-height: 1;
+  padding: 0.25em 0.4em;
+  text-align: center;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.tree__badge--included {
+  background-color: var(--color-sky-600);
+  color: var(--color-sky-50);
+}
+
+.tree__badge--excluded {
+  background-color: var(--color-neutral-500);
+  color: var(--color-neutral-50);
+}

@@ -1,0 +1,4 @@
+<svg aria-hidden="true" class="flex w-full h-auto {{ class }}" focusable="false" height="20" viewBox="0 0 10 10" width="20">
+  <rect class="group-open:fill-transparent" height="8" width="2" y="1" x="4"></rect>
+  <rect height="2" width="8" y="4" x="1"></rect>
+</svg>

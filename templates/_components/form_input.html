@@ -2,7 +2,7 @@
 
 <div>
   <div class="flex items-center justify-between">
-    <label class="text-sm/6 font-semibold text-slate-900" for="{{ field.id_for_label }}">
+    <label class="text-base/tight font-semibold text-slate-900" for="{{ field.id_for_label }}">
       {{ field.label }} {% if field.field.required %}<span class="text-red-800">*</span>{% endif %}
     </label>
     {% if label_extra %}{{ label_extra }}{% endif %}
@@ -24,9 +24,15 @@
     {% endif %}
   </div>
 
-  <div class="prose prose-sm mt-2 text-slate-700">
-    {{ field.help_text }}
-  </div>
+  {% if help_text %}
+    <div class="prose prose-sm mt-4 text-slate-700">
+      {{ help_text }}
+    </div>
+  {% elif field.help_text %}
+    <div class="prose prose-sm mt-4 text-slate-700">
+      {{ field.help_text }}
+    </div>
+  {% endif %}
 
   {% if field.errors %}
     <ul class="mt-2 text-sm text-red-600" id="{{ field.html_name }}-error">

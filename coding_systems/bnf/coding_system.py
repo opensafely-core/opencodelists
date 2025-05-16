@@ -10,6 +10,7 @@ class CodingSystem(BuilderCompatibleCodingSystem):
     id = "bnf"
     name = "Pseudo BNF"
     short_name = "BNF"
+    description = "Primary Care prescribing (can be converted to NHS Dictionary of Medicines and Devices)"
     root = ""
     csv_headers = {
         "code": ["code"],

@@ -119,6 +119,9 @@ class BuilderCompatibleCodingSystem(BaseCodingSystem):
     and for easy identification of coding systems that implement it.
     """
 
+    # User-facing description to be rendered in the UI
+    description = NotImplemented
+
     def ancestor_relationships(self, codes):  # pragma: no cover
         """
         This method, in combination with `descendant_relationships`, defines

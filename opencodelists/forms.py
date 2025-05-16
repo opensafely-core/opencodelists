@@ -49,6 +49,7 @@ class CodelistCreateForm(forms.Form):
         for id, system in CODING_SYSTEMS.items()
         if issubclass(system, BuilderCompatibleCodingSystem)
     )
+    CODING_SYSTEM_CHOICES.sort(key=lambda x: x[1].lower())
 
     owner = forms.ChoiceField()
     name = forms.CharField(max_length=255, label="Codelist name")

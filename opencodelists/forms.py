@@ -45,11 +45,13 @@ class UserPasswordForm(forms.Form):
 
 class CodelistCreateForm(forms.Form):
     CODING_SYSTEM_CHOICES = [("", "---")] + sorted(
-        (id, system.name)
-        for id, system in CODING_SYSTEMS.items()
-        if issubclass(system, BuilderCompatibleCodingSystem)
+        [
+            (id, system.name)
+            for id, system in CODING_SYSTEMS.items()
+            if issubclass(system, BuilderCompatibleCodingSystem)
+        ],
+        key=lambda x: x[1].lower(),
     )
-    CODING_SYSTEM_CHOICES.sort(key=lambda x: x[1].lower())
 
     owner = forms.ChoiceField()
     name = forms.CharField(max_length=255, label="Codelist name")

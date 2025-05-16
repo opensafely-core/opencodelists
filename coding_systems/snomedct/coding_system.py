@@ -12,8 +12,9 @@ term_and_type_pat = re.compile(r"(^.*) \(([\w/ ]+)\)$")
 
 class CodingSystem(BuilderCompatibleCodingSystem):
     id = "snomedct"
-    name = "SNOMED CT"
+    name = "SNOMED CT (UK Clinical Edition)"
     short_name = "SNOMED CT"
+    description = "Primary and Secondary Care clinical events"
     root = "138875005"
     csv_headers = {
         "code": ["code", "id", "snomedcode", "dmd_id"],

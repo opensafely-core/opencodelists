@@ -52,10 +52,9 @@
     <div class="bg-white px-6 py-12 shadow-sm sm:rounded-lg sm:px-12">
       {% fragment as coding_system_help_text %}
         <ul>
-          <li><strong>CTV3 (Read v3)</strong>: Clinical events, drugs, and appliances (historic; Primary and Secondary Care)</li>
-          <li><strong>ICD10</strong>: Internationally standardised diagnosis codes diagnosis codes (mainly Secondary Care and Death Registry)</li>
-          <li><strong>Psuedo-BNF</strong>: Primary Care prescribing (historic; can be converted to NHS Dictionary of Medicines and Devices)</li>
-          <li><strong>SNOMED CT (UK Clinical Edition)</strong>: Primary and Secondary Care clinical events</li>
+        {% for coding_system in coding_systems %}
+          <li><strong>{{ coding_system.name }}</strong>: {{ coding_system.description }}</li>
+        {% endfor %}
         </ul>
       {% endfragment coding_system_help_text %}
       {% form_input field=form.coding_system_id help_text=coding_system_help_text %}

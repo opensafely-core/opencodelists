@@ -11,6 +11,9 @@ from .models import RawConceptTermMapping, TPPConcept, TPPRelationship
 class CodingSystem(BuilderCompatibleCodingSystem):
     id = "ctv3"
     name = "CTV3 (Read V3)"
+    description = (
+        "Clinical events, drugs, and appliances (historic; Primary and Secondary Care)"
+    )
     short_name = "CTV3"
     root = "....."
     csv_headers = {

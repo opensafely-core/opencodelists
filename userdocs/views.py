@@ -8,6 +8,8 @@ from django.shortcuts import render
 from codelists.models import Codelist
 
 
+SCREENSHOT_RE = re.compile(r"\n        (.*).png")
+
 doc_sections = [
     "status-of-the-project",
     "what-is-a-codelist",
@@ -51,7 +53,7 @@ def load_pages():
 
         # Insert img tags
         content = re.sub(
-            r"\n        (.*).png",
+            SCREENSHOT_RE,
             r'\n<img src="/static/img/docs/\1.png" class="border m-3" />\n',
             content,
         )

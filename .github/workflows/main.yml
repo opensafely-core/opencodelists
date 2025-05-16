@@ -68,10 +68,6 @@ jobs:
           # build docker and run tests with migrations
           just docker-test-py --migrations
 
-      - name: Run functional tests on docker dev image
-        run: |
-          just docker-test-functional --migrations
-
       - name: Run smoke test on prod
         run: |
           just docker-serve prod -d

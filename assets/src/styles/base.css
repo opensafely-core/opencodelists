@@ -1,3 +1,5 @@
+@import "./_tree.css";
+
 html {
   position: relative;
   min-height: 100%;

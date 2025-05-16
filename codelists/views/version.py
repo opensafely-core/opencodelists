@@ -6,6 +6,7 @@ from coding_systems.base.coding_system_base import BuilderCompatibleCodingSystem
 
 from ..models import Status
 from ..presenters import present_search_results
+from ..tree_data import build_tree_data
 from .decorators import load_version
 
 
@@ -44,6 +45,9 @@ def version(request, clv):
                 ancestor_codes, hierarchy
             ).items()
         )
+        tree_data = build_tree_data(
+            child_map, code_to_term, code_to_status, tree_tables
+        )
 
     headers, *rows = clv.table
     user_can_edit = clv.codelist.can_be_edited_by(request.user)
@@ -68,5 +72,6 @@ def version(request, clv):
         "search_results": present_search_results(clv, code_to_term),
         "user_can_edit": user_can_edit,
         "can_create_new_version": can_create_new_version,
+        "tree_data": tree_data,
     }
     return render(request, "codelists/version.html", ctx)

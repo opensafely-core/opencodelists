@@ -17,6 +17,7 @@ def version(request, clv):
     code_to_term = None
     parent_map = None
     tree_tables = None
+    tree_data = None
     if isinstance(clv.coding_system, BuilderCompatibleCodingSystem):
         coding_system = clv.coding_system
 

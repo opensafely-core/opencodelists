@@ -1,12 +1,10 @@
 from django.db.models import Q
 
-from django.db.models import Q
-
-from ..base.coding_system_base import BaseCodingSystem
+from ..base.coding_system_base import BuilderCompatibleCodingSystem
 from .models import AMP, AMPP, VMP, VMPP, VTM, Ing
 
 
-class CodingSystem(BaseCodingSystem):
+class CodingSystem(BuilderCompatibleCodingSystem):
     id = "dmd"
     name = "Dictionary of Medicines and Devices"
     short_name = "dm+d"

@@ -11,6 +11,8 @@ export COMPILE := BIN + "/pip-compile --allow-unsafe --generate-hashes"
 # Load .env files by default
 set dotenv-load := true
 
+# set docker environment to one with mounted database dir if DATABASE_DIR env var is set
+docker_env := if env_var_or_default("DATABASE_DIR", "unset") == "unset" { "dev" } else { "dev-mount-db-dir" }
 
 # list available commands
 default:
@@ -302,7 +304,7 @@ docker-check-js: _env
 
 # run js checks in docker container
 docker-check-py: _env
-    {{ just_executable() }} docker/check-py
+    {{ just_executable() }} docker/check-py {{ docker_env }}
 
 
 # run python non-functional tests in docker container
@@ -325,17 +327,17 @@ docker-test: _env
 
 # run dev server in docker container
 docker-serve env="dev" *args="": _env
-    {{ just_executable() }} docker/serve {{ env }} {{ args }}
+    {{ just_executable() }} docker/serve {{ if env == "dev" { docker_env } else { env } }} {{ args }}
 
 
 # run cmd in dev docker continer
 docker-run *args="bash": _env
-    {{ just_executable() }} docker/run {{ args }}
+    {{ just_executable() }} docker/run {{ docker_env }} {{ args }}
 
 
 # exec command in an existing dev docker container
 docker-exec *args="bash": _env
-    {{ just_executable() }} docker/exec {{ args }}
+    {{ just_executable() }} docker/exec {{ docker_env }} {{ args }}
 
 
 # run tests in docker container
@@ -345,4 +347,4 @@ docker-smoke-test host="http://localhost:7000": _env
 
 # check migrations in the dev docker container
 docker-check-migrations *args="":
-    {{ just_executable() }} docker/check-migrations {{ args }}
+    {{ just_executable() }} docker/check-migrations {{ docker_env }} {{ args }}

@@ -162,7 +162,11 @@ export default class CodelistBuilder extends React.Component<
             )}
 
             {searches.length > 0 && (
-              <Search draftURL={draftURL} searches={searches} />
+              <Search
+                draftURL={draftURL}
+                isEditable={isEditable}
+                searches={searches}
+              />
             )}
 
             {isEditable && (

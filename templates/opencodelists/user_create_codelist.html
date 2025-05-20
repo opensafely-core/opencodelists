@@ -3,12 +3,88 @@
 {% block title_extra %}Create a new codelist{% endblock %}
 
 {% block content %}
-  {% #registration_form button_text="Create" csrf_token=csrf_token form=form title="Create a new codelist" enctype="multipart/form-data"%}
-    {% if form.owner %}
-      {% form_input field=form.owner %}
+  <form
+    class="flex gap-6 min-h-full flex-col justify-center py-20 sm:mx-auto sm:w-full sm:max-w-3xl sm:px-6 lg:px-8"
+    enctype="multipart/form-data"
+    method="POST"
+  >
+    <div class="sm:mx-auto text-center">
+      <h1 class="text-2xl/9 font-bold tracking-tight text-slate-900">
+        Create a new codelist
+      </h1>
+    </div>
+
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+      <div class="rounded-md bg-red-50 p-4">
+        <div class="flex">
+          <div class="shrink-0">
+            {% icon_exclamation_circle_mini class="size-5 text-red-400" %}
+          </div>
+          <div class="ml-3">
+            <h3 class="text-sm font-medium text-red-800">{{ error_title }}</h3>
+            <div class="text-sm text-red-700">
+              <ul role="list" class="list-disc space-y-1 pl-5">
+                {% for error in form.non_field_errors %}
+                  <li>{{ error }}</li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
     {% endif %}
-    {% form_input field=form.name %}
-    {% form_input field=form.coding_system_id %}
-    {% form_input_upload field=form.csv_data %}
-  {% /registration_form %}
+
+    <div class="bg-white px-6 py-12 flex flex-col gap-6 shadow-sm sm:rounded-lg sm:px-12">
+      {% if form.owner %}
+        {% form_input field=form.owner %}
+      {% endif %}
+
+      {% fragment as name_help_text %}
+        <p>Describe the purpose of this codelist in 255 characters or fewer.</p>
+        <p>You should use sentence case and spaces between words, rather than underscores or hyphens. Being descriptive is more important than being concise.</p>
+        <p>For example: <strong>"Type 2 diabetes without retinopathy"</strong> is a better name than <strong>"diabetes"</strong>.</p>
+      {% endfragment name_help_text %}
+      {% form_input field=form.name help_text=name_help_text %}
+    </div>
+
+    <div class="bg-white px-6 py-12 shadow-sm sm:rounded-lg sm:px-12">
+      {% fragment as coding_system_help_text %}
+        <ul>
+        {% for coding_system in coding_systems %}
+          <li><strong>{{ coding_system.name }}</strong>: {{ coding_system.description }}</li>
+        {% endfor %}
+        </ul>
+      {% endfragment coding_system_help_text %}
+      {% form_input field=form.coding_system_id help_text=coding_system_help_text %}
+    </div>
+
+    <div class="bg-white px-6 py-12 shadow-sm sm:rounded-lg sm:px-12">
+      <div class="prose text-slate-700 mb-6">
+        <h2 class="text-lg font-semibold">Upload a CSV <small>(optional)</small></h2>
+        <p>If you have prepared a CSV of data, you can upload it here.</p>
+      </div>
+
+      <details class="group bg-blue-50 border-l-4 border-l-blue-900 mb-4 open:bg-gray-50 shadow-sm sm:rounded-sm">
+        <summary class="cursor-pointer list-none before:!hidden [&amp;::-webkit-details-marker]:hidden">
+          <span class="flex items-center justify-start gap-x-2 m-0 py-4 pr-6 pl-2 leading-none font-semibold text-blue-900 group-open:text-blue">
+            {% icon_plus_to_minus class="max-w-5 fill-blue-900 group-open:fill-blue" %}
+            <span>Upload CSV</span>
+          </span>
+        </summary>
+        <div class="border-t border-t-blue-100 py-6 pl-10 pr-6">
+          {% form_input_upload field=form.csv_data %}
+        </div>
+      </details>
+    </div>
+
+    <div class="text-center mt-4 text-slate-700">
+      <p>The next step will allow you to prepare your codelist for use.</p>
+    </div>
+
+    <button type="submit" class="flex w-fit mx-auto justify-center cursor-pointer rounded-md bg-green-700 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs transition-colors hover:bg-green-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700">
+      Create a draft codelist
+    </button>
+  </form>
 {% endblock %}

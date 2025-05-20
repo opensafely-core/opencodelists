@@ -12,4 +12,5 @@ components:
   icon_chevron_up_mini: "_icons/chevron_up_mini.svg"
   icon_exclamation_circle_mini: "_icons/exclamation_circle_mini.svg"
   icon_exclamation_triangle_mini: "_icons/exclamation_triangle_mini.svg"
+  icon_plus_to_minus: "_icons/plus_to_minus.svg"
   icon_x_circle_mini: "_icons/x_circle_mini.svg"

@@ -11,6 +11,7 @@ class CodingSystem(BuilderCompatibleCodingSystem):
     id = "icd10"
     name = "ICD-10"
     short_name = "ICD-10"
+    description = "Internationally standardised diagnosis codes (mainly Secondary Care and Death Registry)"
     root = ""
     csv_headers = {
         "code": ["icd_code", "icd10_code", "code", "icd"],

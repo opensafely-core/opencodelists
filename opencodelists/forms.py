@@ -45,9 +45,12 @@ class UserPasswordForm(forms.Form):
 
 class CodelistCreateForm(forms.Form):
     CODING_SYSTEM_CHOICES = [("", "---")] + sorted(
-        (id, system.name)
-        for id, system in CODING_SYSTEMS.items()
-        if issubclass(system, BuilderCompatibleCodingSystem)
+        [
+            (id, system.name)
+            for id, system in CODING_SYSTEMS.items()
+            if issubclass(system, BuilderCompatibleCodingSystem)
+        ],
+        key=lambda x: x[1].lower(),
     )
 
     owner = forms.ChoiceField()
@@ -58,7 +61,7 @@ class CodelistCreateForm(forms.Form):
     csv_data = forms.FileField(
         label="CSV data",
         required=False,
-        help_text="Optional.  If provided, the CSV file should not have a header, and its first column must contain valid codes in the chosen coding system.",
+        help_text="The CSV file should not have a header, and its first column must contain valid codes in the chosen coding system.",
     )
 
     def __init__(self, *args, **kwargs):

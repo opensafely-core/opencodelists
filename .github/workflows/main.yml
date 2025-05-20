@@ -97,7 +97,7 @@ jobs:
       - name: Build docker image and run functional tests in it
         run: |
           # build docker and run test
-          just docker-test-functional --migrations
+          TAKE_SCREENSHOTS=True just docker-test-functional --migrations
 
   test-js:
     runs-on: ubuntu-latest

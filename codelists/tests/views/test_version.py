@@ -27,3 +27,8 @@ def test_get_user_has_edit_permissions(client, user, version_with_no_searches):
     client.force_login(user)
     rsp = client.get(version_with_no_searches.get_absolute_url())
     assert rsp.status_code == 200
+
+
+def test_non_builder_compatible_coding_system(client, dmd_version_asthma_medication):
+    rsp = client.get(dmd_version_asthma_medication.get_absolute_url())
+    assert rsp.status_code == 200

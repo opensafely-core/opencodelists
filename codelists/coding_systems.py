@@ -22,12 +22,13 @@ def most_recent_database_alias(coding_system_id):
     )
 
 
-def builder_compatible_coding_systems():
+def builder_compatible_coding_systems(include_experimental=False):
     return sorted(
         [
             system
             for system in CODING_SYSTEMS.values()
             if system.is_builder_compatible()
+            and (include_experimental or not system.is_experimental)
         ],
         key=lambda x: x.name.lower(),
     )

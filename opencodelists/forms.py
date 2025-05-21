@@ -43,14 +43,9 @@ class UserPasswordForm(forms.Form):
 
 
 class CodelistCreateForm(forms.Form):
-    CODING_SYSTEM_CHOICES = [("", "---")] + [
-        (system.id, system.name) for system in builder_compatible_coding_systems()
-    ]
     owner = forms.ChoiceField()
     name = forms.CharField(max_length=255, label="Codelist name")
-    coding_system_id = forms.ChoiceField(
-        choices=CODING_SYSTEM_CHOICES, label="Coding system"
-    )
+    coding_system_id = forms.ChoiceField(choices=[], label="Coding system")
     csv_data = forms.FileField(
         label="CSV data",
         required=False,
@@ -59,7 +54,21 @@ class CodelistCreateForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         owner_choices = kwargs.pop("owner_choices")
+        include_experimental = kwargs.pop("include_experimental")
         super().__init__(*args, **kwargs)
+        coding_systems = [("", "---")] + [
+            (
+                system.id,
+                system.name + " - EXPERIMENTAL PREVIEW"
+                if system.is_experimental
+                else system.name,
+            )
+            for system in builder_compatible_coding_systems(
+                include_experimental=include_experimental
+            )
+        ]
+        self.fields["coding_system_id"].choices = coding_systems
+
         if owner_choices:
             self.fields["owner"] = forms.ChoiceField(choices=owner_choices)
         else:

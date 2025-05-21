@@ -113,6 +113,16 @@
     }
 },
 {
+    "model": "dmd.unitofmeasure",
+    "pk": "408102007",
+    "fields": {
+        "cd": "408102007",
+        "cddt": "2022-01-17",
+        "cdprev": "3319711000001103",
+        "descr": "unit dose"
+    }
+},
+{
     "model": "dmd.basisofname",
     "pk": 1,
     "fields": {
@@ -152,6 +162,655 @@
     "pk": 4,
     "fields": {
         "descr": "Other"
+    }
+},
+{
+    "model": "dmd.ing",
+    "pk": "372897005",
+    "fields": {
+        "isiddt": null,
+        "isidprev": null,
+        "invalid": false,
+        "nm": "Salbutamol"
+    }
+},
+{
+    "model": "dmd.vtm",
+    "pk": "777483005",
+    "fields": {
+        "invalid": false,
+        "nm": "Salbutamol",
+        "abbrevnm": null,
+        "vtmidprev": "91143003",
+        "vtmiddt": "2023-2-6"
+    }
+},
+{
+    "model": "dmd.vmp",
+    "pk": "35936411000001109",
+    "fields": {
+        "vpiddt": "2018-10-22",
+        "vpidprev": "320136009",
+        "vtm_id": "777483005",
+        "invalid": false,
+        "nm": "Salbutamol 100micrograms/dose breath actuated inhaler",
+        "abbrevnm": null,
+        "basis_id": 1,
+        "nmdt": "2006-08-16",
+        "nmprev": "Salbutamol 100micrograms/actuation breath actuated inhaler",
+        "basis_prev_id": 1,
+        "nmchange_id": 4,
+        "combprod_id": null,
+        "pres_stat_id": 1,
+        "sug_f": false,
+        "glu_f": false,
+        "pres_f": false,
+        "cfc_f": false,
+        "non_avail_id": 1,
+        "non_availdt": "2003-09-02",
+        "df_ind_id": 1,
+        "udfs": "1.000",
+        "udfs_uom_id": "3317411000001100",
+        "unit_dose_uom_id": "3317411000001100"
+    }
+},
+{
+    "model": "dmd.vmp",
+    "pk": "39112711000001103",
+    "fields": {
+        "vpiddt": "2020-10-21",
+        "vpidprev": "320151000",
+        "vtm_id": "777483005",
+        "invalid": false,
+        "nm": "Salbutamol 100micrograms/dose breath actuated inhaler CFC free",
+        "abbrevnm": null,
+        "basis_id": 1,
+        "nmdt": "2006-08-16",
+        "nmprev": "Salbutamol 100micrograms/actuation breath actuated inhaler CFC free",
+        "basis_prev_id": 1,
+        "nmchange_id": 4,
+        "combprod_id": null,
+        "pres_stat_id": 9,
+        "sug_f": false,
+        "glu_f": false,
+        "pres_f": false,
+        "cfc_f": true,
+        "non_avail_id": null,
+        "non_availdt": null,
+        "df_ind_id": 1,
+        "udfs": "1.000",
+        "udfs_uom_id": "3317411000001100",
+        "unit_dose_uom_id": "3317411000001100"
+    }
+},
+{
+    "model": "dmd.vmp",
+    "pk": "13566111000001109",
+    "fields": {
+        "vpiddt": null,
+        "vpidprev": null,
+        "vtm_id": "777483005",
+        "invalid": false,
+        "nm": "Salbutamol 100micrograms/dose dry powder inhalation cartridge",
+        "abbrevnm": "Salbutamol 100micrograms/dose dry pdr inhalation cartridge",
+        "basis_id": 1,
+        "nmdt": null,
+        "nmprev": null,
+        "basis_prev_id": null,
+        "nmchange_id": null,
+        "combprod_id": null,
+        "pres_stat_id": 1,
+        "sug_f": false,
+        "glu_f": false,
+        "pres_f": false,
+        "cfc_f": false,
+        "non_avail_id": null,
+        "non_availdt": null,
+        "df_ind_id": 1,
+        "udfs": "1.000",
+        "udfs_uom_id": "3317411000001100",
+        "unit_dose_uom_id": "3317411000001100"
+    }
+},
+{
+    "model": "dmd.vmp",
+    "pk": "13566211000001103",
+    "fields": {
+        "vpiddt": null,
+        "vpidprev": null,
+        "vtm_id": "777483005",
+        "invalid": false,
+        "nm": "Salbutamol 100micrograms/dose dry powder inhalation cartridge with device",
+        "abbrevnm": "Salbutamol 100microg/dose dry pdr inhalation cart with dev",
+        "basis_id": 1,
+        "nmdt": null,
+        "nmprev": null,
+        "basis_prev_id": null,
+        "nmchange_id": null,
+        "combprod_id": null,
+        "pres_stat_id": 1,
+        "sug_f": false,
+        "glu_f": false,
+        "pres_f": false,
+        "cfc_f": false,
+        "non_avail_id": null,
+        "non_availdt": null,
+        "df_ind_id": 1,
+        "udfs": "1.000",
+        "udfs_uom_id": "3317411000001100",
+        "unit_dose_uom_id": "3317411000001100"
+    }
+},
+{
+    "model": "dmd.vmp",
+    "pk": "9207411000001106",
+    "fields": {
+        "vpiddt": null,
+        "vpidprev": null,
+        "vtm_id": "777483005",
+        "invalid": false,
+        "nm": "Salbutamol 100micrograms/dose dry powder inhaler",
+        "abbrevnm": null,
+        "basis_id": 1,
+        "nmdt": "2006-08-16",
+        "nmprev": "Salbutamol 100micrograms/actuation dry powder inhaler",
+        "basis_prev_id": 1,
+        "nmchange_id": 4,
+        "combprod_id": null,
+        "pres_stat_id": 1,
+        "sug_f": false,
+        "glu_f": false,
+        "pres_f": false,
+        "cfc_f": false,
+        "non_avail_id": null,
+        "non_availdt": null,
+        "df_ind_id": 1,
+        "udfs": "1.000",
+        "udfs_uom_id": "3317411000001100",
+        "unit_dose_uom_id": "3317411000001100"
+    }
+},
+{
+    "model": "dmd.vmp",
+    "pk": "35936511000001108",
+    "fields": {
+        "vpiddt": "2018-10-22",
+        "vpidprev": "320176004",
+        "vtm_id": "777483005",
+        "invalid": false,
+        "nm": "Salbutamol 100micrograms/dose inhaler",
+        "abbrevnm": null,
+        "basis_id": 1,
+        "nmdt": "2006-08-16",
+        "nmprev": "Salbutamol 100micrograms/actuation inhaler",
+        "basis_prev_id": 1,
+        "nmchange_id": 4,
+        "combprod_id": null,
+        "pres_stat_id": 1,
+        "sug_f": false,
+        "glu_f": false,
+        "pres_f": false,
+        "cfc_f": false,
+        "non_avail_id": 1,
+        "non_availdt": "2009-02-25",
+        "df_ind_id": 1,
+        "udfs": "1.000",
+        "udfs_uom_id": "3317411000001100",
+        "unit_dose_uom_id": "3317411000001100"
+    }
+},
+{
+    "model": "dmd.vmp",
+    "pk": "39113611000001102",
+    "fields": {
+        "vpiddt": "2020-10-21",
+        "vpidprev": "320139002",
+        "vtm_id": "777483005",
+        "invalid": false,
+        "nm": "Salbutamol 100micrograms/dose inhaler CFC free",
+        "abbrevnm": null,
+        "basis_id": 1,
+        "nmdt": "2006-08-16",
+        "nmprev": "Salbutamol 100micrograms/actuation inhaler CFC free",
+        "basis_prev_id": 1,
+        "nmchange_id": 4,
+        "combprod_id": null,
+        "pres_stat_id": 9,
+        "sug_f": false,
+        "glu_f": false,
+        "pres_f": false,
+        "cfc_f": true,
+        "non_avail_id": null,
+        "non_availdt": null,
+        "df_ind_id": 1,
+        "udfs": "1.000",
+        "udfs_uom_id": "3317411000001100",
+        "unit_dose_uom_id": "3317411000001100"
+    }
+},
+{
+    "model": "dmd.vmp",
+    "pk": "43207011000001101",
+    "fields": {
+        "vpiddt": null,
+        "vpidprev": null,
+        "vtm_id": "777483005",
+        "invalid": false,
+        "nm": "Salbutamol 2.5mg/2.5ml nebuliser liquid unit dose ampoules",
+        "abbrevnm": null,
+        "basis_id": 1,
+        "nmdt": null,
+        "nmprev": null,
+        "basis_prev_id": null,
+        "nmchange_id": null,
+        "combprod_id": null,
+        "pres_stat_id": 1,
+        "sug_f": false,
+        "glu_f": false,
+        "pres_f": false,
+        "cfc_f": false,
+        "non_avail_id": null,
+        "non_availdt": null,
+        "df_ind_id": 1,
+        "udfs": "2.500",
+        "udfs_uom_id": "258773002",
+        "unit_dose_uom_id": "408102007"
+    }
+},
+{
+    "model": "dmd.vmp",
+    "pk": "39709611000001109",
+    "fields": {
+        "vpiddt": "2021-05-26",
+        "vpidprev": "320177008",
+        "vtm_id": "777483005",
+        "invalid": false,
+        "nm": "Salbutamol 2.5mg/2.5ml nebuliser liquid unit dose vials",
+        "abbrevnm": null,
+        "basis_id": 1,
+        "nmdt": "2010-02-01",
+        "nmprev": "Salbutamol 1mg/ml nebuliser liquid 2.5ml unit dose vials",
+        "basis_prev_id": 1,
+        "nmchange_id": 4,
+        "combprod_id": null,
+        "pres_stat_id": 1,
+        "sug_f": false,
+        "glu_f": false,
+        "pres_f": false,
+        "cfc_f": false,
+        "non_avail_id": null,
+        "non_availdt": null,
+        "df_ind_id": 1,
+        "udfs": "2.500",
+        "udfs_uom_id": "258773002",
+        "unit_dose_uom_id": "408102007"
+    }
+},
+{
+    "model": "dmd.vmp",
+    "pk": "42718411000001106",
+    "fields": {
+        "vpiddt": null,
+        "vpidprev": null,
+        "vtm_id": "777483005",
+        "invalid": false,
+        "nm": "Salbutamol 2.5mg/3ml nebuliser liquid unit dose vials",
+        "abbrevnm": null,
+        "basis_id": 1,
+        "nmdt": null,
+        "nmprev": null,
+        "basis_prev_id": null,
+        "nmchange_id": null,
+        "combprod_id": null,
+        "pres_stat_id": 1,
+        "sug_f": false,
+        "glu_f": false,
+        "pres_f": false,
+        "cfc_f": false,
+        "non_avail_id": null,
+        "non_availdt": null,
+        "df_ind_id": 1,
+        "udfs": "3.000",
+        "udfs_uom_id": "258773002",
+        "unit_dose_uom_id": "408102007"
+    }
+},
+{
+    "model": "dmd.amp",
+    "pk": "3293111000001105",
+    "fields": {
+        "invalid": false,
+        "vmp_id": "35936411000001109",
+        "nm": "Aerolin 100micrograms/dose Autohaler",
+        "abbrevnm": null,
+        "descr": "Aerolin 100micrograms/dose Autohaler (3M Health Care Ltd)",
+        "nmdt": "2006-08-16",
+        "nm_prev": "Aerolin 100micrograms/actuation Autohaler",
+        "supp_id": "2075901000001102",
+        "lic_auth_id": 1,
+        "lic_auth_prev_id": null,
+        "lic_authchange_id": null,
+        "lic_authchangedt": null,
+        "combprod_id": null,
+        "flavour_id": null,
+        "ema": false,
+        "parallel_import": false,
+        "avail_restrict_id": 9,
+        "bnf_code": null
+    }
+},
+{
+    "model": "dmd.amp",
+    "pk": "22503111000001109",
+    "fields": {
+        "invalid": false,
+        "vmp_id": "39113611000001102",
+        "nm": "AirSalb 100micrograms/dose inhaler CFC free",
+        "abbrevnm": null,
+        "descr": "AirSalb 100micrograms/dose inhaler CFC free (Sandoz Ltd)",
+        "nmdt": null,
+        "nm_prev": null,
+        "supp_id": "2074301000001102",
+        "lic_auth_id": 1,
+        "lic_auth_prev_id": null,
+        "lic_authchange_id": null,
+        "lic_authchangedt": null,
+        "combprod_id": null,
+        "flavour_id": null,
+        "ema": false,
+        "parallel_import": false,
+        "avail_restrict_id": 9,
+        "bnf_code": null
+    }
+},
+{
+    "model": "dmd.amp",
+    "pk": "3214311000001108",
+    "fields": {
+        "invalid": false,
+        "vmp_id": "39112711000001103",
+        "nm": "Airomir 100micrograms/dose Autohaler",
+        "abbrevnm": null,
+        "descr": "Airomir 100micrograms/dose Autohaler (Teva UK Ltd)",
+        "nmdt": "2006-08-16",
+        "nm_prev": "Airomir 100micrograms/actuation Autohaler",
+        "supp_id": "3849901000001105",
+        "lic_auth_id": 1,
+        "lic_auth_prev_id": null,
+        "lic_authchange_id": null,
+        "lic_authchangedt": null,
+        "combprod_id": null,
+        "flavour_id": null,
+        "ema": false,
+        "parallel_import": false,
+        "avail_restrict_id": 1,
+        "bnf_code": null
+    }
+},
+{
+    "model": "dmd.amp",
+    "pk": "597011000001101",
+    "fields": {
+        "invalid": false,
+        "vmp_id": "39113611000001102",
+        "nm": "Airomir 100micrograms/dose inhaler",
+        "abbrevnm": null,
+        "descr": "Airomir 100micrograms/dose inhaler (Teva UK Ltd)",
+        "nmdt": "2006-08-16",
+        "nm_prev": "Airomir 100micrograms/actuation inhaler",
+        "supp_id": "3849901000001105",
+        "lic_auth_id": 1,
+        "lic_auth_prev_id": null,
+        "lic_authchange_id": null,
+        "lic_authchangedt": null,
+        "combprod_id": null,
+        "flavour_id": null,
+        "ema": false,
+        "parallel_import": false,
+        "avail_restrict_id": 9,
+        "bnf_code": null
+    }
+},
+{
+    "model": "dmd.amp",
+    "pk": "18148111000001107",
+    "fields": {
+        "invalid": false,
+        "vmp_id": "39113611000001102",
+        "nm": "Asmavent 100micrograms/dose inhaler CFC free",
+        "abbrevnm": null,
+        "descr": "Asmavent 100micrograms/dose inhaler CFC free (Kent Pharma (UK) Ltd)",
+        "nmdt": null,
+        "nm_prev": null,
+        "supp_id": "2073701000001100",
+        "lic_auth_id": 1,
+        "lic_auth_prev_id": null,
+        "lic_authchange_id": null,
+        "lic_authchangedt": null,
+        "combprod_id": null,
+        "flavour_id": null,
+        "ema": false,
+        "parallel_import": false,
+        "avail_restrict_id": 9,
+        "bnf_code": null
+    }
+},
+{
+    "model": "dmd.amp",
+    "pk": "41346811000001102",
+    "fields": {
+        "invalid": true,
+        "vmp_id": "39709611000001109",
+        "nm": "Brodilaten 2.5mg/2.5ml nebuliser solution unit dose ampoules",
+        "abbrevnm": null,
+        "descr": "Brodilaten 2.5mg/2.5ml nebuliser solution unit dose ampoules (Kent Pharma (UK) Ltd)",
+        "nmdt": null,
+        "nm_prev": null,
+        "supp_id": "2073701000001100",
+        "lic_auth_id": 1,
+        "lic_auth_prev_id": null,
+        "lic_authchange_id": null,
+        "lic_authchangedt": null,
+        "combprod_id": null,
+        "flavour_id": null,
+        "ema": false,
+        "parallel_import": false,
+        "avail_restrict_id": 9,
+        "bnf_code": null
+    }
+},
+{
+    "model": "dmd.amp",
+    "pk": "43188611000001108",
+    "fields": {
+        "invalid": false,
+        "vmp_id": "43207011000001101",
+        "nm": "Brodilaten 2.5mg/2.5ml nebuliser solution unit dose ampoules",
+        "abbrevnm": null,
+        "descr": "Brodilaten 2.5mg/2.5ml nebuliser solution unit dose ampoules (Kent Pharma (UK) Ltd)",
+        "nmdt": null,
+        "nm_prev": null,
+        "supp_id": "2073701000001100",
+        "lic_auth_id": 1,
+        "lic_auth_prev_id": null,
+        "lic_authchange_id": null,
+        "lic_authchangedt": null,
+        "combprod_id": null,
+        "flavour_id": null,
+        "ema": false,
+        "parallel_import": false,
+        "avail_restrict_id": 9,
+        "bnf_code": null
+    }
+},
+{
+    "model": "dmd.amp",
+    "pk": "38131211000001109",
+    "fields": {
+        "invalid": false,
+        "vmp_id": "9207411000001106",
+        "nm": "Easyhaler Salbutamol sulfate 100micrograms/dose dry powder inhaler",
+        "abbrevnm": "Easyhaler Salbutamol sulfate 100micrograms/dose dry pdr inh",
+        "descr": "Easyhaler Salbutamol sulfate 100micrograms/dose dry powder inhaler (DE Pharmaceuticals)",
+        "nmdt": null,
+        "nm_prev": null,
+        "supp_id": "2268901000001109",
+        "lic_auth_id": 1,
+        "lic_auth_prev_id": null,
+        "lic_authchange_id": null,
+        "lic_authchangedt": null,
+        "combprod_id": null,
+        "flavour_id": null,
+        "ema": false,
+        "parallel_import": true,
+        "avail_restrict_id": 9,
+        "bnf_code": null
+    }
+},
+{
+    "model": "dmd.amp",
+    "pk": "9205211000001104",
+    "fields": {
+        "invalid": false,
+        "vmp_id": "9207411000001106",
+        "nm": "Easyhaler Salbutamol sulfate 100micrograms/dose dry powder inhaler",
+        "abbrevnm": "Easyhaler Salbutamol sulfate 100micrograms/dose dry pdr inh",
+        "descr": "Easyhaler Salbutamol sulfate 100micrograms/dose dry powder inhaler (Orion Pharma (UK) Ltd)",
+        "nmdt": "2013-08-01",
+        "nm_prev": "Easyhaler Salbutamol sulphate 100micrograms/dose dry powder inhaler",
+        "supp_id": "2574501000001106",
+        "lic_auth_id": 1,
+        "lic_auth_prev_id": null,
+        "lic_authchange_id": null,
+        "lic_authchangedt": null,
+        "combprod_id": null,
+        "flavour_id": null,
+        "ema": false,
+        "parallel_import": false,
+        "avail_restrict_id": 1,
+        "bnf_code": null
+    }
+},
+{
+    "model": "dmd.amp",
+    "pk": "3386411000001100",
+    "fields": {
+        "invalid": false,
+        "vmp_id": "39709611000001109",
+        "nm": "Maxivent 2.5mg/2.5ml nebuliser liquid unit dose Steripoule vials",
+        "abbrevnm": "Maxivent 2.5mg/2.5ml neb liq unit dose Steripoule vials",
+        "descr": "Maxivent 2.5mg/2.5ml nebuliser liquid unit dose Steripoule vials (Ashbourne Pharmaceuticals Ltd)",
+        "nmdt": "2010-03-30",
+        "nm_prev": "Maxivent 2.5mg nebuliser liquid 2.5ml unit dose Steripoule vials",
+        "supp_id": "2268401000001100",
+        "lic_auth_id": 1,
+        "lic_auth_prev_id": null,
+        "lic_authchange_id": null,
+        "lic_authchangedt": null,
+        "combprod_id": null,
+        "flavour_id": null,
+        "ema": false,
+        "parallel_import": false,
+        "avail_restrict_id": 9,
+        "bnf_code": null
+    }
+},
+{
+    "model": "dmd.supplier",
+    "pk": "2075901000001102",
+    "fields": {
+        "cddt": null,
+        "cdprev": null,
+        "invalid": false,
+        "descr": "3M Health Care Ltd"
+    }
+},
+{
+    "model": "dmd.supplier",
+    "pk": "2574501000001106",
+    "fields": {
+        "cddt": null,
+        "cdprev": null,
+        "invalid": false,
+        "descr": "Orion Pharma (UK) Ltd"
+    }
+},
+{
+    "model": "dmd.supplier",
+    "pk": "2268401000001100",
+    "fields": {
+        "cddt": null,
+        "cdprev": null,
+        "invalid": false,
+        "descr": "Ashbourne Pharmaceuticals Ltd"
+    }
+},
+{
+    "model": "dmd.supplier",
+    "pk": "2073701000001100",
+    "fields": {
+        "cddt": null,
+        "cdprev": null,
+        "invalid": false,
+        "descr": "Kent Pharma (UK) Ltd"
+    }
+},
+{
+    "model": "dmd.supplier",
+    "pk": "3849901000001105",
+    "fields": {
+        "cddt": null,
+        "cdprev": null,
+        "invalid": false,
+        "descr": "Teva UK Ltd"
+    }
+},
+{
+    "model": "dmd.supplier",
+    "pk": "2268901000001109",
+    "fields": {
+        "cddt": null,
+        "cdprev": null,
+        "invalid": false,
+        "descr": "DE Pharmaceuticals"
+    }
+},
+{
+    "model": "dmd.supplier",
+    "pk": "2074301000001102",
+    "fields": {
+        "cddt": null,
+        "cdprev": null,
+        "invalid": false,
+        "descr": "Sandoz Ltd"
+    }
+},
+{
+    "model": "dmd.licensingauthority",
+    "pk": "1",
+    "fields": {
+        "descr": "Medicines - MHRA/EMA"
+    }
+},
+{
+    "model": "dmd.availabilityrestriction",
+    "pk": "9",
+    "fields": {
+        "descr": "Not available"
+    }
+},
+{
+    "model": "dmd.availabilityrestriction",
+    "pk": "1",
+    "fields": {
+        "descr": "None"
+    }
+},
+{
+    "model": "dmd.virtualproductpresstatus",
+    "pk": "9",
+    "fields": {
+        "descr": "Caution - AMP level prescribing advised"
     }
 }
 ]

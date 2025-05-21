@@ -1,5 +1,7 @@
+from codelists.coding_systems import CODING_SYSTEMS
 from codelists.models import Codelist
 from codelists.tests.helpers import csv_builder
+from coding_systems.base.coding_system_base import BuilderCompatibleCodingSystem
 
 from ..assertions import assert_difference, assert_no_difference
 
@@ -14,6 +16,35 @@ def test_get_for_user_without_organisation(client, user_without_organisation):
     client.force_login(user_without_organisation)
     response = client.get("/users/dave/new-codelist/")
     assert response.status_code == 200
+
+
+def test_get_including_experimental(client, user_without_organisation):
+    # Check we have at least one coding_system marked as experimental
+    experimental_coding_systems = [
+        system
+        for _, system in CODING_SYSTEMS.items()
+        if issubclass(system, BuilderCompatibleCodingSystem) and system.is_experimental
+    ]
+    assert any(experimental_coding_systems)
+
+    # Confirm the experimental coding systems do not appear without the flag
+    client.force_login(user_without_organisation)
+    response = client.get("/users/dave/new-codelist/")
+    assert response.status_code == 200
+    assert b"WARNING" not in response.content
+    for coding_system in experimental_coding_systems:
+        assert coding_system.name.encode() not in response.content
+        assert coding_system.description.encode() not in response.content
+
+    # Confirm the experimental coding systems do appear with the flag
+    response = client.get(
+        "/users/dave/new-codelist/?include_experimental_coding_systems"
+    )
+    assert response.status_code == 200
+    assert b"WARNING" in response.content
+    for coding_system in experimental_coding_systems:
+        assert coding_system.name.encode() in response.content
+        assert coding_system.description.encode() in response.content
 
 
 def test_post_with_csv(client, organisation_user, disorder_of_elbow_csv_data_no_header):

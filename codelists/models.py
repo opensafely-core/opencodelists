@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.utils.functional import cached_property
 from taggit.managers import TaggableManager
 
+from coding_systems.base.coding_system_base import BuilderCompatibleCodingSystem
 from mappings.bnfdmd.mappers import bnf_to_dmd
 from mappings.dmdvmpprevmap.mappers import vmpprev_full_mappings
 from opencodelists.csv_utils import (
@@ -410,7 +411,7 @@ class CodelistVersion(models.Model):
 
     @property
     def has_hierarchy(self):
-        return hasattr(self.coding_system, "ancestor_relationships")
+        return issubclass(self.coding_system.__class__, BuilderCompatibleCodingSystem)
 
     def calculate_hierarchy(self):
         """Return Hierarchy of codes related to this CodelistVersion."""

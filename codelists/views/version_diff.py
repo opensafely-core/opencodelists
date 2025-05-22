@@ -3,6 +3,7 @@ from django.db.models import Q
 from django.http import Http404, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, render
 
+from coding_systems.base.coding_system_base import BuilderCompatibleCodingSystem
 from opencodelists.hash_utils import unhash
 
 from ..hierarchy import Hierarchy
@@ -78,7 +79,7 @@ def summarise(codes, coding_system, csv_data_codes_to_terms=None):
             term = f"[Unknown] {csv_data_codes_to_terms[code]}"
         return term
 
-    if not hasattr(coding_system, "ancestor_relationships"):
+    if not issubclass(coding_system.__class__, BuilderCompatibleCodingSystem):
         # if the coding system has no hierarchy to look up, just return the codes
         # themselves with their terms
         summary = [{"code": code, "term": get_term(code)} for code in codes]

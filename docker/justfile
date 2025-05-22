@@ -30,11 +30,11 @@ check-js:
 
 
 # run python checks
-check-py: build
-    docker compose run --rm dev /app/docker/entrypoints/check.sh
+check-py env="dev": build
+    docker compose run --rm {{ env }} /app/docker/entrypoints/check.sh
 
-check-migrations *args="": build
-    docker compose run --rm dev python manage.py makemigrations --check {{ args }}
+check-migrations env="dev" *args="": build
+    docker compose run --rm {{ env }} python manage.py makemigrations --check {{ args }}
 
 # run Python (non-functional) tests in docker container
 test-py *args="":
@@ -77,13 +77,13 @@ serve env="dev" *args="": (_create_storage env)
 
 
 # run command in dev container
-run *args="bash":
-    docker compose run dev {{ args }}
+run env="dev" *args="bash":
+    docker compose run {{ env }} {{ args }}
 
 
 # exec command in existing dev container
-exec *args="bash":
-    docker compose exec dev {{ args }}
+exec env="dev" *args="bash":
+    docker compose exec {{ env }} {{ args }}
 
 
 # run a basic functional smoke test against a running opencodelists

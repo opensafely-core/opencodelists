@@ -87,3 +87,9 @@ services:
       - PLAYWRIGHT_BROWSER_EXECUTABLE_PATH=/app/.playwright-browsers/chrome-linux/chrome
     # override command
     command: python -m pytest --cov=. --cov-report html --cov-report term-missing:skip-covered
+
+  # development service with overridden db path mounted
+  dev-mount-db-dir:
+    extends: dev
+    volumes:
+    - ${DATABASE_DIR}:${DATABASE_DIR}

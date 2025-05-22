@@ -1,5 +1,5 @@
 from ..base.coding_system_base import BaseCodingSystem
-from .models import AMP, AMPP, VMP, VMPP, VTM
+from .models import AMP, AMPP, VMP, VMPP, VTM, Ing
 
 
 class CodingSystem(BaseCodingSystem):
@@ -62,3 +62,39 @@ class CodingSystem(BaseCodingSystem):
         lookup = self.lookup_names(codes)
         unknown = set(codes) - set(lookup)
         return {**lookup, **{code: "Unknown" for code in unknown}}
+
+    def codes_by_type(self, codes, hierarchy):
+        """
+        The entities we search across are all different "types"
+        but they share a common ancestor of a medicinal product.
+        Since we build them all into a singular hierarchy,
+        displaying them in separate "type" sections doesn't make
+        sense.
+        """
+        known_codes = (
+            list(
+                Ing.objects.using(self.database_alias)
+                .filter(id__in=codes)
+                .values_list("id", flat=True)
+            )
+            + list(
+                VTM.objects.using(self.database_alias)
+                .filter(id__in=codes)
+                .values_list("id", flat=True)
+            )
+            + list(
+                VMP.objects.using(self.database_alias)
+                .filter(id__in=codes)
+                .values_list("id", flat=True)
+            )
+            + list(
+                AMP.objects.using(self.database_alias)
+                .filter(id__in=codes)
+                .values_list("id", flat=True)
+            )
+        )
+
+        return {
+            "Product": known_codes,
+            "[unknown]": list(set(codes) - set(known_codes)),
+        }

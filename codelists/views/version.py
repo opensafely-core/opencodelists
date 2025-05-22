@@ -2,8 +2,6 @@ from django.contrib import messages
 from django.shortcuts import render
 from django.utils.html import format_html
 
-from coding_systems.base.coding_system_base import BuilderCompatibleCodingSystem
-
 from ..models import Status
 from ..presenters import present_search_results
 from ..tree_data import build_tree_data
@@ -18,7 +16,7 @@ def version(request, clv):
     parent_map = None
     tree_tables = None
     tree_data = None
-    if isinstance(clv.coding_system, BuilderCompatibleCodingSystem):
+    if clv.coding_system.is_builder_compatible():
         coding_system = clv.coding_system
 
         hierarchy = clv.codeset.hierarchy

@@ -5,8 +5,7 @@ from io import StringIO
 from django import forms
 from django.contrib.auth import password_validation
 
-from codelists.coding_systems import CODING_SYSTEMS
-from coding_systems.base.coding_system_base import BuilderCompatibleCodingSystem
+from codelists.coding_systems import CODING_SYSTEMS, builder_compatible_coding_systems
 
 from .models import User
 
@@ -44,15 +43,9 @@ class UserPasswordForm(forms.Form):
 
 
 class CodelistCreateForm(forms.Form):
-    CODING_SYSTEM_CHOICES = [("", "---")] + sorted(
-        [
-            (id, system.name)
-            for id, system in CODING_SYSTEMS.items()
-            if issubclass(system, BuilderCompatibleCodingSystem)
-        ],
-        key=lambda x: x[1].lower(),
-    )
-
+    CODING_SYSTEM_CHOICES = [("", "---")] + [
+        (system.id, system.name) for system in builder_compatible_coding_systems()
+    ]
     owner = forms.ChoiceField()
     name = forms.CharField(max_length=255, label="Codelist name")
     coding_system_id = forms.ChoiceField(

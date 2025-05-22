@@ -10,7 +10,7 @@ def test_post_unauthorised(client, version):
     assert_post_unauthorised(client, version.get_publish_url())
 
 
-def test_post_success(client, old_style_codelist):
+def test_post_success(client, organisation_user, old_style_codelist, old_style_version):
     codelist = old_style_codelist
     version1, version2 = codelist.versions.order_by("id")
     force_login(codelist, client)

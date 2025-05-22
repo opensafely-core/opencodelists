@@ -28,6 +28,7 @@ def test_user_codelists(
     organisation_user,
     user_without_organisation,
     codelist_from_scratch,
+    user_codelist,
     user_codelist_from_scratch,
 ):
     test_user = user_without_organisation

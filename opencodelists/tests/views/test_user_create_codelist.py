@@ -16,7 +16,9 @@ def test_get_for_user_without_organisation(client, user_without_organisation):
     assert response.status_code == 200
 
 
-def test_post_with_csv(client, organisation_user, disorder_of_elbow_csv_data_no_header):
+def test_post_with_csv(
+    client, organisation_user, snomedct_data, disorder_of_elbow_csv_data_no_header
+):
     client.force_login(organisation_user)
     data = {
         "name": "Test",
@@ -36,7 +38,7 @@ def test_post_with_csv(client, organisation_user, disorder_of_elbow_csv_data_no_
     assert version.author == organisation_user
 
 
-def test_post_without_csv(client, organisation_user):
+def test_post_without_csv(client, organisation_user, snomedct_data):
     client.force_login(organisation_user)
     data = {
         "name": "Test",
@@ -55,7 +57,9 @@ def test_post_without_csv(client, organisation_user):
     assert version.author == organisation_user
 
 
-def test_post_create_organisation_codelist(client, organisation_user, organisation):
+def test_post_create_organisation_codelist(
+    client, organisation_user, snomedct_data, organisation
+):
     client.force_login(organisation_user)
     data = {
         "name": "Test",
@@ -75,7 +79,11 @@ def test_post_create_organisation_codelist(client, organisation_user, organisati
 
 
 def test_post_create_organisation_codelist_with_csv(
-    client, organisation_user, organisation, disorder_of_elbow_csv_data_no_header
+    client,
+    organisation_user,
+    snomedct_data,
+    organisation,
+    disorder_of_elbow_csv_data_no_header,
 ):
     client.force_login(organisation_user)
     data = {
@@ -96,7 +104,7 @@ def test_post_create_organisation_codelist_with_csv(
     assert version.author == organisation_user
 
 
-def test_post_invalid_with_csv(client, organisation_user):
+def test_post_invalid_with_csv(client, organisation_user, snomedct_data):
     client.force_login(organisation_user)
     csv_data = "256307007,Banana (substance)"
     data = {
@@ -113,7 +121,7 @@ def test_post_invalid_with_csv(client, organisation_user):
 
 
 def test_post_invalid_with_csv_multiple_bad_codes(
-    client, organisation_user, disorder_of_elbow_csv_data_no_header
+    client, organisation_user, snomedct_data, disorder_of_elbow_csv_data_no_header
 ):
     client.force_login(organisation_user)
     # Add an invalid entries at line 3, 7, 9; 11 rows in total
@@ -139,7 +147,7 @@ def test_post_invalid_with_csv_multiple_bad_codes(
     )
 
 
-def test_post_invalid_duplicate_name(client, organisation_user):
+def test_post_invalid_duplicate_name(client, organisation_user, user_codelist):
     client.force_login(organisation_user)
     data = {
         "name": "User-owned Codelist",

@@ -199,6 +199,7 @@ def test_new_style_is_new_style(new_style_codelist):
 
 def test_visible_versions_user_has_edit_permissions(
     new_style_codelist,
+    version_with_complete_searches,
     user,
 ):
     assert len(new_style_codelist.visible_versions(user)) == 3

@@ -9,7 +9,11 @@ from mappings.dmdvmpprevmap.models import Mapping as VmpPrevMapping
 from opencodelists.tests.assertions import assert_difference, assert_no_difference
 
 
-def test_codelists_get(client, organisation):
+def test_codelists_get(
+    client,
+    organisation,
+    many_organisation_versions,
+):
     rsp = client.get(
         f"/api/v1/codelist/{organisation.slug}/?description&methodology&references"
     )
@@ -238,7 +242,12 @@ def test_codelists_get(client, organisation):
     ]
 
 
-def test_codelists_get_all(client, organisation, organisation_user):
+def test_codelists_get_all(
+    client,
+    organisation,
+    organisation_user,
+    many_organisation_and_user_codelists,
+):
     rsp = client.get("/api/v1/codelist/?include-users")
     data = json.loads(rsp.content)
     assert rsp.status_code == 200
@@ -254,7 +263,9 @@ def test_codelists_get_all(client, organisation, organisation_user):
     assert {cl["user"] for cl in user_codelists} == {organisation_user.username}
 
 
-def test_codelists_get_with_coding_system_id(client, organisation):
+def test_codelists_get_with_coding_system_id(
+    client, organisation, many_organisation_codelists
+):
     rsp = client.get(f"/api/v1/codelist/{organisation.slug}/?coding_system_id=snomedct")
     data = json.loads(rsp.content)
     assert len(data["codelists"]) == 4
@@ -297,7 +308,9 @@ def test_codelists_get_exclude_previous_owner(
     assert len(data["codelists"]) == 0
 
 
-def test_codelists_get_with_no_organisation(client, organisation):
+def test_codelists_get_with_no_organisation(
+    client, organisation, many_organisation_and_user_codelists
+):
     rsp = client.get("/api/v1/codelist/?coding_system_id=snomedct&include-users")
     data = json.loads(rsp.content)
     user_codelists = [
@@ -308,13 +321,15 @@ def test_codelists_get_with_no_organisation(client, organisation):
         assert user_codelist["organisation"] == ""
 
 
-def test_codelists_get_with_tag(client, universe):
+def test_codelists_get_with_tag(client, many_organisation_and_user_codelists):
     rsp = client.get("/api/v1/codelist/?tag=new-style")
     data = json.loads(rsp.content)
     assert len(data["codelists"]) == 2
 
 
-def test_codelists_get_with_tag_and_include_users(client, universe):
+def test_codelists_get_with_tag_and_include_users(
+    client, many_organisation_and_user_codelists
+):
     rsp = client.get("/api/v1/codelist/?tag=new-style&include-users")
     data = json.loads(rsp.content)
     assert len(data["codelists"]) == 4

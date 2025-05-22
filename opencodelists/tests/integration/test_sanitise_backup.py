@@ -24,8 +24,8 @@ class TestBackupSanitisation:
     otherwise could have been assumed to be saved there.
     """
 
-    def test_api_keys_removed(self, universe, tmp_path):
-        original_users = [v for v in universe.values() if isinstance(v, User)]
+    def test_api_keys_removed(self, all_fixtures, tmp_path):
+        original_users = User.objects.all()
 
         # Other tests may modify the api_tokens in the db, so save the in-memory users to db
         # and create new tokens for a subset of them.
@@ -45,9 +45,9 @@ class TestBackupSanitisation:
 
         assert api_tokens.isdisjoint(sanitised_tokens)
 
-    def test_user_fields_sanitised(self, universe, tmp_path):
+    def test_user_fields_sanitised(self, all_fixtures, tmp_path):
         personal_data_fields = ["username", "email", "name", "password"]
-        original_users = [v for v in universe.values() if isinstance(v, User)]
+        original_users = User.objects.all()
 
         backup_path = backup_db(tmp_path)
 
@@ -65,7 +65,7 @@ class TestBackupSanitisation:
             sanitised_values = {user[i] for user in sanitised_users}
             assert original_values.isdisjoint(sanitised_values)
 
-    def test_freetexts_replaced(self, universe, tmp_path):
+    def test_freetexts_replaced(self, all_fixtures, universe, tmp_path):
         """
         Test that all Text typed fields in fixtures (where populated)
         have been replaced with sanitised values.
@@ -107,7 +107,7 @@ class TestBackupSanitisation:
 
             assert sanitised_freetexts.isdisjoint(original_freetexts)
 
-    def test_user_references_intact(self, universe, tmp_path):
+    def test_user_references_intact(self, all_fixtures, tmp_path):
         """
         Test that objects owned by users before sanitisation are still owned by them after.
 
@@ -135,8 +135,7 @@ class TestBackupSanitisation:
             ("logentry_set", "django_admin_log", "object_id"),
             ("logentry_set", "django_admin_log", "object_repr"),
         ]
-
-        original_users = [v for v in universe.values() if isinstance(v, User)]
+        original_users = User.objects.all()
 
         original_related_object_counts = {}
         for original_user in original_users:

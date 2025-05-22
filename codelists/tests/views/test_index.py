@@ -25,7 +25,7 @@ def test_search_only_returns_codelists_with_published_versions(
     assert codelist.slug == "new-style-codelist"
 
 
-def test_paginate_codelists(client, organisation, create_codelists):
+def test_paginate_codelists(client, organisation, codelist, create_codelists):
     # Create enough published codelists to paginate (codelist index page is paginated by 15)
     create_codelists(30, owner=organisation, status=Status.PUBLISHED)
     published_for_organisation = [
@@ -95,7 +95,9 @@ def test_under_review_index(
         assert version.status == "under review"
 
 
-def test_paginate_under_review_versions(client, organisation, create_codelists):
+def test_paginate_under_review_versions(
+    client, organisation, version_under_review, create_codelists
+):
     # Create enough published codelists to paginate (under-review index page is paginated by 30)
     create_codelists(40, status=Status.UNDER_REVIEW, owner=organisation)
     under_review_for_organisation = flatten(

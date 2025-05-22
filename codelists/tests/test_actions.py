@@ -8,7 +8,7 @@ from mappings.bnfdmd.models import Mapping as BnfDmdMapping
 from opencodelists.tests.assertions import assert_difference, assert_no_difference
 
 
-def test_create_codelist(organisation):
+def test_create_codelist(snomedct_data, organisation):
     cl = actions.create_old_style_codelist(
         owner=organisation,
         name="Test Codelist",
@@ -34,7 +34,7 @@ def test_create_codelist(organisation):
     assert clv.is_under_review
 
 
-def test_create_codelist_for_user(user):
+def test_create_codelist_for_user(snomedct_data, user):
     cl = actions.create_old_style_codelist(
         owner=user,
         name="Test Codelist",
@@ -56,7 +56,7 @@ def test_create_codelist_for_user(user):
     assert "whilst swimming" in clv.csv_data
 
 
-def test_create_codelist_with_duplicate_name(organisation):
+def test_create_codelist_with_duplicate_name(snomedct_data, organisation):
     actions.create_old_style_codelist(
         owner=organisation,
         name="Test",
@@ -81,7 +81,9 @@ def test_create_codelist_with_duplicate_name(organisation):
     assert Codelist.objects.filter(handles__name="Test").count() == 1
 
 
-def test_create_codelist_with_codes(user, disorder_of_elbow_excl_arthritis_codes):
+def test_create_codelist_with_codes(
+    snomedct_data, user, disorder_of_elbow_excl_arthritis_codes
+):
     cl = actions.create_codelist_with_codes(
         owner=user,
         name="Test",
@@ -110,7 +112,7 @@ def test_create_codelist_with_codes(user, disorder_of_elbow_excl_arthritis_codes
 
 
 def test_create_codelist_with_codes_with_metadata(
-    user, disorder_of_elbow_excl_arthritis_codes
+    snomedct_data, user, disorder_of_elbow_excl_arthritis_codes
 ):
     cl = actions.create_codelist_with_codes(
         owner=user,
@@ -129,7 +131,9 @@ def test_create_codelist_with_codes_with_metadata(
     assert cl.signoffs.count() == 1
 
 
-def test_create_or_update_codelist_create(user, disorder_of_elbow_excl_arthritis_codes):
+def test_create_or_update_codelist_create(
+    snomedct_data, user, disorder_of_elbow_excl_arthritis_codes
+):
     cl = actions.create_or_update_codelist(
         owner=user,
         name="Test",
@@ -151,7 +155,7 @@ def test_create_or_update_codelist_create(user, disorder_of_elbow_excl_arthritis
 
 
 def test_create_or_update_codelist_update(
-    organisation, codelist, disorder_of_elbow_excl_arthritis_codes
+    organisation, codelist, disorder_of_elbow_codes
 ):
     with assert_difference(codelist.versions.count, expected_difference=1):
         actions.create_or_update_codelist(
@@ -159,7 +163,7 @@ def test_create_or_update_codelist_update(
             name=codelist.name,
             coding_system_id="snomedct",
             coding_system_database_alias=most_recent_database_alias("snomedct"),
-            codes=disorder_of_elbow_excl_arthritis_codes,
+            codes=disorder_of_elbow_codes,
             description="This is a test (updated)",
             methodology="This is how we did it (updated)",
         )
@@ -168,11 +172,11 @@ def test_create_or_update_codelist_update(
     assert codelist.description == "This is a test (updated)"
     assert codelist.methodology == "This is how we did it (updated)"
     clv = codelist.versions.order_by("id").last()
-    assert clv.codes == tuple(sorted(disorder_of_elbow_excl_arthritis_codes))
+    assert clv.codes == tuple(sorted(disorder_of_elbow_codes))
 
 
 def test_create_or_update_codelist_update_no_change_to_codes(
-    organisation, codelist, disorder_of_elbow_codes
+    organisation, codelist, disorder_of_elbow_excl_arthritis_codes
 ):
     with assert_no_difference(codelist.versions.count):
         actions.create_or_update_codelist(
@@ -180,7 +184,7 @@ def test_create_or_update_codelist_update_no_change_to_codes(
             name=codelist.name,
             coding_system_id="snomedct",
             coding_system_database_alias=most_recent_database_alias("snomedct"),
-            codes=disorder_of_elbow_codes,
+            codes=disorder_of_elbow_excl_arthritis_codes,
             description="This is a test (updated)",
             methodology="This is how we did it (updated)",
         )
@@ -476,7 +480,7 @@ def test_publish(version_under_review):
     assert version_under_review.is_published
 
 
-def test_delete_version(old_style_codelist):
+def test_delete_version(old_style_codelist, old_style_version):
     # Verify that delete_version deletes the given version, and that when the last
     # remaining version is deleted, the codelist is too.
 

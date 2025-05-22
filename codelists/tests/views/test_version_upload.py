@@ -26,14 +26,14 @@ def test_post_unauthorised(client, old_style_codelist):
     assert_post_unauthorised(client, old_style_codelist.get_version_upload_url())
 
 
-def test_get_success(client, old_style_codelist):
+def test_get_success(client, organisation_user, old_style_codelist):
     force_login(old_style_codelist, client)
     response = client.get(old_style_codelist.get_version_upload_url())
     form = response.context_data["form"]
     assert form.fields["coding_system_id"].initial == "snomedct"
 
 
-def test_post_success(client, old_style_codelist):
+def test_post_success(client, organisation_user, old_style_codelist):
     force_login(old_style_codelist, client)
 
     csv_data = "code,description\n73583000,Epicondylitis (disorder)"
@@ -47,7 +47,7 @@ def test_post_success(client, old_style_codelist):
     assert response.url == clv.get_absolute_url()
 
 
-def test_post_missing_field(client, old_style_codelist):
+def test_post_missing_field(client, organisation_user, old_style_codelist):
     force_login(old_style_codelist, client)
 
     with assert_no_difference(old_style_codelist.versions.count):

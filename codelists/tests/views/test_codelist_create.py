@@ -34,7 +34,7 @@ def test_post_unauthorised_for_user(client, user):
     assert_post_unauthorised(client, user.get_codelist_create_url())
 
 
-def test_get_for_organisation(client, organisation):
+def test_get_for_organisation(client, organisation, organisation_user):
     force_login(organisation, client)
     response = client.get(organisation.get_codelist_create_url())
     assert response.status_code == 200
@@ -90,7 +90,7 @@ def test_post_success(client, organisation, user, bnf_data):
     assert signoff.user == user
 
 
-def test_post_invalid(client, organisation):
+def test_post_invalid(client, organisation, organisation_user):
     force_login(organisation, client)
 
     csv_data = "code,description\n0301012A0AA,Adrenaline (Asthma)"
@@ -126,7 +126,9 @@ def test_post_invalid(client, organisation):
     assert response.context_data["signoff_formset"].errors
 
 
-def test_post_with_duplicate_name(client, organisation):
+def test_post_with_duplicate_name(
+    client, organisation, organisation_user, bnf_codelist
+):
     force_login(organisation, client)
 
     csv_data = "code,description\n0301012A0AA,Adrenaline (Asthma)"

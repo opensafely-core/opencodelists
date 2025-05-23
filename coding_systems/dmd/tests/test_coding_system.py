@@ -125,3 +125,20 @@ def test_descendant_relationships(dmd_data, coding_system):
     assert (
         coding_system.descendant_relationships([oxygen_vmp]) == expected_relationships
     )
+
+
+def test_codes_by_type(dmd_data, coding_system):
+    # Ing, VTM, VMP, AMP
+    salbutamol_codes = [
+        "372897005",
+        "777483005",
+        "35936411000001109",
+        "3293111000001105",
+    ]
+
+    unknown_codes = ["1234567890"]
+
+    assert coding_system.codes_by_type(salbutamol_codes + unknown_codes, None) == {
+        "Product": salbutamol_codes,
+        "[unknown]": unknown_codes,
+    }

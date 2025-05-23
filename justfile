@@ -12,7 +12,7 @@ export COMPILE := BIN + "/pip-compile --allow-unsafe --generate-hashes"
 set dotenv-load := true
 
 # set docker environment to one with mounted database dir if DATABASE_DIR env var is set
-docker_env := if env_var_or_default("DATABASE_DIR", "unset") == "unset" { "dev" } else { "dev-mount-db-dir" }
+docker_env := if env("DATABASE_DIR", "unset") == "unset" { "dev" } else { "dev-mount-db-dir" }
 
 # list available commands
 default:

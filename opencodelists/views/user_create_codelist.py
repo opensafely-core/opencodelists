@@ -26,26 +26,44 @@ def user_create_codelist(request, username):
     else:
         owner_choices = []
 
+    # We allow people to view hidden coding systems if we want user feedback before rolling out
+    # It can be access via /users/<username>/new-codelist/?include_experimental_coding_systems
+    include_experimental = "include_experimental_coding_systems" in request.GET
+
     if request.method == "POST":
-        return handle_post(request, user, owner_choices)
-    return handle_get(request, user, owner_choices)
+        return handle_post(request, user, owner_choices, include_experimental)
+    return handle_get(request, user, owner_choices, include_experimental)
 
 
-def handle_get(request, user, owner_choices):
+def handle_get(request, user, owner_choices, include_experimental):
     coding_systems = [
-        {"name": system.name, "description": system.description}
-        for system in builder_compatible_coding_systems()
+        {
+            "name": system.name,
+            "description": system.description,
+            "is_experimental": system.is_experimental,
+        }
+        for system in builder_compatible_coding_systems(
+            include_experimental=include_experimental
+        )
     ]
+
     ctx = {
         "user": user,
-        "form": CodelistCreateForm(owner_choices=owner_choices),
+        "form": CodelistCreateForm(
+            owner_choices=owner_choices, include_experimental=include_experimental
+        ),
         "coding_systems": coding_systems,
     }
     return render(request, "opencodelists/user_create_codelist.html", ctx)
 
 
-def handle_post(request, user, owner_choices):
-    form = CodelistCreateForm(request.POST, request.FILES, owner_choices=owner_choices)
+def handle_post(request, user, owner_choices, include_experimental):
+    form = CodelistCreateForm(
+        request.POST,
+        request.FILES,
+        owner_choices=owner_choices,
+        include_experimental=include_experimental,
+    )
 
     if form.is_valid():
         return handle_post_valid(request, form, user, owner_choices)

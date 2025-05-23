@@ -125,6 +125,8 @@ class BuilderCompatibleCodingSystem(BaseCodingSystem):
 
     # User-facing description to be rendered in the UI
     description = NotImplemented
+    # When set to true, we only show this in the builder behind a feature flag
+    is_experimental = False
 
     def ancestor_relationships(self, codes):  # pragma: no cover
         """

@@ -367,6 +367,14 @@ On dokku3:
 
 See [codelists/scripts/README.md](codelists/scripts/README.md#bulk-import-codelists-from-an-xlsx-file)
 
+### Experimental coding systems
+
+When adding a new coding system it is possible to get user feedback by deploying it as an experimental coding system. Once the required methods of the parent class `BuilderCompatibleCodingSystem` have been implemented, you can set the `is_experimental` flag to `True`. This then makes the coding system available for new codelists, but only if the user navigates to this URL rather than clicking the "create new codelist" button:
+
+/users/<username>/new-codelist/?include_experimental_coding_systems
+
+The experimental coding systems have visible warnings to ensure they are not used accidentally.
+
 ## Updating mappings
 
 See the relevant README in each of the subdirectories inside [mappings/](mappings/).

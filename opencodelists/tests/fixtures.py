@@ -121,6 +121,7 @@ from codelists.actions import (
 from codelists.coding_systems import CODING_SYSTEMS, most_recent_database_alias
 from codelists.models import Status
 from codelists.search import do_search
+from coding_systems.base.coding_system_base import BuilderCompatibleCodingSystem
 from opencodelists.actions import (
     add_user_to_organisation,
     create_organisation,
@@ -736,6 +737,20 @@ def build_fixtures():
         codelist=null_codelist,
         csv_data="code,term\n5678,Test code1",
         coding_system_database_alias="null_test_20200101",
+    )
+
+    # Add an experimental coding system i.e. one that is only visible behind a flag
+    CODING_SYSTEMS["experiment"] = type(
+        "ExperimentalCodingSystem",
+        (BuilderCompatibleCodingSystem,),
+        {
+            "id": "experiment",
+            "name": "Experimental Coding System",
+            "short_name": "Beta",
+            "description": "An experimental coding system available behind a flag",
+            "is_experimental": True,
+            "has_database": False,
+        },
     )
 
     return locals()

@@ -73,6 +73,13 @@ def test_ancestor_relationships(dmd_data, coding_system):
         == expected_relationships
     )
 
+    # 3436211000001104: "Oxygen composite cylinders 1360litres B10C with integral headset" has no VTM
+    # and three descendant AMPS: 4086311000001109,4086111000001107,3106411000001109
+    oxygen_vmp = "3436211000001104"
+    oxygen_amps = ["4086311000001109", "4086111000001107", "3106411000001109"]
+    expected_relationships = {(oxygen_vmp, amp) for amp in oxygen_amps}
+    assert coding_system.ancestor_relationships(oxygen_amps) == expected_relationships
+
 
 def test_descendant_relationships(dmd_data, coding_system):
     """
@@ -109,3 +116,12 @@ def test_descendant_relationships(dmd_data, coding_system):
     # 10 VTM-VMP relationships + 10 VMP-AMP == 20
     # minus the four we have manually declared above
     assert len(descendant_relationships - expected_relationships) == 16
+
+    # 3436211000001104: "Oxygen composite cylinders 1360litres B10C with integral headset" has no VTM
+    # and three descendant AMPS: 4086311000001109,4086111000001107,3106411000001109
+    oxygen_vmp = "3436211000001104"
+    oxygen_amps = ["4086311000001109", "4086111000001107", "3106411000001109"]
+    expected_relationships = {(oxygen_vmp, amp) for amp in oxygen_amps}
+    assert (
+        coding_system.descendant_relationships([oxygen_vmp]) == expected_relationships
+    )

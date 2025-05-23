@@ -42,6 +42,10 @@ class BaseCodingSystem(ABC):
     # are not guaranteed to be exhaustive in future.
     csv_headers = {"code": ["code"], "term": ["term"]}
 
+    @classmethod
+    def is_builder_compatible(self):
+        return issubclass(self, BuilderCompatibleCodingSystem)
+
     def __init__(self, database_alias):
         self.database_alias = database_alias
 

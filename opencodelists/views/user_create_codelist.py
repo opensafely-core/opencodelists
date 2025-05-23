@@ -4,8 +4,10 @@ from django.db.utils import IntegrityError
 from django.shortcuts import get_object_or_404, redirect, render
 
 from codelists.actions import create_codelist_from_scratch, create_codelist_with_codes
-from codelists.coding_systems import CODING_SYSTEMS, most_recent_database_alias
-from coding_systems.base.coding_system_base import BuilderCompatibleCodingSystem
+from codelists.coding_systems import (
+    builder_compatible_coding_systems,
+    most_recent_database_alias,
+)
 
 from ..forms import CodelistCreateForm
 from ..models import Organisation, User
@@ -30,14 +32,10 @@ def user_create_codelist(request, username):
 
 
 def handle_get(request, user, owner_choices):
-    coding_systems = sorted(
-        [
-            {"name": system.name, "description": system.description}
-            for id, system in CODING_SYSTEMS.items()
-            if issubclass(system, BuilderCompatibleCodingSystem)
-        ],
-        key=lambda x: x["name"].lower(),
-    )
+    coding_systems = [
+        {"name": system.name, "description": system.description}
+        for system in builder_compatible_coding_systems()
+    ]
     ctx = {
         "user": user,
         "form": CodelistCreateForm(owner_choices=owner_choices),

@@ -410,7 +410,7 @@ class CodelistVersion(models.Model):
 
     @property
     def has_hierarchy(self):
-        return hasattr(self.coding_system, "ancestor_relationships")
+        return self.coding_system.is_builder_compatible()
 
     def calculate_hierarchy(self):
         """Return Hierarchy of codes related to this CodelistVersion."""

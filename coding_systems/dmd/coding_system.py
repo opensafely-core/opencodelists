@@ -11,6 +11,31 @@ class CodingSystem(BaseCodingSystem):
         "term": ["term", "dmd_name", "name", "nm", "description"],
     }
 
+    def ancestor_relationships(self, codes):
+        amps = AMP.objects.using(self.database_alias).filter(id__in=codes)
+
+        # get VMPs that are either in `codes` or are ancestors
+        # of the AMPs in `codes`
+        codes = set(codes) | {amp.vmp_id for amp in amps}
+        vmps = VMP.objects.using(self.database_alias).filter(id__in=codes)
+
+        # exclude null VTM-VMP relationships (i.e. VMPs with no VTM)
+        return {(amp.vmp_id, amp.id) for amp in amps} | {
+            (vmp.vtm_id, vmp.id) for vmp in vmps if vmp.vtm_id
+        }
+
+    def descendant_relationships(self, codes):
+        vmps_from_vtms = VMP.objects.using(self.database_alias).filter(vtm__in=codes)
+
+        # get AMPs that have ancestor VMPs that are either in `codes`
+        # or are descendants of VTMs that are in `codes`
+        codes = set(codes) | {vmp.id for vmp in vmps_from_vtms}
+        amps_from_vmps = AMP.objects.using(self.database_alias).filter(vmp_id__in=codes)
+
+        return {(vmp.vtm_id, vmp.id) for vmp in vmps_from_vtms} | {
+            (amp.vmp_id, amp.id) for amp in amps_from_vmps
+        }
+
     def lookup_names(self, codes):
         # A code is a unique identifier in dm+d which corresponds to a SNOMED-CT code
         # It could be the identifier for any of AMP, VMP, VTM, VMPP, AMPP

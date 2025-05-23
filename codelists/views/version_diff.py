@@ -78,7 +78,7 @@ def summarise(codes, coding_system, csv_data_codes_to_terms=None):
             term = f"[Unknown] {csv_data_codes_to_terms[code]}"
         return term
 
-    if not hasattr(coding_system, "ancestor_relationships"):
+    if not coding_system.is_builder_compatible():
         # if the coding system has no hierarchy to look up, just return the codes
         # themselves with their terms
         summary = [{"code": code, "term": get_term(code)} for code in codes]

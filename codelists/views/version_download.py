@@ -7,7 +7,7 @@ from .decorators import load_version
 def version_download(request, clv):
     fixed_headers = "fixed-headers" in request.GET
     omit_mapped_vmps = "omit-mapped-vmps" in request.GET
-    if fixed_headers and not clv.downloadable:
+    if not clv.downloadable:
         return HttpResponseBadRequest("Codelist is not downloadable")
     response = HttpResponse(content_type="text/csv")
     content_disposition = f'attachment; filename="{clv.download_filename()}.csv"'

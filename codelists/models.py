@@ -709,7 +709,7 @@ class CodelistVersion(models.Model):
         include_mapped_vmps: for dm+d codelists, also map in any previous/subsequent
         VMPs
         """
-        assert self.downloadable
+
         header_row = [header.lower() for header in self.table[0]]
         # Find the first matching header from the possible code and term column headers for this
         # codelist's coding system.  These are listed in order of assumed most-to-least likely,

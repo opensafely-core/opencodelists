@@ -1,10 +1,10 @@
 from django.db.models import Q
 
-from ..base.coding_system_base import BaseCodingSystem
+from ..base.coding_system_base import BuilderCompatibleCodingSystem
 from .models import AMP, AMPP, VMP, VMPP, VTM, Ing
 
 
-class CodingSystem(BaseCodingSystem):
+class CodingSystem(BuilderCompatibleCodingSystem):
     id = "dmd"
     name = "Dictionary of Medicines and Devices"
     short_name = "dm+d"
@@ -12,6 +12,8 @@ class CodingSystem(BaseCodingSystem):
         "code": ["dmd_id", "code", "id", "snomed_id", "dmd"],
         "term": ["term", "dmd_name", "name", "nm", "description"],
     }
+    is_experimental = True
+    description = "Primary and Secondary Care prescribing"
 
     def ancestor_relationships(self, codes):
         amps = AMP.objects.using(self.database_alias).filter(id__in=codes)

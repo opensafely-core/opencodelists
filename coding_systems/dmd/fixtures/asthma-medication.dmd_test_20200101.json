@@ -123,6 +123,36 @@
         }
     },
     {
+        "model": "dmd.unitofmeasure",
+        "pk": "258685003",
+        "fields": {
+            "cd": "258685003",
+            "cddt": null,
+            "cdprev": null,
+            "descr": "microgram"
+        }
+    },
+    {
+        "model": "dmd.unitofmeasure",
+        "pk": "258684004",
+        "fields": {
+            "cd": "258684004",
+            "cddt": null,
+            "cdprev": null,
+            "descr": "mg"
+        }
+    },
+    {
+        "model": "dmd.unitofmeasure",
+        "pk": "428673006",
+        "fields": {
+            "cd": "428673006",
+            "cddt": "2008-11-01",
+            "cdprev": "3319411000001109",
+            "descr": "tablet"
+        }
+    },
+    {
         "model": "dmd.basisofname",
         "pk": 1,
         "fields": {
@@ -865,6 +895,146 @@
         }
     },
     {
+        "model": "dmd.basisofstrnth",
+        "pk": "1",
+        "fields": {
+            "descr": "Based on Ingredient Substance"
+        }
+    },
+    {
+        "model": "dmd.vpi",
+        "pk": "2790",
+        "fields": {
+            "bs_subid": null,
+            "strnt_nmrtr_val": 100,
+            "strnt_dnmtr_val": 1,
+            "basis_strnt": 1,
+            "ing": "372897005",
+            "strnt_dnmtr_uom": "3317411000001100",
+            "strnt_nmrtr_uom": "258685003",
+            "vmp": "35936511000001108"
+        }
+    },
+    {
+        "model": "dmd.vpi",
+        "pk": "10198",
+        "fields": {
+            "bs_subid": null,
+            "strnt_nmrtr_val": 100,
+            "strnt_dnmtr_val": 1,
+            "basis_strnt": 1,
+            "ing": "372897005",
+            "strnt_dnmtr_uom": "3317411000001100",
+            "strnt_nmrtr_uom": "258685003",
+            "vmp": "9207411000001106"
+        }
+    },
+    {
+        "model": "dmd.ing",
+        "pk": "387517004",
+        "fields": {
+            "isiddt": "2005-08-02",
+            "isidprev": "3573011000001105",
+            "invalid": false,
+            "nm": "Paracetamol"
+        }
+    },
+    {
+        "model": "dmd.ing",
+        "pk": "261000",
+        "fields": {
+            "isiddt": null,
+            "isidprev": null,
+            "invalid": false,
+            "nm": "Codeine phosphate"
+        }
+    },
+    {
+        "model": "dmd.vpi",
+        "pk": "26459",
+        "fields": {
+            "bs_subid": null,
+            "strnt_nmrtr_val": 500,
+            "strnt_dnmtr_val": null,
+            "basis_strnt": 1,
+            "ing": "387517004",
+            "strnt_dnmtr_uom": null,
+            "strnt_nmrtr_uom": "258684004",
+            "vmp": "44159611000001106"
+        }
+    },
+    {
+        "model": "dmd.vpi",
+        "pk": "26460",
+        "fields": {
+            "bs_subid": null,
+            "strnt_nmrtr_val": 30,
+            "strnt_dnmtr_val": null,
+            "basis_strnt": 1,
+            "ing": "261000",
+            "strnt_dnmtr_uom": null,
+            "strnt_nmrtr_uom": "258684004",
+            "vmp": "44159611000001106"
+        }
+    },
+    {
+        "model": "dmd.vpi",
+        "pk": "23432",
+        "fields": {
+            "bs_subid": null,
+            "strnt_nmrtr_val": 500,
+            "strnt_dnmtr_val": null,
+            "basis_strnt": 1,
+            "ing": "387517004",
+            "strnt_dnmtr_uom": null,
+            "strnt_nmrtr_uom": "258684004",
+            "vmp": "38555211000001104"
+        }
+    },
+    {
+        "model": "dmd.vpi",
+        "pk": "23433",
+        "fields": {
+            "bs_subid": null,
+            "strnt_nmrtr_val": 8,
+            "strnt_dnmtr_val": null,
+            "basis_strnt": 1,
+            "ing": "261000",
+            "strnt_dnmtr_uom": null,
+            "strnt_nmrtr_uom": "258684004",
+            "vmp": "38555211000001104"
+        }
+    },
+    {
+        "model": "dmd.vmp",
+        "pk": "44159611000001106",
+        "fields": {
+            "vpiddt": null,
+            "vpidprev": null,
+            "vtm": "44102411000001107",
+            "invalid": false,
+            "nm": "Co-codamol 30mg/500mg effervescent tablets sugar free",
+            "abbrevnm": null,
+            "basis": 2,
+            "nmdt": null,
+            "nmprev": null,
+            "basis_prev": null,
+            "nmchange": null,
+            "combprod": null,
+            "pres_stat": 1,
+            "sug_f": false,
+            "glu_f": false,
+            "pres_f": false,
+            "cfc_f": false,
+            "non_avail_id": 1,
+            "non_availdt": "2016-12-13",
+            "df_ind_id": 3,
+            "udfs": null,
+            "udfs_uom_id": null,
+            "unit_dose_uom_id": null
+        }
+    },
+    {
         "model": "dmd.amp",
         "pk": "4086311000001109",
         "fields": {
@@ -895,10 +1065,10 @@
             "invalid": false,
             "vmp_id": "3436211000001104",
             "nm": "Oxygen composite cylinders 1360litres size DF with integral headset",
-            "abbrevnm": null,
-            "descr": "Oxygen composite cylinders 1360litres size DF with integral headset (BOC Ltd)",
+            "abbrevnm": "TEST_STRING_for_AMP_abbreviation",
+            "descr": "Oxygen composite TEST_STRING_for_AMP_description cylinders 1360litres size DF with integral headset (BOC Ltd)",
             "nmdt": "2005-10-06",
-            "nm_prev": "Oxygen composite cylinders 1360 litres size DF with integral headset",
+            "nm_prev": "Oxygen composite TEST_STRING_for_AMP_previous_name cylinders 1360 litres size DF with integral headset",
             "supp_id": "2819101000001108",
             "lic_auth_id": 1,
             "lic_auth_prev_id": null,
@@ -967,6 +1137,46 @@
             "cdprev": null,
             "invalid": false,
             "descr": "Medigas Ltd"
+        }
+    },
+    {
+        "model": "dmd.vmp",
+        "pk": "38555211000001104",
+        "fields": {
+            "vpiddt": null,
+            "vpidprev": null,
+            "vtm": "44102411000001107",
+            "invalid": false,
+            "nm": "Co-codamol 8mg/500mg effervescent tablets sugar free",
+            "abbrevnm": "TEST_STRING_for_VMP_abbreviation",
+            "basis": 2,
+            "nmdt": null,
+            "nmprev": "TEST_STRING_for_VMP_previous_name",
+            "basis_prev": null,
+            "nmchange": null,
+            "combprod": null,
+            "pres_stat": 1,
+            "sug_f": false,
+            "glu_f": false,
+            "pres_f": false,
+            "cfc_f": false,
+            "non_avail": null,
+            "non_availdt": null,
+            "df_ind": 1,
+            "udfs": "1.000",
+            "udfs_uom": "428673006",
+            "unit_dose_uom": "428673006"
+        }
+    },
+    {
+        "model": "dmd.vtm",
+        "pk": "44102411000001107",
+        "fields": {
+            "invalid": false,
+            "nm": "Co-codamol",
+            "abbrevnm": "TEST_STRING_for_VTM_abbreviation",
+            "vtmidprev": "775360007",
+            "vtmiddt": "2024-11-22"
         }
     }
 ]

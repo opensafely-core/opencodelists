@@ -1,3 +1,5 @@
+from django.db.models import Q
+
 from ..base.coding_system_base import BaseCodingSystem
 from .models import AMP, AMPP, VMP, VMPP, VTM, Ing
 
@@ -98,3 +100,85 @@ class CodingSystem(BaseCodingSystem):
             "Product": known_codes,
             "[unknown]": list(set(codes) - set(known_codes)),
         }
+
+    def search_by_term(self, term):
+        # We search for VTMs, VMPs and AMPs using the search term.
+        # Each object has some or all of the following - we search each when available:
+        # - Name (nm)
+        # - Description (descr)
+        # - Abbreviated name (abbrevnm) - this allows things like "Hep B", and "dTAP" to return matches
+        # - Previous name (nmprev / nm_prev) - this allows searches for "frusemide" to match the newer name of "furosemide"
+        # We also search for ingregients and map them to their VMP and VTMs
+        # We don't return AMPPs or VMPPs mainly because they don't exist in primary care data, but also because
+        # the AMPPs would all appear twice in the hierarchy, as VMP > VMPP > AMPP and VMP > AMP > AMPP
+
+        # We get all the AMPs that match nm, abbrevnm, descr and nm_prev
+        amps = set(
+            AMP.objects.using(self.database_alias)
+            .filter(
+                Q(nm__icontains=term)
+                | Q(abbrevnm__icontains=term)
+                | Q(descr__icontains=term)
+                | Q(nm_prev__icontains=term)
+            )
+            .values_list("id", flat=True)
+        )
+
+        # We get all the VMPs that match nm, abbrevnm, and nmprev
+        vmps = set(
+            VMP.objects.using(self.database_alias)
+            .filter(
+                Q(nm__icontains=term)
+                | Q(abbrevnm__icontains=term)
+                | Q(nmprev__icontains=term)
+            )
+            .values_list("id", flat=True)
+        )
+
+        # We also get all VMPs from a matched ingredient
+        vmps_from_ing = set(
+            VMP.objects.using(self.database_alias)
+            .filter(vpi__ing__nm__icontains=term)
+            .values_list("id", flat=True)
+            .distinct()
+        )
+
+        # We get all the VTMs that match nm, abbrevnm OR that are parents of any
+        # VMPs found by ingredient. This is because there is only a mapping of
+        # ingredient to VTM via VMP
+        vtms = set(
+            VTM.objects.using(self.database_alias)
+            .filter(
+                Q(nm__icontains=term)
+                | Q(abbrevnm__icontains=term)
+                | Q(vmp__id__in=vmps_from_ing)
+            )
+            .values_list("id", flat=True)
+        )
+
+        return amps | vmps | vmps_from_ing | vtms
+
+    def search_by_code(self, code):
+        # If the code is an AMP, VMP or VTM we return just that
+        for model_cls in [AMP, VMP, VTM]:
+            if model_cls.objects.using(self.database_alias).filter(id=code).exists():
+                return {code}
+
+        # If the code is an ingredient, we return the VMPs and VTMs with that ingredient
+        try:
+            ing = Ing.objects.using(self.database_alias).get(id=code)
+            vmps = set(
+                VMP.objects.using(self.database_alias)
+                .filter(vpi__ing_id=ing.id)
+                .values_list("id", flat=True)
+                .distinct()
+            )
+            vtms = set(
+                VTM.objects.using(self.database_alias)
+                .filter(vmp__id__in=vmps)
+                .values_list("id", flat=True)
+                .distinct()
+            )
+            return vmps | vtms
+        except Ing.DoesNotExist:
+            return set()

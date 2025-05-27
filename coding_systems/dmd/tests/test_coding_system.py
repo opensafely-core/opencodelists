@@ -142,3 +142,72 @@ def test_codes_by_type(dmd_data, coding_system):
         "Product": salbutamol_codes,
         "[unknown]": unknown_codes,
     }
+
+
+def test_search_by_term(dmd_data, coding_system):
+    term = "salbutamol"
+    vmps_containing_term = {
+        "35936411000001109",  # Salbutamol 100micrograms/dose breath actuated inhaler
+        "39112711000001103",  # Salbutamol 100micrograms/dose breath actuated inhaler CFC free
+        "13566111000001109",  # Salbutamol 100micrograms/dose dry powder inhalation cartridge
+        "13566211000001103",  # Salbutamol 100micrograms/dose dry powder inhalation cartridge with device
+        "9207411000001106",  # Salbutamol 100micrograms/dose dry powder inhaler
+        "35936511000001108",  # Salbutamol 100micrograms/dose inhaler
+        "39113611000001102",  # Salbutamol 100micrograms/dose inhaler CFC free
+        "43207011000001101",  # Salbutamol 2.5mg/2.5ml nebuliser liquid unit dose ampoules
+        "39709611000001109",  # Salbutamol 2.5mg/2.5ml nebuliser liquid unit dose vials
+        "42718411000001106",  # Salbutamol 2.5mg/3ml nebuliser liquid unit dose vials
+    }
+    amps_containing_term = {
+        "38131211000001109",  # Easyhaler Salbutamol sulfate 100micrograms/dose dry powder inhaler
+        "9205211000001104",  # Easyhaler Salbutamol sulfate 100micrograms/dose dry powder inhaler
+    }
+    vtms_containing_term = {"777483005"}  # Salbutamol
+    assert (
+        coding_system.search_by_term(term)
+        == vmps_containing_term | amps_containing_term | vtms_containing_term
+    )
+
+    # Test that an ingredient like "codeine" matches the VTM and VMPs "co-codamol"
+    term = "codeine"
+    expected_response = {
+        "44102411000001107",  # VTM: Co-codamol
+        "44159611000001106",  # VMP: Co-codamol 30mg/500mg effervescent tablets sugar free
+        "38555211000001104",  # VMP: Co-codamol 8mg/500mg effervescent tablets sugar free
+    }
+
+    assert coding_system.search_by_term(term) == expected_response
+
+
+@pytest.mark.parametrize(
+    "term, expected_response",
+    [
+        ("TEST_STRING_for_AMP_abbreviation", {"4086111000001107"}),
+        ("TEST_STRING_for_AMP_description", {"4086111000001107"}),
+        ("TEST_STRING_for_AMP_previous_name", {"4086111000001107"}),
+        ("TEST_STRING_for_VMP_abbreviation", {"38555211000001104"}),
+        ("TEST_STRING_for_VMP_previous_name", {"38555211000001104"}),
+        ("TEST_STRING_for_VTM_abbreviation", {"44102411000001107"}),
+    ],
+)
+def test_search_by_term_specific_fields(
+    dmd_data, coding_system, term, expected_response
+):
+    assert coding_system.search_by_term(term) == expected_response
+
+
+@pytest.mark.parametrize(
+    "code, expected_response",
+    [
+        ("597011000001101", {"597011000001101"}),  # AMP code
+        ("35936411000001109", {"35936411000001109"}),  # VMP code
+        ("777483005", {"777483005"}),  # VTM code
+        (
+            "372897005",
+            {"35936511000001108", "777483005", "9207411000001106"},
+        ),  # Ing code
+        ("111", set()),  # Unknown code returns empty set
+    ],
+)
+def test_search_by_code(dmd_data, coding_system, code, expected_response):
+    assert coding_system.search_by_code(code) == expected_response

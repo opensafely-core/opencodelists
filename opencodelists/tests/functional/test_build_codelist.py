@@ -2,9 +2,12 @@ import csv
 from dataclasses import dataclass
 from enum import Enum, StrEnum, auto
 from functools import cached_property
+from urllib.parse import urljoin
 
 import pytest
 from playwright.sync_api import Page, expect
+
+from codelists.coding_systems import CODING_SYSTEMS
 
 
 pytestmark = pytest.mark.functional
@@ -18,11 +21,21 @@ class Navigator:
     page: Page
     codelist_name: str
 
-    def go_to_create_codelist_page(self):
+    def go_to_create_codelist_page(self, is_experimental=False):
         """Navigates the Playwright Page to the "create a codelist" page."""
 
         self.go_to_my_codelists_page()
-        self.page.get_by_role("link", name="Create a codelist!").click()
+        codelist_create_link = self.page.get_by_role("link", name="Create a codelist!")
+        if is_experimental:
+            url = urljoin(
+                self.page.url,
+                codelist_create_link.get_attribute("href")
+                + "?include_experimental_coding_systems",
+            )
+
+            self.page.goto(url)
+        else:
+            codelist_create_link.click()
 
     def go_to_codelist(self):
         """Navigates the Playwright Page to the link for the codelist
@@ -179,12 +192,14 @@ def create_codelist(navigator, coding_system, initial_page_navigation=True):
     """Takes a Navigator, and a coding system, and, for supported coding
     systems, fills in the form to create a new codelist."""
 
-    if coding_system not in ["bnf", "snomedct"]:
+    if coding_system not in ["bnf", "snomedct", "dmd"]:
         # Database fixtures that work with these tests are needed for other coding systems.
         assert False, "Coding system {coding_system} not yet supported by the tests"
 
     if initial_page_navigation:
-        navigator.go_to_create_codelist_page()
+        navigator.go_to_create_codelist_page(
+            CODING_SYSTEMS[coding_system].is_experimental
+        )
 
     navigator.page.get_by_role("textbox", name="Codelist name *").fill(
         navigator.codelist_name
@@ -630,3 +645,87 @@ def test_build_snomedct_codelist_two_searches(
     )
 
     verify_codelist_csv(navigator, search_actions, initial_page_navigation=True)
+
+
+@pytest.mark.parametrize(
+    # Test either by always explicitly navigating to the page that's needed,
+    # or follow on from previous navigations where possible.
+    "navigate_to_page",
+    [True, False],
+)
+@pytest.mark.parametrize(
+    # Test by searching with term, and then by searching with code.
+    "search",
+    [Search(query="adrenaline", is_code=False), Search(query="65502005", is_code=True)],
+)
+@pytest.mark.parametrize(
+    # Test with a non-organisation user login, and then organisation user login.
+    "login_context_fixture_name",
+    ["non_organisation_login_context", "organisation_login_context"],
+)
+@pytest.mark.django_db(
+    databases=[
+        "default",
+        "dmd_test_20200101",
+    ],
+    transaction=True,
+)
+def test_build_dmd_codelist_single_search(
+    login_context_fixture_name, search, navigate_to_page, request, live_server, dmd_data
+):
+    page = setup_playwright_page(
+        login_context=request.getfixturevalue(login_context_fixture_name),
+        url=live_server.url,
+    )
+
+    coding_system = "dmd"
+    codelist_name = "Test"
+    navigator = Navigator(page, codelist_name)
+
+    create_codelist(navigator, coding_system, initial_page_navigation=True)
+
+    search_actions = SearchActions(
+        items=[
+            SearchAction(
+                search=search,
+                concept_selections=[
+                    ConceptSelection(
+                        code="65502005",
+                        term="Adrenaline (VTM)",
+                        to_expand=False,
+                        state=ConceptState.INCLUDED,
+                    ),
+                    ConceptSelection(
+                        code="10514511000001106",
+                        term="Adrenaline (base) 220micrograms/dose inhaler (VMP)",
+                        to_expand=False,
+                        state=ConceptState.EXCLUDED,
+                    ),
+                    ConceptSelection(
+                        code="10525011000001107",
+                        term="Adrenaline (base) 220micrograms/dose inhaler refill (VMP)",
+                        to_expand=False,
+                        state=ConceptState.EXCLUDED,
+                    ),
+                ],
+            ),
+        ],
+    )
+    # This test only has one action,
+    # but writing in this format for consistency of the tests.
+    search_actions.apply_all(navigator, initial_page_navigation=navigate_to_page)
+
+    save_codelist_for_review(navigator, initial_page_navigation=navigate_to_page)
+    validate_codelist_exists_on_site(
+        navigator, CodelistHeading.REVIEW, initial_page_navigation=True
+    )
+
+    verify_review_codelist_codes(
+        navigator, search_actions, initial_page_navigation=True
+    )
+
+    publish_codelist(navigator, initial_page_navigation=navigate_to_page)
+
+    validate_codelist_exists_on_site(
+        navigator, CodelistHeading.USER_OWNED, initial_page_navigation=True
+    )

@@ -96,6 +96,16 @@ def reset_connections():
         del connections.databases[db]
 
 
+@pytest.fixture(autouse=True)
+def fast_password_hasher(settings):
+    """Use a faster password hashing algorithm when running tests, as the test
+    environment doesn't need to be as secure as production.
+    """
+    settings.PASSWORD_HASHERS = [
+        "django.contrib.auth.hashers.MD5PasswordHasher",
+    ]
+
+
 ################################################################################################################
 # Setup global tracing infrastructure for testing purposes.
 

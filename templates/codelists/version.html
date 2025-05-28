@@ -9,6 +9,7 @@
     <div class="d-flex flex-row justify-content-between gap-2 mb-2">
       <h1 class="h3">
         {{ codelist.name }}
+        {# We display a status badge next to 'Draft' and 'Under review' codelist titles. The team decided not to display a 'Published' badge, since the public only sees published codelists and would not notice the absence of a badge. #}
         {% if clv.is_under_review %}
           <span class="align-text-bottom ml-1 badge badge-info">
             Under review

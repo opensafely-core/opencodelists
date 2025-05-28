@@ -13,14 +13,12 @@ def version(request, clv):
     child_map = None
     code_to_status = None
     code_to_term = None
-    parent_map = None
     tree_tables = None
     tree_data = None
     if clv.coding_system.is_builder_compatible():
         coding_system = clv.coding_system
 
         hierarchy = clv.codeset.hierarchy
-        parent_map = {p: list(cc) for p, cc in hierarchy.parent_map.items()}
         child_map = {c: list(pp) for c, pp in hierarchy.child_map.items()}
         code_to_term = coding_system.code_to_term(hierarchy.nodes)
         included = set(clv.codes) & hierarchy.nodes
@@ -63,11 +61,6 @@ def version(request, clv):
         "versions": visible_versions,
         "headers": headers,
         "rows": rows,
-        "tree_tables": tree_tables,
-        "parent_map": parent_map,
-        "child_map": child_map,
-        "code_to_term": code_to_term,
-        "code_to_status": code_to_status,
         "search_results": present_search_results(clv, code_to_term),
         "user_can_edit": user_can_edit,
         "can_create_new_version": can_create_new_version,

@@ -9,3 +9,7 @@ Crawl-delay: 60
 
 User-agent: DotBot
 Crawl-delay: 60
+
+User-agent: *
+Disallow: /*/.csv
+Disallow: /accounts/login/

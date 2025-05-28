@@ -429,12 +429,11 @@ def codelists_check(requests):
                 return JsonResponse(
                     {"status": "error", "data": {"error": f"{line} could not be found"}}
                 )
-        try:
-            codelist_download_data[line] = codelist_version.csv_data_shas()
-        except AssertionError:
+        if not codelist_version.downloadable:
             return JsonResponse(
                 {"status": "error", "data": {"error": f"{line} is not downloadable"}}
             )
+        codelist_download_data[line] = codelist_version.csv_data_shas()
 
     # Compare with manifest file
     # The manifest file is generated when `opensafely codelists update` is run in a study repo

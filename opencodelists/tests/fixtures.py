@@ -1,9 +1,10 @@
 """This module contains fixtures to be used in all apps.
 
-One of the design goals of the project is that there should be a limited and controlled
-number of states that objects can be in.  This is achieved by requiring (through
-convention) that the only way to alter the state of an object is by calling a function
-in one of the actions.py modules.
+One of the design goals of the project is that there should be a limited and
+controlled number of states that objects can be in.  This is achieved by
+requiring (through convention) that the only way to alter the state of an
+object is by calling a function in one of the actions.py modules. For more
+information, see docs/adr/0004-business-logic-layer.md.
 
 As such, test fixtures should only be created through invoking those actions.
 

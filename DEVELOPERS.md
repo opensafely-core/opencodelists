@@ -89,6 +89,13 @@ markdown file for ease of editing and they are served by a generic view.
 
 # Notes for developers
 
+## actions.py business logic layer
+
+We encapsulate business logic in a module called `actions.py` in each app that
+affects state: the `builder`, `codelists`, and `opencodelists` apps.
+
+Please refer to [this ADR](docs/adr/0004-business-logic-layer.md) for more information.
+
 ## Production database and backups
 
 Production data is stored on dokku3 at `/storage/` within the container layer

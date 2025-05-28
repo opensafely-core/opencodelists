@@ -97,11 +97,12 @@ class CodingSystem(BuilderCompatibleCodingSystem):
                 .values_list("id", flat=True)
             )
         )
+        type_to_codes = {"Product": known_codes}
+        unknown_codes = list(set(codes) - set(known_codes))
+        if unknown_codes:
+            type_to_codes |= {"[unknown]": unknown_codes}
 
-        return {
-            "Product": known_codes,
-            "[unknown]": list(set(codes) - set(known_codes)),
-        }
+        return type_to_codes
 
     def search_by_term(self, term):
         # We search for VTMs, VMPs and AMPs using the search term.

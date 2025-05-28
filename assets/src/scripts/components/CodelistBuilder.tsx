@@ -1,5 +1,5 @@
 import React from "react";
-import { Col, Row } from "react-bootstrap";
+import { Col, Form, Row, Tab, Tabs } from "react-bootstrap";
 import Hierarchy from "../_hierarchy";
 import { getCookie } from "../_utils";
 import { Code, PageData, Status } from "../types";
@@ -14,8 +14,28 @@ import Title from "./Title";
 import TreeTables from "./TreeTables";
 import Versions from "./Versions";
 
+type MetadataFieldName = "description" | "methodology";
+interface MetadataField {
+  text: string;
+  html: string;
+}
+interface MetadataProps {
+  description: MetadataField;
+  methodology: MetadataField;
+}
 interface CodelistBuilderProps extends PageData {
   hierarchy: Hierarchy;
+  metadata: MetadataProps & {
+    coding_system_name: string;
+    coding_system_release: {
+      release_name: string;
+      valid_from: string;
+    };
+    organisation_name: string;
+    codelist_full_slug: string;
+    hash: string;
+    codelist_name: string;
+  };
 }
 
 export default class CodelistBuilder extends React.Component<
@@ -23,6 +43,7 @@ export default class CodelistBuilder extends React.Component<
   {
     codeToStatus: PageData["codeToStatus"];
     expandedCompatibleReleases: boolean;
+    metadata: MetadataProps;
     updateQueue: string[][];
     updating: boolean;
   }
@@ -33,6 +54,16 @@ export default class CodelistBuilder extends React.Component<
     this.state = {
       codeToStatus: props.codeToStatus,
       expandedCompatibleReleases: false,
+      metadata: {
+        description: {
+          text: props.metadata.description.text,
+          html: props.metadata.description.html,
+        },
+        methodology: {
+          text: props.metadata.methodology.text,
+          html: props.metadata.methodology.html,
+        },
+      },
       updateQueue: [],
       updating: false,
     };
@@ -130,6 +161,34 @@ export default class CodelistBuilder extends React.Component<
     }, counts);
   }
 
+  renderMetadataField = (field: MetadataFieldName) => {
+    const label = field.charAt(0).toUpperCase() + field.slice(1);
+    const htmlContent = this.state.metadata[field].html;
+
+    return (
+      <Form.Group className="card" controlId={field}>
+        <div className="card-body">
+          <div className="card-title">
+            <Form.Label className="h5" as="h3">
+              {label}
+            </Form.Label>
+          </div>
+          <hr />
+
+          <style>{` .markdown p:last-child { margin-bottom: 0; } `}</style>
+          <div
+            className="markdown"
+            dangerouslySetInnerHTML={{
+              __html:
+                htmlContent ||
+                `<em class="text-muted">No ${field} provided yet</em>`,
+            }}
+          />
+        </div>
+      </Form.Group>
+    );
+  };
+
   render() {
     const {
       allCodes,
@@ -185,23 +244,42 @@ export default class CodelistBuilder extends React.Component<
             </Col>
           ) : (
             <Col md="9">
-              <h3 className="h4">{resultsHeading}</h3>
-              <hr />
-              {treeTables.length > 0 ? (
-                <TreeTables
-                  allCodes={allCodes}
-                  codeToStatus={this.state.codeToStatus}
-                  codeToTerm={codeToTerm}
-                  hierarchy={hierarchy}
-                  isEditable={isEditable}
-                  toggleVisibility={() => null}
-                  treeTables={treeTables}
-                  updateStatus={this.updateStatus}
-                  visiblePaths={visiblePaths}
-                />
-              ) : (
-                <EmptySearch />
-              )}
+              <Tabs defaultActiveKey="codelist" className="mb-3">
+                <Tab eventKey="codelist" title="Codelist">
+                  <h3 className="h4">{resultsHeading}</h3>
+                  <hr />
+                  {treeTables.length > 0 ? (
+                    <TreeTables
+                      allCodes={allCodes}
+                      codeToStatus={this.state.codeToStatus}
+                      codeToTerm={codeToTerm}
+                      hierarchy={hierarchy}
+                      isEditable={isEditable}
+                      toggleVisibility={() => null}
+                      treeTables={treeTables}
+                      updateStatus={this.updateStatus}
+                      visiblePaths={visiblePaths}
+                    />
+                  ) : (
+                    <EmptySearch />
+                  )}
+                </Tab>
+                <Tab
+                  eventKey="metadata"
+                  title="Metadata"
+                  style={{ maxWidth: "80ch" }}
+                >
+                  <p style={{ fontStyle: "italic" }}>
+                    Users have found it helpful to record their decision
+                    strategy as they build their codelist. Text added here will
+                    be ready for you to edit before you publish the codelist.
+                  </p>
+                  <Form noValidate>
+                    {this.renderMetadataField("description")}
+                    {this.renderMetadataField("methodology")}
+                  </Form>
+                </Tab>
+              </Tabs>
             </Col>
           )}
         </Row>

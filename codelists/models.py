@@ -495,10 +495,10 @@ class CodelistVersion(models.Model):
             return self._new_style_codes()
 
     def _old_style_codes(self):
-        if self.coding_system_id in ["bnf", "ctv3", "icd10", "snomedct"]:
+        if self.coding_system.is_builder_compatible():
             headers, *rows = self.table
             headers = [header.lower().strip() for header in headers]
-            # (non-dmd) old style codelists are now required to contain a column named "code"
+            # old style codelists are now required to contain a column named "code"
             # However, older ones could be uploaded with any column names, so we need to
             # check the headers to identify the most likely one
             # These represent the valid case-insensitive code column names across all existing
@@ -509,7 +509,7 @@ class CodelistVersion(models.Model):
                 "ctv3_id",
                 "snomedct_id",
                 "snomedcode",
-                # a few snomed codelist are uploaded with dmd_id as the code column name
+                "dmd",
                 "dmd_id",
                 "icd10",
                 "icd code",
@@ -525,6 +525,15 @@ class CodelistVersion(models.Model):
             else:
                 if self.codelist.slug == "ethnicity":
                     ix = 1
+                elif self.coding_system_id == "dmd":
+                    # som old dm+d codelist versions were uploaded with minimal checks, this attempts
+                    # to account for those that were uploaded without a header (i.e. the header is row data)
+                    # the easiest way to detect this is numeric data (i.e. dm+d IDs) in the header
+                    for header in headers:
+                        if header.isnumeric():
+                            ix = headers.index(header)
+                            rows.append([header])
+                            break
                 else:
                     ix = 0
 

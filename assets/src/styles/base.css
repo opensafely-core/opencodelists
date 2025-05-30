@@ -121,3 +121,8 @@ a:focus {
   flex-direction: row;
   column-gap: 0.5rem;
 }
+
+.moreinfo__button {
+  padding-left: 0.3rem;
+  padding-right: 0.3rem;
+}

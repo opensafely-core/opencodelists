@@ -102,9 +102,9 @@ function MoreInfoModal({
   return (
     <>
       <Button
-        className="py-0 text-nowrap"
+        className="moreinfo__button py-0 ml-2 text-nowrap"
         onClick={() => setShowMoreInfoModal(true)}
-        variant="link"
+        variant="outline-dark"
       >
         More info
       </Button>

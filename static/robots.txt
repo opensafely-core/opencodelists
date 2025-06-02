@@ -12,3 +12,5 @@ Crawl-delay: 60
 
 User-agent: *
 Disallow: /builder/
+Disallow: /*/.csv
+Disallow: /accounts/login/

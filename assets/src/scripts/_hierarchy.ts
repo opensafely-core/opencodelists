@@ -305,9 +305,16 @@ class Hierarchy {
         // the same status as it.
         newDepth = depth + 1;
       } else if (
-        this.getDescendants(code).every(
-          (d) => codeToStatus[d] === codeToStatus[code],
-        )
+        this.getDescendants(code).every((d) => {
+          // Replace parentheses with empty string to compare direct and
+          // indirect statuses
+          const status1 = codeToStatus[d]?.replace(/[()]/g, "");
+          const status2 = codeToStatus[code]?.replace(/[()]/g, "");
+
+          // If the statuses are the same, then all descendants of code have the
+          // same status as code
+          return status1 === status2;
+        })
       ) {
         // All descendants of code have the same status as code.
         newDepth = 1;

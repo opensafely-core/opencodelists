@@ -102,11 +102,11 @@ function MoreInfoModal({
   return (
     <>
       <Button
-        className="py-0 border-0"
+        className="builder__more-info-btn"
         onClick={() => setShowMoreInfoModal(true)}
-        variant="outline-secondary"
+        variant="outline-dark"
       >
-        &hellip;
+        More info
       </Button>
 
       <Modal

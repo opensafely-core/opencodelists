@@ -29,23 +29,24 @@ export default function TreeTable({
   visiblePaths,
 }: TreeTableProps) {
   return (
-    <div className="mb-4">
+    <div className="mb-4 overflow-auto">
       <h5>{heading}</h5>
-
-      {ancestorCodes.map((ancestorCode) => (
-        <Tree
-          allCodes={allCodes}
-          ancestorCode={ancestorCode}
-          codeToStatus={codeToStatus}
-          codeToTerm={codeToTerm}
-          hierarchy={hierarchy}
-          isEditable={isEditable}
-          key={ancestorCode}
-          toggleVisibility={toggleVisibility}
-          updateStatus={updateStatus}
-          visiblePaths={visiblePaths}
-        />
-      ))}
+      <div className="builder__container">
+        {ancestorCodes.map((ancestorCode) => (
+          <Tree
+            allCodes={allCodes}
+            ancestorCode={ancestorCode}
+            codeToStatus={codeToStatus}
+            codeToTerm={codeToTerm}
+            hierarchy={hierarchy}
+            isEditable={isEditable}
+            key={ancestorCode}
+            toggleVisibility={toggleVisibility}
+            updateStatus={updateStatus}
+            visiblePaths={visiblePaths}
+          />
+        ))}
+      </div>
     </div>
   );
 }

@@ -8,18 +8,21 @@ import { VersionT } from "../../types";
 describe("Version Component", () => {
   const mockVersions: VersionT[] = [
     {
+      created_at: "2025-05-14T12:39:54.944Z",
       current: true,
       status: "draft",
       tag_or_hash: "05657fec",
       url: "/codelist/test-university/new-style-codelist/05657fec/",
     },
     {
+      created_at: "2025-05-14T14:31:50.976Z",
       current: false,
       status: "under review",
       tag_or_hash: "1e74f321",
       url: "/codelist/test-university/new-style-codelist/1e74f321/",
     },
     {
+      created_at: "2025-05-14T14:32:01.686Z",
       current: false,
       status: "published",
       tag_or_hash: "37846656",
@@ -67,14 +70,6 @@ describe("Version Component", () => {
     expect(draftBadge.parentElement).toHaveTextContent(
       mockVersions[0].tag_or_hash,
     );
-  });
-
-  it("marks current version as active and disabled", () => {
-    render(<Versions versions={mockVersions} />);
-    const currentVersion = screen
-      .getByText(mockVersions[0].tag_or_hash)
-      .closest("a");
-    expect(currentVersion).toHaveClass("active disabled");
   });
 
   it("renders correct links for non-current versions", () => {

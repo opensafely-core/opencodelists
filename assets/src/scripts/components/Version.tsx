@@ -43,7 +43,7 @@ export default function Version({ versions }: VersionProps) {
                 <Badge variant="success">Published</Badge>
               ) : null}
             </div>
-            {/* <span className="created d-block p-0">
+            <span className="created d-block p-0">
               <OverlayTrigger
                 placement="right"
                 overlay={
@@ -54,10 +54,10 @@ export default function Version({ versions }: VersionProps) {
               >
                 <abbr className="font-weight-bold">Created</abbr>
               </OverlayTrigger>
-              :{{ version.created_at | date:'d M Y' }}
+              : {version.created_at}
               at
-              {{ version.created_at | date:'H:i' }}
-            </span> */}
+              {/* {{ version.created_at | date:'H:i' }} */}
+            </span>
           </ListGroup.Item>
         ))}
       </ListGroup>

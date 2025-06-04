@@ -12,7 +12,7 @@ interface VersionProps {
   versions: VersionT[];
 }
 
-function VersionSingle({ version }: { version: VersionT }) {
+function Version({ version }: { version: VersionT }) {
   const createdAt = new Date(version.created_at);
   const userTimeZone =
     Intl?.DateTimeFormat()?.resolvedOptions()?.timeZone || "UTC";
@@ -72,7 +72,7 @@ function VersionSingle({ version }: { version: VersionT }) {
   );
 }
 
-export default function Version({ versions }: VersionProps) {
+export default function Versions({ versions }: VersionProps) {
   return (
     <Card>
       <Card.Header as="h2" className="h6 font-weight-bold">
@@ -80,7 +80,7 @@ export default function Version({ versions }: VersionProps) {
       </Card.Header>
       <ListGroup variant="flush" className="sidebar-versions" as="ol">
         {versions.map((version) => (
-          <VersionSingle key={version.tag_or_hash} version={version} />
+          <Version key={version.tag_or_hash} version={version} />
         ))}
       </ListGroup>
     </Card>

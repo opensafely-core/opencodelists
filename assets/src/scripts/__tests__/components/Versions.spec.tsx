@@ -2,7 +2,7 @@ import "@testing-library/jest-dom";
 import { render, screen } from "@testing-library/react";
 import React from "react";
 import { describe, expect, it } from "vitest";
-import Version from "../../components/Version";
+import Versions from "../../components/Versions";
 import { VersionT } from "../../types";
 
 describe("Version Component", () => {
@@ -28,19 +28,19 @@ describe("Version Component", () => {
   ];
 
   it("renders the versions card with header", () => {
-    render(<Version versions={mockVersions} />);
+    render(<Versions versions={mockVersions} />);
     expect(screen.getByRole("heading", { name: "Versions" })).toBeVisible();
   });
 
   it("renders all version items", () => {
-    render(<Version versions={mockVersions} />);
+    render(<Versions versions={mockVersions} />);
     mockVersions.forEach((version) => {
       expect(screen.getByText(version.tag_or_hash)).toBeVisible();
     });
   });
 
   it("displays correct badge for published version", () => {
-    render(<Version versions={mockVersions} />);
+    render(<Versions versions={mockVersions} />);
     const publishedBadge = screen.getByText("Published");
     expect(publishedBadge).toBeVisible();
     expect(publishedBadge).toHaveClass("badge-success");
@@ -50,7 +50,7 @@ describe("Version Component", () => {
   });
 
   it("displays correct badge for under review version", () => {
-    render(<Version versions={mockVersions} />);
+    render(<Versions versions={mockVersions} />);
     const reviewBadge = screen.getByText("Under review");
     expect(reviewBadge).toBeVisible();
     expect(reviewBadge).toHaveClass("badge-info");
@@ -60,7 +60,7 @@ describe("Version Component", () => {
   });
 
   it("displays correct badge for draft version", () => {
-    render(<Version versions={mockVersions} />);
+    render(<Versions versions={mockVersions} />);
     const draftBadge = screen.getByText("Draft");
     expect(draftBadge).toBeVisible();
     expect(draftBadge).toHaveClass("badge-light");
@@ -70,7 +70,7 @@ describe("Version Component", () => {
   });
 
   it("marks current version as active and disabled", () => {
-    render(<Version versions={mockVersions} />);
+    render(<Versions versions={mockVersions} />);
     const currentVersion = screen
       .getByText(mockVersions[0].tag_or_hash)
       .closest("a");
@@ -78,7 +78,7 @@ describe("Version Component", () => {
   });
 
   it("renders correct links for non-current versions", () => {
-    render(<Version versions={mockVersions} />);
+    render(<Versions versions={mockVersions} />);
     const nonCurrentVersions = mockVersions.filter((v) => !v.current);
 
     nonCurrentVersions.forEach((version) => {

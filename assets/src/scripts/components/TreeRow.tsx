@@ -58,11 +58,14 @@ export default function TreeRow({
     "?": "text-body",
   };
 
-  const rowSpacing = pipes.length === 0 ? "mt-2" : "mt-0";
-  const className = `${rowSpacing} d-flex`;
-
   return (
-    <div className={className} data-code={code} data-path={path}>
+    <div
+      className={
+        "builder__row" + (pipes.length === 0 ? " builder__row--mt" : "")
+      }
+      data-code={code}
+      data-path={path}
+    >
       <ButtonGroup>
         <StatusToggle
           code={code}
@@ -87,9 +90,15 @@ export default function TreeRow({
             toggleVisibility={toggleVisibility}
           />
         ) : null}
-        <span className={statusToColour[status]}>{term}</span>
-        <span className="ml-1">
-          (<code>{code}</code>)
+        <span className={statusToColour[status]}>
+          {term}{" "}
+          <code
+            className={
+              status === "-" || status === "(-)" ? "text-secondary" : undefined
+            }
+          >
+            {code}
+          </code>
         </span>
       </div>
 

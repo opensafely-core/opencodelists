@@ -49,13 +49,22 @@ export default function TreeRow({
   toggleVisibility,
   updateStatus,
 }: TreeRowProps) {
-  const statusToColour = {
+  const statusTermColor = {
     "+": "text-body",
     "(+)": "text-body",
     "-": "text-secondary",
     "(-)": "text-secondary",
     "!": "text-danger",
     "?": "text-body",
+  };
+
+  const statusCodeColor = {
+    "+": "",
+    "(+)": "",
+    "-": "text-secondary",
+    "(-)": "text-secondary",
+    "!": "text-danger",
+    "?": "",
   };
 
   return (
@@ -90,16 +99,8 @@ export default function TreeRow({
             toggleVisibility={toggleVisibility}
           />
         ) : null}
-        <span className={statusToColour[status]}>
-          {term}{" "}
-          <code
-            className={
-              status === "-" || status === "(-)" ? "text-secondary" : undefined
-            }
-          >
-            {code}
-          </code>
-        </span>
+        <span className={statusTermColor[status]}>{term} </span>
+        <code className={statusCodeColor[status]}>{code}</code>
       </div>
 
       {isEditable ? (

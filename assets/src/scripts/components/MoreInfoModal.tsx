@@ -110,8 +110,9 @@ function MoreInfoModal({
       </Button>
 
       <Modal
-        show={showMoreInfoModal}
+        centered
         onHide={() => setShowMoreInfoModal(false)}
+        show={showMoreInfoModal}
       >
         <Modal.Header closeButton>
           <Modal.Title>

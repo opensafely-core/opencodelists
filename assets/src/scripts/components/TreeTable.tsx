@@ -29,7 +29,7 @@ export default function TreeTable({
   visiblePaths,
 }: TreeTableProps) {
   return (
-    <div className="mb-4">
+    <div className="mb-4 overflow-auto">
       <h5>{heading}</h5>
 
       {ancestorCodes.map((ancestorCode) => (

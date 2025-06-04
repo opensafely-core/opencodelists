@@ -184,7 +184,7 @@ export default class CodelistBuilder extends React.Component<
               <EmptyState />
             </Col>
           ) : (
-            <Col md="9" className="overflow-auto">
+            <Col md="9">
               <h3 className="h4">{resultsHeading}</h3>
               <hr />
               {treeTables.length > 0 ? (

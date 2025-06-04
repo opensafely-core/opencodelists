@@ -116,6 +116,7 @@ export default function SearchForm({
                   searchTerm.length >= SEARCH_OPTIONS[searchType].maxLength ||
                   searchTerm.length < SEARCH_OPTIONS[searchType].minLength
                 }
+                required
               />
               <InputGroup.Append>
                 <Button name="field" type="submit" variant="primary">

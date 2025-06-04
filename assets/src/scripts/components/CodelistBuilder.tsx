@@ -12,7 +12,7 @@ import SearchForm from "./SearchForm";
 import Summary from "./Summary";
 import Title from "./Title";
 import TreeTables from "./TreeTables";
-import Version from "./Version";
+import Versions from "./Versions";
 
 interface CodelistBuilderProps extends PageData {
   hierarchy: Hierarchy;
@@ -176,7 +176,7 @@ export default class CodelistBuilder extends React.Component<
               />
             )}
 
-            <Version versions={this.props.versions} />
+            <Versions versions={this.props.versions} />
           </Col>
 
           {isEmptyCodelist ? (

@@ -85,14 +85,18 @@ describe("Version Component", () => {
   it("renders a valid created date and time for a version", () => {
     render(<Versions versions={mockVersions} />);
 
+    // Tests are run with UTC+1 to confirm JS date formatting is applied
+    // correctly. Therefore these times are one hour ahead of the
+    // created_at strings.
     const expectedTimes = ["13:39", "15:31", "15:32"];
 
-    expectedTimes.forEach((time) => {
-      expect(
-        screen.getByText((content) =>
-          content.includes(`14 May 2025 at ${time}`),
-        ),
-      ).toBeVisible();
+    const versions = screen.getAllByRole("listitem");
+    expect(versions).toHaveLength(expectedTimes.length);
+
+    versions.forEach((version, index) => {
+      expect(version).toHaveTextContent(
+        `14 May 2025 at ${expectedTimes[index]}`,
+      );
     });
   });
 });

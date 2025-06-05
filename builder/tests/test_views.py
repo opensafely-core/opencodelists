@@ -1,4 +1,5 @@
 import pytest
+from django.core.validators import MinLengthValidator
 from django.urls import reverse
 
 from codelists.actions import create_codelist_from_scratch
@@ -311,7 +312,7 @@ def test_discard_one_draft_version(client, draft):
     )
 
 
-def test_search_length_validation(client, draft_with_no_searches):
+def test_max_search_length_validation(client, draft_with_no_searches):
     client.force_login(draft_with_no_searches.author)
 
     max_search_term_length = Search._meta.get_field("term").max_length
@@ -379,3 +380,92 @@ def test_search_length_validation(client, draft_with_no_searches):
         )
     assert rsp.status_code == 200
     assert expected_code_error in rsp.content
+
+
+def get_validator_limit_value(validators, validator_class):
+    """Takes a list of Django validator instances and
+    returns the validator value for a specific class,
+    asserting that there is a value and only one value."""
+    limit_values = [
+        validator.limit_value
+        for validator in validators
+        if isinstance(validator, validator_class)
+    ]
+    assert len(limit_values) == 1
+    return limit_values[0]
+
+
+def test_min_search_length_validation(client, draft_with_no_searches):
+    client.force_login(draft_with_no_searches.author)
+
+    term_field_validators = Search._meta.get_field("term").validators
+    min_search_term_length = get_validator_limit_value(
+        term_field_validators, MinLengthValidator
+    )
+
+    term_with_min_chars = "a" * min_search_term_length
+    term_with_too_few_chars = "a" * (min_search_term_length - 1)
+    expected_term_error = (
+        f"Ensure this value has at least {min_search_term_length} characters".encode()
+    )
+
+    # If the search term length is at the limit then it is a valid search so the
+    # search count increments by one and the error message is not in the response
+    with assert_difference(
+        draft_with_no_searches.searches.count, expected_difference=1
+    ):
+        rsp = client.post(
+            draft_with_no_searches.get_builder_new_search_url(),
+            {"search": term_with_min_chars, "search-type": "term"},
+            follow=True,
+        )
+    assert rsp.status_code == 200
+    assert expected_term_error not in rsp.content
+
+    # If the search term length is under the limit then it is an invalid search so
+    # the search count does not increment and the error message is in the response
+    with assert_difference(
+        draft_with_no_searches.searches.count, expected_difference=0
+    ):
+        rsp = client.post(
+            draft_with_no_searches.get_builder_new_search_url(),
+            {"search": term_with_too_few_chars, "search-type": "term"},
+            follow=True,
+        )
+    assert rsp.status_code == 200
+    assert expected_term_error in rsp.content
+
+    code_field_validators = Search._meta.get_field("code").validators
+    min_search_code_length = get_validator_limit_value(
+        code_field_validators, MinLengthValidator
+    )
+    code_with_min_chars = "a" * min_search_code_length
+    expected_code_error = (
+        f"Ensure this value has at least {min_search_code_length} characters".encode()
+    )
+
+    # If the search code length is at the limit then it is a valid search so the
+    # search count increments by one and the error message is not in the response
+    with assert_difference(
+        draft_with_no_searches.searches.count, expected_difference=1
+    ):
+        rsp = client.post(
+            draft_with_no_searches.get_builder_new_search_url(),
+            {"search": code_with_min_chars, "search-type": "code"},
+            follow=True,
+        )
+    assert rsp.status_code == 200
+    assert expected_code_error not in rsp.content
+
+    # Note: The current minimum search code length is 1.
+    # Below is an assertion to validate this.
+    # A minimum search code length of 1 means the value
+    # below the minimum is zero.
+    # What happens if we enter a search below the minimum
+    # code length is that we encounter the case where
+    # no search is entered. That case is handled differently
+    # by new_search() to guard against searches
+    # that cannot be slugified.
+    # We do not reach the Django MinValidationError,
+    # unlike for terms.
+    assert len(code_with_min_chars) == 1

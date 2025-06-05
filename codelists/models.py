@@ -1,6 +1,7 @@
 import hashlib
 
 from django.contrib.auth.models import AnonymousUser
+from django.core.validators import MinLengthValidator
 from django.db import models
 from django.urls import reverse
 from django.utils.functional import cached_property
@@ -956,12 +957,16 @@ class Search(models.Model):
     version = models.ForeignKey(
         "CodelistVersion", related_name="searches", on_delete=models.CASCADE
     )
-    # NB, the "term" max_length and the "code" max_length are enforced client-side
+    # NB, the "term" and "code" max_length and the MinLengthValidator are enforced client-side
     # as well, so if you change the max search length here, remember to change it
     # on the client side as well:
     # assets/src/scripts/components/SearchForm.tsx
-    term = models.CharField(max_length=255, null=True, blank=True)
-    code = models.CharField(max_length=18, null=True, blank=True)
+    term = models.CharField(
+        max_length=255, validators=[MinLengthValidator(3)], null=True, blank=True
+    )
+    code = models.CharField(
+        max_length=18, validators=[MinLengthValidator(1)], null=True, blank=True
+    )
     slug = models.SlugField(max_length=255)
 
     class Meta:

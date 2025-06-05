@@ -45,5 +45,6 @@ export default defineConfig(({ mode }) => ({
     environment: "jsdom",
     globals: true,
     root: "./assets/src/scripts",
+    setupFiles: ["__tests__/vitest.setup.js"],
   },
 }));

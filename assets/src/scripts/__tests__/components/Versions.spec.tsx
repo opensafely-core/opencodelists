@@ -81,4 +81,19 @@ describe("Version Component", () => {
       expect(versionElement).toHaveAttribute("href", encodeURI(version.url));
     });
   });
+
+  it("renders a valid created date and time for a version", () => {
+    render(<Versions versions={mockVersions} />);
+
+    const expectedTimes = ["13:39", "15:31", "15:32"];
+
+    const versions = screen.getAllByRole("listitem");
+    expect(versions).toHaveLength(expectedTimes.length);
+
+    versions.forEach((version, index) => {
+      expect(version).toHaveTextContent(
+        `14 May 2025 at ${expectedTimes[index]}`,
+      );
+    });
+  });
 });

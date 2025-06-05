@@ -14,14 +14,19 @@ interface VersionProps {
 
 function Version({ version }: { version: VersionT }) {
   const createdAt = new Date(version.created_at);
-  const createdDate = createdAt.toLocaleDateString("en-GB", {
+  const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+  const createdDate = createdAt.toLocaleDateString(navigator.language, {
     day: "numeric",
     month: "short",
     year: "numeric",
+    timeZone: userTimeZone,
   });
-  const createdTime = createdAt.toLocaleTimeString("en-GB", {
+
+  const createdTime = createdAt.toLocaleTimeString(navigator.language, {
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: userTimeZone,
   });
 
   return (

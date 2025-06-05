@@ -81,4 +81,18 @@ describe("Version Component", () => {
       expect(versionElement).toHaveAttribute("href", encodeURI(version.url));
     });
   });
+
+  it("renders a valid created date and time for a version", () => {
+    render(<Versions versions={mockVersions} />);
+
+    const expectedTimes = ["13:39", "15:31", "15:32"];
+
+    expectedTimes.forEach((time) => {
+      expect(
+        screen.getByText((content) =>
+          content.includes(`14 May 2025 at ${time}`),
+        ),
+      ).toBeVisible();
+    });
+  });
 });

@@ -262,9 +262,9 @@ dj-database-url==2.3.0 \
     --hash=sha256:ae52e8e634186b57e5a45e445da5dc407a819c2ceed8a53d1fac004cc5288787 \
     --hash=sha256:bb0d414ba0ac5cd62773ec7f86f8cc378a9dbb00a80884c2fc08cc570452521e
     # via -r requirements.prod.in
-django==5.1.9 \
-    --hash=sha256:2fd1d4a0a66a5ba702699eb692e75b0d828b73cc2f4e1fc4b6a854a918967411 \
-    --hash=sha256:565881bdd0eb67da36442e9ac788bda90275386b549070d70aee86327781a4fc
+django==5.1.10 \
+    --hash=sha256:19c9b771e9cf4de91101861aadd2daaa159bcf10698ca909c5755c88e70ccb84 \
+    --hash=sha256:73e5d191421d177803dbd5495d94bc7d06d156df9561f4eea9e11b4994c07137
     # via
     #   -r requirements.prod.in
     #   crispy-bootstrap4

@@ -306,7 +306,7 @@ class Hierarchy {
         newDepth = depth + 1;
       } else if (
         this.getDescendants(code).every((d) =>
-          codeToStatus[d].includes(codeToStatus[code]),
+          codeToStatus[d]?.includes(codeToStatus[code]),
         )
       ) {
         // All descendants of code have the same status as code.

@@ -1,6 +1,7 @@
 import pytest
 from django.core.validators import MinLengthValidator
 from django.urls import reverse
+from django.urls.exceptions import NoReverseMatch
 
 from codelists.actions import create_codelist_from_scratch
 from codelists.coding_systems import most_recent_database_alias
@@ -54,6 +55,16 @@ def test_search(client, draft_with_some_searches):
         rsp.context["results_heading"]
         == f'Showing {num_concepts} concepts matching "{slug}"'
     )
+
+
+def test_search_non_int_search_id(client, draft_with_some_searches):
+    """Test that the URL dispatcher can't call the search view with a
+    non-integer string as `search_id`."""
+    slug = "arthritis"
+    search_id = "bad_search_id"
+
+    with pytest.raises(NoReverseMatch):
+        client.get(draft_with_some_searches.get_builder_search_url(search_id, slug))
 
 
 def test_no_search_term(client, draft_with_some_searches):

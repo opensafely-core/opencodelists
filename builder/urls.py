@@ -7,7 +7,7 @@ app_name = "builder"
 
 urlpatterns = [
     path("<hash>/", views.draft, name="draft"),
-    path("<hash>/search/<search_id>/<search_slug>/", views.search, name="search"),
+    path("<hash>/search/<int:search_id>/<search_slug>/", views.search, name="search"),
     path(
         "<hash>/search/<search_id>/<search_slug>/delete/",
         views.delete_search,

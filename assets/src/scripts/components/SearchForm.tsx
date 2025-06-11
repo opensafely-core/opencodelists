@@ -28,7 +28,6 @@ export default function SearchForm({
       minLength: number;
       maxLength: number;
       validationMaxLengthMsg: string;
-      validationMinLengthMsg: string;
     };
   } = {
     term: {
@@ -37,7 +36,6 @@ export default function SearchForm({
       placeholder: "Enter a search term…",
       minLength: MIN_TERM_LENGTH,
       maxLength: MAX_TERM_LENGTH,
-      validationMinLengthMsg: `Your search term is below the minimum length of ${MIN_TERM_LENGTH} characters`,
       validationMaxLengthMsg: `Your search term has reached the maximum length of ${MAX_TERM_LENGTH} characters`,
     },
     code: {
@@ -46,7 +44,6 @@ export default function SearchForm({
       placeholder: "Enter a clinical code…",
       minLength: MIN_CODE_LENGTH,
       maxLength: MAX_CODE_LENGTH,
-      validationMinLengthMsg: `Your clinical code is below the minimum length of ${MIN_CODE_LENGTH} character`,
       validationMaxLengthMsg: `Your clinical code has reached the maximum length of ${MAX_CODE_LENGTH} characters`,
     },
   };
@@ -113,8 +110,7 @@ export default function SearchForm({
                 minLength={SEARCH_OPTIONS[searchType].minLength}
                 maxLength={SEARCH_OPTIONS[searchType].maxLength}
                 isInvalid={
-                  searchTerm.length >= SEARCH_OPTIONS[searchType].maxLength ||
-                  searchTerm.length < SEARCH_OPTIONS[searchType].minLength
+                  searchTerm.length >= SEARCH_OPTIONS[searchType].maxLength
                 }
                 required
               />
@@ -123,16 +119,11 @@ export default function SearchForm({
                   Search
                 </Button>
               </InputGroup.Append>
-              {(searchTerm.length >= SEARCH_OPTIONS[searchType].maxLength && (
+              {searchTerm.length >= SEARCH_OPTIONS[searchType].maxLength && (
                 <Form.Control.Feedback type="invalid">
                   {SEARCH_OPTIONS[searchType].validationMaxLengthMsg}
                 </Form.Control.Feedback>
-              )) ||
-                (searchTerm.length < SEARCH_OPTIONS[searchType].minLength && (
-                  <Form.Control.Feedback type="invalid">
-                    {SEARCH_OPTIONS[searchType].validationMinLengthMsg}
-                  </Form.Control.Feedback>
-                ))}
+              )}
             </InputGroup>
           </Form.Group>
 

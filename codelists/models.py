@@ -503,6 +503,7 @@ class CodelistVersion(models.Model):
             # check the headers to identify the most likely one
             # These represent the valid case-insensitive code column names across all existing
             # old-style codelists
+            ix = 0
             for header in [
                 "ctv3id",
                 "ctv3code",
@@ -534,8 +535,6 @@ class CodelistVersion(models.Model):
                             ix = headers.index(header)
                             rows.append([header])
                             break
-                else:
-                    ix = 0
 
             return tuple(sorted({row[ix] for row in rows}))
 

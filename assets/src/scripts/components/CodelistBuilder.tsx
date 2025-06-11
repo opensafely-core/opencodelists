@@ -39,6 +39,30 @@ interface CodelistBuilderProps extends PageData {
   };
 }
 
+/**
+ * Creates a fetch options object with standard headers including CSRF token
+ * @param body - Object to be sent as JSON in the request body
+ * @returns Fetch options object configured for POST requests
+ */
+function getFetchOptions(body: object) {
+  const requestHeaders = new Headers();
+  requestHeaders.append("Accept", "application/json");
+  requestHeaders.append("Content-Type", "application/json");
+
+  const csrfCookie = getCookie("csrftoken");
+  if (csrfCookie) {
+    requestHeaders.append("X-CSRFToken", csrfCookie);
+  }
+  const fetchOptions = {
+    method: "POST",
+    credentials: "include" as RequestCredentials,
+    mode: "same-origin" as RequestMode,
+    headers: requestHeaders,
+    body: JSON.stringify(body),
+  };
+  return fetchOptions;
+}
+
 export default class CodelistBuilder extends React.Component<
   CodelistBuilderProps,
   {
@@ -115,22 +139,9 @@ export default class CodelistBuilder extends React.Component<
   }
 
   postUpdates() {
-    const requestHeaders = new Headers();
-    requestHeaders.append("Accept", "application/json");
-    requestHeaders.append("Content-Type", "application/json");
+    const fetchOptions = getFetchOptions({ updates: this.state.updateQueue });
 
-    const csrfCookie = getCookie("csrftoken");
-    if (csrfCookie) {
-      requestHeaders.append("X-CSRFToken", csrfCookie);
-    }
-
-    fetch(this.props.updateURL, {
-      method: "POST",
-      credentials: "include",
-      mode: "same-origin",
-      headers: requestHeaders,
-      body: JSON.stringify({ updates: this.state.updateQueue }),
-    })
+    fetch(this.props.updateURL, fetchOptions)
       .then((response) => response.json())
       .then((data) => {
         const lastUpdates = data.updates;
@@ -215,22 +226,8 @@ export default class CodelistBuilder extends React.Component<
           ? this.textareaRefs[field].current?.value
           : this.state.metadata.methodology.text,
     };
-    const requestHeaders = new Headers();
-    requestHeaders.append("Accept", "application/json");
-    requestHeaders.append("Content-Type", "application/json");
 
-    const csrfCookie = getCookie("csrftoken");
-    if (csrfCookie) {
-      requestHeaders.append("X-CSRFToken", csrfCookie);
-    }
-
-    const fetchOptions = {
-      method: "POST",
-      credentials: "include" as RequestCredentials,
-      mode: "same-origin" as RequestMode,
-      headers: requestHeaders,
-      body: JSON.stringify(updateBody),
-    };
+    const fetchOptions = getFetchOptions(updateBody);
 
     try {
       fetch(this.props.updateURL, fetchOptions)

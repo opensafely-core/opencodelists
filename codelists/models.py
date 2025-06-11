@@ -510,6 +510,7 @@ class CodelistVersion(models.Model):
                 "ctv3_id",
                 "snomedct_id",
                 "snomedcode",
+                "snomed_id",
                 "dmd",
                 "dmd_id",
                 "icd10",

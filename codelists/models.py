@@ -1,7 +1,7 @@
 import hashlib
 
 from django.contrib.auth.models import AnonymousUser
-from django.core.validators import MinLengthValidator
+from django.core.validators import MinLengthValidator, RegexValidator
 from django.db import models
 from django.urls import reverse
 from django.utils.functional import cached_property
@@ -203,17 +203,27 @@ class Handle(models.Model):
     codelist = models.ForeignKey(
         "Codelist", on_delete=models.CASCADE, related_name="handles"
     )
-    name = models.CharField(max_length=255)
+    name = models.CharField(
+        max_length=255,
+        validators=[
+            RegexValidator(
+                regex=r"^[\w _-]+$",
+                message="Codelist names must be non-blank, and contain only letters, numbers, underscores, spaces, or hyphens.",
+            )
+        ],
+    )
     slug = models.SlugField(max_length=255)
     organisation = models.ForeignKey(
         "opencodelists.Organisation",
         null=True,
+        blank=True,
         related_name="handles",
         on_delete=models.CASCADE,
     )
     user = models.ForeignKey(
         "opencodelists.User",
         null=True,
+        blank=True,
         related_name="handles",
         on_delete=models.CASCADE,
     )

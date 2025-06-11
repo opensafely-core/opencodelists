@@ -1,5 +1,5 @@
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import NON_FIELD_ERRORS
+from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 from django.db.utils import IntegrityError
 from django.forms import formset_factory
 from django.shortcuts import redirect
@@ -90,6 +90,11 @@ def handle_valid(request, owner, codelist_form, reference_formset, signoff_forms
             NON_FIELD_ERRORS,
             f"There is already a codelist called {name}",
         )
+        return handle_invalid(
+            request, codelist_form, reference_formset, signoff_formset
+        )
+    except ValidationError as e:
+        codelist_form.add_error("name", ",".join(e.messages))
         return handle_invalid(
             request, codelist_form, reference_formset, signoff_formset
         )

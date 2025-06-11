@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.shortcuts import render
 from django.utils.html import format_html
 
+from ..actions import cache_hierarchy
 from ..models import Status
 from ..presenters import present_search_results
 from ..tree_data import build_tree_data
@@ -18,6 +19,8 @@ def version(request, clv):
     if clv.coding_system.is_builder_compatible():
         coding_system = clv.coding_system
 
+        if not hasattr(clv, "cached_hierarchy"):
+            cache_hierarchy(version=clv)
         hierarchy = clv.codeset.hierarchy
         child_map = {c: list(pp) for c, pp in hierarchy.child_map.items()}
         code_to_term = coding_system.code_to_term(hierarchy.nodes)

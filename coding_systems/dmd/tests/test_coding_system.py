@@ -136,6 +136,10 @@ def test_codes_by_type(dmd_data, coding_system):
         "3293111000001105",
     ]
 
+    assert coding_system.codes_by_type(salbutamol_codes, None) == {
+        "Product": salbutamol_codes,
+    }
+
     unknown_codes = ["1234567890"]
 
     assert coding_system.codes_by_type(salbutamol_codes + unknown_codes, None) == {

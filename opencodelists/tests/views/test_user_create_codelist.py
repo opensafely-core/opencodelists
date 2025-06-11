@@ -33,7 +33,7 @@ def test_get_including_experimental(client, user_without_organisation):
     assert response.status_code == 200
     assert b"WARNING" not in response.content
     for coding_system in experimental_coding_systems:
-        assert coding_system.name.encode() not in response.content
+        assert f"<strong>{coding_system.name}</strong>".encode() not in response.content
         assert coding_system.description.encode() not in response.content
 
     # Confirm the experimental coding systems do appear with the flag
@@ -43,7 +43,7 @@ def test_get_including_experimental(client, user_without_organisation):
     assert response.status_code == 200
     assert b"WARNING" in response.content
     for coding_system in experimental_coding_systems:
-        assert coding_system.name.encode() in response.content
+        assert f"<strong>{coding_system.name}</strong>".encode() in response.content
         assert coding_system.description.encode() in response.content
 
 

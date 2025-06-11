@@ -6,6 +6,7 @@ from django import forms
 from django.contrib.auth import password_validation
 
 from codelists.coding_systems import CODING_SYSTEMS, builder_compatible_coding_systems
+from codelists.models import Handle
 
 from .models import User
 
@@ -42,9 +43,23 @@ class UserPasswordForm(forms.Form):
         return password2
 
 
+def form_field_from_model(model_class, field_name, **kwargs):
+    """Return a forms.Field instance derived from a models.Field,
+    including the validators attached to the model field.
+
+    Note:
+    - `formfield` does not automatically inherit validators, as they may
+      not always apply to a form field.
+    - It is the caller's responsibility to ensure the validators are
+      appropriate for their specific form."""
+    model_field = model_class._meta.get_field(field_name)
+    field_class = model_field.formfield
+    return field_class(validators=model_field.validators, **kwargs)
+
+
 class CodelistCreateForm(forms.Form):
     owner = forms.ChoiceField()
-    name = forms.CharField(max_length=255, label="Codelist name")
+    name = form_field_from_model(Handle, "name", label="Codelist name")
     coding_system_id = forms.ChoiceField(choices=[], label="Coding system")
     csv_data = forms.FileField(
         label="CSV data",

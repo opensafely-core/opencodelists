@@ -4,9 +4,8 @@ from io import StringIO
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 from django import forms
-from django.forms.models import fields_for_model
 
-from opencodelists.forms import validate_csv_data_codes
+from opencodelists.forms import form_field_from_model, validate_csv_data_codes
 from opencodelists.models import Organisation, User
 
 from .coding_systems import CODING_SYSTEMS
@@ -25,12 +24,6 @@ def data_without_delete(cleaned_data):
     This function strips that key for us.
     """
     return {k: v for k, v in cleaned_data.items() if k != "DELETE"}
-
-
-def model_field(model, fieldname):
-    """Return a Field instance with arguments from the model definition."""
-
-    return fields_for_model(model)[fieldname]
 
 
 class ReferenceForm(forms.ModelForm):
@@ -152,10 +145,10 @@ class CSVValidationMixin:
 
 
 class CodelistCreateForm(forms.Form, CSVValidationMixin):
-    name = model_field(Handle, "name")
-    coding_system_id = model_field(Codelist, "coding_system_id")
-    description = model_field(Codelist, "description")
-    methodology = model_field(Codelist, "methodology")
+    name = form_field_from_model(Handle, "name")
+    coding_system_id = form_field_from_model(Codelist, "coding_system_id")
+    description = form_field_from_model(Codelist, "description")
+    methodology = form_field_from_model(Codelist, "methodology")
     csv_data = forms.FileField(label="CSV data")
 
     def __init__(self, *args, **kwargs):
@@ -165,11 +158,11 @@ class CodelistCreateForm(forms.Form, CSVValidationMixin):
 
 
 class CodelistUpdateForm(forms.Form):
-    name = model_field(Handle, "name")
-    slug = model_field(Handle, "slug")
+    name = form_field_from_model(Handle, "name")
+    slug = form_field_from_model(Handle, "slug")
     owner = forms.ChoiceField()  # The choices are set in __init__
-    description = model_field(Codelist, "description")
-    methodology = model_field(Codelist, "methodology")
+    description = form_field_from_model(Codelist, "description")
+    methodology = form_field_from_model(Codelist, "methodology")
 
     def __init__(self, *args, **kwargs):
         self.helper = FormHelper()

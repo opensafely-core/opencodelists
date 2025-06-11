@@ -90,7 +90,7 @@ def _draft(request, draft, search_id):
         for s in draft.searches.order_by("term")
     ]
 
-    if searches and draft.code_objs.filter(results=None).exists():
+    if draft.code_objs.filter(results=None).exists():
         searches.append(
             {
                 "term_or_code": "[no search term]",

@@ -2,7 +2,7 @@ import "@testing-library/jest-dom";
 import { render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React from "react";
-import { expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import Hierarchy from "../../_hierarchy";
 import CodelistBuilder from "../../components/CodelistBuilder";
 // See builder/management/commands/generate_builder_fixtures.py and
@@ -19,27 +19,32 @@ global.fetch = vi.fn().mockImplementation((_url, config) =>
   }),
 );
 
-const testRender = (data) => {
-  const hierarchy = new Hierarchy(data.parent_map, data.child_map);
-  const ancestorCodes = data.tree_tables
-    .map(([_, ancestorCodes]) => ancestorCodes)
-    .flat();
-  const visiblePaths = hierarchy.initiallyVisiblePaths(
-    ancestorCodes,
-    data.code_to_status,
-    1,
-  );
+const renderCodelistBuilder = (data, hierarchy, visiblePaths) => {
+  if (!hierarchy) {
+    hierarchy = new Hierarchy(data.parent_map, data.child_map);
+  }
+  if (!visiblePaths) {
+    const ancestorCodes = data.tree_tables
+      .map(([_, ancestorCodes]) => ancestorCodes)
+      .flat();
+    visiblePaths = hierarchy.initiallyVisiblePaths(
+      ancestorCodes,
+      data.code_to_status,
+      1,
+    );
+  }
 
   render(
     <CodelistBuilder
       allCodes={data.all_codes}
       codeToStatus={data.code_to_status}
       codeToTerm={data.code_to_term}
-      excludedCodes={data.excluded_codes}
+      draftURL={data.draft_url}
       hierarchy={hierarchy}
-      includedCodes={data.included_codes}
       isEditable={data.is_editable}
+      isEmptyCodelist={data.is_empty_codelist}
       metadata={data.metadata}
+      resultsHeading={data.results_heading}
       searches={data.searches}
       searchURL={data.search_url}
       treeTables={data.tree_tables}
@@ -51,19 +56,19 @@ const testRender = (data) => {
 };
 
 it("renders version_with_no_searches without error", () => {
-  testRender(versionWithNoSearchesData);
+  renderCodelistBuilder(versionWithNoSearchesData);
 });
 
 it("renders version_with_some_searches without error", () => {
-  testRender(versionWithSomeSearchesData);
+  renderCodelistBuilder(versionWithSomeSearchesData);
 });
 
 it("renders version_with_complete_searches without error", () => {
-  testRender(versionWithCompleteSearchesData);
+  renderCodelistBuilder(versionWithCompleteSearchesData);
 });
 
 it("renders version_from_scratch without error", () => {
-  testRender(versionFromScratchData);
+  renderCodelistBuilder(versionFromScratchData);
 });
 
 it("does the right thing when clicking around", async () => {
@@ -165,24 +170,7 @@ it("does the right thing when clicking around", async () => {
     );
   };
 
-  render(
-    <CodelistBuilder
-      allCodes={data.all_codes}
-      codeToStatus={data.code_to_status}
-      codeToTerm={data.code_to_term}
-      excludedCodes={data.excluded_codes}
-      hierarchy={hierarchy}
-      includedCodes={data.included_codes}
-      isEditable={data.is_editable}
-      metadata={data.metadata}
-      searches={data.searches}
-      searchURL={data.search_url}
-      treeTables={data.tree_tables}
-      updateURL={data.update_url}
-      versions={data.versions}
-      visiblePaths={visiblePaths}
-    />,
-  );
+  renderCodelistBuilder(data, hierarchy, visiblePaths);
 
   checkSummary();
   checkStatus();
@@ -212,4 +200,248 @@ it("does the right thing when clicking around", async () => {
 
   checkSummary();
   checkStatus();
+});
+
+describe("Metadata Editing", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    // Mock fetch to return updated metadata
+    global.fetch = vi.fn().mockImplementation((_url, config) =>
+      Promise.resolve({
+        json: () =>
+          Promise.resolve({
+            metadata: {
+              description: {
+                text:
+                  JSON.parse(config.body).description || "Initial description",
+                html: `<p>${JSON.parse(config.body).description || "Initial description"}</p>`,
+              },
+              methodology: {
+                text:
+                  JSON.parse(config.body).methodology || "Initial methodology",
+                html: `<p>${JSON.parse(config.body).methodology || "Initial methodology"}</p>`,
+              },
+              references: JSON.parse(config.body).references || [],
+            },
+          }),
+      }),
+    );
+  });
+
+  const setupMetadataTest = () => {
+    const data = {
+      ...versionWithNoSearchesData,
+      metadata: {
+        ...versionWithNoSearchesData.metadata,
+        description: {
+          text: "Initial description",
+          html: "<p>Initial description</p>",
+          isEditing: false,
+        },
+        methodology: {
+          text: "Initial methodology",
+          html: "<p>Initial methodology</p>",
+          isEditing: false,
+        },
+        references: [{ text: "Initial reference", url: "http://example.com" }],
+      },
+    };
+
+    return { data };
+  };
+
+  it("handles description field editing with keyboard shortcuts", async () => {
+    const { data } = setupMetadataTest();
+
+    renderCodelistBuilder(data);
+
+    // Switch to metadata tab
+    const metadataTab = document.querySelector(
+      '[role="tab"][data-rb-event-key="metadata"]',
+    );
+    await userEvent.click(metadataTab);
+
+    // Click edit button
+    const editButton = document.querySelector(
+      'button[title="Edit description"]',
+    );
+    await userEvent.click(editButton);
+
+    // Find textarea
+    const textarea = document.querySelector("textarea#description");
+    expect(textarea).toBeInTheDocument();
+    expect(textarea).toHaveValue("Initial description");
+
+    // Type new content
+    await userEvent.clear(textarea);
+    await userEvent.type(textarea, "Updated description");
+
+    // Save
+    const saveButton = document.querySelector(
+      'button[title="Save description"]',
+    );
+    await userEvent.click(saveButton);
+
+    // Wait for API call and state update
+    await vi.waitFor(() => {
+      expect(fetch).toHaveBeenCalledWith(
+        data.update_url,
+        expect.objectContaining({
+          method: "POST",
+          body: expect.stringContaining('"description":"Updated description"'),
+        }),
+      );
+    });
+
+    // Verify textarea is no longer visible and content is updated
+    expect(textarea).not.toBeInTheDocument();
+    const displayedContent = document.querySelector(".description .markdown");
+    expect(displayedContent).toHaveTextContent("Updated description");
+  });
+
+  it("handles methodology field editing with keyboard shortcuts", async () => {
+    const { data, visiblePaths, hierarchy } = setupMetadataTest();
+
+    renderCodelistBuilder(data, hierarchy, visiblePaths);
+
+    // Switch to metadata tab
+    const metadataTab = document.querySelector(
+      '[role="tab"][data-rb-event-key="metadata"]',
+    );
+    await userEvent.click(metadataTab);
+
+    // Click edit button
+    const editButton = document.querySelector(
+      'button[title="Edit methodology"]',
+    );
+    await userEvent.click(editButton);
+
+    // Find textarea
+    const textarea = document.querySelector("textarea#methodology");
+    expect(textarea).toBeInTheDocument();
+    expect(textarea).toHaveValue("Initial methodology");
+
+    // Type new content
+    await userEvent.clear(textarea);
+    await userEvent.type(textarea, "Updated methodology");
+
+    // Cancel
+    const cancelButton = document.querySelector(
+      'button[title="Cancel methodology edit"]',
+    );
+    await userEvent.click(cancelButton);
+
+    // Wait to ensure no API call was made
+    await vi.waitFor(() => {
+      expect(fetch).not.toHaveBeenCalled();
+    });
+
+    // Verify content remains unchanged
+    const methodologyText = document.querySelector(".methodology .markdown");
+    expect(methodologyText).toHaveTextContent("Initial methodology");
+
+    // Verify edit mode is exited
+    expect(textarea).not.toBeInTheDocument();
+  });
+
+  it("handles reference management", async () => {
+    // helper for finding and clicking a button based on its text
+    const clickButton = async (buttonText) => {
+      const button = document.evaluate(
+        `//button[text()='${buttonText}']`,
+        document,
+        null,
+        XPathResult.FIRST_ORDERED_NODE_TYPE,
+        null,
+      ).singleNodeValue;
+      await userEvent.click(button);
+    };
+
+    // helper for finding and entering text in an input field based on its placeholder
+    const enterText = async (placeholder, text) => {
+      const input = document.querySelector(
+        `input[placeholder="${placeholder}"]`,
+      );
+      if (!input) {
+        throw new Error(`Input with placeholder '${placeholder}' not found`);
+      }
+      await userEvent.clear(input);
+      await userEvent.type(input, text);
+    };
+
+    const { data, visiblePaths, hierarchy } = setupMetadataTest();
+
+    renderCodelistBuilder(data, hierarchy, visiblePaths);
+
+    // Switch to metadata tab
+    const metadataTab = document.querySelector(
+      '[role="tab"][data-rb-event-key="metadata"]',
+    );
+    await userEvent.click(metadataTab);
+
+    // Verify initial reference is displayed
+    const referenceLink = document.querySelector(
+      'a[href="http://example.com"]',
+    );
+    expect(referenceLink).toBeInTheDocument();
+    expect(referenceLink).toHaveTextContent("Initial reference");
+
+    await clickButton("Add another reference");
+
+    // Fill in new reference form
+    await enterText("Text to display", "New reference");
+    await enterText("URL to link to", "http://example.org");
+
+    // First let's test cancel
+    await clickButton("Cancel");
+
+    // inputs should not be visible
+    await expect(
+      enterText("Text to display", "New reference"),
+    ).rejects.toThrowError(
+      "Input with placeholder 'Text to display' not found",
+    );
+    await expect(
+      enterText("URL to link to", "http://example.org"),
+    ).rejects.toThrowError("Input with placeholder 'URL to link to' not found");
+
+    await clickButton("Add another reference");
+
+    // Fill in new reference form
+    await enterText("Text to display", "New reference");
+    await enterText("URL to link to", "http://example.org");
+
+    // Save reference
+    await clickButton("Save");
+
+    // Wait for API call and state update
+    await vi.waitFor(() => {
+      expect(fetch).toHaveBeenCalledWith(
+        data.update_url,
+        expect.objectContaining({
+          method: "POST",
+          body: expect.stringContaining(
+            '"references":[{"text":"Initial reference","url":"http://example.com"},{"text":"New reference","url":"http://example.org"}]',
+          ),
+        }),
+      );
+    });
+
+    // Verify reference is added to the UI
+    const newReferenceLink = document.querySelector(
+      'a[href="http://example.org"]',
+    );
+    expect(newReferenceLink).toBeInTheDocument();
+    expect(newReferenceLink).toHaveTextContent("New reference");
+
+    // Verify form is reset and that inputs are not be visible
+    await expect(
+      enterText("Text to display", "New reference"),
+    ).rejects.toThrowError(
+      "Input with placeholder 'Text to display' not found",
+    );
+    await expect(
+      enterText("URL to link to", "http://example.org"),
+    ).rejects.toThrowError("Input with placeholder 'URL to link to' not found");
+  });
 });

@@ -56,6 +56,7 @@ function ReferenceForm({
           ref={textInputRef}
           type="text"
           defaultValue={reference.text}
+          placeholder="Text to display"
         />
       </Form.Group>
       <Form.Group className="mb-3">
@@ -64,6 +65,7 @@ function ReferenceForm({
           ref={urlInputRef}
           type="url"
           defaultValue={reference.url}
+          placeholder="URL to link to"
         />
       </Form.Group>
       <div className="mt-2 d-flex flex-row justify-content-end">
@@ -447,7 +449,7 @@ export default class CodelistBuilder extends React.Component<
     const draftContent = this.state.metadata[field].text;
 
     return (
-      <Form.Group className="card" controlId={field}>
+      <Form.Group className={`card ${field}`} controlId={field}>
         <div className="card-body">
           <div className="card-title d-flex flex-row justify-content-between align-items-center">
             <Form.Label className="h5" as="h3">
@@ -459,6 +461,7 @@ export default class CodelistBuilder extends React.Component<
                   type="button"
                   className="btn btn-primary btn-sm"
                   onClick={() => this.handleSave(field)}
+                  title={`Save ${field}`}
                 >
                   Save
                 </button>
@@ -466,6 +469,7 @@ export default class CodelistBuilder extends React.Component<
                   type="button"
                   className="btn btn-secondary btn-sm ml-2"
                   onClick={() => this.handleCancel(field)}
+                  title={`Cancel ${field} edit`}
                 >
                   Cancel
                 </button>

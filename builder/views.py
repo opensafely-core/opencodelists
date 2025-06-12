@@ -240,7 +240,7 @@ def new_search(request, draft):
     # Ensure that the term is not an empty string after slugifying
     # (e.g. if the user entered "*" as a search term)
     if not slugify(term):
-        messages.info(request, f'"{term}" is not a valid search term')
+        messages.error(request, f'"{term}" is not a valid search term')
         return redirect(draft.get_builder_draft_url())
     if search_type == "code":
         code = term

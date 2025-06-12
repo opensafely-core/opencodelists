@@ -14,8 +14,10 @@ export default function SearchForm({
 }: SearchFormProps) {
   // NB, if you change the max search length, remember to change it on
   // the server side as well in the models.py file
-  const MAX_SEARCH_LENGTH = 255; // (codelists/models.py - Search - term)
-  const MAX_CODE_LENGTH = 18; // (codelists/models.py - Search - code)
+  const MIN_TERM_LENGTH = 3; // (codelists/models.py - Search - term, MinLengthValidator)
+  const MAX_TERM_LENGTH = 255; // (codelists/models.py - Search - term, max_length)
+  const MIN_CODE_LENGTH = 1; // (codelists/models.py - Search - code, MinLengthValidator)
+  const MAX_CODE_LENGTH = 18; // (codelists/models.py - Search - code, max_length)
 
   type SearchOptionKeys = "term" | "code";
   const SEARCH_OPTIONS: {
@@ -23,23 +25,26 @@ export default function SearchForm({
       label: string;
       value: K;
       placeholder: string;
+      minLength: number;
       maxLength: number;
-      validationMsg: string;
+      validationMaxLengthMsg: string;
     };
   } = {
     term: {
       label: "Term",
       value: "term",
       placeholder: "Enter a search term…",
-      maxLength: MAX_SEARCH_LENGTH,
-      validationMsg: `Your search term has reached the maximum length of ${MAX_SEARCH_LENGTH} characters`,
+      minLength: MIN_TERM_LENGTH,
+      maxLength: MAX_TERM_LENGTH,
+      validationMaxLengthMsg: `Your search term has reached the maximum length of ${MAX_TERM_LENGTH} characters`,
     },
     code: {
       label: "Code",
       value: "code",
       placeholder: "Enter a clinical code…",
+      minLength: MIN_CODE_LENGTH,
       maxLength: MAX_CODE_LENGTH,
-      validationMsg: `Your clinical code has reached the maximum length of ${MAX_CODE_LENGTH} characters`,
+      validationMaxLengthMsg: `Your clinical code has reached the maximum length of ${MAX_CODE_LENGTH} characters`,
     },
   };
   const [searchTerm, setSearchTerm] = useState("");
@@ -102,10 +107,12 @@ export default function SearchForm({
                 type="search"
                 value={searchTerm}
                 onInput={handleSearchChange}
+                minLength={SEARCH_OPTIONS[searchType].minLength}
                 maxLength={SEARCH_OPTIONS[searchType].maxLength}
                 isInvalid={
                   searchTerm.length >= SEARCH_OPTIONS[searchType].maxLength
                 }
+                required
               />
               <InputGroup.Append>
                 <Button name="field" type="submit" variant="primary">
@@ -114,7 +121,7 @@ export default function SearchForm({
               </InputGroup.Append>
               {searchTerm.length >= SEARCH_OPTIONS[searchType].maxLength && (
                 <Form.Control.Feedback type="invalid">
-                  {SEARCH_OPTIONS[searchType].validationMsg}
+                  {SEARCH_OPTIONS[searchType].validationMaxLengthMsg}
                 </Form.Control.Feedback>
               )}
             </InputGroup>

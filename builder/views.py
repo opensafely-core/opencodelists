@@ -162,6 +162,7 @@ def _draft(request, draft, search_id):
             "url": v.get_absolute_url(),
             "status": v.status,
             "current": v == draft,
+            "created_at": v.created_at,
         }
         for v in codelist.visible_versions(request.user)
     ]

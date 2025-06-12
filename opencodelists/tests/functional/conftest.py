@@ -55,7 +55,7 @@ def non_organisation_user_cookies(client, non_organisation_test_user, live_serve
 
 @pytest.fixture
 def non_organisation_login_context(browser, non_organisation_user_cookies):
-    context = browser.new_context()
+    context = browser.new_context(locale="en-GB")
     context.add_cookies([non_organisation_user_cookies])
     return context
 
@@ -87,6 +87,6 @@ def organisation_user_cookies(client, organisation_test_user, live_server):
 
 @pytest.fixture
 def organisation_login_context(browser, organisation_user_cookies):
-    context = browser.new_context()
+    context = browser.new_context(locale="en-GB")
     context.add_cookies([organisation_user_cookies])
     return context

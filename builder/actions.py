@@ -29,17 +29,15 @@ def create_search_slug(term: str, code: str) -> str:
 
 def get_codes_to_keep(codeset_version, potential_codes):
     """
-    Identifies which codes, out of a list of potential codes, should be kept when deleting a search.
+    Identifies which codes, out of a list of potential codes, should be kept when tidying up.
     Returns codes that are:
     1. Explicitly included in the codelist
     2. Descendants of included codes
-    3. Have ancestors that are included
     """
     # Get all explicitly included codes on the codelist
     all_included_codes = codeset_version.codeset.codes()
 
-    # Build a list of codes_to_keep from this search, consisting of any included codes, their descendants,
-    # and any codes with ancestor that is included
+    # Build a list of codes_to_keep from this search, consisting of any included codes or their descendants
     hierarchy = codeset_version.hierarchy
     codes_to_keep = []
     for code_obj in potential_codes:
@@ -117,6 +115,18 @@ def update_code_statuses(*, draft, updates):
 
     for status, codes in status_to_new_code.items():
         draft.code_objs.filter(code__in=codes).update(status=status)
+
+    # It's possible that a user has just unselected, or excluded, an "orphaned" code i.e.
+    # one that was included (implicitly or explicitly) from a now deleted search. If we
+    # don't remove those codes, then you get into the situation where the only way to remove
+    # them is to explicitly include/exclude them - or redo the search that found them, return
+    # them to unresolved, and then delete the search.
+    # This finds all orphaned codes that aren't explicitly included, and deletes them unless
+    # we need to keep them because they have an included ancestor
+    orphaned_codes = draft.code_objs.filter(results=None).exclude(status="+")
+    codes_to_keep = get_codes_to_keep(draft, orphaned_codes)
+
+    orphaned_codes.exclude(code__in=codes_to_keep).delete()
 
     logger.info("Updated code statuses", draft_pk=draft.pk)
 

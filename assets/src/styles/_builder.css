@@ -36,3 +36,7 @@
   color: transparent;
   pointer-events: none;
 }
+
+.builder__markdown p:last-child {
+  margin-bottom: 0;
+}

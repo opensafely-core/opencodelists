@@ -514,9 +514,8 @@ export default class CodelistBuilder extends React.Component<
             </>
           ) : (
             <>
-              <style>{` .markdown p:last-child { margin-bottom: 0; } `}</style>
               <div
-                className="markdown"
+                className="builder__markdown"
                 dangerouslySetInnerHTML={{
                   __html:
                     htmlContent ||

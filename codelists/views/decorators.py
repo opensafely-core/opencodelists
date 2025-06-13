@@ -1,5 +1,6 @@
 from functools import wraps
 
+from django.db import OperationalError
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect
 
@@ -61,16 +62,33 @@ def load_version(view_fn):
         codelist = _load_codelist_or_404(owner, codelist_slug)
         version = _load_version_or_404(codelist, tag_or_hash)
 
-        if version.is_draft:
-            return redirect(version.get_builder_draft_url())
-        else:
-            if version.pk and (
-                not hasattr(version, "cached_hierarchy")
-                or (version.has_hierarchy and version.hierarchy.dirty)
-            ):
-                cache_hierarchy(version=version)
-            rsp = view_fn(request, version, **view_kwargs)
-            return rsp
+        try:
+            if version.is_draft:
+                return redirect(version.get_builder_draft_url())
+            else:
+                if version.pk and (
+                    not hasattr(version, "cached_hierarchy")
+                    or (version.has_hierarchy and version.hierarchy.dirty)
+                ):
+                    cache_hierarchy(version=version)
+                rsp = view_fn(request, version, **view_kwargs)
+                return rsp
+        except OperationalError as e:
+            # In dev mode if you try and view a codelist from a coding_system release
+            # that is not available locally, you get an unhelpful message like:
+            # "no such table: dmd_amp".
+            # This intercepts those messages, and adds a helpful message telling you
+            # which database is likely missing.
+            if "no such table" in str(e):
+                missing_db = f"{version.coding_system.database_alias}.sqlite3"
+                missing_db_dir = f"coding_systems/{version.coding_system.id}/"
+                raise type(e)(
+                    f"{str(e)}\n\n"
+                    f"If this is development then you may be missing the following sqlite database:\n\n"
+                    f"- {missing_db_dir}{missing_db}\n\n"
+                    f'NB the "missing" database will likely appear under {missing_db_dir} but if so it\'s probably empty and needs replacing with the real version copied from production.'
+                ) from e
+            raise
 
     return wrapped_view
 

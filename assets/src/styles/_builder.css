@@ -36,3 +36,76 @@
   color: transparent;
   pointer-events: none;
 }
+
+.builder__section {
+  border: 1px solid #ddd;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  margin-bottom: 1.5rem;
+  overflow: auto;
+
+  .builder__section-header {
+    align-items: center;
+    column-gap: 1rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  dl {
+    display: flex;
+    flex-direction: row;
+    column-gap: 1rem;
+    font-size: 90%;
+    margin: 0 0 .25rem 0;
+    padding: 0 0 0.75rem;
+    border-bottom: 1px solid #ddd;
+
+    div {
+      display: flex;
+      flex-direction: row;
+      column-gap: 0.25rem;
+    }
+
+    dd {
+      margin: 0;
+    }
+  }
+}
+
+.modal-90w {
+  width: 90%;
+  max-width: none !important;
+}
+
+.modal-foooter {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  justify-content: center;
+
+  .form-check {
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+    font-size: 110%;
+    margin-left: 0.5rem;
+    line-height: 1.2;
+
+    input {
+      transform: scale(1.5);
+    }
+
+    label {
+      margin-left: 0.5rem;
+    }
+  }
+
+  .modal-buttons {
+    display: flex;
+    flex-direction: row;
+    column-gap: 1rem;
+    margin-top: 1rem;
+  }
+}

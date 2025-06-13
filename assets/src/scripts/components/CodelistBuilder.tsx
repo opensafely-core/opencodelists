@@ -137,7 +137,7 @@ function ReferenceList({ references, onSave }: ReferenceListProps) {
       <div className="card-body">
         <h3 className="h5 card-title">References</h3>
         <hr />
-        <p style={{ fontStyle: "italic" }}>
+        <p className="font-italic">
           Sometimes it's useful to provide links, for example links to
           algorithms, methodologies or papers that are relevant to this
           codelist. They can be added here:

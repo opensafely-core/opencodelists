@@ -27,6 +27,29 @@ def create_search_slug(term: str, code: str) -> str:
     return slug
 
 
+def get_codes_to_keep(codeset_version, potential_codes):
+    """
+    Identifies which codes, out of a list of potential codes, should be kept when deleting a search.
+    Returns codes that are:
+    1. Explicitly included in the codelist
+    2. Descendants of included codes
+    3. Have ancestors that are included
+    """
+    # Get all explicitly included codes on the codelist
+    all_included_codes = codeset_version.codeset.codes()
+
+    # Build a list of codes_to_keep from this search, consisting of any included codes, their descendants,
+    # and any codes with ancestor that is included
+    hierarchy = codeset_version.hierarchy
+    codes_to_keep = []
+    for code_obj in potential_codes:
+        ancestors = hierarchy.ancestors(code_obj.code)
+        ancestors_in_included = ancestors & all_included_codes
+        if ancestors_in_included or code_obj.code in all_included_codes:
+            codes_to_keep.append(code_obj.code)
+    return codes_to_keep
+
+
 @transaction.atomic
 def create_search(*, draft, term=None, code=None, codes):
     slug = create_search_slug(term, code)
@@ -73,20 +96,7 @@ def delete_search(*, search):
     search_only_code_objs = search.version.code_objs.annotate(
         num_results=Count("results")
     ).filter(results__search=search, num_results=1)
-    # Get all explicitly included codes on the codelist
-    all_included_codes = search.version.codeset.codes()
-
-    # Build a set of codes_to_keep from this search, consisting of any included codes, their descendants,
-    # and any codes with ancestor that is included
-    hierarchy = search.version.hierarchy
-    codes_to_keep = set()
-
-    codes_to_keep = []
-    for code_obj in search_only_code_objs:
-        ancestors = hierarchy.ancestors(code_obj.code)
-        ancestors_in_included = ancestors & all_included_codes
-        if ancestors_in_included or code_obj.code in all_included_codes:
-            codes_to_keep.append(code_obj.code)
+    codes_to_keep = get_codes_to_keep(search.version, search_only_code_objs)
 
     # Delete any code objs that belong to this search only, and are not in the codes_to_keep set
     search_only_code_objs.exclude(code__in=codes_to_keep).delete()

@@ -202,7 +202,7 @@ def test_delete_search_codelist_with_codes(version_with_no_searches):
     """
                         + 128133004 Disorder of elbow
                                         |
-         --------------- --------------- ----------------------- -------------------
+         --------------- --------------- -----------------------           Inactive (hence orphaned) code
         |                               |                       |                   |
     + 429554009                     + 35185008              + 239964003           + 156659008
     Arthropathy of elbow          Enthesopathy of       Soft tissue lesion     (Epicondylitis &/or tennis elbow)
@@ -318,34 +318,64 @@ def test_delete_search_codelist_with_codes(version_with_no_searches):
     assert draft.code_objs.count() == len(codelist_codes)
 
 
-def test_update_code_statuses(draft_with_no_searches):
-    draft = draft_with_no_searches
-    # Double check that codes and statuses are as expected
-    assert dict(draft.code_objs.values_list("code", "status")) == {
-        "128133004": "+",  # Disorder of elbow
-        "429554009": "(+)",  # Arthropathy of elbow
-        "35185008": "(+)",  # Enthesopathy of elbow region
-        "73583000": "(+)",  # Epicondylitis
-        "239964003": "(+)",  # Soft tissue lesion of elbow region
-        "439656005": "-",  # Arthritis of elbow
-        "202855006": "(-)",  # Lateral epicondylitis
-        "156659008": "+",  # (Epicondylitis &/or ...
+def test_update_code_statuses(draft_with_complete_searches):
+    draft = draft_with_complete_searches
+    codes_that_dont_change = {
+        "3723001": "-",
+        "238484001": "-",
+        "298869002": "(-)",
+        "116309007": "-",
+        "298163003": "(-)",
     }
+    # Double check that codes and statuses are as expected
+    assert (
+        dict(draft.code_objs.values_list("code", "status"))
+        == {
+            "128133004": "+",  # Disorder of elbow
+            "429554009": "(+)",  # Arthropathy of elbow
+            "35185008": "(+)",  # Enthesopathy of elbow region
+            "73583000": "(+)",  # Epicondylitis
+            "239964003": "(+)",  # Soft tissue lesion of elbow region
+            "439656005": "+",  # Arthritis of elbow
+            "202855006": "(+)",  # Lateral epicondylitis
+            "156659008": "+",  # (Epicondylitis &/or ...
+        }
+        | codes_that_dont_change
+    )
+    actions.update_code_statuses(draft=draft, updates=[("439656005", "-")])
+    assert (
+        dict(draft.code_objs.values_list("code", "status"))
+        == {
+            "128133004": "+",  # Disorder of elbow
+            "429554009": "(+)",  # Arthropathy of elbow
+            "35185008": "(+)",  # Enthesopathy of elbow region
+            "73583000": "(+)",  # Epicondylitis
+            "239964003": "(+)",  # Soft tissue lesion of elbow region
+            "439656005": "-",  # Arthritis of elbow
+            "202855006": "(-)",  # Lateral epicondylitis
+            "156659008": "+",  # (Epicondylitis &/or ...
+        }
+        | codes_that_dont_change
+    )
 
     # Act: process single update from the client
     actions.update_code_statuses(draft=draft, updates=[("156659008", "?")])
 
     # Assert that results have the expected status
-    assert dict(draft.code_objs.values_list("code", "status")) == {
-        "128133004": "+",  # Disorder of elbow
-        "429554009": "(+)",  # Arthropathy of elbow
-        "35185008": "(+)",  # Enthesopathy of elbow region
-        "73583000": "(+)",  # Epicondylitis
-        "239964003": "(+)",  # Soft tissue lesion of elbow region
-        "439656005": "-",  # Arthritis of elbow
-        "202855006": "(-)",  # Lateral epicondylitis
-        "156659008": "?",  # (Epicondylitis &/or ...
-    }
+    assert (
+        dict(draft.code_objs.values_list("code", "status"))
+        == {
+            "128133004": "+",  # Disorder of elbow
+            "429554009": "(+)",  # Arthropathy of elbow
+            "35185008": "(+)",  # Enthesopathy of elbow region
+            "73583000": "(+)",  # Epicondylitis
+            "239964003": "(+)",  # Soft tissue lesion of elbow region
+            "439656005": "-",  # Arthritis of elbow
+            "202855006": "(-)",  # Lateral epicondylitis
+            "156659008": "?",  # (Epicondylitis &/or ...
+        }
+        | codes_that_dont_change
+    )
 
     # Act: process multiple updates from the client
     actions.update_code_statuses(
@@ -363,6 +393,11 @@ def test_update_code_statuses(draft_with_no_searches):
         "439656005": "(-)",  # Arthritis of elbow
         "202855006": "(-)",  # Lateral epicondylitis
         "156659008": "-",  # (Epicondylitis &/or ...
+        "3723001": "-",
+        "238484001": "-",
+        "298869002": "(-)",
+        "116309007": "-",
+        "298163003": "(-)",
     }
 
 

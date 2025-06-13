@@ -10,8 +10,10 @@ from django.urls import reverse
 from django.utils.text import slugify
 from django.views.decorators.http import require_http_methods
 
+from codelists.actions import update_codelist
 from codelists.models import Search
 from codelists.search import do_search
+from opencodelists.templatetags.markdown_filter import render_markdown
 
 from . import actions
 from .decorators import load_draft, require_permission
@@ -189,6 +191,17 @@ def _draft(request, draft, search_id):
         "codelist_full_slug": codelist.full_slug(),
         "hash": draft.hash,
         "codelist_name": codelist.name,
+        "description": {
+            "text": codelist.description,
+            "html": render_markdown(codelist.description),
+        },
+        "methodology": {
+            "text": codelist.methodology,
+            "html": render_markdown(codelist.methodology),
+        },
+        "references": [
+            {"text": r.text, "url": r.url} for r in codelist.references.all()
+        ],
     }
 
     ctx = {
@@ -226,9 +239,54 @@ def _draft(request, draft, search_id):
 @load_draft
 @require_permission
 def update(request, draft):
-    updates = json.loads(request.body)["updates"]
-    actions.update_code_statuses(draft=draft, updates=updates)
-    return JsonResponse({"updates": updates})
+    json_body = json.loads(request.body)
+
+    # If the status of any codes (include/exclude) has changed then
+    # this is passed in the "updates" field
+    updates = []
+    if "updates" in json_body:
+        updates = json.loads(request.body)["updates"]
+        actions.update_code_statuses(draft=draft, updates=updates)
+
+    # It's also possible to update the description and methodology of
+    # the codelist metadata.
+    updated_fields = {
+        "owner": draft.codelist.owner,
+        "name": draft.codelist.name,
+        "slug": draft.codelist.slug,
+        "description": draft.codelist.description,
+        "methodology": draft.codelist.methodology,
+        "references": [
+            {"url": reference.url, "text": reference.text}
+            for reference in draft.codelist.references.all()
+        ],
+        "signoffs": [
+            {"user": signoff.user, "date": signoff.date}
+            for signoff in draft.codelist.signoffs.all()
+        ],
+    }
+    metadata_updated = False
+    for field in ["description", "methodology", "references"]:
+        if field in json_body:
+            updated_fields[field] = json_body[field]
+            metadata_updated = True
+
+    response = {"updates": updates}
+    if metadata_updated:
+        update_codelist(codelist=draft.codelist, **updated_fields)
+        response["metadata"] = {
+            "description": {
+                "text": updated_fields["description"],
+                "html": render_markdown(updated_fields["description"]),
+            },
+            "methodology": {
+                "text": updated_fields["methodology"],
+                "html": render_markdown(updated_fields["methodology"]),
+            },
+            "references": updated_fields["references"],
+        }
+
+    return JsonResponse(response)
 
 
 @login_required

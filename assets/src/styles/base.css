@@ -124,3 +124,7 @@ a:focus {
   flex-direction: row;
   column-gap: 0.5rem;
 }
+
+.max-w-80ch {
+  max-width: 80ch;
+}

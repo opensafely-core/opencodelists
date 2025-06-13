@@ -521,6 +521,15 @@
     },
     "organisation_name": "Test University",
     "codelist_full_slug": "test-university/new-style-codelist",
-    "hash": "55f95977"
+    "hash": "55f95977",
+    "description":{
+      "text": "",
+      "html": ""
+    },
+    "methodology":{
+      "text": "",
+      "html": ""
+    },
+    "references": []
   }
 }

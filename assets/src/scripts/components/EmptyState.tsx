@@ -2,7 +2,7 @@ import React from "react";
 
 export default function EmptyState() {
   return (
-    <section style={{ maxWidth: "80ch" }}>
+    <section className="max-w-80ch">
       <h2>Create a codelist</h2>
       <p className="lead">
         Search for medical terms or codes to find matching concepts. Then select

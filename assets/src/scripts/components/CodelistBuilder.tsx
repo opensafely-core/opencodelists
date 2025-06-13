@@ -610,7 +610,7 @@ export default class CodelistBuilder extends React.Component<
                   title="Metadata"
                   style={{ maxWidth: "80ch" }}
                 >
-                  <p style={{ fontStyle: "italic" }}>
+                  <p className="font-italic">
                     Users have found it helpful to record their decision
                     strategy as they build their codelist. Text added here will
                     be ready for you to edit before you publish the codelist.

@@ -607,7 +607,7 @@ export default class CodelistBuilder extends React.Component<
                 <Tab
                   eventKey="metadata"
                   title="Metadata"
-                  style={{ maxWidth: "80ch" }}
+                  className="max-w-80ch"
                 >
                   <p className="font-italic">
                     Users have found it helpful to record their decision

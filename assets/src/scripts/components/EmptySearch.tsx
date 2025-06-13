@@ -2,7 +2,7 @@ import React from "react";
 
 export default function EmptyState() {
   return (
-    <section style={{ maxWidth: "80ch" }}>
+    <section className="max-w-80ch">
       <p className="lead">Your search returned no concepts. You may want to:</p>
       <ol>
         <li>Check your spelling</li>

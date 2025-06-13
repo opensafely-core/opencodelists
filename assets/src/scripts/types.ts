@@ -49,3 +49,8 @@ export interface PageData {
   versions: VersionT[];
   visiblePaths: VisiblePaths;
 }
+
+export interface Reference {
+  text: string;
+  url: string;
+}

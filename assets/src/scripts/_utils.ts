@@ -21,3 +21,27 @@ export function readValueFromPage(id: string) {
     return JSON.parse(scriptId.textContent);
   }
 }
+
+/**
+ * Creates a fetch options object with standard headers including CSRF token
+ * @param body - Object to be sent as JSON in the request body
+ * @returns Fetch options object configured for POST requests
+ */
+export function getFetchOptions(body: object) {
+  const requestHeaders = new Headers();
+  requestHeaders.append("Accept", "application/json");
+  requestHeaders.append("Content-Type", "application/json");
+
+  const csrfCookie = getCookie("csrftoken");
+  if (csrfCookie) {
+    requestHeaders.append("X-CSRFToken", csrfCookie);
+  }
+  const fetchOptions = {
+    method: "POST",
+    credentials: "include" as RequestCredentials,
+    mode: "same-origin" as RequestMode,
+    headers: requestHeaders,
+    body: JSON.stringify(body),
+  };
+  return fetchOptions;
+}

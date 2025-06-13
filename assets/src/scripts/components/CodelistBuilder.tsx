@@ -1,7 +1,7 @@
 import React from "react";
 import { Col, Form, Row, Tab, Tabs } from "react-bootstrap";
 import Hierarchy from "../_hierarchy";
-import { getCookie } from "../_utils";
+import { getCookie, getFetchOptions } from "../_utils";
 import { Code, PageData, Reference, Status } from "../types";
 import EmptySearch from "./EmptySearch";
 import EmptyState from "./EmptyState";
@@ -14,6 +14,7 @@ import Title from "./Title";
 import TreeTables from "./TreeTables";
 import ReferenceList from "./UserMetadata/ReferenceList";
 import Versions from "./Versions";
+import MetadataTab from "./UserMetadata/MetadataTab";
 
 type MetadataFieldName = "description" | "methodology";
 interface MetadataField {
@@ -39,30 +40,6 @@ interface CodelistBuilderProps extends PageData {
     hash: string;
     codelist_name: string;
   };
-}
-
-/**
- * Creates a fetch options object with standard headers including CSRF token
- * @param body - Object to be sent as JSON in the request body
- * @returns Fetch options object configured for POST requests
- */
-function getFetchOptions(body: object) {
-  const requestHeaders = new Headers();
-  requestHeaders.append("Accept", "application/json");
-  requestHeaders.append("Content-Type", "application/json");
-
-  const csrfCookie = getCookie("csrftoken");
-  if (csrfCookie) {
-    requestHeaders.append("X-CSRFToken", csrfCookie);
-  }
-  const fetchOptions = {
-    method: "POST",
-    credentials: "include" as RequestCredentials,
-    mode: "same-origin" as RequestMode,
-    headers: requestHeaders,
-    body: JSON.stringify(body),
-  };
-  return fetchOptions;
 }
 
 export default class CodelistBuilder extends React.Component<
@@ -186,170 +163,6 @@ export default class CodelistBuilder extends React.Component<
     }, counts);
   }
 
-  handleEdit = (field: MetadataFieldName) => {
-    this.setState(
-      (prevState) => ({
-        metadata: {
-          ...prevState.metadata,
-          [field]: {
-            ...prevState.metadata[field],
-            isEditing: true,
-          },
-        },
-      }),
-      () => {
-        // Auto-focus the textarea after clicking edit
-        setTimeout(() => {
-          this.textareaRefs[field].current?.focus();
-        }, 0);
-      },
-    );
-  };
-
-  handleCancel = (field: MetadataFieldName) => {
-    this.setState((prevState) => ({
-      metadata: {
-        ...prevState.metadata,
-        [field]: {
-          ...prevState.metadata[field],
-          isEditing: false,
-        },
-      },
-    }));
-  };
-
-  handleSave = async (field: MetadataFieldName) => {
-    const updateBody = {
-      description:
-        field === "description"
-          ? this.textareaRefs[field].current?.value
-          : this.state.metadata.description.text,
-      methodology:
-        field === "methodology"
-          ? this.textareaRefs[field].current?.value
-          : this.state.metadata.methodology.text,
-    };
-
-    const fetchOptions = getFetchOptions(updateBody);
-
-    try {
-      fetch(this.props.updateURL, fetchOptions)
-        .then((response) => response.json())
-        .then((data) => {
-          // We rely on the backend rendering the html from the updated markdown
-          // so we need to update the state here with the response from the server
-          this.setState(() => ({ metadata: data.metadata }));
-        });
-    } catch (error) {
-      console.error(`Failed to save ${field}:`, error);
-    }
-  };
-
-  // Add save handler:
-  handleSaveReferences = async (
-    newReferences: Array<{ text: string; url: string }>,
-  ) => {
-    const fetchOptions = getFetchOptions({ references: newReferences });
-
-    try {
-      await fetch(this.props.updateURL, fetchOptions);
-
-      this.setState({
-        metadata: { ...this.state.metadata, references: newReferences },
-      });
-    } catch (error) {
-      console.error("Failed to save references:", error);
-    }
-  };
-
-  renderMetadataField = (field: MetadataFieldName) => {
-    const label = field.charAt(0).toUpperCase() + field.slice(1);
-    const htmlContent = this.state.metadata[field].html;
-    const isEditing = this.state.metadata[field].isEditing;
-    const draftContent = this.state.metadata[field].text;
-
-    return (
-      <Form.Group className={`card ${field}`} controlId={field}>
-        <div className="card-body">
-          <div className="card-title d-flex flex-row justify-content-between align-items-center">
-            <Form.Label className="h5" as="h3">
-              {label}
-            </Form.Label>
-            {isEditing ? (
-              <div>
-                <button
-                  type="button"
-                  className="btn btn-primary btn-sm"
-                  onClick={() => this.handleSave(field)}
-                  title={`Save ${field}`}
-                >
-                  Save
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-secondary btn-sm ml-2"
-                  onClick={() => this.handleCancel(field)}
-                  title={`Cancel ${field} edit`}
-                >
-                  Cancel
-                </button>
-              </div>
-            ) : (
-              <button
-                type="button"
-                className="btn btn-sm btn-warning"
-                onClick={() => this.handleEdit(field)}
-                title={`Edit ${field}`}
-              >
-                Edit
-              </button>
-            )}
-          </div>
-          <hr />
-          {isEditing ? (
-            <>
-              <Form.Control
-                ref={this.textareaRefs[field]}
-                as="textarea"
-                rows={5}
-                defaultValue={draftContent}
-                onFocus={() => this.textareaRefs[field].current?.focus()}
-                onKeyDown={(e) => {
-                  // Handle Ctrl+Enter for Save
-                  if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
-                    e.preventDefault();
-                    this.handleSave(field);
-                  }
-                  // Handle Escape for Cancel
-                  if (e.key === "Escape") {
-                    e.preventDefault();
-                    this.handleCancel(field);
-                  }
-                }}
-              />
-              <Form.Text className="text-muted">
-                If you make changes, please remember to click Save (shortcut:
-                CTRL-ENTER) to keep them or Cancel (shortcut: ESC) to discard.
-              </Form.Text>
-            </>
-          ) : (
-            <>
-              <style>{` .markdown p:last-child { margin-bottom: 0; } `}</style>
-              <div
-                className="markdown"
-                dangerouslySetInnerHTML={{
-                  __html:
-                    htmlContent ||
-                    `<em class="text-muted">No ${field} provided yet</em>`,
-                }}
-              />
-            </>
-          )}
-        </div>
-      </Form.Group>
-    );
-  };
-
   render() {
     const {
       allCodes,
@@ -425,24 +238,14 @@ export default class CodelistBuilder extends React.Component<
                     <EmptySearch />
                   )}
                 </Tab>
-                <Tab
-                  eventKey="metadata"
-                  title="Metadata"
-                  style={{ maxWidth: "80ch" }}
-                >
-                  <p style={{ fontStyle: "italic" }}>
-                    Users have found it helpful to record their decision
-                    strategy as they build their codelist. Text added here will
-                    be ready for you to edit before you publish the codelist.
-                  </p>
-                  <Form noValidate>
-                    {this.renderMetadataField("description")}
-                    {this.renderMetadataField("methodology")}
-                    <ReferenceList
-                      references={this.state.metadata.references}
-                      onSave={this.handleSaveReferences}
-                    />
-                  </Form>
+
+                <Tab eventKey="metadata" title="Metadata">
+                  <MetadataTab
+                    metadata={this.state.metadata}
+                    references={this.state.metadata.references}
+                    setState={this.setState}
+                    updateURL={this.props.updateURL}
+                  />
                 </Tab>
               </Tabs>
             </Col>

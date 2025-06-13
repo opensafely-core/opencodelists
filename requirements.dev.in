@@ -12,6 +12,7 @@ pytest-cov
 pytest-django
 pytest-playwright
 responses
+requests>=2.32.4 # mimmum version for security patch
 
 # dev
 litecli

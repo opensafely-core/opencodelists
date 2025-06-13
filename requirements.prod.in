@@ -35,3 +35,4 @@ sqlean.py
 structlog
 tqdm
 slippers
+requests>=2.32.4 # mimmum version for security patch

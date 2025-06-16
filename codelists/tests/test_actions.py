@@ -582,11 +582,12 @@ def test_cannot_convert_non_bnf_codelist_to_dmd(version):
         actions.convert_bnf_codelist_version_to_dmd(version)
 
 
-def test_cannot_create_duplicate_converted_dmd_codelist(
+def test_can_create_duplicate_converted_dmd_codelist(
     bnf_version_asthma, dmd_bnf_mapping_data
 ):
     # convert once to create the new codelist
     actions.convert_bnf_codelist_version_to_dmd(bnf_version_asthma)
     # attempt to convert again
-    with pytest.raises(IntegrityError):
-        actions.convert_bnf_codelist_version_to_dmd(bnf_version_asthma)
+    converted_codelist = actions.convert_bnf_codelist_version_to_dmd(bnf_version_asthma)
+
+    assert converted_codelist.versions.count() == 2

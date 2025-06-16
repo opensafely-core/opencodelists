@@ -66,7 +66,7 @@ class Command(BaseCommand):
                 )
                 created = True
             except IntegrityError as e:
-                assert "UNIQUE constraint failed" in str(e)
+                assert "Version with identical csv_data exists" in str(e)
                 dmd_codelist = Handle.objects.get(
                     slug=f"{version.codelist.slug}-dmd"
                 ).codelist

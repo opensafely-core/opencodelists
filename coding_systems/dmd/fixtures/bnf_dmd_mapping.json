@@ -16,5 +16,14 @@
         "dmd_type": "VMP",
         "bnf_concept": "0301012A0AAACAC"
     }
+},
+{
+    "model": "bnfdmd.mapping",
+    "pk": 2,
+    "fields": {
+        "dmd_code": "35936411000001109",
+        "dmd_type": "VMP",
+        "bnf_concept": "0301011R0AAADAD"
+    }
 }
 ]

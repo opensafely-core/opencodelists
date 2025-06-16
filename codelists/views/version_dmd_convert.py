@@ -18,12 +18,12 @@ def version_dmd_convert(request, version):
     try:
         dmd_codelist = actions.convert_bnf_codelist_version_to_dmd(version=version)
     except IntegrityError as e:
-        assert "UNIQUE constraint failed" in str(e)
+        assert "Version with identical csv_data exists" in str(e)
         dmd_codelist = Handle.objects.get(slug=f"{version.codelist.slug}-dmd").codelist
         messages.info(
             request,
             mark_safe(
-                f"A <a href='{dmd_codelist.get_absolute_url()}'>dm+d version</a> of this codelist already exists"
+                f"An <a href='{dmd_codelist.get_absolute_url()}'>identical dm+d version</a> of this codelist already exists"
             ),
         )
         return redirect(version)

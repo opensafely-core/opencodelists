@@ -9,7 +9,7 @@ urlpatterns = [
     path("<hash>/", views.draft, name="draft"),
     path("<hash>/search/<int:search_id>/<search_slug>/", views.search, name="search"),
     path(
-        "<hash>/search/<search_id>/<search_slug>/delete/",
+        "<hash>/search/<int:search_id>/<search_slug>/delete/",
         views.delete_search,
         name="delete-search",
     ),

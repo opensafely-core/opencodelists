@@ -518,3 +518,15 @@ def test_search_delete_get(client, minimal_draft):
 
     # 405 Method not allowed.
     assert rsp.status_code == 405
+
+
+def test_search_delete_non_int_search_id(client, minimal_draft):
+    """Test that the URL dispatcher can't call the `delete_search` view with a
+    non-integer string as `search_id`."""
+    client.force_login(minimal_draft.author)
+
+    slug = "tennis-toe"
+    search_id = "bad_search_id"
+
+    with pytest.raises(NoReverseMatch):
+        client.post(minimal_draft.get_builder_delete_search_url(search_id, slug))

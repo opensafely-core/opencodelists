@@ -3,13 +3,13 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite",
-    "lint:fix": "npx @biomejs/biome check --write ./assets/src/**/*",
-    "lint": "npx @biomejs/biome check ./assets/src/**/*",
+    "lint:fix": "biome check --write ./assets/src/**/*",
+    "lint": "biome check ./assets/src/**/*",
     "serve": "vite preview",
-    "test": "npx vitest run",
-    "test:watch": "npx vitest",
-    "test:coverage": "npx vitest run --coverage",
-    "test:single": "npx vitest -t",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:single": "vitest -t",
     "typecheck": "tsc -p ./"
   },
   "devDependencies": {

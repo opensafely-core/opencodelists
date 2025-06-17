@@ -3,8 +3,8 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite",
-    "lint:fix": "biome check --write ./assets/src/**/*",
-    "lint": "biome check ./assets/src/**/*",
+    "lint:fix": "npx @biomejs/biome check --write ./assets/src/**/*",
+    "lint": "npx @biomejs/biome check ./assets/src/**/*",
     "serve": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",

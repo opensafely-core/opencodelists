@@ -250,7 +250,7 @@ describe("Metadata Editing", () => {
     return { data };
   };
 
-  it("handles description field editing with keyboard shortcuts", async () => {
+  it("handles description field", async () => {
     const { data } = setupMetadataTest();
 
     renderCodelistBuilder(data);
@@ -295,11 +295,13 @@ describe("Metadata Editing", () => {
 
     // Verify textarea is no longer visible and content is updated
     expect(textarea).not.toBeInTheDocument();
-    const displayedContent = document.querySelector(".description .markdown");
+    const displayedContent = document.querySelector(
+      ".description .builder__markdown",
+    );
     expect(displayedContent).toHaveTextContent("Updated description");
   });
 
-  it("handles methodology field editing with keyboard shortcuts", async () => {
+  it("handles methodology field", async () => {
     const { data, visiblePaths, hierarchy } = setupMetadataTest();
 
     renderCodelistBuilder(data, hierarchy, visiblePaths);
@@ -337,7 +339,9 @@ describe("Metadata Editing", () => {
     });
 
     // Verify content remains unchanged
-    const methodologyText = document.querySelector(".methodology .markdown");
+    const methodologyText = document.querySelector(
+      ".methodology .builder__markdown",
+    );
     expect(methodologyText).toHaveTextContent("Initial methodology");
 
     // Verify edit mode is exited

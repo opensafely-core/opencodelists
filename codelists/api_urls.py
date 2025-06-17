@@ -18,15 +18,19 @@ urlpatterns = [
 
 for subpath, view in [
     ("", api.codelists),
-    ("<codelist_slug>/versions/", api.versions),
+    ("<slug:codelist_slug>/versions/", api.versions),
 ]:
     urlpatterns.append(
         path(
-            "codelist/<organisation_slug>/" + subpath,
+            "codelist/<slug:organisation_slug>/" + subpath,
             view,
             name="organisation_" + view.__name__,
         )
     )
     urlpatterns.append(
-        path("codelist/user/<username>/" + subpath, view, name="user_" + view.__name__)
+        path(
+            "codelist/user/<slug:username>/" + subpath,
+            view,
+            name="user_" + view.__name__,
+        )
     )

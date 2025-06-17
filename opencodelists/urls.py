@@ -13,9 +13,9 @@ handler404 = page_not_found
 handler500 = server_error
 
 users_patterns = [
-    path("<username>/", views.user, name="user"),
+    path("<slug:username>/", views.user, name="user"),
     path(
-        "<username>/new-codelist/",
+        "<slug:username>/new-codelist/",
         views.user_create_codelist,
         name="user-create-codelist",
     ),
@@ -24,7 +24,7 @@ users_patterns = [
 organisations_patterns = [
     # list users for an organisation (admins only)
     path(
-        "<organisation_slug>/users",
+        "<slug:organisation_slug>/users",
         views.organisation_members,
         name="organisation_members",
     ),

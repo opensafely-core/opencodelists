@@ -49,3 +49,10 @@ export interface PageData {
   versions: VersionT[];
   visiblePaths: VisiblePaths;
 }
+
+// The metadata contains a list of "references" which consist of a
+// text display value, and an underlying link url
+export interface Reference {
+  text: string;
+  url: string;
+}

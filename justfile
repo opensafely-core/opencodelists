@@ -126,7 +126,7 @@ update-dependencies:
 
 
 # *ARGS is variadic, 0 or more. This allows us to do `just test -k match`, for example.
-# Run the python tests, excluding the functional tests.
+# Run the python tests, excluding the functional tests. Run coverage.
 test-py *ARGS: devenv
     $BIN/python manage.py collectstatic --no-input && \
     $BIN/python -m pytest \
@@ -137,6 +137,12 @@ test-py *ARGS: devenv
     --cov=opencodelists \
     --cov-report html \
     --cov-report term-missing:skip-covered \
+    -m "not functional" {{ ARGS }}
+
+# Run the python tests, excluding the functional tests. Don't run coverage.
+test-py-nocov *ARGS: devenv
+    $BIN/python manage.py collectstatic --no-input && \
+    $BIN/python -m pytest \
     -m "not functional" {{ ARGS }}
 
 # Run the Python functional tests, using Playwright.

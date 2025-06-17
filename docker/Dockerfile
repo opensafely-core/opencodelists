@@ -45,14 +45,11 @@ RUN --mount=type=cache,target=/usr/src/app/.npm \
     npm set cache /usr/src/app/.npm && \
     npm ci --include=dev
 
-# Add node_modules/.bin to PATH
-ENV PATH="/usr/src/app/node_modules/.bin:${PATH}"
-
 # just copy in the files `npm run build` needs
 COPY vite.config.mjs ./
 COPY assets/src ./assets/src
 COPY templates ./templates
-RUN --mount=type=cache,target=./npm npm run build
+RUN --mount=type=cache,target=/usr/src/app/.npm npm run build
 
 ##################################################
 #

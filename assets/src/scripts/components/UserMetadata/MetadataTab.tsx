@@ -1,41 +1,49 @@
 import React from "react";
-import { Form } from "react-bootstrap";
-import ReferenceList from "./ReferenceList";
+import { PageData } from "../../types";
 import MetadataField from "./MetadataField";
-import { getFetchOptions } from "../../_utils";
+import References from "./References";
 
 export default function MetadataTab({
   metadata,
-  references,
-  setState,
   updateURL,
-}) {
-  const handleSaveReferences = async (
-    newReferences: Array<{ text: string; url: string }>,
-  ) => {
-    const fetchOptions = getFetchOptions({ references: newReferences });
-    try {
-      await fetch(updateURL, fetchOptions);
-      setState({
-        metadata: { ...metadata, references: newReferences },
-      });
-    } catch (error) {
-      console.error("Failed to save references:", error);
-    }
+}: {
+  metadata: {
+    description: {
+      text: string;
+      html: string;
+      isEditing: boolean;
+    };
+    methodology: {
+      text: string;
+      html: string;
+      isEditing: boolean;
+    };
+    references: {
+      text: string;
+      url: string;
+    }[];
   };
-
+  updateURL: PageData["updateURL"];
+}) {
   return (
     <div style={{ maxWidth: "80ch" }}>
-      <p style={{ fontStyle: "italic" }}>
-        Users have found it helpful to record their decision strategy as they
-        build their codelist. Text added here will be ready for you to edit
-        before you publish the codelist.
+      <p>
+        Record your decision strategy as you build your codelist. You can edit
+        text added here again before you publish the codelist.
       </p>
-      <Form noValidate>
-        <MetadataField field="description" metadata={metadata} updateURL={updateURL} />
-        <MetadataField field="methodology" metadata={metadata} updateURL={updateURL} />
-        <ReferenceList references={references} onSave={handleSaveReferences} />
-      </Form>
+      <MetadataField
+        field="description"
+        label="Description"
+        metadata={metadata}
+        updateURL={updateURL}
+      />
+      <MetadataField
+        field="methodology"
+        label="Methodology"
+        metadata={metadata}
+        updateURL={updateURL}
+      />
+      <References references={metadata.references} />
     </div>
   );
 }

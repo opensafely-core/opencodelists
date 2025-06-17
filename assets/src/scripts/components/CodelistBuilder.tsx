@@ -1,7 +1,7 @@
 import React from "react";
-import { Col, Form, Row, Tab, Tabs } from "react-bootstrap";
+import { Col, Row, Tab, Tabs } from "react-bootstrap";
 import Hierarchy from "../_hierarchy";
-import { getCookie, getFetchOptions } from "../_utils";
+import { getFetchOptions } from "../_utils";
 import { Code, PageData, Reference, Status } from "../types";
 import EmptySearch from "./EmptySearch";
 import EmptyState from "./EmptyState";
@@ -12,11 +12,9 @@ import SearchForm from "./SearchForm";
 import Summary from "./Summary";
 import Title from "./Title";
 import TreeTables from "./TreeTables";
-import ReferenceList from "./UserMetadata/ReferenceList";
-import Versions from "./Versions";
 import MetadataTab from "./UserMetadata/MetadataTab";
+import Versions from "./Versions";
 
-type MetadataFieldName = "description" | "methodology";
 interface MetadataField {
   text: string;
   html: string;
@@ -52,10 +50,6 @@ export default class CodelistBuilder extends React.Component<
     updating: boolean;
   }
 > {
-  private textareaRefs: {
-    description: React.RefObject<HTMLTextAreaElement>;
-    methodology: React.RefObject<HTMLTextAreaElement>;
-  };
   constructor(props: CodelistBuilderProps) {
     super(props);
 
@@ -84,10 +78,6 @@ export default class CodelistBuilder extends React.Component<
       : () => null;
     this.toggleExpandedCompatibleReleases =
       this.toggleExpandedCompatibleReleases.bind(this);
-    this.textareaRefs = {
-      description: React.createRef(),
-      methodology: React.createRef(),
-    };
   }
 
   toggleExpandedCompatibleReleases() {
@@ -242,8 +232,6 @@ export default class CodelistBuilder extends React.Component<
                 <Tab eventKey="metadata" title="Metadata">
                   <MetadataTab
                     metadata={this.state.metadata}
-                    references={this.state.metadata.references}
-                    setState={this.setState}
                     updateURL={this.props.updateURL}
                   />
                 </Tab>

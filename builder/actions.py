@@ -18,6 +18,12 @@ def create_search_slug(term: str, code: str) -> str:
     Returns the search slug which is either the slugified search term,
     or the code prefixed with "code:". Also validates that only one of
     term and code is set.
+
+    Note that the result is not guaranteed to match Django's regex for a slug
+    [-a-zA-Z0-9_]+ for codes: it includes a colon to ensure we can distinguish
+    it from a term, and may include non-slug characters such as ! or spaces.
+    This behaviour is partly present for backwards compatibility (for example,
+    changing the slugs for existing searches might require some care).
     """
     assert bool(term) != bool(code)
     if term is not None:

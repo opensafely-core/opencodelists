@@ -1,6 +1,7 @@
 import pytest
 from django.core.validators import MinLengthValidator
 from django.urls import reverse
+from django.urls.exceptions import NoReverseMatch
 
 from codelists.actions import create_codelist_from_scratch
 from codelists.coding_systems import most_recent_database_alias
@@ -54,6 +55,16 @@ def test_search(client, draft_with_some_searches):
         rsp.context["results_heading"]
         == f'Showing {num_concepts} concepts matching "{slug}"'
     )
+
+
+def test_search_non_int_search_id(client, draft_with_some_searches):
+    """Test that the URL dispatcher can't call the search view with a
+    non-integer string as `search_id`."""
+    slug = "arthritis"
+    search_id = "bad_search_id"
+
+    with pytest.raises(NoReverseMatch):
+        client.get(draft_with_some_searches.get_builder_search_url(search_id, slug))
 
 
 def test_no_search_term(client, draft_with_some_searches):
@@ -469,3 +480,53 @@ def test_min_search_length_validation(client, draft_with_no_searches):
     # We do not reach the Django MinValidationError,
     # unlike for terms.
     assert len(code_with_min_chars) == 1
+
+
+def test_search_delete(client, minimal_draft):
+    """Test that a POST to the `delete_search` view deletes the selected
+    search, and redirects to the draft view."""
+    client.force_login(minimal_draft.author)
+
+    term = "tennis toe"
+    slug = "tennis-toe"
+    searches = minimal_draft.searches.all()
+    # Two search terms pre-populated in fixture.
+    assert {s.term for s in searches} == {"tennis toe", "enthesopathy of elbow"}
+
+    search = searches.filter(term=term).first()
+    rsp = client.post(minimal_draft.get_builder_delete_search_url(search.id, slug))
+
+    # Redirected to draft.
+    assert rsp.status_code == 302
+    assert rsp.url == minimal_draft.get_builder_draft_url()
+
+    # Search was deleted.
+    updated_searches = minimal_draft.searches.all()
+    assert {s.term for s in updated_searches} == {"enthesopathy of elbow"}
+
+
+def test_search_delete_get(client, minimal_draft):
+    """Test that a GET to the `delete_search` view is not permitted."""
+    client.force_login(minimal_draft.author)
+
+    term = "tennis toe"
+    slug = "tennis-toe"
+    searches = minimal_draft.searches.all()
+    search = searches.filter(term=term).first()
+
+    rsp = client.get(minimal_draft.get_builder_delete_search_url(search.id, slug))
+
+    # 405 Method not allowed.
+    assert rsp.status_code == 405
+
+
+def test_search_delete_non_int_search_id(client, minimal_draft):
+    """Test that the URL dispatcher can't call the `delete_search` view with a
+    non-integer string as `search_id`."""
+    client.force_login(minimal_draft.author)
+
+    slug = "tennis-toe"
+    search_id = "bad_search_id"
+
+    with pytest.raises(NoReverseMatch):
+        client.post(minimal_draft.get_builder_delete_search_url(search_id, slug))

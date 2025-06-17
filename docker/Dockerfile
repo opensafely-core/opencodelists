@@ -43,7 +43,7 @@ RUN mkdir -p ./assets
 COPY biome.json package-lock.json package.json tsconfig.json ./
 RUN --mount=type=cache,target=/usr/src/app/.npm \
     npm set cache /usr/src/app/.npm && \
-    npm ci
+    npm ci --include=dev
 
 # just copy in the files `npm run build` needs
 COPY vite.config.mjs ./

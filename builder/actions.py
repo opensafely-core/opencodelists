@@ -27,6 +27,27 @@ def create_search_slug(term: str, code: str) -> str:
     return slug
 
 
+def get_codes_to_keep(codeset_version, potential_codes):
+    """
+    Identifies which codes, out of a list of potential codes, should be kept when tidying up.
+    Returns codes that are:
+    1. Explicitly included in the codelist
+    2. Descendants of included codes
+    """
+    # Get all explicitly included codes on the codelist
+    all_included_codes = codeset_version.codeset.codes()
+
+    # Build a list of codes_to_keep from this search, consisting of any included codes or their descendants
+    hierarchy = codeset_version.hierarchy
+    codes_to_keep = []
+    for code_obj in potential_codes:
+        ancestors = hierarchy.ancestors(code_obj.code)
+        ancestors_in_included = ancestors & all_included_codes
+        if ancestors_in_included or code_obj.code in all_included_codes:
+            codes_to_keep.append(code_obj.code)
+    return codes_to_keep
+
+
 @transaction.atomic
 def create_search(*, draft, term=None, code=None, codes):
     slug = create_search_slug(term, code)
@@ -73,20 +94,7 @@ def delete_search(*, search):
     search_only_code_objs = search.version.code_objs.annotate(
         num_results=Count("results")
     ).filter(results__search=search, num_results=1)
-    # Get all explicitly included codes on the codelist
-    all_included_codes = search.version.codeset.codes()
-
-    # Build a set of codes_to_keep from this search, consisting of any included codes, their descendants,
-    # and any codes with ancestor that is included
-    hierarchy = search.version.hierarchy
-    codes_to_keep = set()
-
-    codes_to_keep = []
-    for code_obj in search_only_code_objs:
-        ancestors = hierarchy.ancestors(code_obj.code)
-        ancestors_in_included = ancestors & all_included_codes
-        if ancestors_in_included or code_obj.code in all_included_codes:
-            codes_to_keep.append(code_obj.code)
+    codes_to_keep = get_codes_to_keep(search.version, search_only_code_objs)
 
     # Delete any code objs that belong to this search only, and are not in the codes_to_keep set
     search_only_code_objs.exclude(code__in=codes_to_keep).delete()
@@ -107,6 +115,18 @@ def update_code_statuses(*, draft, updates):
 
     for status, codes in status_to_new_code.items():
         draft.code_objs.filter(code__in=codes).update(status=status)
+
+    # It's possible that a user has just unselected, or excluded, an "orphaned" code i.e.
+    # one that was included (implicitly or explicitly) from a now deleted search. If we
+    # don't remove those codes, then you get into the situation where the only way to remove
+    # them is to explicitly include/exclude them - or redo the search that found them, return
+    # them to unresolved, and then delete the search.
+    # This finds all orphaned codes that aren't explicitly included, and deletes them unless
+    # we need to keep them because they have an included ancestor
+    orphaned_codes = draft.code_objs.filter(results=None).exclude(status="+")
+    codes_to_keep = get_codes_to_keep(draft, orphaned_codes)
+
+    orphaned_codes.exclude(code__in=codes_to_keep).delete()
 
     logger.info("Updated code statuses", draft_pk=draft.pk)
 

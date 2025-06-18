@@ -548,8 +548,8 @@ def test_add_codelist_tag(codelist):
 
 def test_convert_bnf_codelist_version_to_dmd(bnf_version_asthma, dmd_bnf_mapping_data):
     assert len(bnf_version_asthma.codes) == 3
-    # dmd_data contains mappings for the 2 dmd VMPs
-    assert BnfDmdMapping.objects.count() == 2
+    # dmd_data contains mappings for the 2 BNF codes and one extra
+    assert BnfDmdMapping.objects.count() == 3
 
     dmd_codelist = actions.convert_bnf_codelist_version_to_dmd(bnf_version_asthma)
     # New dmd codelist is created with "-dmd" appended to name and slug
@@ -590,3 +590,25 @@ def test_cannot_create_duplicate_converted_dmd_codelist(
     # attempt to convert again
     with pytest.raises(IntegrityError):
         actions.convert_bnf_codelist_version_to_dmd(bnf_version_asthma)
+
+
+def test_can_update_converted_dmd_codelist(bnf_version_asthma, dmd_bnf_mapping_data):
+    # convert once to create the new codelist
+    dmd_codelist = actions.convert_bnf_codelist_version_to_dmd(bnf_version_asthma)
+    assert dmd_codelist.versions.count() == 1
+
+    # convert again with modified BNF codes
+    bnf_version_asthma.codes += ("0301011R0AAADAD",)
+    actions.convert_bnf_codelist_version_to_dmd(bnf_version_asthma)
+
+    assert dmd_codelist.versions.count() == 2
+    dmd_version = dmd_codelist.versions.last()
+
+    # status is under review by default
+    assert dmd_version.status == "under review"
+    assert dmd_version.csv_data == (
+        "dmd_type,dmd_id,dmd_name,bnf_code\n"
+        "VMP,35936411000001109,Salbutamol 100micrograms/dose breath actuated inhaler,0301011R0AAADAD\n"
+        "VMP,10514511000001106,Adrenaline (base) 220micrograms/dose inhaler,0301012A0AAABAB\n"
+        "VMP,10525011000001107,Adrenaline (base) 220micrograms/dose inhaler refill,0301012A0AAACAC\n"
+    )

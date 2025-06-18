@@ -99,6 +99,17 @@ These 3 lists were mapped into CTV3 by TPP to create one list. This list was exa
         full_page=True,
     )
 
+    page.get_by_role("tab", name="Tree").click()
+    # The tree with the full list of codes in the codelist
+    screenshot_element_with_padding(
+        page,
+        page.locator("div.col-md-9").filter(
+            has=page.get_by_role("tabpanel", name="Tree")
+        ),
+        "tree.png",
+        extra={"width": -350, "height": -50},
+    )
+
 
 def test_generate_non_org_user_screen_shots(
     live_server,

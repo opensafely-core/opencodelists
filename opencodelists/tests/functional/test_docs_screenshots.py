@@ -110,6 +110,23 @@ These 3 lists were mapped into CTV3 by TPP to create one list. This list was exa
         extra={"width": -350, "height": -50},
     )
 
+    # The download buttons
+    screenshot_element_with_padding(
+        page,
+        page.locator("div.version__sidebar form"),
+        "download-buttons.png",
+        full_page=True,
+    )
+
+    # The version detail
+    # TODO: actually have multiple versions in the codelist.
+    # screenshot_element_with_padding(
+    #    page,
+    #    page.locator("div.version__sidebar card"),
+    #    "versions.png",
+    #    full_page=True,
+    # )
+
 
 def test_generate_non_org_user_screen_shots(
     live_server,

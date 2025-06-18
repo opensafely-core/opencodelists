@@ -10,6 +10,7 @@ from django.db.models import Q
 from django.utils import timezone
 from tqdm import tqdm
 
+from codelists.actions import cache_hierarchy
 from codelists.coding_systems import CODING_SYSTEMS
 from codelists.hierarchy import Hierarchy
 from codelists.models import CodelistVersion, Status
@@ -349,9 +350,14 @@ def _check_version_by_hierarchy(coding_system, version):
     # point. For older codelist versions, that is not the actual coding system release that was
     # used to create the codelist version, and we do not have a record of, or access to, the
     # coding system data at the time of its creation.
-    # All existing codelist versions, including those with the "unknown" coding system release,
+    # All existing codelist versions built using the builder,
+    # including those with the "unknown" coding system release,
     # will have a cached hierarchy, built with the original coding system release.
     # We compare this to a hierarchy built from the same codes, but with the new release.
+    # For codelists that don't have an existing hierarchy (i.e. these were uploaded before the
+    # coding system was available in the builder), we cannot
+    if not hasattr(version, "cached_hierarchy"):
+        cache_hierarchy(version=version)
     original_hierarchy_data = _hierarchy_excl_cache_items(
         json.loads(version.cached_hierarchy.data)
     )

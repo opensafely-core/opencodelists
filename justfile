@@ -204,7 +204,7 @@ assets-install *args="":
     # but we negate with || to avoid error exit code
     test package-lock.json -nt node_modules/.written || exit 0
 
-    npm ci {{ args }}
+    npm ci --include=dev {{ args }}
     touch node_modules/.written
 
 

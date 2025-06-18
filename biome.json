@@ -3,7 +3,10 @@
   "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
   "files": {
     "ignoreUnknown": false,
-    "ignore": ["./assets/src/scripts/__tests__/fixtures"]
+    "ignore": [
+      "./assets/src/scripts/__tests__/fixtures",
+      "./assets/src/scripts/coverage/"
+    ]
   },
   "formatter": {
     "enabled": true,

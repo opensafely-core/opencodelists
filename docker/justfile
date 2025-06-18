@@ -26,8 +26,7 @@ build env="dev":
 
 # run JS linter
 check-js:
-    docker compose run --rm node-assets npm run typecheck && npm run lint
-
+    docker compose run --rm node-assets bash -c "npm run typecheck && npm run lint:ci"
 
 # run python checks
 check-py env="dev": build
@@ -54,7 +53,7 @@ test-functional *args="":
     -m "functional" {{ args }}
 
 test-js:
-    docker compose run --rm node-assets npm run test
+    docker compose run --rm node-assets bash -c "npm run test:coverage"
 
 test: test-js test-py test-functional
 

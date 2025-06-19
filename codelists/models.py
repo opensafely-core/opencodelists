@@ -535,7 +535,7 @@ class CodelistVersion(models.Model):
                     for header in headers:
                         if header.isnumeric():
                             ix = headers.index(header)
-                            rows.append([header])
+                            rows = [headers] + rows
                             break
 
             return tuple(sorted({row[ix] for row in rows}))

@@ -295,6 +295,11 @@ def build_fixtures():
         "asthma-medication-refill.csv", DMD_FIXTURES_PATH
     )
 
+    # asthma_medications_csv_data_no_header
+    asthma_medication_csv_data_no_header = load_csv_data_no_header(
+        "asthma-medication.csv", DMD_FIXTURES_PATH
+    )
+
     # asthma_medications_refill_csv_data
     bnf_asthma_csv_data = load_codes_from_csv("asthma.csv", BNF_FIXTURES_PATH)
 
@@ -429,6 +434,20 @@ def build_fixtures():
     )
     dmd_version_asthma_medication_refill.csv_data = asthma_medication_refill_csv_data
     dmd_version_asthma_medication_refill.save()
+
+    # In order to avoid raising and exception in the `create_old_style_version`
+    # action because of the missing header in the csv data, we create the
+    # version with the csv_data set to asthma_medication_csv_data and
+    # replace it with asthma_medication_csv_data_no_header afterwards
+    dmd_version_asthma_medication_no_header = create_old_style_version(
+        codelist=dmd_codelist,
+        csv_data=asthma_medication_csv_data,
+        coding_system_database_alias=most_recent_database_alias("dmd"),
+    )
+    dmd_version_asthma_medication_no_header.csv_data = (
+        asthma_medication_csv_data_no_header
+    )
+    dmd_version_asthma_medication_no_header.save()
 
     # bnf codelist
     # - owned by organisation
@@ -764,9 +783,9 @@ def load_csv_data(filename, fixtures_path=None):
         return f.read()
 
 
-def load_csv_data_no_header(filename):
+def load_csv_data_no_header(filename, fixtures_path=SNOMED_FIXTURES_PATH):
     """Return CSV data in given filename, dropping header."""
-    with open(SNOMED_FIXTURES_PATH / filename) as f:
+    with open(fixtures_path / filename) as f:
         rows = list(csv.reader(f))[1:]
 
     buffer = StringIO()
@@ -830,6 +849,9 @@ dmd_version_asthma_medication_alt_headers = build_fixture(
 )
 dmd_version_asthma_medication_refill = build_fixture(
     "dmd_version_asthma_medication_refill"
+)
+dmd_version_asthma_medication_no_headers = build_fixture(
+    "dmd_version_asthma_medication_no_header"
 )
 bnf_version_asthma = build_fixture("bnf_version_asthma")
 bnf_version_with_search = build_fixture("bnf_version_with_search")

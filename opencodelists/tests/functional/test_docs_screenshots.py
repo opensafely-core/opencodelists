@@ -192,3 +192,26 @@ def test_generate_org_user_screen_shots(
     )
 
     page.get_by_role("button", name="Create").click()
+
+    page.pause()
+    # Initial codelist builder.
+    screenshot_element_with_padding(
+        page,
+        page.locator("div.container > form"),
+        "create-new-codelist-page.png",
+        extra={"y": 80, "height": -140},
+        full_page=True,
+    )
+
+    # TODO:
+    # enter search
+    # search result
+    # expanding hierarchy — is that possible
+    # included/excluded buttons
+    # conflicting selections
+    # terms details
+    # summary
+    # all for searches
+    # save buttons
+    # sign offs
+    # version buttons

@@ -118,8 +118,8 @@ These 3 lists were mapped into CTV3 by TPP to create one list. This list was exa
         full_page=True,
     )
 
-    # The version detail
-    # TODO: actually have multiple versions in the codelist.
+    # The version detail buttons.
+    # TODO: actually have multiple versions in the codelist to show the difference.
     # screenshot_element_with_padding(
     #    page,
     #    page.locator("div.version__sidebar card"),
@@ -146,6 +146,14 @@ def test_generate_non_org_user_screen_shots(
         page.locator("#navbarSupportedContent ul"),
         "my-codelists.png",
         extra={"height": -2},
+    )
+
+    # Create a codelist button.
+    page.get_by_role("link", name="My codelists").click()
+    screenshot_element_with_padding(
+        page,
+        page.get_by_role("link", name="Create a codelist!"),
+        "codelist-button.png",
     )
 
 

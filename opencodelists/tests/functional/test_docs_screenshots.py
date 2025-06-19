@@ -148,14 +148,6 @@ def test_generate_non_org_user_screen_shots(
         extra={"height": -2},
     )
 
-    # Create a codelist button.
-    page.get_by_role("link", name="My codelists").click()
-    screenshot_element_with_padding(
-        page,
-        page.get_by_role("link", name="Create a codelist!"),
-        "create-codelist-button.png",
-    )
-
 
 def test_generate_org_user_screen_shots(
     live_server,
@@ -176,3 +168,27 @@ def test_generate_org_user_screen_shots(
         "my-organisations.png",
         extra={"height": -2},
     )
+
+    # Create a codelist button.
+    page.get_by_role("link", name="My codelists").click()
+    screenshot_element_with_padding(
+        page,
+        page.get_by_role("link", name="Create a codelist!"),
+        "create-codelist-button.png",
+    )
+
+    page.get_by_role("link", name="Create a codelist!").click()
+
+    page.get_by_role("textbox", name="Codelist name *").fill("Arthritis")
+    page.get_by_label("Coding system *").select_option("snomedct")
+
+    # Codelist creation page.
+    screenshot_element_with_padding(
+        page,
+        page.locator("div.container > form"),
+        "create-new-codelist-page.png",
+        extra={"y": 80, "height": -140},
+        full_page=True,
+    )
+
+    page.get_by_role("button", name="Create").click()

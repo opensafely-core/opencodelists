@@ -10,7 +10,7 @@ To create an OPCS-4 or dm+d codelist, please see the notes at the bottom of this
 
 If you are a member of an organisation, you can also choose an owner for the codelist (your own account or an organisation account).
 
-        create-a-codelist-1.png
+        create-codelist-button.png
 
 ### Requirements for uploading codelists to OpenCodelists
 

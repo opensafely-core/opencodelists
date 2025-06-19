@@ -22,7 +22,7 @@ We currently support codelists using the following coding systems:
 
 Then click _Create_.
 
-        create-form-1.png
+        create-new-codelist-page.png
 
 You'll be taken to a page that is nearly blank.
 

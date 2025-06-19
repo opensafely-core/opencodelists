@@ -153,7 +153,7 @@ def test_generate_non_org_user_screen_shots(
     screenshot_element_with_padding(
         page,
         page.get_by_role("link", name="Create a codelist!"),
-        "codelist-button.png",
+        "create-codelist-button.png",
     )
 
 

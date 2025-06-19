@@ -9,7 +9,7 @@ When signed in, click _My codelists_ in the top right of any page.
 
 Then click _Create a codelist_.
 
-        create-a-codelist-1.png
+        create-codelist-button.png
 
 Choose a name for the codelist, and select a coding system from the dropdown.  If you are a member of an organisation, you can also choose an owner for the codelist (your own account or an organisation account).
 
@@ -90,4 +90,3 @@ information on procedures for building codelists to use in OpenSAFELY research, 
 Once the codelist is reviewed, it can be published, using the __Publish version__ link from the codelist's homepage.  Publishing a codelist version will make that version permanent, and will delete any other draft or in-review versions.
 
         publish.png
-        

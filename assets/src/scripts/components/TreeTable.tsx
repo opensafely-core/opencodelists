@@ -33,9 +33,9 @@ export default function TreeTable({
   const handleExcludeAllClose = () => setShowExcludeAll(false);
   const handleExcludeAllShow = () => setShowExcludeAll(true);
 
-  const [showExcludeUnresolved, setShowExcludeUnresolved] = useState(false);
-  const handleExcludeUnresolvedClose = () => setShowExcludeUnresolved(false);
-  // const handleExcludeUnresolvedShow = () => setShowExcludeUnresolved(true);
+  const [showIncludeAll, setShowIncludeAll] = useState(false);
+  const handleIncludeAllClose = () => setShowIncludeAll(false);
+  const handleIncludeAllShow = () => setShowIncludeAll(true);
 
   return (
     <>
@@ -44,10 +44,16 @@ export default function TreeTable({
           <h3 className="h5">{heading}</h3>
           {heading === "Assessment Scale" ? (
             <ButtonGroup size="sm">
+              <Button disabled variant="outline-secondary">
+                Include section
+              </Button>
               <Button variant="outline-danger">Exclude section</Button>
             </ButtonGroup>
           ) : (
             <ButtonGroup size="sm">
+              <Button variant="outline-primary" onClick={handleIncludeAllShow}>
+                Include section
+              </Button>
               <Button variant="outline-danger" onClick={handleExcludeAllShow}>
                 Exclude section
               </Button>
@@ -85,7 +91,7 @@ export default function TreeTable({
             </div>
             <div className="text-secondary">
               <dt>Unresolved:</dt>
-              <dd>142</dd>
+              <dd>26</dd>
             </div>
             <div className="text-danger">
               <dt>Conflicted:</dt>
@@ -140,13 +146,16 @@ export default function TreeTable({
               </li>
             </ul>
             <form action="" className="ml-4 border-left border-dark pl-4">
-              <Form.Label className="h6 font-weight-bold">
-                Do you want to exclude codes which have already been included?
+              <Form.Label className="h6 font-weight-bold" htmlFor="excludeTick">
+                Do you want to <strong className="text-info"> exclude </strong>
+                codes which have already been
+                <strong className="text-primary"> included</strong>?
               </Form.Label>
               <Form.Check
                 type="checkbox"
                 label="Yes, I want to update 2 codes from included to excluded"
                 required
+                id="excludeTick"
               />
             </form>
           </div>
@@ -277,116 +286,163 @@ export default function TreeTable({
       <Modal
         dialogClassName="modal-90w"
         centered
-        show={showExcludeUnresolved}
-        onHide={handleExcludeUnresolvedClose}
+        show={showIncludeAll}
+        onHide={handleIncludeAllClose}
       >
         <Modal.Header closeButton>
           <Modal.Title>
-            Exclude unresolved in <strong>Body Structure</strong>
+            Included codes in <strong>Body Structure</strong>
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <p>
-            The following 26 codes are currently unresolved, and will be{" "}
-            <strong className="text-info">excluded</strong>:
-          </p>
-          <ul>
-            <li>
-              Chinese auricular elbow <code>273193001</code>
-            </li>
-            <li>
-              Elbow region structure <code>127949000</code>
-            </li>
-            <li>
-              Antecubital region structure <code>90837009</code>
-            </li>
-            <li>
-              Bone structure of elbow joint region <code>304678002</code>
-            </li>
-            <li>
-              Elbow joint structure <code>16953009</code>
-            </li>
-            <li>
-              Entire elbow region <code>76248009</code>
-            </li>
-            <li>
-              Left elbow region structure <code>368148009</code>
-            </li>
-            <li>
-              Right elbow region structure <code>368149001</code>
-            </li>
-            <li>
-              Structure of cubital lymph node <code>34775006</code>
-            </li>
-            <li>
-              Structure of cubital tunnel <code>890317009</code>
-            </li>
-            <li>
-              Structure of epitrochlear lymph node <code>28870006</code>
-            </li>
-            <li>
-              Structure of lateral cubital region <code>10484007</code>
-            </li>
-            <li>
-              Structure of medial cubital region <code>54264004</code>
-            </li>
-            <li>
-              Structure of peripheral nerve at elbow <code>310843004</code>
-            </li>
-            <li>
-              Structure of posterior cubital region <code>66498007</code>
-            </li>
-            <li>
-              Structure of soft tissue of elbow region <code>725630005</code>
-            </li>
-            <li>
-              Structure of surface region of elbow <code>243999005</code>
-            </li>
-            <li>
-              Structure of muscle acting on elbow joint <code>303558007</code>
-            </li>
-            <li>
-              Entire muscle acting on elbow joint <code>729645009</code>
-            </li>
-            <li>
-              Structure of extensor of elbow joint <code>303732005</code>
-            </li>
-            <li>
-              Structure of flexor of elbow joint <code>303559004</code>
-            </li>
-            <li>
-              Structure of upper extremity between shoulder and elbow{" "}
-              <code>40983000</code>
-            </li>
-            <li>
-              Entire upper arm <code>302538001</code>
-            </li>
-            <li>
-              Left upper arm structure <code>368208006</code>
-            </li>
-            <li>
-              Right upper arm structure <code>368209003</code>
-            </li>
-            <li>
-              Upper arm part <code>709294008</code>
-            </li>
-          </ul>
+          <div>
+            <h2 className="h4">Update excluded codes</h2>
+            <p>
+              The following 2 codes within <strong>Body Structure</strong> are
+              <strong className="text-info"> excluded</strong> and will now be
+              <strong className="text-primary"> included</strong> instead:
+            </p>
+            <ul>
+              <li>
+                Structure of bone marrow of elbow <code>712957004</code>
+              </li>
+              <li>
+                All bone marrow of elbow <code>731605009</code>
+              </li>
+            </ul>
+            <form action="" className="ml-4 border-left border-dark pl-4">
+              <Form.Label className="h6 font-weight-bold" htmlFor="includeTick">
+                Do you want to
+                <strong className="text-primary"> include</strong> codes which
+                have already been
+                <strong className="text-info"> excluded</strong>?
+              </Form.Label>
+              <Form.Check
+                type="checkbox"
+                label="Yes, I want to update 2 codes from included to excluded"
+                required
+                id="includeTick"
+              />
+            </form>
+          </div>
+          <hr />
+          <div>
+            <h2 className="h4">Already included codes</h2>
+            <p>
+              The following 2 codes within <strong>Body Structure</strong> are
+              already <strong className="text-primary">included</strong> and
+              will not be updated:
+            </p>
+            <ul>
+              <li>
+                Structure of skin crease of elbow region <code>280388002</code>
+              </li>
+              <li>
+                Entire skin crease of elbow <code>729376007</code>
+              </li>
+            </ul>
+          </div>
+          <hr />
+          <div>
+            <h2 className="h4">Update unresolved codes</h2>
+            <p>
+              The following 26 codes are currently unresolved, and will be
+              <strong className="text-primary"> included</strong>:
+            </p>
+            <ul>
+              <li>
+                Chinese auricular elbow <code>273193001</code>
+              </li>
+              <li>
+                Elbow region structure <code>127949000</code>
+              </li>
+              <li>
+                Antecubital region structure <code>90837009</code>
+              </li>
+              <li>
+                Bone structure of elbow joint region <code>304678002</code>
+              </li>
+              <li>
+                Elbow joint structure <code>16953009</code>
+              </li>
+              <li>
+                Entire elbow region <code>76248009</code>
+              </li>
+              <li>
+                Left elbow region structure <code>368148009</code>
+              </li>
+              <li>
+                Right elbow region structure <code>368149001</code>
+              </li>
+              <li>
+                Structure of cubital lymph node <code>34775006</code>
+              </li>
+              <li>
+                Structure of cubital tunnel <code>890317009</code>
+              </li>
+              <li>
+                Structure of epitrochlear lymph node <code>28870006</code>
+              </li>
+              <li>
+                Structure of lateral cubital region <code>10484007</code>
+              </li>
+              <li>
+                Structure of medial cubital region <code>54264004</code>
+              </li>
+              <li>
+                Structure of peripheral nerve at elbow <code>310843004</code>
+              </li>
+              <li>
+                Structure of posterior cubital region <code>66498007</code>
+              </li>
+              <li>
+                Structure of soft tissue of elbow region <code>725630005</code>
+              </li>
+              <li>
+                Structure of surface region of elbow <code>243999005</code>
+              </li>
+              <li>
+                Structure of muscle acting on elbow joint <code>303558007</code>
+              </li>
+              <li>
+                Entire muscle acting on elbow joint <code>729645009</code>
+              </li>
+              <li>
+                Structure of extensor of elbow joint <code>303732005</code>
+              </li>
+              <li>
+                Structure of flexor of elbow joint <code>303559004</code>
+              </li>
+              <li>
+                Structure of upper extremity between shoulder and elbow{" "}
+                <code>40983000</code>
+              </li>
+              <li>
+                Entire upper arm <code>302538001</code>
+              </li>
+              <li>
+                Left upper arm structure <code>368208006</code>
+              </li>
+              <li>
+                Right upper arm structure <code>368209003</code>
+              </li>
+              <li>
+                Upper arm part <code>709294008</code>
+              </li>
+            </ul>
+          </div>
         </Modal.Body>
         <Modal.Footer className="modal-foooter">
           <Form.Check
             type="checkbox"
-            label="I understand I am excluding 26 unresolved codes"
+            label="I understand I am updating 2 codes from excluded to included; and including 26 unresolved codes"
             required
           />
           <div className="modal-buttons">
-            <Button
-              disabled
-              variant="danger"
-              onClick={handleExcludeUnresolvedClose}
-            >
-              Exclude unresolved Body Structure codes
+            <Button disabled variant="primary" onClick={handleIncludeAllClose}>
+              Include codes
             </Button>
-            <Button variant="secondary" onClick={handleExcludeUnresolvedClose}>
+            <Button variant="secondary" onClick={handleIncludeAllClose}>
               Cancel
             </Button>
           </div>

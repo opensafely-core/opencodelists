@@ -2,7 +2,7 @@ import "@testing-library/jest-dom";
 import { render, screen } from "@testing-library/react";
 import React from "react";
 import { describe, expect, it } from "vitest";
-import Search from "../../components/Search";
+import Search from "../../components/Cards/Search";
 import { PageData } from "../../types";
 
 describe("Search Component", () => {

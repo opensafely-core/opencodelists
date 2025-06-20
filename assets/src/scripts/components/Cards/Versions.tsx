@@ -6,7 +6,7 @@ import {
   OverlayTrigger,
   Tooltip,
 } from "react-bootstrap";
-import { readValueFromPage } from "../_utils";
+import { readValueFromPage } from "../../_utils";
 
 export interface VersionProps {
   created_at: string;

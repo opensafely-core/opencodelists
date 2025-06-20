@@ -1,6 +1,6 @@
 import React from "react";
 import { Card, ListGroup } from "react-bootstrap";
-import { PageData } from "../types";
+import { PageData } from "../../types";
 
 export interface SummaryProps {
   counts: {

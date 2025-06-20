@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Button, Card, Form, InputGroup } from "react-bootstrap";
-import { getCookie, readValueFromPage } from "../_utils";
+import { getCookie, readValueFromPage } from "../../_utils";
 
 export default function SearchForm() {
   const codingSystemName = readValueFromPage("metadata")?.coding_system_name;

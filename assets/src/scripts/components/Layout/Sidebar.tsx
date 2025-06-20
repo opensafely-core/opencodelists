@@ -1,9 +1,9 @@
 import React from "react";
 import { Col } from "react-bootstrap";
-import Search, { SearchProps } from "../Search";
-import SearchForm from "../SearchForm";
-import Summary, { SummaryProps } from "../Summary";
-import Versions from "../Versions";
+import Search, { SearchProps } from "../Cards/Search";
+import SearchForm from "../Cards/SearchForm";
+import Summary, { SummaryProps } from "../Cards/Summary";
+import Versions from "../Cards/Versions";
 
 export default function Sidebar({
   counts,

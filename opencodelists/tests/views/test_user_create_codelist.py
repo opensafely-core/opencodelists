@@ -187,7 +187,7 @@ def test_post_invalid_duplicate_name(client, organisation_user):
 def test_post_invalid_invalid_name(client, organisation_user):
     client.force_login(organisation_user)
     data = {
-        "name": "User-owned~}Codelist",
+        "name": "!",
         "coding_system_id": "snomedct",
         "owner": "user:bob",
     }
@@ -196,6 +196,6 @@ def test_post_invalid_invalid_name(client, organisation_user):
         response = client.post("/users/bob/new-codelist/", data)
 
     assert (
-        b"Codelist names must be non-blank, and contain only letters, numbers, underscores, spaces, or hyphens."
+        b"Codelist names must contain at least one letter or number."
         in response.content
     )

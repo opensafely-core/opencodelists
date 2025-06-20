@@ -207,8 +207,10 @@ class Handle(models.Model):
         max_length=255,
         validators=[
             RegexValidator(
-                regex=r"^[\w _-]+$",
-                message="Codelist names must be non-blank, and contain only letters, numbers, underscores, spaces, or hyphens.",
+                # Codelist names get slugified, which must result in a valid slug.
+                # Let's require alphanumeric characters as it's easier to explain.
+                regex=r"[a-zA-Z0-9]+",
+                message="Codelist names must contain at least one letter or number.",
             )
         ],
     )
@@ -216,14 +218,12 @@ class Handle(models.Model):
     organisation = models.ForeignKey(
         "opencodelists.Organisation",
         null=True,
-        blank=True,
         related_name="handles",
         on_delete=models.CASCADE,
     )
     user = models.ForeignKey(
         "opencodelists.User",
         null=True,
-        blank=True,
         related_name="handles",
         on_delete=models.CASCADE,
     )

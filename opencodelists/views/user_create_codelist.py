@@ -1,5 +1,5 @@
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
+from django.core.exceptions import NON_FIELD_ERRORS
 from django.db.utils import IntegrityError
 from django.shortcuts import get_object_or_404, redirect, render
 
@@ -118,9 +118,6 @@ def handle_post_valid(request, form, user, owner_choices):
             NON_FIELD_ERRORS,
             f"There is already a codelist called {name}",
         )
-        return handle_post_invalid(request, form, user)
-    except ValidationError as e:
-        form.add_error("name", ",".join(e.messages))
         return handle_post_invalid(request, form, user)
 
     return redirect(codelist.versions.get())

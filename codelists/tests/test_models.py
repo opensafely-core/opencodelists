@@ -109,16 +109,16 @@ def test_handle_name_cannot_be_reused_by_user(user_codelist):
 def test_handle_name_only_alphanumeric_hyphen_underscore(codelist):
     with pytest.raises(
         ValidationError,
-        match="Codelist names must be non-blank, and contain only letters, numbers, underscores, spaces, or hyphens.",
+        match="Codelist names must contain at least one letter or number.",
     ):
-        h = Handle.objects.create(
+        handle = Handle.objects.create(
             codelist=codelist,
-            name="test~123 ",
+            name="!",
             slug="new-slug",
             is_current=True,
             organisation=codelist.organisation,
         )
-        h.clean_fields()
+        handle._meta.get_field("name").clean(handle.name, handle)
 
 
 def test_handle_name_non_blank(codelist):
@@ -126,25 +126,25 @@ def test_handle_name_non_blank(codelist):
         ValidationError,
         match="This field cannot be blank.",
     ):
-        h = Handle.objects.create(
+        handle = Handle.objects.create(
             codelist=codelist,
             name="",
             slug="new-slug",
             is_current=True,
             organisation=codelist.organisation,
         )
-        h.clean_fields()
+        handle._meta.get_field("name").clean(handle.name, handle)
 
 
 def test_handle_name_validation_valid(user_codelist):
-    h = Handle.objects.create(
+    handle = Handle.objects.create(
         codelist=user_codelist,
-        name="new-codelist_validname123",
+        name="new-codelist_validname123!,\"'.",
         slug="new-slug",
         is_current=True,
         user=user_codelist.user,
     )
-    h.clean_fields()
+    handle._meta.get_field("name").clean(handle.name, handle)
 
 
 def test_old_style_codes(old_style_version):

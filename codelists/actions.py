@@ -218,10 +218,7 @@ def _create_codelist_with_handle(
         description=description,
         methodology=methodology,
     )
-    handle = owner.handles.create(
-        codelist=codelist, slug=slug, name=name, is_current=True
-    )
-    handle.clean_fields()
+    owner.handles.create(codelist=codelist, slug=slug, name=name, is_current=True)
 
     for reference in references or []:
         codelist.references.create(text=reference["text"], url=reference["url"])

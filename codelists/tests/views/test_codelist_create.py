@@ -164,7 +164,7 @@ def test_post_with_invalid_name(client, organisation):
 
     csv_data = "code,description\n0301012A0AA,Adrenaline (Asthma)"
     data = {
-        "name": "BNF~Codelist",  # This name contains nonalphanumeric characters
+        "name": "!'#~",  # This name contains no alphanumeric characters
         "coding_system_id": "bnf",
         "description": "This is a test",
         "methodology": "This is how we did it",
@@ -188,7 +188,5 @@ def test_post_with_invalid_name(client, organisation):
 
     # confirm we have errors from the codelist form
     assert response.context_data["codelist_form"].errors == {
-        "name": [
-            "Codelist names must be non-blank, and contain only letters, numbers, underscores, spaces, or hyphens."
-        ]
+        "name": ["Codelist names must contain at least one letter or number."]
     }

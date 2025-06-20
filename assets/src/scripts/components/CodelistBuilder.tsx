@@ -5,15 +5,12 @@ import { getCookie } from "../_utils";
 import { Code, PageData, Reference, Status } from "../types";
 import EmptySearch from "./EmptySearch";
 import EmptyState from "./EmptyState";
+import Sidebar from "./Layout/Sidebar";
 import ManagementForm from "./ManagementForm";
 import Metadata from "./Metadata";
 import ReferenceList from "./ReferenceList";
-import Search from "./Search";
-import SearchForm from "./SearchForm";
-import Summary from "./Summary";
 import Title from "./Title";
 import TreeTables from "./TreeTables";
-import Versions from "./Versions";
 
 type MetadataFieldName = "description" | "methodology";
 interface MetadataField {
@@ -362,6 +359,7 @@ export default class CodelistBuilder extends React.Component<
       searches,
       searchURL,
       treeTables,
+      versions,
       visiblePaths,
     } = this.props;
 
@@ -375,28 +373,16 @@ export default class CodelistBuilder extends React.Component<
           <Metadata data={metadata} />
         </div>
         <Row>
-          <Col className="builder__sidebar" md="3">
-            {!isEmptyCodelist && (
-              <Summary counts={this.counts()} draftURL={draftURL} />
-            )}
-
-            {searches.length > 0 && (
-              <Search
-                draftURL={draftURL}
-                isEditable={isEditable}
-                searches={searches}
-              />
-            )}
-
-            {isEditable && (
-              <SearchForm
-                codingSystemName={metadata.coding_system_name}
-                searchURL={searchURL}
-              />
-            )}
-
-            <Versions versions={this.props.versions} />
-          </Col>
+          <Sidebar
+            counts={this.counts()}
+            draftURL={draftURL}
+            isEditable={isEditable}
+            isEmptyCodelist={isEmptyCodelist}
+            metadata={metadata}
+            searches={searches}
+            searchURL={searchURL}
+            versions={versions}
+          />
 
           {isEmptyCodelist ? (
             <Col md="9">

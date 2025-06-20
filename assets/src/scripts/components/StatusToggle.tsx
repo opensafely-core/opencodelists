@@ -4,6 +4,7 @@ import { Code, Status } from "../types";
 
 interface StatusToggleProps {
   code: Code;
+  disabled?: boolean;
   status: Status;
   symbol: "+" | "-";
   updateStatus: Function;
@@ -11,6 +12,7 @@ interface StatusToggleProps {
 
 export default function StatusToggle({
   code,
+  disabled,
   status,
   symbol,
   updateStatus,
@@ -19,6 +21,7 @@ export default function StatusToggle({
     <Button
       className="py-0 text-monospace"
       data-symbol={symbol}
+      disabled={disabled}
       onClick={updateStatus && updateStatus.bind(null, code, symbol)}
       size="sm"
       variant={

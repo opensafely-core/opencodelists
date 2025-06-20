@@ -344,15 +344,8 @@ export default class CodelistBuilder extends React.Component<
   };
 
   render() {
-    const {
-      allCodes,
-      draftURL,
-      hierarchy,
-      isEditable,
-      isEmptyCodelist,
-      searches,
-      visiblePaths,
-    } = this.props;
+    const { draftURL, isEditable, isEmptyCodelist, searches, visiblePaths } =
+      this.props;
 
     return (
       <>
@@ -376,10 +369,7 @@ export default class CodelistBuilder extends React.Component<
               <Tabs defaultActiveKey="codelist" className="mb-3">
                 <Tab eventKey="codelist" title="Codelist">
                   <CodelistTab
-                    allCodes={allCodes}
                     codeToStatus={this.state.codeToStatus}
-                    hierarchy={hierarchy}
-                    isEditable={isEditable}
                     updateStatus={this.updateStatus}
                     visiblePaths={visiblePaths}
                   />

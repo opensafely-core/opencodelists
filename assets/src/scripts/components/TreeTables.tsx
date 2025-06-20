@@ -1,26 +1,18 @@
-import React from "react";
+import React, { useContext } from "react";
 import { ButtonGroup } from "react-bootstrap";
-import Hierarchy from "../_hierarchy";
+import { BuilderContext } from "../state/BuilderContext";
 import { PageData } from "../types";
 import StatusToggle from "./StatusToggle";
 
 function TreeNode({
   code,
-  codeToTerm,
-  codeToStatus,
-  hierarchy,
-  isEditable,
   updateStatus,
-  visiblePaths,
 }: {
   code: string;
-  codeToStatus: PageData["codeToStatus"];
-  codeToTerm: PageData["codeToTerm"];
-  hierarchy: Hierarchy;
-  isEditable: PageData["isEditable"];
   updateStatus: Function;
-  visiblePaths: PageData["visiblePaths"];
 }) {
+  const { codeToStatus, codeToTerm, isEditable, hierarchy, visiblePaths } =
+    useContext(BuilderContext);
   const status = codeToStatus[code];
   const term = codeToTerm[code];
   const hasDescendants = !!hierarchy.childMap[code]?.length;
@@ -32,12 +24,14 @@ function TreeNode({
           <ButtonGroup>
             <StatusToggle
               code={code}
+              disabled={isEditable}
               status={status}
               symbol="+"
               updateStatus={updateStatus}
             />
             <StatusToggle
               code={code}
+              disabled={isEditable}
               status={status}
               symbol="-"
               updateStatus={updateStatus}
@@ -73,12 +67,7 @@ function TreeNode({
                   <TreeNode
                     key={child}
                     code={child}
-                    codeToTerm={codeToTerm}
-                    codeToStatus={codeToStatus}
-                    hierarchy={hierarchy}
-                    isEditable={isEditable}
                     updateStatus={updateStatus}
-                    visiblePaths={visiblePaths}
                   />
                 ))}
             </ul>
@@ -108,22 +97,11 @@ function TreeNode({
 }
 
 function TreeTables({
-  codeToStatus,
-  codeToTerm,
-  hierarchy,
-  isEditable,
   treeTables,
   updateStatus,
-  visiblePaths,
 }: {
-  allCodes: PageData["allCodes"];
-  codeToStatus: PageData["codeToStatus"];
-  codeToTerm: PageData["codeToTerm"];
-  hierarchy: Hierarchy;
-  isEditable: PageData["isEditable"];
   treeTables: PageData["treeTables"];
   updateStatus: Function;
-  visiblePaths: PageData["visiblePaths"];
 }) {
   return (
     <>
@@ -133,15 +111,7 @@ function TreeTables({
           <div className="builder__container">
             {ancestorCodes.map((ancestorCode) => (
               <ul key={ancestorCode} className="tree__list">
-                <TreeNode
-                  code={ancestorCode}
-                  codeToTerm={codeToTerm}
-                  codeToStatus={codeToStatus}
-                  hierarchy={hierarchy}
-                  isEditable={isEditable}
-                  updateStatus={updateStatus}
-                  visiblePaths={visiblePaths}
-                />
+                <TreeNode code={ancestorCode} updateStatus={updateStatus} />
               </ul>
             ))}
           </div>

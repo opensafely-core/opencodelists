@@ -3,6 +3,7 @@ import { Col } from "react-bootstrap";
 import SearchForm from "../Cards/SearchForm";
 import Searches, { SearchesProps } from "../Cards/Searches";
 import Summary, { SummaryProps } from "../Cards/Summary";
+import Tools from "../Cards/Tools";
 import Versions from "../Cards/Versions";
 
 export default function Sidebar({
@@ -36,6 +37,8 @@ export default function Sidebar({
           <Versions />
         </>
       )}
+
+      <Tools />
     </Col>
   );
 }

@@ -1,0 +1,37 @@
+[
+  {
+    "codingSystem": ["icd10", "snomedct"],
+    "description": "Yearly summaries of SNOMED Code Usage in Primary Care and ICD-10 and OPCS-4 Code Usage in Secondary Care in England.",
+    "id": "opencodecounts",
+    "link": "https://bennettoxford.github.io/opencodecounts/",
+    "name": "Code usage tool"
+  },
+  {
+    "codingSystem": ["bnf"],
+    "description": "Search GP prescribing by BNF code.",
+    "id": "openprescibing-analyse",
+    "link": "https://openprescribing.net/chemical/",
+    "name": "OpenPresribing Analyse"
+  },
+  {
+    "codingSystem": ["dmd"],
+    "description": "Web-based browser of the NHS Dictionary of Medicines and Devices.",
+    "id": "openprescibing-dmd",
+    "link": "https://openprescribing.net/dmd/",
+    "name": "OpenPresribing dm+d browser"
+  },
+  {
+    "codingSystem": ["snomedct"],
+    "description": "This site defaults to the Australian edition of SNOMED CT. Ensure to select the most appropriate edition from the drop down on the right hand side (UK - Latest).",
+    "id": "shrimp",
+    "link": "https://ontoserver.csiro.au/shrimp/",
+    "name": "Shrimp SNOMED browser"
+  },
+  {
+    "codingSystem": ["snomedct"],
+    "description": "Provides ways to browse and search the SNOMED CT UK Edition.",
+    "id": "snomedct-browser",
+    "link": "https://termbrowser.nhs.uk/?",
+    "name": "NHS Digital SNOMED CT Browser"
+  }
+]

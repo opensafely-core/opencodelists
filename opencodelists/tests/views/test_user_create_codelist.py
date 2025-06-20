@@ -182,3 +182,20 @@ def test_post_invalid_duplicate_name(client, organisation_user):
         response = client.post("/users/bob/new-codelist/", data)
 
     assert b"There is already a codelist called User-owned Codelist" in response.content
+
+
+def test_post_invalid_invalid_name(client, organisation_user):
+    client.force_login(organisation_user)
+    data = {
+        "name": "!",
+        "coding_system_id": "snomedct",
+        "owner": "user:bob",
+    }
+
+    with assert_no_difference(Codelist.objects.count):
+        response = client.post("/users/bob/new-codelist/", data)
+
+    assert (
+        b"Codelist names must contain at least one letter or number."
+        in response.content
+    )

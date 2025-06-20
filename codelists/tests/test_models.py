@@ -1,4 +1,5 @@
 import pytest
+from django.core.exceptions import ValidationError
 from django.db.utils import IntegrityError
 
 from builder import actions as builder_actions
@@ -103,6 +104,47 @@ def test_handle_name_cannot_be_reused_by_user(user_codelist):
             is_current=True,
             user=user_codelist.user,
         )
+
+
+def test_handle_name_only_alphanumeric_hyphen_underscore(codelist):
+    with pytest.raises(
+        ValidationError,
+        match="Codelist names must contain at least one letter or number.",
+    ):
+        handle = Handle.objects.create(
+            codelist=codelist,
+            name="!",
+            slug="new-slug",
+            is_current=True,
+            organisation=codelist.organisation,
+        )
+        handle._meta.get_field("name").clean(handle.name, handle)
+
+
+def test_handle_name_non_blank(codelist):
+    with pytest.raises(
+        ValidationError,
+        match="This field cannot be blank.",
+    ):
+        handle = Handle.objects.create(
+            codelist=codelist,
+            name="",
+            slug="new-slug",
+            is_current=True,
+            organisation=codelist.organisation,
+        )
+        handle._meta.get_field("name").clean(handle.name, handle)
+
+
+def test_handle_name_validation_valid(user_codelist):
+    handle = Handle.objects.create(
+        codelist=user_codelist,
+        name="new-codelist_validname123!,\"'.",
+        slug="new-slug",
+        is_current=True,
+        user=user_codelist.user,
+    )
+    handle._meta.get_field("name").clean(handle.name, handle)
 
 
 def test_old_style_codes(old_style_version):

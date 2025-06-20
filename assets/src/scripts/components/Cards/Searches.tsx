@@ -1,19 +1,24 @@
 import React, { useState } from "react";
 import { Button, Card, Form, ListGroup } from "react-bootstrap";
-import { getCookie } from "../_utils";
-import { PageData } from "../types";
+import { getCookie } from "../../_utils";
+import { PageData } from "../../types";
 
-interface SearchProps {
+export interface SearchesProps {
   draftURL: PageData["draftURL"];
   isEditable: PageData["isEditable"];
-  searches: PageData["searches"];
+  searches: {
+    active: boolean;
+    delete_url: string;
+    term_or_code: string;
+    url: string;
+  }[];
 }
 
-export default function Search({
+export default function Searches({
   draftURL,
   isEditable,
   searches,
-}: SearchProps) {
+}: SearchesProps) {
   const [activeUrl, setActiveUrl] = useState<string>(
     () => searches.find((search) => search.active)?.url || "",
   );

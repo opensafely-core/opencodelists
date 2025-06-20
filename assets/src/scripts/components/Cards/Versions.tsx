@@ -6,13 +6,17 @@ import {
   OverlayTrigger,
   Tooltip,
 } from "react-bootstrap";
-import { VersionT } from "../types";
+import { readValueFromPage } from "../../_utils";
 
-interface VersionProps {
-  versions: VersionT[];
+export interface VersionProps {
+  created_at: string;
+  current: boolean;
+  status: string;
+  tag_or_hash: string;
+  url: string;
 }
 
-function Version({ version }: { version: VersionT }) {
+function Version({ version }: { version: VersionProps }) {
   const createdAt = new Date(version.created_at);
   const userTimeZone =
     Intl?.DateTimeFormat()?.resolvedOptions()?.timeZone || "UTC";
@@ -72,7 +76,11 @@ function Version({ version }: { version: VersionT }) {
   );
 }
 
-export default function Versions({ versions }: VersionProps) {
+export default function Versions() {
+  const versions: VersionProps[] = readValueFromPage("versions");
+
+  if (!versions) return null;
+
   return (
     <Card>
       <Card.Header as="h2" className="h6 font-weight-bold">

@@ -3,7 +3,7 @@ import { Card, ListGroup } from "react-bootstrap";
 import { readValueFromPage } from "../../_utils";
 import listOfTools from "../../data/tools.json";
 
-const codingSystemNameMap: Record<string, string> = {
+const codingSystemMap: Record<string, string> = {
   "Pseudo BNF": "bnf",
   "CTV3 (Read V3)": "ctv3",
   "Dictionary of Medicines and Devices": "dmd",
@@ -19,7 +19,7 @@ export default function Tools() {
 
   const [tools] = useState(() => {
     return listOfTools.filter((tool) =>
-      tool.codingTypes.includes(codingSystemNameMap?.[codingSystemName]),
+      tool.codingSystem.includes(codingSystemMap?.[codingSystemName]),
     );
   });
 

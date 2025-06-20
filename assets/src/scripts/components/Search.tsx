@@ -3,10 +3,15 @@ import { Button, Card, Form, ListGroup } from "react-bootstrap";
 import { getCookie } from "../_utils";
 import { PageData } from "../types";
 
-interface SearchProps {
+export interface SearchProps {
   draftURL: PageData["draftURL"];
   isEditable: PageData["isEditable"];
-  searches: PageData["searches"];
+  searches: {
+    active: boolean;
+    delete_url: string;
+    term_or_code: string;
+    url: string;
+  }[];
 }
 
 export default function Search({

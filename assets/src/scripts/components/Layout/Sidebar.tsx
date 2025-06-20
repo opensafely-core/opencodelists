@@ -1,6 +1,6 @@
 import React from "react";
 import { Col } from "react-bootstrap";
-import Search from "../Search";
+import Search, { SearchProps } from "../Search";
 import SearchForm from "../SearchForm";
 import Summary from "../Summary";
 import Versions from "../Versions";
@@ -24,12 +24,7 @@ export default function Sidebar({
   draftURL: string;
   isEditable: boolean;
   isEmptyCodelist: boolean;
-  searches: {
-    active: boolean;
-    delete_url: string;
-    term_or_code: string;
-    url: string;
-  }[];
+  searches: SearchProps["searches"];
 }) {
   return (
     <Col className="builder__sidebar" md="3">

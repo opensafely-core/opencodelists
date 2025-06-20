@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import React from "react";
 import { describe, expect, it, vi } from "vitest";
-import ManagementForm from "../../components/ManagementForm";
+import ActionButtons from "../../components/ActionButtons";
 
 // Mock the getCookie utility
 vi.mock("../../_utils", () => ({
@@ -22,7 +22,7 @@ describe("ManagementForm", () => {
   };
 
   it("renders all form buttons", () => {
-    render(<ManagementForm counts={defaultCounts} />);
+    render(<ActionButtons counts={defaultCounts} />);
 
     expect(screen.getByText("Save for review")).toBeVisible();
     expect(screen.getByText("Save draft")).toBeVisible();
@@ -30,7 +30,7 @@ describe("ManagementForm", () => {
   });
 
   it("disables 'Save for review' button when there are no items added", () => {
-    render(<ManagementForm counts={defaultCounts} />);
+    render(<ActionButtons counts={defaultCounts} />);
 
     const saveForReviewButton = screen.getByRole("button", {
       name: "Save for review",
@@ -44,7 +44,7 @@ describe("ManagementForm", () => {
       "?": 1,
       total: 1,
     };
-    render(<ManagementForm counts={countsWithUnresolved} />);
+    render(<ActionButtons counts={countsWithUnresolved} />);
 
     const saveForReviewButton = screen.getByRole("button", {
       name: "Save for review",
@@ -59,7 +59,7 @@ describe("ManagementForm", () => {
       "-": 1,
       total: 2,
     };
-    render(<ManagementForm counts={countsWithAllResolved} />);
+    render(<ActionButtons counts={countsWithAllResolved} />);
 
     const saveForReviewButton = screen.getByRole("button", {
       name: "Save for review",
@@ -74,7 +74,7 @@ describe("ManagementForm", () => {
       "?": 1,
       total: 1,
     };
-    render(<ManagementForm counts={countsWithUnresolved} />);
+    render(<ActionButtons counts={countsWithUnresolved} />);
 
     const saveForReviewButton = screen.getByRole("button", {
       name: "Save for review",
@@ -90,7 +90,7 @@ describe("ManagementForm", () => {
 
   it("shows discard confirmation modal when clicking discard button", async () => {
     const user = userEvent.setup();
-    render(<ManagementForm counts={defaultCounts} />);
+    render(<ActionButtons counts={defaultCounts} />);
 
     const discardButton = screen.getByRole("button", {
       name: "Discard",
@@ -106,7 +106,7 @@ describe("ManagementForm", () => {
 
   it("closes discard modal when clicking continue editing", async () => {
     const user = userEvent.setup();
-    render(<ManagementForm counts={defaultCounts} />);
+    render(<ActionButtons counts={defaultCounts} />);
 
     const discardButton = screen.getByRole("button", {
       name: "Discard",
@@ -125,7 +125,7 @@ describe("ManagementForm", () => {
 
   it("includes CSRF token in all forms", async () => {
     const user = userEvent.setup();
-    render(<ManagementForm counts={defaultCounts} />);
+    render(<ActionButtons counts={defaultCounts} />);
 
     let csrfInputs = screen.getAllByDisplayValue("test-csrf-token");
     expect(csrfInputs).toHaveLength(1); // One in main form
@@ -155,7 +155,7 @@ describe("ManagementForm", () => {
       "-": 1,
       total: 2,
     };
-    render(<ManagementForm counts={countsWithAllResolved} />);
+    render(<ActionButtons counts={countsWithAllResolved} />);
 
     // Main form actions
     const saveForReviewButton = screen.getByRole("button", {

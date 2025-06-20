@@ -1,7 +1,6 @@
 import React from "react";
 import Hierarchy from "../_hierarchy";
-import { PageData, Path, ToggleVisibility } from "../types";
-import TreeTable from "./TreeTable";
+import { PageData } from "../types";
 
 interface TreeTablesProps {
   allCodes: PageData["allCodes"];
@@ -10,55 +9,86 @@ interface TreeTablesProps {
   codeToTerm: PageData["codeToTerm"];
   hierarchy: Hierarchy;
   isEditable: PageData["isEditable"];
-  toggleVisibility: ToggleVisibility;
   treeTables: PageData["treeTables"];
   updateStatus: Function;
   visiblePaths: PageData["visiblePaths"];
 }
 
-export default class TreeTables extends React.Component<
-  TreeTablesProps,
-  { visiblePaths: PageData["visiblePaths"] }
-> {
-  constructor(props: TreeTablesProps) {
-    super(props);
-    this.state = { visiblePaths: props.visiblePaths };
-    this.toggleVisibility = this.toggleVisibility.bind(this);
-  }
+function TreeNode({
+  code,
+  codeToTerm,
+  codeToStatus,
+  hierarchy,
+  isEditable,
+  updateStatus,
+  visiblePaths
+}) {
+  const term = codeToTerm[code];
+  const hasDescendants = !!hierarchy.childMap[code]?.length;
 
-  toggleVisibility(path: Path) {
-    this.setState((state) => {
-      const visiblePaths = new Set(state.visiblePaths);
-      this.props.hierarchy.toggleVisibility(visiblePaths, path);
-      return { visiblePaths: visiblePaths };
-    });
-  }
-
-  render() {
-    const {
-      allCodes,
-      codeToStatus,
-      codeToTerm,
-      hierarchy,
-      isEditable,
-      treeTables,
-      updateStatus,
-    } = this.props;
-
-    return treeTables.map(([heading, ancestorCodes]) => (
-      <TreeTable
-        key={heading}
-        allCodes={allCodes}
-        ancestorCodes={ancestorCodes}
-        codeToStatus={codeToStatus}
-        codeToTerm={codeToTerm}
-        heading={heading}
-        hierarchy={hierarchy}
-        isEditable={isEditable}
-        toggleVisibility={this.toggleVisibility}
-        updateStatus={updateStatus}
-        visiblePaths={this.state.visiblePaths}
-      />
-    ));
-  }
+  return (
+    <li className="tree__item" title={term} key={code}>
+      {hasDescendants ? (
+        <details open={visiblePaths?.has(code)}>
+          <summary>
+            {term} {code}
+          </summary>
+          <ul className="tree__list">
+            {hierarchy.childMap[code].map((child) => (
+              <TreeNode
+                key={child}
+                code={child}
+                codeToTerm={codeToTerm}
+                codeToStatus={codeToStatus}
+                hierarchy={hierarchy}
+                isEditable={isEditable}
+                updateStatus={updateStatus}
+              />
+            ))}
+          </ul>
+        </details>
+      ) : (
+        <>
+          {term} {code}
+        </>
+      )}
+    </li>
+  );
 }
+
+function TreeTables({
+  codeToStatus,
+  codeToTerm,
+  hierarchy,
+  isEditable,
+  treeTables,
+  updateStatus,
+  visiblePaths,
+}) {
+  return (
+    <>
+      {treeTables.map(([heading, ancestorCodes]) => (
+        <div className="mb-2 pb-2 overflow-auto" key={heading}>
+          <h5>{heading}</h5>
+          <div className="builder__container">
+            {ancestorCodes.map((ancestorCode) => (
+              <ul key={ancestorCode} className="tree__list">
+                <TreeNode
+                  code={ancestorCode}
+                  codeToTerm={codeToTerm}
+                  codeToStatus={codeToStatus}
+                  hierarchy={hierarchy}
+                  isEditable={isEditable}
+                  updateStatus={updateStatus}
+                  visiblePaths={visiblePaths}
+                />
+              </ul>
+            ))}
+          </div>
+        </div>
+      ))}
+    </>
+  );
+}
+
+export default TreeTables;

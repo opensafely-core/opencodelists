@@ -3,11 +3,11 @@ import { Button, Form, Modal, OverlayTrigger, Tooltip } from "react-bootstrap";
 import { getCookie } from "../_utils";
 import { SummaryProps } from "./Cards/Summary";
 
-interface ManagementFormProps {
+interface ActionButtonsProps {
   counts: SummaryProps["counts"];
 }
 
-export default function ManagementForm({ counts }: ManagementFormProps) {
+export default function ActionButtons({ counts }: ActionButtonsProps) {
   const [showDiscardModal, setShowDiscardModal] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
 

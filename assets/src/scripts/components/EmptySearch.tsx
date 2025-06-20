@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function EmptyState() {
+export default function EmptySearch() {
   return (
     <section className="max-w-80ch">
       <p className="lead">Your search returned no concepts. You may want to:</p>

@@ -3,14 +3,11 @@ import { Col, Form, Row, Tab, Tabs } from "react-bootstrap";
 import Hierarchy from "../_hierarchy";
 import { getCookie } from "../_utils";
 import { Code, PageData, Reference, Status } from "../types";
-import EmptySearch from "./EmptySearch";
 import EmptyState from "./EmptyState";
+import CodelistTab from "./Layout/CodelistTab";
+import Header from "./Layout/Header";
 import Sidebar from "./Layout/Sidebar";
-import ManagementForm from "./ManagementForm";
-import Metadata from "./Metadata";
 import ReferenceList from "./ReferenceList";
-import Title from "./Title";
-import TreeTables from "./TreeTables";
 
 type MetadataFieldName = "description" | "methodology";
 interface MetadataField {
@@ -349,27 +346,18 @@ export default class CodelistBuilder extends React.Component<
   render() {
     const {
       allCodes,
-      codeToTerm,
       draftURL,
       hierarchy,
       isEditable,
       isEmptyCodelist,
-      metadata,
-      resultsHeading,
       searches,
-      treeTables,
       visiblePaths,
     } = this.props;
 
     return (
       <>
-        <div className="border-bottom mb-3 pb-3">
-          <div className="d-flex flex-row justify-content-between gap-2 mb-2">
-            <Title name={metadata.codelist_name} />
-            {isEditable && <ManagementForm counts={this.counts()} />}
-          </div>
-          <Metadata data={metadata} />
-        </div>
+        <Header counts={this.counts()} isEditable={isEditable} />
+
         <Row>
           <Sidebar
             counts={this.counts()}
@@ -387,23 +375,14 @@ export default class CodelistBuilder extends React.Component<
             <Col md="9">
               <Tabs defaultActiveKey="codelist" className="mb-3">
                 <Tab eventKey="codelist" title="Codelist">
-                  <h3 className="h4">{resultsHeading}</h3>
-                  <hr />
-                  {treeTables.length > 0 ? (
-                    <TreeTables
-                      allCodes={allCodes}
-                      codeToStatus={this.state.codeToStatus}
-                      codeToTerm={codeToTerm}
-                      hierarchy={hierarchy}
-                      isEditable={isEditable}
-                      toggleVisibility={() => null}
-                      treeTables={treeTables}
-                      updateStatus={this.updateStatus}
-                      visiblePaths={visiblePaths}
-                    />
-                  ) : (
-                    <EmptySearch />
-                  )}
+                  <CodelistTab
+                    allCodes={allCodes}
+                    codeToStatus={this.state.codeToStatus}
+                    hierarchy={hierarchy}
+                    isEditable={isEditable}
+                    updateStatus={this.updateStatus}
+                    visiblePaths={visiblePaths}
+                  />
                 </Tab>
                 <Tab
                   eventKey="metadata"

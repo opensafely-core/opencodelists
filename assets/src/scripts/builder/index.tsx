@@ -13,7 +13,6 @@ const hierarchy = new Hierarchy(
 const treeTables: PageData["treeTables"] = readValueFromPage("tree-tables");
 const codeToStatus: PageData["codeToStatus"] =
   readValueFromPage("code-to-status");
-const codeToTerm: PageData["codeToTerm"] = readValueFromPage("code-to-term");
 
 const ancestorCodes = treeTables
   .map(([_, ancestorCodes]) => ancestorCodes)
@@ -33,7 +32,6 @@ if (container) {
       <CodelistBuilder
         allCodes={readValueFromPage("all-codes")}
         codeToStatus={codeToStatus}
-        codeToTerm={codeToTerm}
         draftURL={readValueFromPage("draft-url")}
         hierarchy={hierarchy}
         isEditable={readValueFromPage("is-editable")}
@@ -41,7 +39,6 @@ if (container) {
         metadata={readValueFromPage("metadata")}
         resultsHeading={readValueFromPage("results-heading")}
         searches={readValueFromPage("searches")}
-        treeTables={treeTables}
         updateURL={readValueFromPage("update-url")}
         visiblePaths={visiblePaths}
       />

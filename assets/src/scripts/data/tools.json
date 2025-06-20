@@ -7,24 +7,24 @@
     "name": "Code usage tool"
   },
   {
-    "codingSystem": ["icd10", "snomedct"],
-    "description": "Provides ways to browse and search the SNOMED CT UK Edition",
-    "id": "snomedct-browser",
-    "link": "https://termbrowser.nhs.uk/?",
-    "name": "NHS Digital SNOMED CT Browser"
+    "codingSystem": ["icd10", "bnf"],
+    "description": "Search GP prescribing by BNF code",
+    "id": "openprescibing-analyse",
+    "link": "https://openprescribing.net/analyse/",
+    "name": "OpenPresribing Analyse"
   },
   {
-    "codingSystem": ["dmd"],
+    "codingSystem": ["icd10", "dmd"],
     "description": "Web-based browser of the NHS Dictionary of Medicines and Devices",
     "id": "openprescibing-dmd",
     "link": "https://openprescribing.net/dmd/",
     "name": "OpenPresribing dm+d browser"
   },
   {
-    "codingSystem": ["bnf"],
-    "description": "Search GP prescribing by BNF code",
-    "id": "openprescibing-analyse",
-    "link": "https://openprescribing.net/analyse/",
-    "name": "OpenPresribing Analyse"
+    "codingSystem": ["icd10", "snomedct"],
+    "description": "Provides ways to browse and search the SNOMED CT UK Edition",
+    "id": "snomedct-browser",
+    "link": "https://termbrowser.nhs.uk/?",
+    "name": "NHS Digital SNOMED CT Browser"
   }
 ]

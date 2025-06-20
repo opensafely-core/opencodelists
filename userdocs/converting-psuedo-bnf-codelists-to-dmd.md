@@ -1,0 +1,18 @@
+## Converting Pseudo-BNF codelists to dm+d
+
+Pseudo-BNF and the NHS Dictionary of Medicines and Devices (dm+d) are both medication coding systems in regular use in the UK.
+
+The NHS regularly publishes a file which maps BNF codes to dm+d codes, which we ingest into OpenCodelists, allowing you to convert your Pseudo-BNF codelists to dm+d.
+
+To do this, go to the page for Pseudo-BNF codelist you wish to convert and select the version of the codelist you want (if there are multiple), and click the "Convert to dm+d" button on the left hand side of the page.
+
+        download-convert-buttons-bnf.png
+
+This will create a new codelist with the same name as your Pseudo-BNF codelist but with a "-dmd" suffix, and you will be taken to its page.
+The methodology statement of this dm+d codelist contains a link back to your original Pseudo-BNF, you are free to edit this and all other codelist metadata just like any other codelist.
+
+If you wish to update this converted codelist
+(for example, after an update to the Pseudo-BNF list, the Pseudo-BNF coding system, or the Pseudo-BNF to dm+d mappings)
+you may return to the Pseudo-BNF codelist and click the "Convert to dm+d" button again and a new version of the dm+d codelist will be created.
+
+If this new version is identical to an existing version of the codelist (i.e. there are no changes in the dm+d codes), you will be shown an error and the new version will not be created.

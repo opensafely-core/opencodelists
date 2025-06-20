@@ -1,0 +1,16 @@
+[
+  {
+    "id": "opencodecounts",
+    "name": "Code usage tool",
+    "description": "Yearly summaries of SNOMED Code Usage in Primary Care and ICD-10 and OPCS-4 Code Usage in Secondary Care in England",
+    "link": "https://bennettoxford.github.io/opencodecounts/",
+    "codingTypes": ["icd10", "snomedct"]
+  },
+  {
+    "id": "snomedct-browser",
+    "name": "NHS Digital SNOMED CT Browser",
+    "description": "Provides ways to browse and search the SNOMED CT UK Edition",
+    "link": "https://termbrowser.nhs.uk/?",
+    "codingTypes": ["icd10", "snomedct"]
+  }
+]

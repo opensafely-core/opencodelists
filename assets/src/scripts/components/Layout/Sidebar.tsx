@@ -2,7 +2,7 @@ import React from "react";
 import { Col } from "react-bootstrap";
 import Search, { SearchProps } from "../Search";
 import SearchForm from "../SearchForm";
-import Summary from "../Summary";
+import Summary, { SummaryProps } from "../Summary";
 import Versions from "../Versions";
 
 export default function Sidebar({
@@ -12,15 +12,7 @@ export default function Sidebar({
   isEmptyCodelist,
   searches,
 }: {
-  counts: {
-    "!": number;
-    "(+)": number;
-    "(-)": number;
-    "+": number;
-    "-": number;
-    "?": number;
-    total: number;
-  };
+  counts: SummaryProps["counts"];
   draftURL: string;
   isEditable: boolean;
   isEmptyCodelist: boolean;

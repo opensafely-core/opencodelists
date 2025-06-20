@@ -52,21 +52,27 @@ for subpath, view in [
     ("<slug:codelist_slug>/", views.codelist),
     ("<slug:codelist_slug>/edit/", views.codelist_update),
     ("<slug:codelist_slug>/upload-version/", views.version_upload),
-    ("<slug:codelist_slug>/<tag_or_hash>/", views.version),
-    ("<slug:codelist_slug>/<tag_or_hash>/create-new-version/", views.version_create),
-    ("<slug:codelist_slug>/<tag_or_hash>/publish/", views.version_publish),
-    ("<slug:codelist_slug>/<tag_or_hash>/delete/", views.version_delete),
+    ("<slug:codelist_slug>/<str:tag_or_hash>/", views.version),
     (
-        "<slug:codelist_slug>/<tag_or_hash>/diff/<other_tag_or_hash>/",
+        "<slug:codelist_slug>/<str:tag_or_hash>/create-new-version/",
+        views.version_create,
+    ),
+    ("<slug:codelist_slug>/<str:tag_or_hash>/publish/", views.version_publish),
+    ("<slug:codelist_slug>/<str:tag_or_hash>/delete/", views.version_delete),
+    (
+        "<slug:codelist_slug>/<str:tag_or_hash>/diff/<other_tag_or_hash>/",
         views.version_diff,
     ),
-    ("<slug:codelist_slug>/<tag_or_hash>/download.csv", views.version_download),
+    ("<slug:codelist_slug>/<str:tag_or_hash>/download.csv", views.version_download),
     (
-        "<slug:codelist_slug>/<tag_or_hash>/definition.csv",
+        "<slug:codelist_slug>/<str:tag_or_hash>/definition.csv",
         views.version_download_definition,
     ),
-    ("<slug:codelist_slug>/<tag_or_hash>/dmd-download.csv", views.version_dmd_download),
-    ("<slug:codelist_slug>/<tag_or_hash>/dmd-convert", views.version_dmd_convert),
+    (
+        "<slug:codelist_slug>/<str:tag_or_hash>/dmd-download.csv",
+        views.version_dmd_download,
+    ),
+    ("<slug:codelist_slug>/<str:tag_or_hash>/dmd-convert", views.version_dmd_convert),
 ]:
     urlpatterns.append(
         path(

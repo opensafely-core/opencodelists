@@ -1,3 +1,5 @@
+import { SearchProps } from "./components/Search";
+
 export type AncestorCode = string;
 export type AncestorCodes = AncestorCode[];
 export type Code = string;
@@ -30,12 +32,7 @@ export interface PageData {
     organisation_name: string;
   };
   resultsHeading: string;
-  searches: {
-    active: boolean;
-    delete_url: string;
-    term_or_code: string;
-    url: string;
-  }[];
+  searches: SearchProps["searches"];
   treeTables: [string, string[]][];
   updateURL: string;
   visiblePaths: VisiblePaths;

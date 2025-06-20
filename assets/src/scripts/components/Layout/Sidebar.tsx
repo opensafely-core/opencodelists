@@ -6,15 +6,12 @@ import Summary from "../Summary";
 import Versions from "../Versions";
 
 export default function Sidebar({
-  codingSystemName,
   counts,
   draftURL,
   isEditable,
   isEmptyCodelist,
   searches,
-  searchURL,
 }: {
-  codingSystemName: string;
   counts: {
     "!": number;
     "(+)": number;
@@ -33,7 +30,6 @@ export default function Sidebar({
     term_or_code: string;
     url: string;
   }[];
-  searchURL: string;
 }) {
   return (
     <Col className="builder__sidebar" md="3">
@@ -47,9 +43,7 @@ export default function Sidebar({
         />
       )}
 
-      {isEditable && (
-        <SearchForm codingSystemName={codingSystemName} searchURL={searchURL} />
-      )}
+      {isEditable && <SearchForm />}
 
       <Versions />
     </Col>

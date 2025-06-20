@@ -41,7 +41,6 @@ if (container) {
         metadata={readValueFromPage("metadata")}
         resultsHeading={readValueFromPage("results-heading")}
         searches={readValueFromPage("searches")}
-        searchURL={readValueFromPage("search-url")}
         treeTables={treeTables}
         updateURL={readValueFromPage("update-url")}
         visiblePaths={visiblePaths}

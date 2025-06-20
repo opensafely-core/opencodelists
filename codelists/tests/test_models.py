@@ -118,6 +118,13 @@ def test_old_style_codes(old_style_version):
     )
 
 
+def test_old_style_codes_no_header(dmd_version_asthma_medication_no_headers):
+    assert dmd_version_asthma_medication_no_headers.codes == (
+        "10514511000001106",
+        "10525011000001107",
+    )
+
+
 def test_old_style_table(old_style_version):
     assert old_style_version.table == [
         ["code", "name"],

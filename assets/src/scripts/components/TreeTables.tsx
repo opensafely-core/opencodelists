@@ -1,18 +1,8 @@
 import React from "react";
+import { ButtonGroup } from "react-bootstrap";
 import Hierarchy from "../_hierarchy";
 import { PageData } from "../types";
-
-interface TreeTablesProps {
-  allCodes: PageData["allCodes"];
-  ancestorCodes?: string[];
-  codeToStatus: PageData["codeToStatus"];
-  codeToTerm: PageData["codeToTerm"];
-  hierarchy: Hierarchy;
-  isEditable: PageData["isEditable"];
-  treeTables: PageData["treeTables"];
-  updateStatus: Function;
-  visiblePaths: PageData["visiblePaths"];
-}
+import StatusToggle from "./StatusToggle";
 
 function TreeNode({
   code,
@@ -21,34 +11,95 @@ function TreeNode({
   hierarchy,
   isEditable,
   updateStatus,
-  visiblePaths
+  visiblePaths,
+}: {
+  code: string;
+  codeToStatus: PageData["codeToStatus"];
+  codeToTerm: PageData["codeToTerm"];
+  hierarchy: Hierarchy;
+  isEditable: PageData["isEditable"];
+  updateStatus: Function;
+  visiblePaths: PageData["visiblePaths"];
 }) {
+  const status = codeToStatus[code];
   const term = codeToTerm[code];
   const hasDescendants = !!hierarchy.childMap[code]?.length;
 
   return (
     <li className="tree__item" title={term} key={code}>
       {hasDescendants ? (
-        <details open={visiblePaths?.has(code)}>
-          <summary>
-            {term} {code}
-          </summary>
-          <ul className="tree__list">
-            {hierarchy.childMap[code].map((child) => (
-              <TreeNode
-                key={child}
-                code={child}
-                codeToTerm={codeToTerm}
-                codeToStatus={codeToStatus}
-                hierarchy={hierarchy}
-                isEditable={isEditable}
-                updateStatus={updateStatus}
-              />
-            ))}
-          </ul>
-        </details>
+        <>
+          <ButtonGroup>
+            <StatusToggle
+              code={code}
+              status={status}
+              symbol="+"
+              updateStatus={updateStatus}
+            />
+            <StatusToggle
+              code={code}
+              status={status}
+              symbol="-"
+              updateStatus={updateStatus}
+            />
+          </ButtonGroup>
+          <details
+            open={
+              visiblePaths.has(code) ||
+              Array.from(visiblePaths).some(
+                (path) => path.split(":").pop() === code,
+              )
+            }
+          >
+            <summary>
+              <dl className="d-inline-flex flex-row">
+                <dt className="sr-only">Name:</dt>
+                <dd>{term}</dd>
+                <dt className="sr-only">Code:</dt>
+                <dd>
+                  <code>{code}</code>
+                </dd>
+              </dl>
+            </summary>
+            <ul className="tree__list">
+              {hierarchy.childMap[code]
+                .slice()
+                .sort((a, b) => {
+                  const termA = codeToTerm[a] || "";
+                  const termB = codeToTerm[b] || "";
+                  return termA.localeCompare(termB);
+                })
+                .map((child) => (
+                  <TreeNode
+                    key={child}
+                    code={child}
+                    codeToTerm={codeToTerm}
+                    codeToStatus={codeToStatus}
+                    hierarchy={hierarchy}
+                    isEditable={isEditable}
+                    updateStatus={updateStatus}
+                    visiblePaths={visiblePaths}
+                  />
+                ))}
+            </ul>
+          </details>
+        </>
       ) : (
         <>
+          <ButtonGroup>
+            <StatusToggle
+              code={code}
+              status={status}
+              symbol="+"
+              updateStatus={updateStatus}
+            />
+            <StatusToggle
+              code={code}
+              status={status}
+              symbol="-"
+              updateStatus={updateStatus}
+            />
+          </ButtonGroup>
           {term} {code}
         </>
       )}
@@ -64,6 +115,15 @@ function TreeTables({
   treeTables,
   updateStatus,
   visiblePaths,
+}: {
+  allCodes: PageData["allCodes"];
+  codeToStatus: PageData["codeToStatus"];
+  codeToTerm: PageData["codeToTerm"];
+  hierarchy: Hierarchy;
+  isEditable: PageData["isEditable"];
+  treeTables: PageData["treeTables"];
+  updateStatus: Function;
+  visiblePaths: PageData["visiblePaths"];
 }) {
   return (
     <>

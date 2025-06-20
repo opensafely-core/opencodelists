@@ -359,7 +359,6 @@ export default class CodelistBuilder extends React.Component<
       searches,
       searchURL,
       treeTables,
-      versions,
       visiblePaths,
     } = this.props;
 
@@ -381,7 +380,6 @@ export default class CodelistBuilder extends React.Component<
             isEmptyCodelist={isEmptyCodelist}
             searches={searches}
             searchURL={searchURL}
-            versions={versions}
           />
 
           {isEmptyCodelist ? (

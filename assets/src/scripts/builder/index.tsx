@@ -44,7 +44,6 @@ if (container) {
         searchURL={readValueFromPage("search-url")}
         treeTables={treeTables}
         updateURL={readValueFromPage("update-url")}
-        versions={readValueFromPage("versions")}
         visiblePaths={visiblePaths}
       />
     </StrictMode>,

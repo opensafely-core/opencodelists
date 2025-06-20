@@ -1,12 +1,11 @@
 import "@testing-library/jest-dom";
 import { render, screen } from "@testing-library/react";
 import React from "react";
-import { describe, expect, it } from "vitest";
-import Versions from "../../components/Versions";
-import { VersionT } from "../../types";
+import { beforeEach, describe, expect, it } from "vitest";
+import Versions, { VersionProps } from "../../components/Versions";
 
 describe("Version Component", () => {
-  const mockVersions: VersionT[] = [
+  const mockVersions: VersionProps[] = [
     {
       created_at: "2025-05-14T12:39:54.944Z",
       current: true,
@@ -30,20 +29,28 @@ describe("Version Component", () => {
     },
   ];
 
+  beforeEach(() => {
+    const script = document.createElement("script");
+    script.id = "versions";
+    script.type = "application/json";
+    script.textContent = JSON.stringify(mockVersions);
+    document.body.appendChild(script);
+  });
+
   it("renders the versions card with header", () => {
-    render(<Versions versions={mockVersions} />);
+    render(<Versions />);
     expect(screen.getByRole("heading", { name: "Versions" })).toBeVisible();
   });
 
   it("renders all version items", () => {
-    render(<Versions versions={mockVersions} />);
+    render(<Versions />);
     mockVersions.forEach((version) => {
       expect(screen.getByText(version.tag_or_hash)).toBeVisible();
     });
   });
 
   it("displays correct badge for published version", () => {
-    render(<Versions versions={mockVersions} />);
+    render(<Versions />);
     const publishedBadge = screen.getByText("Published");
     expect(publishedBadge).toBeVisible();
     expect(publishedBadge).toHaveClass("badge-success");
@@ -53,7 +60,7 @@ describe("Version Component", () => {
   });
 
   it("displays correct badge for under review version", () => {
-    render(<Versions versions={mockVersions} />);
+    render(<Versions />);
     const reviewBadge = screen.getByText("Under review");
     expect(reviewBadge).toBeVisible();
     expect(reviewBadge).toHaveClass("badge-info");
@@ -63,7 +70,7 @@ describe("Version Component", () => {
   });
 
   it("displays correct badge for draft version", () => {
-    render(<Versions versions={mockVersions} />);
+    render(<Versions />);
     const draftBadge = screen.getByText("Draft");
     expect(draftBadge).toBeVisible();
     expect(draftBadge).toHaveClass("badge-light");
@@ -73,7 +80,7 @@ describe("Version Component", () => {
   });
 
   it("renders correct links for non-current versions", () => {
-    render(<Versions versions={mockVersions} />);
+    render(<Versions />);
     const nonCurrentVersions = mockVersions.filter((v) => !v.current);
 
     nonCurrentVersions.forEach((version) => {
@@ -83,7 +90,7 @@ describe("Version Component", () => {
   });
 
   it("renders a valid created date and time for a version", () => {
-    render(<Versions versions={mockVersions} />);
+    render(<Versions />);
 
     // Tests are run with UTC+1 to confirm JS date formatting is applied
     // correctly. Therefore these times are one hour ahead of the

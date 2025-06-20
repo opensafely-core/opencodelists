@@ -13,7 +13,6 @@ export default function Sidebar({
   isEmptyCodelist,
   searches,
   searchURL,
-  versions,
 }: {
   codingSystemName: string;
   counts: {
@@ -35,13 +34,6 @@ export default function Sidebar({
     url: string;
   }[];
   searchURL: string;
-  versions: {
-    created_at: string;
-    current: boolean;
-    status: string;
-    tag_or_hash: string;
-    url: string;
-  }[];
 }) {
   return (
     <Col className="builder__sidebar" md="3">
@@ -59,7 +51,7 @@ export default function Sidebar({
         <SearchForm codingSystemName={codingSystemName} searchURL={searchURL} />
       )}
 
-      <Versions versions={versions} />
+      <Versions />
     </Col>
   );
 }

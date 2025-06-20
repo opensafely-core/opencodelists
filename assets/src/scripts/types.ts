@@ -7,13 +7,6 @@ export type Pipe = "└" | "├" | " " | "│";
 export type Status = "+" | "(+)" | "-" | "(-)" | "!" | "?";
 export type Term = string;
 export type ToggleVisibility = (path: Path) => void;
-export type VersionT = {
-  created_at: string;
-  current: boolean;
-  status: string;
-  tag_or_hash: string;
-  url: string;
-};
 
 type AllCodes = Code[];
 type VisiblePaths = Set<string>;
@@ -46,7 +39,6 @@ export interface PageData {
   searchURL: string;
   treeTables: [string, string[]][];
   updateURL: string;
-  versions: VersionT[];
   visiblePaths: VisiblePaths;
 }
 

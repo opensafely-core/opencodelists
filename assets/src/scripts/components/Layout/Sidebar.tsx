@@ -6,15 +6,16 @@ import Summary from "../Summary";
 import Versions from "../Versions";
 
 export default function Sidebar({
+  codingSystemName,
   counts,
   draftURL,
   isEditable,
   isEmptyCodelist,
-  metadata,
   searches,
   searchURL,
   versions,
 }: {
+  codingSystemName: string;
   counts: {
     "!": number;
     "(+)": number;
@@ -27,17 +28,6 @@ export default function Sidebar({
   draftURL: string;
   isEditable: boolean;
   isEmptyCodelist: boolean;
-  metadata: {
-    codelist_full_slug: string;
-    codelist_name: string;
-    coding_system_name: string;
-    coding_system_release: {
-      release_name: string;
-      valid_from: string;
-    };
-    hash: string;
-    organisation_name: string;
-  };
   searches: {
     active: boolean;
     delete_url: string;
@@ -66,10 +56,7 @@ export default function Sidebar({
       )}
 
       {isEditable && (
-        <SearchForm
-          codingSystemName={metadata.coding_system_name}
-          searchURL={searchURL}
-        />
+        <SearchForm codingSystemName={codingSystemName} searchURL={searchURL} />
       )}
 
       <Versions versions={versions} />

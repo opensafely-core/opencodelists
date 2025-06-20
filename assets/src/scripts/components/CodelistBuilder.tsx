@@ -374,11 +374,11 @@ export default class CodelistBuilder extends React.Component<
         </div>
         <Row>
           <Sidebar
+            codingSystemName={metadata.coding_system_name}
             counts={this.counts()}
             draftURL={draftURL}
             isEditable={isEditable}
             isEmptyCodelist={isEmptyCodelist}
-            metadata={metadata}
             searches={searches}
             searchURL={searchURL}
             versions={versions}

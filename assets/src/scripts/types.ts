@@ -36,7 +36,6 @@ export interface PageData {
     term_or_code: string;
     url: string;
   }[];
-  searchURL: string;
   treeTables: [string, string[]][];
   updateURL: string;
   visiblePaths: VisiblePaths;

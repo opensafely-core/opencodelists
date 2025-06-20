@@ -357,7 +357,6 @@ export default class CodelistBuilder extends React.Component<
       metadata,
       resultsHeading,
       searches,
-      searchURL,
       treeTables,
       visiblePaths,
     } = this.props;
@@ -373,13 +372,11 @@ export default class CodelistBuilder extends React.Component<
         </div>
         <Row>
           <Sidebar
-            codingSystemName={metadata.coding_system_name}
             counts={this.counts()}
             draftURL={draftURL}
             isEditable={isEditable}
             isEmptyCodelist={isEmptyCodelist}
             searches={searches}
-            searchURL={searchURL}
           />
 
           {isEmptyCodelist ? (

@@ -2,7 +2,7 @@ import React from "react";
 import { Card, ListGroup } from "react-bootstrap";
 import { PageData } from "../types";
 
-interface SummaryProps {
+export interface SummaryProps {
   counts: {
     "!": number;
     "(+)": number;

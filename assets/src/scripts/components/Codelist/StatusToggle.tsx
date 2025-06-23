@@ -1,6 +1,6 @@
 import React from "react";
 import { Button } from "react-bootstrap";
-import { Code, Status } from "../types";
+import { Code, Status } from "../../types";
 
 interface StatusToggleProps {
   code: Code;

@@ -2,8 +2,8 @@ import React, { useContext } from "react";
 import { readValueFromPage } from "../../_utils";
 import { BuilderContext } from "../../state/BuilderContext";
 import { PageData } from "../../types";
-import EmptySearch from "../EmptySearch";
-import TreeTables from "../TreeTables";
+import EmptySearch from "../Codelist/EmptySearch";
+import TreeTables from "../Codelist/TreeTables";
 
 export default function CodelistTab({
   codeToStatus,
@@ -23,9 +23,7 @@ export default function CodelistTab({
       <h3 className="h4">{resultsHeading}</h3>
       <hr />
       {treeTables.length > 0 ? (
-        <>
-          <TreeTables treeTables={treeTables} updateStatus={updateStatus} />
-        </>
+        <TreeTables treeTables={treeTables} updateStatus={updateStatus} />
       ) : (
         <EmptySearch />
       )}

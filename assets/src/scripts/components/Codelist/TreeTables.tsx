@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { ButtonGroup } from "react-bootstrap";
-import { BuilderContext } from "../state/BuilderContext";
-import { PageData } from "../types";
+import { BuilderContext } from "../../state/BuilderContext";
+import { PageData } from "../../types";
 import StatusToggle from "./StatusToggle";
 
 function TreeNode({

@@ -112,7 +112,7 @@ def test_codelists_get(client, organisation):
                     "full_slug": "test-university/dmd-codelist/69a34cc0",
                     "status": "under review",
                     "downloadable": False,
-                    "updated_date": "2025-06-20",
+                    "updated_date": today,
                 },
             ],
         },

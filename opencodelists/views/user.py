@@ -10,7 +10,7 @@ def user(request, username):
 
     # Find all of the codelists owned (in their current version) by this user with at least one published version.
     owned_codelists = user.codelists.filter(
-        handles__is_current=True, versions__status=Status.PUBLISHED
+        versions__status=Status.PUBLISHED
     ).distinct()
 
     # All codelists authored by the user (either themselves or on behalf of an org)
@@ -46,7 +46,7 @@ def user(request, username):
 
     ctx = {
         "user": user,
-        "codelists": [
+        "published_codelists": [
             codelist.latest_published_version()
             for codelist in owned_codelists.order_by("handles__name")
         ],

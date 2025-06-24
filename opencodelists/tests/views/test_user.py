@@ -13,7 +13,7 @@ def test_get(client, user_without_organisation):
     assert response.status_code == 200
 
     # user_without_organisation has no codelists
-    for codelist_category in ["codelists", "all_codelists"]:
+    for codelist_category in ["published_codelists", "all_codelists"]:
         assert not response.context[codelist_category]
 
 
@@ -55,7 +55,7 @@ def test_user_codelists(
     assert organisation_user.codelists.count() >= 1
 
     response = client.get(user_url)
-    assert not response.context["codelists"]
+    assert not response.context["published_codelists"]
     assert not [
         version
         for codelist in response.context["all_codelists"]

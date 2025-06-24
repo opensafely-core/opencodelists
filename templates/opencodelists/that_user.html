@@ -11,7 +11,6 @@
 
 {% if codelists %}
 <h4>Codelists</h4>
-
-{% include "opencodelists/_codelist_links.html" with codelist_versions=codelists show_ownership=False %}
+{% include "opencodelists/_codelist_links.html" with codelists=codelists show_unpublished=False %}
 {% endif %}
 {% endblock %}

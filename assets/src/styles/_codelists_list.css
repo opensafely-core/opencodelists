@@ -1,0 +1,54 @@
+/*
+ * CODELIST TABLE
+ *
+ * Displays a list of codelists. If a codelist has multiple versions these are
+ * displayed as nested rows.
+ */
+
+/*
+ * We only want the main codelist rows to have a border, so we remove all cell
+ * borders
+ */
+.table-codelist td {
+  border: 0;
+}
+
+/*
+ * Reduce the padding to increase the number of codelists visible on page
+ */
+.table-codelist tbody td,
+.table-codelist thead th {
+  padding: 0.1rem 0.3rem;
+}
+
+/*
+ * Each non-nested row is for a single codelist. This marks the boundary
+ * between each one
+ */
+.table-codelist > tbody > tr {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/*
+ * If we're hovering a nested row (a codelist version), OR a row that only
+ * contains a single version, then we want the hyperlink in that row to
+ * highlight, a background color and cursor pointer to show that clicking is a
+ * thing.
+ */
+.table-codelist tbody tr.single-version-row:hover a,
+.table-nested tbody tr:hover a {
+  text-decoration: underline;
+}
+
+.table-codelist tbody tr.single-version-row:hover,
+.table-nested tbody tr:hover {
+  cursor: pointer;
+  background-color: rgb(248, 255, 145);
+}
+
+/*
+ * To hide rows not included in the current search filter
+ */
+.table-codelist .hidden-row {
+  display: none;
+}

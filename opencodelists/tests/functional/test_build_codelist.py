@@ -1,6 +1,6 @@
 import csv
-from dataclasses import dataclass
-from enum import Enum, StrEnum, auto
+from dataclasses import dataclass, field
+from enum import Enum, auto
 from functools import cached_property
 from urllib.parse import urljoin
 
@@ -8,18 +8,23 @@ import pytest
 from playwright.sync_api import Page, expect
 
 from codelists.coding_systems import CODING_SYSTEMS
+from codelists.models import Status
 
 
 pytestmark = pytest.mark.functional
 
 
-@dataclass(frozen=True)
+DEFAULT_VERSION_TAG = "first_version"
+
+
+@dataclass
 class Navigator:
     """Represents navigation to different OpenCodelists pages using
     a Playwright Page."""
 
     page: Page
     codelist_name: str
+    codelist_version_tags: dict[str, str] = field(default_factory=dict[str, str])
 
     def go_to_create_codelist_page(self, is_experimental=False):
         """Navigates the Playwright Page to the "create a codelist" page."""
@@ -37,7 +42,7 @@ class Navigator:
         else:
             codelist_create_link.click()
 
-    def go_to_codelist(self):
+    def go_to_codelist(self, version_tag=DEFAULT_VERSION_TAG):
         """Navigates the Playwright Page to the link for the codelist
         from the My Codelists page.
 
@@ -46,7 +51,9 @@ class Navigator:
         * it's the builder when creating a codelist
         * it's the codelist page when saved for review."""
         self.go_to_my_codelists_page()
-        codelist_link = self.page.get_by_role("link", name=self.codelist_name)
+        codelist_link = self.page.get_by_role(
+            "link", name=self.codelist_version_tags[version_tag]
+        )
         expect(codelist_link).to_be_visible()
         codelist_link.click()
 
@@ -170,15 +177,6 @@ class SearchActions:
             )
 
 
-class CodelistHeading(StrEnum):
-    """Represents the heading for a codelist on the My Codelists page."""
-
-    USER_OWNED = "Your published codelists"
-    ORGANISATION_OWNED = "Your organisation codelists"
-    REVIEW = "Your codelists under review"
-    DRAFT = "Your draft codelists"
-
-
 def setup_playwright_page(login_context, url):
     """Takes a login context, and returns a Playwright page."""
 
@@ -188,13 +186,22 @@ def setup_playwright_page(login_context, url):
     return page
 
 
-def create_codelist(navigator, coding_system, initial_page_navigation=True):
+def create_codelist(
+    navigator: Navigator,
+    coding_system,
+    version_tag=DEFAULT_VERSION_TAG,
+    initial_page_navigation=True,
+):
     """Takes a Navigator, and a coding system, and, for supported coding
     systems, fills in the form to create a new codelist."""
 
     if coding_system not in ["bnf", "snomedct", "dmd"]:
         # Database fixtures that work with these tests are needed for other coding systems.
         assert False, "Coding system {coding_system} not yet supported by the tests"
+
+    assert version_tag not in navigator.codelist_version_tags, (
+        "You can't create two codelists with the same version tag: {version_tag}"
+    )
 
     if initial_page_navigation:
         navigator.go_to_create_codelist_page(
@@ -206,6 +213,11 @@ def create_codelist(navigator, coding_system, initial_page_navigation=True):
     )
     navigator.page.get_by_label("Coding system *").select_option(coding_system)
     navigator.page.get_by_role("button", name="Create").click()
+
+    # Get codelist version hash
+    navigator.codelist_version_tags[version_tag] = navigator.page.locator(
+        ":text('Version ID') + dd"
+    ).text_content()
 
 
 def save_codelist_for_review(navigator, initial_page_navigation=True):
@@ -220,23 +232,25 @@ def save_codelist_for_review(navigator, initial_page_navigation=True):
 
 
 def validate_codelist_exists_on_site(
-    navigator, codelist_heading, initial_page_navigation=True
+    navigator,
+    codelist_status,
+    codelist_owner,
+    version_tag=DEFAULT_VERSION_TAG,
+    initial_page_navigation=True,
 ):
-    """Takes a Navigator, a codelist name, and CodelistHeading to match,
-    and validates that the codelist name exists under that heading.
-
-    It does not currently go for an exact match because organisation users get
-    "owned by organisation" appended to the codelist name.
-
-    We could improve this matching in future."""
-
+    """Takes a Navigator, a codelist status and owner to match, and validates
+    that the codelist version exists with that status and owner
+    """
     if initial_page_navigation:
         navigator.go_to_my_codelists_page()
-    expect(
-        navigator.page.get_by_role("link", name=navigator.codelist_name)
-        .locator("xpath=preceding::h4")
-        .nth(-1)
-    ).to_have_text(codelist_heading.value)
+    codelist_row = navigator.page.get_by_role("row", name=navigator.codelist_name)
+    expect(codelist_row).to_be_visible()
+    expect(codelist_row).to_contain_text(codelist_owner, ignore_case=True)
+    codelist_version = codelist_row.get_by_role(
+        "row", name=navigator.codelist_version_tags[version_tag]
+    )
+    expect(codelist_version).to_be_visible()
+    expect(codelist_version).to_contain_text(codelist_status.value, ignore_case=True)
 
 
 def verify_review_codelist_codes(
@@ -375,7 +389,7 @@ def test_build_snomedct_codelist_single_search(
 
     save_codelist_for_review(navigator, initial_page_navigation=navigate_to_page)
     validate_codelist_exists_on_site(
-        navigator, CodelistHeading.REVIEW, initial_page_navigation=True
+        navigator, Status.UNDER_REVIEW, username, initial_page_navigation=True
     )
 
     verify_review_codelist_codes(
@@ -385,7 +399,7 @@ def test_build_snomedct_codelist_single_search(
     publish_codelist(navigator, initial_page_navigation=navigate_to_page)
 
     validate_codelist_exists_on_site(
-        navigator, CodelistHeading.USER_OWNED, initial_page_navigation=True
+        navigator, Status.PUBLISHED, username, initial_page_navigation=True
     )
 
     verify_codelist_csv(navigator, search_actions, initial_page_navigation=True)
@@ -467,7 +481,7 @@ def test_build_bnf_codelist_single_search(
 
     save_codelist_for_review(navigator, initial_page_navigation=navigate_to_page)
     validate_codelist_exists_on_site(
-        navigator, CodelistHeading.REVIEW, initial_page_navigation=True
+        navigator, Status.UNDER_REVIEW, username, initial_page_navigation=True
     )
 
     verify_review_codelist_codes(
@@ -477,7 +491,7 @@ def test_build_bnf_codelist_single_search(
     publish_codelist(navigator, initial_page_navigation=navigate_to_page)
 
     validate_codelist_exists_on_site(
-        navigator, CodelistHeading.USER_OWNED, initial_page_navigation=True
+        navigator, Status.PUBLISHED, username, initial_page_navigation=True
     )
 
     verify_codelist_csv(navigator, search_actions, initial_page_navigation=True)
@@ -543,7 +557,7 @@ def test_build_snomedct_codelist_two_searches_no_selections(
     search_actions.apply_all(navigator, initial_page_navigation=navigate_to_page)
 
     validate_codelist_exists_on_site(
-        navigator, CodelistHeading.DRAFT, initial_page_navigation=True
+        navigator, Status.DRAFT, username, initial_page_navigation=True
     )
 
     # No content to verify for an empty draft.
@@ -648,7 +662,7 @@ def test_build_snomedct_codelist_two_searches(
 
     save_codelist_for_review(navigator, initial_page_navigation=navigate_to_page)
     validate_codelist_exists_on_site(
-        navigator, CodelistHeading.REVIEW, initial_page_navigation=True
+        navigator, Status.UNDER_REVIEW, username, initial_page_navigation=True
     )
 
     verify_review_codelist_codes(
@@ -658,7 +672,7 @@ def test_build_snomedct_codelist_two_searches(
     publish_codelist(navigator, initial_page_navigation=navigate_to_page)
 
     validate_codelist_exists_on_site(
-        navigator, CodelistHeading.USER_OWNED, initial_page_navigation=True
+        navigator, Status.PUBLISHED, username, initial_page_navigation=True
     )
 
     verify_codelist_csv(navigator, search_actions, initial_page_navigation=True)
@@ -740,7 +754,7 @@ def test_build_dmd_codelist_single_search(
 
     save_codelist_for_review(navigator, initial_page_navigation=navigate_to_page)
     validate_codelist_exists_on_site(
-        navigator, CodelistHeading.REVIEW, initial_page_navigation=True
+        navigator, Status.UNDER_REVIEW, username, initial_page_navigation=True
     )
 
     verify_review_codelist_codes(
@@ -750,5 +764,5 @@ def test_build_dmd_codelist_single_search(
     publish_codelist(navigator, initial_page_navigation=navigate_to_page)
 
     validate_codelist_exists_on_site(
-        navigator, CodelistHeading.USER_OWNED, initial_page_navigation=True
+        navigator, Status.PUBLISHED, username, initial_page_navigation=True
     )

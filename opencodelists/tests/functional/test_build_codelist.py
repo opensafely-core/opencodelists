@@ -313,6 +313,20 @@ def verify_codelist_csv(navigator, search_actions, initial_page_navigation=True)
     assert codelist_table_from_csv == search_actions.expected_codelist_table
 
 
+def create_new_version(navigator, version_tag, initial_page_navigation=True):
+    """Take a Navigator, and create a new verion of a published codelist."""
+
+    if initial_page_navigation:
+        navigator.go_to_codelist()
+
+    navigator.page.get_by_role("button", name="Create new version").click()
+
+    # update version id
+    navigator.codelist_version_tags[version_tag] = navigator.page.locator(
+        ":text('Version ID') + dd"
+    ).text_content()
+
+
 @pytest.mark.parametrize(
     # Test either by always explicitly navigating to the page that's needed,
     # or follow on from previous navigations where possible.
@@ -403,6 +417,23 @@ def test_build_snomedct_codelist_single_search(
     )
 
     verify_codelist_csv(navigator, search_actions, initial_page_navigation=True)
+
+    create_new_version(navigator, "second_version", initial_page_navigation=False)
+
+    validate_codelist_exists_on_site(
+        navigator,
+        Status.PUBLISHED,
+        username,
+        version_tag=DEFAULT_VERSION_TAG,
+        initial_page_navigation=True,
+    )
+    validate_codelist_exists_on_site(
+        navigator,
+        Status.DRAFT,
+        username,
+        version_tag="second_version",
+        initial_page_navigation=True,
+    )
 
 
 @pytest.mark.parametrize(

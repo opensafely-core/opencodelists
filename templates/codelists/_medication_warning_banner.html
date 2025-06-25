@@ -1,0 +1,39 @@
+
+<div role="alert" class="fade alert alert-warning show">
+  Medication codelists can quickly become outdated and may not be
+  suitable for reuse. The
+  <a
+    href="https://www.bennett.ox.ac.uk/blog/2019/08/what-is-the-dm-d-the-nhs-dictionary-of-medicines-and-devices/"
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="Read more about the dictionary of medicines and devices (opens in new tab)"
+  >
+    dictionary of medicines and devices
+  </a> is updated weekly and
+  <a
+    href="https://www.bennett.ox.ac.uk/blog/2017/04/prescribing-data-bnf-codes/"
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="Read more about BNF codes (opens in new tab)"
+  >
+    BNF codes
+  </a> are updated monthly. Please check carefully for any new medicines
+  and codes before reusing this
+  {% if user_can_edit %}
+  codelist.
+    {% if can_create_new_version %}
+      If it needs updating, you can create a new version with the button above.
+    {% else %}
+      If it needs updating, there is already a draft version for this codelist which could be published.
+    {% endif %}
+  {% else %}
+    codelist, or
+    {% if request.user.username %}
+    <a href="{% url 'user-create-codelist' request.user %}">
+      create your own
+    </a>.
+    {% else %}
+      create your own.
+    {% endif %}
+  {% endif %}
+</div>

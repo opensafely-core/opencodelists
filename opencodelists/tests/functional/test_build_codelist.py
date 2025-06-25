@@ -312,8 +312,8 @@ def verify_codelist_csv(navigator, search_actions, initial_page_navigation=True)
 )
 @pytest.mark.parametrize(
     # Test with a non-organisation user login, and then organisation user login.
-    "login_context_fixture_name",
-    ["non_organisation_login_context", "organisation_login_context"],
+    "username, org",
+    [("non_org_user", None), ("org_user", "Test University")],
 )
 @pytest.mark.django_db(
     databases=[
@@ -323,15 +323,16 @@ def verify_codelist_csv(navigator, search_actions, initial_page_navigation=True)
     transaction=True,
 )
 def test_build_snomedct_codelist_single_search(
-    login_context_fixture_name,
+    username,
+    org,
+    login_context_for_user,
     search,
     navigate_to_page,
-    request,
     live_server,
     snomedct_data,
 ):
     page = setup_playwright_page(
-        login_context=request.getfixturevalue(login_context_fixture_name),
+        login_context=login_context_for_user(username, org),
         url=live_server.url,
     )
 
@@ -403,8 +404,8 @@ def test_build_snomedct_codelist_single_search(
 )
 @pytest.mark.parametrize(
     # Test with a non-organisation user login, and then organisation user login.
-    "login_context_fixture_name",
-    ["non_organisation_login_context", "organisation_login_context"],
+    "username, org",
+    [("non_org_user", None), ("org_user", "Test University")],
 )
 @pytest.mark.django_db(
     databases=[
@@ -414,10 +415,16 @@ def test_build_snomedct_codelist_single_search(
     transaction=True,
 )
 def test_build_bnf_codelist_single_search(
-    login_context_fixture_name, search, navigate_to_page, request, live_server, bnf_data
+    username,
+    org,
+    login_context_for_user,
+    search,
+    navigate_to_page,
+    live_server,
+    bnf_data,
 ):
     page = setup_playwright_page(
-        login_context=request.getfixturevalue(login_context_fixture_name),
+        login_context=login_context_for_user(username, org),
         url=live_server.url,
     )
 
@@ -484,8 +491,8 @@ def test_build_bnf_codelist_single_search(
 )
 @pytest.mark.parametrize(
     # Test with a non-organisation user login, and then organisation user login.
-    "login_context_fixture_name",
-    ["non_organisation_login_context", "organisation_login_context"],
+    "username, org",
+    [("non_org_user", None), ("org_user", "Test University")],
 )
 @pytest.mark.django_db(
     databases=[
@@ -495,10 +502,15 @@ def test_build_bnf_codelist_single_search(
     transaction=True,
 )
 def test_build_snomedct_codelist_two_searches_no_selections(
-    login_context_fixture_name, navigate_to_page, request, live_server, snomedct_data
+    username,
+    org,
+    login_context_for_user,
+    navigate_to_page,
+    live_server,
+    snomedct_data,
 ):
     page = setup_playwright_page(
-        login_context=request.getfixturevalue(login_context_fixture_name),
+        login_context=login_context_for_user(username, org),
         url=live_server.url,
     )
 
@@ -545,8 +557,8 @@ def test_build_snomedct_codelist_two_searches_no_selections(
 )
 @pytest.mark.parametrize(
     # Test with a non-organisation user login, and then organisation user login.
-    "login_context_fixture_name",
-    ["non_organisation_login_context", "organisation_login_context"],
+    "username, org",
+    [("non_org_user", None), ("org_user", "Test University")],
 )
 @pytest.mark.django_db(
     databases=[
@@ -556,10 +568,15 @@ def test_build_snomedct_codelist_two_searches_no_selections(
     transaction=True,
 )
 def test_build_snomedct_codelist_two_searches(
-    login_context_fixture_name, navigate_to_page, request, live_server, snomedct_data
+    username,
+    org,
+    login_context_for_user,
+    navigate_to_page,
+    live_server,
+    snomedct_data,
 ):
     page = setup_playwright_page(
-        login_context=request.getfixturevalue(login_context_fixture_name),
+        login_context=login_context_for_user(username, org),
         url=live_server.url,
     )
 
@@ -660,8 +677,8 @@ def test_build_snomedct_codelist_two_searches(
 )
 @pytest.mark.parametrize(
     # Test with a non-organisation user login, and then organisation user login.
-    "login_context_fixture_name",
-    ["non_organisation_login_context", "organisation_login_context"],
+    "username, org",
+    [("non_org_user", None), ("org_user", "Test University")],
 )
 @pytest.mark.django_db(
     databases=[
@@ -671,10 +688,16 @@ def test_build_snomedct_codelist_two_searches(
     transaction=True,
 )
 def test_build_dmd_codelist_single_search(
-    login_context_fixture_name, search, navigate_to_page, request, live_server, dmd_data
+    username,
+    org,
+    login_context_for_user,
+    search,
+    navigate_to_page,
+    live_server,
+    dmd_data,
 ):
     page = setup_playwright_page(
-        login_context=request.getfixturevalue(login_context_fixture_name),
+        login_context=login_context_for_user(username, org),
         url=live_server.url,
     )
 

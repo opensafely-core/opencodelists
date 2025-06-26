@@ -1,7 +1,7 @@
 import hashlib
 
 from django.contrib.auth.models import AnonymousUser
-from django.core.validators import MinLengthValidator
+from django.core.validators import MinLengthValidator, RegexValidator
 from django.db import models
 from django.urls import reverse
 from django.utils.functional import cached_property
@@ -203,7 +203,17 @@ class Handle(models.Model):
     codelist = models.ForeignKey(
         "Codelist", on_delete=models.CASCADE, related_name="handles"
     )
-    name = models.CharField(max_length=255)
+    name = models.CharField(
+        max_length=255,
+        validators=[
+            RegexValidator(
+                # Codelist names get slugified, which must result in a valid slug.
+                # Let's require alphanumeric characters as it's easier to explain.
+                regex=r"[a-zA-Z0-9]+",
+                message="Codelist names must contain at least one letter or number.",
+            )
+        ],
+    )
     slug = models.SlugField(max_length=255)
     organisation = models.ForeignKey(
         "opencodelists.Organisation",

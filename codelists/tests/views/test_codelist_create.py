@@ -157,3 +157,36 @@ def test_post_with_duplicate_name(client, organisation):
     assert response.context_data["codelist_form"].errors == {
         "__all__": ["There is already a codelist called BNF Codelist"]
     }
+
+
+def test_post_with_invalid_name(client, organisation):
+    force_login(organisation, client)
+
+    csv_data = "code,description\n0301012A0AA,Adrenaline (Asthma)"
+    data = {
+        "name": "!'#~",  # This name contains no alphanumeric characters
+        "coding_system_id": "bnf",
+        "description": "This is a test",
+        "methodology": "This is how we did it",
+        "csv_data": csv_builder(csv_data),
+        "reference-TOTAL_FORMS": "0",
+        "reference-INITIAL_FORMS": "0",
+        "reference-MIN_NUM_FORMS": "0",
+        "reference-MAX_NUM_FORMS": "1000",
+        "signoff-TOTAL_FORMS": "0",
+        "signoff-INITIAL_FORMS": "0",
+        "signoff-MIN_NUM_FORMS": "0",
+        "signoff-MAX_NUM_FORMS": "1000",
+    }
+
+    with assert_no_difference(organisation.codelists.count):
+        response = client.post(organisation.get_codelist_create_url(), data=data)
+
+    # we're returning an HTML response when there are errors so check we don't
+    # receive a redirect code
+    assert response.status_code == 200
+
+    # confirm we have errors from the codelist form
+    assert response.context_data["codelist_form"].errors == {
+        "name": ["Codelist names must contain at least one letter or number."]
+    }

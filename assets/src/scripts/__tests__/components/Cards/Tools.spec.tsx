@@ -39,7 +39,7 @@ describe("<Tools />", () => {
     script.id = "metadata";
     script.type = "application/json";
     script.textContent = JSON.stringify({
-      coding_system_name: "CTV3 (Read V3)",
+      coding_system_id: "ctv3",
     });
     document.body.appendChild(script);
 
@@ -47,11 +47,11 @@ describe("<Tools />", () => {
     expect(container.firstChild).toBeNull();
   });
 
-  it("renders tools for ICD-10", async () => {
+  it("renders tools for icd10", async () => {
     const script = document.createElement("script");
     script.id = "metadata";
     script.type = "application/json";
-    script.textContent = JSON.stringify({ coding_system_name: "ICD-10" });
+    script.textContent = JSON.stringify({ coding_system_id: "icd10" });
     document.body.appendChild(script);
 
     render(<Tools />);
@@ -75,7 +75,7 @@ describe("<Tools />", () => {
     const script = document.createElement("script");
     script.id = "metadata";
     script.type = "application/json";
-    script.textContent = JSON.stringify({ coding_system_name: "Pseudo BNF" });
+    script.textContent = JSON.stringify({ coding_system_id: "bnf" });
     document.body.appendChild(script);
 
     render(<Tools />);

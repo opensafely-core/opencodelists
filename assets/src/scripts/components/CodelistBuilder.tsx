@@ -26,6 +26,7 @@ interface MetadataProps {
 interface CodelistBuilderProps extends PageData {
   hierarchy: Hierarchy;
   metadata: MetadataProps & {
+    coding_system_id: string;
     coding_system_name: string;
     coding_system_release: {
       release_name: string;

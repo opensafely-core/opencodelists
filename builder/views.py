@@ -180,6 +180,7 @@ def _draft(request, draft, search_id):
         else None
     )
     metadata = {
+        "coding_system_id": draft.coding_system.id,
         "coding_system_name": draft.coding_system.name,
         "coding_system_release": {
             "release_name": draft.coding_system_release.release_name,

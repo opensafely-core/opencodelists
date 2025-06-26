@@ -23,6 +23,7 @@ export interface PageData {
   metadata: {
     codelist_full_slug: string;
     codelist_name: string;
+    coding_system_id: string;
     coding_system_name: string;
     coding_system_release: {
       release_name: string;

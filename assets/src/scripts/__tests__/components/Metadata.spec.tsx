@@ -5,6 +5,7 @@ import { expect, it } from "vitest";
 import Metadata from "../../components/Metadata";
 
 const mockData = {
+  coding_system_id: "test",
   coding_system_name: "Test Coding System",
   coding_system_release: {
     release_name: "v1.0",

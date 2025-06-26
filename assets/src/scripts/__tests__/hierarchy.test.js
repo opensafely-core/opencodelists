@@ -249,6 +249,70 @@ test("treeRows", () => {
   ]);
 });
 
+test("treeRows with code sort", () => {
+  // Should appear like this with code sort
+  // text1 (code1)
+  // ├ text12 (code11)
+  // │ ├ text 112 (code111)
+  // │ └ text 111 (code112)
+  // └ text11 (code12)
+  //
+  // and like this with term sort
+  // text1 (code1)
+  // ├ text11 (code12)
+  // └ text12 (code11)
+  //   ├ text 111 (code112)
+  //   └ text 112 (code111)
+
+  const parentMap = {
+    code11: ["code1"],
+    code12: ["code1"],
+    code111: ["code11"],
+    code112: ["code11"],
+  };
+  const childMap = {
+    code1: ["code11", "code12"],
+    code11: ["code111", "code112"],
+  };
+  const hierarchy = new Hierarchy(parentMap, childMap);
+  const visiblePaths = new Set([
+    "code1",
+    "code1:code11",
+    "code1:code12",
+    "code1:code11:code111",
+    "code1:code11:code112",
+  ]);
+  const codeToTerm = {
+    code1: "text1",
+    code11: "text12",
+    code12: "text11",
+    code111: "text112",
+    code112: "text111",
+  };
+
+  // Sorting by term (default)
+  let rows = hierarchy.treeRows("code1", {}, codeToTerm, visiblePaths);
+
+  expect(rows.map((row) => row.code)).toEqual([
+    "code1",
+    "code12",
+    "code11",
+    "code112",
+    "code111",
+  ]);
+
+  // Sorting by code
+  rows = hierarchy.treeRows("code1", {}, codeToTerm, visiblePaths, false);
+
+  expect(rows.map((row) => row.code)).toEqual([
+    "code1",
+    "code11",
+    "code111",
+    "code112",
+    "code12",
+  ]);
+});
+
 test("initiallyVisiblePaths", () => {
   const hierarchy = buildTestHierarchy();
   const codeToStatus = {

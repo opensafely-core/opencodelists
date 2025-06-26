@@ -1,5 +1,6 @@
 import React from "react";
 import Hierarchy from "../_hierarchy";
+import { readValueFromPage } from "../_utils";
 import { AncestorCode, PageData, ToggleVisibility } from "../types";
 import TreeRow from "./TreeRow";
 
@@ -26,8 +27,9 @@ export default function Tree({
   updateStatus,
   visiblePaths,
 }: TreeProps) {
+  const sortByTerm: PageData["sortByTerm"] = readValueFromPage("sort-by-term");
   return hierarchy
-    .treeRows(ancestorCode, codeToStatus, codeToTerm, visiblePaths)
+    .treeRows(ancestorCode, codeToStatus, codeToTerm, visiblePaths, sortByTerm)
     .map((row) => (
       <TreeRow
         allCodes={allCodes}

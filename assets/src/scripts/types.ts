@@ -34,6 +34,7 @@ export interface PageData {
   };
   resultsHeading: string;
   searches: SearchesProps["searches"];
+  sortByTerm: boolean;
   treeTables: [string, string[]][];
   updateURL: string;
   visiblePaths: VisiblePaths;

@@ -30,11 +30,11 @@ function createModalText({
   );
 
   const includedAncestorsText = significantAncestors.includedAncestors
-    .map((code: Code) => `${codeToTerm[code]} (${code})`)
+    .map((code: Code) => `${codeToTerm[code]} [${code}]`)
     .join(", ");
 
   const excludedAncestorsText = significantAncestors.excludedAncestors
-    .map((code: Code) => `${codeToTerm[code]} (${code})`)
+    .map((code: Code) => `${codeToTerm[code]} [${code}]`)
     .join(", ");
 
   let text = "";
@@ -44,19 +44,19 @@ function createModalText({
       text = "Included";
       break;
     case "(+)":
-      text = `Included by ${includedAncestorsText}`;
+      text = `Included because you included its ancestor: "${includedAncestorsText}"`;
       break;
     case "-":
       text = "Excluded";
       break;
     case "(-)":
-      text = `Excluded by ${excludedAncestorsText}`;
+      text = `Excluded because you excluded its ancestor: "${excludedAncestorsText}"`;
       break;
     case "?":
       text = "Unresolved";
       break;
     case "!":
-      text = `In conflict!  Included by ${includedAncestorsText}, and excluded by ${excludedAncestorsText}`;
+      text = `In conflict!  Included by "${includedAncestorsText}", and excluded by "${excludedAncestorsText}"`;
       break;
   }
 
@@ -171,7 +171,8 @@ function MoreInfoModal({
               )}
             </ul>
           )}
-          {modalText}
+          <h2 className="h6 font-weight-bold">Status</h2>
+          <p>{modalText}</p>
         </Modal.Body>
       </Modal>
     </>

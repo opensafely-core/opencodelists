@@ -343,7 +343,8 @@ def dmd_previous_codes_mapping(request):
 
 
     Known clients (see caveats in module docstring):
-        2024-Nov: Used by cohort-extractor update_vmp_mapping.py.
+        2025-Jun: Previously used by cohort-extractor update_vmp_mapping.py, but
+        cohort-extractor is no longer in service.
     """
     vmp_to_previous_tuples = vmp_ids_to_previous()
     return JsonResponse(vmp_to_previous_tuples, safe=False)

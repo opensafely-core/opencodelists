@@ -1,17 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Button, Form, Modal, OverlayTrigger, Tooltip } from "react-bootstrap";
 import { getCookie } from "../_utils";
+import { SummaryProps } from "./Cards/Summary";
 
 interface ManagementFormProps {
-  counts: {
-    "!": number;
-    "(+)": number;
-    "(-)": number;
-    "+": number;
-    "-": number;
-    "?": number;
-    total: number;
-  };
+  counts: SummaryProps["counts"];
 }
 
 export default function ManagementForm({ counts }: ManagementFormProps) {

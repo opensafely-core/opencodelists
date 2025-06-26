@@ -1,17 +1,13 @@
 import React, { useState } from "react";
 import { Button, Card, Form, InputGroup } from "react-bootstrap";
-import { getCookie } from "../_utils";
-import { PageData } from "../types";
+import { getCookie, readValueFromPage } from "../../_utils";
 
-interface SearchFormProps {
-  codingSystemName: string;
-  searchURL: PageData["searchURL"];
-}
+export default function SearchForm() {
+  const codingSystemName = readValueFromPage("metadata")?.coding_system_name;
+  const searchURL = readValueFromPage("search-url");
 
-export default function SearchForm({
-  codingSystemName,
-  searchURL,
-}: SearchFormProps) {
+  if (!codingSystemName || !searchURL) return null;
+
   // NB, if you change the max search length, remember to change it on
   // the server side as well in the models.py file
   const MIN_TERM_LENGTH = 3; // (codelists/models.py - Search - term, MinLengthValidator)

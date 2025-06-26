@@ -4,6 +4,7 @@ from io import StringIO
 
 from django import forms
 from django.contrib.auth import password_validation
+from django.core.validators import RegexValidator
 
 from codelists.coding_systems import CODING_SYSTEMS, builder_compatible_coding_systems
 from codelists.models import Handle
@@ -54,7 +55,17 @@ def form_field_from_model(model_class, field_name, **kwargs):
       appropriate for their specific form."""
     model_field = model_class._meta.get_field(field_name)
     field_class = model_field.formfield
-    return field_class(validators=model_field.validators, **kwargs)
+    validators = model_field.validators
+    for validator in validators:
+        if isinstance(validator, RegexValidator):
+            kwargs["widget"] = forms.TextInput(
+                attrs={
+                    "pattern": f".*{validator.regex.pattern}.*",
+                    "title": validator.message,
+                }
+            )
+            break
+    return field_class(validators=validators, **kwargs)
 
 
 class CodelistCreateForm(forms.Form):

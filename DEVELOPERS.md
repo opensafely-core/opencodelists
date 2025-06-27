@@ -284,13 +284,20 @@ just docker-build prod
 docker run -it --entrypoint /bin/bash  opencodelists
 ```
 
-### Using PlayWright to update screenshots in docs
+### Using Playwright to update screenshots in docs
 
-There is a functional test, [test_docs_screenshots.py](opencodelists/tests/functional/test_docs_screenshots.py), which generates screenshot for use in the documentation. By default screenshots are not generated unless you set the `TAKE_SCREENSHOTS` environment variable to `True` - either in your `.env` file or by executing the tests like:
+There is a functional test, [test_docs_screenshots.py](opencodelists/tests/functional/test_docs_screenshots.py), which generates screenshots for use in the documentation.
+
+**If your changes result in altered or added screenshots, generate these with Playwright.**
+
+By default screenshots are not generated unless you set the `TAKE_SCREENSHOTS` environment variable to `True` - either in your `.env` file or by executing the test as follows:
 
 ```sh
-TAKE_SCREENSHOTS=True just test-functional
+IN_PRODUCTION=True TAKE_SCREENSHOTS=True just test-functional opencodelists/tests/functional/test_docs_screenshots.py
 ```
+
+`IN_PRODUCTION=True` is required to disable the development banner that may be in screenshots otherwise.
+
 Only images that have changed will be committed to github - but it's worth noting that:
 - running the tests in different environments will likely lead to subtle visual differences and so may appear different even when nothing has changed
 - any screenshots that contain date or time stamps, or have hash ids, may change everytime the command is run

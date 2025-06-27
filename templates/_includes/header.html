@@ -30,7 +30,7 @@
                 </summary>
                 <ul class="absolute origin-top-right top-full mt-2 right-0 z-10 w-48 rounded-md shadow-lg bg-white text-sm text-slate-800">
                   <li class="p-2 border-b border-b-slate-200">
-                    Signed in as
+                    Logged in as
                     <strong class="block">{{ request.user.username }}</strong>
                   </li>
                   <li>
@@ -47,7 +47,7 @@
                         class="block w-full cursor-pointer text-left p-2 bg-white text-blue-800 font-semibold transition-colors hover:bg-blue-50 hover:text-blue-950"
                         href="{% url 'logout' %}"
                       >
-                        Sign Out
+                        Log out
                       </button>
                     </form>
                   </li>

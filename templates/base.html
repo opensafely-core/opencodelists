@@ -74,21 +74,21 @@
                   My account
                 </a>
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                  <span class="dropdown-item text-secondary">Signed in as {{ request.user.username }}</span>
+                  <span class="dropdown-item text-secondary">Logged in as {{ request.user.username }}</span>
                   <div class="dropdown-divider"></div>
                   <a class="dropdown-item" href="{% url 'password_change' %}">Change password</a>
                   <form action="{% url 'logout' %}" method="POST">
                     {% csrf_token %}
-                    <button class="dropdown-item" href="{% url 'logout' %}">Sign Out</button>
+                    <button class="dropdown-item" href="{% url 'logout' %}">Log out</button>
                   </form>
                 </div>
               </li>
             {% else %}
               <li class="navbar-nav nav-item">
-                <a class="nav-link text-white" href="{% url 'register' %}">Sign up</a>
+                <a class="nav-link text-white" href="{% url 'register' %}">Register</a>
               </li>
               <li class="navbar-nav nav-item">
-                <a class="nav-link text-white" href="{% url 'login' %}">Sign in</a>
+                <a class="nav-link text-white" href="{% url 'login' %}">Log in</a>
               </li>
             {% endif %}
           </ul>

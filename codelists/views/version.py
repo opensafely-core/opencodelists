@@ -43,7 +43,11 @@ def version(request, clv):
             ).items()
         )
         tree_data = build_tree_data(
-            child_map, code_to_term, code_to_status, tree_tables
+            child_map,
+            code_to_term,
+            code_to_status,
+            tree_tables,
+            coding_system.sort_by_term,
         )
 
     headers, *rows = clv.table

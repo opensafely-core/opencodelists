@@ -1,7 +1,9 @@
 """Module for building tree data structures from coding system hierarchies."""
 
 
-def build_tree_data(child_map, code_to_term, code_to_status, tree_tables):
+def build_tree_data(
+    child_map, code_to_term, code_to_status, tree_tables, sort_by_term=True
+):
     """
     Builds a hierarchical tree structure from coding system data.
 
@@ -39,7 +41,9 @@ def build_tree_data(child_map, code_to_term, code_to_status, tree_tables):
             "id": code,
             "name": code_to_term[code],
             "status": code_to_status[code],
-            "children": sorted(children, key=lambda x: x["name"]),
+            "children": sorted(
+                children, key=lambda x: x["name" if sort_by_term else "id"]
+            ),
             "depth": depth,
         }
 

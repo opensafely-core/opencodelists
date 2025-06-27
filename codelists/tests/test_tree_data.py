@@ -111,6 +111,91 @@ def test_basic_tree(child_map, code_to_term, code_to_status):
     ]
 
 
+def test_basic_tree_with_code_sorting(child_map, code_to_term, code_to_status):
+    """
+    Test building a tree with one parent and 2 children but where the children
+    are in a different order if sorted by code instead of the default by term
+    """
+    # Make a copy for this test only where code i comes before j if sorted by
+    # code, but the order is reversed if ordered by term
+    code_to_term = code_to_term.copy()
+    code_to_term["i"] = "z"
+    code_to_term["j"] = "a"
+    tree_data = build_tree_data(
+        child_map,
+        code_to_term,
+        code_to_status,
+        tree_tables=[("Disorders", ["f"])],
+    )
+    # default is to sort by term, so j is before i
+    assert tree_data == [
+        {
+            "title": "Disorders",
+            "children": [
+                {
+                    "id": "f",
+                    "name": code_to_term["f"],
+                    "status": code_to_status["f"],
+                    "children": [
+                        {
+                            "id": "j",
+                            "name": code_to_term["j"],
+                            "status": code_to_status["j"],
+                            "children": [],
+                            "depth": 1,
+                        },
+                        {
+                            "id": "i",
+                            "name": code_to_term["i"],
+                            "status": code_to_status["i"],
+                            "children": [],
+                            "depth": 1,
+                        },
+                    ],
+                    "depth": 0,
+                }
+            ],
+        },
+    ]
+    tree_data = build_tree_data(
+        child_map,
+        code_to_term,
+        code_to_status,
+        tree_tables=[("Disorders", ["f"])],
+        sort_by_term=False,
+    )
+    # now sorting by code, so i is before j
+    assert tree_data == [
+        {
+            "title": "Disorders",
+            "children": [
+                {
+                    "id": "f",
+                    "name": code_to_term["f"],
+                    "status": code_to_status["f"],
+                    "children": [
+                        {
+                            "id": "i",
+                            "name": code_to_term["i"],
+                            "status": code_to_status["i"],
+                            "children": [],
+                            "depth": 1,
+                        },
+                        {
+                            "id": "j",
+                            "name": code_to_term["j"],
+                            "status": code_to_status["j"],
+                            "children": [],
+                            "depth": 1,
+                        },
+                    ],
+                    "depth": 0,
+                }
+            ],
+        },
+    ]
+
+
 def test_multiple_trees(child_map, code_to_term, code_to_status):
     """Test with 2 trees. One with children, one without"""
     # Set up tree tables

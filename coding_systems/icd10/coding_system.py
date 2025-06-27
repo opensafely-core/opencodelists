@@ -17,6 +17,7 @@ class CodingSystem(BuilderCompatibleCodingSystem):
         "code": ["icd_code", "icd10_code", "code", "icd"],
         "term": ["term", "description", "name", "diag_desc"],
     }
+    sort_by_term = False
 
     def search_by_term(self, term):
         return set(

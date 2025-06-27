@@ -177,6 +177,7 @@ class Hierarchy {
     codeToStatus: PageData["codeToStatus"],
     codeToTerm: PageData["codeToTerm"],
     visiblePaths: PageData["visiblePaths"],
+    sortByTerm: PageData["sortByTerm"] = true,
   ) {
     // Return array of objects representing rows in a "tree table" whose root
     // is at ancestorCode.  Rows are only included if they are reached by a
@@ -201,8 +202,8 @@ class Hierarchy {
     ) => {
       const childCodes = this.childMap[code] || [];
       childCodes.sort((code1: Code, code2: Code) => {
-        const term1 = codeToTerm[code1];
-        const term2 = codeToTerm[code2];
+        const term1 = sortByTerm ? codeToTerm[code1] : code1;
+        const term2 = sortByTerm ? codeToTerm[code2] : code2;
         if (term1 < term2) {
           return -1;
         } else if (term2 < term1) {

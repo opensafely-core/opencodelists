@@ -127,6 +127,11 @@ class BuilderCompatibleCodingSystem(BaseCodingSystem):
     description = NotImplemented
     # When set to true, we only show this in the builder behind a feature flag
     is_experimental = False
+    # By default when displaying a hierarchy we sort the concepts by term so
+    # they appear in alphabetical order. Sometimes we want to display things in
+    # code order - e.g. for prefix hierarchies like ICD10 users prefer to see
+    # the order E10, E11, E12 etc, rather than alphabetical
+    sort_by_term = True
 
     def ancestor_relationships(self, codes):  # pragma: no cover
         """

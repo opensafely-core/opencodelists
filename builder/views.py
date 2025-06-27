@@ -227,6 +227,7 @@ def _draft(request, draft, search_id):
         "draft_url": draft_url,
         "update_url": update_url,
         "search_url": search_url,
+        "sort_by_term": coding_system.sort_by_term,
         "versions": versions,
         "metadata": metadata,
         "is_empty_codelist": is_empty_codelist,

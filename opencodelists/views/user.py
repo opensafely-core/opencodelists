@@ -38,7 +38,11 @@ def user(request, username):
                 else []
             ),
         }
-        for codelist in sorted(codelists_to_display, key=lambda x: (x.name))
+        for codelist in sorted(
+            codelists_to_display, key=lambda x: (x.owner != user, str(x.owner), x.name)
+        )
+        # We sort first by owner, then by name - but making sure that the current user's
+        # codelists always come first
         # We can't use a queryset order_by (where versions_under_review/drafts are querysets of CodelistVersion
         # instances), as a codelist can have multiple versions and multiple handles, and this results in duplicates
         # in the returned queryset. See https://code.djangoproject.com/ticket/18165

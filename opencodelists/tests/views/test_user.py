@@ -69,8 +69,8 @@ def test_user_codelists(
         for version in codelist["versions"]
         if version.is_draft
     ] == [
-        organisation_codelist.versions.first().id,
         codelist.versions.first().id,
+        organisation_codelist.versions.first().id,
     ]
 
     # make org codelist under-review

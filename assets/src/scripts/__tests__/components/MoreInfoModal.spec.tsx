@@ -35,19 +35,21 @@ const renderMoreInfoModal = (data, code = "123") => {
 };
 
 beforeEach(() => {
-  // @ts-ignore
-  global.fetch = vi.fn(() =>
-    Promise.resolve({
-      json: () =>
-        Promise.resolve({
-          synonyms: { "123": ["Alpha", "Beta", "Test Term"] },
-        }),
-    }),
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(() =>
+      Promise.resolve({
+        json: () =>
+          Promise.resolve({
+            synonyms: { "123": ["Alpha", "Beta", "Test Term"] },
+          }),
+      }),
+    ),
   );
 });
 
 afterEach(() => {
-  vi.resetAllMocks();
+  vi.unstubAllGlobals();
 });
 
 it("renders More info button", () => {
@@ -87,8 +89,10 @@ it("shows 'No synonyms' if synonyms is empty", async () => {
 });
 
 it("shows 'No synonyms' if fetch fails", async () => {
-  // @ts-ignore
-  global.fetch = vi.fn(() => Promise.reject("fail"));
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(() => Promise.reject("fail")),
+  );
   renderMoreInfoModal(versionWithCompleteSearchesData);
   fireEvent.click(screen.getByRole("button", { name: /more info/i }));
 
@@ -99,14 +103,16 @@ it("shows 'No synonyms' if fetch fails", async () => {
 });
 
 it("shows 'No synonyms' if fetch succeeds but has an error message", async () => {
-  // @ts-ignore
-  global.fetch = vi.fn(() =>
-    Promise.resolve({
-      json: () =>
-        Promise.resolve({
-          error: "an error occurred",
-        }),
-    }),
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(() =>
+      Promise.resolve({
+        json: () =>
+          Promise.resolve({
+            error: "an error occurred",
+          }),
+      }),
+    ),
   );
   renderMoreInfoModal(versionWithCompleteSearchesData);
   fireEvent.click(screen.getByRole("button", { name: /more info/i }));
@@ -117,14 +123,16 @@ it("shows 'No synonyms' if fetch succeeds but has an error message", async () =>
 });
 
 it("show 'No synonyms' if the only synonym matches the primary term", async () => {
-  // @ts-ignore
-  global.fetch = vi.fn(() =>
-    Promise.resolve({
-      json: () =>
-        Promise.resolve({
-          synonyms: { "123": ["Test Term"] },
-        }),
-    }),
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(() =>
+      Promise.resolve({
+        json: () =>
+          Promise.resolve({
+            synonyms: { "123": ["Test Term"] },
+          }),
+      }),
+    ),
   );
   renderMoreInfoModal(versionWithCompleteSearchesData);
   fireEvent.click(screen.getByRole("button", { name: /more info/i }));

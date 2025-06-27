@@ -4,13 +4,15 @@ As well as creating a codelist from scratch, you can create one by uploading a C
 
 From the _My codelists_ page, click _Create a codelist_.
 
-Choose a name for the codelist, select a coding system from the dropdown, and choose a file to upload from your hard drive.
+1. Choose a name for the codelist.
+1. Select a coding system.
+1. Choose a file to upload from your hard drive.
 
 To create an OPCS-4 codelist, please see the notes at the bottom of this page.
 
 If you are a member of an organisation, you can also choose an owner for the codelist (your own account or an organisation account).
 
-        create-a-codelist-1.png
+        create-codelist-button.png
 
 ### Requirements for uploading codelists to OpenCodelists
 
@@ -26,7 +28,7 @@ The codelist page allow you to upload two columns:
 * a code
 * a text description of the code
 
-However, some codelists may require a 'classification' or 'type' column, which classifies the codes into subcategories. For example, when using a codelist for venous thromboembolism, you may wish to classify these codes into deep vein thromboses and pulmonary embolisms. By using subcategories, you can keep all the codes in a single codelist, rather than uploading separate lists for each clinical subcategory. In your study definition, the `filter_codes_by_category` functionality allows access to the subcategories of a codelist.
+However, some codelists may require a 'classification' or 'type' column, which classifies the codes into subcategories. For example, when using a codelist for venous thromboembolism, you may wish to classify these codes into deep vein thromboses and pulmonary embolisms. By using subcategories, you can keep all the codes in a single codelist, rather than uploading separate lists for each clinical subcategory. The OpenSAFELY documentation has [guidance for using category columns with OpenSAFELY ehrQL dataset definition](https://docs.opensafely.org/ehrql/how-to/examples/#using-codelists-with-category-columns).
 
 **Uploading more than two columns is currently only possible for the OpenSAFELY core team. If your study requires this feature, [please get in touch](https://www.opensafely.org/contact/).**
 
@@ -42,7 +44,9 @@ When you click _Create_ the codelist will be created and you will be taken to th
 From here, you can edit any metadata.
 You can also edit the codelist.
 
-We are aware of an issue whereby Excel can truncate or round dm+d IDs, turning them into invalid IDs. This is due to Excel's interpretation of this column as a number type insufficiently large to contain a dm+d ID. For this reason, opening dm+d codelist files in Excel should be avoided wherever possible. Where it is unavoidable to do so, rather than opening a dm+d codelist csv file directly in Excel (such as through the Open dialogue or from the file explorer), we recommend opening a blank Excel workbook and using the "Import data from Text/CSV" feature. To avoid the problematic rounding/truncation behaviour described above, specify the data type of the dm+d id column as "Text" during the import process.
+We are aware of an issue whereby Excel can truncate or round dm+d IDs, turning them into invalid IDs. This is due to Excel's interpretation of this column as a number type insufficiently large to contain a dm+d ID. For this reason, opening dm+d codelist files in Excel should be avoided wherever possible.
+
+Where it is unavoidable to do so, rather than opening a dm+d codelist csv file directly in Excel (such as through the Open dialogue or from the file explorer), we recommend opening a blank Excel workbook and using the "Import data from Text/CSV" feature. To avoid the problematic rounding/truncation behaviour described above, specify the data type of the dm+d id column as "Text" during the import process.
 
 ### Adding an OPCS-4 codelist
 

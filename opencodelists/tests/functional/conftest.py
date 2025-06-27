@@ -34,59 +34,40 @@ def playwright_install(request):
 
 
 @pytest.fixture
-def non_organisation_test_user():
-    return User.objects.create_user(
-        username="non_organisation",
-        password="test_user",
-        email="non_organisation_test_user@example.com",
-        name="Non-Organisation Test User",
-    )
+def login_context_for_user(browser, client, live_server):
+    """A factory fixture that returns a function to create a login context
+    for a given user, and optional organisation."""
+
+    def _login_context_for_user(username, org=None):
+        user = User.objects.create_user(
+            username=username,
+            password="test_user",
+            email=f"{username}@example.com",
+            name=f"{username} Test User",
+        )
+        if org:
+            organisation = create_organisation(name=org, url="https://test.ac.uk")
+            add_user_to_organisation(
+                user=user, organisation=organisation, date_joined="2020-02-29"
+            )
+        client.force_login(user)
+        cookies = {
+            "name": "sessionid",
+            "value": client.cookies["sessionid"].value,
+            "url": live_server.url,
+        }
+        context = browser.new_context(locale="en-GB")
+        context.add_cookies([cookies])
+        return context
+
+    return _login_context_for_user
 
 
 @pytest.fixture
-def non_organisation_user_cookies(client, non_organisation_test_user, live_server):
-    client.force_login(non_organisation_test_user)
-    return {
-        "name": "sessionid",
-        "value": client.cookies["sessionid"].value,
-        "url": live_server.url,
-    }
+def non_organisation_login_context(login_context_for_user):
+    return login_context_for_user("non_org_user")
 
 
 @pytest.fixture
-def non_organisation_login_context(browser, non_organisation_user_cookies):
-    context = browser.new_context(locale="en-GB")
-    context.add_cookies([non_organisation_user_cookies])
-    return context
-
-
-@pytest.fixture
-def organisation_test_user():
-    organisation = create_organisation(name="Test University", url="https://test.ac.uk")
-    user = User.objects.create_user(
-        username="organisation",
-        password="test_user",
-        email="organisation_test_user@example.com",
-        name="Organisation Test User",
-    )
-    add_user_to_organisation(
-        user=user, organisation=organisation, date_joined="2020-02-29"
-    )
-    return user
-
-
-@pytest.fixture
-def organisation_user_cookies(client, organisation_test_user, live_server):
-    client.force_login(organisation_test_user)
-    return {
-        "name": "sessionid",
-        "value": client.cookies["sessionid"].value,
-        "url": live_server.url,
-    }
-
-
-@pytest.fixture
-def organisation_login_context(browser, organisation_user_cookies):
-    context = browser.new_context(locale="en-GB")
-    context.add_cookies([organisation_user_cookies])
-    return context
+def organisation_login_context(login_context_for_user):
+    return login_context_for_user("org_user", "Test University")

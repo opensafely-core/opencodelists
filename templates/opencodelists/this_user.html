@@ -16,27 +16,7 @@
 </div>
 <br />
 
-{% if codelists %}
-<h4>Your published codelists</h4>
-
-{% include "opencodelists/_codelist_links.html" with codelist_versions=codelists show_ownership=False %}
-{% endif %}
-
-
-{% if authored_for_organisation %}
-<h4>Your organisation codelists</h4>
-{% include "opencodelists/_codelist_links.html" with codelist_versions=authored_for_organisation show_ownership=True %}
-{% endif %}
-
-
-{% if under_review %}
-<h4>Your codelists under review</h4>
-{% include "opencodelists/_codelist_links.html" with codelist_versions=under_review show_ownership=user.organisations.exists %}
-{% endif %}
-
-
-{% if drafts %}
-<h4>Your draft codelists</h4>
-{% include "opencodelists/_codelist_links.html" with codelist_versions=drafts show_ownership=user.organisations.exists %}
+{% if all_codelists %}
+{% include "opencodelists/_codelist_links.html" with codelists=all_codelists show_unpublished=True %}
 {% endif %}
 {% endblock %}

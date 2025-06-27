@@ -13,12 +13,7 @@ def test_get(client, user_without_organisation):
     assert response.status_code == 200
 
     # user_without_organisation has no codelists
-    for codelist_category in [
-        "codelists",
-        "authored_for_organisation",
-        "under_review",
-        "drafts",
-    ]:
+    for codelist_category in ["published_codelists", "all_codelists"]:
         assert not response.context[codelist_category]
 
 
@@ -60,24 +55,40 @@ def test_user_codelists(
     assert organisation_user.codelists.count() >= 1
 
     response = client.get(user_url)
-    for codelist_category in ["codelists", "authored_for_organisation", "under_review"]:
-        assert not response.context[codelist_category]
+    assert not response.context["published_codelists"]
+    assert not [
+        version
+        for codelist in response.context["all_codelists"]
+        for version in codelist["versions"]
+        if version.is_under_review
+    ]
 
-    assert [cl.id for cl in response.context["drafts"]] == [
-        organisation_codelist.versions.first().id,
+    assert [
+        version.id
+        for codelist in response.context["all_codelists"]
+        for version in codelist["versions"]
+        if version.is_draft
+    ] == [
         codelist.versions.first().id,
+        organisation_codelist.versions.first().id,
     ]
 
     # make org codelist under-review
     save_for_review(draft=organisation_codelist.versions.first())
 
     response = client.get(user_url)
-    assert [cl.id for cl in response.context["drafts"]] == [
-        codelist.versions.first().id
-    ]
-    assert [cl.id for cl in response.context["under_review"]] == [
-        organisation_codelist.versions.last().id
-    ]
+    assert [
+        version.id
+        for codelist in response.context["all_codelists"]
+        for version in codelist["versions"]
+        if version.is_draft
+    ] == [codelist.versions.first().id]
+    assert [
+        version.id
+        for codelist in response.context["all_codelists"]
+        for version in codelist["versions"]
+        if version.is_under_review
+    ] == [organisation_codelist.versions.last().id]
 
     # publish both codelists
     save_for_review(draft=codelist.versions.first())
@@ -86,12 +97,24 @@ def test_user_codelists(
     user_codelist_version_id = codelist.latest_published_version().id
     org_codelist_version_id = organisation_codelist.latest_published_version().id
     response = client.get(user_url)
-    for codelist_category in ["under_review", "drafts"]:
-        assert not response.context[codelist_category]
-    assert [cl.id for cl in response.context["codelists"]] == [user_codelist_version_id]
-    assert [cl.id for cl in response.context["authored_for_organisation"]] == [
-        org_codelist_version_id
+    assert not [
+        version
+        for codelist in response.context["all_codelists"]
+        for version in codelist["versions"]
+        if version.is_under_review or version.is_draft
     ]
+    assert [
+        version.id
+        for cl in response.context["all_codelists"]
+        for version in cl["versions"]
+        if not version.organisation
+    ] == [user_codelist_version_id]
+    assert [
+        version.id
+        for cl in response.context["all_codelists"]
+        for version in cl["versions"]
+        if version.organisation
+    ] == [org_codelist_version_id]
 
     # change the owner for the user-owned codelist to an organisation
     update_codelist(
@@ -106,9 +129,18 @@ def test_user_codelists(
     )
     response = client.get(user_url)
     # the previously user-owned codelist now appears under "authored_for_organisation"
-    for codelist_category in ["codelists", "under_review", "drafts"]:
-        assert not response.context[codelist_category]
-    assert [cl.id for cl in response.context["authored_for_organisation"]] == [
+    assert not [
+        version.id
+        for cl in response.context["all_codelists"]
+        for version in cl["versions"]
+        if not version.organisation
+    ]
+    assert [
+        version.id
+        for cl in response.context["all_codelists"]
+        for version in cl["versions"]
+        if version.organisation
+    ] == [
         org_codelist_version_id,
         user_codelist_version_id,
     ]

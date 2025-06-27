@@ -34,7 +34,12 @@
     <link rel="manifest" href="{% static 'manifest.webmanifest' %}">
   </head>
 
-  <body class="d-flex flex-column h-100">
+  <body class="d-flex flex-column h-100 {% if not in_production %}header--banner{% endif %}">
+    {% if not in_production %}
+      <div class="development-banner">
+        Development
+      </div>
+    {% endif %}
     <nav
       class="navbar navbar-expand-sm navbar-dark bg-secondary justify-content-between align-items-baseline"
     >

@@ -129,3 +129,21 @@ a:focus {
 .max-w-80ch {
   max-width: 80ch;
 }
+
+.header--banner {
+  margin-top: 2.25rem;
+}
+
+.development-banner {
+  background-color: rgb(190, 242, 100);
+  color: rgb(63, 98, 18);
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.25rem;
+  padding: 0.5rem;
+  position: fixed;
+  text-align: center;
+  top: 0;
+  width: 100%;
+  z-index: 30;
+}

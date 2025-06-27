@@ -154,6 +154,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "opencodelists.context_processors.in_production",
             ],
             "builtins": ["slippers.templatetags.slippers"],
         },

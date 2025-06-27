@@ -19,21 +19,6 @@ vi.mock("../../_utils", () => ({
   readValueFromPage: () => ({ coding_system_id: "snomedct" }),
 }));
 
-// @ts-ignore
-const renderMoreInfoModal = (data, code = "123") => {
-  const hierarchy = new Hierarchy(data.parent_map, data.child_map);
-  const defaultProps = {
-    allCodes: ["123", "456"],
-    code,
-    codeToStatus: { "123": "+" as Status, "456": "-" as Status },
-    codeToTerm: { "123": "Test Term", "456": "Other Term" },
-    hierarchy,
-    status: "+" as Status,
-    term: "Test Term",
-  };
-  render(<MoreInfoModal {...defaultProps} />);
-};
-
 beforeEach(() => {
   vi.stubGlobal(
     "fetch",
@@ -52,15 +37,28 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
+const props = {
+  allCodes: ["123", "456"],
+  code: "123",
+  codeToStatus: { "123": "+" as Status, "456": "-" as Status },
+  codeToTerm: { "123": "Test Term", "456": "Other Term" },
+  hierarchy: new Hierarchy(
+    versionWithCompleteSearchesData.parent_map,
+    versionWithCompleteSearchesData.child_map,
+  ),
+  status: "+" as Status,
+  term: "Test Term",
+};
+
 it("renders More info button", () => {
-  renderMoreInfoModal(versionWithCompleteSearchesData);
+  render(<MoreInfoModal {...props} />);
   expect(
     screen.getByRole("button", { name: /more info/i }),
   ).toBeInTheDocument();
 });
 
 it("shows modal and fetches synonyms on button click", async () => {
-  renderMoreInfoModal(versionWithCompleteSearchesData);
+  render(<MoreInfoModal {...props} />);
   fireEvent.click(screen.getByRole("button", { name: /more info/i }));
 
   await waitFor(() => {
@@ -80,7 +78,7 @@ it("shows modal and fetches synonyms on button click", async () => {
 });
 
 it("shows 'No synonyms' if synonyms is empty", async () => {
-  renderMoreInfoModal(versionWithCompleteSearchesData, "456");
+  render(<MoreInfoModal {...props} code="456" />);
   fireEvent.click(screen.getByRole("button", { name: /more info/i }));
 
   await waitFor(() => {
@@ -93,7 +91,7 @@ it("shows 'No synonyms' if fetch fails", async () => {
     "fetch",
     vi.fn(() => Promise.reject("fail")),
   );
-  renderMoreInfoModal(versionWithCompleteSearchesData);
+  render(<MoreInfoModal {...props} />);
   fireEvent.click(screen.getByRole("button", { name: /more info/i }));
 
   // expect(await screen.findByText(/loading synonyms/i)).toBeInTheDocument();
@@ -114,7 +112,7 @@ it("shows 'No synonyms' if fetch succeeds but has an error message", async () =>
       }),
     ),
   );
-  renderMoreInfoModal(versionWithCompleteSearchesData);
+  render(<MoreInfoModal {...props} />);
   fireEvent.click(screen.getByRole("button", { name: /more info/i }));
 
   await waitFor(() => {
@@ -134,7 +132,7 @@ it("show 'No synonyms' if the only synonym matches the primary term", async () =
       }),
     ),
   );
-  renderMoreInfoModal(versionWithCompleteSearchesData);
+  render(<MoreInfoModal {...props} />);
   fireEvent.click(screen.getByRole("button", { name: /more info/i }));
 
   await waitFor(() => {

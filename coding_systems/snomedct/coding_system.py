@@ -4,7 +4,7 @@ import re
 from opencodelists.db_utils import query
 
 from ..base.coding_system_base import BuilderCompatibleCodingSystem
-from .models import FULLY_SPECIFIED_NAME, IS_A, Concept, Description
+from .models import FULLY_SPECIFIED_NAME, IS_A, SYNONYM, Concept, Description
 
 
 term_and_type_pat = re.compile(r"(^.*) \(([\w/ ]+)\)$")
@@ -28,6 +28,16 @@ class CodingSystem(BuilderCompatibleCodingSystem):
                 concept__in=codes, type=FULLY_SPECIFIED_NAME, active=True
             )
         }
+
+    def lookup_synonyms(self, codes):
+        descriptions = Description.objects.using(self.database_alias).filter(
+            concept__in=codes, type=SYNONYM, active=True
+        )
+
+        result = collections.defaultdict(list)
+        for d in descriptions:
+            result[d.concept_id].append(d.term)
+        return dict(result)
 
     def search_by_term(self, term):
         return set(

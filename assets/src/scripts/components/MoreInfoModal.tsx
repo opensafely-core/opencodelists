@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Button, Modal } from "react-bootstrap";
 import Hierarchy from "../_hierarchy";
+import { getCookie, readValueFromPage } from "../_utils";
 import { Code, PageData, Status, Term } from "../types";
 
 interface CreateModalTextProps {
@@ -29,11 +30,11 @@ function createModalText({
   );
 
   const includedAncestorsText = significantAncestors.includedAncestors
-    .map((code: Code) => `${codeToTerm[code]} (${code})`)
+    .map((code: Code) => `${codeToTerm[code]} [${code}]`)
     .join(", ");
 
   const excludedAncestorsText = significantAncestors.excludedAncestors
-    .map((code: Code) => `${codeToTerm[code]} (${code})`)
+    .map((code: Code) => `${codeToTerm[code]} [${code}]`)
     .join(", ");
 
   let text = "";
@@ -43,19 +44,19 @@ function createModalText({
       text = "Included";
       break;
     case "(+)":
-      text = `Included by ${includedAncestorsText}`;
+      text = `Included because you included its ancestor: "${includedAncestorsText}"`;
       break;
     case "-":
       text = "Excluded";
       break;
     case "(-)":
-      text = `Excluded by ${excludedAncestorsText}`;
+      text = `Excluded because you excluded its ancestor: "${excludedAncestorsText}"`;
       break;
     case "?":
       text = "Unresolved";
       break;
     case "!":
-      text = `In conflict!  Included by ${includedAncestorsText}, and excluded by ${excludedAncestorsText}`;
+      text = `In conflict!  Included by "${includedAncestorsText}", and excluded by "${excludedAncestorsText}"`;
       break;
   }
 
@@ -81,11 +82,52 @@ function MoreInfoModal({
   status,
   term,
 }: MoreInfoModalProps) {
+  const codingSystemId = readValueFromPage("metadata")?.coding_system_id;
+
   const [showMoreInfoModal, setShowMoreInfoModal] = useState(false);
+  const [synonyms, setSynonyms] = useState<string[] | null>(null);
   const [modalText, setModalText] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleShow = () => {
+    setShowMoreInfoModal(true);
+    if (synonyms === null) {
+      setLoading(true);
+      const requestHeaders = new Headers();
+      requestHeaders.append("Accept", "application/json");
+      requestHeaders.append("Content-Type", "application/json");
+      const csrfCookie = getCookie("csrftoken");
+      if (csrfCookie) {
+        requestHeaders.append("X-CSRFToken", csrfCookie);
+      }
+      fetch(`/coding-systems/synonyms/${codingSystemId}`, {
+        method: "POST",
+        credentials: "include" as RequestCredentials,
+        mode: "same-origin" as RequestMode,
+        headers: requestHeaders,
+        body: JSON.stringify({ codes: [code] }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.error) {
+            throw new Error(data.error);
+          }
+          // data.synonyms[code] can contain synonyms that are an exact match
+          // for the main term. We filter these out.
+          setSynonyms(
+            data.synonyms[code].filter((synonym: string) => synonym !== term) ||
+              [],
+          );
+        })
+        .catch(() => {
+          setSynonyms([]);
+        })
+        .finally(() => setLoading(false));
+    }
+  };
 
   useEffect(() => {
-    if (showMoreInfoModal) {
+    if (showMoreInfoModal && synonyms !== null) {
       setModalText(
         createModalText({
           allCodes,
@@ -97,13 +139,13 @@ function MoreInfoModal({
         }),
       );
     }
-  }, [showMoreInfoModal]);
+  }, [showMoreInfoModal, synonyms]);
 
   return (
     <>
       <Button
         className="builder__more-info-btn"
-        onClick={() => setShowMoreInfoModal(true)}
+        onClick={handleShow}
         variant="outline-dark"
       >
         More info
@@ -112,6 +154,7 @@ function MoreInfoModal({
       <Modal
         centered
         onHide={() => setShowMoreInfoModal(false)}
+        size="lg"
         show={showMoreInfoModal}
       >
         <Modal.Header closeButton>
@@ -119,7 +162,23 @@ function MoreInfoModal({
             {term} ({code})
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body>{modalText}</Modal.Body>
+        <Modal.Body>
+          <h2 className="h6 font-weight-bold">Synonyms</h2>
+
+          {loading ? (
+            <p>Loading synonyms...</p>
+          ) : (
+            <ul>
+              {!synonyms || synonyms?.length === 0 ? (
+                <li>No synonyms</li>
+              ) : (
+                synonyms.map((synonym, idx) => <li key={idx}>{synonym}</li>)
+              )}
+            </ul>
+          )}
+          <h2 className="h6 font-weight-bold">Status</h2>
+          <p>{modalText}</p>
+        </Modal.Body>
       </Modal>
     </>
   );

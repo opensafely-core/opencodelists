@@ -112,7 +112,12 @@ function MoreInfoModal({
           if (data.error) {
             throw new Error(data.error);
           }
-          setSynonyms(data.synonyms[code] || []);
+          // data.synonyms[code] can contain synonyms that are an exact match
+          // for the main term. We filter these out.
+          setSynonyms(
+            data.synonyms[code].filter((synonym: string) => synonym !== term) ||
+              [],
+          );
         })
         .catch(() => {
           setSynonyms([]);

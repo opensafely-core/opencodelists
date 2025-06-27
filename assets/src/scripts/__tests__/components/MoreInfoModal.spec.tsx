@@ -1,5 +1,11 @@
 import "@testing-library/jest-dom";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import React from "react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import Hierarchy from "../../_hierarchy";
@@ -34,7 +40,7 @@ beforeEach(() => {
     Promise.resolve({
       json: () =>
         Promise.resolve({
-          synonyms: { "123": ["Alpha", "Beta"] },
+          synonyms: { "123": ["Alpha", "Beta", "Test Term"] },
         }),
     }),
   );
@@ -56,8 +62,16 @@ it("shows modal and fetches synonyms on button click", async () => {
   fireEvent.click(screen.getByRole("button", { name: /more info/i }));
 
   await waitFor(() => {
-    expect(screen.getByText("Alpha")).toBeInTheDocument();
-    expect(screen.getByText("Beta")).toBeInTheDocument();
+    const synonymsHeading = screen.getByRole("heading", { name: /synonyms/i });
+    const synonymsList = synonymsHeading.nextElementSibling as HTMLUListElement;
+    expect(within(synonymsList).getByText("Alpha")).toBeInTheDocument();
+    expect(within(synonymsList).getByText("Beta")).toBeInTheDocument();
+
+    // Although "Test Term" is returned as a synonym, it shouldn't display as
+    // it matches the main term
+    expect(
+      within(synonymsList).queryByText("Test Term"),
+    ).not.toBeInTheDocument();
   });
 
   expect(screen.getByText("Included")).toBeInTheDocument();
@@ -91,6 +105,24 @@ it("shows 'No synonyms' if fetch succeeds but has an error message", async () =>
       json: () =>
         Promise.resolve({
           error: "an error occurred",
+        }),
+    }),
+  );
+  renderMoreInfoModal(versionWithCompleteSearchesData);
+  fireEvent.click(screen.getByRole("button", { name: /more info/i }));
+
+  await waitFor(() => {
+    expect(screen.getByText(/no synonyms/i)).toBeInTheDocument();
+  });
+});
+
+it("show 'No synonyms' if the only synonym matches the primary term", async () => {
+  // @ts-ignore
+  global.fetch = vi.fn(() =>
+    Promise.resolve({
+      json: () =>
+        Promise.resolve({
+          synonyms: { "123": ["Test Term"] },
         }),
     }),
   );

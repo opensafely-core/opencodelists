@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom";
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { act, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React from "react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
@@ -47,40 +47,31 @@ const props = {
 
 it("renders More info button", () => {
   render(<MoreInfoModal {...props} />);
-  expect(
-    screen.getByRole("button", { name: /more info/i }),
-  ).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: /more info/i })).toBeVisible();
 });
 
 it("shows modal and fetches synonyms on button click", async () => {
   const user = userEvent.setup();
   render(<MoreInfoModal {...props} />);
-  user.click(screen.getByRole("button", { name: /more info/i }));
+  await user.click(screen.getByRole("button", { name: /more info/i }));
 
-  await waitFor(() => {
-    const synonymsHeading = screen.getByRole("heading", { name: /synonyms/i });
-    const synonymsList = synonymsHeading.nextElementSibling as HTMLUListElement;
-    expect(within(synonymsList).getByText("Alpha")).toBeInTheDocument();
-    expect(within(synonymsList).getByText("Beta")).toBeInTheDocument();
+  const synonymsHeading = screen.getByRole("heading", { name: /synonyms/i });
+  const synonymsList = synonymsHeading.nextElementSibling as HTMLUListElement;
+  expect(within(synonymsList).getByText("Alpha")).toBeVisible();
+  expect(within(synonymsList).getByText("Beta")).toBeVisible();
 
-    // Although "Test Term" is returned as a synonym, it shouldn't display as
-    // it matches the main term
-    expect(
-      within(synonymsList).queryByText("Test Term"),
-    ).not.toBeInTheDocument();
-  });
+  // Although "Test Term" is returned as a synonym, it shouldn't display as
+  // it matches the main term
+  expect(within(synonymsList).queryByText("Test Term")).not.toBeInTheDocument();
 
-  expect(screen.getByText("Included")).toBeInTheDocument();
+  expect(screen.getByText("Included")).toBeVisible();
 });
 
 it("shows 'No synonyms' if synonyms is empty", async () => {
   const user = userEvent.setup();
   render(<MoreInfoModal {...props} code="456" />);
   user.click(screen.getByRole("button", { name: /more info/i }));
-
-  await waitFor(() => {
-    expect(screen.getByText(/no synonyms/i)).toBeInTheDocument();
-  });
+  expect(await screen.findByText(/no synonyms/i)).toBeVisible();
 });
 
 it("shows 'No synonyms' if fetch fails", async () => {
@@ -90,12 +81,11 @@ it("shows 'No synonyms' if fetch fails", async () => {
   );
   const user = userEvent.setup();
   render(<MoreInfoModal {...props} />);
-  user.click(screen.getByRole("button", { name: /more info/i }));
 
-  // expect(await screen.findByText(/loading synonyms/i)).toBeInTheDocument();
-  await waitFor(() => {
-    expect(screen.getByText(/no synonyms/i)).toBeInTheDocument();
+  await act(async () => {
+    await user.click(screen.getByRole("button", { name: /more info/i }));
   });
+  expect(await screen.findByText(/no synonyms/i)).toBeVisible();
 });
 
 it("shows 'No synonyms' if fetch succeeds but has an error message", async () => {
@@ -112,11 +102,9 @@ it("shows 'No synonyms' if fetch succeeds but has an error message", async () =>
   );
   const user = userEvent.setup();
   render(<MoreInfoModal {...props} />);
-  user.click(screen.getByRole("button", { name: /more info/i }));
 
-  await waitFor(() => {
-    expect(screen.getByText(/no synonyms/i)).toBeInTheDocument();
-  });
+  await user.click(screen.getByRole("button", { name: /more info/i }));
+  expect(await screen.findByText(/no synonyms/i)).toBeVisible();
 });
 
 it("show 'No synonyms' if the only synonym matches the primary term", async () => {
@@ -133,9 +121,6 @@ it("show 'No synonyms' if the only synonym matches the primary term", async () =
   );
   const user = userEvent.setup();
   render(<MoreInfoModal {...props} />);
-  user.click(screen.getByRole("button", { name: /more info/i }));
-
-  await waitFor(() => {
-    expect(screen.getByText(/no synonyms/i)).toBeInTheDocument();
-  });
+  await user.click(screen.getByRole("button", { name: /more info/i }));
+  expect(await screen.findByText(/no synonyms/i)).toBeVisible();
 });

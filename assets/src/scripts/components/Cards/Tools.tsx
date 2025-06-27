@@ -32,7 +32,7 @@ export default function Tools() {
               href={tool.link}
               target="_blank"
               rel="noopener noreferrer"
-              className=""
+              className={`plausible-event-name=Builder+tool+click plausible-event-tool=${tool.id}`}
             >
               {tool.name}
             </a>

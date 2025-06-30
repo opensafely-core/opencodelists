@@ -386,6 +386,9 @@ django-debug-toolbar==5.2.0 \
     --hash=sha256:15627f4c2836a9099d795e271e38e8cf5204ccd79d5dbcd748f8a6c284dcd195 \
     --hash=sha256:9e7f0145e1a1b7d78fcc3b53798686170a5b472d9cf085d88121ff823e900821
     # via -r requirements.dev.in
+djhtml==3.0.8 \
+    --hash=sha256:ec3b4cf25f0959474c7793da1becba654ca9587689ce143955bcbc2638eeabce
+    # via -r requirements.dev.in
 filelock==3.18.0 \
     --hash=sha256:adbc88eabb99d2fec8c9c1b229b171f18afa655400173ddc653d5d01501fb9f2 \
     --hash=sha256:c401f4f8377c4464e6db25fff06205fd89bdd83b65eb0488ed1b160f780e21de

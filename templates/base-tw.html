@@ -29,7 +29,13 @@
     <link rel="apple-touch-icon" href="{% static 'apple-touch-icon.png' %}">
     <link rel="manifest" href="{% static 'manifest.webmanifest' %}">
   </head>
-  <body class="min-h-dvh flex flex-col">
+  <body class="min-h-dvh flex flex-col {% if not in_production %}mt-9{% endif %}">
+    {% if not in_production %}
+      <div class="bg-lime-300 text-sm text-lime-800 text-center fixed w-full z-30 px-2 py-2 font-semibold top-0">
+        Development
+      </div>
+    {% endif %}
+
     {% include "_includes/header.html" %}
 
     {% if messages %}

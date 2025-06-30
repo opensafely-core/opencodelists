@@ -153,14 +153,6 @@ test-functional *ARGS: devenv
 # Run all the tests
 test: assets-test test-py test-functional
 
-# Run formatting checks
-format *args=".": devenv
-    $BIN/ruff format --check {{ args }}
-
-# Run linting checks (unused variables etc.)
-ruff *args=".": devenv
-    $BIN/ruff check {{ args }}
-
 # lint and check formatting but don't modify anything
 check: devenv
     $BIN/ruff format --diff --quiet .

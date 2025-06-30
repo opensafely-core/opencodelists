@@ -6,73 +6,73 @@
 {% block title_extra %}: {{ codelist.name }}{% endblock %}
 
 {% block content %}
-<br />
-<h3>{{ codelist.name }}</h3>
+  <br />
+  <h3>{{ codelist.name }}</h3>
 
-<form method="POST" enctype="multipart/form-data">
-  <div class="mb-5">
-    {% crispy codelist_form %}
-  </div>
-
-  <div id="reference-forms" class="mb-5">
-
-    <h4 class="mb-3">References</h4>
-
-    {% if reference_formset.non_form_errors %}
-    <ul class="list-unstyled my-2">
-      {% for error in reference_formset.non_form_errors %}
-      <li class="text-danger">{{ error }}</li>
-      {% endfor %}
-    </ul>
-    {% endif %}
-
-    {{ reference_formset.management_form }}
-
-    <div class="d-none template">
-      {% include "codelists/_reference_form.html" with id="__prefix__" form=reference_formset.empty_form %}
+  <form method="POST" enctype="multipart/form-data">
+    <div class="mb-5">
+      {% crispy codelist_form %}
     </div>
 
-    {% for form in reference_formset %}
-    {% include "codelists/_reference_form.html" with id=forloop.counter0 form=form %}
-    {% endfor %}
+    <div id="reference-forms" class="mb-5">
 
-    <button id="add-reference" class="btn btn-success">Add another Reference</button>
+      <h4 class="mb-3">References</h4>
 
-  </div>
+      {% if reference_formset.non_form_errors %}
+        <ul class="list-unstyled my-2">
+          {% for error in reference_formset.non_form_errors %}
+            <li class="text-danger">{{ error }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
 
-  <div id="signoff-forms" class="mb-5">
+      {{ reference_formset.management_form }}
 
-    <h4 class="mb-3">Sign Offs</h4>
+      <div class="d-none template">
+        {% include "codelists/_reference_form.html" with id="__prefix__" form=reference_formset.empty_form %}
+      </div>
 
-    {% if signoff_formset.non_form_errors %}
-    <ul class="list-unstyled my-2">
-      {% for error in signoff_formset.non_form_errors %}
-      <li class="text-danger">{{ error }}</li>
+      {% for form in reference_formset %}
+        {% include "codelists/_reference_form.html" with id=forloop.counter0 form=form %}
       {% endfor %}
-    </ul>
-    {% endif %}
 
-    {{ signoff_formset.management_form }}
+      <button id="add-reference" class="btn btn-success">Add another Reference</button>
 
-    <div class="d-none template">
-      {% include "codelists/_signoff_form.html" with id="__prefix__" form=signoff_formset.empty_form %}
     </div>
 
-    {% for form in signoff_formset %}
-    {% include "codelists/_signoff_form.html" with id=forloop.counter0 form=form %}
-    {% endfor %}
+    <div id="signoff-forms" class="mb-5">
 
-    <button id="add-signoff" type="button" class="btn btn-success">Add another Sign Off</button>
+      <h4 class="mb-3">Sign Offs</h4>
 
-  </div>
+      {% if signoff_formset.non_form_errors %}
+        <ul class="list-unstyled my-2">
+          {% for error in signoff_formset.non_form_errors %}
+            <li class="text-danger">{{ error }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
 
-  <div class="form-group">
-    <button type="submit" class="btn btn-primary">Submit</button>
-  </div>
-</form>
+      {{ signoff_formset.management_form }}
+
+      <div class="d-none template">
+        {% include "codelists/_signoff_form.html" with id="__prefix__" form=signoff_formset.empty_form %}
+      </div>
+
+      {% for form in signoff_formset %}
+        {% include "codelists/_signoff_form.html" with id=forloop.counter0 form=form %}
+      {% endfor %}
+
+      <button id="add-signoff" type="button" class="btn btn-success">Add another Sign Off</button>
+
+    </div>
+
+    <div class="form-group">
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </div>
+  </form>
 
 {% endblock %}
 
 {% block extra_js %}
-{% vite_asset "assets/src/scripts/codelist.js" %}
+  {% vite_asset "assets/src/scripts/codelist.js" %}
 {% endblock %}

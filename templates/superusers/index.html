@@ -1,29 +1,29 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>Organisations</h1>
+  <h1>Organisations</h1>
 
-{% for record in organisations %}
-<div>
-        <h2>{{ record.name }}</h2>
-        <ul>
-                {% for codelist in record.codelists %}
-                {% include "./_index_codelist.html" %}
-                {% endfor %}
-        </ul>
-</div>
-{% endfor %}
+  {% for record in organisations %}
+    <div>
+      <h2>{{ record.name }}</h2>
+      <ul>
+        {% for codelist in record.codelists %}
+          {% include "./_index_codelist.html" %}
+        {% endfor %}
+      </ul>
+    </div>
+  {% endfor %}
 
-<h1>Users</h1>
+  <h1>Users</h1>
 
-{% for record in users %}
-<div>
-        <h2>{{ record.name }}</h2>
-        <ul>
-                {% for codelist in record.codelists %}
-                {% include "./_index_codelist.html" %}
-                {% endfor %}
-        </ul>
-</div>
-{% endfor %}
+  {% for record in users %}
+    <div>
+      <h2>{{ record.name }}</h2>
+      <ul>
+        {% for codelist in record.codelists %}
+          {% include "./_index_codelist.html" %}
+        {% endfor %}
+      </ul>
+    </div>
+  {% endfor %}
 {% endblock %}

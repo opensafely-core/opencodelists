@@ -17,21 +17,21 @@
     <tr>
       <th>Name</th>
       {% if show_unpublished %}
-      <th>Owner</th>
+        <th>Owner</th>
       {% endif %}
       <th style="white-space: nowrap">Coding system</th>
       {% if show_unpublished %}
-      <th>Versions</th>
+        <th>Versions</th>
       {% else %}
-      <th style="white-space: nowrap">Number of codes</th>
-      <th style="white-space: nowrap">Last updated</th>
+        <th style="white-space: nowrap">Number of codes</th>
+        <th style="white-space: nowrap">Last updated</th>
       {% endif %}
     </tr>
   </thead>
   <tbody>
     {% for item in codelists %}
-    <tr data-codelist-id="{{ item.codelist.id }}" data-codelist-text="{{ item.codelist.name }} {{ item.codelist.owner }} {{ item.codelist.coding_system_short_name }}">
-      {% if show_unpublished %}
+      <tr data-codelist-id="{{ item.codelist.id }}" data-codelist-text="{{ item.codelist.name }} {{ item.codelist.owner }} {{ item.codelist.coding_system_short_name }}">
+        {% if show_unpublished %}
           <td>{{ item.codelist.name }}</td>
           <td>{{ item.codelist.owner }}</td>
           <td>{{ item.codelist.coding_system_short_name }}</td>
@@ -39,51 +39,51 @@
             <table class="table-nested">
               <tbody>
                 {% for version in item.versions %}
-                <tr data-version-text="{{ version.status }}">
-                  <td class="text-monospace font-weight-bold" style="width: 10ch">
-                    <a href="{{ version.get_absolute_url }}">{{ version.tag_or_hash }}</a>
-                  </td>
-                  <td style="width: 100px">
-                    {% if version.is_under_review %}
-                      <span class="badge badge-info">Under review</span>
-                    {% elif version.is_draft %}
-                      <span class="badge badge-secondary">Draft</span>
-                    {% elif version.is_published %}
-                      <span class="badge badge-success">Published</span>
-                    {% endif %}
-                  </td>
-                  <td style="width: 120px">
-                    <span class="badge badge-primary">
-                      {{ version.codes | length }} code{% if version.codes|length != 1 %}s{% endif %}
-                    </span>
-                  </td>
-                  <td>
-                    <span class="badge">
-                      Last updated {{ version.updated_at | date:'d M Y' }} at {{ version.updated_at | date:'H:i' }}
-                    </span>
-                  </td>
-                </tr>
+                  <tr data-version-text="{{ version.status }}">
+                    <td class="text-monospace font-weight-bold" style="width: 10ch">
+                      <a href="{{ version.get_absolute_url }}">{{ version.tag_or_hash }}</a>
+                    </td>
+                    <td style="width: 100px">
+                      {% if version.is_under_review %}
+                        <span class="badge badge-info">Under review</span>
+                      {% elif version.is_draft %}
+                        <span class="badge badge-secondary">Draft</span>
+                      {% elif version.is_published %}
+                        <span class="badge badge-success">Published</span>
+                      {% endif %}
+                    </td>
+                    <td style="width: 120px">
+                      <span class="badge badge-primary">
+                        {{ version.codes | length }} code{% if version.codes|length != 1 %}s{% endif %}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="badge">
+                        Last updated {{ version.updated_at | date:'d M Y' }} at {{ version.updated_at | date:'H:i' }}
+                      </span>
+                    </td>
+                  </tr>
                 {% endfor %}
               </tbody>
             </table>
           </td>
-      {% else %}
+        {% else %}
           <td>
             <a href="{{ item.get_absolute_url }}">{{ item.codelist.name }}</a>
           </td>
           <td>{{ item.codelist.coding_system_short_name }}</td>
           <td>
-              {{ item.codes | length }}
+            {{ item.codes | length }}
           </td>
           <td>
-              {{ item.updated_at | date:'d M Y' }}
+            {{ item.updated_at | date:'d M Y' }}
           </td>
-      {% endif %}
-    </tr>
+        {% endif %}
+      </tr>
     {% endfor %}
   </tbody>
 </table>
 
 {% block extra_js %}
-{% vite_asset "assets/src/scripts/codelists-list.js" %}
+  {% vite_asset "assets/src/scripts/codelists-list.js" %}
 {% endblock %}

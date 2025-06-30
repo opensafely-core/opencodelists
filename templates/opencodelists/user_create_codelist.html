@@ -52,14 +52,14 @@
     <div class="bg-white px-6 py-12 shadow-sm sm:rounded-lg sm:px-12">
       {% fragment as coding_system_help_text %}
         <ul>
-        {% for coding_system in coding_systems %}
-          <li>
-            <strong>{{ coding_system.name }}</strong>: {{ coding_system.description }}
-            {% if coding_system.is_experimental %}
-            <strong class="text-red-700">WARNING - this coding system is in testing and should only be used if you've been asked to test it.</strong>
-            {% endif %}
-          </li>
-        {% endfor %}
+          {% for coding_system in coding_systems %}
+            <li>
+              <strong>{{ coding_system.name }}</strong>: {{ coding_system.description }}
+              {% if coding_system.is_experimental %}
+                <strong class="text-red-700">WARNING - this coding system is in testing and should only be used if you've been asked to test it.</strong>
+              {% endif %}
+            </li>
+          {% endfor %}
         </ul>
       {% endfragment coding_system_help_text %}
       {% form_input field=form.coding_system_id help_text=coding_system_help_text %}

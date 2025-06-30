@@ -5,22 +5,22 @@
 {% block title_extra %}: {{ user.name }} organisations{% endblock %}
 
 {% block content %}
-<br />
-<h3>Hello, {{ user.name }}</h3>
-<br />
+  <br />
+  <h3>Hello, {{ user.name }}</h3>
+  <br />
 
-<h4>Your organisations</h4>
-<br />
-{% for organisation in organisations %}
+  <h4>Your organisations</h4>
+  <br />
+  {% for organisation in organisations %}
     <h5>{{ organisation.name }}</h5>
 
     <ul>
-        <li><a href="{% url 'codelists:organisation_index' organisation.slug %}">Published codelists owned by {{ organisation.name }}</a></li>
-        <li><a href="{% url 'codelists:organisation_under_review_index' organisation.slug %}">Codelists under review</a></li>
-        {% if organisation.slug in admin_organisations %}
+      <li><a href="{% url 'codelists:organisation_index' organisation.slug %}">Published codelists owned by {{ organisation.name }}</a></li>
+      <li><a href="{% url 'codelists:organisation_under_review_index' organisation.slug %}">Codelists under review</a></li>
+      {% if organisation.slug in admin_organisations %}
         <li><a href="{% url 'organisation_members' organisation.slug %}">{{ organisation.name }} Users</a></li>
-        {% endif %}
+      {% endif %}
     </ul>
-{% endfor %}
+  {% endfor %}
 
 {% endblock %}

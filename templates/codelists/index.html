@@ -4,70 +4,70 @@
 
 {% block content %}
 
-{% if not organisation %}
-  <h1>OpenCodelists</h1>
+  {% if not organisation %}
+    <h1>OpenCodelists</h1>
 
-  <div class="mt-3">
-    <p>Welcome to OpenCodelists, created by <a href="https://opensafely.org">OpenSAFELY</a> for creating and sharing codelists.</p>
-    <p>Anybody can also use this tool to create and share codelists.  To get started, take a look at the <a href="/docs/">documentation</a> or watch the videos.<p>
-    <p>If you would like to publish codelists on behalf of an organisation, please <a href="https://opensafely.org/contact/">get in touch</a>.</p>
-    <p>Below, you'll find all the codelists that have been used in <a href="https://opensafely.org/research/">OpenSAFELY research</a> to date.</p>
-  </div>
-
-  <div class="row my-2">
-    <div class="col-md-6">
-      <div class="youtube-embed">
-        <lite-youtube
-          class="plausible-event-name=Video+Click"
-          videoid="ayRtpbcPFLA"
-          params="controls=1&rel=0&enablejsapi=1"
-        ></lite-youtube>
+    <div class="mt-3">
+      <p>Welcome to OpenCodelists, created by <a href="https://opensafely.org">OpenSAFELY</a> for creating and sharing codelists.</p>
+      <p>Anybody can also use this tool to create and share codelists.  To get started, take a look at the <a href="/docs/">documentation</a> or watch the videos.<p>
+        <p>If you would like to publish codelists on behalf of an organisation, please <a href="https://opensafely.org/contact/">get in touch</a>.</p>
+        <p>Below, you'll find all the codelists that have been used in <a href="https://opensafely.org/research/">OpenSAFELY research</a> to date.</p>
       </div>
+
+        <div class="row my-2">
+          <div class="col-md-6">
+            <div class="youtube-embed">
+              <lite-youtube
+                class="plausible-event-name=Video+Click"
+                videoid="ayRtpbcPFLA"
+                params="controls=1&rel=0&enablejsapi=1"
+              ></lite-youtube>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <lite-youtube
+              class="plausible-event-name=Video+Click"
+              videoid="t-A2kWHZ5lA"
+              params="controls=1&rel=0&enablejsapi=1"
+            ></lite-youtube>
+          </div>
+        </div>
+
+        <hr />
+  {% endif %}
+
+  {% if organisation %}
+    <h3>{{ organisation.name }} codelists</h3>
+  {% else %}
+    <h3>All codelists</h3>
+  {% endif %}
+  <br />
+
+  {% include "codelists/_search_form.html" %}
+
+  <div class="row">
+    <div class="col-12">
+      <dl class="home-codelists">
+        {% for cl in codelists_page %}
+          <dt>
+            <a href="{{ cl.get_absolute_url }}">{{ cl.name }}</a>
+            <span class="badge badge-secondary">{{ cl.coding_system_short_name }}</span>
+          </dt>
+          <dd>
+
+            {% if cl.description %}
+              <div>{{ cl.description|markdown_filter|safe }}</div>
+            {% endif %}
+
+            {% if not organisation %}
+              <div>Published by <a href="{% url 'codelists:organisation_index' cl.organisation_id %}">{{ cl.organisation.name }}</a></div>
+            {% endif %}
+          </dd>
+        {% endfor %}
+      </dl>
     </div>
-    <div class="col-md-6">
-      <lite-youtube
-        class="plausible-event-name=Video+Click"
-        videoid="t-A2kWHZ5lA"
-        params="controls=1&rel=0&enablejsapi=1"
-      ></lite-youtube>
-    </div>
+
+    {% include "./_pagination.html" with page_obj=codelists_page %}
+
   </div>
-
-  <hr />
-{% endif %}
-
-{% if organisation %}
-<h3>{{ organisation.name }} codelists</h3>
-{% else %}
-<h3>All codelists</h3>
-{% endif %}
-<br />
-
-{% include "codelists/_search_form.html" %}
-
-<div class="row">
-  <div class="col-12">
-    <dl class="home-codelists">
-      {% for cl in codelists_page %}
-        <dt>
-          <a href="{{ cl.get_absolute_url }}">{{ cl.name }}</a>
-          <span class="badge badge-secondary">{{ cl.coding_system_short_name }}</span>
-        </dt>
-        <dd>
-
-        {% if cl.description %}
-        <div>{{ cl.description|markdown_filter|safe }}</div>
-        {% endif %}
-
-        {% if not organisation %}
-        <div>Published by <a href="{% url 'codelists:organisation_index' cl.organisation_id %}">{{ cl.organisation.name }}</a></div>
-        {% endif %}
-        </dd>
-      {% endfor %}
-    </dl>
-  </div>
-
-  {% include "./_pagination.html" with page_obj=codelists_page %}
-
-</div>
 {% endblock %}

@@ -71,7 +71,7 @@
         <p>If you have prepared a CSV of data, you can upload it here.</p>
       </div>
 
-      <details class="group bg-blue-50 border-l-4 border-l-blue-900 mb-4 open:bg-gray-50 shadow-sm sm:rounded-sm">
+      <details class="group bg-blue-50 border-l-4 border-l-blue-900 mb-4 open:bg-gray-50 shadow-sm sm:rounded-sm" {% if form.csv_data.errors %}open{% endif %}>
         <summary class="cursor-pointer list-none before:!hidden [&amp;::-webkit-details-marker]:hidden">
           <span class="flex items-center justify-start gap-x-2 m-0 py-4 pr-6 pl-2 leading-none font-semibold text-blue-900 group-open:text-blue">
             {% icon_plus_to_minus class="max-w-5 fill-blue-900 group-open:fill-blue" %}

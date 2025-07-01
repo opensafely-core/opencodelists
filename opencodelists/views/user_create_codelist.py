@@ -73,7 +73,6 @@ def handle_post(request, user, owner_choices, include_experimental):
 
 def handle_post_valid(request, form, user, owner_choices):
     if owner_choices:
-        # TODO handle these asserts better
         owner_identifier = form.cleaned_data["owner"]
         assert owner_identifier in [choice[0] for choice in owner_choices]
         if owner_identifier.startswith("user:"):
@@ -90,8 +89,6 @@ def handle_post_valid(request, form, user, owner_choices):
     coding_system_id = form.cleaned_data["coding_system_id"]
     codes = form.cleaned_data["csv_data"]
 
-    # TODO: Retrieve coding system database alias from form input when
-    # coding system version is selectable
     coding_system_database_alias = most_recent_database_alias(coding_system_id)
 
     try:

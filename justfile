@@ -2,7 +2,6 @@
 # so we shell out, as we need VIRTUAL_ENV in the justfile environment
 export VIRTUAL_ENV  := `echo ${VIRTUAL_ENV:-.venv}`
 
-# TODO: make it /scripts on windows?
 export BIN := VIRTUAL_ENV + "/bin"
 export PIP := BIN + "/python -m pip"
 # enforce our chosen pip compile flags

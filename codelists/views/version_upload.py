@@ -34,8 +34,6 @@ def handle_post(request, codelist):
 
 
 def handle_valid(request, codelist, form):
-    # TODO: Retrieve coding system database alias from form input when
-    # coding system version is selectable
     version = actions.create_old_style_version(
         codelist=codelist,
         csv_data=form.cleaned_data["csv_data"],

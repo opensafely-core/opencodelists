@@ -1,9 +1,9 @@
 <li>{{ codelist.name }} ({{ codelist.coding_system_short_name }})</li>
 <ul>
-        {% for version in codelist.versions.all %}
-        <li>
-                <a href="{{ version.get_absolute_url }}">{{ version.tag_or_hash }}</a>
-                ({{ version.status }})
-        </li>
-        {% endfor %}
+  {% for version in codelist.versions.all %}
+    <li>
+      <a href="{{ version.get_absolute_url }}">{{ version.tag_or_hash }}</a>
+      ({{ version.status }})
+    </li>
+  {% endfor %}
 </ul>

@@ -5,18 +5,18 @@
 {% block title_extra %}: {{ user.name }}{% endblock %}
 
 {% block content %}
-<br />
-<h3>Hello, {{ user.name }}</h3>
-<br />
+  <br />
+  <h3>Hello, {{ user.name }}</h3>
+  <br />
 
-<div>
+  <div>
     <a href="{% url 'user-create-codelist' user.username %}" class="btn btn-primary">
-        Create a codelist!
+      Create a codelist!
     </a>
-</div>
-<br />
+  </div>
+  <br />
 
-{% if all_codelists %}
-{% include "opencodelists/_codelist_links.html" with codelists=all_codelists show_unpublished=True %}
-{% endif %}
+  {% if all_codelists %}
+    {% include "opencodelists/_codelist_links.html" with codelists=all_codelists show_unpublished=True %}
+  {% endif %}
 {% endblock %}

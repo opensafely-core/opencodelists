@@ -5,12 +5,12 @@
 {% block title_extra %}: {{ user.name }}{% endblock %}
 
 {% block content %}
-<br />
-<h3>{{ user.name }}</h3>
-<br />
+  <br />
+  <h3>{{ user.name }}</h3>
+  <br />
 
-{% if published_codelists %}
-<h4>Codelists</h4>
-{% include "opencodelists/_codelist_links.html" with codelists=published_codelists show_unpublished=False %}
-{% endif %}
+  {% if published_codelists %}
+    <h4>Codelists</h4>
+    {% include "opencodelists/_codelist_links.html" with codelists=published_codelists show_unpublished=False %}
+  {% endif %}
 {% endblock %}

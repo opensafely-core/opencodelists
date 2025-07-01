@@ -4,7 +4,7 @@
     type="hidden"
     id="id_reference-{{ id }}-id"
     {% if form.id.value != None %}
-    value="{{ form.id.value }}"
+      value="{{ form.id.value }}"
     {% endif %}
     name="reference-{{ id }}-id" />
 
@@ -23,19 +23,19 @@
           type="text"
           name="reference-{{ id }}-text"
           {% if form.text.value != None %}
-          value="{{ form.text.value }}"
+            value="{{ form.text.value }}"
           {% endif %}
           class="form-control"
           id="id_reference-{{ id }}-text" />
       </div>
 
-        {% if form.text.errors %}
+      {% if form.text.errors %}
         <ul class="list-unstyled my-2">
           {% for error in form.text.errors %}
-          <li class="text-danger">{{ error }}</li>
+            <li class="text-danger">{{ error }}</li>
           {% endfor %}
         </ul>
-        {% endif %}
+      {% endif %}
 
     </div>
 
@@ -52,28 +52,28 @@
           type="text"
           name="reference-{{ id }}-url"
           {% if form.url.value != None %}
-          value="{{ form.url.value }}"
+            value="{{ form.url.value }}"
           {% endif %}
           class="form-control"
           id="id_reference-{{ id }}-url" />
       </div>
 
-        {% if form.url.errors %}
+      {% if form.url.errors %}
         <ul class="list-unstyled my-2">
           {% for error in form.url.errors %}
-          <li class="text-danger">{{ error }}</li>
+            <li class="text-danger">{{ error }}</li>
           {% endfor %}
         </ul>
-        {% endif %}
+      {% endif %}
 
     </div>
 
     {% if form.non_field_errors %}
-    <div class="non-field-errors">
-      {% for error in form.non_field_errors %}
-      <p class="form-error">{{ error }}</p>
-      {% endfor %}
-    </div>
+      <div class="non-field-errors">
+        {% for error in form.non_field_errors %}
+          <p class="form-error">{{ error }}</p>
+        {% endfor %}
+      </div>
     {% endif %}
 
   </div>
@@ -89,8 +89,8 @@
     id="reference-{{ id }}-DELETE"
     name="reference-{{ id }}-DELETE"
     {% if form.DELETE.value %}
-    value="on"
+      value="on"
     {% endif %}
-    />
+  />
 
 </div>

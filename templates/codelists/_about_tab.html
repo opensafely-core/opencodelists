@@ -3,43 +3,43 @@
 <div class="tab-about h-100 d-flex flex-column">
   <h2 class="sr-only">About</h2>
   {% if codelist.description %}
-  <h3 class="h4">Description</h3>
-  <p>{{ codelist.description|markdown_filter|safe }}</p>
+    <h3 class="h4">Description</h3>
+    <p>{{ codelist.description|markdown_filter|safe }}</p>
   {% endif %}
 
   {% if codelist.methodology %}
-  <h3 class="h4">Methodology</h3>
-  <p>{{ codelist.methodology|markdown_filter|safe }}</p>
+    <h3 class="h4">Methodology</h3>
+    <p>{{ codelist.methodology|markdown_filter|safe }}</p>
   {% endif %}
 
   {% if references %}
-  <h3 class="h4">References</h3>
-  <ul>
-    {% for reference in references %}
-    <li><a href="{{ reference.url }}">{{ reference.text }}</a></li>
-    {% empty %}
-    <li>...</li>
-    {% endfor %}
-  </ul>
+    <h3 class="h4">References</h3>
+    <ul>
+      {% for reference in references %}
+        <li><a href="{{ reference.url }}">{{ reference.text }}</a></li>
+      {% empty %}
+        <li>...</li>
+      {% endfor %}
+    </ul>
   {% endif %}
 
   {% if signoffs %}
-  <h3 class="h4">Signed off by</h3>
-  <ul>
-    {% for signoff in signoffs %}
-    <li>
-      {{ signoff.user.name }},
-      {{ signoff.user.organisation.name }}
-      ({{ signoff.date }})
-    </li>
-    {% empty %}
-    <li>...</li>
-    {% endfor %}
-  </ul>
+    <h3 class="h4">Signed off by</h3>
+    <ul>
+      {% for signoff in signoffs %}
+        <li>
+          {{ signoff.user.name }},
+          {{ signoff.user.organisation.name }}
+          ({{ signoff.date }})
+        </li>
+      {% empty %}
+        <li>...</li>
+      {% endfor %}
+    </ul>
   {% endif %}
 
   {% if not codelist.description and not codelist.methodology and not references and not signoffs %}
-  <p>No metadata has been provided for this codelist.</p>
+    <p>No metadata has been provided for this codelist.</p>
   {% endif %}
 
   <div class="small mt-auto pt-4">
@@ -54,11 +54,11 @@
       check that any codelist meets their needs, and seek clinical input where appropriate.
     </p>
     {% if codelist.coding_system_id == "dmd" %}
-    <p>
-      * dm+d codelists can be downloaded with codes mapped to changed VMPs included - this is the default
-      for an OpenSAFELY project.  See the <a href="https://docs.opensafely.org/codelist-updating/">
-      documentation on keeping codelists up to date</a> for more details.
-    </p>
+      <p>
+        * dm+d codelists can be downloaded with codes mapped to changed VMPs included - this is the default
+        for an OpenSAFELY project.  See the <a href="https://docs.opensafely.org/codelist-updating/">
+          documentation on keeping codelists up to date</a> for more details.
+      </p>
     {% endif %}
   </div>
 

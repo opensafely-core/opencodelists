@@ -3,24 +3,24 @@
 
 {% block content %}
 
-<h3>{{ organisation.name }}: codelists under review</h3>
-<br />
+  <h3>{{ organisation.name }}: codelists under review</h3>
+  <br />
 
-{% include "codelists/_search_form.html" %}
+  {% include "codelists/_search_form.html" %}
 
-<div class="row">
-  <div class="col-12">
-    <dl class="home-codelists">
-      {% for version in versions_page %}
-      <dt>
-        <a href="{{ version.get_absolute_url }}">{{ version.codelist.name }} - version {{ version.tag_or_hash }}</a>
-      </dt>
-      <dd>
-      {% endfor %}
-    </dl>
+  <div class="row">
+    <div class="col-12">
+      <dl class="home-codelists">
+        {% for version in versions_page %}
+          <dt>
+            <a href="{{ version.get_absolute_url }}">{{ version.codelist.name }} - version {{ version.tag_or_hash }}</a>
+          </dt>
+          <dd>
+        {% endfor %}
+      </dl>
+    </div>
+
+    {% include "./_pagination.html" with page_obj=versions_page %}
+
   </div>
-
-  {% include "./_pagination.html" with page_obj=versions_page %}
-
-</div>
 {% endblock %}

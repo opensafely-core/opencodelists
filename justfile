@@ -153,21 +153,17 @@ test-functional *ARGS: devenv
 # Run all the tests
 test: assets-test test-py test-functional
 
-# Run formatting checks
-format *args=".": devenv
-    $BIN/ruff format --check {{ args }}
+# lint and check formatting but don't modify anything
+check: devenv
+    $BIN/ruff format --diff --quiet .
+    $BIN/ruff check --output-format=full .
+    $BIN/djhtml --tabwidth 2 --check templates/
 
-# Run linting checks (unused variables etc.)
-ruff *args=".": devenv
-    $BIN/ruff check {{ args }}
-
-# run the various dev checks but does not change any files
-check *args: devenv ruff format
-
-# fix formatting and import sort ordering
+# fix the things we can automate: linting, formatting, import sorting
 fix: devenv
     $BIN/ruff check --fix .
     $BIN/ruff format .
+    $BIN/djhtml --tabwidth 2 templates/
 
 # setup/update local dev environment
 dev-setup: devenv assets

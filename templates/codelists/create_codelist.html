@@ -6,51 +6,51 @@
 {% block title_extra %}: {{ codelist.name }}{% endblock %}
 
 {% block content %}
-<br />
-<h3>New Codelist</h3>
+  <br />
+  <h3>New Codelist</h3>
 
-<form method="POST" enctype="multipart/form-data">
-  <div class="mb-5">
-    {% crispy codelist_form %}
-  </div>
-
-  <div id="reference-forms" class="mb-5">
-
-    <div class="d-flex justify-content-between">
-      <h4>References</h4>
-      <button id="add-reference" class="btn btn-success">+</button>
+  <form method="POST" enctype="multipart/form-data">
+    <div class="mb-5">
+      {% crispy codelist_form %}
     </div>
 
-    <div class="d-none template">
-      {% crispy reference_formset.empty_form helper %}
+    <div id="reference-forms" class="mb-5">
+
+      <div class="d-flex justify-content-between">
+        <h4>References</h4>
+        <button id="add-reference" class="btn btn-success">+</button>
+      </div>
+
+      <div class="d-none template">
+        {% crispy reference_formset.empty_form helper %}
+      </div>
+
+      {% crispy reference_formset helper %}
+
     </div>
 
-    {% crispy reference_formset helper %}
+    <div id="signoff-forms" class="mb-5">
 
-  </div>
+      <div class="d-flex justify-content-between">
+        <h4>Sign Offs</h4>
+        <button id="add-signoff" class="btn btn-success">+</button>
+      </div>
 
-  <div id="signoff-forms" class="mb-5">
+      <div class="d-none template">
+        {% crispy signoff_formset.empty_form helper %}
+      </div>
 
-    <div class="d-flex justify-content-between">
-      <h4>Sign Offs</h4>
-      <button id="add-signoff" class="btn btn-success">+</button>
+      {% crispy signoff_formset helper %}
+
     </div>
 
-    <div class="d-none template">
-      {% crispy signoff_formset.empty_form helper %}
+    <div class="form-group">
+      <button type="submit" class="btn btn-primary">Submit</button>
     </div>
-
-    {% crispy signoff_formset helper %}
-
-  </div>
-
-  <div class="form-group">
-    <button type="submit" class="btn btn-primary">Submit</button>
-  </div>
-</form>
+  </form>
 
 {% endblock %}
 
 {% block extra_js %}
-{% vite_asset "assets/src/scripts/codelist.js" %}
+  {% vite_asset "assets/src/scripts/codelist.js" %}
 {% endblock %}

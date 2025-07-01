@@ -20,7 +20,7 @@
   </a> are updated monthly. Please check carefully for any new medicines
   and codes before reusing this
   {% if user_can_edit %}
-  codelist.
+    codelist.
     {% if can_create_new_version %}
       If it needs updating, you can create a new version with the button above.
     {% else %}
@@ -29,9 +29,9 @@
   {% else %}
     codelist, or
     {% if request.user.username %}
-    <a href="{% url 'user-create-codelist' request.user %}">
-      create your own
-    </a>.
+      <a href="{% url 'user-create-codelist' request.user %}">
+        create your own
+      </a>.
     {% else %}
       create your own.
     {% endif %}

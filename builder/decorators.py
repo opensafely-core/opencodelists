@@ -21,7 +21,6 @@ def load_draft(view_fn):
                 cache_hierarchy(version=version)
             return rsp
         else:
-            # TODO test this properly
             return redirect(version)
 
     return wrapped_view

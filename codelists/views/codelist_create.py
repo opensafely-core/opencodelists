@@ -68,8 +68,6 @@ def handle_valid(request, owner, codelist_form, reference_formset, signoff_forms
 
     name = codelist_form.cleaned_data["name"]
 
-    # TODO: Retrieve coding system database alias from form input when
-    # coding system version is selectable
     coding_system_id = codelist_form.cleaned_data["coding_system_id"]
 
     try:

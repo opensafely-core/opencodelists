@@ -72,10 +72,21 @@ class CodelistCreateForm(forms.Form):
     owner = forms.ChoiceField()
     name = form_field_from_model(Handle, "name", label="Codelist name")
     coding_system_id = forms.ChoiceField(choices=[], label="Coding system")
+    csv_has_header = forms.TypedChoiceField(
+        choices=(
+            ("True", "Yes"),
+            ("False", "No"),
+        ),
+        coerce=lambda x: x == "True",
+        empty_value=None,
+        widget=forms.RadioSelect,
+        label="Does the CSV have a header row?",
+        required=False,
+    )
     csv_data = forms.FileField(
         label="CSV data",
         required=False,
-        help_text="The CSV file should not have a header, and its first column must contain valid codes in the chosen coding system.",
+        help_text="The CSV's first column must contain valid codes in the chosen coding system.",
     )
 
     def __init__(self, *args, **kwargs):
@@ -105,6 +116,8 @@ class CodelistCreateForm(forms.Form):
         if not f:
             return
 
+        csv_has_header = self.cleaned_data["csv_has_header"]
+
         try:
             data = f.read().decode("utf-8-sig")
         except UnicodeDecodeError as exception:
@@ -120,7 +133,12 @@ class CodelistCreateForm(forms.Form):
             self.cleaned_data["coding_system_id"]
         ].get_by_release_or_most_recent()
 
-        codes = [row[0] for row in csv.reader(StringIO(data)) if row]
+        csv_reader = csv.reader(StringIO(data))
+        if csv_has_header:
+            next(csv_reader, None)
+
+        codes = [row[0] for row in csv_reader if row]
+
         validate_csv_data_codes(coding_system, codes)
         return codes
 

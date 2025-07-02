@@ -6,7 +6,7 @@ From the _My codelists_ page, click _Create a codelist_.
 
 Choose a name for the codelist, select a coding system from the dropdown, and choose a file to upload from your hard drive.
 
-To create an OPCS-4 or dm+d codelist, please see the notes at the bottom of this page.
+To create an OPCS-4 codelist, please see the notes at the bottom of this page.
 
 If you are a member of an organisation, you can also choose an owner for the codelist (your own account or an organisation account).
 
@@ -44,11 +44,11 @@ You can also edit the codelist.
 
 We are aware of an issue whereby Excel can truncate or round dm+d IDs, turning them into invalid IDs. This is due to Excel's interpretation of this column as a number type insufficiently large to contain a dm+d ID. For this reason, opening dm+d codelist files in Excel should be avoided wherever possible. Where it is unavoidable to do so, rather than opening a dm+d codelist csv file directly in Excel (such as through the Open dialogue or from the file explorer), we recommend opening a blank Excel workbook and using the "Import data from Text/CSV" feature. To avoid the problematic rounding/truncation behaviour described above, specify the data type of the dm+d id column as "Text" during the import process.
 
-### Adding an OPCS-4 or dm+d codelist
+### Adding an OPCS-4 codelist
 
-Note: OPCS-4 and dm+d codelists can not currently be created using the form described above.
+Note: OPCS-4 codelists can not currently be created using the form described above.
 
-To add an OPCS-4 or dm+d codelist, navigate to `https://www.opencodelists.org/codelist/{ACCOUNT}/add/` — where `{ACCOUNT}` in the URL is substituted with one of the following options:
+To add an OPCS-4 codelist, navigate to `https://www.opencodelists.org/codelist/{ACCOUNT}/add/` — where `{ACCOUNT}` in the URL is substituted with one of the following options:
 
 * Either `user/{username}` where `username` is your OpenCodelists username, to add the codelist to your personal account
 * Or the name of the organisation your account is associated with, to add the codelist under the organisation.

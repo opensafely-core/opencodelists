@@ -19,6 +19,7 @@ We currently support codelists using the following coding systems:
 - ICD-10
 - CTV3 (Read V3)
 - BNF (British National Formulary codes)
+- Dictionary of Medicines and Devices
 
 Then click _Create_.
 
@@ -90,4 +91,3 @@ information on procedures for building codelists to use in OpenSAFELY research, 
 Once the codelist is reviewed, it can be published, using the __Publish version__ link from the codelist's homepage.  Publishing a codelist version will make that version permanent, and will delete any other draft or in-review versions.
 
         publish.png
-        

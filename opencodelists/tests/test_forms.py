@@ -52,12 +52,13 @@ def test_membership_create_form_no_user(organisation):
 
 
 class TestCodelistCreateForm:
-    def _bind_form(self, file):
+    def _bind_form(self, file, **kwargs):
         return CodelistCreateForm(
             data={
                 "name": "test name",
                 "coding_system_id": "snomedct",
-            },
+            }
+            | kwargs,
             files={
                 "csv_data": file,
             },
@@ -65,11 +66,26 @@ class TestCodelistCreateForm:
             include_experimental=False,
         )
 
-    def test_bound_form_valid(self, disorder_of_elbow_codes):
+    def test_bound_form_valid_with_no_csv_header(self, disorder_of_elbow_codes):
         valid_csv_data = "\n".join(disorder_of_elbow_codes)
         file = ContentFile(valid_csv_data.encode("utf-8"))
-        file.name = "valid_data.csv"
-        form = self._bind_form(file)
+        file.name = "valid_data_no_header.csv"
+        form = self._bind_form(file, csv_has_header=False)
+
+        assert form.is_valid()
+        assert form.cleaned_data["name"] == "test name"
+        assert form.cleaned_data["coding_system_id"] == "snomedct"
+        assert form.cleaned_data["csv_data"] == disorder_of_elbow_codes
+
+    def test_bound_form_valid_with_csv_header(self, disorder_of_elbow_codes):
+        # Add a header to the fixture.
+        elbow_codes = disorder_of_elbow_codes[:]
+        elbow_codes.insert(0, "code,name")
+        valid_csv_data = "\n".join(elbow_codes)
+
+        file = ContentFile(valid_csv_data.encode("utf-8"))
+        file.name = "valid_data_with_header.csv"
+        form = self._bind_form(file, csv_has_header=True)
 
         assert form.is_valid()
         assert form.cleaned_data["name"] == "test name"

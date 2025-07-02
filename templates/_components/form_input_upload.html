@@ -10,10 +10,10 @@
 
   <div class="mt-2 grid grid-cols-1">
     {% fragment as field_classes %}
-      block w-full rounded-md bg-white text-base text-slate-900 outline-1 -outline-offset-1 focus:outline-2 focus:-outline-offset-2 sm:text-sm/6
+      block w-full rounded-md bg-white text-base text-slate-900 outline-2 -outline-offset-1 focus:outline-2 focus:-outline-offset-2 sm:text-sm/6
       file:cursor-pointer cursor-pointer file:border-0 file:py-3 file:px-4 file:mr-4 file:bg-slate-100 file:hover:bg-slate-200 file:text-slate-500
       {% if field.errors %}
-        col-start-1 row-start-1 pr-10 pl-3 outline-red-300 focus:outline-red-600 sm:pr-9 sm:text-sm/6
+        col-start-1 row-start-1 outline-red-300 focus:outline-red-600 sm:pr-9 sm:text-sm/6
       {% else %}
         outline-slate-300 focus:outline-blue-700
       {% endif %}

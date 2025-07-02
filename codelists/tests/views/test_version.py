@@ -1,3 +1,5 @@
+from django.urls import reverse
+
 from builder.actions import save as save_for_review
 from codelists.actions import publish_version
 from codelists.models import Status
@@ -102,3 +104,40 @@ def test_medication_banner_for_owner_of_codelist(client, bnf_version_asthma):
         b"there is already a draft version for this codelist which could be published"
         not in rsp.content
     )
+
+
+def test_organisation_hyperlink_in_version_detail(client, organisation_codelist):
+    """Test that organisation-owned codelists have a hyperlink to organisation index page."""
+    # Get a published version of the organisation codelist
+    version = organisation_codelist.latest_published_version()
+
+    # Get the version detail page
+    rsp = client.get(version.get_absolute_url())
+    assert rsp.status_code == 200
+
+    # Get the URL using Django's reverse
+    org_url = reverse(
+        "codelists:organisation_index",
+        kwargs={"organisation_slug": organisation_codelist.organisation.slug},
+    )
+
+    # Check url exists
+    assert f'href="{org_url}"'.encode() in rsp.content
+    assert organisation_codelist.organisation.name.encode() in rsp.content
+
+
+def test_author_hyperlink_in_version_detail(client, user_codelist):
+    """Test that user-owned codelists have a hyperlink to author's page."""
+    # Get a published version of the user codelist
+    version = user_codelist.latest_published_version()
+
+    # Get the version detail page
+    rsp = client.get(version.get_absolute_url())
+    assert rsp.status_code == 200
+
+    # Get the URL using Django's reverse
+    user_url = reverse("user", kwargs={"username": user_codelist.user.username})
+
+    # Check url exists
+    assert f'href="{user_url}"'.encode() in rsp.content
+    assert user_codelist.user.name.encode() in rsp.content

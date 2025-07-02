@@ -134,7 +134,14 @@
             <dt>
               Organisation
             </dt>
-            <dd class="mb-0">{{ codelist.organisation.name }}</dd>
+            <dd class="mb-0"><a href="{% url 'codelists:organisation_index' codelist.organisation.slug %}">{{ codelist.organisation.name }}</a></dd>
+          </div>
+        {% else %}
+          <div class="list-group-item py-1 px-2">
+            <dt>
+              Author
+            </dt>
+            <dd class="mb-0"><a href="{% url 'user' codelist.user.username %}">{{ codelist.user.name }}</a></dd>
           </div>
         {% endif %}
 

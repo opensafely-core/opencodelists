@@ -154,7 +154,7 @@ test-functional *ARGS: devenv
 test: assets-test test-py test-functional
 
 # lint and check formatting but don't modify anything
-check: devenv
+check *args: devenv
     $BIN/ruff format --diff --quiet .
     $BIN/ruff check --output-format=full .
     $BIN/djhtml --tabwidth 2 --check templates/

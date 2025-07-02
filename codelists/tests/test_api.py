@@ -515,27 +515,6 @@ def post(client, url, data, user):
     return client.post(url, data, content_type="application/json", **headers)
 
 
-def test_dmd_mapping_no_data(client, organisation, dmd_data):
-    rsp = client.get("/api/v1/dmd-mapping/")
-    data = json.loads(rsp.content)
-    assert rsp.status_code == 200
-    assert data == []
-
-
-def test_dmd_mapping_with_data(client, organisation):
-    VmpPrevMapping.objects.create(id="11", vpidprev="01")
-    VmpPrevMapping.objects.create(id="22", vpidprev="11")
-
-    rsp = client.get("/api/v1/dmd-mapping/")
-    data = json.loads(rsp.content)
-    assert rsp.status_code == 200
-    assert sorted(data) == [
-        ["11", "01"],
-        ["22", "01"],
-        ["22", "11"],
-    ]
-
-
 @pytest.mark.parametrize(
     "codelists,manifest,error",
     [

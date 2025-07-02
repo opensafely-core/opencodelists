@@ -8,11 +8,6 @@ app_name = "codelists_api"
 
 urlpatterns = [
     path("codelist/", api.all_codelists, name="all_codelists"),
-    path(
-        "dmd-mapping/",
-        api.dmd_previous_codes_mapping,
-        name="dmd_previous_codes_mapping",
-    ),
     path("check/", api.codelists_check, name="check_codelists"),
 ]
 

@@ -49,6 +49,7 @@ urlpatterns = [
     path("conversions/", include("conversions.urls")),
     path("coding-systems/", include("coding_systems.versioning.urls")),
     path("docs/", include("userdocs.urls")),
+    path("contact/", views.contact, name="contact"),
     path("400", bad_request, name="bad_request"),
     path("403", permission_denied, name="permission_denied"),
     path("404", page_not_found, name="page_not_found"),

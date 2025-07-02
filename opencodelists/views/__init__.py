@@ -1,3 +1,4 @@
+from .contact import contact
 from .health_check import health_check
 from .organisations import organisation_members, organisations
 from .register import register

@@ -256,6 +256,15 @@ def create_old_style_version(
     )
     cache_hierarchy(version=version)
     logger.info("Created Version", version_pk=version.pk)
+
+    # Compute similarity signature for versions under review
+    try:
+        from .similarity_service import compute_and_store_signature
+        compute_and_store_signature(version)
+        logger.info("Computed similarity signature for old-style version", version_pk=version.pk)
+    except Exception as e:
+        logger.error("Failed to compute similarity signature for old-style version", version_pk=version.pk, error=str(e))
+
     return version
 
 
@@ -512,6 +521,15 @@ def publish_version(*, version):
     version.save()
     version.codelist.versions.exclude(status=Status.PUBLISHED).delete()
     logger.info("Published Version", version_pk=version.pk)
+
+    # Compute similarity signature for published version
+    try:
+        from .similarity_service import compute_and_store_signature, assign_to_cluster
+        compute_and_store_signature(version)
+        assign_to_cluster(version)
+        logger.info("Computed similarity signature", version_pk=version.pk)
+    except Exception as e:
+        logger.error("Failed to compute similarity signature", version_pk=version.pk, error=str(e))
 
 
 @transaction.atomic

@@ -4,6 +4,7 @@ from django.utils.html import format_html
 
 from ..models import Status
 from ..presenters import present_search_results
+from ..similarity_service import find_similar_codelists
 from ..tree_data import build_tree_data
 from .decorators import load_version
 
@@ -57,6 +58,47 @@ def version(request, clv):
         status=Status.DRAFT
     ).exists()
 
+    # Find similar codelists
+    similar_codelists = []
+    similarity_matrix = []
+    try:
+        similar_results = find_similar_codelists(clv, threshold=0.1, max_results=10)
+        # Convert similarity to percentage for display and add diff URL
+        similar_codelists = [
+            {
+                'version': clv_similar,
+                'similarity': similarity * 100,
+                'diff_url': clv.get_diff_url(clv_similar)
+            }
+            for clv_similar, similarity in similar_results
+        ]
+
+        # Compute similarity matrix for all similar codelists (including current)
+        if similar_codelists:
+            from ..similarity import compute_exact_jaccard
+            all_versions = [clv] + [item['version'] for item in similar_codelists]
+            all_codes = [set(v.codes or []) for v in all_versions]
+
+            # Build matrix with similarity percentages
+            matrix_size = len(all_versions)
+            similarity_matrix = []
+            for i in range(matrix_size):
+                row = []
+                for j in range(matrix_size):
+                    if i == j:
+                        similarity = 100.0  # Self-similarity
+                    else:
+                        similarity = compute_exact_jaccard(all_codes[i], all_codes[j]) * 100
+                    row.append({
+                        'similarity': similarity,
+                        'version_i': all_versions[i],
+                        'version_j': all_versions[j]
+                    })
+                similarity_matrix.append(row)
+    except Exception:
+        # If similarity computation fails, show empty list
+        pass
+
     ctx = {
         "clv": clv,
         "codelist": clv.codelist,
@@ -69,5 +111,7 @@ def version(request, clv):
         "user_can_edit": user_can_edit,
         "can_create_new_version": can_create_new_version,
         "tree_data": tree_data,
+        "similar_codelists": similar_codelists,
+        "similarity_matrix": similarity_matrix,
     }
     return render(request, "codelists/version.html", ctx)

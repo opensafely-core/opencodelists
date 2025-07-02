@@ -307,6 +307,8 @@
         {% if search_results %}
           {% include "./_tab_nav.html" with label="Searches" tabname="search-results" %}
         {% endif %}
+
+        {% include "./_tab_nav.html" with label="Similar" tabname="similar" %}
       </ul>
 
       <div class="tab-content d-flex flex-column h-100">
@@ -321,6 +323,8 @@
         {% if search_results %}
           {% include "./_tab_pane.html" with tabname="search-results" partial="codelists/_search_results_tab.html" %}
         {% endif %}
+
+        {% include "./_tab_pane.html" with tabname="similar" partial="codelists/_similar_tab.html" %}
       </div>
     </div>
   </div>

@@ -1,0 +1,264 @@
+
+<style>
+  .similarity-matrix .matrix-header-text {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    white-space: nowrap;
+    font-size: 0.75rem;
+    line-height: 1.1;
+    height: 120px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .similarity-matrix .matrix-header {
+    height: 140px;
+    vertical-align: bottom;
+    position: relative;
+    padding: 4px;
+    width: 40px;
+    min-width: 40px;
+    max-width: 40px;
+  }
+
+  .similarity-matrix .matrix-row-header {
+    background-color: #f8f9fa;
+    font-size: 0.8rem;
+    max-width: 200px;
+    word-wrap: break-word;
+    padding: 4px 8px;
+  }
+
+  .similarity-matrix .matrix-cell {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    max-width: 40px;
+    padding: 0;
+    border: 1px solid #dee2e6;
+    position: relative;
+    cursor: pointer;
+  }
+
+  .similarity-matrix .matrix-cell:hover {
+    border-color: #007bff;
+    border-width: 2px;
+    z-index: 10;
+  }
+
+  .similarity-matrix .matrix-cell::after {
+    content: attr(data-similarity) '%';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 4px 6px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 20;
+  }
+
+  .similarity-matrix .matrix-cell:hover::after {
+    opacity: 1;
+  }
+
+  .similarity-matrix .matrix-header:hover .matrix-header-text::after {
+    content: attr(data-full-name);
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 6px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    z-index: 30;
+    writing-mode: horizontal-tb;
+    text-orientation: initial;
+  }
+</style>
+
+<div class="card">
+  <div class="card-header">
+    <h3 class="card-title h6 mb-0">Similar Codelists</h3>
+  </div>
+  <div class="card-body">
+    {% if similar_codelists %}
+      <p class="text-muted mb-3">
+        These codelists are similar to the current one based on shared codes.
+        Only the latest published versions are shown.
+      </p>
+
+      <div class="table-responsive">
+        <table class="table table-sm table-hover">
+          <thead>
+            <tr>
+              <th>Codelist</th>
+              <th>Organisation</th>
+              <th>Coding System</th>
+              <th class="text-right">Similarity</th>
+              <th class="text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for similar_item in similar_codelists %}
+              <tr>
+                <td>
+                  <a href="{{ similar_item.version.get_absolute_url }}" class="font-weight-medium">
+                    {{ similar_item.version.codelist.name }}
+                  </a>
+                  {% if similar_item.version.codelist.description %}
+                    <br>
+                    <small class="text-muted">
+                      {{ similar_item.version.codelist.description|truncatechars:80 }}
+                    </small>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if similar_item.version.codelist.organisation %}
+                    {{ similar_item.version.codelist.organisation.name }}
+                  {% elif similar_item.version.codelist.owner %}
+                    {{ similar_item.version.codelist.owner.username }}
+                  {% else %}
+                    <span class="text-muted">—</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <span class="badge badge-secondary">
+                    {{ similar_item.version.coding_system.name }}
+                  </span>
+                </td>
+                <td class="text-right">
+                  <span class="badge badge-info">
+                    {{ similar_item.similarity|floatformat:1 }}%
+                  </span>
+                </td>
+                <td class="text-center">
+                  <a href="{{ similar_item.diff_url }}"
+                     class="btn btn-outline-secondary btn-sm"
+                     title="Compare with current codelist">
+                    <i class="fa fa-exchange" aria-hidden="true"></i>
+                    Compare
+                  </a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      {% if similar_codelists|length >= 10 %}
+        <div class="text-center mt-3">
+          <small class="text-muted">
+            Showing top {{ similar_codelists|length }} most similar codelists
+          </small>
+        </div>
+      {% endif %}
+
+      {% if similarity_matrix %}
+        <div class="mt-4">
+          <h4 class="h6 mb-3">Similarity Matrix</h4>
+          <p class="text-muted mb-3 small">
+            Hover over cells to see exact similarity percentages. Darker green indicates higher similarity.
+          </p>
+
+          <div class="table-responsive">
+            <table class="table table-bordered similarity-matrix" style="width: auto;">
+              <thead>
+                <tr>
+                  <th style="width: 200px; border: none; background: transparent;"></th>
+                  {% for row in similarity_matrix.0 %}
+                    <th class="matrix-header">
+                      <div class="matrix-header-text" data-full-name="{{ row.version_j.codelist.name }}">
+                        {{ row.version_j.codelist.name|truncatechars:8 }}
+                      </div>
+                    </th>
+                  {% endfor %}
+                </tr>
+              </thead>
+              <tbody>
+                {% for row in similarity_matrix %}
+                  <tr>
+                    <td class="matrix-row-header">
+                      <strong>{{ row.0.version_i.codelist.name|truncatechars:25 }}</strong>
+                      <br>
+                      <small class="text-muted">
+                        {% if row.0.version_i.codelist.organisation %}
+                          {{ row.0.version_i.codelist.organisation.name|truncatechars:20 }}
+                        {% elif row.0.version_i.codelist.owner %}
+                          {{ row.0.version_i.codelist.owner.username|truncatechars:20 }}
+                        {% endif %}
+                      </small>
+                    </td>
+                    {% for cell in row %}
+                      <td class="matrix-cell"
+                          data-similarity="{{ cell.similarity|floatformat:1 }}"
+                          style="background-color: {% if cell.similarity == 100 %}#1e7e34{% elif cell.similarity >= 90 %}#28a745{% elif cell.similarity >= 80 %}#34ce57{% elif cell.similarity >= 70 %}#52d369{% elif cell.similarity >= 60 %}#6dd57b{% elif cell.similarity >= 50 %}#85d88e{% elif cell.similarity >= 40 %}#9edaa0{% elif cell.similarity >= 30 %}#b6ddb3{% elif cell.similarity >= 20 %}#cfe2c5{% elif cell.similarity >= 10 %}#e7f3e7{% else %}#f8f9fa{% endif %};">
+                      </td>
+                    {% endfor %}
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="mt-2">
+            <small class="text-muted">
+              <strong>Green Intensity Scale:</strong>
+              <span style="background-color: #1e7e34; width: 20px; height: 15px; display: inline-block; margin: 0 2px; vertical-align: middle;"></span> 100%
+              <span style="background-color: #28a745; width: 20px; height: 15px; display: inline-block; margin: 0 2px; vertical-align: middle;"></span> 90%+
+              <span style="background-color: #6dd57b; width: 20px; height: 15px; display: inline-block; margin: 0 2px; vertical-align: middle;"></span> 60%+
+              <span style="background-color: #b6ddb3; width: 20px; height: 15px; display: inline-block; margin: 0 2px; vertical-align: middle;"></span> 30%+
+              <span style="background-color: #e7f3e7; width: 20px; height: 15px; display: inline-block; margin: 0 2px; vertical-align: middle;"></span> 10%+
+              <span style="background-color: #f8f9fa; width: 20px; height: 15px; display: inline-block; margin: 0 2px; vertical-align: middle; border: 1px solid #dee2e6;"></span> <10%
+                                                                                                                                                                                       </small>
+              </div>
+            </div>
+      {% endif %}
+    {% else %}
+      <div class="text-center py-4">
+        <i class="fa fa-search text-muted mb-2" style="font-size: 2rem;"></i>
+        <p class="text-muted mb-0">
+          No similar codelists found for this version.
+        </p>
+        <small class="text-muted">
+          Similarity is computed based on shared codes between codelists.
+        </small>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{% if similar_codelists %}
+  <div class="mt-3">
+    <details class="card">
+      <summary class="card-header btn btn-link text-left">
+        <h4 class="h6 mb-0">About Similarity Computation</h4>
+      </summary>
+      <div class="card-body">
+        <p class="small text-muted mb-2">
+          Similarity is computed using the Jaccard index, which measures the
+          proportion of codes shared between two codelists:
+        </p>
+        <p class="small text-muted mb-2">
+          <strong>Jaccard Similarity = (Shared Codes) / (Total Unique Codes)</strong>
+        </p>
+        <p class="small text-muted mb-0">
+          For example, if two codelists share 20 codes and have 100 unique codes
+          in total, their similarity would be 20%.
+        </p>
+      </div>
+    </details>
+  </div>
+{% endif %}

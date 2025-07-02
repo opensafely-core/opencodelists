@@ -1048,3 +1048,54 @@ class Collaboration(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+
+class SimilaritySignature(models.Model):
+    """MinHash signature for a codelist version for efficient similarity computation."""
+
+    version = models.OneToOneField(
+        "CodelistVersion",
+        related_name="similarity_signature",
+        on_delete=models.CASCADE
+    )
+    signature = models.JSONField(help_text="MinHash signature as list of integers")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Signature for {self.version}"
+
+
+class SimilarityCluster(models.Model):
+    """Cluster of similar codelist versions."""
+
+    name = models.CharField(max_length=100, help_text="Descriptive name for the cluster")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+
+class SimilarityClusterMembership(models.Model):
+    """Membership of a codelist version in a similarity cluster."""
+
+    cluster = models.ForeignKey(
+        "SimilarityCluster",
+        related_name="memberships",
+        on_delete=models.CASCADE
+    )
+    version = models.ForeignKey(
+        "CodelistVersion",
+        related_name="cluster_memberships",
+        on_delete=models.CASCADE
+    )
+    similarity_to_centroid = models.FloatField(
+        help_text="Similarity score to cluster centroid (0.0 to 1.0)"
+    )
+
+    class Meta:
+        unique_together = ("cluster", "version")
+
+    def __str__(self):
+        return f"{self.version} in {self.cluster} (similarity: {self.similarity_to_centroid:.3f})"

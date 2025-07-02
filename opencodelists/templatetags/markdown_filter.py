@@ -11,7 +11,9 @@ def _convert_markdown_to_html(text):
     """Internal function to convert markdown to HTML."""
     if not text:
         return ""
-    text = markdown2.markdown(text)
+    text = markdown2.markdown(
+        text, extras={"header-ids": None, "breaks": {"on_backslash": True}}
+    )
     html = nh3.clean(
         text,
         tags=settings.MARKDOWN_FILTER_ALLOWLIST_TAGS,

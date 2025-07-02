@@ -350,15 +350,10 @@ MARKDOWN_FILTER_ALLOWLIST_TAGS = {
     "strong",
     "img",
     "hr",
+    "br",
 }
 
-MARKDOWN_FILTER_ALLOWLIST_ATTRIBUTES = {
-    "*": {
-        "class",
-        "src",
-        "href",
-    }
-}
+MARKDOWN_FILTER_ALLOWLIST_ATTRIBUTES = {"*": {"class", "src", "href", "id"}}
 
 
 # Login/logout config

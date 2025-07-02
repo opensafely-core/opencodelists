@@ -4,11 +4,9 @@
 """
 
 from codelists.actions import convert_codelist_to_new_style
-from codelists.models import Codelist
+from codelists.models import Handle
 
 
 def run(organisation_slug, codelist_slug):
-    codelist = Codelist.objects.get(
-        organisation__slug=organisation_slug, slug=codelist_slug
-    )
-    convert_codelist_to_new_style(codelist=codelist)
+    handle = Handle.objects.get(organisation=organisation_slug, slug=codelist_slug)
+    convert_codelist_to_new_style(codelist=handle.codelist)

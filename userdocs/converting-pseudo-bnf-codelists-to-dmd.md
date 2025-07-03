@@ -8,7 +8,8 @@ To convert a Pseudo-BNF codelists to dm+d:
 
 1. Go to the page for Pseudo-BNF codelist you wish to convert.
 1. If there are multiple versions of the Pseudo-BNF codelist, select the relevant codelist version.
-1. Click the "Convert to dm+d" button on the left hand side of the page.
+1. Click the "Convert to dm+d" button.
+
         download-convert-buttons-bnf.png
 
 This will create a new codelist with the same name as your Pseudo-BNF codelist but with a "-dmd" suffix, and you will be taken to its page.

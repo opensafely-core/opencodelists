@@ -1,7 +1,7 @@
 ## Editing a codelist
 
 You can edit a codelist that you own, or that is owned by an organisation that you belong to.
-To do this, click _Create new version_ on the left hand side of the codelist homepage.
+To do this, click _Create new version_ on the codelist homepage.
 
 This will open the builder, with all of the codes from your codelist selected.
 Additionally, if the codelist was created through the builder,

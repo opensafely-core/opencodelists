@@ -1,13 +1,15 @@
 ## Selecting appropriate codes for your codelist
 
-Choosing which codes to include in your codelist can be challenging without understanding their usage in clinical practice. Some clinical activities are represented by a single code, while others may require a comprehensive list of codes to accurately capture the intended clinical activity. Even a single incorrectly included or omitted code could potentially lead to vastly different results when using the codelist to query electronic health record data.
+Choosing which codes to include in your codelist can be challenging without understanding their usage in clinical practice.
+
+Some clinical activities are represented by a single code, while others may require a comprehensive list of codes to accurately capture the intended clinical activity. Even a single incorrectly included or omitted code could potentially lead to vastly different results when using the codelist to query electronic health record data.
 
 Some of the common pitfalls when selecting appropriate codes include:
 
-* **Including similar-sounding but unrelated codes**. For instance, ocular hypertension, which pertains to high fluid pressure within the eye, and is not appropriate for a codelist intended to capture high blood pressure.
+* **Including similar-sounding but unrelated codes**. For example, ocular hypertension, which pertains to high fluid pressure within the eye, and is not appropriate for a codelist intended to capture high blood pressure.
 * **Omitting synonyms**. For example, when defining a codelist for sore throat, it is essential to include clinical codes which describe pharyngitis as well.
-* **Misunderstanding study intent**. Selecting an appropriate codelist requires careful consideration of which patients are relevant to the research aims. For example; the decision to include or exclude gestational diabetes in a diabetes codelist, for instance, may vary depending on the specific study or context.
-* **Use of non-specific codes**. Some codes might be useful to improve sensitivity of a study but care needs to be taken to consider potential negative impact on specificity. For example, sore throat is a potential symptom of Group A Strep infection but is also a symptom of many other conditions, if including this in a study it is likely other codelists (for example antibiotics for Group A Strep treatment) would need to be used to maintain an appropriate level of specificity.
+* **Misunderstanding study intent**. Selecting an appropriate codelist requires careful consideration of which patients are relevant to the research aims. For example, the decision to include or exclude gestational diabetes in a diabetes codelist may vary depending on the specific study or context.
+* **Use of non-specific codes**. Some codes might be useful to improve sensitivity of a study but care needs to be taken to consider potential negative impact on specificity. For example, sore throat is a potential symptom of Group A Strep infection but is also a symptom of many other conditions, if including this in a study it is likely other codelists (for example, antibiotics for Group A Strep treatment) would need to be used to maintain an appropriate level of specificity.
 
 To avoid these pitfalls we recommend:
 

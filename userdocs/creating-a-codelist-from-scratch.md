@@ -19,6 +19,7 @@ We currently support codelists using the following coding systems:
 - ICD-10
 - CTV3 (Read V3)
 - BNF (British National Formulary codes)
+- [Dictionary of Medicines and Devices](#notes-on-building-dmd-codelists)
 
 Then click _Create_.
 
@@ -90,4 +91,17 @@ information on procedures for building codelists to use in OpenSAFELY research, 
 Once the codelist is reviewed, it can be published, using the __Publish version__ link from the codelist's homepage.  Publishing a codelist version will make that version permanent, and will delete any other draft or in-review versions.
 
         publish.png
-        
+
+### Notes on building dm+d codelists
+
+The builder functions largely the same with the dm+d coding system as with any other coding system, save for few minor details listed here.
+
+Searches will be executed across **Ingredient**, **VTM** (Virtual Therapeutic Moeity), **VMP** (Virtual Medicinal Product), and **AMP** (Actual Medicinal Products) entities' codes or names (and descriptions, where available).\
+Whilst Ingredients are searched, they are not displayed in the results. However, any VMPs containing an Ingredient that matches a search will be displayed (along with their related VTMs and AMPs).
+
+Codes are arranged in the tree view based on a hierarchy of VTM -> VMP -> AMP.\
+Due to the large number of AMPs for many VMPs, this part of the tree is not expanded by default but can be by clicking the small plus arrow next to the VMP whose AMPs you wish to view.
+
+Historical dm+d codelists uploaded from csv or converted from Pseudo-BNF codelists are not fully enabled for editing in the builder.\
+By default, it is only possible to create new versions of these codelists by uploading a new csv file, or by re-running a conversion from Pseudo-BNF.\
+We can, on request, convert these historical codelists into ones that _are_ fully enabled in the builder for creation of new versions.

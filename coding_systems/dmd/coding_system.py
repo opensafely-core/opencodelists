@@ -12,7 +12,7 @@ class CodingSystem(BuilderCompatibleCodingSystem):
         "code": ["dmd_id", "code", "id", "snomed_id", "dmd"],
         "term": ["term", "dmd_name", "name", "nm", "description"],
     }
-    is_experimental = True
+    is_experimental = False
     description = "Primary and Secondary Care prescribing"
 
     def ancestor_relationships(self, codes):

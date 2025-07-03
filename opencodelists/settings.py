@@ -343,6 +343,7 @@ MARKDOWN_FILTER_ALLOWLIST_TAGS = {
     "h6",
     "a",
     "p",
+    "ol",
     "ul",
     "li",
     "code",

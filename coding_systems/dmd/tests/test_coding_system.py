@@ -10,10 +10,11 @@ def coding_system():
 
 def test_lookup_names(dmd_data, coding_system):
     assert coding_system.lookup_names(
-        ["10514511000001106", "10525011000001107", "99999"]
+        ["10514511000001106", "10525011000001107", "99999", "22503111000001109"]
     ) == {
         "10514511000001106": "Adrenaline (base) 220micrograms/dose inhaler (VMP)",
         "10525011000001107": "Adrenaline (base) 220micrograms/dose inhaler refill (VMP)",
+        "22503111000001109": "AirSalb 100micrograms/dose inhaler CFC free (Sandoz Ltd) (AMP)",
     }
 
 
@@ -215,3 +216,10 @@ def test_search_by_term_specific_fields(
 )
 def test_search_by_code(dmd_data, coding_system, code, expected_response):
     assert coding_system.search_by_code(code) == expected_response
+
+
+def test_lookup_synonyms(dmd_data, coding_system):
+    assert coding_system.lookup_synonyms(["3293111000001105", "22503111000001109"]) == {
+        "3293111000001105": ["Aerolin 100micrograms/dose Autohaler"],
+        "22503111000001109": ["AirSalb 100micrograms/dose inhaler CFC free"],
+    }

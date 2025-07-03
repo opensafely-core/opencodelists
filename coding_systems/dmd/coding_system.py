@@ -62,6 +62,15 @@ class CodingSystem(BuilderCompatibleCodingSystem):
                 break
         return lookup
 
+    def lookup_synonyms(self, codes):
+        descriptions = {
+            amp["id"]: amp["descr"]
+            for amp in AMP.objects.using(self.database_alias)
+            .filter(id__in=codes)
+            .values("id", "descr")
+        }
+        return {code: [descriptions.get(code)] for code in codes}
+
     def code_to_term(self, codes):
         lookup = self.lookup_names(codes)
         unknown = set(codes) - set(lookup)

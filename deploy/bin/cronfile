@@ -10,3 +10,6 @@ SLACK_TEAM_WEBHOOK_URL=dummy-url
 5 23 * * 1 dokku /var/lib/dokku/data/storage/opencodelists/deploy/bin/import_latest_release.sh dmd
 5 23 * * 2 dokku /var/lib/dokku/data/storage/opencodelists/deploy/bin/import_latest_release.sh snomedct
 5 23 * * 3 dokku /var/lib/dokku/data/storage/opencodelists/deploy/bin/import_latest_release.sh mappings.bnfdmd
+
+# Run similarity clustering daily at 2 AM (non-busy time)
+0 2 * * * dokku /usr/bin/dokku run opencodelists python /app/manage.py compute_similarity_clusters

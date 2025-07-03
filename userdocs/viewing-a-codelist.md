@@ -20,7 +20,7 @@ A codelist has a __Codelist ID__, which is the canonical ID for the codelist and
 
 A codelist can have multiple versions, each of which has a __Version ID__ (and also a __Version Tag__ for some older codelists). The ID and tag (if applicable) for the version that you are currently viewing is also displayed under the Codelist ID.
 
-If there are multiple versions of a codelist, links to these will be displayed on the left hand side, below "Versions".
+If there are multiple versions of a codelist, links to these will be displayed:
 
         version-list.png
 

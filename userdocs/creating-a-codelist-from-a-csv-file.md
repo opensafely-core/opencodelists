@@ -8,7 +8,7 @@ From the _My codelists_ page, click _Create a codelist_.
 1. Select a coding system.
 1. Choose a file to upload from your hard drive.
 
-To create an OPCS-4 codelist, please see the notes at the bottom of this page.
+To create an OPCS-4 codelist, please see the [notes elsewhere on this documentation page](#adding-an-opcs-4-codelist).
 
 If you are a member of an organisation, you can also choose an owner for the codelist (your own account or an organisation account).
 

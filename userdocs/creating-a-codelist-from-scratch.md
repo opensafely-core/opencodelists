@@ -3,7 +3,7 @@
 Our codelist builder tool helps you create a codelist from scratch,
 by searching terms and choosing which matching concepts should be included.
 
-When signed in, click _My codelists_ in the top right of any page.
+When signed in, click the _My codelists_ menu option.
 
         my-codelists.png
 
@@ -60,7 +60,7 @@ because it is both a descendant of the included _Arthropathy of elbow_, and the 
 
         hierarchy-conflict.png
 
-Hover on a conflicted code and click  _More info_ to the right of the term to see the conflict details.
+Hover on a conflicted code and click  _More info_ to see the conflict details.
 
         more-info-hover.png
 

@@ -5,23 +5,11 @@ Tests for codelist similarity functionality.
 import pytest
 from django.test import TestCase
 
-from codelists.models import (
-    CodelistVersion,
-    SimilaritySignature,
-    SimilarityCluster,
-    SimilarityClusterMembership
-)
 from codelists.similarity import (
-    MinHashSignature,
     LSHIndex,
+    MinHashSignature,
+    cluster_by_similarity,
     compute_exact_jaccard,
-    compute_pairwise_jaccard_matrix,
-    cluster_by_similarity
-)
-from codelists.similarity_service import (
-    compute_and_store_signature,
-    find_similar_codelists,
-    assign_to_cluster
 )
 
 
@@ -109,7 +97,9 @@ class TestLSHIndex(TestCase):
         sig2 = self.minhash.compute_signature(codes2)
 
         self.lsh.add(1, sig1)
-        results = self.lsh.query(sig2, threshold=0.1)  # Lower threshold for probabilistic matching
+        results = self.lsh.query(
+            sig2, threshold=0.1
+        )  # Lower threshold for probabilistic matching
 
         # LSH is probabilistic, so we check if similarity estimation is reasonable
         if len(results) > 0:
@@ -170,12 +160,14 @@ class TestClustering(TestCase):
         import numpy as np
 
         # Create a similarity matrix with two clear clusters
-        matrix = np.array([
-            [1.0, 0.8, 0.1, 0.1],  # Item 0: similar to 1
-            [0.8, 1.0, 0.1, 0.1],  # Item 1: similar to 0
-            [0.1, 0.1, 1.0, 0.9],  # Item 2: similar to 3
-            [0.1, 0.1, 0.9, 1.0],  # Item 3: similar to 2
-        ])
+        matrix = np.array(
+            [
+                [1.0, 0.8, 0.1, 0.1],  # Item 0: similar to 1
+                [0.8, 1.0, 0.1, 0.1],  # Item 1: similar to 0
+                [0.1, 0.1, 1.0, 0.9],  # Item 2: similar to 3
+                [0.1, 0.1, 0.9, 1.0],  # Item 3: similar to 2
+            ]
+        )
 
         version_ids = [1, 2, 3, 4]
         clusters = cluster_by_similarity(matrix, version_ids, threshold=0.5)
@@ -192,11 +184,13 @@ class TestClustering(TestCase):
         import numpy as np
 
         # Create a similarity matrix with low similarities
-        matrix = np.array([
-            [1.0, 0.1, 0.1],
-            [0.1, 1.0, 0.1],
-            [0.1, 0.1, 1.0],
-        ])
+        matrix = np.array(
+            [
+                [1.0, 0.1, 0.1],
+                [0.1, 1.0, 0.1],
+                [0.1, 0.1, 1.0],
+            ]
+        )
 
         version_ids = [1, 2, 3]
         clusters = cluster_by_similarity(matrix, version_ids, threshold=0.5)

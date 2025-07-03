@@ -6,7 +6,6 @@ codelist versions and updates the clustering and LSH index.
 """
 
 import time
-from typing import List, Dict
 
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
@@ -14,69 +13,66 @@ from django.utils import timezone
 
 from codelists.models import (
     CodelistVersion,
-    SimilaritySignature,
     SimilarityCluster,
     SimilarityClusterMembership,
-    Status
+    SimilaritySignature,
+    Status,
 )
 from codelists.similarity import (
-    compute_pairwise_jaccard_matrix,
     cluster_by_similarity,
-    MinHashSignature
+    compute_pairwise_jaccard_matrix,
 )
 from codelists.similarity_service import (
     bulk_compute_signatures,
+    cleanup_stale_clusters,
     invalidate_lsh_index,
-    cleanup_stale_clusters
 )
 
 
 class Command(BaseCommand):
-    help = 'Compute similarity clusters for all published codelist versions'
+    help = "Compute similarity clusters for all published codelist versions"
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '--threshold',
+            "--threshold",
             type=float,
             default=0.3,
             help=(
-                'Minimum Jaccard similarity (0.0-1.0) for clustering codelists together. '
-                'Jaccard = |intersection| / |union| of codes. '
-                'Lower values (e.g., 0.1) create larger, looser clusters. '
-                'Higher values (e.g., 0.5) create smaller, tighter clusters. '
-                'Default: 0.3 (30%% code overlap required)'
-            )
+                "Minimum Jaccard similarity (0.0-1.0) for clustering codelists together. "
+                "Jaccard = |intersection| / |union| of codes. "
+                "Lower values (e.g., 0.1) create larger, looser clusters. "
+                "Higher values (e.g., 0.5) create smaller, tighter clusters. "
+                "Default: 0.3 (30%% code overlap required)"
+            ),
         )
         parser.add_argument(
-            '--max-versions',
+            "--max-versions",
             type=int,
             default=None,
-            help='Maximum number of versions to process (for testing)'
+            help="Maximum number of versions to process (for testing)",
         )
         parser.add_argument(
-            '--dry-run',
-            action='store_true',
-            help='Perform dry run without saving results'
+            "--dry-run",
+            action="store_true",
+            help="Perform dry run without saving results",
         )
         parser.add_argument(
-            '--force-recompute',
-            action='store_true',
-            help='Force recomputation of all signatures'
+            "--force-recompute",
+            action="store_true",
+            help="Force recomputation of all signatures",
         )
 
     def handle(self, *args, **options):
         start_time = time.time()
 
         self.stdout.write(
-            self.style.SUCCESS(
-                f"Starting similarity clustering at {timezone.now()}"
-            )
+            self.style.SUCCESS(f"Starting similarity clustering at {timezone.now()}")
         )
 
-        threshold = options['threshold']
-        max_versions = options['max_versions']
-        dry_run = options['dry_run']
-        force_recompute = options['force_recompute']
+        threshold = options["threshold"]
+        max_versions = options["max_versions"]
+        dry_run = options["dry_run"]
+        force_recompute = options["force_recompute"]
 
         try:
             # Step 1: Get latest published versions
@@ -101,11 +97,13 @@ class Command(BaseCommand):
 
             self.stdout.write(f"Found {len(clusters)} clusters")
             for i, cluster in enumerate(clusters):
-                self.stdout.write(f"  Cluster {i+1}: {len(cluster)} versions")
+                self.stdout.write(f"  Cluster {i + 1}: {len(cluster)} versions")
 
             # Step 5: Update database
             if not dry_run:
-                self._update_clusters(clusters, versions, similarity_matrix, version_ids)
+                self._update_clusters(
+                    clusters, versions, similarity_matrix, version_ids
+                )
 
                 # Step 6: Cleanup and refresh index
                 removed_count = cleanup_stale_clusters()
@@ -115,23 +113,20 @@ class Command(BaseCommand):
                 self.stdout.write("Refreshed LSH index")
 
             elapsed = time.time() - start_time
-            self.stdout.write(
-                self.style.SUCCESS(
-                    f"Completed in {elapsed:.2f} seconds"
-                )
-            )
+            self.stdout.write(self.style.SUCCESS(f"Completed in {elapsed:.2f} seconds"))
 
         except Exception as e:
             raise CommandError(f"Error during clustering: {e}")
 
-    def _get_latest_published_versions(self, max_versions: int = None) -> List[CodelistVersion]:
+    def _get_latest_published_versions(
+        self, max_versions: int = None
+    ) -> list[CodelistVersion]:
         """Get the latest published version for each codelist."""
         # Get all published versions, ordered by codelist and creation date
         published_versions = (
-            CodelistVersion.objects
-            .filter(status=Status.PUBLISHED)
-            .select_related('codelist')
-            .order_by('codelist_id', '-created_at')
+            CodelistVersion.objects.filter(status=Status.PUBLISHED)
+            .select_related("codelist")
+            .order_by("codelist_id", "-created_at")
         )
 
         # Keep only the latest version per codelist
@@ -148,28 +143,24 @@ class Command(BaseCommand):
 
         return versions
 
-    def _compute_signatures(self, versions: List[CodelistVersion],
-                          force_recompute: bool, dry_run: bool):
+    def _compute_signatures(
+        self, versions: list[CodelistVersion], force_recompute: bool, dry_run: bool
+    ):
         """Compute MinHash signatures for all versions."""
         if force_recompute:
             self.stdout.write("Force recomputing all signatures...")
             if not dry_run:
                 # Delete existing signatures
-                SimilaritySignature.objects.filter(
-                    version__in=versions
-                ).delete()
+                SimilaritySignature.objects.filter(version__in=versions).delete()
 
         # Find versions that need signatures
         existing_sigs = set(
-            SimilaritySignature.objects
-            .filter(version__in=versions)
-            .values_list('version_id', flat=True)
+            SimilaritySignature.objects.filter(version__in=versions).values_list(
+                "version_id", flat=True
+            )
         )
 
-        versions_needing_sigs = [
-            v for v in versions
-            if v.id not in existing_sigs
-        ]
+        versions_needing_sigs = [v for v in versions if v.id not in existing_sigs]
 
         if versions_needing_sigs:
             self.stdout.write(
@@ -177,14 +168,20 @@ class Command(BaseCommand):
             )
 
             if not dry_run:
-                computed = bulk_compute_signatures([v.id for v in versions_needing_sigs])
+                computed = bulk_compute_signatures(
+                    [v.id for v in versions_needing_sigs]
+                )
                 self.stdout.write(f"Computed {computed} signatures")
         else:
             self.stdout.write("All signatures are up to date")
 
-    def _update_clusters(self, clusters: List[List[int]],
-                        versions: List[CodelistVersion],
-                        similarity_matrix, version_ids: List[int]):
+    def _update_clusters(
+        self,
+        clusters: list[list[int]],
+        versions: list[CodelistVersion],
+        similarity_matrix,
+        version_ids: list[int],
+    ):
         """Update the cluster database with new clustering results."""
         self.stdout.write("Updating cluster database...")
 
@@ -194,9 +191,7 @@ class Command(BaseCommand):
 
         with transaction.atomic():
             # Clear existing clusters and memberships
-            SimilarityClusterMembership.objects.filter(
-                version__in=versions
-            ).delete()
+            SimilarityClusterMembership.objects.filter(version__in=versions).delete()
 
             # Create new clusters
             for cluster_idx, cluster_version_ids in enumerate(clusters):
@@ -205,17 +200,23 @@ class Command(BaseCommand):
 
                 # Create cluster with descriptive name
                 cluster_versions = [version_map[vid] for vid in cluster_version_ids]
-                coding_systems = set(v.codelist.coding_system_id for v in cluster_versions)
+                coding_systems = set(
+                    v.codelist.coding_system_id for v in cluster_versions
+                )
 
                 if len(coding_systems) == 1:
-                    cluster_name = f"{list(coding_systems)[0]} Cluster {cluster_idx + 1}"
+                    cluster_name = (
+                        f"{list(coding_systems)[0]} Cluster {cluster_idx + 1}"
+                    )
                 else:
                     cluster_name = f"Mixed Cluster {cluster_idx + 1}"
 
                 cluster = SimilarityCluster.objects.create(name=cluster_name)
 
                 # Add memberships with similarity to centroid
-                centroid_idx = self._find_centroid(cluster_version_ids, similarity_matrix, id_to_index)
+                centroid_idx = self._find_centroid(
+                    cluster_version_ids, similarity_matrix, id_to_index
+                )
                 centroid_version_id = cluster_version_ids[centroid_idx]
                 centroid_matrix_idx = id_to_index[centroid_version_id]
 
@@ -229,13 +230,19 @@ class Command(BaseCommand):
                     SimilarityClusterMembership.objects.create(
                         cluster=cluster,
                         version=version,
-                        similarity_to_centroid=similarity
+                        similarity_to_centroid=similarity,
                     )
 
-        self.stdout.write(f"Created {len([c for c in clusters if len(c) >= 2])} clusters")
+        self.stdout.write(
+            f"Created {len([c for c in clusters if len(c) >= 2])} clusters"
+        )
 
-    def _find_centroid(self, cluster_version_ids: List[int],
-                      similarity_matrix, id_to_index: Dict[int, int]) -> int:
+    def _find_centroid(
+        self,
+        cluster_version_ids: list[int],
+        similarity_matrix,
+        id_to_index: dict[int, int],
+    ) -> int:
         """Find the centroid (most similar to all others) in a cluster."""
         indices = [id_to_index[vid] for vid in cluster_version_ids]
 
@@ -244,8 +251,14 @@ class Command(BaseCommand):
 
         for i, idx in enumerate(indices):
             # Compute average similarity to all other cluster members
-            similarities = [similarity_matrix[idx, other_idx] for other_idx in indices if other_idx != idx]
-            avg_similarity = sum(similarities) / len(similarities) if similarities else 0
+            similarities = [
+                similarity_matrix[idx, other_idx]
+                for other_idx in indices
+                if other_idx != idx
+            ]
+            avg_similarity = (
+                sum(similarities) / len(similarities) if similarities else 0
+            )
 
             if avg_similarity > best_avg_similarity:
                 best_avg_similarity = avg_similarity

@@ -5,19 +5,18 @@ This module provides high-level functions for computing and managing
 codelist similarity using the models and algorithms defined in similarity.py.
 """
 
-from typing import List, Tuple, Optional, Dict, Set
-from django.db import transaction, models
 from django.core.cache import cache
+from django.db import models
 from django.utils import timezone
 
 from .models import (
     CodelistVersion,
-    SimilaritySignature,
     SimilarityCluster,
     SimilarityClusterMembership,
-    Status
+    SimilaritySignature,
+    Status,
 )
-from .similarity import MinHashSignature, LSHIndex, compute_exact_jaccard
+from .similarity import LSHIndex, MinHashSignature, compute_exact_jaccard
 
 
 # Global LSH index instance (will be loaded from database on first use)
@@ -61,8 +60,7 @@ def compute_and_store_signature(version: CodelistVersion) -> SimilaritySignature
 
     # Store or update signature
     sig_obj, created = SimilaritySignature.objects.update_or_create(
-        version=version,
-        defaults={'signature': signature}
+        version=version, defaults={"signature": signature}
     )
 
     # Update LSH index
@@ -72,9 +70,9 @@ def compute_and_store_signature(version: CodelistVersion) -> SimilaritySignature
     return sig_obj
 
 
-def find_similar_codelists(version: CodelistVersion,
-                          threshold: float = 0.3,
-                          max_results: int = 10) -> List[Tuple[CodelistVersion, float]]:
+def find_similar_codelists(
+    version: CodelistVersion, threshold: float = 0.3, max_results: int = 10
+) -> list[tuple[CodelistVersion, float]]:
     """
     Find similar codelists using LSH for efficiency.
 
@@ -102,7 +100,9 @@ def find_similar_codelists(version: CodelistVersion,
     results = []
     seen_codelists = {version.codelist.id}
 
-    for candidate_id, similarity in candidates[:max_results * 2]:  # Get extra to account for filtering
+    for candidate_id, similarity in candidates[
+        : max_results * 2
+    ]:  # Get extra to account for filtering
         try:
             candidate_version = CodelistVersion.objects.get(id=candidate_id)
 
@@ -127,17 +127,20 @@ def find_similar_codelists(version: CodelistVersion,
 
     # If LSH didn't find enough candidates, try cluster-based search as fallback
     if len(results) < max_results:
-        results.extend(_find_similar_by_cluster(version, threshold, max_results - len(results), seen_codelists))
+        results.extend(
+            _find_similar_by_cluster(
+                version, threshold, max_results - len(results), seen_codelists
+            )
+        )
 
     # Sort by similarity descending and limit results
     results.sort(key=lambda x: x[1], reverse=True)
     return results[:max_results]
 
 
-def _find_similar_by_cluster(version: CodelistVersion,
-                            threshold: float,
-                            max_results: int,
-                            seen_codelists: set) -> List[Tuple[CodelistVersion, float]]:
+def _find_similar_by_cluster(
+    version: CodelistVersion, threshold: float, max_results: int, seen_codelists: set
+) -> list[tuple[CodelistVersion, float]]:
     """
     Find similar codelists by looking at cluster membership as fallback.
 
@@ -150,7 +153,6 @@ def _find_similar_by_cluster(version: CodelistVersion,
     Returns:
         List of (CodelistVersion, similarity_score) tuples
     """
-    from .similarity import compute_exact_jaccard
 
     results = []
     version_codes = set(version.codes or [])
@@ -162,10 +164,8 @@ def _find_similar_by_cluster(version: CodelistVersion,
         cluster = membership.cluster
 
         # Get other members of the same cluster
-        other_memberships = (
-            cluster.memberships
-            .exclude(version=version)
-            .select_related('version', 'version__codelist')
+        other_memberships = cluster.memberships.exclude(version=version).select_related(
+            "version", "version__codelist"
         )
 
         for other_membership in other_memberships:
@@ -196,16 +196,18 @@ def _find_similar_by_cluster(version: CodelistVersion,
 def _is_latest_published_version(version: CodelistVersion) -> bool:
     """Check if a version is the latest published version of its codelist."""
     latest_published = (
-        CodelistVersion.objects
-        .filter(codelist=version.codelist, status=Status.PUBLISHED)
-        .order_by('-created_at')
+        CodelistVersion.objects.filter(
+            codelist=version.codelist, status=Status.PUBLISHED
+        )
+        .order_by("-created_at")
         .first()
     )
     return latest_published and latest_published.id == version.id
 
 
-def assign_to_cluster(version: CodelistVersion,
-                     threshold: float = 0.3) -> Optional[SimilarityCluster]:
+def assign_to_cluster(
+    version: CodelistVersion, threshold: float = 0.3
+) -> SimilarityCluster | None:
     """
     Assign a codelist version to an existing cluster or create a new one.
 
@@ -216,7 +218,9 @@ def assign_to_cluster(version: CodelistVersion,
     Returns:
         SimilarityCluster instance or None if no suitable cluster found
     """
-    similar_codelists = find_similar_codelists(version, threshold=threshold, max_results=5)
+    similar_codelists = find_similar_codelists(
+        version, threshold=threshold, max_results=5
+    )
 
     if not similar_codelists:
         # Create new temporary cluster
@@ -250,24 +254,24 @@ def assign_to_cluster(version: CodelistVersion,
     return cluster
 
 
-def _add_to_cluster(version: CodelistVersion,
-                   cluster: SimilarityCluster,
-                   similarity: float):
+def _add_to_cluster(
+    version: CodelistVersion, cluster: SimilarityCluster, similarity: float
+):
     """Add a version to a cluster."""
     SimilarityClusterMembership.objects.update_or_create(
         cluster=cluster,
         version=version,
-        defaults={'similarity_to_centroid': similarity}
+        defaults={"similarity_to_centroid": similarity},
     )
 
 
-def get_cluster_members(cluster: SimilarityCluster) -> List[Tuple[CodelistVersion, float]]:
+def get_cluster_members(
+    cluster: SimilarityCluster,
+) -> list[tuple[CodelistVersion, float]]:
     """Get all members of a cluster with their similarity scores."""
-    memberships = (
-        cluster.memberships
-        .select_related('version', 'version__codelist')
-        .order_by('-similarity_to_centroid')
-    )
+    memberships = cluster.memberships.select_related(
+        "version", "version__codelist"
+    ).order_by("-similarity_to_centroid")
 
     return [(m.version, m.similarity_to_centroid) for m in memberships]
 
@@ -276,10 +280,10 @@ def invalidate_lsh_index():
     """Invalidate the global LSH index to force reloading."""
     global _lsh_index
     _lsh_index = None
-    cache.delete('similarity_lsh_index_loaded')
+    cache.delete("similarity_lsh_index_loaded")
 
 
-def bulk_compute_signatures(version_ids: List[int]) -> int:
+def bulk_compute_signatures(version_ids: list[int]) -> int:
     """
     Compute signatures for multiple versions efficiently.
 
@@ -311,11 +315,9 @@ def cleanup_stale_clusters():
     empty_clusters.delete()
 
     # Remove clusters with only one member (convert to holding clusters)
-    singleton_clusters = (
-        SimilarityCluster.objects
-        .annotate(member_count=models.Count('memberships'))
-        .filter(member_count=1)
-    )
+    singleton_clusters = SimilarityCluster.objects.annotate(
+        member_count=models.Count("memberships")
+    ).filter(member_count=1)
     singleton_count = singleton_clusters.count()
     singleton_clusters.delete()
 

@@ -66,9 +66,9 @@ def version(request, clv):
         # Convert similarity to percentage for display and add diff URL
         similar_codelists = [
             {
-                'version': clv_similar,
-                'similarity': similarity * 100,
-                'diff_url': clv.get_diff_url(clv_similar)
+                "version": clv_similar,
+                "similarity": similarity * 100,
+                "diff_url": clv.get_diff_url(clv_similar),
             }
             for clv_similar, similarity in similar_results
         ]
@@ -76,7 +76,8 @@ def version(request, clv):
         # Compute similarity matrix for all similar codelists (including current)
         if similar_codelists:
             from ..similarity import compute_exact_jaccard
-            all_versions = [clv] + [item['version'] for item in similar_codelists]
+
+            all_versions = [clv] + [item["version"] for item in similar_codelists]
             all_codes = [set(v.codes or []) for v in all_versions]
 
             # Build matrix with similarity percentages
@@ -88,12 +89,16 @@ def version(request, clv):
                     if i == j:
                         similarity = 100.0  # Self-similarity
                     else:
-                        similarity = compute_exact_jaccard(all_codes[i], all_codes[j]) * 100
-                    row.append({
-                        'similarity': similarity,
-                        'version_i': all_versions[i],
-                        'version_j': all_versions[j]
-                    })
+                        similarity = (
+                            compute_exact_jaccard(all_codes[i], all_codes[j]) * 100
+                        )
+                    row.append(
+                        {
+                            "similarity": similarity,
+                            "version_i": all_versions[i],
+                            "version_j": all_versions[j],
+                        }
+                    )
                 similarity_matrix.append(row)
     except Exception:
         # If similarity computation fails, show empty list

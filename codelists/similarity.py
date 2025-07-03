@@ -9,10 +9,8 @@ This module implements a hybrid approach for computing codelist similarity:
 import hashlib
 import random
 from collections import defaultdict
-from typing import Set, List, Tuple, Dict, Optional
 
 import numpy as np
-from django.conf import settings
 
 
 class MinHashSignature:
@@ -33,7 +31,7 @@ class MinHashSignature:
             for _ in range(num_hashes)
         ]
 
-    def compute_signature(self, codes: Set[str]) -> List[int]:
+    def compute_signature(self, codes: set[str]) -> list[int]:
         """
         Compute MinHash signature for a set of codes.
 
@@ -57,7 +55,7 @@ class MinHashSignature:
 
         return signature
 
-    def estimate_jaccard(self, sig1: List[int], sig2: List[int]) -> float:
+    def estimate_jaccard(self, sig1: list[int], sig2: list[int]) -> float:
         """
         Estimate Jaccard similarity from MinHash signatures.
 
@@ -94,12 +92,12 @@ class LSHIndex:
         self.band_size = band_size
         self.signature_length = num_bands * band_size
         # Each band maps to a set of codelist version IDs
-        self.buckets: List[Dict[int, Set[int]]] = [
+        self.buckets: list[dict[int, set[int]]] = [
             defaultdict(set) for _ in range(num_bands)
         ]
-        self.signatures: Dict[int, List[int]] = {}
+        self.signatures: dict[int, list[int]] = {}
 
-    def add(self, codelist_version_id: int, signature: List[int]):
+    def add(self, codelist_version_id: int, signature: list[int]):
         """
         Add a codelist version and its signature to the index.
 
@@ -120,7 +118,9 @@ class LSHIndex:
             band_hash = hash(band)
             self.buckets[band_idx][band_hash].add(codelist_version_id)
 
-    def query(self, signature: List[int], threshold: float = 0.5) -> List[Tuple[int, float]]:
+    def query(
+        self, signature: list[int], threshold: float = 0.5
+    ) -> list[tuple[int, float]]:
         """
         Find similar codelist versions using LSH.
 
@@ -173,7 +173,7 @@ class LSHIndex:
             self.buckets[band_idx][band_hash].discard(codelist_version_id)
 
 
-def compute_exact_jaccard(codes1: Set[str], codes2: Set[str]) -> float:
+def compute_exact_jaccard(codes1: set[str], codes2: set[str]) -> float:
     """
     Compute exact Jaccard similarity between two sets of codes.
 
@@ -193,7 +193,7 @@ def compute_exact_jaccard(codes1: Set[str], codes2: Set[str]) -> float:
     return intersection / union if union > 0 else 0.0
 
 
-def compute_pairwise_jaccard_matrix(codelist_versions: List[int]) -> np.ndarray:
+def compute_pairwise_jaccard_matrix(codelist_versions: list[int]) -> np.ndarray:
     """
     Compute exact pairwise Jaccard similarity matrix for codelist versions.
 
@@ -228,9 +228,11 @@ def compute_pairwise_jaccard_matrix(codelist_versions: List[int]) -> np.ndarray:
     return matrix
 
 
-def cluster_by_similarity(similarity_matrix: np.ndarray,
-                         codelist_version_ids: List[int],
-                         threshold: float = 0.3) -> List[List[int]]:
+def cluster_by_similarity(
+    similarity_matrix: np.ndarray,
+    codelist_version_ids: list[int],
+    threshold: float = 0.3,
+) -> list[list[int]]:
     """
     Cluster codelist versions based on similarity matrix using simple threshold clustering.
 

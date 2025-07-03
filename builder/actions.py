@@ -168,10 +168,15 @@ def save(*, draft):
     # Compute similarity signature for version under review
     try:
         from codelists.similarity_service import compute_and_store_signature
+
         compute_and_store_signature(draft)
         logger.info("Computed similarity signature for draft", version_pk=draft.pk)
     except Exception as e:
-        logger.error("Failed to compute similarity signature for draft", version_pk=draft.pk, error=str(e))
+        logger.error(
+            "Failed to compute similarity signature for draft",
+            version_pk=draft.pk,
+            error=str(e),
+        )
 
 
 @transaction.atomic

@@ -219,10 +219,6 @@ def test_search_by_code(dmd_data, coding_system, code, expected_response):
 
 def test_lookup_synonyms(dmd_data, coding_system):
     assert coding_system.lookup_synonyms(["3293111000001105", "22503111000001109"]) == {
-        "3293111000001105": [
-            "Aerolin 100micrograms/dose Autohaler (3M Health Care Ltd)"
-        ],
-        "22503111000001109": [
-            "AirSalb 100micrograms/dose inhaler CFC free (Sandoz Ltd)"
-        ],
+        "3293111000001105": ["Aerolin 100micrograms/dose Autohaler"],
+        "22503111000001109": ["AirSalb 100micrograms/dose inhaler CFC free"],
     }

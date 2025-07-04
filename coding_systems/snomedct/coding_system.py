@@ -29,7 +29,7 @@ class CodingSystem(BuilderCompatibleCodingSystem):
             )
         }
 
-    def lookup_synonyms(self, codes):
+    def lookup_more_info(self, codes):
         descriptions = Description.objects.using(self.database_alias).filter(
             concept__in=codes, type=SYNONYM, active=True
         )
@@ -37,7 +37,7 @@ class CodingSystem(BuilderCompatibleCodingSystem):
         result = collections.defaultdict(list)
         for d in descriptions:
             result[d.concept_id].append(d.term)
-        return dict(result)
+        return {"synonyms": dict(result)}
 
     def search_by_term(self, term):
         return set(

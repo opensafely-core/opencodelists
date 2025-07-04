@@ -4,7 +4,7 @@ import Hierarchy from "../_hierarchy";
 import { getCookie, readValueFromPage } from "../_utils";
 import { Code, PageData, Status, Term } from "../types";
 
-interface CreateModalTextProps {
+interface CreateStatusTextProps {
   allCodes: PageData["allCodes"];
   code: Code;
   codeToStatus: PageData["codeToStatus"];
@@ -13,14 +13,14 @@ interface CreateModalTextProps {
   status: Status;
 }
 
-function createModalText({
+function createStatusText({
   allCodes,
   code,
   codeToStatus,
   codeToTerm,
   hierarchy,
   status,
-}: CreateModalTextProps) {
+}: CreateStatusTextProps) {
   const included = allCodes.filter((c) => codeToStatus[c] === "+");
   const excluded = allCodes.filter((c) => codeToStatus[c] === "-");
   const significantAncestors = hierarchy.significantAncestors(
@@ -85,13 +85,15 @@ function MoreInfoModal({
   const codingSystemId = readValueFromPage("metadata")?.coding_system_id;
 
   const [showMoreInfoModal, setShowMoreInfoModal] = useState(false);
-  const [synonyms, setSynonyms] = useState<string[] | null>(null);
-  const [modalText, setModalText] = useState("");
+  const [moreInfo, setMoreInfo] = useState<{ [name: string]: string[] } | null>(
+    null,
+  );
+  const [statusText, setStatusText] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleShow = () => {
     setShowMoreInfoModal(true);
-    if (synonyms === null) {
+    if (moreInfo === null) {
       setLoading(true);
       const requestHeaders = new Headers();
       requestHeaders.append("Accept", "application/json");
@@ -100,7 +102,7 @@ function MoreInfoModal({
       if (csrfCookie) {
         requestHeaders.append("X-CSRFToken", csrfCookie);
       }
-      fetch(`/coding-systems/synonyms/${codingSystemId}`, {
+      fetch(`/coding-systems/more-info/${codingSystemId}`, {
         method: "POST",
         credentials: "include" as RequestCredentials,
         mode: "same-origin" as RequestMode,
@@ -114,22 +116,24 @@ function MoreInfoModal({
           }
           // data.synonyms[code] can contain synonyms that are an exact match
           // for the main term. We filter these out.
-          setSynonyms(
-            data.synonyms[code].filter((synonym: string) => synonym !== term) ||
-              [],
-          );
+          setMoreInfo({
+            synonyms:
+              data["synonyms"][code].filter(
+                (synonym: string) => synonym !== term,
+              ) || [],
+          });
         })
         .catch(() => {
-          setSynonyms([]);
+          setMoreInfo({});
         })
         .finally(() => setLoading(false));
     }
   };
 
   useEffect(() => {
-    if (showMoreInfoModal && synonyms !== null) {
-      setModalText(
-        createModalText({
+    if (showMoreInfoModal && moreInfo !== null) {
+      setStatusText(
+        createStatusText({
           allCodes,
           code,
           codeToStatus,
@@ -139,7 +143,7 @@ function MoreInfoModal({
         }),
       );
     }
-  }, [showMoreInfoModal, synonyms]);
+  }, [showMoreInfoModal, moreInfo]);
 
   return (
     <>
@@ -169,15 +173,19 @@ function MoreInfoModal({
             <p>Loading synonyms...</p>
           ) : (
             <ul>
-              {!synonyms || synonyms?.length === 0 ? (
+              {!moreInfo ||
+              !("synonyms" in moreInfo) ||
+              moreInfo["synonyms"]?.length === 0 ? (
                 <li>No synonyms</li>
               ) : (
-                synonyms.map((synonym, idx) => <li key={idx}>{synonym}</li>)
+                moreInfo["synonyms"].map((synonym, idx) => (
+                  <li key={idx}>{synonym}</li>
+                ))
               )}
             </ul>
           )}
           <h2 className="h6 font-weight-bold">Status</h2>
-          <p>{modalText}</p>
+          <p>{statusText}</p>
         </Modal.Body>
       </Modal>
     </>

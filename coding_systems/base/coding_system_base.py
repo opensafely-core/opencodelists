@@ -99,7 +99,7 @@ class BaseCodingSystem(ABC):
     def lookup_names(self, codes):  # pragma: no cover
         raise NotImplementedError
 
-    def lookup_synonyms(self, codes):  # pragma: no cover
+    def lookup_more_info(self, codes):  # pragma: no cover
         return {}
 
     def code_to_term(self, codes):  # pragma: no cover

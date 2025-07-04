@@ -82,6 +82,31 @@ class CodingSystem(BuilderCompatibleCodingSystem):
             result[d["id"]].append(d["nm"])
         return dict(result)
 
+    def lookup_references(self, codes):
+        # OpenPrescribing's dm+d browser supports VTMs, VMPs, AMPs, VMPPs, and AMPPs
+        # We need to know the type of the code to correctly form the URL for this.
+        codes = set(codes)
+        codes_and_types = []
+        for model_cls in [AMP, VMP, AMPP, VMPP, VTM]:
+            matched = (
+                model_cls.objects.using(self.database_alias)
+                .filter(id__in=codes)
+                .values_list("id")
+            )
+            codes_and_types += [
+                (code[0], model_cls.__name__.lower()) for code in matched
+            ]
+
+        return {
+            code: [
+                (
+                    "OpenPrescribing dm+d browser",
+                    f"https://openprescribing.net/dmd/{codetype}/{code}/",
+                )
+            ]
+            for code, codetype in codes_and_types
+        }
+
     def code_to_term(self, codes):
         lookup = self.lookup_names(codes)
         unknown = set(codes) - set(lookup)

@@ -122,6 +122,11 @@ function MoreInfoModal({
                 (synonym: string) => synonym !== term,
               ) || [],
           });
+          // data.references[code] is a tuple of link text and href which is jsonified into a list
+          setMoreInfo({
+            references:
+              data["references"][code]
+          })
         })
         .catch(() => {
           setMoreInfo({});
@@ -180,6 +185,23 @@ function MoreInfoModal({
               ) : (
                 moreInfo["synonyms"].map((synonym, idx) => (
                   <li key={idx}>{synonym}</li>
+                ))
+              )}
+            </ul>
+          )}
+          <h2 className="h6 font-weight-bold">References</h2>
+
+          {loading ? (
+            <p>Loading references...</p>
+          ) : (
+            <ul>
+              {!moreInfo ||
+              !("references" in moreInfo) ||
+              moreInfo["references"]?.length === 0 ? (
+                <li>No references</li>
+              ) : (
+                moreInfo["references"].map((reference, idx) => (
+                  <li key={idx}><a href={reference[1]}>{reference[0]}</a></li>
                 ))
               )}
             </ul>

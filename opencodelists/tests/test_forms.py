@@ -70,7 +70,7 @@ class TestCodelistCreateForm:
         valid_csv_data = "\n".join(disorder_of_elbow_codes)
         file = ContentFile(valid_csv_data.encode("utf-8"))
         file.name = "valid_data_no_header.csv"
-        form = self._bind_form(file, csv_has_header=False)
+        form = self._bind_form(file, csv_has_header=0)
 
         assert form.is_valid()
         assert form.cleaned_data["name"] == "test name"
@@ -85,18 +85,29 @@ class TestCodelistCreateForm:
 
         file = ContentFile(valid_csv_data.encode("utf-8"))
         file.name = "valid_data_with_header.csv"
-        form = self._bind_form(file, csv_has_header=True)
+        form = self._bind_form(file, csv_has_header=1)
 
         assert form.is_valid()
         assert form.cleaned_data["name"] == "test name"
         assert form.cleaned_data["coding_system_id"] == "snomedct"
         assert form.cleaned_data["csv_data"] == disorder_of_elbow_codes
 
+    def test_bound_form_invalid_csv_header_not_specified(self, disorder_of_elbow_codes):
+        valid_csv_data = "\n".join(disorder_of_elbow_codes)
+        file = ContentFile(valid_csv_data.encode("utf-8"))
+        file.name = "valid_data_no_header.csv"
+        form = self._bind_form(file, csv_has_header=None)
+
+        assert not form.is_valid()
+        errors = form.errors.get("csv_data")
+        len(errors) == 1
+        assert "Please specify whether the CSV has a header or not." in errors[0]
+
     def test_bound_form_invalid_file_unicode_error(self):
         invalid_utf8_data = b"\xff\xfe\xfd"
         file = ContentFile(invalid_utf8_data)
         file.name = "invalid_data.csv"
-        form = self._bind_form(file)
+        form = self._bind_form(file, csv_has_header=0)
 
         assert not form.is_valid()
         errors = form.errors.get("csv_data")

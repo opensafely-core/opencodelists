@@ -33,7 +33,8 @@ def version(request, clv):
             messages.warning(
                 request,
                 format_html(
-                    f"WARNING: Codelist contains codes not found in {coding_system.name}"
+                    "WARNING: Codelist contains codes not found in {}",
+                    coding_system.name,
                 ),
             )
         tree_tables = sorted(

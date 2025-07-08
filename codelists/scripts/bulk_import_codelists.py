@@ -55,8 +55,9 @@ def main(
 ):
     if dry_run:
         print(f"############  DRY RUN ON {host}  ############")
-
-    headers = get_headers()
+    else:
+        print(f"############  LIVE RUN ON {host}  ############")
+        headers = get_headers()
     base_url = urljoin(host, f"api/v1/codelist/{config['organisation']}/")
 
     # Read the file and apply any aliases specified in the config
@@ -106,6 +107,11 @@ def main(
         else:
             return urljoin(base_url, f"{codelist_slug}/versions/")
 
+    codelist_count = 0
+    version_count = 0
+    failed_codelists = []
+    failed_versions = []
+
     for action, codelist_slugs in all_codelist_slugs.items():
         for codelist_slug in codelist_slugs:
             # filter df to just this codelist
@@ -126,29 +132,73 @@ def main(
 
             message_part = f"new {'version for ' if action == 'update' else ''}{coding_system_id} codelist '{codelist_name}'"
             if dry_run:
-                print(f"Would create {message_part}")
+                print(f"{codelist_slug}|Would create {message_part}")
+                if action == "create":
+                    codelist_count += 1
+                else:
+                    version_count += 1
             else:
                 url = get_url(action, codelist_slug)
-                response = requests.post(
-                    url, headers=headers, data=json.dumps(post_data)
-                )
+                try:
+                    response = requests.post(
+                        url, headers=headers, data=json.dumps(post_data)
+                    )
 
-                if response.status_code == 200:
-                    print(f"Created {message_part}")
-                else:
+                    if response.status_code == 200:
+                        if action == "create":
+                            codelist_count += 1
+                        else:
+                            version_count += 1
+                        print(f"Created {message_part}")
+                    else:
+                        if action == "create":
+                            failed_codelists.append((codelist_slug, url, post_data))
+                        else:
+                            failed_versions.append((codelist_slug, url, post_data))
+                        error_message = f"Failed to create new {message_part}: {response.status_code}"
+                        if (
+                            response.status_code == 400
+                            and not dry_run
+                            and not force_new_version
+                        ):
+                            error_message += (
+                                "\nA version with these codes may already exist. "
+                                "Use -f to force creation of a new version."
+                            )
+                        print(error_message)
+                except Exception:
+                    if action == "create":
+                        failed_codelists.append((codelist_slug, url, post_data))
+                    else:
+                        failed_versions.append((codelist_slug, url, post_data))
                     error_message = (
                         f"Failed to create new {message_part}: {response.status_code}"
                     )
-                    if (
-                        response.status_code == 400
-                        and not dry_run
-                        and not force_new_version
-                    ):
-                        error_message += (
-                            "\nA version with these codes may already exist. "
-                            "Use -f to force creation of a new version."
-                        )
-                    print(error_message)
+
+    if dry_run:
+        print(
+            "\nDRY RUN COMPLETE\n"
+            "No codelists or versions were created, but the above messages indicate what would be done.\n"
+            f" - {codelist_count} new codelists would be created\n"
+            f" - {version_count} existing codelists would be updated with a new version\n"
+        )
+    else:
+        print(
+            "\nSTATUS\n"
+            f" - {codelist_count} new codelists successfully created\n"
+            f" - {version_count} existing codelists successfully updated with a new version\n"
+            f" - {len(failed_codelists)} codelists failed to be created\n"
+            f" - {len(failed_versions)} existing codelists failed to be updated with a new version\n"
+        )
+
+    if failed_codelists:
+        print("Failed to create the following codelists:")
+        for slug, _, _ in failed_codelists:
+            print(f" - Slug: {slug}")
+    if failed_versions:
+        print("Failed to create new versions of the following codelists:")
+        for slug, _, _ in failed_versions:
+            print(f" - Slug: {slug}")
 
 
 def get_headers():

@@ -22,6 +22,7 @@ beforeEach(() => {
         json: () =>
           Promise.resolve({
             synonyms: { "123": ["Alpha", "Beta", "Test Term"] },
+            references: { "123": [["TestReference", "https://example.com"]] },
           }),
       }),
     ),
@@ -50,7 +51,7 @@ it("renders More info button", () => {
   expect(screen.getByRole("button", { name: /more info/i })).toBeVisible();
 });
 
-it("shows modal and fetches synonyms on button click", async () => {
+it("shows modal and fetches synonyms and references on button click", async () => {
   const user = userEvent.setup();
   render(<MoreInfoModal {...props} />);
   await user.click(screen.getByRole("button", { name: /more info/i }));
@@ -63,6 +64,17 @@ it("shows modal and fetches synonyms on button click", async () => {
   // Although "Test Term" is returned as a synonym, it shouldn't display as
   // it matches the main term
   expect(within(synonymsList).queryByText("Test Term")).not.toBeInTheDocument();
+
+  const referencesHeading = screen.getByRole("heading", {
+    name: /references/i,
+  });
+  const referencesList =
+    referencesHeading.nextElementSibling as HTMLUListElement;
+  expect(within(referencesList).getByText("TestReference")).toBeVisible();
+  expect(within(referencesList).getByText("TestReference")).toHaveAttribute(
+    "href",
+    "https://example.com",
+  );
 
   expect(screen.getByText("Included")).toBeVisible();
 });

@@ -46,6 +46,8 @@ def main(
     config,
     host,
     force_new_version=False,
+    force_description=False,
+    force_name=False,
     dry_run=True,
 ):
     if dry_run:
@@ -108,7 +110,12 @@ def main(
             assert len(set(df["coding_system"])) == 1
 
             codelist_name, coding_system_id, post_data = get_post_data(
-                config, df, action == "create", force_new_version
+                config,
+                df,
+                action == "create",
+                force_new_version,
+                force_description,
+                force_name,
             )
 
             message_part = f"new {'version for ' if action == 'update' else ''}{coding_system_id} codelist '{codelist_name}'"
@@ -221,7 +228,14 @@ def process_file_to_dataframe(filepath, config):
     return codelist_df
 
 
-def get_post_data(config, codelist_df, create_new_codelist, force_new_version):
+def get_post_data(
+    config,
+    codelist_df,
+    create_new_codelist,
+    force_new_version,
+    force_description,
+    force_name,
+):
     """
     Return the relevant data to post to the api endpoint to create a new
     codelist or codelist version
@@ -258,6 +272,11 @@ def get_post_data(config, codelist_df, create_new_codelist, force_new_version):
             }
         )
 
+    if force_description:
+        post_data["description"] = description
+    if force_name:
+        post_data["name"] = codelist_name
+
     return codelist_name, coding_system_id, post_data
 
 
@@ -278,6 +297,16 @@ def parse_args():
         "-f",
         action="store_true",
         help="Always create a new version, even if a version with identical codes already exists.",
+    )
+    parser.add_argument(
+        "--force-description",
+        action="store_true",
+        help="Always update the description, even if it already exists.",
+    )
+    parser.add_argument(
+        "--force-name",
+        action="store_true",
+        help="Always update the name, even if it already exists.",
     )
     parser.add_argument(
         "--live-run",
@@ -301,6 +330,8 @@ def parse_args():
         config,
         arguments.host,
         arguments.force_new_version,
+        arguments.force_description,
+        arguments.force_name,
         not arguments.live_run,
     )
 

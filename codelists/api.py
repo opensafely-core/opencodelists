@@ -29,6 +29,7 @@ from .actions import (
     create_or_update_codelist,
     create_version_from_ecl_expr,
     create_version_with_codes,
+    update_codelist,
 )
 from .api_decorators import require_authentication, require_permission
 from .models import Codelist, CodelistVersion, Handle
@@ -274,6 +275,9 @@ def versions(request, codelist):
         * tag
         * coding_system_database_alias
         * always_create_new_version (optional, for "codes" / new-style only.)
+        * name (optional, if passed overwrite the current name)
+        * description (optional, if passed overwrite the current description)
+
 
     Known clients (see caveats in module docstring):
         2024-Nov: Scripts such as those in /codelists/scripts/ may use this
@@ -286,6 +290,24 @@ def versions(request, codelist):
 
     if len(set(data) & {"codes", "csv_data", "ecl"}) != 1:
         return error("Provide exactly one of `codes`, `csv_data` or `ecl`")
+
+    if "description" in data or "name" in data:
+        update_codelist(
+            owner=codelist.owner,
+            name=data.get("name", codelist.name),
+            slug=codelist.slug,
+            codelist=codelist,
+            description=data.get("description", codelist.description),
+            methodology=codelist.methodology,
+            references=[
+                {"url": reference.url, "text": reference.text}
+                for reference in codelist.references.all()
+            ],
+            signoffs=[
+                {"user": signoff.user, "date": signoff.date}
+                for signoff in codelist.signoffs.all()
+            ],
+        )
 
     try:
         if "codes" in data:

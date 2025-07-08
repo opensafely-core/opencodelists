@@ -1,4 +1,7 @@
-from django.db.models import Q
+import collections
+
+from django.db.models import F, Q
+from django.db.models.functions import Coalesce
 
 from ..base.coding_system_base import BuilderCompatibleCodingSystem
 from .models import AMP, AMPP, VMP, VMPP, VTM, Ing
@@ -47,20 +50,37 @@ class CodingSystem(BuilderCompatibleCodingSystem):
         # these models first
         # If not found, look up VTM, VMPP, AMPPs also, in case of user-uploaded codelists that
         # might contain these
+        #
+        # If the model type is AMP, we should prefer the `descr` field over the `nm` for the name
+        # as this contains the supplier name which helps distinguish AMPs apart.
+        # It appears to be populated in 100% of cases but coalese with `nm` just in case it is not.
         codes = set(codes)
         lookup = {}
         for model_cls in [AMP, VMP, AMPP, VMPP, VTM]:
-            matched = dict(
-                model_cls.objects.using(self.database_alias)
-                .filter(id__in=codes)
-                .values_list("id", "nm")
+            model_objs = model_cls.objects.using(self.database_alias).filter(
+                id__in=codes
             )
+            name_field = Coalesce("descr", "nm") if model_cls == AMP else F("nm")
+            model_objs = model_objs.annotate(name=name_field)
+            matched = dict(model_objs.values_list("id", "name"))
             for code, name in matched.items():
                 lookup[code] = f"{name} ({model_cls.__name__})"
             codes = codes - set(matched.keys())
             if not codes:
                 break
         return lookup
+
+    def lookup_synonyms(self, codes):
+        descriptions = (
+            AMP.objects.using(self.database_alias)
+            .filter(id__in=codes)
+            .values("id", "nm")
+        )
+
+        result = collections.defaultdict(list)
+        for d in descriptions:
+            result[d["id"]].append(d["nm"])
+        return dict(result)
 
     def code_to_term(self, codes):
         lookup = self.lookup_names(codes)

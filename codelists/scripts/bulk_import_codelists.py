@@ -48,6 +48,7 @@ def main(
     force_new_version=False,
     force_description=False,
     force_name=False,
+    ignore_unfound_codes=False,
     dry_run=True,
 ):
     if dry_run:
@@ -116,6 +117,7 @@ def main(
                 force_new_version,
                 force_description,
                 force_name,
+                ignore_unfound_codes,
             )
 
             message_part = f"new {'version for ' if action == 'update' else ''}{coding_system_id} codelist '{codelist_name}'"
@@ -235,6 +237,7 @@ def get_post_data(
     force_new_version,
     force_description,
     force_name,
+    ignore_unfound_codes,
 ):
     """
     Return the relevant data to post to the api endpoint to create a new
@@ -276,6 +279,8 @@ def get_post_data(
         post_data["description"] = description
     if force_name:
         post_data["name"] = codelist_name
+    if ignore_unfound_codes:
+        post_data["ignore_unfound_codes"] = True
 
     return codelist_name, coding_system_id, post_data
 
@@ -309,6 +314,17 @@ def parse_args():
         help="Always update the name, even if it already exists.",
     )
     parser.add_argument(
+        "--ignore-unfound-codes",
+        action="store_true",
+        help=(
+            "If set, will force the creation of codelists even if the codes "
+            "aren't found in the coding system. This is useful if e.g. you "
+            "are importing the PCD refsets which occasionally contain codes "
+            "from the clinical AND medication SNOMED dictionaries. This causes "
+            "unfound codes to be ignored, but appends the ignored codes to the description."
+        ),
+    )
+    parser.add_argument(
         "--live-run",
         action="store_true",
         help=(
@@ -332,6 +348,7 @@ def parse_args():
         arguments.force_new_version,
         arguments.force_description,
         arguments.force_name,
+        arguments.ignore_unfound_codes,
         not arguments.live_run,
     )
 

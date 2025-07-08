@@ -213,6 +213,7 @@ def codelists_post(request, owner):
         * references (optional)
         * signoffs (optional)
         * always_create_new_version (optional)
+        # ignore_unfound_codes (optional)
 
     Known clients (see caveats in module docstring):
         2024-Nov: Scripts such as those in /codelists/scripts/ may use this
@@ -238,6 +239,7 @@ def codelists_post(request, owner):
         "references",
         "signoffs",
         "always_create_new_version",
+        "ignore_unfound_codes",
     ]
 
     if len(set(data) & set(code_keys)) != 1:
@@ -275,6 +277,7 @@ def versions(request, codelist):
         * tag
         * coding_system_database_alias
         * always_create_new_version (optional, for "codes" / new-style only.)
+        * ignore_unfound_codes (optional, for "codes" / new-style only.)
         * name (optional, if passed overwrite the current name)
         * description (optional, if passed overwrite the current description)
 
@@ -317,6 +320,7 @@ def versions(request, codelist):
                 tag=data.get("tag"),
                 coding_system_database_alias=data["coding_system_database_alias"],
                 always_create_new_version=data.get("always_create_new_version", False),
+                ignore_unfound_codes=data.get("ignore_unfound_codes", False),
             )
         elif "csv_data" in data:
             clv = create_old_style_version(

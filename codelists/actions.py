@@ -74,6 +74,7 @@ def create_or_update_codelist(
     signoffs=None,
     always_create_new_version=False,
     ignore_unfound_codes=False,
+    should_publish=False,
 ):
     slug = slug or slugify(name)
     references = references or []
@@ -99,6 +100,7 @@ def create_or_update_codelist(
             coding_system_database_alias=coding_system_database_alias,
             always_create_new_version=always_create_new_version,
             ignore_unfound_codes=ignore_unfound_codes,
+            status=Status.PUBLISHED if should_publish else Status.UNDER_REVIEW,
         )
 
         return codelist

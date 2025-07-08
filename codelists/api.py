@@ -32,7 +32,7 @@ from .actions import (
     update_codelist,
 )
 from .api_decorators import require_authentication, require_permission
-from .models import Codelist, CodelistVersion, Handle
+from .models import Codelist, CodelistVersion, Handle, Status
 from .views.decorators import load_codelist, load_owner
 
 
@@ -240,6 +240,7 @@ def codelists_post(request, owner):
         "signoffs",
         "always_create_new_version",
         "ignore_unfound_codes",
+        "should_publish",
     ]
 
     if len(set(data) & set(code_keys)) != 1:
@@ -280,6 +281,7 @@ def versions(request, codelist):
         * ignore_unfound_codes (optional, for "codes" / new-style only.)
         * name (optional, if passed overwrite the current name)
         * description (optional, if passed overwrite the current description)
+        * should_publish (optional, if passed forces the new version to be published)
 
 
     Known clients (see caveats in module docstring):
@@ -317,6 +319,9 @@ def versions(request, codelist):
             clv = create_version_with_codes(
                 codelist=codelist,
                 codes=set(data["codes"]),
+                status=Status.PUBLISHED
+                if data.get("should_publish", False)
+                else Status.UNDER_REVIEW,
                 tag=data.get("tag"),
                 coding_system_database_alias=data["coding_system_database_alias"],
                 always_create_new_version=data.get("always_create_new_version", False),

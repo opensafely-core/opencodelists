@@ -48,6 +48,7 @@ def main(
     force_new_version=False,
     force_description=False,
     force_name=False,
+    force_publish=False,
     ignore_unfound_codes=False,
     dry_run=True,
 ):
@@ -117,6 +118,7 @@ def main(
                 force_new_version,
                 force_description,
                 force_name,
+                force_publish,
                 ignore_unfound_codes,
             )
 
@@ -237,6 +239,7 @@ def get_post_data(
     force_new_version,
     force_description,
     force_name,
+    force_publish,
     ignore_unfound_codes,
 ):
     """
@@ -279,6 +282,8 @@ def get_post_data(
         post_data["description"] = description
     if force_name:
         post_data["name"] = codelist_name
+    if force_publish:
+        post_data["should_publish"] = True
     if ignore_unfound_codes:
         post_data["ignore_unfound_codes"] = True
 
@@ -312,6 +317,11 @@ def parse_args():
         "--force-name",
         action="store_true",
         help="Always update the name, even if it already exists.",
+    )
+    parser.add_argument(
+        "--force-publish",
+        action="store_true",
+        help="For new versions, this causes them to auto-publish rather than defaulting to under review.",
     )
     parser.add_argument(
         "--ignore-unfound-codes",
@@ -348,6 +358,7 @@ def parse_args():
         arguments.force_new_version,
         arguments.force_description,
         arguments.force_name,
+        arguments.force_publish,
         arguments.ignore_unfound_codes,
         not arguments.live_run,
     )

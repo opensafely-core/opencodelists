@@ -67,6 +67,7 @@ def create_or_update_codelist(
     codes,
     coding_system_database_alias,
     slug=None,
+    new_slug=None,
     tag=None,
     description=None,
     methodology=None,
@@ -77,6 +78,8 @@ def create_or_update_codelist(
     should_publish=False,
 ):
     slug = slug or slugify(name)
+    new_slug = new_slug or slug
+
     references = references or []
     signoffs = signoffs or []
 
@@ -86,7 +89,7 @@ def create_or_update_codelist(
         update_codelist(
             owner=owner,
             name=name,
-            slug=slug,
+            slug=new_slug,
             codelist=codelist,
             description=description,
             methodology=methodology,
@@ -112,7 +115,7 @@ def create_or_update_codelist(
             coding_system_id=coding_system_id,
             coding_system_database_alias=coding_system_database_alias,
             codes=codes,
-            slug=slug,
+            slug=new_slug,
             tag=tag,
             description=description,
             methodology=methodology,

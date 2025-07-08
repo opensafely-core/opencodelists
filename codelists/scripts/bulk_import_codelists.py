@@ -48,6 +48,7 @@ def main(
     force_new_version=False,
     force_description=False,
     force_name=False,
+    force_slug=False,
     force_publish=False,
     ignore_unfound_codes=False,
     dry_run=True,
@@ -119,6 +120,7 @@ def main(
                 force_description,
                 force_name,
                 force_publish,
+                force_slug,
                 ignore_unfound_codes,
             )
 
@@ -240,6 +242,7 @@ def get_post_data(
     force_description,
     force_name,
     force_publish,
+    force_slug,
     ignore_unfound_codes,
 ):
     """
@@ -284,6 +287,8 @@ def get_post_data(
         post_data["name"] = codelist_name
     if force_publish:
         post_data["should_publish"] = True
+    if force_slug:
+        post_data["new_slug"] = first_row["codelist_new_slug"].lower()
     if ignore_unfound_codes:
         post_data["ignore_unfound_codes"] = True
 
@@ -324,6 +329,11 @@ def parse_args():
         help="For new versions, this causes them to auto-publish rather than defaulting to under review.",
     )
     parser.add_argument(
+        "--force-slug",
+        action="store_true",
+        help="For new codelists, user the provided slug rather than generating one.",
+    )
+    parser.add_argument(
         "--ignore-unfound-codes",
         action="store_true",
         help=(
@@ -359,6 +369,7 @@ def parse_args():
         arguments.force_description,
         arguments.force_name,
         arguments.force_publish,
+        arguments.force_slug,
         arguments.ignore_unfound_codes,
         not arguments.live_run,
     )

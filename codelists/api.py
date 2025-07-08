@@ -240,6 +240,7 @@ def codelists_post(request, owner):
         "signoffs",
         "always_create_new_version",
         "ignore_unfound_codes",
+        "new_slug",
         "should_publish",
     ]
 
@@ -296,11 +297,11 @@ def versions(request, codelist):
     if len(set(data) & {"codes", "csv_data", "ecl"}) != 1:
         return error("Provide exactly one of `codes`, `csv_data` or `ecl`")
 
-    if "description" in data or "name" in data:
+    if "description" in data or "name" in data or "new_slug" in data:
         update_codelist(
             owner=codelist.owner,
             name=data.get("name", codelist.name),
-            slug=codelist.slug,
+            slug=data.get("new_slug", codelist.slug),
             codelist=codelist,
             description=data.get("description", codelist.description),
             methodology=codelist.methodology,

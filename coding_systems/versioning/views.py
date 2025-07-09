@@ -17,6 +17,20 @@ def latest_releases(request):
             if cs.has_database
         ]
     }
+
+    if request.GET.get("type") == "json":
+        data = {
+            lr.id: {
+                "name": lr.name,
+                "release_name": lr.release_name,
+                "valid_from": lr.release.valid_from,
+                "import_timestamp": lr.release.import_timestamp,
+                "database_alias": lr.database_alias,
+            }
+            for lr in ctx["latest_releases"]
+        }
+        return JsonResponse(data)
+
     return render(request, "versioning/latest_releases.html", ctx)
 
 

@@ -77,18 +77,39 @@ def main(
         codelist["name"]: codelist["slug"]
         for codelist in codelists_resp.json()["codelists"]
     }
+    existing_slugs = [slug for slug in codelists_by_name.values()]
+
     # Add a codelist_slug column to the dataframe, using the codelist names from the file
     new_codelist_identifier = "".join(
         random.choices(string.ascii_lowercase + string.digits, k=7)
     )
 
-    def _get_slug(name):
-        # return slug from name for this codelist, or if not found, prefix with
-        # new_codelist_identifier to ensure it's unique. Any codelist names that would
-        # produce duplicate slugs will error later when we try to create them.
-        return codelists_by_name.get(name, f"{new_codelist_identifier}_{slugify(name)}")
+    def _get_slug(name, slug=None):
+        # Return slug for this codelist using these rules:
+        # - if an existing slug is passed then we use that
+        # - if not, but the name matches an existing codelist we return that slug
+        # - PCD refsets created with slugified name tags ("name-of-refset"), rather than
+        #   the refset label ("refset_cod") are marked as " (obsolete)". If we can't match
+        #   the name, but we can match "{name} (obsolete)", then we return the slug for that.
+        #   The script (for PCD refsets) will automatically update the name.
+        # - if not, but the passed slug is actually a valid slug then we return that
+        # - if none of the above, we slugify the name and prefix with a unique identifier
+        # Any codelist names that would produce duplicate slugs will error later when we try to create them.
+        if slug and slug.lower() in existing_slugs:
+            return slug.lower()
+        if name in codelists_by_name:
+            return codelists_by_name[name]
+        if f"{name} (obsolete)" in codelists_by_name:
+            return codelists_by_name[f"{name} (obsolete)"]
+        if slug and slug.lower() == slugify(slug):
+            return slug.lower()
 
-    codelist_slugs = codelists_df["codelist_name"].apply(_get_slug)
+        return f"{new_codelist_identifier}_{slugify(name)}"
+
+    codelist_slugs = codelists_df.apply(
+        lambda row: _get_slug(row["codelist_name"], row.get("codelist_new_slug")),
+        axis=1,
+    )
     codelists_df["codelist_slug"] = codelist_slugs
 
     # Use the slugs to identify codelists that need to be created vs those that need a new version
@@ -214,7 +235,13 @@ def process_file_to_dataframe(filepath, config):
     Read a file into a Pandas dataframe and sanitise it, ready for
     importing codelists
     """
-    column_names = {"coding_system", "codelist_name", "code", "term"}
+    column_names = {
+        "coding_system",
+        "codelist_name",
+        "code",
+        "term",
+        "codelist_new_slug",
+    }
     # Find relevant aliases from config
     codelist_name_aliases = config.get("codelist_name_aliases", {})
     column_aliases = {col: col for col in column_names}
@@ -265,7 +292,7 @@ def process_file_to_dataframe(filepath, config):
             codelist_df["coding_system"] = list(config["coding_systems"].keys())[0]
 
     relevant_df_columns = set(codelist_df.columns) & column_names
-    required_columns = column_names - {"term"}
+    required_columns = column_names - {"term", "codelist_new_slug"}
     for column in required_columns:
         # ensure all required columns are now present
         assert column in relevant_df_columns, f"Expected column {column} not found"

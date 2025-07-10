@@ -307,6 +307,9 @@ docker-check-js: _env
 docker-check-py: _env
     {{ just_executable() }} docker/check-py {{ docker_env }}
 
+# run migrations in docker container
+docker-migrate env="dev": _env
+    {{ just_executable() }} docker/migrate {{ if env == "dev" { docker_env } else { env } }}
 
 # run python non-functional tests in docker container
 docker-test-py *args="": _env

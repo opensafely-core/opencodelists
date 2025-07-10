@@ -35,6 +35,9 @@ check-py env="dev": build
 check-migrations env="dev" *args="": build
     docker compose run --rm {{ env }} python manage.py makemigrations --check {{ args }}
 
+migrate env="dev": (_create_storage env)
+    docker compose run --rm {{ env }} bash -c 'python manage.py check && python manage.py migrate'
+
 # run Python (non-functional) tests in docker container
 test-py *args="":
     docker compose run --rm test python -m pytest \

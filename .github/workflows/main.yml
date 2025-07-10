@@ -70,6 +70,9 @@ jobs:
 
       - name: Run smoke test on prod
         run: |
+          # ensure migrations are applied now that they are not part of the docker file
+          just docker-migrate prod
+          # start the server and run a smoke test
           just docker-serve prod -d
           sleep 5
           just docker-smoke-test || {

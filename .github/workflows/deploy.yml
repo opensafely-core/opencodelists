@@ -48,6 +48,7 @@ jobs:
 
       - name: Test image we imported from previous job works
         run: |
+            SKIP_BUILD=1 just docker-migrate prod
             SKIP_BUILD=1 just docker-serve prod -d
             sleep 5
             just docker-smoke-test || { docker logs docker_prod_1; exit 1; }

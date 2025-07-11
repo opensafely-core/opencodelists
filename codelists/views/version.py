@@ -77,5 +77,6 @@ def version(request, clv):
         "can_create_new_version": can_create_new_version,
         "tree_data": tree_data,
         "latest_published_version_url": latest_published_version_url,
+        "count_codes_included": len(rows),
     }
     return render(request, "codelists/version.html", ctx)

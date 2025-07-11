@@ -58,6 +58,14 @@ def version(request, clv):
         status=Status.DRAFT
     ).exists()
 
+    try:
+        latest_version = clv.codelist.latest_published_version()
+        latest_published_version_url = (
+            latest_version.get_absolute_url if latest_version else None
+        )
+    except AttributeError:
+        latest_published_version_url = None
+
     ctx = {
         "clv": clv,
         "codelist": clv.codelist,
@@ -70,5 +78,6 @@ def version(request, clv):
         "user_can_edit": user_can_edit,
         "can_create_new_version": can_create_new_version,
         "tree_data": tree_data,
+        "latest_published_version_url": latest_published_version_url,
     }
     return render(request, "codelists/version.html", ctx)

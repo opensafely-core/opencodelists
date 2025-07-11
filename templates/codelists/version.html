@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% load django_vite %}
+{% load humanize %}
 
 {% block title_extra %}: {{ codelist.name }}{% endblock %}
 
@@ -180,7 +181,7 @@
             <dt>
               Number of codes included
             </dt>
-            <dd class="mb-0">{{ count_codes_included }}</dd>
+            <dd class="mb-0">{{ count_codes_included|intcomma }}</dd>
           </div>
         {% endif %}
       </dl>

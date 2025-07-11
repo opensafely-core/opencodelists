@@ -126,7 +126,7 @@ dokku enter opencodelists
 sqlite3 /storage/db.sqlite3 ".backup /storage/backup/previous-db.sqlite3"
 
 zstd -d /storage/backup/db/{PATH_TO_BACKUP_ZST} -o /storage/backup/restore-db.sqlite3
-sqlite3 /storage/db.sqlite3 ".restore /storage/backup/restore-db.sqlite3
+sqlite3 /storage/db.sqlite3 ".restore /storage/backup/restore-db.sqlite3"
 ```
 
 When all is confirmed working with the restore, you can delete
@@ -139,7 +139,7 @@ and so contains user personal data and API keys.
 
 For development purposes,you should use the sanitised copy at
 `/storage/backup/db/sanitised-latest-db.sqlite3.zst`.  You can use `scp`, `zstd
--d` and `sqlite3 ".restore" to bring your local database into the same state as
+-d` and `sqlite3 ".restore"` to bring your local database into the same state as
 the production database.  You may also wish to retrieve some or all of the
 coding systems databases, otherwise you will not be able to view codelists that
 require them or build codelists.  Refer to the team manual [OpenCodelists

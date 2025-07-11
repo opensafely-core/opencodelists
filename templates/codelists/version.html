@@ -4,6 +4,13 @@
 
 {% block title_extra %}: {{ codelist.name }}{% endblock %}
 
+{% block extra_styles %}
+  {# extra_styles will be renamed to extra_head in base-tw.html #}
+  {% if latest_published_version_url %}
+    <link rel="canonical" href="https://www.opencodelists.org{{ latest_published_version_url }}" />
+  {% endif %}
+{% endblock %}
+
 {% block full_width_content %}
   <div class="border-bottom mb-3 pb-3">
     <div class="d-flex flex-row justify-content-between gap-2 mb-2">

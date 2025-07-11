@@ -58,11 +58,9 @@ def version(request, clv):
         status=Status.DRAFT
     ).exists()
 
+    latest_published_version = clv.codelist.latest_published_version()
     try:
-        latest_version = clv.codelist.latest_published_version()
-        latest_published_version_url = (
-            latest_version.get_absolute_url if latest_version else None
-        )
+        latest_published_version_url = latest_published_version.get_absolute_url
     except AttributeError:
         latest_published_version_url = None
 

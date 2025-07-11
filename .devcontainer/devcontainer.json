@@ -3,5 +3,6 @@
     "features": {
         "ghcr.io/devcontainers/features/docker-in-docker:2": {}
     },
-    "postCreateCommand": "/bin/bash /workspaces/opencodelists/dokku.sh"
+    "image": "mcr.microsoft.com/devcontainers/universal:3",
+    "postCreateCommand": "containerWorkspaceFolder=${containerWorkspaceFolder} ./test-deploy.sh"
 }

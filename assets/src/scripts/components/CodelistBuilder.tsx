@@ -12,7 +12,7 @@ import Metadata from "./Metadata";
 import Title from "./Title";
 import TreeTables from "./TreeTables";
 
-type MetadataFieldName = "description" | "methodology";
+export type MetadataFieldName = "description" | "methodology";
 interface MetadataField {
   text: string;
   html: string;
@@ -269,69 +269,92 @@ export default class CodelistBuilder extends React.Component<
     return (
       <Form.Group className={`card ${field}`} controlId={field}>
         <div className="card-body">
-          <div className="card-title d-flex flex-row justify-content-between align-items-center">
-            <Form.Label className="h5" as="h3">
-              {label}
-            </Form.Label>
-            {isEditing ? (
-              <div>
-                <button
-                  type="button"
-                  className="btn btn-primary btn-sm"
-                  onClick={() => this.handleSave(field)}
-                  title={`Save ${field}`}
-                >
-                  Save
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-secondary btn-sm ml-2"
-                  onClick={() => this.handleCancel(field)}
-                  title={`Cancel ${field} edit`}
-                >
-                  Cancel
-                </button>
-              </div>
-            ) : (
-              <button
-                type="button"
-                className="btn btn-sm btn-warning"
-                onClick={() => this.handleEdit(field)}
-                title={`Edit ${field}`}
-              >
-                Edit
-              </button>
-            )}
-          </div>
-          <hr />
-          {isEditing ? (
+          {this.props.isEditable ? (
             <>
-              <Form.Control
-                ref={this.textareaRefs[field]}
-                as="textarea"
-                rows={5}
-                defaultValue={draftContent}
-                onFocus={() => this.textareaRefs[field].current?.focus()}
-                onKeyDown={(e) => {
-                  // Handle Ctrl+Enter for Save
-                  if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
-                    e.preventDefault();
-                    this.handleSave(field);
-                  }
-                  // Handle Escape for Cancel
-                  if (e.key === "Escape") {
-                    e.preventDefault();
-                    this.handleCancel(field);
-                  }
-                }}
-              />
-              <Form.Text className="text-muted">
-                If you make changes, please remember to click Save (shortcut:
-                CTRL-ENTER) to keep them or Cancel (shortcut: ESC) to discard.
-              </Form.Text>
+              {" "}
+              <div className="card-title d-flex flex-row justify-content-between align-items-center">
+                <Form.Label className="h5" as="h3">
+                  {label}
+                </Form.Label>
+                {isEditing && this.props.isEditable ? (
+                  <div>
+                    <button
+                      type="button"
+                      className="btn btn-primary btn-sm"
+                      onClick={() => this.handleSave(field)}
+                      title={`Save ${field}`}
+                    >
+                      Save
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-secondary btn-sm ml-2"
+                      onClick={() => this.handleCancel(field)}
+                      title={`Cancel ${field} edit`}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-warning"
+                    onClick={() => this.handleEdit(field)}
+                    title={`Edit ${field}`}
+                  >
+                    Edit
+                  </button>
+                )}
+              </div>
+              <hr />
+              {isEditing ? (
+                <>
+                  <Form.Control
+                    ref={this.textareaRefs[field]}
+                    as="textarea"
+                    rows={5}
+                    defaultValue={draftContent}
+                    onFocus={() => this.textareaRefs[field].current?.focus()}
+                    onKeyDown={(e) => {
+                      // Handle Ctrl+Enter for Save
+                      if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+                        e.preventDefault();
+                        this.handleSave(field);
+                      }
+                      // Handle Escape for Cancel
+                      if (e.key === "Escape") {
+                        e.preventDefault();
+                        this.handleCancel(field);
+                      }
+                    }}
+                  />
+                  <Form.Text className="text-muted">
+                    If you make changes, please remember to click Save
+                    (shortcut: CTRL-ENTER) to keep them or Cancel (shortcut:
+                    ESC) to discard.
+                  </Form.Text>
+                </>
+              ) : (
+                <>
+                  <div
+                    className="builder__markdown"
+                    dangerouslySetInnerHTML={{
+                      __html:
+                        htmlContent ||
+                        `<em class="text-muted">No ${field} provided yet</em>`,
+                    }}
+                  />
+                </>
+              )}
             </>
           ) : (
             <>
+              <div className="card-title d-flex flex-row justify-content-between align-items-center">
+                <Form.Label className="h5" as="h3">
+                  {label}
+                </Form.Label>
+              </div>
+              <hr />
               <div
                 className="builder__markdown"
                 dangerouslySetInnerHTML={{
@@ -413,8 +436,9 @@ export default class CodelistBuilder extends React.Component<
                 >
                   <MetadataTab
                     handleSaveReferences={this.handleSaveReferences}
-                    renderMetadataField={this.renderMetadataField}
+                    isEditable={isEditable}
                     references={this.state.metadata.references}
+                    renderMetadataField={this.renderMetadataField}
                   />
                 </Tab>
               </Tabs>

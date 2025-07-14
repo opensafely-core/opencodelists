@@ -21,8 +21,8 @@ export default function Sidebar({
 }) {
   return (
     <Col className="builder__sidebar" md="3">
-      {isEmptyCodelist ? (
-        <>{isEditable && <SearchForm />}</>
+      {isEmptyCodelist && isEditable ? (
+        <SearchForm />
       ) : (
         <>
           <Summary counts={counts} draftURL={draftURL} />

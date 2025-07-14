@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Script to automatically update NHS Primary Care Domain Refsets
+Django Script to automatically update NHS Primary Care Domain Refsets
 
 These are released whenever they are updated i.e. not on a particular release cycle. There
 are roughly 4 a year. This script allows them to be loaded into opencodelists, as either new
@@ -19,8 +19,10 @@ The bulk import process will tell you how many success/failures there were. It i
 trying to rerun the script for any failed imports (assuming there aren't that many). See
 below for how to run just for a few cluster ids.
 
+This script requires a TRUD_API_KEY env var to either be set or defined in your .env file
+
 Usage:
-    TRUD_API_KEY=your_api_key python codelists/scripts/update_pcd_refsets.py [--live-run] [REFSET_ID [REFSET_ID ...]]
+    just manage runscript update_pcd_refsets --script-args="[--live-run] [REFSET_ID [REFSET_ID ...]]"
 
 Flags:
     --live-run      Actually update the config and run the bulk import for real (not a dry run).
@@ -34,10 +36,10 @@ Arguments:
 
 Examples:
     # Dry run, process only specific clusters
-    TRUD_API_KEY=your_api_key python codelists/scripts/update_pcd_refsets.py ANTIPSYONLYDRUG_COD C19ACTIVITY_COD
+    just manage runscript update_pcd_refsets --script-args="ANTIPSYONLYDRUG_COD C19ACTIVITY_COD"
 
-    # Live run, process all clusters
-    TRUD_API_KEY=your_api_key python codelists/scripts/update_pcd_refsets.py --live-run --host https://www.opencodelists.org/
+    # Live run, production host, process all clusters
+    just manage runscript update_pcd_refsets --script-args="--live-run --host https://www.opencodelists.org/"
 
 
 """
@@ -46,18 +48,27 @@ import csv
 import json
 import os
 import re
+import shlex
 import subprocess
-import sys
 import tempfile
 from pathlib import Path
 from zipfile import ZipFile
 
 import requests
 
+from coding_systems.base.trud_utils import TrudDownloader
+
 
 CONFIG_FILE = Path(__file__).parent / "nhsd_primary_care_refsets.json"
-TRUD_API_ENDPOINT = "https://isd.digital.nhs.uk/trud/api/v1/keys/{}/items/659/releases"
 CLUSTER_REFSET_PATTERN = r"GPData_Cluster_Refset_1000230_\d+\.csv"
+
+
+class Downloader(TrudDownloader):
+    item_number = 659
+    release_regex = re.compile(r"(?P<release>uk_sct2pc_\d+\.\d+\.\d+_\d{8})")
+
+    def get_release_name_from_release_metadata(self, release_metadata):
+        return release_metadata["release"][-8:]
 
 
 def get_tag_and_coding_system(config_file):
@@ -73,7 +84,7 @@ def get_tag_and_coding_system(config_file):
     return tag, first_coding_system
 
 
-def fetch_pcd_releases(api_key, current_tag):
+def fetch_pcd_releases(downloader, current_tag):
     """
     Fetch available releases from TRUD API, filter to those the same or newer
     than the current tag, and return the tag, id, date, and url.
@@ -89,59 +100,35 @@ def fetch_pcd_releases(api_key, current_tag):
     if current_tag:
         msg += f" (the same or newer than the current tag: {current_tag})"
     print(msg)
-    response = requests.get(TRUD_API_ENDPOINT.format(api_key))
-    response.raise_for_status()
-    raw_releases = response.json().get("releases", [])
-    releases = []
-    for release in raw_releases:
-        release_date = release.get("releaseDate", "")
-        release_id = release.get("id", "")
-        match = re.search(r"uk_sct2pc_\d+\.\d+\.\d+_(\d{8})", release_id)
-        release_tag = match.group(1) if match else release_date.replace("-", "")
-        if current_tag and release_tag >= current_tag:
-            releases.append(
-                {
-                    "id": release_id,
-                    "tag": release_tag,
-                    "date": release_date,
-                    "url": release.get("archiveFileUrl", ""),
-                }
-            )
-    releases.sort(key=lambda r: r["tag"], reverse=True)
+    releases = [
+        release_metadata
+        for release in downloader.get_releases()
+        if (release_metadata := downloader.get_release_metadata(release))
+        and release_metadata["release_name"] >= current_tag
+    ]
+    releases.sort(key=lambda r: r["release_name"], reverse=True)
+
     print(f" - Found {len(releases)} releases")
     return releases
 
 
-def download_and_extract(url, output_dir):
+def download_and_extract(downloader, release):
     """Download and extract the archive from the given URL."""
     print("\nDownload and extracting zip from TRUD:")
-    with tempfile.NamedTemporaryFile(suffix=".zip", delete=False) as temp_file:
-        print(f" - Downloading from {url}...")
-        response = requests.get(url, stream=True)
-        response.raise_for_status()
-        for chunk in response.iter_content(chunk_size=8192):
-            temp_file.write(chunk)
-
+    release_zipfile = downloader.download_release(
+        release["release_name"], release["valid_from"], False
+    )
     try:
-        with ZipFile(temp_file.name) as zip_file:
+        with ZipFile(release_zipfile) as zip_file:
             print(" - Extracting archive...")
-            zip_file.extractall(output_dir)
+            zip_file.extractall(downloader.release_dir)
 
             # Find the cluster refset CSV file
             cluster_files = []
-            for root, _, files in os.walk(output_dir):
+            for root, _, files in os.walk(downloader.release_dir):
                 for file in files:
                     if re.match(CLUSTER_REFSET_PATTERN, file):
                         cluster_files.append(os.path.join(root, file))
-
-            # if not cluster_files:
-            #     # Look for files in SupportingProducts directory
-            #     supporting_dir = os.path.join(output_dir, "SupportingProducts")
-            #     if os.path.exists(supporting_dir):
-            #         for root, _, files in os.walk(supporting_dir):
-            #             for file in files:
-            #                 if file.endswith(".csv") and "Cluster_Refset" in file:
-            #                     cluster_files.append(os.path.join(root, file))
 
             if not cluster_files:
                 raise FileNotFoundError(
@@ -154,7 +141,7 @@ def download_and_extract(url, output_dir):
             print(f" - Extracted cluster file: {cluster_files[0]}")
             return cluster_files[0]
     finally:
-        os.unlink(temp_file.name)
+        os.unlink(release_zipfile)
 
 
 def get_latest_db_release_from_api(base_url, coding_system_id):
@@ -201,7 +188,7 @@ def update_config_file(config_file, base_url, new_tag, coding_system_id):
     print(f"\nUpdated config file with new tag: {new_tag}\n")
 
 
-def parse_args():
+def parse_args(args):
     import argparse
 
     parser = argparse.ArgumentParser(
@@ -222,7 +209,7 @@ def parse_args():
         nargs="*",
         help="Optional list of Cluster_IDs to include in the output CSV. If omitted, all are included.",
     )
-    return parser.parse_args()
+    return parser.parse_args(shlex.split(args[0]) if args else [])
 
 
 def run_bulk_import(cluster_file, config_file, host, release, live_run, names=None):
@@ -260,8 +247,8 @@ def run_bulk_import(cluster_file, config_file, host, release, live_run, names=No
 
     # Prompt user for confirmation
     print("\nAbout to process the following release:")
-    print(f"  Release ID: {release['id']}")
-    print(f"  Tag: {release['tag']}")
+    print(f"  Release ID: {release['release']}")
+    print(f"  Tag: {release['release_name']}")
     if names:
         print(f"  Filtering to Cluster_IDs: {', '.join(names)}")
     else:
@@ -345,8 +332,8 @@ def process_cluster_file(input_file, output_file, names=None):
 def get_user_choice_for_release(releases, current_tag):
     print("\nPlease select which release you want to import:")
     for i, release in enumerate(releases):
-        msg = f"  [{i + 1}] {release['id']} (Release date: {release['date']}, Tag: {release['tag']})"
-        if release["tag"] == current_tag:
+        msg = f" [{i + 1}] {release['release']} (Release date: {release['valid_from']}, Tag: {release['release_name']})"
+        if release["release_name"] == current_tag:
             msg += "   <-- CURRENT TAG"
         print(msg)
 
@@ -368,38 +355,35 @@ def get_user_choice_for_release(releases, current_tag):
         except ValueError:
             print("Please enter a valid number")
 
-    print(f"Processing release: {release_to_use['id']} (tag: {release_to_use['tag']})")
+    print(
+        f"Processing release: {release_to_use['release']} (tag: {release_to_use['release_name']})"
+    )
     return release_to_use
 
 
-def main():
-    args = parse_args()
-    # Check for API key
-    api_key = os.environ.get("TRUD_API_KEY")
-    if not api_key:
-        print("Error: TRUD_API_KEY environment variable must be set")
-        sys.exit(1)
-
+def run(*args):
+    args = parse_args(args)
     # Get current tag from config
     current_tag, coding_system_id = get_tag_and_coding_system(CONFIG_FILE)
 
-    # Fetch possible new releases
-    releases = fetch_pcd_releases(api_key, current_tag)
-
-    if not releases:
-        print(
-            f"No releases found. The current version ({current_tag}) is newer "
-            "than all releases available from the TRUD api. Something's gone "
-            "wrong because you should always at least match the latest tag."
-        )
-        exit(0)
-
-    release_to_use = get_user_choice_for_release(releases, current_tag)
-
     # Create temporary directory for extraction
     with tempfile.TemporaryDirectory() as temp_dir:
+        downloader = Downloader(temp_dir)
+        # Fetch possible new releases
+        releases = fetch_pcd_releases(downloader, current_tag)
+
+        if not releases:
+            print(
+                f"No releases found. The current version ({current_tag}) is newer "
+                "than all releases available from the TRUD api. Something's gone "
+                "wrong because you should always at least match the latest tag."
+            )
+            exit(0)
+
+        release_to_use = get_user_choice_for_release(releases, current_tag)
+
         # Download and extract
-        cluster_file = download_and_extract(release_to_use["url"], temp_dir)
+        cluster_file = download_and_extract(downloader, release_to_use)
 
         # Process the file to extract only the columns we need
         processed_filename = f"processed_{os.path.basename(cluster_file)}"
@@ -426,7 +410,3 @@ def main():
             live_run=args.live_run,
             names=args.names,
         )
-
-
-if __name__ == "__main__":
-    main()

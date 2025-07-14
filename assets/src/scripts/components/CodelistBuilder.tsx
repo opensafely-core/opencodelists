@@ -5,10 +5,10 @@ import { getCookie } from "../_utils";
 import { Code, PageData, Reference, Status } from "../types";
 import EmptySearch from "./EmptySearch";
 import EmptyState from "./EmptyState";
+import MetadataTab from "./Layout/MetadataTab";
 import Sidebar from "./Layout/Sidebar";
 import ManagementForm from "./ManagementForm";
 import Metadata from "./Metadata";
-import ReferenceList from "./ReferenceList";
 import Title from "./Title";
 import TreeTables from "./TreeTables";
 
@@ -411,19 +411,11 @@ export default class CodelistBuilder extends React.Component<
                   title="Metadata"
                   className="max-w-80ch"
                 >
-                  <p className="font-italic">
-                    Users have found it helpful to record their decision
-                    strategy as they build their codelist. Text added here will
-                    be ready for you to edit before you publish the codelist.
-                  </p>
-                  <Form noValidate>
-                    {this.renderMetadataField("description")}
-                    {this.renderMetadataField("methodology")}
-                    <ReferenceList
-                      references={this.state.metadata.references}
-                      onSave={this.handleSaveReferences}
-                    />
-                  </Form>
+                  <MetadataTab
+                    handleSaveReferences={this.handleSaveReferences}
+                    renderMetadataField={this.renderMetadataField}
+                    references={this.state.metadata.references}
+                  />
                 </Tab>
               </Tabs>
             </Col>

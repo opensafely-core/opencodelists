@@ -1,12 +1,22 @@
 import React from "react";
 import { Form } from "react-bootstrap";
+import { PageData, Reference } from "../../types";
+import { MetadataFieldName } from "../CodelistBuilder";
 import ReferenceList from "../ReferenceList";
+
+interface MetadataTabProps {
+  handleSaveReferences: (references: Reference[]) => void;
+  isEditable: PageData["isEditable"];
+  references: Reference[];
+  renderMetadataField: (field: MetadataFieldName) => React.ReactElement;
+}
 
 export default function MetadataTab({
   handleSaveReferences,
-  renderMetadataField,
+  isEditable,
   references,
-}) {
+  renderMetadataField,
+}: MetadataTabProps) {
   return (
     <>
       <p className="font-italic">
@@ -17,7 +27,11 @@ export default function MetadataTab({
       <Form noValidate>
         {renderMetadataField("description")}
         {renderMetadataField("methodology")}
-        <ReferenceList references={references} onSave={handleSaveReferences} />
+        <ReferenceList
+          isEditable={isEditable}
+          references={references}
+          onSave={handleSaveReferences}
+        />
       </Form>
     </>
   );

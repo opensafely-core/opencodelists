@@ -9,16 +9,16 @@
   {
     "codingSystem": ["bnf"],
     "description": "Search GP prescribing by BNF code.",
-    "id": "openprescibing-analyse",
+    "id": "openprescribing-analyse",
     "link": "https://openprescribing.net/chemical/",
-    "name": "OpenPresribing Analyse"
+    "name": "OpenPrescribing Analyse"
   },
   {
     "codingSystem": ["dmd"],
     "description": "Web-based browser of the NHS Dictionary of Medicines and Devices.",
-    "id": "openprescibing-dmd",
+    "id": "openprescribing-dmd",
     "link": "https://openprescribing.net/dmd/",
-    "name": "OpenPresribing dm+d browser"
+    "name": "OpenPrescribing dm+d browser"
   },
   {
     "codingSystem": ["snomedct"],

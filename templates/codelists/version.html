@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% load django_vite %}
+{% load humanize %}
 
 {% block title_extra %}: {{ codelist.name }}{% endblock %}
 
@@ -174,6 +175,15 @@
           </dt>
           <dd class="mb-0">{{ clv.hash }}</dd>
         </div>
+
+        {% if count_codes_included %}
+          <div class="list-group-item py-1 px-2">
+            <dt>
+              Number of codes included
+            </dt>
+            <dd class="mb-0">{{ count_codes_included|intcomma }}</dd>
+          </div>
+        {% endif %}
       </dl>
     </section>
   </div>

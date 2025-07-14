@@ -79,7 +79,7 @@ function Version({ version }: { version: VersionProps }) {
 export default function Versions() {
   const versions: VersionProps[] = readValueFromPage("versions");
 
-  if (!versions) return null;
+  if (!versions?.length) return null;
 
   return (
     <Card>

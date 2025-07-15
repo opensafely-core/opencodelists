@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from "react";
 import Hierarchy from "../../_hierarchy";
 import { PageData, Path } from "../../types";
-import TreeTable from "../TreeTable";
+import Section from "./Section";
 
 interface ContainerProps {
   allCodes: PageData["allCodes"];
@@ -40,7 +40,7 @@ export default function Container({
   return (
     <>
       {treeTables.map(([heading, ancestorCodes]) => (
-        <TreeTable
+        <Section
           key={heading}
           allCodes={allCodes}
           ancestorCodes={ancestorCodes}

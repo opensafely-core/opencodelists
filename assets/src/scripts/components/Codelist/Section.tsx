@@ -1,9 +1,9 @@
 import React from "react";
-import Hierarchy from "../_hierarchy";
-import { AncestorCodes, PageData, ToggleVisibility } from "../types";
-import Tree from "./Tree";
+import Hierarchy from "../../_hierarchy";
+import { AncestorCodes, PageData, ToggleVisibility } from "../../types";
+import Tree from "../Tree";
 
-interface TreeTableProps {
+interface SectionProps {
   allCodes: PageData["allCodes"];
   ancestorCodes: AncestorCodes;
   codeToStatus: PageData["codeToStatus"];
@@ -16,7 +16,7 @@ interface TreeTableProps {
   visiblePaths: PageData["visiblePaths"];
 }
 
-export default function TreeTable({
+export default function Section({
   allCodes,
   ancestorCodes,
   codeToStatus,
@@ -27,7 +27,7 @@ export default function TreeTable({
   toggleVisibility,
   updateStatus,
   visiblePaths,
-}: TreeTableProps) {
+}: SectionProps) {
   return (
     <div className="mb-2 pb-2 overflow-auto">
       <h5>{heading}</h5>

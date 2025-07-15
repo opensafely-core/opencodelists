@@ -3,10 +3,10 @@ import { render, screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import React from "react";
 import { describe, expect, it, vi } from "vitest";
-import ManagementForm from "../../components/ManagementForm";
+import ManagementForm from "../../../components/Header/ManagementForm";
 
 // Mock the getCookie utility
-vi.mock("../../_utils", () => ({
+vi.mock("../../../_utils", () => ({
   getCookie: vi.fn(() => "test-csrf-token"),
 }));
 

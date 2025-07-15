@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Button, Form, Modal, OverlayTrigger, Tooltip } from "react-bootstrap";
-import { getCookie } from "../_utils";
-import { SummaryProps } from "./Cards/Summary";
+import { getCookie } from "../../_utils";
+import { SummaryProps } from "../Cards/Summary";
 
 interface ManagementFormProps {
   counts: SummaryProps["counts"];

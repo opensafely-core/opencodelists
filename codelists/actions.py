@@ -1,9 +1,12 @@
 import csv
+import datetime
+from copy import deepcopy
 from io import StringIO
 
 import structlog
 from django.db import transaction
 from django.db.models import Q
+from django.db.models.fields import reverse_related
 from django.db.utils import IntegrityError
 from django.utils.text import slugify
 
@@ -14,7 +17,7 @@ from opencodelists.models import User
 from .codeset import Codeset
 from .coding_systems import most_recent_database_alias
 from .hierarchy import Hierarchy
-from .models import CachedHierarchy, Codelist, CodeObj, Handle, Status
+from .models import CachedHierarchy, Codelist, CodelistVersion, CodeObj, Handle, Status
 from .search import do_search
 
 
@@ -784,3 +787,67 @@ def convert_bnf_codelist_version_to_dmd(version, published=False):
     if published:
         publish_version(version=converted_codelist.versions.last())
     return converted_codelist
+
+
+@transaction.atomic
+def fork_codelist(codelist, new_owner):
+    if codelist.organisation:
+        raise ValueError("Only user-owned codelists can be forked")
+
+    latest_version = codelist.latest_visible_version(new_owner)
+
+    methodology = (
+        f"Forked from codelist : [{codelist.name}]({latest_version.get_absolute_url()}) \n"
+        + (codelist.methodology or "")
+    )
+    forked_codelist = _create_codelist_with_handle(
+        owner=new_owner,
+        name=codelist.name,
+        coding_system_id=codelist.coding_system_id,
+        description=codelist.description,
+        methodology=methodology,
+        references=[
+            {"text": ref.text, "url": ref.url} for ref in codelist.references.all()
+        ],
+    )
+
+    forked_version = deepcopy(latest_version)
+    forked_version.codelist = forked_codelist
+    forked_version.created_at = datetime.datetime.now(datetime.UTC)
+    forked_version.updated_at = datetime.datetime.now(datetime.UTC)
+    forked_version.author = new_owner
+    forked_version.status = Status.UNDER_REVIEW
+    forked_version.id = None
+    forked_version.save()
+
+    def deep_copy_related(related):
+        related = deepcopy(related)
+        version_field = None
+        for related_model_field in related.__class__._meta.get_fields():
+            if (
+                hasattr(related_model_field, "related_model")
+                and related_model_field.related_model == CodelistVersion
+            ):
+                version_field = related_model_field
+                break
+        if not version_field:
+            raise AttributeError(
+                f"Unable to locate version field for {related.__class__} model"
+            )
+        setattr(related, version_field.name, forked_version)
+        related.id = None
+        related.save()
+
+    for field in CodelistVersion._meta.get_fields():
+        match field.__class__:
+            case reverse_related.OneToOneRel:
+                if hasattr(latest_version, field.name):
+                    related = getattr(latest_version, field.name)
+                    deep_copy_related(related)
+            case reverse_related.ManyToOneRel:
+                if hasattr(latest_version, field.name):
+                    for related in getattr(latest_version, field.name).all():
+                        deep_copy_related(related)
+            case reverse_related.ManyToManyRel:
+                raise NotImplementedError
+    return forked_codelist

@@ -3,12 +3,11 @@ import { Col, Form, Row, Tab, Tabs } from "react-bootstrap";
 import Hierarchy from "../_hierarchy";
 import { getCookie } from "../_utils";
 import { Code, PageData, Reference, Status } from "../types";
-import EmptySearch from "./EmptySearch";
 import EmptyState from "./EmptyState";
+import CodelistTab from "./Layout/CodelistTab";
 import Header from "./Layout/Header";
 import MetadataTab from "./Layout/MetadataTab";
 import Sidebar from "./Layout/Sidebar";
-import TreeTables from "./TreeTables";
 
 export type MetadataFieldName = "description" | "methodology";
 interface MetadataField {
@@ -408,23 +407,18 @@ export default class CodelistBuilder extends React.Component<
             <Col md="9">
               <Tabs defaultActiveKey="codelist" className="mb-3">
                 <Tab eventKey="codelist" title="Codelist">
-                  <h3 className="h4">{resultsHeading}</h3>
-                  <hr />
-                  {treeTables.length > 0 ? (
-                    <TreeTables
-                      allCodes={allCodes}
-                      codeToStatus={this.state.codeToStatus}
-                      codeToTerm={codeToTerm}
-                      hierarchy={hierarchy}
-                      isEditable={isEditable}
-                      toggleVisibility={() => null}
-                      treeTables={treeTables}
-                      updateStatus={this.updateStatus}
-                      visiblePaths={visiblePaths}
-                    />
-                  ) : (
-                    <EmptySearch />
-                  )}
+                  <CodelistTab
+                    allCodes={allCodes}
+                    codeToStatus={this.state.codeToStatus}
+                    codeToTerm={codeToTerm}
+                    hierarchy={hierarchy}
+                    isEditable={isEditable}
+                    resultsHeading={resultsHeading}
+                    toggleVisibility={() => null}
+                    treeTables={treeTables}
+                    updateStatus={this.updateStatus}
+                    visiblePaths={visiblePaths}
+                  />
                 </Tab>
                 <Tab
                   eventKey="metadata"

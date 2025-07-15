@@ -1,9 +1,9 @@
 import React, { useState, useCallback } from "react";
-import Hierarchy from "../_hierarchy";
-import { PageData, Path } from "../types";
-import TreeTable from "./TreeTable";
+import Hierarchy from "../../_hierarchy";
+import { PageData, Path } from "../../types";
+import TreeTable from "../TreeTable";
 
-interface TreeTablesProps {
+interface ContainerProps {
   allCodes: PageData["allCodes"];
   codeToStatus: PageData["codeToStatus"];
   codeToTerm: PageData["codeToTerm"];
@@ -14,7 +14,7 @@ interface TreeTablesProps {
   visiblePaths: PageData["visiblePaths"];
 }
 
-export default function TreeTables({
+export default function Container({
   allCodes,
   codeToStatus,
   codeToTerm,
@@ -23,7 +23,7 @@ export default function TreeTables({
   treeTables,
   updateStatus,
   visiblePaths: initialVisiblePaths,
-}: TreeTablesProps) {
+}: ContainerProps) {
   const [visiblePaths, setVisiblePaths] = useState(initialVisiblePaths);
 
   const handleToggleVisibility = useCallback(

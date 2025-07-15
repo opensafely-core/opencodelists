@@ -1,6 +1,6 @@
 import React from "react";
 import Hierarchy from "../../_hierarchy";
-import { PageData, ToggleVisibility } from "../../types";
+import { PageData } from "../../types";
 import EmptySearch from "../EmptySearch";
 import TreeTables from "../TreeTables";
 
@@ -12,7 +12,6 @@ interface CodelistTabProps {
   hierarchy: Hierarchy;
   isEditable: PageData["isEditable"];
   resultsHeading: PageData["resultsHeading"];
-  toggleVisibility: ToggleVisibility;
   treeTables: PageData["treeTables"];
   updateStatus: Function;
   visiblePaths: PageData["visiblePaths"];
@@ -25,7 +24,6 @@ export default function CodelistTab({
   hierarchy,
   isEditable,
   resultsHeading,
-  toggleVisibility,
   treeTables,
   updateStatus,
   visiblePaths,
@@ -41,7 +39,6 @@ export default function CodelistTab({
           codeToTerm={codeToTerm}
           hierarchy={hierarchy}
           isEditable={isEditable}
-          toggleVisibility={toggleVisibility}
           treeTables={treeTables}
           updateStatus={updateStatus}
           visiblePaths={visiblePaths}

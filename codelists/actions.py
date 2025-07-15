@@ -1,9 +1,12 @@
 import csv
+import datetime
+from copy import deepcopy
 from io import StringIO
 
 import structlog
 from django.db import transaction
 from django.db.models import Q
+from django.db.models.fields import reverse_related
 from django.db.utils import IntegrityError
 from django.utils.text import slugify
 
@@ -784,3 +787,110 @@ def convert_bnf_codelist_version_to_dmd(version, published=False):
     if published:
         publish_version(version=converted_codelist.versions.last())
     return converted_codelist
+
+
+@transaction.atomic
+def clone_codelist(codelist, new_owner):
+    latest_version = codelist.latest_visible_version(new_owner)
+
+    methodology = (
+        f"Cloned from codelist : [{codelist.name}]({latest_version.get_absolute_url()}) \n"
+        + (codelist.methodology or "")
+    )
+    name = codelist.name
+    if codelist.user == new_owner:
+        n = 0
+        while True:
+            try:
+                new_name = f"{codelist.name} (clone{str(n) if n > 0 else ''})"
+                Handle.objects.get(user=new_owner, name=new_name)
+            except Handle.DoesNotExist:
+                name = new_name
+                break
+            n += 1
+
+    cloned_codelist = _create_codelist_with_handle(
+        owner=new_owner,
+        name=name,
+        coding_system_id=codelist.coding_system_id,
+        description=codelist.description,
+        methodology=methodology,
+        references=[
+            {"text": ref.text, "url": ref.url} for ref in codelist.references.all()
+        ],
+    )
+
+    cloned_version = deepcopy(latest_version)
+    cloned_version.codelist = cloned_codelist
+    cloned_version.created_at = datetime.datetime.now(datetime.UTC)
+    cloned_version.updated_at = datetime.datetime.now(datetime.UTC)
+    cloned_version.author = new_owner
+    cloned_version.status = Status.UNDER_REVIEW
+    cloned_version.id = None
+    cloned_version.save()
+
+    cloned_related_objects = {}
+
+    def deep_copy_related_fields(source, destination):
+        def deep_copy_related_object(related, related_from):
+            # have we copied this object already?
+            # there may be multiple references to same object
+            # if so, only update refs don't copy
+            already_cloned = (
+                related.__class__,
+                related.id,
+            ) in cloned_related_objects or related in cloned_related_objects.values()
+            if already_cloned:
+                cloned_related = cloned_related_objects.get(
+                    (related.__class__, related.id), related
+                )
+            else:
+                cloned_related = deepcopy(related)
+
+            # does this related object relate to any other objects?
+            # if so we'll have to copy those later and set their references to
+            # our newly-copied object once it's saved and has an id
+            further_relations = []
+
+            related_from_field = None
+            for related_model_field in cloned_related.__class__._meta.get_fields():
+                if related_model_field.__class__ in [
+                    reverse_related.OneToOneRel,
+                    reverse_related.ManyToOneRel,
+                    reverse_related.ManyToManyRel,
+                ]:
+                    further_relations.append(related_model_field)
+                if (
+                    hasattr(related_model_field, "related_model")
+                    and related_model_field.related_model == related_from.__class__
+                ):
+                    related_from_field = related_model_field
+                    break
+            if not related_from_field:
+                raise AttributeError(
+                    f"Unable to locate {related_from.__class__.__name__} relation field for {cloned_related.__class__} model"
+                )
+            setattr(cloned_related, related_from_field.name, related_from)
+            if not already_cloned:
+                cloned_related.id = None
+            cloned_related.save()
+            cloned_related_objects[(related.__class__, related.id)] = cloned_related
+            if further_relations:
+                deep_copy_related_fields(related, cloned_related)
+
+        for field in source.__class__._meta.get_fields():
+            match field.__class__:
+                case reverse_related.OneToOneRel:
+                    if hasattr(source, field.name):
+                        related = getattr(source, field.name)
+                        deep_copy_related_object(related, destination)
+                case reverse_related.ManyToOneRel:
+                    if hasattr(source, field.name):
+                        for related in getattr(source, field.name).all():
+                            deep_copy_related_object(related, destination)
+                case reverse_related.ManyToManyRel:
+                    raise NotImplementedError
+
+    deep_copy_related_fields(latest_version, cloned_version)
+
+    return cloned_codelist

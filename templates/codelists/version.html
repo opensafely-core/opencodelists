@@ -244,6 +244,15 @@
               Download definition
             </a>
           {% endif %}
+          {% if clv.user %}
+            <a
+              href="{{ clv.codelist.get_clone_url }}"
+              role="button"
+              class="btn btn-outline-primary btn-block"
+            >
+              Clone this codelist
+            </a>
+          {% endif %}
           {% if clv.coding_system_id == "bnf" %}
             <a
               href="{{ clv.get_dmd_download_url }}"

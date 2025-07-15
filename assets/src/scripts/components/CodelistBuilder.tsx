@@ -5,11 +5,9 @@ import { getCookie } from "../_utils";
 import { Code, PageData, Reference, Status } from "../types";
 import EmptySearch from "./EmptySearch";
 import EmptyState from "./EmptyState";
+import Header from "./Layout/Header";
 import MetadataTab from "./Layout/MetadataTab";
 import Sidebar from "./Layout/Sidebar";
-import ManagementForm from "./ManagementForm";
-import Metadata from "./Metadata";
-import Title from "./Title";
 import TreeTables from "./TreeTables";
 
 export type MetadataFieldName = "description" | "methodology";
@@ -387,13 +385,12 @@ export default class CodelistBuilder extends React.Component<
 
     return (
       <>
-        <div className="border-bottom mb-3 pb-3">
-          <div className="d-flex flex-row justify-content-between gap-2 mb-2">
-            <Title name={metadata.codelist_name} />
-            {isEditable && <ManagementForm counts={this.counts()} />}
-          </div>
-          <Metadata data={metadata} />
-        </div>
+        <Header
+          counts={this.counts()}
+          isEditable={isEditable}
+          metadata={metadata}
+        />
+
         <Row>
           <Sidebar
             counts={this.counts()}

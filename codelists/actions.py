@@ -414,7 +414,7 @@ def _create_version_with_codes(
             codes = found_codes
         else:
             raise ValueError(
-                f"Attempting to import codes that aren't in this coding system: {', '.join(sorted(codes - found_codes))}"
+                f"Attempting to import codes that aren't in the {codelist.coding_system_cls.name}/{coding_system_release.database_alias} coding system: {', '.join(sorted(codes - found_codes))}"
             )
 
     clv = codelist.versions.create(

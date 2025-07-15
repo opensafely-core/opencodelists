@@ -1,0 +1,10 @@
+.feedback-form{
+    background-color: #ccc;
+    position: fixed;
+    left: 85vw;
+    bottom: 2rem;
+}
+
+.feedback-form__summary::marker {
+  content: "";
+}

@@ -34,7 +34,7 @@
     <link rel="manifest" href="{% static 'manifest.webmanifest' %}">
   </head>
 
-  <body class="d-flex flex-column h-100 {% if not in_production %}header--banner{% endif %}">
+  <body class="d-flex flex-column h-100 position-relative {% if not in_production %}header--banner{% endif %}">
     {% if not in_production %}
       <div class="development-banner">
         Development
@@ -124,6 +124,9 @@
           {% endblock %}
         </div>
       </main>
+
+      {% block above_footer %}
+      {% endblock %}
 
       <footer id="footer" class="border-top bg-light mt-auto py-5">
         <div class="container">

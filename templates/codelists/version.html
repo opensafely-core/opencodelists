@@ -352,8 +352,13 @@
 
 {% endblock %}
 
+{% block above_footer %}
+  {% include "_feedback_form.html" %}
+{% endblock %}
+
 {% block extra_js %}
   {% vite_asset "assets/src/scripts/codelists-version.js" %}
+  {% vite_asset "assets/src/scripts/feedback-form.js" %}
 
   {{ tree_data|json_script:"tree_data" }}
 

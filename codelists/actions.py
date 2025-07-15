@@ -77,19 +77,19 @@ def create_or_update_codelist(
     ignore_unfound_codes=False,
     should_publish=False,
 ):
-    slug = slug or slugify(name)
-    new_slug = new_slug or slug
+    current_slug = slug or slugify(name)
+    slug = new_slug or current_slug
 
     references = references or []
     signoffs = signoffs or []
 
     try:
-        codelist = owner.handles.get(slug=slug).codelist
+        codelist = owner.handles.get(slug=current_slug).codelist
 
         update_codelist(
             owner=owner,
             name=name,
-            slug=new_slug,
+            slug=slug,
             codelist=codelist,
             description=description,
             methodology=methodology,
@@ -115,7 +115,7 @@ def create_or_update_codelist(
             coding_system_id=coding_system_id,
             coding_system_database_alias=coding_system_database_alias,
             codes=codes,
-            slug=new_slug,
+            slug=slug,
             tag=tag,
             description=description,
             methodology=methodology,

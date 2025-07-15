@@ -3,15 +3,15 @@ from django.urls import reverse
 
 def test_organisations_nav(client, user_without_organisation, organisation_user):
     response = client.get("/")
-    assert "My organisations" not in response.content.decode()
+    assert "My organisations" not in response.text
 
     client.force_login(user_without_organisation)
     response = client.get("/")
-    assert "My organisations" not in response.content.decode()
+    assert "My organisations" not in response.text
 
     client.force_login(organisation_user)
     response = client.get("/")
-    assert "My organisations" in response.content.decode()
+    assert "My organisations" in response.text
 
 
 def test_get_organisations(client, user_without_organisation, organisation_user):

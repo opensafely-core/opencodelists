@@ -4,7 +4,7 @@ from io import StringIO
 
 def test_get(client, version_with_excluded_codes):
     rsp = client.get(version_with_excluded_codes.get_download_definition_url())
-    reader = csv.reader(StringIO(rsp.content.decode("utf8")))
+    reader = csv.reader(StringIO(rsp.text))
     data = list(reader)
     assert data == [
         ["code", "term", "is_included"],

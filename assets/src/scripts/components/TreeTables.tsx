@@ -1,64 +1,59 @@
-import React from "react";
+import React, { useState, useCallback } from "react";
 import Hierarchy from "../_hierarchy";
-import { PageData, Path, ToggleVisibility } from "../types";
+import { PageData, Path } from "../types";
 import TreeTable from "./TreeTable";
 
 interface TreeTablesProps {
   allCodes: PageData["allCodes"];
-  ancestorCodes?: string[];
   codeToStatus: PageData["codeToStatus"];
   codeToTerm: PageData["codeToTerm"];
   hierarchy: Hierarchy;
   isEditable: PageData["isEditable"];
-  toggleVisibility: ToggleVisibility;
   treeTables: PageData["treeTables"];
   updateStatus: Function;
   visiblePaths: PageData["visiblePaths"];
 }
 
-export default class TreeTables extends React.Component<
-  TreeTablesProps,
-  { visiblePaths: PageData["visiblePaths"] }
-> {
-  constructor(props: TreeTablesProps) {
-    super(props);
-    this.state = { visiblePaths: props.visiblePaths };
-    this.toggleVisibility = this.toggleVisibility.bind(this);
-  }
+export default function TreeTables({
+  allCodes,
+  codeToStatus,
+  codeToTerm,
+  hierarchy,
+  isEditable,
+  treeTables,
+  updateStatus,
+  visiblePaths: initialVisiblePaths,
+}: TreeTablesProps) {
+  const [visiblePaths, setVisiblePaths] = useState(initialVisiblePaths);
 
-  toggleVisibility(path: Path) {
-    this.setState((state) => {
-      const visiblePaths = new Set(state.visiblePaths);
-      this.props.hierarchy.toggleVisibility(visiblePaths, path);
-      return { visiblePaths: visiblePaths };
-    });
-  }
+  const handleToggleVisibility = useCallback(
+    (path: Path) => {
+      setVisiblePaths((prevVisiblePaths) => {
+        const newVisiblePaths = new Set(prevVisiblePaths);
+        hierarchy.toggleVisibility(newVisiblePaths, path);
+        return newVisiblePaths;
+      });
+    },
+    [hierarchy],
+  );
 
-  render() {
-    const {
-      allCodes,
-      codeToStatus,
-      codeToTerm,
-      hierarchy,
-      isEditable,
-      treeTables,
-      updateStatus,
-    } = this.props;
-
-    return treeTables.map(([heading, ancestorCodes]) => (
-      <TreeTable
-        key={heading}
-        allCodes={allCodes}
-        ancestorCodes={ancestorCodes}
-        codeToStatus={codeToStatus}
-        codeToTerm={codeToTerm}
-        heading={heading}
-        hierarchy={hierarchy}
-        isEditable={isEditable}
-        toggleVisibility={this.toggleVisibility}
-        updateStatus={updateStatus}
-        visiblePaths={this.state.visiblePaths}
-      />
-    ));
-  }
+  return (
+    <>
+      {treeTables.map(([heading, ancestorCodes]) => (
+        <TreeTable
+          key={heading}
+          allCodes={allCodes}
+          ancestorCodes={ancestorCodes}
+          codeToStatus={codeToStatus}
+          codeToTerm={codeToTerm}
+          heading={heading}
+          hierarchy={hierarchy}
+          isEditable={isEditable}
+          toggleVisibility={handleToggleVisibility}
+          updateStatus={updateStatus}
+          visiblePaths={visiblePaths}
+        />
+      ))}
+    </>
+  );
 }

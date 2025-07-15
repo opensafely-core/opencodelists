@@ -414,7 +414,6 @@ export default class CodelistBuilder extends React.Component<
                     hierarchy={hierarchy}
                     isEditable={isEditable}
                     resultsHeading={resultsHeading}
-                    toggleVisibility={() => null}
                     treeTables={treeTables}
                     updateStatus={this.updateStatus}
                     visiblePaths={visiblePaths}

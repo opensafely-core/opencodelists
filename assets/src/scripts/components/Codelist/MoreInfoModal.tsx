@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Button, Modal } from "react-bootstrap";
-import Hierarchy from "../_hierarchy";
-import { getCookie, readValueFromPage } from "../_utils";
-import { Code, PageData, Status, Term } from "../types";
+import Hierarchy from "../../_hierarchy";
+import { getCookie, readValueFromPage } from "../../_utils";
+import { Code, PageData, Status, Term } from "../../types";
 
 interface CreateModalTextProps {
   allCodes: PageData["allCodes"];

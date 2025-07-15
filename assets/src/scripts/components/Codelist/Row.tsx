@@ -1,6 +1,6 @@
 import React from "react";
 import { ButtonGroup } from "react-bootstrap";
-import Hierarchy from "../_hierarchy";
+import Hierarchy from "../../_hierarchy";
 import {
   Code,
   IsExpanded,
@@ -10,13 +10,13 @@ import {
   Status,
   Term,
   ToggleVisibility,
-} from "../types";
-import DescendantToggle from "./DescendantToggle";
-import MoreInfoModal from "./MoreInfoModal";
-import Pipes from "./Pipes";
-import StatusToggle from "./StatusToggle";
+} from "../../types";
+import DescendantToggle from "../DescendantToggle";
+import MoreInfoModal from "../MoreInfoModal";
+import Pipes from "../Pipes";
+import StatusToggle from "../StatusToggle";
 
-interface TreeRowProps {
+interface RowProps {
   allCodes: PageData["allCodes"];
   code: Code;
   codeToStatus: PageData["codeToStatus"];
@@ -33,7 +33,7 @@ interface TreeRowProps {
   updateStatus: Function;
 }
 
-export default function TreeRow({
+export default function Row({
   allCodes,
   code,
   codeToStatus,
@@ -48,7 +48,7 @@ export default function TreeRow({
   term,
   toggleVisibility,
   updateStatus,
-}: TreeRowProps) {
+}: RowProps) {
   const statusTermColor = {
     "+": "text-body",
     "(+)": "text-body",

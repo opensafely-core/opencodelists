@@ -401,6 +401,9 @@ def _create_version_with_codes(
             # and want to (a) ignore codes that aren't in the dictionary, (b) add them
             # to the description so it's transparent
             unfound_codes = codes - found_codes
+
+            if not codelist.description:
+                codelist.description = ""
             codelist.description += (
                 "\n\nThis codelist was imported automatically. The following codes "
                 f"were not found in the {codelist.coding_system_cls.name} dictionary "

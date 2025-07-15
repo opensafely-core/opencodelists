@@ -749,3 +749,15 @@ def test_fork_codelist_user_codelist(new_style_codelist, user, collaborator):
                 fork = set(getattr(forked_version, field.name).all())
                 assert source.intersection(fork) == set()
                 assert len(source) == len(fork)
+
+
+def test_fork_codelist_user_own_codelist(user_codelist, organisation_user):
+    forked_codelist = actions.fork_codelist(user_codelist, organisation_user)
+
+    assert user_codelist.name in forked_codelist.name
+    assert "fork" in forked_codelist.name
+
+    fork2 = actions.fork_codelist(user_codelist, organisation_user)
+
+    assert user_codelist.name in fork2.name
+    assert "fork1" in fork2.name

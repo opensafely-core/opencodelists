@@ -800,9 +800,21 @@ def fork_codelist(codelist, new_owner):
         f"Forked from codelist : [{codelist.name}]({latest_version.get_absolute_url()}) \n"
         + (codelist.methodology or "")
     )
+    name = codelist.name
+    if codelist.user == new_owner:
+        n = 0
+        while True:
+            try:
+                new_name = f"{codelist.name} (fork{str(n) if n > 0 else ''})"
+                Handle.objects.get(user=new_owner, name=new_name)
+            except Handle.DoesNotExist:
+                name = new_name
+                break
+            n += 1
+
     forked_codelist = _create_codelist_with_handle(
         owner=new_owner,
-        name=codelist.name,
+        name=name,
         coding_system_id=codelist.coding_system_id,
         description=codelist.description,
         methodology=methodology,

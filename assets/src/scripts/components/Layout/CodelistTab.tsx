@@ -1,8 +1,8 @@
 import React from "react";
 import Hierarchy from "../../_hierarchy";
 import { PageData } from "../../types";
+import Container from "../Codelist/Container";
 import EmptySearch from "../EmptySearch";
-import TreeTables from "../TreeTables";
 
 interface CodelistTabProps {
   allCodes: PageData["allCodes"];
@@ -33,7 +33,7 @@ export default function CodelistTab({
       <h3 className="h4">{resultsHeading}</h3>
       <hr />
       {treeTables.length > 0 ? (
-        <TreeTables
+        <Container
           allCodes={allCodes}
           codeToStatus={codeToStatus}
           codeToTerm={codeToTerm}

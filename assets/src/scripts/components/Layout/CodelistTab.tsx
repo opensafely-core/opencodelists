@@ -2,7 +2,7 @@ import React from "react";
 import Hierarchy from "../../_hierarchy";
 import { PageData } from "../../types";
 import Container from "../Codelist/Container";
-import EmptySearch from "../EmptySearch";
+import EmptySearch from "../Codelist/EmptySearch";
 
 interface CodelistTabProps {
   allCodes: PageData["allCodes"];

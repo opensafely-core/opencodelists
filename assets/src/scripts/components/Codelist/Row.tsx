@@ -11,10 +11,10 @@ import {
   Term,
   ToggleVisibility,
 } from "../../types";
-import DescendantToggle from "../DescendantToggle";
-import MoreInfoModal from "../MoreInfoModal";
-import Pipes from "../Pipes";
-import StatusToggle from "../StatusToggle";
+import DescendantToggle from "./DescendantToggle";
+import MoreInfoModal from "./MoreInfoModal";
+import Pipes from "./Pipes";
+import StatusToggle from "./StatusToggle";
 
 interface RowProps {
   allCodes: PageData["allCodes"];

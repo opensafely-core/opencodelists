@@ -1,5 +1,5 @@
 import React from "react";
-import { IsExpanded, Path, ToggleVisibility } from "../types";
+import { IsExpanded, Path, ToggleVisibility } from "../../types";
 
 interface DescendantToggleProps {
   isExpanded: IsExpanded;

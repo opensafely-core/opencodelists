@@ -8,7 +8,12 @@
   <div id="codelist-builder-container"></div>
 {% endblock %}
 
+{% block above_footer %}
+  {% include "_feedback_form.html" %}
+{% endblock %}
+
 {% block extra_js %}
+  {% vite_asset "assets/src/scripts/feedback-form.js" %}
   {{ results_heading|json_script:"results-heading" }}
   {{ searches|json_script:"searches" }}
   {{ tree_tables|json_script:"tree-tables" }}

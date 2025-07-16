@@ -7,5 +7,5 @@ app_name = "versioning"
 
 urlpatterns = [
     path("latest-releases", views.latest_releases, name="latest_releases"),
-    path("synonyms/<str:coding_system>", views.lookup_synonyms),
+    path("more-info/<str:coding_system>", views.more_info),
 ]

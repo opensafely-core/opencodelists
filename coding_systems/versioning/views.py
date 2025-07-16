@@ -35,7 +35,7 @@ def latest_releases(request):
 
 
 @require_http_methods(["POST"])
-def lookup_synonyms(request, coding_system):
+def more_info(request, coding_system):
     if coding_system not in CODING_SYSTEMS:
         return JsonResponse({"error": "Invalid coding system"})
 
@@ -46,4 +46,6 @@ def lookup_synonyms(request, coding_system):
         return JsonResponse({"error": "Badly formatted JSON request"})
 
     cs = CODING_SYSTEMS[coding_system].get_by_release_or_most_recent()
-    return JsonResponse({"synonyms": cs.lookup_synonyms(codes)})
+    synonyms = {"synonyms": cs.lookup_synonyms(codes)}
+    references = {"references": cs.lookup_references(codes)}
+    return JsonResponse(synonyms | references)

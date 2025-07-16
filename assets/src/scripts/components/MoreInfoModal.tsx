@@ -85,13 +85,14 @@ function MoreInfoModal({
   const codingSystemId = readValueFromPage("metadata")?.coding_system_id;
 
   const [showMoreInfoModal, setShowMoreInfoModal] = useState(false);
+  const [references, setReferences] = useState<string[] | null>(null);
   const [synonyms, setSynonyms] = useState<string[] | null>(null);
   const [modalText, setModalText] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleShow = () => {
     setShowMoreInfoModal(true);
-    if (synonyms === null) {
+    if (synonyms === null || references === null) {
       setLoading(true);
       const requestHeaders = new Headers();
       requestHeaders.append("Accept", "application/json");
@@ -100,7 +101,7 @@ function MoreInfoModal({
       if (csrfCookie) {
         requestHeaders.append("X-CSRFToken", csrfCookie);
       }
-      fetch(`/coding-systems/synonyms/${codingSystemId}`, {
+      fetch(`/coding-systems/more-info/${codingSystemId}`, {
         method: "POST",
         credentials: "include" as RequestCredentials,
         mode: "same-origin" as RequestMode,
@@ -115,12 +116,15 @@ function MoreInfoModal({
           // data.synonyms[code] can contain synonyms that are an exact match
           // for the main term. We filter these out.
           setSynonyms(
-            data.synonyms[code].filter((synonym: string) => synonym !== term) ||
-              [],
+            data.synonyms?.[code]?.filter(
+              (synonym: string) => synonym !== term,
+            ) || [],
           );
+          setReferences(data.references?.[code] || []);
         })
         .catch(() => {
           setSynonyms([]);
+          setReferences([]);
         })
         .finally(() => setLoading(false));
     }
@@ -164,7 +168,6 @@ function MoreInfoModal({
         </Modal.Header>
         <Modal.Body>
           <h2 className="h6 font-weight-bold">Synonyms</h2>
-
           {loading ? (
             <p>Loading synonyms...</p>
           ) : (
@@ -173,6 +176,22 @@ function MoreInfoModal({
                 <li>No synonyms</li>
               ) : (
                 synonyms.map((synonym, idx) => <li key={idx}>{synonym}</li>)
+              )}
+            </ul>
+          )}
+          <h2 className="h6 font-weight-bold">References</h2>
+          {loading ? (
+            <p>Loading references...</p>
+          ) : (
+            <ul>
+              {!references?.length ? (
+                <li>No references</li>
+              ) : (
+                references.map((reference, idx) => (
+                  <li key={idx}>
+                    <a href={reference[1]}>{reference[0]}</a>
+                  </li>
+                ))
               )}
             </ul>
           )}

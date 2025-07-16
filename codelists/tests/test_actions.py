@@ -168,7 +168,24 @@ def test_create_or_update_codelist_update(
     assert codelist.description == "This is a test (updated)"
     assert codelist.methodology == "This is how we did it (updated)"
     clv = codelist.versions.order_by("id").last()
+    assert clv.status == "under review"
     assert clv.codes == tuple(sorted(disorder_of_elbow_excl_arthritis_codes))
+
+
+def test_create_version_with_forced_publish(
+    organisation, codelist, disorder_of_elbow_excl_arthritis_codes
+):
+    actions.create_or_update_codelist(
+        owner=organisation,
+        name=codelist.name,
+        coding_system_id="snomedct",
+        coding_system_database_alias=most_recent_database_alias("snomedct"),
+        codes=disorder_of_elbow_excl_arthritis_codes,
+        should_publish=True,
+    )
+
+    clv = codelist.versions.order_by("id").last()
+    assert clv.status == "published"
 
 
 def test_create_or_update_codelist_update_no_change_to_codes(
@@ -612,3 +629,53 @@ def test_can_update_converted_dmd_codelist(bnf_version_asthma, dmd_bnf_mapping_d
         "VMP,10514511000001106,Adrenaline (base) 220micrograms/dose inhaler,0301012A0AAABAB\n"
         "VMP,10525011000001107,Adrenaline (base) 220micrograms/dose inhaler refill,0301012A0AAACAC\n"
     )
+
+
+def test_create_with_unfound_codes(new_style_codelist):
+    # Error is raised if any of the codes are not found in the coding system
+    db_alias = most_recent_database_alias("snomedct")
+    unfound_code = "999999999"
+    with pytest.raises(ValueError) as exc_info:
+        actions.create_version_with_codes(
+            codelist=new_style_codelist,
+            coding_system_database_alias=db_alias,
+            codes={unfound_code},
+            tag="test",
+        )
+
+    assert "Attempting to import codes that aren't in" in str(exc_info.value)
+    assert db_alias in str(exc_info.value)
+    assert unfound_code in str(exc_info.value)
+
+
+def test_create_with_unfound_codes_no_error(new_style_codelist):
+    # No error is raised if the codes are not found in the coding system, but
+    # a note is added to the description
+    unfound_code = "999999999"
+    clv = actions.create_version_with_codes(
+        codelist=new_style_codelist,
+        coding_system_database_alias=most_recent_database_alias("snomedct"),
+        codes={unfound_code},
+        tag="test",
+        ignore_unfound_codes=True,
+    )
+    assert clv.codes == ()
+    assert unfound_code in clv.codelist.description
+
+
+def test_update_codelist_change_slug(
+    organisation, codelist, disorder_of_elbow_excl_arthritis_codes
+):
+    actions.create_or_update_codelist(
+        owner=organisation,
+        name="Changed name",
+        slug=codelist.slug,
+        new_slug="changed-slug",
+        coding_system_id="snomedct",
+        coding_system_database_alias=most_recent_database_alias("snomedct"),
+        codes=disorder_of_elbow_excl_arthritis_codes,
+    )
+
+    codelist.refresh_from_db()
+
+    assert codelist.handles.filter(slug="changed-slug").count() == 1

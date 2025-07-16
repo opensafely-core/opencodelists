@@ -46,12 +46,18 @@ def main(
     config,
     host,
     force_new_version=False,
+    force_description=False,
+    force_name=False,
+    force_slug=False,
+    force_publish=False,
+    ignore_unfound_codes=False,
     dry_run=True,
 ):
     if dry_run:
         print(f"############  DRY RUN ON {host}  ############")
-
-    headers = get_headers()
+    else:
+        print(f"############  LIVE RUN ON {host}  ############")
+        headers = get_headers()
     base_url = urljoin(host, f"api/v1/codelist/{config['organisation']}/")
 
     # Read the file and apply any aliases specified in the config
@@ -71,18 +77,39 @@ def main(
         codelist["name"]: codelist["slug"]
         for codelist in codelists_resp.json()["codelists"]
     }
+    existing_slugs = [slug for slug in codelists_by_name.values()]
+
     # Add a codelist_slug column to the dataframe, using the codelist names from the file
     new_codelist_identifier = "".join(
         random.choices(string.ascii_lowercase + string.digits, k=7)
     )
 
-    def _get_slug(name):
-        # return slug from name for this codelist, or if not found, prefix with
-        # new_codelist_identifier to ensure it's unique. Any codelist names that would
-        # produce duplicate slugs will error later when we try to create them.
-        return codelists_by_name.get(name, f"{new_codelist_identifier}_{slugify(name)}")
+    def _get_slug(name, slug=None):
+        # Return slug for this codelist using these rules:
+        # - if an existing slug is passed then we use that
+        # - if not, but the name matches an existing codelist we return that slug
+        # - PCD refsets created with slugified name tags ("name-of-refset"), rather than
+        #   the refset label ("refset_cod") are marked as " (obsolete)". If we can't match
+        #   the name, but we can match "{name} (obsolete)", then we return the slug for that.
+        #   The script (for PCD refsets) will automatically update the name.
+        # - if not, but the passed slug is actually a valid slug then we return that
+        # - if none of the above, we slugify the name and prefix with a unique identifier
+        # Any codelist names that would produce duplicate slugs will error later when we try to create them.
+        if slug and slug.lower() in existing_slugs:
+            return slug.lower()
+        if name in codelists_by_name:
+            return codelists_by_name[name]
+        if f"{name} (obsolete)" in codelists_by_name:
+            return codelists_by_name[f"{name} (obsolete)"]
+        if slug and slug.lower() == slugify(slug):
+            return slug.lower()
 
-    codelist_slugs = codelists_df["codelist_name"].apply(_get_slug)
+        return f"{new_codelist_identifier}_{slugify(name)}"
+
+    codelist_slugs = codelists_df.apply(
+        lambda row: _get_slug(row["codelist_name"], row.get("codelist_new_slug")),
+        axis=1,
+    )
     codelists_df["codelist_slug"] = codelist_slugs
 
     # Use the slugs to identify codelists that need to be created vs those that need a new version
@@ -101,6 +128,11 @@ def main(
         else:
             return urljoin(base_url, f"{codelist_slug}/versions/")
 
+    codelist_count = 0
+    version_count = 0
+    failed_codelists = []
+    failed_versions = []
+
     for action, codelist_slugs in all_codelist_slugs.items():
         for codelist_slug in codelist_slugs:
             # filter df to just this codelist
@@ -108,34 +140,86 @@ def main(
             assert len(set(df["coding_system"])) == 1
 
             codelist_name, coding_system_id, post_data = get_post_data(
-                config, df, action == "create", force_new_version
+                config,
+                df,
+                action == "create",
+                force_new_version,
+                force_description,
+                force_name,
+                force_publish,
+                force_slug,
+                ignore_unfound_codes,
             )
 
             message_part = f"new {'version for ' if action == 'update' else ''}{coding_system_id} codelist '{codelist_name}'"
             if dry_run:
-                print(f"Would create {message_part}")
+                print(f"{codelist_slug}|Would create {message_part}")
+                if action == "create":
+                    codelist_count += 1
+                else:
+                    version_count += 1
             else:
                 url = get_url(action, codelist_slug)
-                response = requests.post(
-                    url, headers=headers, data=json.dumps(post_data)
-                )
+                try:
+                    response = requests.post(
+                        url, headers=headers, data=json.dumps(post_data)
+                    )
 
-                if response.status_code == 200:
-                    print(f"Created {message_part}")
-                else:
+                    if response.status_code == 200:
+                        if action == "create":
+                            codelist_count += 1
+                        else:
+                            version_count += 1
+                        print(f"Created {message_part}")
+                    else:
+                        if action == "create":
+                            failed_codelists.append((codelist_slug, url, post_data))
+                        else:
+                            failed_versions.append((codelist_slug, url, post_data))
+                        error_message = f"Failed to create new {message_part}: {response.status_code}"
+                        if (
+                            response.status_code == 400
+                            and not dry_run
+                            and not force_new_version
+                        ):
+                            error_message += (
+                                "\nA version with these codes may already exist. "
+                                "Use -f to force creation of a new version."
+                            )
+                        print(error_message)
+                except Exception:
+                    if action == "create":
+                        failed_codelists.append((codelist_slug, url, post_data))
+                    else:
+                        failed_versions.append((codelist_slug, url, post_data))
                     error_message = (
                         f"Failed to create new {message_part}: {response.status_code}"
                     )
-                    if (
-                        response.status_code == 400
-                        and not dry_run
-                        and not force_new_version
-                    ):
-                        error_message += (
-                            "\nA version with these codes may already exist. "
-                            "Use -f to force creation of a new version."
-                        )
-                    print(error_message)
+
+    if dry_run:
+        print(
+            "\nDRY RUN COMPLETE\n"
+            "No codelists or versions were created, but the above messages indicate what would be done.\n"
+            f" - {codelist_count} new codelists would be created\n"
+            f" - {version_count} existing codelists would be updated with a new version\n"
+        )
+    else:
+        print(
+            "\nSTATUS\n"
+            f" - {codelist_count} new codelists successfully created\n"
+            f" - {version_count} existing codelists successfully updated with a new version\n"
+            f" - {len(failed_codelists)} codelists failed to be created\n"
+            f" - {len(failed_versions)} existing codelists failed to be updated with a new version\n"
+        )
+
+    if failed_codelists:
+        print("Failed to create the following codelists:")
+        for slug, _, _ in failed_codelists:
+            print(f" - Slug: {slug}")
+    if failed_versions:
+        print("Failed to create new versions of the following codelists:")
+        for slug, _, _ in failed_versions:
+            print(f" - Slug: {slug}")
 
 
 def get_headers():
@@ -151,7 +235,13 @@ def process_file_to_dataframe(filepath, config):
     Read a file into a Pandas dataframe and sanitise it, ready for
     importing codelists
     """
-    column_names = {"coding_system", "codelist_name", "code", "term"}
+    column_names = {
+        "coding_system",
+        "codelist_name",
+        "code",
+        "term",
+        "codelist_new_slug",
+    }
     # Find relevant aliases from config
     codelist_name_aliases = config.get("codelist_name_aliases", {})
     column_aliases = {col: col for col in column_names}
@@ -202,7 +292,7 @@ def process_file_to_dataframe(filepath, config):
             codelist_df["coding_system"] = list(config["coding_systems"].keys())[0]
 
     relevant_df_columns = set(codelist_df.columns) & column_names
-    required_columns = column_names - {"term"}
+    required_columns = column_names - {"term", "codelist_new_slug"}
     for column in required_columns:
         # ensure all required columns are now present
         assert column in relevant_df_columns, f"Expected column {column} not found"
@@ -221,7 +311,17 @@ def process_file_to_dataframe(filepath, config):
     return codelist_df
 
 
-def get_post_data(config, codelist_df, create_new_codelist, force_new_version):
+def get_post_data(
+    config,
+    codelist_df,
+    create_new_codelist,
+    force_new_version,
+    force_description,
+    force_name,
+    force_publish,
+    force_slug,
+    ignore_unfound_codes,
+):
     """
     Return the relevant data to post to the api endpoint to create a new
     codelist or codelist version
@@ -258,6 +358,17 @@ def get_post_data(config, codelist_df, create_new_codelist, force_new_version):
             }
         )
 
+    if force_description:
+        post_data["description"] = description
+    if force_name:
+        post_data["name"] = codelist_name
+    if force_publish:
+        post_data["should_publish"] = True
+    if force_slug:
+        post_data["new_slug"] = first_row["codelist_new_slug"].lower()
+    if ignore_unfound_codes:
+        post_data["ignore_unfound_codes"] = True
+
     return codelist_name, coding_system_id, post_data
 
 
@@ -278,6 +389,37 @@ def parse_args():
         "-f",
         action="store_true",
         help="Always create a new version, even if a version with identical codes already exists.",
+    )
+    parser.add_argument(
+        "--force-description",
+        action="store_true",
+        help="Always update the description, even if it already exists.",
+    )
+    parser.add_argument(
+        "--force-name",
+        action="store_true",
+        help="Always update the name, even if it already exists.",
+    )
+    parser.add_argument(
+        "--force-publish",
+        action="store_true",
+        help="For new versions, this causes them to auto-publish rather than defaulting to under review.",
+    )
+    parser.add_argument(
+        "--force-slug",
+        action="store_true",
+        help="For new codelists, user the provided slug rather than generating one.",
+    )
+    parser.add_argument(
+        "--ignore-unfound-codes",
+        action="store_true",
+        help=(
+            "If set, will force the creation of codelists even if the codes "
+            "aren't found in the coding system. This is useful if e.g. you "
+            "are importing the PCD refsets which occasionally contain codes "
+            "from the clinical AND medication SNOMED dictionaries. This causes "
+            "unfound codes to be ignored, but appends the ignored codes to the description."
+        ),
     )
     parser.add_argument(
         "--live-run",
@@ -301,6 +443,11 @@ def parse_args():
         config,
         arguments.host,
         arguments.force_new_version,
+        arguments.force_description,
+        arguments.force_name,
+        arguments.force_publish,
+        arguments.force_slug,
+        arguments.ignore_unfound_codes,
         not arguments.live_run,
     )
 

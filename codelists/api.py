@@ -29,9 +29,10 @@ from .actions import (
     create_or_update_codelist,
     create_version_from_ecl_expr,
     create_version_with_codes,
+    update_codelist,
 )
 from .api_decorators import require_authentication, require_permission
-from .models import Codelist, CodelistVersion, Handle
+from .models import Codelist, CodelistVersion, Handle, Status
 from .views.decorators import load_codelist, load_owner
 
 
@@ -212,6 +213,7 @@ def codelists_post(request, owner):
         * references (optional)
         * signoffs (optional)
         * always_create_new_version (optional)
+        # ignore_unfound_codes (optional)
 
     Known clients (see caveats in module docstring):
         2024-Nov: Scripts such as those in /codelists/scripts/ may use this
@@ -237,6 +239,9 @@ def codelists_post(request, owner):
         "references",
         "signoffs",
         "always_create_new_version",
+        "ignore_unfound_codes",
+        "new_slug",
+        "should_publish",
     ]
 
     if len(set(data) & set(code_keys)) != 1:
@@ -274,6 +279,11 @@ def versions(request, codelist):
         * tag
         * coding_system_database_alias
         * always_create_new_version (optional, for "codes" / new-style only.)
+        * ignore_unfound_codes (optional, for "codes" / new-style only.)
+        * name (optional, if passed overwrite the current name)
+        * description (optional, if passed overwrite the current description)
+        * should_publish (optional, if passed forces the new version to be published)
+
 
     Known clients (see caveats in module docstring):
         2024-Nov: Scripts such as those in /codelists/scripts/ may use this
@@ -287,14 +297,36 @@ def versions(request, codelist):
     if len(set(data) & {"codes", "csv_data", "ecl"}) != 1:
         return error("Provide exactly one of `codes`, `csv_data` or `ecl`")
 
+    if "description" in data or "name" in data or "new_slug" in data:
+        update_codelist(
+            owner=codelist.owner,
+            name=data.get("name", codelist.name),
+            slug=data.get("new_slug", codelist.slug),
+            codelist=codelist,
+            description=data.get("description", codelist.description),
+            methodology=codelist.methodology,
+            references=[
+                {"url": reference.url, "text": reference.text}
+                for reference in codelist.references.all()
+            ],
+            signoffs=[
+                {"user": signoff.user, "date": signoff.date}
+                for signoff in codelist.signoffs.all()
+            ],
+        )
+
     try:
         if "codes" in data:
             clv = create_version_with_codes(
                 codelist=codelist,
                 codes=set(data["codes"]),
+                status=Status.PUBLISHED
+                if data.get("should_publish", False)
+                else Status.UNDER_REVIEW,
                 tag=data.get("tag"),
                 coding_system_database_alias=data["coding_system_database_alias"],
                 always_create_new_version=data.get("always_create_new_version", False),
+                ignore_unfound_codes=data.get("ignore_unfound_codes", False),
             )
         elif "csv_data" in data:
             clv = create_old_style_version(

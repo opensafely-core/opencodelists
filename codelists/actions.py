@@ -67,19 +67,24 @@ def create_or_update_codelist(
     codes,
     coding_system_database_alias,
     slug=None,
+    new_slug=None,
     tag=None,
     description=None,
     methodology=None,
     references=None,
     signoffs=None,
     always_create_new_version=False,
+    ignore_unfound_codes=False,
+    should_publish=False,
 ):
-    slug = slug or slugify(name)
+    current_slug = slug or slugify(name)
+    slug = new_slug or current_slug
+
     references = references or []
     signoffs = signoffs or []
 
     try:
-        codelist = owner.handles.get(slug=slug).codelist
+        codelist = owner.handles.get(slug=current_slug).codelist
 
         update_codelist(
             owner=owner,
@@ -97,6 +102,8 @@ def create_or_update_codelist(
             tag=tag,
             coding_system_database_alias=coding_system_database_alias,
             always_create_new_version=always_create_new_version,
+            ignore_unfound_codes=ignore_unfound_codes,
+            status=Status.PUBLISHED if should_publish else Status.UNDER_REVIEW,
         )
 
         return codelist
@@ -115,6 +122,7 @@ def create_or_update_codelist(
             references=references,
             signoffs=signoffs,
             status=Status.PUBLISHED,
+            ignore_unfound_codes=ignore_unfound_codes,
         )
 
 
@@ -134,6 +142,7 @@ def create_codelist_with_codes(
     signoffs=None,
     author=None,
     status=Status.DRAFT,
+    ignore_unfound_codes=False,
 ):
     """Create a new Codelist with a new-style version with given codes."""
 
@@ -157,6 +166,7 @@ def create_codelist_with_codes(
         coding_system_release=coding_system.release,
         tag=tag,
         author=author,
+        ignore_unfound_codes=ignore_unfound_codes,
     )
     return codelist
 
@@ -271,6 +281,7 @@ def create_version_with_codes(
     codeset=None,
     author=None,
     always_create_new_version=False,
+    ignore_unfound_codes=False,
 ):
     """Create a new version of a codelist with given codes.
     Returns the new version, or None if no version is created because the codes are the
@@ -294,6 +305,7 @@ def create_version_with_codes(
             hierarchy=hierarchy,
             codeset=codeset,
             author=author,
+            ignore_unfound_codes=ignore_unfound_codes,
         )
     return None
 
@@ -375,12 +387,38 @@ def _create_version_with_codes(
     hierarchy=None,
     codeset=None,
     author=None,
+    ignore_unfound_codes=False,
 ):
     codes = set(codes)
     coding_system = codelist.coding_system_cls.get_by_release(
         coding_system_release.database_alias
     )
-    assert codes == set(coding_system.lookup_names(codes))
+    found_codes = set(coding_system.lookup_names(codes))
+
+    if codes != found_codes:
+        if ignore_unfound_codes:
+            # This means we're importing (almost certainly bulk importing from the API)
+            # and want to (a) ignore codes that aren't in the dictionary, (b) add them
+            # to the description so it's transparent
+            unfound_codes = codes - found_codes
+
+            if not codelist.description:
+                codelist.description = ""
+            codelist.description += (
+                "\n\nThis codelist was imported automatically. The following codes "
+                f"were not found in the {codelist.coding_system_cls.name} dictionary "
+                "and so excluded from this codelist: "
+                f"{', '.join(unfound_codes)}."
+                "\n\nThis may be because this codelist contains both clinical terms and "
+                "medications. In which case you may need to create another codelist "
+                "for the missing clinical/medication codes."
+            )
+            codelist.save()
+            codes = found_codes
+        else:
+            raise ValueError(
+                f"Attempting to import codes that aren't in the {codelist.coding_system_cls.name}/{coding_system_release.database_alias} coding system: {', '.join(sorted(codes - found_codes))}"
+            )
 
     clv = codelist.versions.create(
         tag=tag,

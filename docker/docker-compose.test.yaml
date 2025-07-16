@@ -1,0 +1,17 @@
+# This Docker Compose file is used specifically for running smoke tests on an alternative port
+# to avoid conflicts with the Dokku deployment which uses port 7000.
+
+services:
+  prod-test:
+    image: opencodelists
+    container_name: docker-prod-test-1
+    environment:
+      - SECRET_KEY=12345
+      - DATABASE_DIR=/storage
+      - DATABASE_URL=sqlite:////storage/db.sqlite3
+      - TRUD_API_KEY=dummy-key
+      - BASE_URLS=http://localhost:${PORT:-7001}
+    ports:
+      - "${PORT:-7001}:7000"  # Map container's 7000 port to host's PORT (default 7001)
+    volumes:
+      - "./storage-test:/storage"

@@ -9,9 +9,7 @@ import {
   Term,
   ToggleVisibility,
 } from "../../types";
-import DescendantToggle from "./DescendantToggle";
 import MoreInfoModal from "./MoreInfoModal";
-import Pipes from "./Pipes";
 import StatusToggle from "./StatusToggle";
 
 interface RowProps {
@@ -81,13 +79,23 @@ export default function Row({
       </div>
 
       <div className="pl-2 whitespace-nowrap">
-        <Pipes pipes={pipes} />
+        {pipes.map((pipe, ix) => (
+          <span
+            key={ix}
+            className="d-inline-block pl-1 pr-2 text-center text-monospace"
+          >
+            {pipe}
+          </span>
+        ))}
         {hasDescendants ? (
-          <DescendantToggle
-            isExpanded={isExpanded}
-            path={path}
-            toggleVisibility={toggleVisibility}
-          />
+          <button
+            className="p-0 bg-transparent border-0 text-monospace d-inline-block ml-1 mr-2"
+            onClick={toggleVisibility.bind(null, path)}
+            type="button"
+          >
+            {" "}
+            {isExpanded ? "⊟" : "⊞"}
+          </button>
         ) : null}
         <span className={statusTermColor[status]}>{term} </span>
         <code className={statusCodeColor[status]}>{code}</code>

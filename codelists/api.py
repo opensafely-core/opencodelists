@@ -17,6 +17,7 @@ requiring a new version.
 import json
 import re
 
+from django.db.models import Count
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
@@ -142,7 +143,10 @@ def codelists_get(request, owner=None):
         codelists = owner.codelists
 
     for cl in sorted(
-        codelists.filter(**filter_kwargs).prefetch_related("handles", "versions"),
+        codelists.filter(**filter_kwargs)
+        .annotate(handle_count=Count("handles"))
+        .filter(handle_count=1)
+        .prefetch_related("handles", "versions"),
         key=lambda cl: cl.slug,
     ):
         # Only include organisaion codelists by default

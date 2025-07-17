@@ -5,6 +5,7 @@ from datetime import datetime
 import pytest
 
 from codelists.actions import update_codelist
+from codelists.models import Codelist
 from mappings.dmdvmpprevmap.models import Mapping as VmpPrevMapping
 from opencodelists.tests.assertions import assert_difference, assert_no_difference
 
@@ -260,6 +261,23 @@ def test_codelists_get_all(client, organisation, organisation_user):
     user_codelists = [cl for cl in data["codelists"] if cl["user"]]
     assert len(user_codelists) == 2  # user-codelist-from-scratch, user-owned-codelist
     assert {cl["user"] for cl in user_codelists} == {organisation_user.username}
+
+
+def test_codelists_get_all_still_works_for_a_codelist_with_a_missing_handle(
+    client,
+    organisation,
+    organisation_user,
+):
+    # See issue #2731.
+    # We found a Codelist without an associated Handle,
+    # which broke this API endpoint.
+
+    # Delete the Handle for one codelist.
+    codelist_to_break = Codelist.objects.get(handles__name="User Codelist From Scratch")
+    codelist_to_break.current_handle.delete()
+
+    rsp = client.get("/api/v1/codelist/?include-users")
+    assert rsp.status_code == 200
 
 
 def test_codelists_get_with_coding_system_id(client, organisation):

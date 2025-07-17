@@ -13,6 +13,8 @@
   position: fixed;
   right: 5vw;
   bottom: 2rem;
+
+  z-index: 1;
 }
 
 .feedback-form__summary {

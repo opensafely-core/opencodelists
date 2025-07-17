@@ -4,7 +4,8 @@
   --color-green-700: oklch(52.7% 0.154 150.069);
   --color-blue-900: oklch(37.9% 0.146 265.522);
   --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px
+    rgb(0 0 0 / 0.1);
 
   display: flex;
   flex-direction: column;

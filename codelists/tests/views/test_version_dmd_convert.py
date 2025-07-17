@@ -31,6 +31,6 @@ def test_post_already_exists(client, bnf_version_asthma):
     # returns to the bnf version page, with a message that the converted codelist
     # already exists, and a link to it
     assert response.request["PATH_INFO"] == bnf_version_asthma.get_absolute_url()
-    content = response.content.decode()
+    content = response.text
     assert "already exists" in content
     assert dmd_codelist.get_absolute_url() in content

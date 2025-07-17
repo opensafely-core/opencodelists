@@ -149,7 +149,7 @@ def test_get_dmd_diff_no_code_column(
         dmd_version_asthma_medication.get_diff_url(dmd_version_asthma_medication_refill)
     )
     assert rsp.status_code == 400
-    assert rsp.content.decode() == "Could not identify code columns"
+    assert rsp.text == "Could not identify code columns"
 
 
 def test_get_snomed_diff_new_vs_old_style_with_unknown(

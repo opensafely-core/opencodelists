@@ -1,35 +1,9 @@
 import React from "react";
-import { createContext } from "react";
 import Hierarchy from "../../_hierarchy";
-import { readValueFromPage } from "../../_utils";
+import { CodelistContext, pageData } from "../../context/codelist-context";
 import { PageData } from "../../types";
 import Container from "../Codelist/Container";
 import EmptySearch from "../Codelist/EmptySearch";
-
-const pageData = {
-  allCodes: readValueFromPage("all-codes"),
-  codeToTerm: readValueFromPage("code-to-term"),
-  isEditable: readValueFromPage("is-editable"),
-};
-
-// Define the context value type
-interface CodelistContextType {
-  allCodes: PageData["allCodes"];
-  codeToTerm: PageData["codeToTerm"];
-  isEditable: PageData["isEditable"];
-  codeToStatus: PageData["codeToStatus"];
-  hierarchy: Hierarchy;
-  updateStatus: Function;
-  visiblePaths: PageData["visiblePaths"];
-}
-
-export const CodelistContext = createContext<CodelistContextType>({
-  ...pageData,
-  codeToStatus: {},
-  hierarchy: new Hierarchy([], new Set()),
-  updateStatus: Function,
-  visiblePaths: new Set<string>(),
-});
 
 export default function CodelistTab({
   codeToStatus,

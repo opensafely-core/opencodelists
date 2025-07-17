@@ -1,9 +1,9 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Modal } from "react-bootstrap";
 import Hierarchy from "../../_hierarchy";
 import { getCookie, readValueFromPage } from "../../_utils";
+import { useCodelistContext } from "../../context/codelist-context";
 import { Code, PageData, Status } from "../../types";
-import { CodelistContext } from "../Layout/CodelistTab";
 
 function createModalText({
   allCodes,
@@ -68,7 +68,7 @@ function MoreInfoModal({
   term,
 }: { code: string; status: Status; term: string }) {
   const { allCodes, codeToStatus, codeToTerm, hierarchy } =
-    useContext(CodelistContext);
+    useCodelistContext();
   const codingSystemId = readValueFromPage("metadata")?.coding_system_id;
 
   const [showMoreInfoModal, setShowMoreInfoModal] = useState(false);

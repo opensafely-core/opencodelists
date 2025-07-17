@@ -1,4 +1,5 @@
-import React, { useContext } from "react";
+import React from "react";
+import { useCodelistContext } from "../../context/codelist-context";
 import {
   Code,
   IsExpanded,
@@ -8,7 +9,6 @@ import {
   Term,
   ToggleVisibility,
 } from "../../types";
-import { CodelistContext } from "../Layout/CodelistTab";
 import DescendantToggle from "./DescendantToggle";
 import MoreInfoModal from "./MoreInfoModal";
 import Pipes from "./Pipes";
@@ -37,7 +37,7 @@ export default function Row({
   toggleVisibility,
   updateStatus,
 }: RowProps) {
-  const { isEditable } = useContext(CodelistContext);
+  const { isEditable } = useCodelistContext();
 
   const statusTermColor = {
     "+": "text-body",

@@ -1,7 +1,7 @@
-import React, { useState, useCallback, useContext } from "react";
+import React, { useState, useCallback } from "react";
 import Hierarchy from "../../_hierarchy";
+import { useCodelistContext } from "../../context/codelist-context";
 import { PageData, Path } from "../../types";
-import { CodelistContext } from "../Layout/CodelistTab";
 import Section from "./Section";
 
 export default function Container({
@@ -13,7 +13,7 @@ export default function Container({
   treeTables: PageData["treeTables"];
   updateStatus: Function;
 }) {
-  const { visiblePaths: initialVisiblePaths } = useContext(CodelistContext);
+  const { visiblePaths: initialVisiblePaths } = useCodelistContext();
   const [visiblePaths, setVisiblePaths] = useState(initialVisiblePaths);
 
   const handleToggleVisibility = useCallback(

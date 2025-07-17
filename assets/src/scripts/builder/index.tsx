@@ -41,9 +41,11 @@ if (container) {
         metadata={readValueFromPage("metadata")}
         resultsHeading={readValueFromPage("results-heading")}
         searches={readValueFromPage("searches")}
+        searchURL={readValueFromPage("search-url")}
         sortByTerm={readValueFromPage("sortByTerm")}
         treeTables={treeTables}
         updateURL={readValueFromPage("update-url")}
+        versions={readValueFromPage("versions")}
         visiblePaths={visiblePaths}
       />
     </StrictMode>,

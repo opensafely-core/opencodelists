@@ -36,6 +36,14 @@ interface CodelistBuilderProps extends PageData {
   };
 }
 
+interface CodelistBuilderState {
+  codeToStatus: PageData["codeToStatus"];
+  expandedCompatibleReleases: boolean;
+  metadata: MetadataProps;
+  updateQueue: string[][];
+  updating: boolean;
+}
+
 /**
  * Creates a fetch options object with standard headers including CSRF token
  * @param body - Object to be sent as JSON in the request body
@@ -62,13 +70,7 @@ function getFetchOptions(body: object) {
 
 export default class CodelistBuilder extends React.Component<
   CodelistBuilderProps,
-  {
-    codeToStatus: PageData["codeToStatus"];
-    expandedCompatibleReleases: boolean;
-    metadata: MetadataProps;
-    updateQueue: string[][];
-    updating: boolean;
-  }
+  CodelistBuilderState
 > {
   private textareaRefs: {
     description: React.RefObject<HTMLTextAreaElement>;
@@ -369,13 +371,11 @@ export default class CodelistBuilder extends React.Component<
 
   render() {
     const {
-      draftURL,
       hierarchy,
       isEditable,
       isEmptyCodelist,
       metadata,
       resultsHeading,
-      searches,
       treeTables,
       visiblePaths,
     } = this.props;
@@ -389,13 +389,7 @@ export default class CodelistBuilder extends React.Component<
         />
 
         <Row>
-          <Sidebar
-            counts={this.counts()}
-            draftURL={draftURL}
-            isEditable={isEditable}
-            isEmptyCodelist={isEmptyCodelist}
-            searches={searches}
-          />
+          <Sidebar counts={this.counts()} isEmptyCodelist={isEmptyCodelist} />
 
           {isEmptyCodelist ? (
             <Col md="9">

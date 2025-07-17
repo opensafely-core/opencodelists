@@ -1,44 +1,34 @@
 import React from "react";
-import { Col } from "react-bootstrap";
+import { SidebarContext, sidebarData } from "../../context/sidebar-context";
 import SearchForm from "../Cards/SearchForm";
-import Searches, { SearchesProps } from "../Cards/Searches";
+import Searches from "../Cards/Searches";
 import Summary, { SummaryProps } from "../Cards/Summary";
 import Tools from "../Cards/Tools";
 import Versions from "../Cards/Versions";
 
 export default function Sidebar({
   counts,
-  draftURL,
-  isEditable,
   isEmptyCodelist,
-  searches,
 }: {
   counts: SummaryProps["counts"];
-  draftURL: string;
-  isEditable: boolean;
   isEmptyCodelist: boolean;
-  searches: SearchesProps["searches"];
 }) {
   return (
-    <Col className="builder__sidebar" md="3">
-      {isEmptyCodelist && isEditable ? (
-        <SearchForm />
-      ) : (
-        <>
-          <Summary counts={counts} draftURL={draftURL} />
-          {searches.length > 0 && (
-            <Searches
-              draftURL={draftURL}
-              isEditable={isEditable}
-              searches={searches}
-            />
-          )}
-          {isEditable && <SearchForm />}
-          <Versions />
-        </>
-      )}
+    <SidebarContext.Provider value={{ ...sidebarData }}>
+      <div className="col-md-3 builder__sidebar">
+        {isEmptyCodelist ? (
+          <SearchForm />
+        ) : (
+          <>
+            <Summary counts={counts} />
+            <Searches />
+            <SearchForm />
+            <Versions />
+          </>
+        )}
 
-      <Tools />
-    </Col>
+        <Tools />
+      </div>
+    </SidebarContext.Provider>
   );
 }

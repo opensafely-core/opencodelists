@@ -1,6 +1,6 @@
 import React from "react";
 import Hierarchy from "../../_hierarchy";
-import { CodelistContext, pageData } from "../../context/codelist-context";
+import { CodelistContext, codelistData } from "../../context/codelist-context";
 import { PageData } from "../../types";
 import Container from "../Codelist/Container";
 import EmptySearch from "../Codelist/EmptySearch";
@@ -23,7 +23,7 @@ export default function CodelistTab({
   return (
     <CodelistContext.Provider
       value={{
-        ...pageData,
+        ...codelistData,
         codeToStatus,
         hierarchy,
         updateStatus,

@@ -15,7 +15,7 @@ interface CodelistContextType {
   visiblePaths: PageData["visiblePaths"];
 }
 
-export const pageData = {
+export const codelistData = {
   allCodes: readValueFromPage("all-codes"),
   codeToTerm: readValueFromPage("code-to-term"),
   isEditable: readValueFromPage("is-editable"),
@@ -24,7 +24,7 @@ export const pageData = {
 };
 
 export const CodelistContext = createContext<CodelistContextType>({
-  ...pageData,
+  ...codelistData,
   codeToStatus: {},
   hierarchy: new Hierarchy([], new Set()),
   updateStatus: Function,

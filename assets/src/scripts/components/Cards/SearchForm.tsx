@@ -1,12 +1,16 @@
 import React, { useState } from "react";
 import { Button, Card, Form, InputGroup } from "react-bootstrap";
-import { getCookie, readValueFromPage } from "../../_utils";
+import { getCookie } from "../../_utils";
+import { useSidebarContext } from "../../context/sidebar-context";
 
 export default function SearchForm() {
-  const codingSystemName = readValueFromPage("metadata")?.coding_system_name;
-  const searchURL = readValueFromPage("search-url");
+  const {
+    isEditable,
+    metadata: { coding_system_name: codingSystemName },
+    searchURL,
+  } = useSidebarContext();
 
-  if (!codingSystemName || !searchURL) return null;
+  if (!isEditable || !codingSystemName || !searchURL) return null;
 
   // NB, if you change the max search length, remember to change it on
   // the server side as well in the models.py file

@@ -6,17 +6,10 @@ import {
   OverlayTrigger,
   Tooltip,
 } from "react-bootstrap";
-import { readValueFromPage } from "../../_utils";
+import { useSidebarContext } from "../../context/sidebar-context";
+import { Version as VersionType } from "../../types";
 
-export interface VersionProps {
-  created_at: string;
-  current: boolean;
-  status: string;
-  tag_or_hash: string;
-  url: string;
-}
-
-function Version({ version }: { version: VersionProps }) {
+function Version({ version }: { version: VersionType }) {
   const createdAt = new Date(version.created_at);
   const userTimeZone =
     Intl?.DateTimeFormat()?.resolvedOptions()?.timeZone || "UTC";
@@ -77,7 +70,7 @@ function Version({ version }: { version: VersionProps }) {
 }
 
 export default function Versions() {
-  const versions: VersionProps[] = readValueFromPage("versions");
+  const { versions } = useSidebarContext();
 
   if (!versions?.length) return null;
 

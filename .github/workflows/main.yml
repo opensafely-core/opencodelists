@@ -72,7 +72,14 @@ jobs:
         run: |
           just docker-serve prod -d
           sleep 5
-          just docker-smoke-test || { docker logs docker_prod_1; exit 1; }
+          just docker-smoke-test || {
+            echo "Smoke test failed, attempting to show logs for all containers:"
+            for c in $(docker ps -a --format '{{.Names}}'); do
+              echo "Logs for $c:";
+              docker logs "$c" || true;
+            done
+            exit 1
+          }
 
       - name: Save docker image
         run: |

@@ -9,6 +9,8 @@ interface CodelistContextType {
   isEditable: PageData["isEditable"];
   codeToStatus: PageData["codeToStatus"];
   hierarchy: Hierarchy;
+  metadata: PageData["metadata"];
+  sortByTerm: PageData["sortByTerm"];
   updateStatus: Function;
   visiblePaths: PageData["visiblePaths"];
 }
@@ -17,6 +19,8 @@ export const pageData = {
   allCodes: readValueFromPage("all-codes"),
   codeToTerm: readValueFromPage("code-to-term"),
   isEditable: readValueFromPage("is-editable"),
+  metadata: readValueFromPage("metadata"),
+  sortByTerm: readValueFromPage("sort-by-term"),
 };
 
 export const CodelistContext = createContext<CodelistContextType>({

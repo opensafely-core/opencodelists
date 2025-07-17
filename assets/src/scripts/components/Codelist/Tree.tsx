@@ -1,5 +1,4 @@
 import React from "react";
-import { readValueFromPage } from "../../_utils";
 import { useCodelistContext } from "../../context/codelist-context";
 import { AncestorCode, PageData, ToggleVisibility } from "../../types";
 import Row from "./Row";
@@ -17,8 +16,8 @@ export default function Tree({
   updateStatus,
   visiblePaths,
 }: TreeProps) {
-  const { codeToStatus, codeToTerm, hierarchy } = useCodelistContext();
-  const sortByTerm: PageData["sortByTerm"] = readValueFromPage("sort-by-term");
+  const { codeToStatus, codeToTerm, hierarchy, sortByTerm } =
+    useCodelistContext();
 
   return hierarchy
     .treeRows(ancestorCode, codeToStatus, codeToTerm, visiblePaths, sortByTerm)

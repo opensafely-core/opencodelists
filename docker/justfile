@@ -69,11 +69,43 @@ _create_storage env:
         fi
     fi
 
+    if [ "{{ env }}" = "prod-test" ]; then
+        SCRIPT_DIR={{justfile_directory()}}
+        # Remove directory if it exists, then create fresh
+        echo 'Checking for storage-test directory...'
+        if test -d "$SCRIPT_DIR/storage-test"; then
+            echo 'Removing existing storage-test directory...'
+            sudo rm -rf "$SCRIPT_DIR/storage-test"
+        fi
+        echo 'Creating new storage-test directory...'
+        mkdir -p "$SCRIPT_DIR/storage-test"
+        echo 'Creating database file...'
+        touch "$SCRIPT_DIR/storage-test/db.sqlite3"
+        echo 'Setting ownership for storage-test directory...'
+        sudo chown 10003:10003 "$SCRIPT_DIR/storage-test"
+        echo 'Setting ownership for database file...'
+        sudo chown 10003:10003 "$SCRIPT_DIR/storage-test/db.sqlite3"
+        echo 'Storage test directory and database file created successfully.'
+    fi
+
 
 # run dev server in docker container
 serve env="dev" *args="": (_create_storage env)
     docker compose up {{ args }} {{ env }}
 
+# run test server on a different port (default 7001)
+serve-test port="7001": (stop-test) (_create_storage "prod-test")
+    #!/usr/bin/env bash
+    set -euo pipefail
+    # Set environment variable for Docker Compose
+    export PORT={{ port }}
+    # Start the service with both compose files
+    docker compose -f {{ justfile_directory() }}/docker-compose.yaml -f {{ justfile_directory() }}/docker-compose.test.yaml up -d prod-test
+
+
+# stop the test server
+stop-test:
+    docker compose -f {{ justfile_directory() }}/docker-compose.yaml -f {{ justfile_directory() }}/docker-compose.test.yaml down prod-test
 
 # run command in dev container
 run env="dev" *args="bash":
@@ -86,7 +118,7 @@ exec env="dev" *args="bash":
 
 
 # run a basic functional smoke test against a running opencodelists
-smoke-test host="http://localhost:7000":
+smoke-test host="http://localhost:7000" env="prod":
     #!/bin/bash
     set -eu
     curl -I {{ host }} -s --compressed --fail --retry 20 --retry-delay 1 --retry-all-errors

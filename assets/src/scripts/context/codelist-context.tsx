@@ -1,23 +1,39 @@
 import { createContext, useContext } from "react";
 import Hierarchy from "../_hierarchy";
 import { readValueFromPage } from "../_utils";
-import { PageData } from "../types";
+import {
+  ALL_CODES,
+  CODE_TO_STATUS,
+  CODE_TO_TERM,
+  Code,
+  IS_EDITABLE,
+  METADATA,
+  SORT_BY_TERM,
+  TREE_TABLES,
+  UpdateStatusType,
+  VisiblePathsType,
+} from "../types";
 
 interface CodelistContextType {
-  allCodes: PageData["allCodes"];
-  codeToTerm: PageData["codeToTerm"];
-  isEditable: PageData["isEditable"];
-  codeToStatus: PageData["codeToStatus"];
+  allCodes: ALL_CODES;
+  codeToTerm: CODE_TO_TERM;
+  isEditable: IS_EDITABLE;
+  codeToStatus: CODE_TO_STATUS;
   hierarchy: Hierarchy;
-  metadata: PageData["metadata"];
-  sortByTerm: PageData["sortByTerm"];
-  updateStatus: Function;
-  visiblePaths: PageData["visiblePaths"];
+  metadata: METADATA;
+  sortByTerm: SORT_BY_TERM;
+  treeTables: TREE_TABLES;
+  updateStatus: UpdateStatusType;
+  visiblePaths: VisiblePathsType;
 }
 
 export const codelistData = {
   allCodes: readValueFromPage("all-codes"),
   codeToTerm: readValueFromPage("code-to-term"),
+  hierarchy: new Hierarchy(
+    readValueFromPage("parent-map"),
+    readValueFromPage("child-map"),
+  ),
   isEditable: readValueFromPage("is-editable"),
   metadata: readValueFromPage("metadata"),
   sortByTerm: readValueFromPage("sort-by-term"),
@@ -26,9 +42,9 @@ export const codelistData = {
 export const CodelistContext = createContext<CodelistContextType>({
   ...codelistData,
   codeToStatus: {},
-  hierarchy: new Hierarchy([], new Set()),
+  treeTables: [],
   updateStatus: Function,
-  visiblePaths: new Set<string>(),
+  visiblePaths: new Set<Code>(),
 });
 
 export const useCodelistContext = () => {

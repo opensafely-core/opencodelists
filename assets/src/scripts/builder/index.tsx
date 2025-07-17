@@ -3,23 +3,22 @@ import { createRoot } from "react-dom/client";
 import Hierarchy from "../_hierarchy";
 import { readValueFromPage } from "../_utils";
 import CodelistBuilder from "../components/CodelistBuilder";
-import { PageData } from "../types";
+import { CODE_TO_STATUS, CODE_TO_TERM, TREE_TABLES, VisiblePathsType } from "../types";
 
 const hierarchy = new Hierarchy(
   readValueFromPage("parent-map"),
   readValueFromPage("child-map"),
 );
 
-const treeTables: PageData["treeTables"] = readValueFromPage("tree-tables");
-const codeToStatus: PageData["codeToStatus"] =
-  readValueFromPage("code-to-status");
-const codeToTerm: PageData["codeToTerm"] = readValueFromPage("code-to-term");
+const treeTables: TREE_TABLES = readValueFromPage("tree-tables");
+const codeToStatus: CODE_TO_STATUS = readValueFromPage("code-to-status");
+const codeToTerm: CODE_TO_TERM = readValueFromPage("code-to-term");
 
 const ancestorCodes = treeTables
   .map(([_, ancestorCodes]) => ancestorCodes)
   .flat();
 
-const visiblePaths: PageData["visiblePaths"] = hierarchy.initiallyVisiblePaths(
+const visiblePaths: VisiblePathsType = hierarchy.initiallyVisiblePaths(
   ancestorCodes,
   codeToStatus,
   1,

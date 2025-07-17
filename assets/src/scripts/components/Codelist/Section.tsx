@@ -1,12 +1,10 @@
 import React from "react";
-import Hierarchy from "../../_hierarchy";
 import { AncestorCodes, PageData, ToggleVisibility } from "../../types";
 import Tree from "./Tree";
 
 interface SectionProps {
   ancestorCodes: AncestorCodes;
   heading: string;
-  hierarchy: Hierarchy;
   toggleVisibility: ToggleVisibility;
   updateStatus: Function;
   visiblePaths: PageData["visiblePaths"];

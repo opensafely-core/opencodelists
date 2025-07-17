@@ -1,5 +1,5 @@
 import React from "react";
-import { Col, Form, Row, Tab, Tabs } from "react-bootstrap";
+import { Form, Tab, Tabs } from "react-bootstrap";
 import Hierarchy from "../_hierarchy";
 import { getCookie } from "../_utils";
 import { Code, PageData, Reference, Status } from "../types";
@@ -371,7 +371,6 @@ export default class CodelistBuilder extends React.Component<
 
   render() {
     const {
-      hierarchy,
       isEditable,
       isEmptyCodelist,
       metadata,
@@ -388,20 +387,19 @@ export default class CodelistBuilder extends React.Component<
           metadata={metadata}
         />
 
-        <Row>
+        <div className="row">
           <Sidebar counts={this.counts()} isEmptyCodelist={isEmptyCodelist} />
 
           {isEmptyCodelist ? (
-            <Col md="9">
+            <div className="col-md-9">
               <EmptyState />
-            </Col>
+            </div>
           ) : (
-            <Col md="9">
+            <div className="col-md-9">
               <Tabs defaultActiveKey="codelist" className="mb-3">
                 <Tab eventKey="codelist" title="Codelist">
                   <CodelistTab
                     codeToStatus={this.state.codeToStatus}
-                    hierarchy={hierarchy}
                     resultsHeading={resultsHeading}
                     treeTables={treeTables}
                     updateStatus={this.updateStatus}
@@ -421,9 +419,9 @@ export default class CodelistBuilder extends React.Component<
                   />
                 </Tab>
               </Tabs>
-            </Col>
+            </div>
           )}
-        </Row>
+        </div>
       </>
     );
   }

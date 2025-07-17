@@ -1,29 +1,23 @@
-import React from "react";
+import React, { useContext } from "react";
 import { ButtonGroup } from "react-bootstrap";
-import Hierarchy from "../../_hierarchy";
 import {
   Code,
   IsExpanded,
-  PageData,
   Path,
   Pipe,
   Status,
   Term,
   ToggleVisibility,
 } from "../../types";
+import { CodelistContext } from "../Layout/CodelistTab";
 import DescendantToggle from "./DescendantToggle";
 import MoreInfoModal from "./MoreInfoModal";
 import Pipes from "./Pipes";
 import StatusToggle from "./StatusToggle";
 
 interface RowProps {
-  allCodes: PageData["allCodes"];
   code: Code;
-  codeToStatus: PageData["codeToStatus"];
-  codeToTerm: PageData["codeToTerm"];
   hasDescendants: boolean;
-  hierarchy: Hierarchy;
-  isEditable: PageData["isEditable"];
   isExpanded: IsExpanded;
   path: Path;
   pipes: Pipe[];
@@ -34,13 +28,8 @@ interface RowProps {
 }
 
 export default function Row({
-  allCodes,
   code,
-  codeToStatus,
-  codeToTerm,
   hasDescendants,
-  hierarchy,
-  isEditable,
   isExpanded,
   path,
   pipes,
@@ -49,6 +38,8 @@ export default function Row({
   toggleVisibility,
   updateStatus,
 }: RowProps) {
+  const { isEditable } = useContext(CodelistContext);
+
   const statusTermColor = {
     "+": "text-body",
     "(+)": "text-body",
@@ -104,15 +95,7 @@ export default function Row({
       </div>
 
       {isEditable ? (
-        <MoreInfoModal
-          allCodes={allCodes}
-          code={code}
-          codeToStatus={codeToStatus}
-          codeToTerm={codeToTerm}
-          hierarchy={hierarchy}
-          status={status}
-          term={term}
-        />
+        <MoreInfoModal code={code} status={status} term={term} />
       ) : null}
     </div>
   );

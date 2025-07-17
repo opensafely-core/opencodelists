@@ -1,17 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Button, Modal } from "react-bootstrap";
 import Hierarchy from "../../_hierarchy";
 import { getCookie, readValueFromPage } from "../../_utils";
-import { Code, PageData, Status, Term } from "../../types";
-
-interface CreateModalTextProps {
-  allCodes: PageData["allCodes"];
-  code: Code;
-  codeToStatus: PageData["codeToStatus"];
-  codeToTerm: PageData["codeToTerm"];
-  hierarchy: Hierarchy;
-  status: Status;
-}
+import { Code, PageData, Status } from "../../types";
+import { CodelistContext } from "../Layout/CodelistTab";
 
 function createModalText({
   allCodes,
@@ -20,7 +12,14 @@ function createModalText({
   codeToTerm,
   hierarchy,
   status,
-}: CreateModalTextProps) {
+}: {
+  allCodes: PageData["allCodes"];
+  code: Code;
+  codeToStatus: PageData["codeToStatus"];
+  codeToTerm: PageData["codeToTerm"];
+  hierarchy: Hierarchy;
+  status: Status;
+}) {
   const included = allCodes.filter((c) => codeToStatus[c] === "+");
   const excluded = allCodes.filter((c) => codeToStatus[c] === "-");
   const significantAncestors = hierarchy.significantAncestors(
@@ -63,25 +62,13 @@ function createModalText({
   return text;
 }
 
-interface MoreInfoModalProps {
-  allCodes: PageData["allCodes"];
-  code: Code;
-  codeToStatus: PageData["codeToStatus"];
-  codeToTerm: PageData["codeToTerm"];
-  hierarchy: Hierarchy;
-  status: Status;
-  term: Term;
-}
-
 function MoreInfoModal({
-  allCodes,
   code,
-  codeToStatus,
-  codeToTerm,
-  hierarchy,
   status,
   term,
-}: MoreInfoModalProps) {
+}: { code: string; status: Status; term: string }) {
+  const { allCodes, codeToStatus, codeToTerm, hierarchy } =
+    useContext(CodelistContext);
   const codingSystemId = readValueFromPage("metadata")?.coding_system_id;
 
   const [showMoreInfoModal, setShowMoreInfoModal] = useState(false);
@@ -134,16 +121,25 @@ function MoreInfoModal({
     if (showMoreInfoModal && synonyms !== null) {
       setModalText(
         createModalText({
-          allCodes,
           code,
+          status,
+          allCodes,
           codeToStatus,
           codeToTerm,
           hierarchy,
-          status,
         }),
       );
     }
-  }, [showMoreInfoModal, synonyms]);
+  }, [
+    showMoreInfoModal,
+    synonyms,
+    code,
+    status,
+    allCodes,
+    codeToStatus,
+    codeToTerm,
+    hierarchy,
+  ]);
 
   return (
     <>

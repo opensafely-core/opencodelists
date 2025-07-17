@@ -1,51 +1,72 @@
 import React from "react";
+import { createContext } from "react";
 import Hierarchy from "../../_hierarchy";
+import { readValueFromPage } from "../../_utils";
 import { PageData } from "../../types";
 import Container from "../Codelist/Container";
 import EmptySearch from "../Codelist/EmptySearch";
 
-interface CodelistTabProps {
+const pageData = {
+  allCodes: readValueFromPage("all-codes"),
+  codeToTerm: readValueFromPage("code-to-term"),
+  isEditable: readValueFromPage("is-editable"),
+};
+
+// Define the context value type
+interface CodelistContextType {
   allCodes: PageData["allCodes"];
-  ancestorCodes?: string[];
-  codeToStatus: PageData["codeToStatus"];
   codeToTerm: PageData["codeToTerm"];
-  hierarchy: Hierarchy;
   isEditable: PageData["isEditable"];
-  resultsHeading: PageData["resultsHeading"];
-  treeTables: PageData["treeTables"];
+  codeToStatus: PageData["codeToStatus"];
+  hierarchy: Hierarchy;
   updateStatus: Function;
   visiblePaths: PageData["visiblePaths"];
 }
 
+export const CodelistContext = createContext<CodelistContextType>({
+  ...pageData,
+  codeToStatus: {},
+  hierarchy: new Hierarchy([], new Set()),
+  updateStatus: Function,
+  visiblePaths: new Set<string>(),
+});
+
 export default function CodelistTab({
-  allCodes,
   codeToStatus,
-  codeToTerm,
   hierarchy,
-  isEditable,
   resultsHeading,
   treeTables,
   updateStatus,
   visiblePaths,
-}: CodelistTabProps) {
+}: {
+  codeToStatus: PageData["codeToStatus"];
+  hierarchy: Hierarchy;
+  resultsHeading: PageData["resultsHeading"];
+  treeTables: PageData["treeTables"];
+  updateStatus: Function;
+  visiblePaths: PageData["visiblePaths"];
+}) {
   return (
-    <>
+    <CodelistContext.Provider
+      value={{
+        ...pageData,
+        codeToStatus,
+        hierarchy,
+        updateStatus,
+        visiblePaths,
+      }}
+    >
       <h3 className="h4">{resultsHeading}</h3>
       <hr />
       {treeTables.length > 0 ? (
         <Container
-          allCodes={allCodes}
-          codeToStatus={codeToStatus}
-          codeToTerm={codeToTerm}
           hierarchy={hierarchy}
-          isEditable={isEditable}
           treeTables={treeTables}
           updateStatus={updateStatus}
-          visiblePaths={visiblePaths}
         />
       ) : (
         <EmptySearch />
       )}
-    </>
+    </CodelistContext.Provider>
   );
 }

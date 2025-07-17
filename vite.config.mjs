@@ -23,7 +23,9 @@ export default defineConfig(({ mode }) => ({
     emptyOutDir: true,
   },
   server: {
-    origin: "http://localhost:5173",
+    origin: "http://localhost:7001",
+    port: 7001,
+    strictPort: true,
   },
   clearScreen: false,
   plugins: [

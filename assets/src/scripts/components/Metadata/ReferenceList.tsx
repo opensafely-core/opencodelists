@@ -1,5 +1,5 @@
 import React from "react";
-import { PageData, Reference } from "../types";
+import { PageData, Reference } from "../../types";
 import ReferenceForm from "./ReferenceForm";
 
 interface ReferenceListProps {

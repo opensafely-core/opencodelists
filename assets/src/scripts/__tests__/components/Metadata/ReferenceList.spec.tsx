@@ -2,8 +2,8 @@ import "@testing-library/jest-dom";
 import { render, screen } from "@testing-library/react";
 import React from "react";
 import { describe, expect, it } from "vitest";
-import ReferenceList from "../../components/ReferenceList";
-import { Reference } from "../../types";
+import ReferenceList from "../../../components/Metadata/ReferenceList";
+import { Reference } from "../../../types";
 
 describe("ReferenceList Component - empty list", () => {
   it("renders an add button for empty list", () => {

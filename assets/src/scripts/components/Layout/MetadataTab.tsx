@@ -2,7 +2,7 @@ import React from "react";
 import { Form } from "react-bootstrap";
 import { PageData, Reference } from "../../types";
 import { MetadataFieldName } from "../CodelistBuilder";
-import ReferenceList from "../ReferenceList";
+import ReferenceList from "../Metadata/ReferenceList";
 
 interface MetadataTabProps {
   handleSaveReferences: (references: Reference[]) => void;

@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Button, Modal } from "react-bootstrap";
+import { Modal } from "react-bootstrap";
 import Hierarchy from "../../_hierarchy";
 import { getCookie, readValueFromPage } from "../../_utils";
 import { Code, PageData, Status } from "../../types";
@@ -143,13 +143,12 @@ function MoreInfoModal({
 
   return (
     <>
-      <Button
-        className="builder__more-info-btn"
+      <button
+        className="btn btn-outline-dark builder__more-info-btn"
         onClick={handleShow}
-        variant="outline-dark"
       >
         More info
-      </Button>
+      </button>
 
       <Modal
         centered

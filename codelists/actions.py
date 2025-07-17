@@ -17,7 +17,7 @@ from opencodelists.models import User
 from .codeset import Codeset
 from .coding_systems import most_recent_database_alias
 from .hierarchy import Hierarchy
-from .models import CachedHierarchy, Codelist, CodelistVersion, CodeObj, Handle, Status
+from .models import CachedHierarchy, Codelist, CodeObj, Handle, Status
 from .search import do_search
 
 
@@ -832,34 +832,68 @@ def fork_codelist(codelist, new_owner):
     forked_version.id = None
     forked_version.save()
 
-    def deep_copy_related(related):
-        related = deepcopy(related)
-        version_field = None
-        for related_model_field in related.__class__._meta.get_fields():
-            if (
-                hasattr(related_model_field, "related_model")
-                and related_model_field.related_model == CodelistVersion
-            ):
-                version_field = related_model_field
-                break
-        if not version_field:
-            raise AttributeError(
-                f"Unable to locate version field for {related.__class__} model"
-            )
-        setattr(related, version_field.name, forked_version)
-        related.id = None
-        related.save()
+    forked_related_objects = {}
 
-    for field in CodelistVersion._meta.get_fields():
-        match field.__class__:
-            case reverse_related.OneToOneRel:
-                if hasattr(latest_version, field.name):
-                    related = getattr(latest_version, field.name)
-                    deep_copy_related(related)
-            case reverse_related.ManyToOneRel:
-                if hasattr(latest_version, field.name):
-                    for related in getattr(latest_version, field.name).all():
-                        deep_copy_related(related)
-            case reverse_related.ManyToManyRel:
-                raise NotImplementedError
+    def deep_copy_related_fields(source, destination):
+        def deep_copy_related_object(related, related_from):
+            # have we copied this object already?
+            # there may be multiple references to same object
+            # if so, only update refs don't copy
+            already_forked = (
+                related.__class__,
+                related.id,
+            ) in forked_related_objects or related in forked_related_objects.values()
+            if already_forked:
+                forked_related = forked_related_objects.get(
+                    (related.__class__, related.id), related
+                )
+            else:
+                forked_related = deepcopy(related)
+
+            # does this related object relate to any other objects?
+            # if so we'll have to copy those later and set their references to
+            # our newly-copied object once it's saved and has an id
+            further_relations = []
+
+            related_from_field = None
+            for related_model_field in forked_related.__class__._meta.get_fields():
+                if related_model_field.__class__ in [
+                    reverse_related.OneToOneRel,
+                    reverse_related.ManyToOneRel,
+                    reverse_related.ManyToManyRel,
+                ]:
+                    further_relations.append(related_model_field)
+                if (
+                    hasattr(related_model_field, "related_model")
+                    and related_model_field.related_model == related_from.__class__
+                ):
+                    related_from_field = related_model_field
+                    break
+            if not related_from_field:
+                raise AttributeError(
+                    f"Unable to locate {related_from.__class__.__name__} relation field for {forked_related.__class__} model"
+                )
+            setattr(forked_related, related_from_field.name, related_from)
+            if not already_forked:
+                forked_related.id = None
+            forked_related.save()
+            forked_related_objects[(related.__class__, related.id)] = forked_related
+            if further_relations:
+                deep_copy_related_fields(related, forked_related)
+
+        for field in source.__class__._meta.get_fields():
+            match field.__class__:
+                case reverse_related.OneToOneRel:
+                    if hasattr(source, field.name):
+                        related = getattr(source, field.name)
+                        deep_copy_related_object(related, destination)
+                case reverse_related.ManyToOneRel:
+                    if hasattr(source, field.name):
+                        for related in getattr(source, field.name).all():
+                            deep_copy_related_object(related, destination)
+                case reverse_related.ManyToManyRel:
+                    raise NotImplementedError
+
+    deep_copy_related_fields(latest_version, forked_version)
+
     return forked_codelist

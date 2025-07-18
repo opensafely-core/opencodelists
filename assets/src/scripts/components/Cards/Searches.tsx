@@ -1,24 +1,15 @@
 import React, { useState } from "react";
-import { Button, Card, Form, ListGroup } from "react-bootstrap";
-import { getCookie } from "../../_utils";
-import { PageData } from "../../types";
+import { Button, Form, ListGroup } from "react-bootstrap";
+import { getCookie, readValueFromPage } from "../../_utils";
+import { DRAFT_URL, IS_EDITABLE, SEARCHES } from "../../types";
 
-export interface SearchesProps {
-  draftURL: PageData["draftURL"];
-  isEditable: PageData["isEditable"];
-  searches: {
-    active: boolean;
-    delete_url: string;
-    term_or_code: string;
-    url: string;
-  }[];
-}
+export default function Searches() {
+  const draftURL: DRAFT_URL = readValueFromPage("draft-url");
+  const isEditable: IS_EDITABLE = readValueFromPage("is-editable");
+  const searches: SEARCHES = readValueFromPage("searches");
 
-export default function Searches({
-  draftURL,
-  isEditable,
-  searches,
-}: SearchesProps) {
+  if (!searches?.length) return null;
+
   const [activeUrl, setActiveUrl] = useState<string>(
     () => searches.find((search) => search.active)?.url || "",
   );
@@ -31,11 +22,9 @@ export default function Searches({
   };
 
   return (
-    <Card>
-      <Card.Header as="h2" className="h6 font-weight-bold">
-        Previous searches
-      </Card.Header>
-      <ListGroup variant="flush">
+    <div className="card">
+      <h2 className="h6 font-weight-bold card-header">Previous searches</h2>
+      <div className="list-group list-group-flush">
         {searches.map((search) => (
           <React.Fragment key={search.url}>
             {search.delete_url && isEditable ? (
@@ -82,17 +71,16 @@ export default function Searches({
           </React.Fragment>
         ))}
 
-        {searches.some((search) => search.active) ? (
-          <ListGroup.Item
-            action
-            className="font-italic"
+        {draftURL && searches.some((search) => search.active) ? (
+          <a
+            className="list-group-item list-group-item-action font-italic"
             href={encodeURI(draftURL)}
             onClick={handleClick(draftURL)}
           >
             show all
-          </ListGroup.Item>
+          </a>
         ) : null}
-      </ListGroup>
-    </Card>
+      </div>
+    </div>
   );
 }

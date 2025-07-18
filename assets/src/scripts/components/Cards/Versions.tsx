@@ -1,11 +1,4 @@
 import React from "react";
-import {
-  Badge,
-  Card,
-  ListGroup,
-  OverlayTrigger,
-  Tooltip,
-} from "react-bootstrap";
 import { readValueFromPage } from "../../_utils";
 import { VERSIONS } from "../../types";
 
@@ -29,10 +22,9 @@ function Version({ version }: { version: VERSIONS[number] }) {
   });
 
   return (
-    <ListGroup.Item
-      as="li"
+    <li
+      className={`list-group-item ${version.current ? "list-group-item-secondary" : ""}`}
       key={version.tag_or_hash}
-      variant={version.current ? "secondary" : undefined}
     >
       <div className="d-flex justify-content-between align-items-center">
         <span className="d-block text-monospace font-weight-bold">
@@ -43,29 +35,21 @@ function Version({ version }: { version: VERSIONS[number] }) {
           )}
         </span>
         {version.status === "draft" ? (
-          <Badge variant="light">Draft</Badge>
+          <span className="badge badge-light">Draft</span>
         ) : null}
         {version.status === "under review" ? (
-          <Badge variant="info">Under review</Badge>
+          <span className="badge badge-info">Under review</span>
         ) : null}
         {version.status === "published" ? (
-          <Badge variant="success">Published</Badge>
+          <span className="badge badge-success">Published</span>
         ) : null}
       </div>
       <span className="created d-block p-0">
-        <OverlayTrigger
-          placement="right"
-          overlay={
-            <Tooltip id={version.tag_or_hash}>
-              When this codelist version was added to OpenCodelists
-            </Tooltip>
-          }
-        >
-          <abbr className="font-weight-bold">Created</abbr>
-        </OverlayTrigger>
-        : {createdDate} at {createdTime}
+        Added to the site on
+        <br />
+        {createdDate} at {createdTime}
       </span>
-    </ListGroup.Item>
+    </li>
   );
 }
 
@@ -75,15 +59,13 @@ export default function Versions() {
   if (!versions?.length) return null;
 
   return (
-    <Card>
-      <Card.Header as="h2" className="h6 font-weight-bold">
-        Versions
-      </Card.Header>
-      <ListGroup variant="flush" className="sidebar-versions" as="ol">
+    <div className="card">
+      <div className="h6 font-weight-bold card-header">Versions</div>
+      <ol className="sidebar-versions list-group list-group-flush">
         {versions.map((version) => (
           <Version key={version.tag_or_hash} version={version} />
         ))}
-      </ListGroup>
-    </Card>
+      </ol>
+    </div>
   );
 }

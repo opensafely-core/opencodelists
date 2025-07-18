@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { Button, Card, Form, InputGroup } from "react-bootstrap";
 import { getCookie, readValueFromPage } from "../../_utils";
 
 export default function SearchForm() {
@@ -60,71 +59,73 @@ export default function SearchForm() {
   };
 
   return (
-    <Card>
-      <Card.Header as="h2" className="h6 font-weight-bold">
+    <div className="card">
+      <h2 className="card-header h6 font-weight-bold">
         Search the {codingSystemName} dictionary
-      </Card.Header>
-      <Card.Body className="pt-2 pb-1">
-        <Form action={encodeURI(searchURL)} method="post">
-          <Form.Control
+      </h2>
+      <div className="card-body pt-2 pb-1">
+        <form action={encodeURI(searchURL)} method="post">
+          <input
             name="csrfmiddlewaretoken"
             type="hidden"
+            className="form-control"
             value={getCookie("csrftoken")}
           />
           <fieldset>
-            <Form.Group>
-              <Form.Label className="h6 mt-1" as="legend">
-                Search by:
-              </Form.Label>
+            <div className="form-group">
+              <legend className="h6 mt-1 form-label">Search by:</legend>
               {Object.values(SEARCH_OPTIONS).map((option) => (
-                <Form.Check
+                <div
+                  className="form-check form-check-inline"
                   key={option.value}
-                  inline
-                  label={option.label}
-                  name="search-type"
-                  type="radio"
-                  id={`search-type-${option.value}`}
-                  value={option.value}
-                  checked={searchType === option.value}
-                  onChange={handleSearchTypeChange}
-                />
+                >
+                  <input
+                    checked={searchType === option.value}
+                    className="form-check-input"
+                    id={`search-type-${option.value}`}
+                    name="search-type"
+                    onChange={handleSearchTypeChange}
+                    type="radio"
+                    value={option.value}
+                  />
+                  <label
+                    className="form-check-label"
+                    htmlFor={`search-type-${option.value}`}
+                  >
+                    {option.label}
+                  </label>
+                </div>
               ))}
-            </Form.Group>
+            </div>
           </fieldset>
-          <Form.Group>
-            <InputGroup>
-              <Form.Label srOnly htmlFor="searchInput">
+          <div className="form-group">
+            <div className="input-group">
+              <label className="form-label sr-only" htmlFor="searchInput">
                 {SEARCH_OPTIONS[searchType].placeholder}
-              </Form.Label>
-              <Form.Control
+              </label>
+              <input
+                className="form-control"
                 id="searchInput"
+                maxLength={SEARCH_OPTIONS[searchType].maxLength}
+                minLength={SEARCH_OPTIONS[searchType].minLength}
                 name="search"
+                onInput={handleSearchChange}
                 placeholder={SEARCH_OPTIONS[searchType].placeholder}
+                required
                 type="search"
                 value={searchTerm}
-                onInput={handleSearchChange}
-                minLength={SEARCH_OPTIONS[searchType].minLength}
-                maxLength={SEARCH_OPTIONS[searchType].maxLength}
-                isInvalid={
-                  searchTerm.length >= SEARCH_OPTIONS[searchType].maxLength
-                }
-                required
               />
-              <InputGroup.Append>
-                <Button name="field" type="submit" variant="primary">
+              <div className="input-group-append">
+                <button className="btn btn-primary" name="field" type="submit">
                   Search
-                </Button>
-              </InputGroup.Append>
-              {searchTerm.length >= SEARCH_OPTIONS[searchType].maxLength && (
-                <Form.Control.Feedback type="invalid">
-                  {SEARCH_OPTIONS[searchType].validationMaxLengthMsg}
-                </Form.Control.Feedback>
-              )}
-            </InputGroup>
-          </Form.Group>
+                </button>
+              </div>
+              {/* Todo, restore validation */}
+            </div>
+          </div>
 
-          <Form.Group>
-            <Form.Text className="text-muted">
+          <div className="form-group">
+            <small className="text-muted form-text">
               {codingSystemName === "ICD-10" &&
               searchType === SEARCH_OPTIONS.code.value ? (
                 <p>
@@ -134,10 +135,10 @@ export default function SearchForm() {
                   search only available for ICD-10.)
                 </p>
               ) : null}
-            </Form.Text>
-          </Form.Group>
-        </Form>
-      </Card.Body>
-    </Card>
+            </small>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }

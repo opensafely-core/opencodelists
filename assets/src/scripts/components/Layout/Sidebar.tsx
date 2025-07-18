@@ -1,37 +1,26 @@
 import React from "react";
-import { Col } from "react-bootstrap";
+import { readValueFromPage } from "../../_utils";
+import { IS_EDITABLE, IS_EMPTY_CODELIST } from "../../types";
 import SearchForm from "../Cards/SearchForm";
-import Searches, { SearchesProps } from "../Cards/Searches";
+import Searches from "../Cards/Searches";
 import Summary, { SummaryProps } from "../Cards/Summary";
 import Tools from "../Cards/Tools";
 import Versions from "../Cards/Versions";
 
 export default function Sidebar({
   counts,
-  draftURL,
-  isEditable,
-  isEmptyCodelist,
-  searches,
-}: {
-  counts: SummaryProps["counts"];
-  draftURL: string;
-  isEditable: boolean;
-  isEmptyCodelist: boolean;
-  searches: SearchesProps["searches"];
-}) {
+}: { counts: SummaryProps["counts"] }) {
+  const isEditable: IS_EDITABLE = readValueFromPage("is-editable");
+  const isEmptyCodelist: IS_EMPTY_CODELIST =
+    readValueFromPage("is-empty-codelist");
+
   return (
-    <Col className="builder__sidebar" md="3">
-      {!isEmptyCodelist && <Summary counts={counts} draftURL={draftURL} />}
-      {searches.length > 0 && (
-        <Searches
-          draftURL={draftURL}
-          isEditable={isEditable}
-          searches={searches}
-        />
-      )}
+    <>
+      {!isEmptyCodelist && <Summary counts={counts} />}
+      <Searches />
       {isEditable && <SearchForm />}
       {!isEmptyCodelist && <Versions />}
       <Tools />
-    </Col>
+    </>
   );
 }

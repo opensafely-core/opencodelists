@@ -1,6 +1,6 @@
 import React from "react";
 import { readValueFromPage } from "../../_utils";
-import { IS_EDITABLE, METADATA, } from "../../types";
+import { IS_EDITABLE, METADATA } from "../../types";
 import { SummaryProps } from "../Cards/Summary";
 import ManagementForm from "../Header/ManagementForm";
 
@@ -42,7 +42,8 @@ export default function Header({ counts }: { counts: SummaryProps["counts"] }) {
             <div className="py-1 px-2 list-group-item">
               <dt>Coding system release</dt>
               <dd className="mb-0">
-                {data.releaseName} {data.releaseValidFrom && <>({data.releaseValidFrom})</>}
+                {data.releaseName}{" "}
+                {data.releaseValidFrom && <>({data.releaseValidFrom})</>}
               </dd>
             </div>
           )}
@@ -61,7 +62,7 @@ export default function Header({ counts }: { counts: SummaryProps["counts"] }) {
             </div>
           )}
 
-            {data.versionID && (
+          {data.versionID && (
             <div className="py-1 px-2 list-group-item">
               <dt>Version ID</dt>
               <dd className="mb-0">{data.versionID}</dd>

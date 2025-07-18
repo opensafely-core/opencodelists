@@ -1,6 +1,7 @@
 import React from "react";
 import { Card, ListGroup } from "react-bootstrap";
-import { PageData } from "../../types";
+import { readValueFromPage } from "../../_utils";
+import { DRAFT_URL } from "../../types";
 
 export interface SummaryProps {
   counts: {
@@ -12,10 +13,13 @@ export interface SummaryProps {
     "?": number;
     total: number;
   };
-  draftURL: PageData["draftURL"];
 }
 
-export default function Summary({ counts, draftURL }: SummaryProps) {
+export default function Summary({ counts }: SummaryProps) {
+  const draftURL: DRAFT_URL = readValueFromPage("draft-url");
+
+  if (!draftURL || !counts.total) return null;
+
   const currentFilter = new URLSearchParams(window.location.search).get(
     "filter",
   );

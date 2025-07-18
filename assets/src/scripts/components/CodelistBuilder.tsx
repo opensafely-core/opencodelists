@@ -78,20 +78,20 @@ export default class CodelistBuilder extends React.Component<
     super(props);
 
     this.state = {
-      codeToStatus: props.codeToStatus,
+      codeToStatus: props?.codeToStatus,
       expandedCompatibleReleases: false,
       metadata: {
         description: {
-          text: props.metadata.description.text,
-          html: props.metadata.description.html,
+          text: props?.metadata?.description.text,
+          html: props?.metadata?.description.html,
           isEditing: false,
         },
         methodology: {
-          text: props.metadata.methodology.text,
-          html: props.metadata.methodology.html,
+          text: props?.metadata?.methodology.text,
+          html: props?.metadata?.methodology.html,
           isEditing: false,
         },
-        references: props.metadata.references || [],
+        references: props?.metadata?.references || [],
       },
       updateQueue: [],
       updating: false,
@@ -171,14 +171,16 @@ export default class CodelistBuilder extends React.Component<
     };
 
     // Iterate through all codes and count occurrences of each valid status
-    return this.props.allCodes.reduce((acc, code) => {
+    return (
+      this.props?.allCodes?.reduce((acc, code) => {
       const status = this.state.codeToStatus[code];
       if (validStatuses.includes(status)) {
         acc[status]++; // Increment count for this status
         acc.total++; // Increment total count
       }
       return acc;
-    }, counts);
+      }, counts) || counts
+    );
   }
 
   handleEdit = (field: MetadataFieldName) => {

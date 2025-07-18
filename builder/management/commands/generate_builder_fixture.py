@@ -95,8 +95,6 @@ class Command(BaseCommand):
                     "searches",
                     "tree_tables",
                     "all_codes",
-                    "included_codes",
-                    "excluded_codes",
                     "parent_map",
                     "child_map",
                     "code_to_term",
@@ -112,8 +110,6 @@ class Command(BaseCommand):
             # Ensure that all fields are sorted, to allow for meaningful diffs should
             # the data change.
             data["all_codes"] = sorted(data["all_codes"])
-            data["included_codes"] = sorted(data["included_codes"])
-            data["excluded_codes"] = sorted(data["excluded_codes"])
             data["parent_map"] = {
                 code: sorted(parents)
                 for code, parents in sorted(data["parent_map"].items())
@@ -126,11 +122,11 @@ class Command(BaseCommand):
             data["code_to_status"] = dict(sorted(data["code_to_status"].items()))
 
             js_fixtures_path = Path(
-                settings.BASE_DIR, "static", "test", "js", "fixtures"
+                settings.BASE_DIR, "assets", "src", "scripts", "__tests__", "fixtures"
             )
 
             with open(js_fixtures_path / f"{version_key}.json", "w") as f:
-                json.dump(data, f, indent=2)
+                json.dump(data, f, indent=2, default=str)
 
 
 def set_up_db():

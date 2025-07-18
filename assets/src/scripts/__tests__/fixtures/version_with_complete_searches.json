@@ -2,26 +2,26 @@
   "searches": [
     {
       "term_or_code": "code: 439656005",
-      "url": "/builder/3ce9e642/search/code:439656005/",
-      "delete_url": "/builder/3ce9e642/search/code:439656005/delete/",
+      "url": "/builder/71bb8ca2/search/13/code:439656005/",
+      "delete_url": "/builder/71bb8ca2/search/13/code:439656005/delete/",
       "active": false
     },
     {
       "term_or_code": "arthritis",
-      "url": "/builder/3ce9e642/search/arthritis/",
-      "delete_url": "/builder/3ce9e642/search/arthritis/delete/",
+      "url": "/builder/71bb8ca2/search/10/arthritis/",
+      "delete_url": "/builder/71bb8ca2/search/10/arthritis/delete/",
       "active": false
     },
     {
       "term_or_code": "elbow",
-      "url": "/builder/3ce9e642/search/elbow/",
-      "delete_url": "/builder/3ce9e642/search/elbow/delete/",
+      "url": "/builder/71bb8ca2/search/12/elbow/",
+      "delete_url": "/builder/71bb8ca2/search/12/elbow/delete/",
       "active": false
     },
     {
       "term_or_code": "tennis",
-      "url": "/builder/3ce9e642/search/tennis/",
-      "delete_url": "/builder/3ce9e642/search/tennis/delete/",
+      "url": "/builder/71bb8ca2/search/11/tennis/",
+      "delete_url": "/builder/71bb8ca2/search/11/tennis/delete/",
       "active": false
     }
   ],
@@ -60,16 +60,6 @@
     "429554009",
     "439656005",
     "73583000"
-  ],
-  "included_codes": [
-    "128133004",
-    "156659008",
-    "439656005"
-  ],
-  "excluded_codes": [
-    "116309007",
-    "238484001",
-    "3723001"
   ],
   "parent_map": {
     "103001000119108": [
@@ -864,63 +854,80 @@
     "73583000": "(+)"
   },
   "is_editable": true,
-  "update_url": "/builder/3ce9e642/update/",
-  "search_url": "/builder/3ce9e642/search/",
+  "update_url": "/builder/71bb8ca2/update/",
+  "search_url": "/builder/71bb8ca2/search/",
   "versions": [
     {
-      "tag_or_hash": "3ce9e642",
-      "url": "/codelist/test-university/new-style-codelist/3ce9e642/",
+      "tag_or_hash": "71bb8ca2",
+      "url": "/codelist/test-university/new-style-codelist/71bb8ca2/",
       "status": "draft",
-      "current": true
+      "current": true,
+      "created_at": "2025-07-18 10:27:11.079350+00:00"
     },
     {
-      "tag_or_hash": "55f95977",
-      "url": "/codelist/test-university/new-style-codelist/55f95977/",
+      "tag_or_hash": "0acaffd8",
+      "url": "/codelist/test-university/new-style-codelist/0acaffd8/",
       "status": "draft",
-      "current": false
+      "current": false,
+      "created_at": "2025-07-18 10:27:11.002476+00:00"
     },
     {
-      "tag_or_hash": "6f08ccac",
-      "url": "/codelist/test-university/new-style-codelist/6f08ccac/",
+      "tag_or_hash": "23da730d",
+      "url": "/codelist/test-university/new-style-codelist/23da730d/",
       "status": "draft",
-      "current": false
+      "current": false,
+      "created_at": "2025-07-18 10:27:10.817077+00:00"
+    },
+    {
+      "tag_or_hash": "6c560cb6",
+      "url": "/codelist/test-university/new-style-codelist/6c560cb6/",
+      "status": "under review",
+      "current": false,
+      "created_at": "2025-07-18 10:27:10.766556+00:00"
     },
     {
       "tag_or_hash": "05657fec",
       "url": "/codelist/test-university/new-style-codelist/05657fec/",
       "status": "under review",
-      "current": false
+      "current": false,
+      "created_at": "2025-07-18 10:27:10.754647+00:00"
     },
     {
       "tag_or_hash": "1e74f321",
       "url": "/codelist/test-university/new-style-codelist/1e74f321/",
-      "status": "under review",
-      "current": false
-    },
-    {
-      "tag_or_hash": "37846656",
-      "url": "/codelist/test-university/new-style-codelist/37846656/",
       "status": "published",
-      "current": false
+      "current": false,
+      "created_at": "2025-07-18 10:27:10.750497+00:00"
     }
   ],
   "metadata": {
-    "coding_system_name": "SNOMED CT",
+    "coding_system_id": "snomedct",
+    "coding_system_name": "SNOMED CT (UK Clinical Edition)",
     "coding_system_release": {
       "release_name": "test",
       "valid_from": "2020-01-01"
     },
     "organisation_name": "Test University",
     "codelist_full_slug": "test-university/new-style-codelist",
-    "hash": "3ce9e642",
-    "description":{
-      "text": "",
+    "hash": "71bb8ca2",
+    "codelist_name": "New-style Codelist",
+    "description": {
+      "text": null,
       "html": ""
     },
-    "methodology":{
-      "text": "",
+    "methodology": {
+      "text": null,
       "html": ""
     },
-    "references": []
+    "references": [
+      {
+        "text": "Reference 1",
+        "url": "https://example.com/reference1"
+      },
+      {
+        "text": "Reference 2",
+        "url": "https://example.com/reference2"
+      }
+    ]
   }
 }

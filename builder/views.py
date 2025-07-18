@@ -217,8 +217,6 @@ def _draft(request, draft, search_id):
         "searches": searches,
         "tree_tables": tree_tables,
         "all_codes": list(codeset.all_codes()),
-        "included_codes": list(codeset.codes("+")),
-        "excluded_codes": list(codeset.codes("-")),
         "parent_map": {p: list(cc) for p, cc in hierarchy.parent_map.items()},
         "child_map": {c: list(pp) for c, pp in hierarchy.child_map.items()},
         "code_to_term": code_to_term,

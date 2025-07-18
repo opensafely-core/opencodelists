@@ -1,5 +1,11 @@
 {
-  "searches": [],
+  "searches": [
+    {
+      "term_or_code": "[no search term]",
+      "url": "/builder/23da730d/no-search-term/",
+      "active": false
+    }
+  ],
   "tree_tables": [
     [
       "Disorder",
@@ -23,13 +29,6 @@
     "429554009",
     "439656005",
     "73583000"
-  ],
-  "included_codes": [
-    "128133004",
-    "156659008"
-  ],
-  "excluded_codes": [
-    "439656005"
   ],
   "parent_map": {
     "105969002": [
@@ -462,51 +461,66 @@
     "73583000": "(+)"
   },
   "is_editable": true,
-  "update_url": "/builder/6f08ccac/update/",
-  "search_url": "/builder/6f08ccac/search/",
+  "update_url": "/builder/23da730d/update/",
+  "search_url": "/builder/23da730d/search/",
   "versions": [
     {
-      "tag_or_hash": "6f08ccac",
-      "url": "/codelist/test-university/new-style-codelist/6f08ccac/",
+      "tag_or_hash": "23da730d",
+      "url": "/codelist/test-university/new-style-codelist/23da730d/",
       "status": "draft",
-      "current": true
+      "current": true,
+      "created_at": "2025-07-18 10:27:10.817077+00:00"
+    },
+    {
+      "tag_or_hash": "6c560cb6",
+      "url": "/codelist/test-university/new-style-codelist/6c560cb6/",
+      "status": "under review",
+      "current": false,
+      "created_at": "2025-07-18 10:27:10.766556+00:00"
     },
     {
       "tag_or_hash": "05657fec",
       "url": "/codelist/test-university/new-style-codelist/05657fec/",
       "status": "under review",
-      "current": false
+      "current": false,
+      "created_at": "2025-07-18 10:27:10.754647+00:00"
     },
     {
       "tag_or_hash": "1e74f321",
       "url": "/codelist/test-university/new-style-codelist/1e74f321/",
-      "status": "under review",
-      "current": false
-    },
-    {
-      "tag_or_hash": "37846656",
-      "url": "/codelist/test-university/new-style-codelist/37846656/",
       "status": "published",
-      "current": false
+      "current": false,
+      "created_at": "2025-07-18 10:27:10.750497+00:00"
     }
   ],
   "metadata": {
-    "coding_system_name": "SNOMED CT",
+    "coding_system_id": "snomedct",
+    "coding_system_name": "SNOMED CT (UK Clinical Edition)",
     "coding_system_release": {
       "release_name": "test",
       "valid_from": "2020-01-01"
     },
     "organisation_name": "Test University",
     "codelist_full_slug": "test-university/new-style-codelist",
-    "hash": "6f08ccac",
-    "description":{
-      "text": "",
+    "hash": "23da730d",
+    "codelist_name": "New-style Codelist",
+    "description": {
+      "text": null,
       "html": ""
     },
-    "methodology":{
-      "text": "",
+    "methodology": {
+      "text": null,
       "html": ""
     },
-    "references": []
+    "references": [
+      {
+        "text": "Reference 1",
+        "url": "https://example.com/reference1"
+      },
+      {
+        "text": "Reference 2",
+        "url": "https://example.com/reference2"
+      }
+    ]
   }
 }

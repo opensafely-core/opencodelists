@@ -95,8 +95,6 @@ class Command(BaseCommand):
                     "searches",
                     "tree_tables",
                     "all_codes",
-                    "included_codes",
-                    "excluded_codes",
                     "parent_map",
                     "child_map",
                     "code_to_term",
@@ -112,8 +110,6 @@ class Command(BaseCommand):
             # Ensure that all fields are sorted, to allow for meaningful diffs should
             # the data change.
             data["all_codes"] = sorted(data["all_codes"])
-            data["included_codes"] = sorted(data["included_codes"])
-            data["excluded_codes"] = sorted(data["excluded_codes"])
             data["parent_map"] = {
                 code: sorted(parents)
                 for code, parents in sorted(data["parent_map"].items())

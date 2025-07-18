@@ -48,8 +48,9 @@ def test_convert_full_mapping(client, disorder_of_elbow_csv_data):
         "type": "full",
     }
     response = client.post(reverse("conversions:convert"), data)
+    content = response.content.decode()
     # The two CTV3 codes that have mappings to a SNOMED CT are included
-    assert response.text == (
+    assert content == (
         "snomedct_id,snomedct_name,ctv3_id,ctv3_name\r\n"
         '439656005,Arthritis of elbow (disorder),N06z2,"(Arthropathy NOS, of the upper arm) or (elbow arthritis NOS)"\r\n'
         "439656005,Arthritis of elbow (disorder),X7009,Elbow arthritis NOS\r\n"
@@ -66,7 +67,8 @@ def test_convert_to_codes_only(client, disorder_of_elbow_csv_data):
     }
     response = client.post(reverse("conversions:convert"), data)
     # The two CTV3 codes that have mappings to a SNOMED CT are included
-    assert response.text == (
+    content = response.content.decode()
+    assert content == (
         "ctv3_id,ctv3_name\r\n"
         'N06z2,"(Arthropathy NOS, of the upper arm) or (elbow arthritis NOS)"\r\n'
         "X7009,Elbow arthritis NOS\r\n"

@@ -122,7 +122,7 @@ class Command(BaseCommand):
             data["code_to_status"] = dict(sorted(data["code_to_status"].items()))
 
             js_fixtures_path = Path(
-                settings.BASE_DIR, "static", "test", "js", "fixtures"
+                settings.BASE_DIR, "assets", "src", "scripts", "__tests__", "fixtures"
             )
 
             with open(js_fixtures_path / f"{version_key}.json", "w") as f:

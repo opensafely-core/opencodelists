@@ -3,11 +3,9 @@
     "organisation": "nhsd-primary-care-domain-refsets",
     "coding_systems": {
         "snomedct": {
-            "id": "snomedct",
-            "release": "snomedct_4020_20250611"
+            "id": "snomedct"
         }
     },
-    "tag": "20250627",
     "column_aliases": {
         "codelist_name": "Cluster_Desc",
         "code": "ConceptId",

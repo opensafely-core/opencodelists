@@ -6,14 +6,14 @@ from opencodelists.csv_utils import csv_data_to_rows
 
 def test_get(client, version):
     rsp = client.get(version.get_download_url())
-    data = rsp.text
+    data = rsp.content.decode("utf8")
     assert data == version.csv_data_for_download()
 
 
 def test_get_with_original_headers(client, old_style_version):
     # by default, the original csv data is downloaded
     rsp = client.get(old_style_version.get_download_url())
-    data = rsp.text
+    data = rsp.content.decode("utf8")
     assert data == old_style_version.csv_data_for_download()
     assert csv_data_to_rows(data)[0] == ["code", "name"]
 
@@ -21,7 +21,7 @@ def test_get_with_original_headers(client, old_style_version):
 def test_get_with_fixed_headers(client, old_style_version):
     assert old_style_version.table[0] == ["code", "name"]
     rsp = client.get(old_style_version.get_download_url() + "?fixed-headers")
-    data = rsp.text
+    data = rsp.content.decode("utf8")
     assert data == old_style_version.csv_data_for_download(fixed_headers=True)
     assert csv_data_to_rows(data)[0] == ["code", "term"]
 
@@ -32,7 +32,7 @@ def test_get_with_fixed_headers_no_matching_term(client, old_style_version):
     )
     old_style_version.save()
     rsp = client.get(old_style_version.get_download_url() + "?fixed-headers")
-    data = rsp.text
+    data = rsp.content.decode("utf8")
     assert data == old_style_version.csv_data_for_download(fixed_headers=True)
     rows = csv_data_to_rows(data)
     assert rows[0] == ["code", "term"]
@@ -56,7 +56,7 @@ def test_get_with_mapped_vmps(client, dmd_version_asthma_medication):
     Mapping.objects.create(id="888", vpidprev="10514511000001106")
 
     rsp = client.get(dmd_version_asthma_medication.get_download_url())
-    data = rsp.text
+    data = rsp.content.decode("utf8")
     # Includes mapped VMPs  and uses fixed headers by default
     # Includes an additional column with the original code header
     assert csv_data_to_rows(data) == [
@@ -104,7 +104,7 @@ def test_get_with_mapped_vmps_and_original_code_column(
     Mapping.objects.create(id="10514511000001106", vpidprev="999")
 
     rsp = client.get(dmd_version_asthma_medication.get_download_url())
-    data = rsp.text
+    data = rsp.content.decode("utf8")
     # Includes mapped VMPs by default, and uses fixed headers
     # No additional column when the original code column was already "code"
     assert csv_data_to_rows(data) == [
@@ -203,7 +203,7 @@ def test_get_with_mapped_vmps_no_term_column(
     dmd_version_asthma_medication.save()
 
     rsp = client.get(dmd_version_asthma_medication.get_download_url())
-    data = rsp.text
+    data = rsp.content.decode("utf8")
     # Includes mapped VMPs  and uses fixed headers by default
     # Includes an additional column with the original code header
     assert csv_data_to_rows(data) == expected
@@ -218,7 +218,7 @@ def test_get_with_mapped_vmps_and_fixed_headers(client, dmd_version_asthma_medic
     rsp = client.get(
         dmd_version_asthma_medication.get_download_url() + "?fixed-headers"
     )
-    data = rsp.text
+    data = rsp.content.decode("utf8")
     # Includes mapped VMPs by default, and uses fixed headers
     # No additional column with the original code header when fixed headers are explictly requested
     assert csv_data_to_rows(data) == [
@@ -246,7 +246,7 @@ def test_get_with_duplicated_mapped_vmps(client, dmd_version_asthma_medication):
     Mapping.objects.create(id="777", vpidprev="10514511000001106")
 
     rsp = client.get(dmd_version_asthma_medication.get_download_url())
-    data = rsp.text
+    data = rsp.content.decode("utf8")
     # Includes mapped VMPs by default, and uses fixed headers
     assert csv_data_to_rows(data) == [
         ["code", "term", "dmd_id", "dmd_type", "bnf_code"],
@@ -281,7 +281,7 @@ def test_get_with_mapped_vmps_nothing_to_map(client, dmd_version_asthma_medicati
     # create a previous mapping for some other unrelated dmd code
     Mapping.objects.create(id="111", vpidprev="999")
     rsp = client.get(dmd_version_asthma_medication.get_download_url())
-    data = rsp.text
+    data = rsp.content.decode("utf8")
 
     assert csv_data_to_rows(data) == [
         ["code", "term", "dmd_id", "dmd_type", "bnf_code"],
@@ -308,7 +308,7 @@ def test_get_without_mapped_vmps(client, dmd_version_asthma_medication):
     rsp = client.get(
         dmd_version_asthma_medication.get_download_url() + "?omit-mapped-vmps"
     )
-    data = rsp.text
+    data = rsp.content.decode("utf8")
     # omitting mapped VMPs, just download the CSV data as is
     rows = csv_data_to_rows(data)
     assert rows[0] == ["dmd_type", "dmd_id", "dmd_name", "bnf_code"]
@@ -338,7 +338,7 @@ def test_get_with_mapped_vmps_more_than_one_step_distant(
     Mapping.objects.create(id="CCC", vpidprev="BBB")
 
     rsp = client.get(dmd_version_asthma_medication.get_download_url())
-    data = rsp.text
+    data = rsp.content.decode("utf8")
     assert csv_data_to_rows(data) == [
         ["code", "term", "dmd_id", "dmd_type", "bnf_code"],
         [

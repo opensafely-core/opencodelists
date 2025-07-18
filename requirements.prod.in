@@ -7,8 +7,8 @@ antlr4-python3-runtime
 beautifulsoup4
 crispy-bootstrap4
 dj-database-url
-# Pin to 5.2.x until 6.0 is released and we are happy with 6.0 compatibility
-django~=5.2.0
+# Pin to 5.1.x until we are happy with 5.2 compat
+django>=5.1,<5.2
 djangorestframework
 django-anymail[mailgun]
 django-crispy-forms

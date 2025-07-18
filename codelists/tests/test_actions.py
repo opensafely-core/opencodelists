@@ -1,9 +1,18 @@
 import pytest
 from django.db import IntegrityError
+from django.db.models.fields import reverse_related
 
 from codelists import actions
 from codelists.coding_systems import most_recent_database_alias
-from codelists.models import Codelist, CodelistVersion
+from codelists.models import (
+    CachedHierarchy,
+    Codelist,
+    CodelistVersion,
+    CodeObj,
+    Search,
+    SearchResult,
+    Status,
+)
 from mappings.bnfdmd.models import Mapping as BnfDmdMapping
 from opencodelists.tests.assertions import assert_difference, assert_no_difference
 
@@ -679,3 +688,108 @@ def test_update_codelist_change_slug(
     codelist.refresh_from_db()
 
     assert codelist.handles.filter(slug="changed-slug").count() == 1
+
+
+def test_fork_codelist_organisation_codelist(organisation_codelist, user):
+    with pytest.raises(ValueError, match="Only user-owned codelists can be forked"):
+        actions.fork_codelist(organisation_codelist, user)
+
+
+def test_fork_codelist_user_codelist(new_style_codelist, user, collaborator):
+    # The user_codelist fixture doesn't have all of the features of a new-style codelist
+    # we want to test here, so use an organisation-owned one and change its ownership.
+    handle = new_style_codelist.handles.first()
+    handle.organisation = None
+    handle.user = user
+    handle.save()
+
+    new_style_codelist.methodology = "Test"
+    new_style_version = new_style_codelist.latest_visible_version(collaborator)
+
+    expected_version_count = CodelistVersion.objects.count() + 1
+    expected_cached_hierarchy_count = CachedHierarchy.objects.count() + 1
+    expected_codeobj_count = (
+        CodeObj.objects.count() + new_style_version.code_objs.count()
+    )
+    expected_search_count = Search.objects.count() + new_style_version.searches.count()
+    expected_searchresult_count = SearchResult.objects.count()
+    for search in new_style_version.searches.all():
+        expected_searchresult_count += search.results.count()
+
+    forked_codelist = actions.fork_codelist(new_style_codelist, collaborator)
+
+    assert forked_codelist.owner == collaborator
+
+    # check no references to the source codelist's versions in the fork
+    assert (
+        set(new_style_codelist.versions.all()).intersection(
+            forked_codelist.versions.all()
+        )
+        == set()
+    )
+
+    # check methodology is retained alongside reference to source
+    assert new_style_codelist.methodology in forked_codelist.methodology
+    assert new_style_version.get_absolute_url() in forked_codelist.methodology
+
+    # check references to References are not the same, but the content is
+    assert (
+        set(new_style_codelist.references.all()).intersection(
+            forked_codelist.references.all()
+        )
+        == set()
+    )
+    assert set(r.text for r in new_style_codelist.references.all()) == set(
+        r.text for r in forked_codelist.references.all()
+    )
+    assert set(r.url for r in new_style_codelist.references.all()) == set(
+        r.url for r in forked_codelist.references.all()
+    )
+
+    # check forked codelist version
+    assert forked_codelist.versions.count() == 1
+    forked_version = forked_codelist.versions.first()
+    assert forked_version.status == Status.UNDER_REVIEW
+    assert forked_version.created_at != new_style_version.created_at
+    assert forked_version.updated_at != new_style_version.updated_at
+
+    # check no references to source codelist version's related objects in fork
+    # but count is the same
+    for field in CodelistVersion._meta.get_fields():
+        match field.__class__:
+            case reverse_related.OneToOneRel:
+                source = getattr(new_style_version, field.name)
+                fork = getattr(forked_version, field.name)
+                assert fork is not None
+                assert source != fork
+            case reverse_related.ManyToOneRel:
+                source = set(getattr(new_style_version, field.name).all())
+                fork = set(getattr(forked_version, field.name).all())
+                assert source.intersection(fork) == set()
+                assert len(source) == len(fork)
+
+    # check searches/code obj multiple relations
+    for forked_search in forked_version.searches.all():
+        original_search = new_style_version.searches.get(slug=forked_search.slug)
+        assert forked_search.results.count() == original_search.results.count()
+        for result in forked_search.results.all():
+            assert result.code_obj in forked_version.code_objs.all()
+
+    # check we've made the right number of objects
+    assert CodelistVersion.objects.count() == expected_version_count
+    assert CodeObj.objects.count() == expected_codeobj_count
+    assert Search.objects.count() == expected_search_count
+    assert SearchResult.objects.count() == expected_searchresult_count
+    assert CachedHierarchy.objects.count() == expected_cached_hierarchy_count
+
+
+def test_fork_codelist_user_own_codelist(user_codelist, organisation_user):
+    forked_codelist = actions.fork_codelist(user_codelist, organisation_user)
+
+    assert user_codelist.name in forked_codelist.name
+    assert "fork" in forked_codelist.name
+
+    fork2 = actions.fork_codelist(user_codelist, organisation_user)
+
+    assert user_codelist.name in fork2.name
+    assert "fork1" in fork2.name

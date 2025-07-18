@@ -41,7 +41,9 @@
   line-height: 1;
   outline-offset: 2px;
   padding: 0.75rem;
-  transition: 0.15s ease-in-out transform;
+  transition-duration: 0.15s;
+  transition-property: background-color, color, transform;
+  transition-timing-function: ease-out;
   white-space: nowrap;
   width: fit-content;
   will-change: transform;

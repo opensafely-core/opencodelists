@@ -77,3 +77,15 @@ export type METADATA = {
   hash: string;
   codelist_name: string;
 };
+
+// {{ versions|json_script:"versions" }}
+export type VERSIONS = {
+  created_at: string;
+  current: boolean;
+  status: string;
+  tag_or_hash: string;
+  url: string;
+}[];
+
+// {{ is_empty_codelist|json_script:"is-empty-codelist" }}
+export type IS_EMPTY_CODELIST = boolean;

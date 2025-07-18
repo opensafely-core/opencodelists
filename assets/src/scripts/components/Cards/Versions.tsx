@@ -7,16 +7,9 @@ import {
   Tooltip,
 } from "react-bootstrap";
 import { readValueFromPage } from "../../_utils";
+import { VERSIONS } from "../../types";
 
-export interface VersionProps {
-  created_at: string;
-  current: boolean;
-  status: string;
-  tag_or_hash: string;
-  url: string;
-}
-
-function Version({ version }: { version: VersionProps }) {
+function Version({ version }: { version: VERSIONS[number] }) {
   const createdAt = new Date(version.created_at);
   const userTimeZone =
     Intl?.DateTimeFormat()?.resolvedOptions()?.timeZone || "UTC";
@@ -77,7 +70,7 @@ function Version({ version }: { version: VersionProps }) {
 }
 
 export default function Versions() {
-  const versions: VersionProps[] = readValueFromPage("versions");
+  const versions: VERSIONS = readValueFromPage("versions");
 
   if (!versions?.length) return null;
 

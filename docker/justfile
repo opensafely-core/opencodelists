@@ -65,8 +65,8 @@ _create_storage env:
         SCRIPT_DIR={{justfile_directory()}}
         if ! test -d "$SCRIPT_DIR/storage"; then
             mkdir -p "$SCRIPT_DIR/storage"
-            sudo chown 10003:10003 "$SCRIPT_DIR/storage"
         fi
+        sudo chown 10003:10003 "$SCRIPT_DIR/storage"
     fi
 
 
@@ -86,7 +86,10 @@ exec env="dev" *args="bash":
 
 
 # run a basic functional smoke test against a running opencodelists
-smoke-test host="http://localhost:7000":
+smoke-test host="http://localhost:7000" env="prod":
     #!/bin/bash
     set -eu
+    echo "Running release script (check and migrations)..."
+    docker compose exec {{ env }} bash /app/deploy/release.sh
+    echo "Testing service connectivity..."
     curl -I {{ host }} -s --compressed --fail --retry 20 --retry-delay 1 --retry-all-errors

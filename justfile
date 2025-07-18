@@ -342,8 +342,8 @@ docker-exec *args="bash": _env
 
 
 # run tests in docker container
-docker-smoke-test host="http://localhost:7000": _env
-    {{ just_executable() }} docker/smoke-test {{ host }}
+docker-smoke-test host="http://localhost:7000" env="prod": _env
+    {{ just_executable() }} docker/smoke-test {{ host }} {{env}}
 
 
 # check migrations in the dev docker container

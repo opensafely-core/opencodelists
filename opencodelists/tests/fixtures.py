@@ -237,6 +237,17 @@ def dmd_bnf_mapping_data(setup_coding_systems, django_db_setup, django_db_blocke
         )
 
 
+@pytest.fixture
+def pcd_refset_version(db):
+    """Fixture to create a PCDRefsetVersion object."""
+    from coding_systems.versioning.models import PCDRefsetVersion
+
+    obj = PCDRefsetVersion.objects.create(
+        release="test_release", tag="20250718", release_date="2025-07-18"
+    )
+    return obj
+
+
 @pytest.fixture(scope=get_fixture_scope)
 def universe(snomedct_data, dmd_data, bnf_data, django_db_setup, django_db_blocker):
     """Create universe of fixture objects.

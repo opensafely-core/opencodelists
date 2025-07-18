@@ -18,3 +18,41 @@ def test_latest_releases(client, setup_coding_systems):
         "readv2",
         "experiment",
     }
+
+
+def test_latest_releases_json_without_pcd_refset(client, setup_coding_systems):
+    response = client.get(
+        reverse("versioning:latest_releases"),
+        {"type": "json"},
+        HTTP_ACCEPT="application/json",
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert set(data.keys()) == {
+        "icd10",
+        "snomedct",
+        "ctv3",
+        "dmd",
+        "bnf",
+    }
+
+
+def test_latest_releases_json_with_pcd_refset(
+    client, setup_coding_systems, pcd_refset_version
+):
+    response = client.get(
+        reverse("versioning:latest_releases"),
+        {"type": "json"},
+        HTTP_ACCEPT="application/json",
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert set(data.keys()) == {
+        "icd10",
+        "snomedct",
+        "ctv3",
+        "dmd",
+        "bnf",
+        "pcd_refsets",
+    }
+    assert data["pcd_refsets"]["release"] == pcd_refset_version.release

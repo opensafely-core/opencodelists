@@ -19,10 +19,13 @@ The bulk import process will tell you how many success/failures there were. It i
 trying to rerun the script for any failed imports (assuming there aren't that many). See
 below for how to run just for a few cluster ids.
 
-This script requires a TRUD_API_KEY env var to either be set or defined in your .env file
+This script requires a TRUD_API_KEY env var to either be set or defined in your .env file.
+
+You must also be a member of the "NHSD Primary Care Domain Refsets" organisation on
+opencodelists, and have an API_TOKEN set up via the admin interface.
 
 Usage:
-    just manage runscript update_pcd_refsets --script-args="[--live-run] [REFSET_ID [REFSET_ID ...]]"
+    just manage "runscript update_pcd_refsets --script-args='[--live-run] [--host=xxx] [REFSET_ID [REFSET_ID ...]]'"
 
 Flags:
     --live-run      Actually update the config and run the bulk import for real (not a dry run).
@@ -36,10 +39,10 @@ Arguments:
 
 Examples:
     # Dry run, process only specific clusters
-    just manage runscript update_pcd_refsets --script-args="ANTIPSYONLYDRUG_COD C19ACTIVITY_COD"
+    just manage "runscript update_pcd_refsets --script-args='ANTIPSYONLYDRUG_COD C19ACTIVITY_COD'"
 
     # Live run, production host, process all clusters
-    just manage runscript update_pcd_refsets --script-args="--live-run --host https://www.opencodelists.org/"
+    just manage "runscript update_pcd_refsets --script-args='--live-run --host=https://www.opencodelists.org/'"
 
 
 """
@@ -397,7 +400,7 @@ def run(*args):
         # Only update config and pass --live-run if requested
         if args.live_run:
             update_config_file(
-                CONFIG_FILE, args.host, release_to_use["tag"], coding_system_id
+                CONFIG_FILE, args.host, release_to_use["release_name"], coding_system_id
             )
         else:
             print("\nDry run: not updating config file and not running live import.\n")

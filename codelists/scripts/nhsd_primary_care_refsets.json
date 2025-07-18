@@ -4,10 +4,10 @@
     "coding_systems": {
         "snomedct": {
             "id": "snomedct",
-            "release": "snomedct_3920_20241127"
+            "release": "snomedct_4020_20250611"
         }
     },
-    "tag": "20241205",
+    "tag": "20250627",
     "column_aliases": {
         "codelist_name": "Cluster_Desc",
         "code": "ConceptId",

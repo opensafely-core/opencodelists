@@ -1,5 +1,5 @@
 import React from "react";
-import { Pipe } from "../types";
+import { Pipe } from "../../types";
 
 interface PipesProps {
   pipes: Pipe[];

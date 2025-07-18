@@ -3,13 +3,13 @@ import { act, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React from "react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
-import Hierarchy from "../../_hierarchy";
-import MoreInfoModal from "../../components/MoreInfoModal";
-import { Status } from "../../types";
-import * as versionWithCompleteSearchesData from "../fixtures/version_with_complete_searches.json";
+import Hierarchy from "../../../_hierarchy";
+import MoreInfoModal from "../../../components/Codelist/MoreInfoModal";
+import { Status } from "../../../types";
+import * as versionWithCompleteSearchesData from "../../fixtures/version_with_complete_searches.json";
 
 // Mock dependencies
-vi.mock("../../_utils", () => ({
+vi.mock("../../../_utils", () => ({
   getCookie: vi.fn(() => "test-csrf-token"),
   readValueFromPage: () => ({ coding_system_id: "snomedct" }),
 }));

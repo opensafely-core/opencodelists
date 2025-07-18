@@ -3,16 +3,13 @@ import { Col, Form, Row, Tab, Tabs } from "react-bootstrap";
 import Hierarchy from "../_hierarchy";
 import { getCookie } from "../_utils";
 import { Code, PageData, Reference, Status } from "../types";
-import EmptySearch from "./EmptySearch";
 import EmptyState from "./EmptyState";
+import CodelistTab from "./Layout/CodelistTab";
+import Header from "./Layout/Header";
+import MetadataTab from "./Layout/MetadataTab";
 import Sidebar from "./Layout/Sidebar";
-import ManagementForm from "./ManagementForm";
-import Metadata from "./Metadata";
-import ReferenceList from "./ReferenceList";
-import Title from "./Title";
-import TreeTables from "./TreeTables";
 
-type MetadataFieldName = "description" | "methodology";
+export type MetadataFieldName = "description" | "methodology";
 interface MetadataField {
   text: string;
   html: string;
@@ -269,69 +266,92 @@ export default class CodelistBuilder extends React.Component<
     return (
       <Form.Group className={`card ${field}`} controlId={field}>
         <div className="card-body">
-          <div className="card-title d-flex flex-row justify-content-between align-items-center">
-            <Form.Label className="h5" as="h3">
-              {label}
-            </Form.Label>
-            {isEditing ? (
-              <div>
-                <button
-                  type="button"
-                  className="btn btn-primary btn-sm"
-                  onClick={() => this.handleSave(field)}
-                  title={`Save ${field}`}
-                >
-                  Save
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-secondary btn-sm ml-2"
-                  onClick={() => this.handleCancel(field)}
-                  title={`Cancel ${field} edit`}
-                >
-                  Cancel
-                </button>
-              </div>
-            ) : (
-              <button
-                type="button"
-                className="btn btn-sm btn-warning"
-                onClick={() => this.handleEdit(field)}
-                title={`Edit ${field}`}
-              >
-                Edit
-              </button>
-            )}
-          </div>
-          <hr />
-          {isEditing ? (
+          {this.props.isEditable ? (
             <>
-              <Form.Control
-                ref={this.textareaRefs[field]}
-                as="textarea"
-                rows={5}
-                defaultValue={draftContent}
-                onFocus={() => this.textareaRefs[field].current?.focus()}
-                onKeyDown={(e) => {
-                  // Handle Ctrl+Enter for Save
-                  if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
-                    e.preventDefault();
-                    this.handleSave(field);
-                  }
-                  // Handle Escape for Cancel
-                  if (e.key === "Escape") {
-                    e.preventDefault();
-                    this.handleCancel(field);
-                  }
-                }}
-              />
-              <Form.Text className="text-muted">
-                If you make changes, please remember to click Save (shortcut:
-                CTRL-ENTER) to keep them or Cancel (shortcut: ESC) to discard.
-              </Form.Text>
+              {" "}
+              <div className="card-title d-flex flex-row justify-content-between align-items-center">
+                <Form.Label className="h5" as="h3">
+                  {label}
+                </Form.Label>
+                {isEditing && this.props.isEditable ? (
+                  <div>
+                    <button
+                      type="button"
+                      className="btn btn-primary btn-sm"
+                      onClick={() => this.handleSave(field)}
+                      title={`Save ${field}`}
+                    >
+                      Save
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-secondary btn-sm ml-2"
+                      onClick={() => this.handleCancel(field)}
+                      title={`Cancel ${field} edit`}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-warning"
+                    onClick={() => this.handleEdit(field)}
+                    title={`Edit ${field}`}
+                  >
+                    Edit
+                  </button>
+                )}
+              </div>
+              <hr />
+              {isEditing ? (
+                <>
+                  <Form.Control
+                    ref={this.textareaRefs[field]}
+                    as="textarea"
+                    rows={5}
+                    defaultValue={draftContent}
+                    onFocus={() => this.textareaRefs[field].current?.focus()}
+                    onKeyDown={(e) => {
+                      // Handle Ctrl+Enter for Save
+                      if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+                        e.preventDefault();
+                        this.handleSave(field);
+                      }
+                      // Handle Escape for Cancel
+                      if (e.key === "Escape") {
+                        e.preventDefault();
+                        this.handleCancel(field);
+                      }
+                    }}
+                  />
+                  <Form.Text className="text-muted">
+                    If you make changes, please remember to click Save
+                    (shortcut: CTRL-ENTER) to keep them or Cancel (shortcut:
+                    ESC) to discard.
+                  </Form.Text>
+                </>
+              ) : (
+                <>
+                  <div
+                    className="builder__markdown"
+                    dangerouslySetInnerHTML={{
+                      __html:
+                        htmlContent ||
+                        `<em class="text-muted">No ${field} provided yet</em>`,
+                    }}
+                  />
+                </>
+              )}
             </>
           ) : (
             <>
+              <div className="card-title d-flex flex-row justify-content-between align-items-center">
+                <Form.Label className="h5" as="h3">
+                  {label}
+                </Form.Label>
+              </div>
+              <hr />
               <div
                 className="builder__markdown"
                 dangerouslySetInnerHTML={{
@@ -364,13 +384,12 @@ export default class CodelistBuilder extends React.Component<
 
     return (
       <>
-        <div className="border-bottom mb-3 pb-3">
-          <div className="d-flex flex-row justify-content-between gap-2 mb-2">
-            <Title name={metadata.codelist_name} />
-            {isEditable && <ManagementForm counts={this.counts()} />}
-          </div>
-          <Metadata data={metadata} />
-        </div>
+        <Header
+          counts={this.counts()}
+          isEditable={isEditable}
+          metadata={metadata}
+        />
+
         <Row>
           <Sidebar
             counts={this.counts()}
@@ -388,42 +407,29 @@ export default class CodelistBuilder extends React.Component<
             <Col md="9">
               <Tabs defaultActiveKey="codelist" className="mb-3">
                 <Tab eventKey="codelist" title="Codelist">
-                  <h3 className="h4">{resultsHeading}</h3>
-                  <hr />
-                  {treeTables.length > 0 ? (
-                    <TreeTables
-                      allCodes={allCodes}
-                      codeToStatus={this.state.codeToStatus}
-                      codeToTerm={codeToTerm}
-                      hierarchy={hierarchy}
-                      isEditable={isEditable}
-                      toggleVisibility={() => null}
-                      treeTables={treeTables}
-                      updateStatus={this.updateStatus}
-                      visiblePaths={visiblePaths}
-                    />
-                  ) : (
-                    <EmptySearch />
-                  )}
+                  <CodelistTab
+                    allCodes={allCodes}
+                    codeToStatus={this.state.codeToStatus}
+                    codeToTerm={codeToTerm}
+                    hierarchy={hierarchy}
+                    isEditable={isEditable}
+                    resultsHeading={resultsHeading}
+                    treeTables={treeTables}
+                    updateStatus={this.updateStatus}
+                    visiblePaths={visiblePaths}
+                  />
                 </Tab>
                 <Tab
                   eventKey="metadata"
                   title="Metadata"
                   className="max-w-80ch"
                 >
-                  <p className="font-italic">
-                    Users have found it helpful to record their decision
-                    strategy as they build their codelist. Text added here will
-                    be ready for you to edit before you publish the codelist.
-                  </p>
-                  <Form noValidate>
-                    {this.renderMetadataField("description")}
-                    {this.renderMetadataField("methodology")}
-                    <ReferenceList
-                      references={this.state.metadata.references}
-                      onSave={this.handleSaveReferences}
-                    />
-                  </Form>
+                  <MetadataTab
+                    handleSaveReferences={this.handleSaveReferences}
+                    isEditable={isEditable}
+                    references={this.state.metadata.references}
+                    renderMetadataField={this.renderMetadataField}
+                  />
                 </Tab>
               </Tabs>
             </Col>

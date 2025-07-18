@@ -2,11 +2,10 @@ import "@testing-library/jest-dom";
 import { render, screen } from "@testing-library/react";
 import React from "react";
 import { describe, expect, it } from "vitest";
-import Search from "../../../components/Cards/Searches";
-import { PageData } from "../../../types";
+import Search, { SearchesProps } from "../../../components/Cards/Searches";
 
 describe("Search Component", () => {
-  const mockSearches: PageData["searches"] = [
+  const mockSearches: SearchesProps["searches"] = [
     {
       active: true,
       term_or_code: "test search 1",
@@ -57,7 +56,7 @@ describe("Search Component", () => {
   });
 
   it("does not render 'show all' link when no active search", () => {
-    const mockSearchesNoActiveSearch: PageData["searches"] = [
+    const mockSearchesNoActiveSearch: SearchesProps["searches"] = [
       {
         active: false,
         term_or_code: "test search 1",

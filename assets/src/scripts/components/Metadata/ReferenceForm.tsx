@@ -1,6 +1,6 @@
 import React from "react";
 import { Form } from "react-bootstrap";
-import { Reference } from "../types";
+import { Reference } from "../../types";
 
 interface ReferenceFormProps {
   reference?: Reference;

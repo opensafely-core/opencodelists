@@ -126,7 +126,7 @@ class Command(BaseCommand):
             )
 
             with open(js_fixtures_path / f"{version_key}.json", "w") as f:
-                json.dump(data, f, indent=2)
+                json.dump(data, f, indent=2, default=str)
 
 
 def set_up_db():

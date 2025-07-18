@@ -92,3 +92,17 @@ def build_db_path(coding_system_release):
     )
 
     return db_path
+
+
+class PCDRefsetVersion(models.Model):
+    release = models.CharField(max_length=255)
+    tag = models.CharField(max_length=20)
+    release_date = models.DateField()
+    import_timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-release_date"]
+
+    @classmethod
+    def get_latest(cls):
+        return cls.objects.first()

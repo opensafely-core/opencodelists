@@ -60,10 +60,12 @@ from zipfile import ZipFile
 import requests
 
 from coding_systems.base.trud_utils import TrudDownloader
+from coding_systems.versioning.models import PCDRefsetVersion
 
 
 CONFIG_FILE = Path(__file__).parent / "nhsd_primary_care_refsets.json"
 CLUSTER_REFSET_PATTERN = r"GPData_Cluster_Refset_1000230_\d+\.csv"
+SNOMED_ID = "snomedct"
 
 
 class Downloader(TrudDownloader):
@@ -72,19 +74,6 @@ class Downloader(TrudDownloader):
 
     def get_release_name_from_release_metadata(self, release_metadata):
         return release_metadata["release"][-8:]
-
-
-def get_tag_and_coding_system(config_file):
-    """Return the 'tag' and the first key from 'coding_systems' in the config file."""
-    print(f"\nReading config file ({config_file}):")
-    with open(config_file) as f:
-        config = json.load(f)
-    tag = config.get("tag")
-    coding_systems = config.get("coding_systems", {})
-    first_coding_system = next(iter(coding_systems), None)
-    print(f" - Current tag: {tag}")
-    print(f" - Coding system: {first_coding_system}")
-    return tag, first_coding_system
 
 
 def fetch_pcd_releases(downloader, current_tag):
@@ -147,48 +136,46 @@ def download_and_extract(downloader, release):
         os.unlink(release_zipfile)
 
 
-def get_latest_db_release_from_api(base_url, coding_system_id):
+def get_latest_db_release_and_refset_tag_from_api(base_url):
     """
     Fetch the latest available database release for the coding system from the API.
     Returns the database_alias string (e.g., 'snomedct_4000_20250416') or None.
+    Also returns the latest refset tag if available, or a default known version.
     """
     url = f"{base_url}/coding-systems/latest-releases?type=json"
     try:
         resp = requests.get(url)
         resp.raise_for_status()
         data = resp.json()
-        if coding_system_id in data and "database_alias" in data[coding_system_id]:
-            return data[coding_system_id]["database_alias"]
+        if SNOMED_ID in data and "database_alias" in data[SNOMED_ID]:
+            database_alias = data[SNOMED_ID]["database_alias"]
+            # Get latest refset tag if available, or default to a known version if not
+            latest_refset_tag = data.get("pcd_refsets", {}).get("tag", "20250627")
+            return database_alias, latest_refset_tag
         else:
-            print(f"No database_alias found for {coding_system_id} in API response.")
+            print(f"No database_alias found for {SNOMED_ID} in API response.")
             return None
     except Exception as e:
         print(f"Error fetching latest DB release from API: {e}")
         return None
 
 
-def update_config_file(config_file, base_url, new_tag, coding_system_id):
-    """Update the config file with the new tag and database release."""
-    with open(config_file) as f:
+def build_temp_config(static_config_file, db_release, latest_tag):
+    with open(static_config_file) as f:
         config = json.load(f)
 
-    config["tag"] = new_tag
+    # Update config with dynamic bits
+    config["tag"] = latest_tag
+    config["coding_systems"][SNOMED_ID]["release"] = db_release
 
-    db_release = get_latest_db_release_from_api(base_url, coding_system_id)
-
-    # Update the coding system release
-    if (
-        db_release
-        and "coding_systems" in config
-        and coding_system_id in config["coding_systems"]
-    ):
-        config["coding_systems"][coding_system_id]["release"] = db_release
-
-    with open(config_file, "w") as f:
+    # Write to a temporary file
+    temp_config_path = Path(tempfile.gettempdir()) / f"temp_config_{os.getpid()}.json"
+    with open(temp_config_path, "w") as f:
         json.dump(config, f, indent=4)
         f.write("\n")
-
-    print(f"\nUpdated config file with new tag: {new_tag}\n")
+    print(f"\nCreated temporary config file: {temp_config_path}\n")
+    print(json.dumps(config, indent=4))
+    return temp_config_path
 
 
 def parse_args(args):
@@ -263,7 +250,51 @@ def run_bulk_import(cluster_file, config_file, host, release, live_run, names=No
         return
 
     print(f"Running bulk import: {' '.join(cmd)}")
-    subprocess.run(cmd, check=True)
+    process = subprocess.run(cmd, check=True)
+
+    # After successful import
+    if live_run and process.returncode == 0:
+        # get current tag - but get_latest() might return None
+        latest_refset = PCDRefsetVersion.get_latest()
+        current_refset_tag = latest_refset.tag if latest_refset else "Not yet set"
+
+        print(release)
+        print("\nThe bulk import script has finished.")
+        print("  If you want you can now update the PCDRefsetVersion record.")
+        print(
+            f"  Currently the most recent PCD refset version is: '{current_refset_tag}'"
+        )
+        print(f"  If you confirm, this will be updated to '{release['release_name']}'")
+        print(
+            "  The suggestion is that if all the latest PCD refsets were successfully imported above,"
+        )
+        print(
+            "  then you should update the PCDRefsetVersion record. If any failed, you may want to rerun"
+        )
+        print(
+            "  this script with the --names option to filter to just those refsets, and then update the"
+        )
+        print("  PCDRefsetVersion record once they have successfully imported.\n")
+
+        update_confirm = (
+            input(
+                f"Would you like to update the PCDRefsetVersion record from {current_refset_tag} to {release['release_name']}? (y/n): "
+            )
+            .strip()
+            .lower()
+        )
+        if update_confirm in ("y", "yes"):
+            # Create a new version record
+            PCDRefsetVersion.objects.create(
+                release=release["release"],
+                tag=release["release_name"],
+                release_date=release["valid_from"],
+            )
+            print(f"Recorded new PCD refset version: {release['release_name']}")
+        else:
+            print("PCDRefsetVersion record not updated.")
+    else:
+        print("\nDry run completed successfully. No changes were made to the database.")
 
 
 def process_cluster_file(input_file, output_file, names=None):
@@ -366,24 +397,24 @@ def get_user_choice_for_release(releases, current_tag):
 
 def run(*args):
     args = parse_args(args)
-    # Get current tag from config
-    current_tag, coding_system_id = get_tag_and_coding_system(CONFIG_FILE)
+
+    db_release, latest_tag = get_latest_db_release_and_refset_tag_from_api(args.host)
 
     # Create temporary directory for extraction
     with tempfile.TemporaryDirectory() as temp_dir:
         downloader = Downloader(temp_dir)
         # Fetch possible new releases
-        releases = fetch_pcd_releases(downloader, current_tag)
+        releases = fetch_pcd_releases(downloader, latest_tag)
 
         if not releases:
             print(
-                f"No releases found. The current version ({current_tag}) is newer "
+                f"No releases found. The current version ({latest_tag}) is newer "
                 "than all releases available from the TRUD api. Something's gone "
                 "wrong because you should always at least match the latest tag."
             )
             exit(0)
 
-        release_to_use = get_user_choice_for_release(releases, current_tag)
+        release_to_use = get_user_choice_for_release(releases, latest_tag)
 
         # Download and extract
         cluster_file = download_and_extract(downloader, release_to_use)
@@ -397,17 +428,14 @@ def run(*args):
         if row_count == 0:
             print("\nNo rows matched the filter. Skipping bulk import.")
             return
-        # Only update config and pass --live-run if requested
-        if args.live_run:
-            update_config_file(
-                CONFIG_FILE, args.host, release_to_use["release_name"], coding_system_id
-            )
-        else:
-            print("\nDry run: not updating config file and not running live import.\n")
 
+        # Build a temporary config file with dynamic bits from API
+        temp_config_file = build_temp_config(
+            CONFIG_FILE, db_release, release_to_use["release_name"]
+        )
         run_bulk_import(
             processed_file,
-            CONFIG_FILE,
+            temp_config_file,
             args.host,
             release_to_use,
             live_run=args.live_run,

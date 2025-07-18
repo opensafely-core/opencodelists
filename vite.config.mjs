@@ -16,7 +16,9 @@ export default defineConfig(({ mode }) => ({
         "codelists-list": "assets/src/scripts/codelists-list.js",
         tree: "assets/src/scripts/tree/index.tsx",
         "codelists-version": "assets/src/scripts/codelists-version.js",
-        tw: "assets/src/scripts/tw.js"
+        tw: "assets/src/scripts/tw.js",
+        "feedback-form": "assets/src/scripts/feedback-form.js"
+
       },
     },
     outDir: "assets/dist",

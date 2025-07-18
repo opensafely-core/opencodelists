@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 
+{% load django_vite %}
+
 {% load markdown_filter %}
 
 {% block content %}
@@ -70,4 +72,16 @@
     {% include "./_pagination.html" with page_obj=codelists_page %}
 
   </div>
+{% endblock %}
+
+{% block above_footer %}
+  {% if q %}
+    {% include "_feedback_form.html" %}
+  {% endif %}
+{% endblock %}
+
+{% block extra_js %}
+  {% if q %}
+    {% vite_asset "assets/src/scripts/feedback-form.js" %}
+  {% endif %}
 {% endblock %}

@@ -15,4 +15,13 @@
       <li>Imported on: {{ coding_system_release.release.import_timestamp }}</li>
     </ul>
   {% endfor %}
+  {% if pcd_refset_version %}
+    <h4>NHS Primary Care Domain Refsets</h4>
+    <ul>
+      <li>Release: {{ pcd_refset_version.release }}</li>
+      <li>Tag: {{ pcd_refset_version.tag }}</li>
+      <li>Release Date: {{ pcd_refset_version.release_date }}</li>
+      <li>Imported: {{ pcd_refset_version.import_timestamp }}</li>
+    </ul>
+  {% endif %}
 {% endblock %}

@@ -89,9 +89,7 @@ exec env="dev" *args="bash":
 smoke-test host="http://localhost:7000" env="prod":
     #!/bin/bash
     set -eu
-    # First run the release script to perform checks and migrations
     echo "Running release script (check and migrations)..."
     docker compose exec {{ env }} bash /app/deploy/release.sh
-    # Then check if the service is responding
     echo "Testing service connectivity..."
     curl -I {{ host }} -s --compressed --fail --retry 20 --retry-delay 1 --retry-all-errors

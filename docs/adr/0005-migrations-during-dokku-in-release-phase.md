@@ -4,7 +4,7 @@ Date: 2025-07
 
 ## Status
 
-Draft
+Accepted
 
 ## Context
 
@@ -22,7 +22,7 @@ prod.sh gunicorn --config /app/deploy/gunicorn/conf.py opencodelists.wsgi
 ```
 Causing the migrations to run, and gunicorn to start. You could also pass a command to `docker run` which would then execute (instead of gunicorn) after the migrations.
 
-With this setup, migrations were run every time the container started, including during the web process startup and health checks. This approach had caused issues, including an outage to job-server where migrations were not fully applied.
+With this setup, migrations were run every time the container started, including during the web process startup and health checks. This approach had caused issues, including an outage to job-server where migrations were not fully applied before the health checks timed out.
 
 [Dokku recommend](https://dokku.com/docs/advanced-usage/deployment-tasks/) running database migrations in the `release` phase, which is executed before the new web process is started. This ensures migrations are applied atomically and safely, and that the web process only starts after the database schema is up to date.
 
@@ -48,7 +48,7 @@ With this setup, migrations were run every time the container started, including
 ## Consequences
 
 - Migrations are now run in the correct place (Dokku's release phase), before the web process starts.
-- Deploys are safer and more predictable, with no risk of web processes starting before migrations are complete.
+- Deploys are safer and more predictable, with no risk of the health checks failing because they start at the same time as the container starts.
 - No scripts or documentation referenced or used the old `prod.sh` entrypoint, so no further changes were needed following its deletion.
 - The dev docker image overwrites the ENTRYPOINT and so is unaffected by its removal
 - The `CMD` in the Dockerfile remains, allowing for overriding of the command when running the container.

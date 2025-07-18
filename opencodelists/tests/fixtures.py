@@ -180,6 +180,7 @@ def setup_coding_systems(django_db_setup, django_db_blocker):
             "loaddata",
             CODING_SYSTEM_RELEASES_FIXTURES_PATH / "coding_system_releases.json",
         )
+    add_experimental_coding_system()
 
 
 @pytest.fixture(scope=get_fixture_scope)
@@ -759,6 +760,12 @@ def build_fixtures():
         coding_system_database_alias="null_test_20200101",
     )
 
+    add_experimental_coding_system()
+
+    return locals()
+
+
+def add_experimental_coding_system():
     # Add an experimental coding system i.e. one that is only visible behind a flag
     CODING_SYSTEMS["experiment"] = type(
         "ExperimentalCodingSystem",
@@ -772,8 +779,6 @@ def build_fixtures():
             "has_database": False,
         },
     )
-
-    return locals()
 
 
 def load_csv_data(filename, fixtures_path=None):

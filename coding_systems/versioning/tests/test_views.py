@@ -1,10 +1,10 @@
 from django.urls import reverse
 
-from codelists.coding_systems import CODING_SYSTEMS
-
 
 def test_latest_releases(client, setup_coding_systems):
     response = client.get(reverse("versioning:latest_releases"))
+    from codelists.coding_systems import CODING_SYSTEMS
+
     assert response.status_code == 200
     # Coding system releases with database aliases (i.e. not "null", "opcs4", "readv2", "experiment")
     # are shown

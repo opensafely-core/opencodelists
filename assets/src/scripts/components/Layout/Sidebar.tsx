@@ -21,23 +21,16 @@ export default function Sidebar({
 }) {
   return (
     <Col className="builder__sidebar" md="3">
-      {isEmptyCodelist && isEditable ? (
-        <SearchForm />
-      ) : (
-        <>
-          <Summary counts={counts} draftURL={draftURL} />
-          {searches.length > 0 && (
-            <Searches
-              draftURL={draftURL}
-              isEditable={isEditable}
-              searches={searches}
-            />
-          )}
-          {isEditable && <SearchForm />}
-          <Versions />
-        </>
+      {!isEmptyCodelist && <Summary counts={counts} draftURL={draftURL} />}
+      {searches.length > 0 && (
+        <Searches
+          draftURL={draftURL}
+          isEditable={isEditable}
+          searches={searches}
+        />
       )}
-
+      {isEditable && <SearchForm />}
+      {!isEmptyCodelist && <Versions />}
       <Tools />
     </Col>
   );

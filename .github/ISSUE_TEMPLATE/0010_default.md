@@ -1,5 +1,5 @@
 ---
-name: Default issue
+name: Internal issue
 about: Create a standard delivery task
 title: ""
 labels: ""

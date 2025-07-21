@@ -5,18 +5,22 @@ from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
 
 from codelists.coding_systems import CODING_SYSTEMS
+from coding_systems.versioning.models import PCDRefsetVersion
 
 
 def latest_releases(request):
     """List latest releases for each coding system"""
 
-    ctx = {
-        "latest_releases": [
-            cs.get_by_release_or_most_recent()
-            for cs in CODING_SYSTEMS.values()
-            if cs.has_database
-        ]
-    }
+    # Get regular coding system releases
+    coding_system_releases = [
+        cs.get_by_release_or_most_recent()
+        for cs in CODING_SYSTEMS.values()
+        if cs.has_database
+    ]
+
+    # Get the latest PCD refset version
+    latest_pcd = PCDRefsetVersion.get_latest()
+    ctx = {"latest_releases": coding_system_releases}
 
     if request.GET.get("type") == "json":
         data = {
@@ -29,8 +33,18 @@ def latest_releases(request):
             }
             for lr in ctx["latest_releases"]
         }
+        # Add PCD refset data if available
+        if latest_pcd:
+            data["pcd_refsets"] = {
+                "release": latest_pcd.release,
+                "tag": latest_pcd.tag,
+                "valid_from": latest_pcd.release_date.isoformat(),
+                "import_timestamp": latest_pcd.import_timestamp.isoformat(),
+            }
         return JsonResponse(data)
 
+    if latest_pcd:
+        ctx["pcd_refset_version"] = latest_pcd
     return render(request, "versioning/latest_releases.html", ctx)
 
 

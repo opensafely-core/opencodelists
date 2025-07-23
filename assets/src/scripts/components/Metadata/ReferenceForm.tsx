@@ -59,7 +59,7 @@ export default function ReferenceForm({
         </button>
         <button
           type="button"
-          className="btn btn-primary btn-sm m-1"
+          className="plausible-event-name=Metadata+save+references btn btn-primary btn-sm m-1"
           onClick={handleSave}
         >
           Save

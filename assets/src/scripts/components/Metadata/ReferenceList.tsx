@@ -9,6 +9,7 @@ interface ReferenceListProps {
 }
 
 interface ReferenceListState {
+  showModal: boolean;
   editingIndex: number | null;
 }
 /**
@@ -24,6 +25,7 @@ export default class ReferenceList extends React.Component<
   ReferenceListState
 > {
   state: ReferenceListState = {
+    showModal: false,
     editingIndex: null,
   };
 
@@ -34,11 +36,11 @@ export default class ReferenceList extends React.Component<
   };
 
   handleEdit = (index: number) => {
-    this.setState({ editingIndex: index });
+    this.setState({ showModal: true, editingIndex: index });
   };
 
   handleAdd = () => {
-    this.setState({ editingIndex: -1 });
+    this.setState({ showModal: true, editingIndex: -1 });
   };
 
   handleSaveForm = (reference: Reference) => {
@@ -50,16 +52,22 @@ export default class ReferenceList extends React.Component<
     }
 
     this.props.onSave(newReferences);
-    this.setState({ editingIndex: null });
+    this.setState({ showModal: false, editingIndex: null });
   };
 
   handleCancel = () => {
-    this.setState({ editingIndex: null });
+    this.setState({ showModal: false, editingIndex: null });
   };
 
   render() {
     const { references } = this.props;
-    const { editingIndex } = this.state;
+    const { showModal, editingIndex } = this.state;
+
+    // Determine which reference to edit, or blank for add
+    const editingReference =
+      editingIndex !== null && editingIndex !== -1
+        ? references[editingIndex]
+        : { text: "", url: "" };
 
     return (
       <div className="card">
@@ -76,63 +84,52 @@ export default class ReferenceList extends React.Component<
           <ul>
             {references.map((ref, index) => (
               <li key={index} className="mb-2">
-                {editingIndex === index ? (
-                  <ReferenceForm
-                    reference={ref}
-                    onCancel={this.handleCancel}
-                    onSave={this.handleSaveForm}
-                  />
-                ) : (
-                  <div className="d-flex align-items-center">
-                    <a href={ref.url} target="_blank" rel="noopener noreferrer">
-                      {ref.text}
-                    </a>
-                    {this.props.isEditable && (
-                      <>
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-warning ml-2"
-                          onClick={() => this.handleEdit(index)}
-                          title="Edit reference"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-danger ml-2"
-                          onClick={() => this.handleDelete(index)}
-                          title="Delete reference"
-                        >
-                          Delete
-                        </button>
-                      </>
-                    )}
-                  </div>
-                )}
+                <div className="d-flex align-items-center">
+                  <a href={ref.url} target="_blank" rel="noopener noreferrer">
+                    {ref.text}
+                  </a>
+                  {this.props.isEditable && (
+                    <>
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-warning ml-2"
+                        onClick={() => this.handleEdit(index)}
+                        title="Edit reference"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-danger ml-2"
+                        onClick={() => this.handleDelete(index)}
+                        title="Delete reference"
+                      >
+                        Delete
+                      </button>
+                    </>
+                  )}
+                </div>
               </li>
             ))}
           </ul>
-          {this.props.isEditable ? (
-            <>
-              {editingIndex === -1 ? (
-                <ReferenceForm
-                  onCancel={this.handleCancel}
-                  onSave={this.handleSaveForm}
-                />
-              ) : (
-                <button
-                  type="button"
-                  className="btn btn-primary btn-sm"
-                  onClick={this.handleAdd}
-                >
-                  {references.length === 0
-                    ? "Add a reference"
-                    : "Add another reference"}
-                </button>
-              )}
-            </>
-          ) : null}
+          {this.props.isEditable && (
+            <button
+              type="button"
+              className="btn btn-primary btn-sm"
+              onClick={this.handleAdd}
+            >
+              {references.length === 0
+                ? "Add a reference"
+                : "Add another reference"}
+            </button>
+          )}
         </div>
+        <ReferenceForm
+          reference={editingReference}
+          onCancel={this.handleCancel}
+          onSave={this.handleSaveForm}
+          show={showModal}
+        />
       </div>
     );
   }

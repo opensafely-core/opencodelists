@@ -233,6 +233,12 @@ export default class CodelistBuilder extends React.Component<
     });
   };
 
+  handleFocus = (e: React.FocusEvent<HTMLTextAreaElement>) => {
+    var temp_value = e.target.value;
+    e.target.value = "";
+    e.target.value = temp_value;
+  };
+
   // Add save handler:
   handleSaveReferences = async (
     newReferences: Array<{ text: string; url: string }>,
@@ -403,6 +409,7 @@ export default class CodelistBuilder extends React.Component<
               value={draftContent}
               onChange={this.handleContentChange}
               autoFocus
+              onFocus={this.handleFocus}
               onKeyDown={(e) => {
                 // Handle Ctrl+Enter for Save
                 if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {

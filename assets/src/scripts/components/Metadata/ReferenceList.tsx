@@ -60,7 +60,7 @@ export default class ReferenceList extends React.Component<
   };
 
   render() {
-    const { references } = this.props;
+    const { isEditable, references } = this.props;
     const { showModal, editingIndex } = this.state;
 
     // Determine which reference to edit, or blank for add
@@ -74,7 +74,7 @@ export default class ReferenceList extends React.Component<
         <div className="card-body">
           <h3 className="h5 card-title">References</h3>
           <hr />
-          {this.props.isEditable && (
+          {isEditable && (
             <p className="font-italic">
               Sometimes it's useful to provide links, for example links to
               algorithms, methodologies or papers that are relevant to this
@@ -88,7 +88,7 @@ export default class ReferenceList extends React.Component<
                   <a href={ref.url} target="_blank" rel="noopener noreferrer">
                     {ref.text}
                   </a>
-                  {this.props.isEditable && (
+                  {isEditable && (
                     <>
                       <button
                         type="button"
@@ -112,7 +112,7 @@ export default class ReferenceList extends React.Component<
               </li>
             ))}
           </ul>
-          {this.props.isEditable && (
+          {isEditable && (
             <button
               type="button"
               className="btn btn-primary btn-sm"

@@ -148,7 +148,7 @@ function MoreInfoModal({
   return (
     <>
       <Button
-        className="builder__more-info-btn"
+        className="builder__more-info-btn plausible-event-name=More+info+click"
         onClick={handleShow}
         variant="outline-dark"
       >

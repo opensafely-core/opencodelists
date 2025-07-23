@@ -88,8 +88,22 @@
       <p>The next step will allow you to prepare your codelist for use.</p>
     </div>
 
-    <button type="submit" class="flex w-fit mx-auto justify-center cursor-pointer rounded-md bg-green-700 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs transition-colors hover:bg-green-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700">
+    <button type="submit" class="flex w-fit mx-auto justify-center cursor-pointer rounded-md bg-green-700 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs transition-colors hover:bg-green-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700" id="formSubmit">
       Create a draft codelist
     </button>
   </form>
+{% endblock %}
+
+{% block extra_js %}
+  <script>
+    const selectInput = document.getElementById(
+      "{{ form.coding_system_id.id_for_label }}",
+    );
+    const submitButton = document.getElementById("formSubmit");
+    const submitButtonClassList = submitButton.classList.toString();
+    selectInput.addEventListener("change", (e) => {
+      const codingSystemId = e.target.value;
+      submitButton.classList = `${submitButtonClassList} plausible-event-name=New+codelist+${codingSystemId}`;
+    });
+  </script>
 {% endblock %}

@@ -92,7 +92,14 @@ class CSVValidationMixin:
             self.cleaned_data["coding_system_id"]
         ].get_by_release_or_most_recent()
 
-        data = self.cleaned_data["csv_data"].read().decode("utf-8-sig")
+        try:
+            data = self.cleaned_data["csv_data"].read().decode("utf-8-sig")
+        except UnicodeDecodeError as exception:
+            raise forms.ValidationError(
+                "File could not be read. Please ensure the file contains CSV "
+                "data (not Excel, for example). It should be a text file encoded "
+                f"in the UTF-8 format. Error details: {exception}."
+            )
 
         reader = csv.reader(StringIO(data))
         header = next(reader)  # expected to be headers

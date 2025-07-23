@@ -1,5 +1,5 @@
 import React from "react";
-import { Col, Form, Row, Tab, Tabs } from "react-bootstrap";
+import { Col, Form, Modal, Row, Tab, Tabs } from "react-bootstrap";
 import Hierarchy from "../_hierarchy";
 import { getCookie } from "../_utils";
 import { Code, PageData, Reference, Status } from "../types";
@@ -68,12 +68,11 @@ export default class CodelistBuilder extends React.Component<
     metadata: MetadataProps;
     updateQueue: string[][];
     updating: boolean;
+    editingField: MetadataFieldName | null;
+    draftContent: string;
   }
 > {
-  private textareaRefs: {
-    description: React.RefObject<HTMLTextAreaElement>;
-    methodology: React.RefObject<HTMLTextAreaElement>;
-  };
+  private modalTextareaRef: React.RefObject<HTMLTextAreaElement>;
   constructor(props: CodelistBuilderProps) {
     super(props);
 
@@ -95,6 +94,8 @@ export default class CodelistBuilder extends React.Component<
       },
       updateQueue: [],
       updating: false,
+      editingField: null,
+      draftContent: "",
     };
 
     this.updateStatus = props.isEditable
@@ -102,10 +103,7 @@ export default class CodelistBuilder extends React.Component<
       : () => null;
     this.toggleExpandedCompatibleReleases =
       this.toggleExpandedCompatibleReleases.bind(this);
-    this.textareaRefs = {
-      description: React.createRef(),
-      methodology: React.createRef(),
-    };
+    this.modalTextareaRef = React.createRef();
   }
 
   toggleExpandedCompatibleReleases() {
@@ -182,46 +180,31 @@ export default class CodelistBuilder extends React.Component<
   }
 
   handleEdit = (field: MetadataFieldName) => {
-    this.setState(
-      (prevState) => ({
-        metadata: {
-          ...prevState.metadata,
-          [field]: {
-            ...prevState.metadata[field],
-            isEditing: true,
-          },
-        },
-      }),
-      () => {
-        // Auto-focus the textarea after clicking edit
-        setTimeout(() => {
-          this.textareaRefs[field].current?.focus();
-        }, 0);
-      },
-    );
+    this.setState({
+      editingField: field,
+      draftContent: this.state.metadata[field].text,
+    });
   };
 
-  handleCancel = (field: MetadataFieldName) => {
-    this.setState((prevState) => ({
-      metadata: {
-        ...prevState.metadata,
-        [field]: {
-          ...prevState.metadata[field],
-          isEditing: false,
-        },
-      },
-    }));
+  handleCancel = () => {
+    this.setState({
+      editingField: null,
+      draftContent: "",
+    });
   };
 
-  handleSave = async (field: MetadataFieldName) => {
+  handleSave = async () => {
+    const field = this.state.editingField;
+    if (!field) return;
+
     const updateBody = {
       description:
         field === "description"
-          ? this.textareaRefs[field].current?.value
+          ? this.state.draftContent
           : this.state.metadata.description.text,
       methodology:
         field === "methodology"
-          ? this.textareaRefs[field].current?.value
+          ? this.state.draftContent
           : this.state.metadata.methodology.text,
     };
 
@@ -233,11 +216,21 @@ export default class CodelistBuilder extends React.Component<
         .then((data) => {
           // We rely on the backend rendering the html from the updated markdown
           // so we need to update the state here with the response from the server
-          this.setState(() => ({ metadata: data.metadata }));
+          this.setState({
+            metadata: data.metadata,
+            editingField: null,
+            draftContent: "",
+          });
         });
     } catch (error) {
       console.error(`Failed to save ${field}:`, error);
     }
+  };
+
+  handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    this.setState({
+      draftContent: e.target.value,
+    });
   };
 
   // Add save handler:
@@ -260,89 +253,34 @@ export default class CodelistBuilder extends React.Component<
   renderMetadataField = (field: MetadataFieldName) => {
     const label = field.charAt(0).toUpperCase() + field.slice(1);
     const htmlContent = this.state.metadata[field].html;
-    const isEditing = this.state.metadata[field].isEditing;
-    const draftContent = this.state.metadata[field].text;
 
     return (
       <Form.Group className={`card ${field}`} controlId={field}>
         <div className="card-body">
           {this.props.isEditable ? (
             <>
-              {" "}
               <div className="card-title d-flex flex-row justify-content-between align-items-center">
                 <Form.Label className="h5" as="h3">
                   {label}
                 </Form.Label>
-                {isEditing && this.props.isEditable ? (
-                  <div>
-                    <button
-                      type="button"
-                      className="btn btn-primary btn-sm"
-                      onClick={() => this.handleSave(field)}
-                      title={`Save ${field}`}
-                    >
-                      Save
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-secondary btn-sm ml-2"
-                      onClick={() => this.handleCancel(field)}
-                      title={`Cancel ${field} edit`}
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    className="btn btn-sm btn-warning"
-                    onClick={() => this.handleEdit(field)}
-                    title={`Edit ${field}`}
-                  >
-                    Edit
-                  </button>
-                )}
+                <button
+                  type="button"
+                  className="btn btn-sm btn-warning"
+                  onClick={() => this.handleEdit(field)}
+                  title={`Edit ${field}`}
+                >
+                  Edit
+                </button>
               </div>
               <hr />
-              {isEditing ? (
-                <>
-                  <Form.Control
-                    ref={this.textareaRefs[field]}
-                    as="textarea"
-                    rows={5}
-                    defaultValue={draftContent}
-                    onFocus={() => this.textareaRefs[field].current?.focus()}
-                    onKeyDown={(e) => {
-                      // Handle Ctrl+Enter for Save
-                      if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
-                        e.preventDefault();
-                        this.handleSave(field);
-                      }
-                      // Handle Escape for Cancel
-                      if (e.key === "Escape") {
-                        e.preventDefault();
-                        this.handleCancel(field);
-                      }
-                    }}
-                  />
-                  <Form.Text className="text-muted">
-                    If you make changes, please remember to click Save
-                    (shortcut: CTRL-ENTER) to keep them or Cancel (shortcut:
-                    ESC) to discard.
-                  </Form.Text>
-                </>
-              ) : (
-                <>
-                  <div
-                    className="builder__markdown"
-                    dangerouslySetInnerHTML={{
-                      __html:
-                        htmlContent ||
-                        `<em class="text-muted">No ${field} provided yet</em>`,
-                    }}
-                  />
-                </>
-              )}
+              <div
+                className="builder__markdown"
+                dangerouslySetInnerHTML={{
+                  __html:
+                    htmlContent ||
+                    `<em class="text-muted">No ${field} provided yet</em>`,
+                }}
+              />
             </>
           ) : (
             <>
@@ -381,6 +319,11 @@ export default class CodelistBuilder extends React.Component<
       treeTables,
       visiblePaths,
     } = this.props;
+
+    const { editingField, draftContent } = this.state;
+    const fieldLabel = editingField
+      ? editingField.charAt(0).toUpperCase() + editingField.slice(1)
+      : "";
 
     return (
       <>
@@ -435,6 +378,67 @@ export default class CodelistBuilder extends React.Component<
             </Col>
           )}
         </Row>
+
+        {/* Edit Metadata Modal */}
+        <Modal
+          animation={false}
+          show={editingField !== null}
+          onHide={this.handleCancel}
+          backdrop="static"
+          size="lg"
+          aria-labelledby="metadata-edit-modal"
+          centered
+        >
+          <Modal.Header closeButton>
+            <Modal.Title id="metadata-edit-modal">
+              Edit {fieldLabel}
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Form.Control
+              id={`${editingField}`}
+              ref={this.modalTextareaRef}
+              as="textarea"
+              rows={10}
+              value={draftContent}
+              onChange={this.handleContentChange}
+              autoFocus
+              onKeyDown={(e) => {
+                // Handle Ctrl+Enter for Save
+                if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+                  e.preventDefault();
+                  this.handleSave();
+                }
+                // Handle Escape for Cancel
+                if (e.key === "Escape") {
+                  e.preventDefault();
+                  this.handleCancel();
+                }
+              }}
+            />
+            <Form.Text className="text-muted mt-2">
+              Keyboard shortcuts: Save (CTRL-ENTER) / Cancel (ESC)
+            </Form.Text>
+          </Modal.Body>
+          <Modal.Footer>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={this.handleCancel}
+              title={`Cancel ${editingField} edit`}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={this.handleSave}
+              title={`Save ${editingField}`}
+            >
+              Save
+            </button>
+          </Modal.Footer>
+        </Modal>
       </>
     );
   }

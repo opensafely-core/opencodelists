@@ -1,12 +1,12 @@
 import React from "react";
 import { Button } from "react-bootstrap";
-import type { Code, Status } from "../../types";
+import type { Code, Status, UpdateStatus } from "../../types";
 
 interface StatusToggleProps {
   code: Code;
   status: Status;
   symbol: "+" | "-";
-  updateStatus: Function;
+  updateStatus: UpdateStatus;
 }
 
 export default function StatusToggle({

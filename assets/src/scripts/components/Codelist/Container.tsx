@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from "react";
 import type Hierarchy from "../../_hierarchy";
-import type { PageData, Path } from "../../types";
+import type { PageData, Path, UpdateStatus } from "../../types";
 import Section from "./Section";
 
 interface ContainerProps {
@@ -10,7 +10,7 @@ interface ContainerProps {
   hierarchy: Hierarchy;
   isEditable: PageData["isEditable"];
   treeTables: PageData["treeTables"];
-  updateStatus: Function;
+  updateStatus: UpdateStatus;
   visiblePaths: PageData["visiblePaths"];
 }
 

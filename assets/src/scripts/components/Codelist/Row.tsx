@@ -10,6 +10,7 @@ import type {
   Status,
   Term,
   ToggleVisibility,
+  UpdateStatus,
 } from "../../types";
 import DescendantToggle from "./DescendantToggle";
 import MoreInfoModal from "./MoreInfoModal";
@@ -30,7 +31,7 @@ interface RowProps {
   status: Status;
   term: Term;
   toggleVisibility: ToggleVisibility;
-  updateStatus: Function;
+  updateStatus: UpdateStatus;
 }
 
 export default function Row({

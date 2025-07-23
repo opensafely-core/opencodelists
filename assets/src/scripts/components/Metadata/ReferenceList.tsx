@@ -15,6 +15,7 @@ interface ReferenceListState {
  * Displays and manages a list of reference links in the codelist metadata.
  * Allows adding, editing, and deleting references, with each reference having
  * display text and a URL. Uses ReferenceForm component for editing.
+ * @param isEditable - Whether the user can modify references
  * @param references - Array of current references
  * @param onSave - Callback when references are modified, receives updated array
  */
@@ -65,11 +66,13 @@ export default class ReferenceList extends React.Component<
         <div className="card-body">
           <h3 className="h5 card-title">References</h3>
           <hr />
-          <p className="font-italic">
-            Sometimes it's useful to provide links, for example links to
-            algorithms, methodologies or papers that are relevant to this
-            codelist. They can be added here:
-          </p>
+          {this.props.isEditable && (
+            <p className="font-italic">
+              Sometimes it's useful to provide links, for example links to
+              algorithms, methodologies or papers that are relevant to this
+              codelist. They can be added here:
+            </p>
+          )}
           <ul>
             {references.map((ref, index) => (
               <li key={index} className="mb-2">
@@ -84,22 +87,26 @@ export default class ReferenceList extends React.Component<
                     <a href={ref.url} target="_blank" rel="noopener noreferrer">
                       {ref.text}
                     </a>
-                    <button
-                      type="button"
-                      className="btn btn-sm btn-warning ml-2"
-                      onClick={() => this.handleEdit(index)}
-                      title="Edit reference"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-sm btn-danger ml-2"
-                      onClick={() => this.handleDelete(index)}
-                      title="Delete reference"
-                    >
-                      Delete
-                    </button>
+                    {this.props.isEditable && (
+                      <>
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-warning ml-2"
+                          onClick={() => this.handleEdit(index)}
+                          title="Edit reference"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-danger ml-2"
+                          onClick={() => this.handleDelete(index)}
+                          title="Delete reference"
+                        >
+                          Delete
+                        </button>
+                      </>
+                    )}
                   </div>
                 )}
               </li>

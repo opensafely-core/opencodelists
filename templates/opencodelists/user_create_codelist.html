@@ -4,8 +4,9 @@
 
 {% block content %}
   <form
-    class="flex gap-6 min-h-full flex-col justify-center py-20 sm:mx-auto sm:w-full sm:max-w-3xl sm:px-6 lg:px-8"
+    class="plausible-event-name=New+codelist flex gap-6 min-h-full flex-col justify-center py-20 sm:mx-auto sm:w-full sm:max-w-3xl sm:px-6 lg:px-8"
     enctype="multipart/form-data"
+    id="newCodelistForm"
     method="POST"
   >
     <div class="sm:mx-auto text-center">
@@ -89,8 +90,7 @@
     </div>
 
     <button
-      class="plausible-event-name=New+codelist flex w-fit mx-auto justify-center cursor-pointer rounded-md bg-green-700 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs transition-colors hover:bg-green-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700"
-      id="formSubmit"
+      class="flex w-fit mx-auto justify-center cursor-pointer rounded-md bg-green-700 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs transition-colors hover:bg-green-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700"
       type="submit"
     >
       Create a draft codelist
@@ -103,11 +103,11 @@
     const selectInput = document.getElementById(
       "{{ form.coding_system_id.id_for_label }}",
     );
-    const submitButton = document.getElementById("formSubmit");
-    const submitButtonClassList = submitButton.classList.toString();
+    const newCodelistForm = document.getElementById("newCodelistForm");
+    const newCodelistFormClassList = newCodelistForm.classList.toString();
     selectInput.addEventListener("change", (e) => {
       const codingSystemId = e.target.value.toLowerCase().replace(/\W/g, "");
-      submitButton.classList = `${submitButtonClassList} plausible-event-name=New+codelist+${codingSystemId}`;
+      newCodelistForm.classList = `${newCodelistFormClassList} plausible-event-newcodelist=${codingSystemId}`;
     });
   </script>
 {% endblock %}

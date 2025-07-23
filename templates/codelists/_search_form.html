@@ -1,4 +1,4 @@
-<form class="form-inline mb-4">
+<form class="plausible-event-name=Search+button+click form-inline mb-4">
   <label class="sr-only" for="search-codelists">Query</label>
   <input
     name="q"
@@ -9,6 +9,6 @@
     {% if q %}value="{{ q }}"{% endif %}
   />
 
-  <button type="submit" class="plausible-event-name=Search+button+click btn btn-primary mb-2 mr-2">Search</button>
+  <button type="submit" class="btn btn-primary mb-2 mr-2">Search</button>
   <a href="{{ request.path }}" role="button" class="btn btn-primary mb-2">Reset</a>
 </form>

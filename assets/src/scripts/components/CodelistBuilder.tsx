@@ -1,5 +1,6 @@
 import React from "react";
 import { Col, Row, Tab, Tabs } from "react-bootstrap";
+import type { SelectCallback } from "react-bootstrap/esm/helpers";
 import type Hierarchy from "../_hierarchy";
 import { getCookie } from "../_utils";
 import type { Code, METADATA, PageData, Status } from "../types";
@@ -13,6 +14,7 @@ interface CodelistBuilderProps extends PageData {
   hierarchy: Hierarchy;
   metadata: METADATA;
 }
+type TabKey = "codelist" | "metadata";
 
 /**
  * Creates a fetch options object with standard headers including CSRF token
@@ -38,6 +40,11 @@ function getFetchOptions(body: object) {
   return fetchOptions;
 }
 
+function getTabFromHash(): TabKey {
+  const hash = window.location.hash.replace("#", "");
+  return hash === "metadata" ? "metadata" : "codelist";
+}
+
 export default class CodelistBuilder extends React.Component<
   CodelistBuilderProps,
   {
@@ -45,6 +52,7 @@ export default class CodelistBuilder extends React.Component<
     expandedCompatibleReleases: boolean;
     updateQueue: string[][];
     updating: boolean;
+    activeTab: TabKey;
   }
 > {
   constructor(props: CodelistBuilderProps) {
@@ -55,6 +63,7 @@ export default class CodelistBuilder extends React.Component<
       expandedCompatibleReleases: false,
       updateQueue: [],
       updating: false,
+      activeTab: getTabFromHash(),
     };
 
     this.updateStatus = props.isEditable
@@ -63,6 +72,25 @@ export default class CodelistBuilder extends React.Component<
     this.toggleExpandedCompatibleReleases =
       this.toggleExpandedCompatibleReleases.bind(this);
   }
+
+  handleTabSelect: SelectCallback = (key) => {
+    if (key === "metadata" || key === "codelist") {
+      this.setState({ activeTab: key });
+      window.history.pushState(null, "", `#${key}`);
+    }
+  };
+
+  componentDidMount() {
+    window.addEventListener("popstate", this.handlePopState);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("popstate", this.handlePopState);
+  }
+
+  handlePopState = () => {
+    this.setState({ activeTab: getTabFromHash() });
+  };
 
   toggleExpandedCompatibleReleases() {
     this.setState({
@@ -175,7 +203,11 @@ export default class CodelistBuilder extends React.Component<
             </Col>
           ) : (
             <Col md="9">
-              <Tabs defaultActiveKey="codelist" className="mb-3">
+              <Tabs
+                activeKey={this.state.activeTab}
+                onSelect={this.handleTabSelect}
+                className="mb-3"
+              >
                 <Tab eventKey="codelist" title="Codelist">
                   <CodelistTab
                     allCodes={allCodes}

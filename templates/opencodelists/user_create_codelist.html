@@ -102,7 +102,7 @@
     const submitButton = document.getElementById("formSubmit");
     const submitButtonClassList = submitButton.classList.toString();
     selectInput.addEventListener("change", (e) => {
-      const codingSystemId = e.target.value;
+      const codingSystemId = e.target.value.toLowerCase().replace(/\W/g, "");
       submitButton.classList = `${submitButtonClassList} plausible-event-name=New+codelist+${codingSystemId}`;
     });
   </script>

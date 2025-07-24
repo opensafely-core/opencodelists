@@ -19,7 +19,7 @@ export default function StatusToggle({
     <Button
       className="py-0 text-monospace"
       data-symbol={symbol}
-      onClick={updateStatus && updateStatus.bind(null, code, symbol)}
+      onClick={updateStatus?.bind(null, code, symbol)}
       size="sm"
       variant={
         status === symbol
@@ -29,7 +29,7 @@ export default function StatusToggle({
             : "outline-secondary"
       }
     >
-      {symbol === "+" ? <>+</> : <>&minus;</>}
+      {symbol === "+" ? "+" : <>&minus;</>}
     </Button>
   );
 }

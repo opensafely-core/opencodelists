@@ -32,6 +32,6 @@ window.addEventListener("hashchange", switchToTab);
 
 function switchToTab() {
   var hash = location.hash || "#about";
-  $('#tab-list a[href="' + hash + '"]').tab("show");
+  $(`#tab-list a[href="${hash}"]`).tab("show");
 }
 /* v8 ignore end */

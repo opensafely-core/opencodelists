@@ -41,21 +41,19 @@ export default function ManagementForm({ counts }: ManagementFormProps) {
             Save for review
           </Button>
         ) : (
-          <>
-            <OverlayTrigger
-              placement="right"
-              overlay={
-                <Tooltip id="disabled-review">
-                  You cannot save for review until all search results are
-                  included or excluded
-                </Tooltip>
-              }
-            >
-              <Button disabled variant="outline-secondary">
-                Save for review
-              </Button>
-            </OverlayTrigger>
-          </>
+          <OverlayTrigger
+            placement="right"
+            overlay={
+              <Tooltip id="disabled-review">
+                You cannot save for review until all search results are included
+                or excluded
+              </Tooltip>
+            }
+          >
+            <Button disabled variant="outline-secondary">
+              Save for review
+            </Button>
+          </OverlayTrigger>
         )}
         <Button
           className="ml-2"

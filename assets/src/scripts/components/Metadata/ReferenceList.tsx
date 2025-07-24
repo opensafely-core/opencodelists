@@ -106,24 +106,22 @@ export default class ReferenceList extends React.Component<
             ))}
           </ul>
           {this.props.isEditable ? (
-            <>
-              {editingIndex === -1 ? (
-                <ReferenceForm
-                  onCancel={this.handleCancel}
-                  onSave={this.handleSaveForm}
-                />
-              ) : (
-                <button
-                  type="button"
-                  className="btn btn-primary btn-sm"
-                  onClick={this.handleAdd}
-                >
-                  {references.length === 0
-                    ? "Add a reference"
-                    : "Add another reference"}
-                </button>
-              )}
-            </>
+            editingIndex === -1 ? (
+              <ReferenceForm
+                onCancel={this.handleCancel}
+                onSave={this.handleSaveForm}
+              />
+            ) : (
+              <button
+                type="button"
+                className="btn btn-primary btn-sm"
+                onClick={this.handleAdd}
+              >
+                {references.length === 0
+                  ? "Add a reference"
+                  : "Add another reference"}
+              </button>
+            )
           ) : null}
         </div>
       </div>

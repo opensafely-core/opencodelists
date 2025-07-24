@@ -332,16 +332,14 @@ export default class CodelistBuilder extends React.Component<
                   </Form.Text>
                 </>
               ) : (
-                <>
-                  <div
-                    className="builder__markdown"
-                    dangerouslySetInnerHTML={{
-                      __html:
-                        htmlContent ||
-                        `<em class="text-muted">No ${field} provided yet</em>`,
-                    }}
-                  />
-                </>
+                <div
+                  className="builder__markdown"
+                  dangerouslySetInnerHTML={{
+                    __html:
+                      htmlContent ||
+                      `<em class="text-muted">No ${field} provided yet</em>`,
+                  }}
+                />
               )}
             </>
           ) : (

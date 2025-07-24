@@ -215,7 +215,7 @@ class Hierarchy {
 
       // A row is expanded if any of its children are visible.
       const isExpanded = childCodes.some((childCode: Code) => {
-        const childPath = path + ":" + childCode;
+        const childPath = `${path}:${childCode}`;
         return visiblePaths.has(childPath);
       });
 
@@ -230,7 +230,7 @@ class Hierarchy {
       });
 
       childCodes.forEach((childCode: Code, ix: number) => {
-        const childPath = path + ":" + childCode;
+        const childPath = `${path}:${childCode}`;
         if (visiblePaths.has(childPath)) {
           helper(
             childCode,
@@ -318,7 +318,7 @@ class Hierarchy {
 
       const childCodes = this.childMap[code] || [];
       childCodes.forEach((childCode: Code) => {
-        helper(childCode, path + ":" + childCode, newDepth);
+        helper(childCode, `${path}:${childCode}`, newDepth);
       });
     };
 
@@ -342,7 +342,7 @@ class Hierarchy {
     const code = path.split(":").slice(-1)[0];
     const childCodes = this.childMap[code] || [];
     childCodes.forEach((childCode: Code) => {
-      const childPath = path + ":" + childCode;
+      const childPath = `${path}:${childCode}`;
       if (visiblePaths.has(childPath)) {
         visiblePaths.delete(childPath);
       } else {

@@ -69,9 +69,7 @@ export default function Row({
 
   return (
     <div
-      className={
-        "builder__row" + (pipes.length === 0 ? " builder__row--mt" : "")
-      }
+      className={`builder__row${pipes.length === 0 ? " builder__row--mt" : ""}`}
       data-code={code}
       data-path={path}
     >

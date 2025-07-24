@@ -5,7 +5,13 @@ import MetadataForm from "./MetadataForm";
 import References from "./References";
 
 export default function MetadataTab() {
-  const client = new QueryClient();
+  const client = new QueryClient({
+    defaultOptions: {
+      queries: {
+        refetchOnWindowFocus: false,
+      },
+    },
+  });
 
   return (
     <QueryClientProvider client={client}>

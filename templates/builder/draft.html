@@ -30,6 +30,7 @@
   {{ versions|json_script:"versions" }}
   {{ metadata|json_script:"metadata" }}
   {{ is_empty_codelist|json_script:"is-empty-codelist" }}
+  {{ api_urls|json_script:"api-urls" }}
 
   {% if debug %}
     <script type="module" nonce="{{ request.csp_nonce }}">

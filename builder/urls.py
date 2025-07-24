@@ -8,6 +8,7 @@ app_name = "builder"
 
 urlpatterns = [
     path("<hash>/", views.draft, name="draft"),
+    path("<hash>/api/references", views.references),
     # Note that search_slug isn't actually guaranteed to match Django's concept
     # of a slug, so we use the str: path converter instead of slug:
     # See builder/actions.py::create_search_slug

@@ -200,9 +200,6 @@ def _draft(request, draft, search_id):
             "text": codelist.methodology,
             "html": render_markdown(codelist.methodology),
         },
-        "references": [
-            {"text": r.text, "url": r.url} for r in codelist.references.all()
-        ],
     }
 
     ctx = {
@@ -229,9 +226,26 @@ def _draft(request, draft, search_id):
         "versions": versions,
         "metadata": metadata,
         "is_empty_codelist": is_empty_codelist,
+        "api_urls": {
+            "references": reverse("builder:api-references", args=[draft.tag_or_hash]),
+        },
     }
 
     return render(request, "builder/draft.html", ctx)
+
+
+@require_http_methods(["GET"])
+@load_draft
+def references(request, draft):
+    codelist = draft.codelist
+
+    references = {
+        "references": [
+            {"text": r.text, "url": r.url} for r in codelist.references.all()
+        ]
+    }
+
+    return JsonResponse(references)
 
 
 @login_required

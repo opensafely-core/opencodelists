@@ -22,17 +22,17 @@ export default function Reference({
       });
     },
     onSuccess: (data) => {
-      queryClient.setQueryData(["references"], data.metadata.references);
+      queryClient.setQueryData(["references"], data.references);
       setIsEditing(false);
     },
   });
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const currentReferences = queryClient.getQueryData([
-      "references",
-    ]) as METADATA["references"];
-    const filteredReferences = currentReferences.filter(
+    const currentReferences = queryClient.getQueryData(["references"]) as {
+      references: METADATA["references"];
+    };
+    const filteredReferences = currentReferences.references.filter(
       (ref) => ref.url !== reference.url && ref.text !== reference.text,
     );
     const formData = new FormData(event.currentTarget);
@@ -57,13 +57,18 @@ export default function Reference({
         {isEditable && (
           <div className="ml-auto btn-group-sm">
             <button
-              className={`btn ${isEditing ? "btn-primary" : "btn-outline-primary"}`}
+              className={`btn btn-outline-primary`}
+              disabled={isEditing}
               onClick={() => setIsEditing(true)}
               type="button"
             >
               Edit
             </button>
-            <button className="btn btn-outline-danger ml-1" type="button">
+            <button
+              className="btn btn-outline-danger ml-1"
+              disabled={isEditing}
+              type="button"
+            >
               Delete
             </button>
           </div>

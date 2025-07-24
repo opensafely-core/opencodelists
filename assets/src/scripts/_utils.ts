@@ -21,3 +21,33 @@ export function readValueFromPage(id: string) {
     return JSON.parse(scriptId.textContent);
   }
 }
+
+export async function postFetchWithOptions({
+  body,
+  url,
+}: {
+  body: Record<string, unknown>;
+  url: string;
+}) {
+  const requestHeaders = new Headers();
+  requestHeaders.append("Accept", "application/json");
+  requestHeaders.append("Content-Type", "application/json");
+
+  const csrfCookie = getCookie("csrftoken");
+  if (csrfCookie) {
+    requestHeaders.append("X-CSRFToken", csrfCookie);
+  }
+
+  const response = await fetch(url, {
+    method: "POST",
+    credentials: "include" as RequestCredentials,
+    mode: "same-origin" as RequestMode,
+    headers: requestHeaders,
+    body: JSON.stringify(body),
+  });
+
+  if (!response.ok) {
+    throw new Error("Something went wrong.");
+  }
+  return await response.json();
+}

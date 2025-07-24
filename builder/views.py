@@ -192,14 +192,6 @@ def _draft(request, draft, search_id):
         "codelist_full_slug": codelist.full_slug(),
         "hash": draft.hash,
         "codelist_name": codelist.name,
-        "description": {
-            "text": codelist.description,
-            "html": render_markdown(codelist.description),
-        },
-        "methodology": {
-            "text": codelist.methodology,
-            "html": render_markdown(codelist.methodology),
-        },
     }
 
     ctx = {
@@ -227,6 +219,8 @@ def _draft(request, draft, search_id):
         "metadata": metadata,
         "is_empty_codelist": is_empty_codelist,
         "api_urls": {
+            "description": reverse("builder:api-description", args=[draft.tag_or_hash]),
+            "methodology": reverse("builder:api-methodology", args=[draft.tag_or_hash]),
             "references": reverse("builder:api-references", args=[draft.tag_or_hash]),
         },
     }
@@ -246,6 +240,32 @@ def references(request, draft):
     }
 
     return JsonResponse(references)
+
+
+@require_http_methods(["GET"])
+@load_draft
+def description(request, draft):
+    codelist = draft.codelist
+
+    description = {
+        "text": codelist.description,
+        "html": render_markdown(codelist.description),
+    }
+
+    return JsonResponse(description)
+
+
+@require_http_methods(["GET"])
+@load_draft
+def methodology(request, draft):
+    codelist = draft.codelist
+
+    methodology = {
+        "text": codelist.methodology,
+        "html": render_markdown(codelist.methodology),
+    }
+
+    return JsonResponse(methodology)
 
 
 @login_required

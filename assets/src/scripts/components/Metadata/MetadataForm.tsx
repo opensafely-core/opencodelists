@@ -10,16 +10,20 @@ export default function MetadataForm({
   name: string;
 }) {
   const isEditable = readValueFromPage("is-editable");
-  const metadata = readValueFromPage("metadata");
-  const fieldMetadata = metadata?.[id];
+  const apiURLs = readValueFromPage("api-urls");
 
   const [isEditing, setIsEditing] = useState(false);
 
   const queryClient = useQueryClient();
-  const { data } = useQuery({
+  const { data, isPending, isError } = useQuery({
     queryKey: ["metadata", id],
-    initialData: fieldMetadata,
-    queryFn: () => fieldMetadata,
+    queryFn: async () => {
+      const response = await fetch(
+        apiURLs[id],
+      );
+      if (!response.ok) throw new Error("File list not found");
+      return response.json();
+    },
   });
 
   const updateMetadata = useMutation({
@@ -35,12 +39,29 @@ export default function MetadataForm({
     },
   });
 
-  if (!fieldMetadata) return null;
+  if (isPending || isError) {
+    return (
+      <div className="card">
+        <div className="card-header d-flex flex-row align-items-center">
+          <h3 className="h5 mb-0 mr-auto">{name}</h3>
+        </div>
+
+        <div className="card-body">
+          {isPending && <p className="mb-0">{name} loading&hellip;</p>}
+          {isError && (
+            <p className="mb-0 text-danger font-weight-bold">
+              {name} failed to load.
+            </p>
+          )}
+        </div>
+      </div>
+    );
+  }
+
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const formFieldData = Object.fromEntries(formData);
+    const formFieldData = Object.fromEntries(new FormData(event.currentTarget));
     updateMetadata.mutate(formFieldData);
   }
 

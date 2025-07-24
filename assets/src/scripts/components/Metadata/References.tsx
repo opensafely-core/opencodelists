@@ -60,6 +60,7 @@ export default function References() {
       </div>
     );
   }
+
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const currentReferences = queryClient.getQueryData([

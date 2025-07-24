@@ -2,27 +2,16 @@ import React from "react";
 import { Col, Row, Tab, Tabs } from "react-bootstrap";
 import type Hierarchy from "../_hierarchy";
 import { getCookie } from "../_utils";
-import type { Code, PageData, Reference, Status } from "../types";
+import type { Code, PageData, Status } from "../types";
 import EmptyState from "./EmptyState";
 import CodelistTab from "./Layout/CodelistTab";
 import Header from "./Layout/Header";
 import MetadataTab from "./Layout/MetadataTab";
 import Sidebar from "./Layout/Sidebar";
 
-export type MetadataFieldName = "description" | "methodology";
-interface MetadataField {
-  text: string;
-  html: string;
-  isEditing: boolean;
-}
-interface MetadataProps {
-  description: MetadataField;
-  methodology: MetadataField;
-  references: Reference[];
-}
 interface CodelistBuilderProps extends PageData {
   hierarchy: Hierarchy;
-  metadata: MetadataProps & {
+  metadata: {
     coding_system_id: string;
     coding_system_name: string;
     coding_system_release: {
@@ -65,7 +54,6 @@ export default class CodelistBuilder extends React.Component<
   {
     codeToStatus: PageData["codeToStatus"];
     expandedCompatibleReleases: boolean;
-    metadata: MetadataProps;
     updateQueue: string[][];
     updating: boolean;
   }
@@ -76,19 +64,6 @@ export default class CodelistBuilder extends React.Component<
     this.state = {
       codeToStatus: props.codeToStatus,
       expandedCompatibleReleases: false,
-      metadata: {
-        description: {
-          text: props.metadata.description.text,
-          html: props.metadata.description.html,
-          isEditing: false,
-        },
-        methodology: {
-          text: props.metadata.methodology.text,
-          html: props.metadata.methodology.html,
-          isEditing: false,
-        },
-        references: props.metadata.references || [],
-      },
       updateQueue: [],
       updating: false,
     };
@@ -248,11 +223,7 @@ export default class CodelistBuilder extends React.Component<
                   title="Metadata"
                   className="max-w-80ch"
                 >
-                  <MetadataTab
-                    handleSaveReferences={this.handleSaveReferences}
-                    isEditable={isEditable}
-                    references={this.state.metadata.references}
-                  />
+                  <MetadataTab />
                 </Tab>
               </Tabs>
             </Col>

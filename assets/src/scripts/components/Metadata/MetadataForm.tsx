@@ -1,19 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import React, { useState } from "react";
 import { postFetchWithOptions, readValueFromPage } from "../../_utils";
-import type { PageData } from "../../types";
-
-interface MetadataFieldProps {
-  id: string;
-  isEditable: PageData["isEditable"];
-  name: string;
-}
 
 export default function MetadataForm({
   id,
-  isEditable,
   name,
-}: MetadataFieldProps) {
+}: {
+  id: string;
+  name: string;
+}) {
+  const isEditable = readValueFromPage("is-editable");
   const metadata = readValueFromPage("metadata");
   const fieldMetadata = metadata[id];
   const titleCaseName = name.charAt(0).toUpperCase() + name.slice(1);
@@ -110,16 +106,16 @@ export default function MetadataForm({
               CTRL-ENTER) to keep them or Cancel (shortcut: ESC) to discard.
             </small>
           </div>
-        ) : (
+        ) : data.html ? (
           <div
             className="builder__markdown"
             // biome-ignore lint/security/noDangerouslySetInnerHtml: backend is validating the markdown content
-            dangerouslySetInnerHTML={{
-              __html:
-                data.html ||
-                `<p class="text-muted">${titleCaseName} not provided</p>`,
-            }}
+            dangerouslySetInnerHTML={{ __html: data.html }}
           />
+        ) : (
+          <p className="mb-0 text-muted font-italic">
+            {titleCaseName} not provided
+          </p>
         )}
       </div>
     </form>

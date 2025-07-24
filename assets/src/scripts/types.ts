@@ -47,3 +47,32 @@ export interface Reference {
   text: string;
   url: string;
 }
+
+// {{ is_editable|json_script:"is-editable" }}
+export type IS_EDITABLE = boolean;
+
+// {{ metadata|json_script:"metadata" }}
+export type METADATA = {
+  description: {
+    text: string;
+    html: string;
+  };
+  methodology: {
+    text: string;
+    html: string;
+  };
+  references: {
+    text: string;
+    url: string;
+  }[];
+  coding_system_id: string;
+  coding_system_name: string;
+  coding_system_release: {
+    release_name: string;
+    valid_from: string;
+  };
+  organisation_name: string;
+  codelist_full_slug: string;
+  hash: string;
+  codelist_name: string;
+};

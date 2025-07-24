@@ -36,10 +36,9 @@ export default function Reference({
       (ref) => ref.url !== reference.url && ref.text !== reference.text,
     );
     const formData = new FormData(event.currentTarget);
-    const formFieldData = Object.fromEntries(formData) as {
-      text: string;
-      url: string;
-    };
+    const formFieldData = Object.fromEntries(
+      formData,
+    ) as METADATA["references"][number];
     const updatedReferences = [...filteredReferences, formFieldData];
     addReference.mutate(updatedReferences);
   }

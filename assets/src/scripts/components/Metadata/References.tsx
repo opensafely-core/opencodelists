@@ -7,7 +7,8 @@ import ReferenceForm from "./ReferenceForm";
 
 export default function References() {
   const isEditable: IS_EDITABLE = readValueFromPage("is-editable");
-  const references: METADATA["references"] = readValueFromPage("metadata")?.references;
+  const references: METADATA["references"] =
+    readValueFromPage("metadata")?.references;
 
   const [showAddReference, setShowAddReference] = useState(false);
 
@@ -31,7 +32,7 @@ export default function References() {
     },
   });
 
-  if (!Array.isArray(references)) return null
+  if (!Array.isArray(references)) return null;
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();

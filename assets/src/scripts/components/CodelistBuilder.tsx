@@ -6,8 +6,8 @@ import type { Code, PageData, Status } from "../types";
 import EmptyState from "./EmptyState";
 import CodelistTab from "./Layout/CodelistTab";
 import Header from "./Layout/Header";
-import MetadataTab from "./Layout/MetadataTab";
 import Sidebar from "./Layout/Sidebar";
+import MetadataTab from "./Metadata/Tab";
 
 interface CodelistBuilderProps extends PageData {
   hierarchy: Hierarchy;

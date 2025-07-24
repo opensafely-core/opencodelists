@@ -1,8 +1,8 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import React from "react";
-import MetadataForm from "../Metadata/MetadataForm";
-import References from "../Metadata/References";
+import MetadataForm from "./MetadataForm";
+import References from "./References";
 
 export default function MetadataTab() {
   const client = new QueryClient();

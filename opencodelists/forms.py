@@ -1,14 +1,14 @@
-import csv
 import operator
-from io import StringIO
 
 from django import forms
 from django.contrib.auth import password_validation
 from django.core.validators import RegexValidator
 
-from codelists.coding_systems import CODING_SYSTEMS, builder_compatible_coding_systems
+from codelists.coding_systems import builder_compatible_coding_systems
 from codelists.models import Handle
+from codelists.validation import CSVValidationMixin
 
+from .csv_utils import csv_data_to_rows
 from .models import User
 
 
@@ -68,7 +68,7 @@ def form_field_from_model(model_class, field_name, **kwargs):
     return field_class(validators=validators, **kwargs)
 
 
-class CodelistCreateForm(forms.Form):
+class CodelistCreateForm(forms.Form, CSVValidationMixin):
     owner = forms.ChoiceField()
     name = form_field_from_model(Handle, "name", label="Codelist name")
     coding_system_id = forms.ChoiceField(choices=[], label="Coding system")
@@ -101,27 +101,31 @@ class CodelistCreateForm(forms.Form):
             del self.fields["owner"]
 
     def clean_csv_data(self):
-        f = self.cleaned_data["csv_data"]
-        if not f:
+        # check if any CSV data
+        if not self.cleaned_data["csv_data"]:
             return
 
+        decoded_csv_data = self.decode_csv_data()
+        csv_rows = csv_data_to_rows(decoded_csv_data)
+
+        coding_system = self.get_coding_system()
+
+        # Attempt to detect a valid header
         try:
-            data = f.read().decode("utf-8-sig")
-        except UnicodeDecodeError as exception:
-            raise forms.ValidationError(
-                "File could not be read. Please ensure the file contains CSV "
-                "data (not Excel, for example). It should be a text file encoded "
-                f"in the UTF-8 format. Error details: {exception}."
-            )
+            code_col_ix = self.get_code_column_index(csv_rows[0], coding_system)
+        # If no valid header, skip the first row.
+        except forms.ValidationError:
+            header_is_detected = False
+        else:
+            header_is_detected = True
 
-        # Eventually coding system version may be a selectable field, but for now it
-        # just defaults to using the most recent one.
-        coding_system = CODING_SYSTEMS[
-            self.cleaned_data["coding_system_id"]
-        ].get_by_release_or_most_recent()
+        if header_is_detected:
+            codes = self.get_codes_from_header_csv(csv_rows, code_col_ix)
+        else:
+            codes = self.get_codes_from_nonheader_csv(csv_rows)
 
-        codes = [row[0] for row in csv.reader(StringIO(data)) if row]
         validate_csv_data_codes(coding_system, codes)
+
         return codes
 
 

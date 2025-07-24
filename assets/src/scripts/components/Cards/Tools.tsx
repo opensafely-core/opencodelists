@@ -7,15 +7,13 @@ export default function Tools() {
   const codingSystemId: string =
     readValueFromPage("metadata")?.coding_system_id;
 
-  if (!codingSystemId) return null;
-
   const [tools] = useState(() => {
     return listOfTools.filter((tool) =>
       tool.codingSystem.includes(codingSystemId),
     );
   });
 
-  if (!tools.length) return null;
+  if (!codingSystemId || !tools.length) return null;
 
   return (
     <Card>

@@ -6,8 +6,6 @@ export default function SearchForm() {
   const codingSystemName = readValueFromPage("metadata")?.coding_system_name;
   const searchURL = readValueFromPage("search-url");
 
-  if (!codingSystemName || !searchURL) return null;
-
   // NB, if you change the max search length, remember to change it on
   // the server side as well in the models.py file
   const MIN_TERM_LENGTH = 3; // (codelists/models.py - Search - term, MinLengthValidator)
@@ -47,6 +45,8 @@ export default function SearchForm() {
   const [searchType, setSearchType] = useState<SearchOptionKeys>(
     SEARCH_OPTIONS.term.value,
   );
+
+  if (!codingSystemName || !searchURL) return null;
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;

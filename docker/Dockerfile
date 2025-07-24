@@ -40,7 +40,7 @@ WORKDIR /usr/src/app
 RUN mkdir -p ./assets
 
 # copy just what npm ci needs
-COPY biome.json package-lock.json package.json tsconfig.json ./
+COPY .gitignore biome.json package-lock.json package.json tsconfig.json ./
 RUN --mount=type=cache,target=/usr/src/app/.npm \
     npm set cache /usr/src/app/.npm && \
     npm ci

@@ -48,7 +48,7 @@ test("codeStatus", () => {
   const hierarchy = buildTestHierarchy();
 
   function codeToStatus(included, excluded) {
-    let codeToStatus = {};
+    const codeToStatus = {};
     hierarchy.nodes.forEach((node) => {
       codeToStatus[node] = hierarchy.codeStatus(node, included, excluded);
     });

@@ -1,7 +1,7 @@
 import React from "react";
 import { ButtonGroup } from "react-bootstrap";
-import Hierarchy from "../../_hierarchy";
-import {
+import type Hierarchy from "../../_hierarchy";
+import type {
   Code,
   IsExpanded,
   PageData,
@@ -10,6 +10,7 @@ import {
   Status,
   Term,
   ToggleVisibility,
+  UpdateStatus,
 } from "../../types";
 import DescendantToggle from "./DescendantToggle";
 import MoreInfoModal from "./MoreInfoModal";
@@ -30,7 +31,7 @@ interface RowProps {
   status: Status;
   term: Term;
   toggleVisibility: ToggleVisibility;
-  updateStatus: Function;
+  updateStatus: UpdateStatus;
 }
 
 export default function Row({
@@ -69,9 +70,7 @@ export default function Row({
 
   return (
     <div
-      className={
-        "builder__row" + (pipes.length === 0 ? " builder__row--mt" : "")
-      }
+      className={`builder__row${pipes.length === 0 ? " builder__row--mt" : ""}`}
       data-code={code}
       data-path={path}
     >

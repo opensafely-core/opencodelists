@@ -5,7 +5,7 @@ import React from "react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import Hierarchy from "../../../_hierarchy";
 import MoreInfoModal from "../../../components/Codelist/MoreInfoModal";
-import { Status } from "../../../types";
+import type { Status } from "../../../types";
 import * as versionWithCompleteSearchesData from "../../fixtures/version_with_complete_searches.json";
 
 // Mock dependencies

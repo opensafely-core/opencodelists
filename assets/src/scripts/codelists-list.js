@@ -41,10 +41,10 @@ const codelistRows = Array.from(
 // - if we navigate back to this page and it is loaded from the cache
 const searchInputEl = document.getElementById("searchInput");
 applyFiltering();
-searchInputEl.addEventListener("keyup", function () {
+searchInputEl.addEventListener("keyup", () => {
   applyFiltering();
 });
-window.addEventListener("pageshow", function (event) {
+window.addEventListener("pageshow", (event) => {
   // Only apply if event.persisted i.e. page load is from a cache
   if (event.persisted) {
     searchInputEl.focus();
@@ -90,7 +90,7 @@ function applyFiltering() {
     // Does this codelist match all of the words in the search?
     // This matches the "codelist" level attributes (name, coding system, etc.)
     // It does not consider version-specific attributes (draft, under review etc).
-    let codelistMatchesSearch = matchesAllWords(row.text, searchWords);
+    const codelistMatchesSearch = matchesAllWords(row.text, searchWords);
 
     row.visibleVersions = 0;
     row.versions.forEach((versionRow) => {

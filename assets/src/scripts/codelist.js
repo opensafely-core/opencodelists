@@ -16,6 +16,7 @@ const removeRow = (name, event) => {
   const classes = [...event.target.classList].filter((c) => c.startsWith(name));
 
   if (classes.length < 1) {
+    // biome-ignore lint/suspicious/noConsole: legacy console implementation
     console.log(
       `no classes beginning with ${name} in remove button class list`,
     );

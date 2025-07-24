@@ -1,5 +1,5 @@
 import React from "react";
-import { PageData, Reference } from "../../types";
+import type { PageData, Reference } from "../../types";
 import ReferenceForm from "./ReferenceForm";
 
 interface ReferenceListProps {
@@ -72,6 +72,7 @@ export default class ReferenceList extends React.Component<
           </p>
           <ul>
             {references.map((ref, index) => (
+              // biome-ignore lint/suspicious/noArrayIndexKey: Move to functional component will fix this
               <li key={index} className="mb-2">
                 {editingIndex === index ? (
                   <ReferenceForm
@@ -106,24 +107,22 @@ export default class ReferenceList extends React.Component<
             ))}
           </ul>
           {this.props.isEditable ? (
-            <>
-              {editingIndex === -1 ? (
-                <ReferenceForm
-                  onCancel={this.handleCancel}
-                  onSave={this.handleSaveForm}
-                />
-              ) : (
-                <button
-                  type="button"
-                  className="btn btn-primary btn-sm"
-                  onClick={this.handleAdd}
-                >
-                  {references.length === 0
-                    ? "Add a reference"
-                    : "Add another reference"}
-                </button>
-              )}
-            </>
+            editingIndex === -1 ? (
+              <ReferenceForm
+                onCancel={this.handleCancel}
+                onSave={this.handleSaveForm}
+              />
+            ) : (
+              <button
+                type="button"
+                className="btn btn-primary btn-sm"
+                onClick={this.handleAdd}
+              >
+                {references.length === 0
+                  ? "Add a reference"
+                  : "Add another reference"}
+              </button>
+            )
           ) : null}
         </div>
       </div>

@@ -1,6 +1,11 @@
 import React from "react";
-import Hierarchy from "../../_hierarchy";
-import { AncestorCodes, PageData, ToggleVisibility } from "../../types";
+import type Hierarchy from "../../_hierarchy";
+import type {
+  AncestorCodes,
+  PageData,
+  ToggleVisibility,
+  UpdateStatus,
+} from "../../types";
 import Tree from "./Tree";
 
 interface SectionProps {
@@ -12,7 +17,7 @@ interface SectionProps {
   hierarchy: Hierarchy;
   isEditable: PageData["isEditable"];
   toggleVisibility: ToggleVisibility;
-  updateStatus: Function;
+  updateStatus: UpdateStatus;
   visiblePaths: PageData["visiblePaths"];
 }
 

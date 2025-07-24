@@ -3,9 +3,9 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite",
-    "lint:fix": "biome check --write ./assets/src/**/*",
-    "lint": "biome check ./assets/src/**/*",
-    "lint:ci": "biome ci ./assets/src/**/*",
+    "lint:fix": "biome check --write",
+    "lint": "biome check",
+    "lint:ci": "biome ci",
     "serve": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -14,7 +14,7 @@
     "typecheck": "tsc -p ./"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
+    "@biomejs/biome": "^2.1.2",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",

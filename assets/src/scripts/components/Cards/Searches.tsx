@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Button, Card, Form, ListGroup } from "react-bootstrap";
 import { getCookie } from "../../_utils";
-import { PageData } from "../../types";
+import type { PageData } from "../../types";
 
 export interface SearchesProps {
   draftURL: PageData["draftURL"];

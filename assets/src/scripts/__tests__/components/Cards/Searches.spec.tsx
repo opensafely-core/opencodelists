@@ -2,7 +2,7 @@ import "@testing-library/jest-dom";
 import { render, screen } from "@testing-library/react";
 import React from "react";
 import { describe, expect, it } from "vitest";
-import Search, { SearchesProps } from "../../../components/Cards/Searches";
+import Search, { type SearchesProps } from "../../../components/Cards/Searches";
 
 describe("Search Component", () => {
   const mockSearches: SearchesProps["searches"] = [

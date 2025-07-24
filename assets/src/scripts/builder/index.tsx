@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import Hierarchy from "../_hierarchy";
 import { readValueFromPage } from "../_utils";
 import CodelistBuilder from "../components/CodelistBuilder";
-import { PageData } from "../types";
+import type { PageData } from "../types";
 
 const hierarchy = new Hierarchy(
   readValueFromPage("parent-map"),
@@ -15,9 +15,7 @@ const codeToStatus: PageData["codeToStatus"] =
   readValueFromPage("code-to-status");
 const codeToTerm: PageData["codeToTerm"] = readValueFromPage("code-to-term");
 
-const ancestorCodes = treeTables
-  .map(([_, ancestorCodes]) => ancestorCodes)
-  .flat();
+const ancestorCodes = treeTables.flatMap(([_, ancestorCodes]) => ancestorCodes);
 
 const visiblePaths: PageData["visiblePaths"] = hierarchy.initiallyVisiblePaths(
   ancestorCodes,

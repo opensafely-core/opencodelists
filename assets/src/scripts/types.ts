@@ -1,4 +1,4 @@
-import { SearchesProps } from "./components/Cards/Searches";
+import type { SearchesProps } from "./components/Cards/Searches";
 
 export type AncestorCode = string;
 export type AncestorCodes = AncestorCode[];
@@ -9,6 +9,7 @@ export type Pipe = "└" | "├" | " " | "│";
 export type Status = "+" | "(+)" | "-" | "(-)" | "!" | "?";
 export type Term = string;
 export type ToggleVisibility = (path: Path) => void;
+export type UpdateStatus = (code: Code, status: Status) => void;
 
 type AllCodes = Code[];
 type VisiblePaths = Set<string>;

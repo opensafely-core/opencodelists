@@ -6,11 +6,12 @@ import jQuery from "jquery";
 Object.assign(window, { $: jQuery, jQuery });
 
 // Datatable
+// biome-ignore lint/correctness/noUndeclaredDependencies: legacy datatable plugin
 import "datatables.net/js/jquery.dataTables.mjs";
 import "datatables.net-bs4/js/dataTables.bootstrap4.mjs";
 import "datatables.net-bs4/css/dataTables.bootstrap4.css";
 
-$(function () {
+$(() => {
   $("#js-codelist-table").DataTable({
     paging: false,
   });
@@ -32,6 +33,6 @@ window.addEventListener("hashchange", switchToTab);
 
 function switchToTab() {
   var hash = location.hash || "#about";
-  $('#tab-list a[href="' + hash + '"]').tab("show");
+  $(`#tab-list a[href="${hash}"]`).tab("show");
 }
 /* v8 ignore end */

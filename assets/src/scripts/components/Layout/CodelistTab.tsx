@@ -1,6 +1,6 @@
 import React from "react";
-import Hierarchy from "../../_hierarchy";
-import { PageData } from "../../types";
+import type Hierarchy from "../../_hierarchy";
+import type { PageData, UpdateStatus } from "../../types";
 import Container from "../Codelist/Container";
 import EmptySearch from "../Codelist/EmptySearch";
 
@@ -13,7 +13,7 @@ interface CodelistTabProps {
   isEditable: PageData["isEditable"];
   resultsHeading: PageData["resultsHeading"];
   treeTables: PageData["treeTables"];
-  updateStatus: Function;
+  updateStatus: UpdateStatus;
   visiblePaths: PageData["visiblePaths"];
 }
 

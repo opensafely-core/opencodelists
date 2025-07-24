@@ -1,5 +1,5 @@
 import React from "react";
-import ListGroup, { CodeProps } from "./ListGroup";
+import ListGroup, { type CodeProps } from "./ListGroup";
 
 interface SectionProps {
   section: {

@@ -1,7 +1,7 @@
 import React from "react";
 import { Badge, ListGroup } from "react-bootstrap";
-import { PageData } from "../../types";
-import { SummaryProps } from "../Cards/Summary";
+import type { PageData } from "../../types";
+import type { SummaryProps } from "../Cards/Summary";
 import ManagementForm from "../Header/ManagementForm";
 
 export default function Header({

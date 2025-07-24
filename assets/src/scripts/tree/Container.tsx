@@ -1,7 +1,7 @@
 import slugify from "@sindresorhus/slugify";
 import React from "react";
 import { readValueFromPage } from "../_utils";
-import { CodeProps } from "./ListGroup";
+import type { CodeProps } from "./ListGroup";
 import Section from "./Section";
 
 interface SectionProps {

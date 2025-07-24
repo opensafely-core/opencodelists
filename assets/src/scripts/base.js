@@ -26,7 +26,7 @@ import "../styles/base.css";
  * Enable tooltips everywhere
  * https://getbootstrap.com/docs/4.6/components/tooltips/#example-enable-tooltips-everywhere
  */
-$(function () {
+$(() => {
   $('[data-toggle="tooltip"]').tooltip();
 });
 /* v8 ignore end */

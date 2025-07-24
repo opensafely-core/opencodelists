@@ -1,4 +1,4 @@
-import {
+import type {
   AncestorCode,
   AncestorCodes,
   Code,
@@ -17,6 +17,7 @@ class Hierarchy {
   nodes: Set<string>;
   parentMap: Record<string, string[]>;
 
+  // biome-ignore lint/complexity/noBannedTypes: legacy constructor
   constructor(parentMap: {}, childMap: {}) {
     this.nodes = new Set([...Object.keys(parentMap), ...Object.keys(childMap)]);
     this.parentMap = parentMap;
@@ -27,11 +28,11 @@ class Hierarchy {
 
   getAncestors(node: string) {
     if (!(node in this.ancestorMap)) {
-      let ancestors: Set<string> = new Set();
+      const ancestors: Set<string> = new Set();
       if (node in this.parentMap) {
-        for (let parent of this.parentMap[node]) {
+        for (const parent of this.parentMap[node]) {
           ancestors.add(parent);
-          for (let ancestor of this.getAncestors(parent)) {
+          for (const ancestor of this.getAncestors(parent)) {
             ancestors.add(ancestor);
           }
         }
@@ -45,12 +46,12 @@ class Hierarchy {
 
   getDescendants(node: string) {
     if (!(node in this.descendantMap)) {
-      let descendants: Set<string> = new Set();
+      const descendants: Set<string> = new Set();
 
       if (node in this.childMap) {
-        for (let child of this.childMap[node]) {
+        for (const child of this.childMap[node]) {
           descendants.add(child);
-          for (let descendant of this.getDescendants(child)) {
+          for (const descendant of this.getDescendants(child)) {
             descendants.add(descendant);
           }
         }
@@ -70,10 +71,10 @@ class Hierarchy {
     // Given mapping from codes to statuses, a code, and that code's new
     // status, return an updated mapping.
 
-    let included = Object.keys(codeToStatus).filter(
+    const included = Object.keys(codeToStatus).filter(
       (c) => codeToStatus[c] === "+" && c !== code,
     );
-    let excluded = Object.keys(codeToStatus).filter(
+    const excluded = Object.keys(codeToStatus).filter(
       (c) => codeToStatus[c] === "-" && c !== code,
     );
 
@@ -215,7 +216,7 @@ class Hierarchy {
 
       // A row is expanded if any of its children are visible.
       const isExpanded = childCodes.some((childCode: Code) => {
-        const childPath = path + ":" + childCode;
+        const childPath = `${path}:${childCode}`;
         return visiblePaths.has(childPath);
       });
 
@@ -230,7 +231,7 @@ class Hierarchy {
       });
 
       childCodes.forEach((childCode: Code, ix: number) => {
-        const childPath = path + ":" + childCode;
+        const childPath = `${path}:${childCode}`;
         if (visiblePaths.has(childPath)) {
           helper(
             childCode,
@@ -318,7 +319,7 @@ class Hierarchy {
 
       const childCodes = this.childMap[code] || [];
       childCodes.forEach((childCode: Code) => {
-        helper(childCode, path + ":" + childCode, newDepth);
+        helper(childCode, `${path}:${childCode}`, newDepth);
       });
     };
 
@@ -342,7 +343,7 @@ class Hierarchy {
     const code = path.split(":").slice(-1)[0];
     const childCodes = this.childMap[code] || [];
     childCodes.forEach((childCode: Code) => {
-      const childPath = path + ":" + childCode;
+      const childPath = `${path}:${childCode}`;
       if (visiblePaths.has(childPath)) {
         visiblePaths.delete(childPath);
       } else {

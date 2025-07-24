@@ -1,8 +1,8 @@
 import React from "react";
 import { Col, Form, Row, Tab, Tabs } from "react-bootstrap";
-import Hierarchy from "../_hierarchy";
+import type Hierarchy from "../_hierarchy";
 import { getCookie } from "../_utils";
-import { Code, PageData, Reference, Status } from "../types";
+import type { Code, PageData, Reference, Status } from "../types";
 import EmptyState from "./EmptyState";
 import CodelistTab from "./Layout/CodelistTab";
 import Header from "./Layout/Header";
@@ -236,6 +236,7 @@ export default class CodelistBuilder extends React.Component<
           this.setState(() => ({ metadata: data.metadata }));
         });
     } catch (error) {
+      // biome-ignore lint/suspicious/noConsole: legacy console implementation
       console.error(`Failed to save ${field}:`, error);
     }
   };
@@ -253,6 +254,7 @@ export default class CodelistBuilder extends React.Component<
         metadata: { ...this.state.metadata, references: newReferences },
       });
     } catch (error) {
+      // biome-ignore lint/suspicious/noConsole: legacy console implementation
       console.error("Failed to save references:", error);
     }
   };
@@ -332,16 +334,15 @@ export default class CodelistBuilder extends React.Component<
                   </Form.Text>
                 </>
               ) : (
-                <>
-                  <div
-                    className="builder__markdown"
-                    dangerouslySetInnerHTML={{
-                      __html:
-                        htmlContent ||
-                        `<em class="text-muted">No ${field} provided yet</em>`,
-                    }}
-                  />
-                </>
+                <div
+                  className="builder__markdown"
+                  // biome-ignore lint/security/noDangerouslySetInnerHtml: backend is validating the markdown content
+                  dangerouslySetInnerHTML={{
+                    __html:
+                      htmlContent ||
+                      `<em class="text-muted">No ${field} provided yet</em>`,
+                  }}
+                />
               )}
             </>
           ) : (
@@ -354,6 +355,7 @@ export default class CodelistBuilder extends React.Component<
               <hr />
               <div
                 className="builder__markdown"
+                // biome-ignore lint/security/noDangerouslySetInnerHtml: backend is validating the markdown content
                 dangerouslySetInnerHTML={{
                   __html:
                     htmlContent ||

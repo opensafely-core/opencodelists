@@ -3,11 +3,11 @@ from crispy_forms.layout import Submit
 from django import forms
 
 from opencodelists.csv_utils import csv_data_to_rows
-from opencodelists.forms import form_field_from_model, validate_csv_data_codes
+from opencodelists.forms import form_field_from_model
 from opencodelists.models import Organisation, User
 
 from .models import Codelist, CodelistVersion, Handle, Reference, SignOff
-from .validation import CSVValidationMixin
+from .validation import CSVValidationMixin, validate_csv_data_codes
 
 
 def data_without_delete(cleaned_data):

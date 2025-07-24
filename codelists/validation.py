@@ -1,6 +1,34 @@
+import operator
+
 from django import forms
 
 from .coding_systems import CODING_SYSTEMS
+
+
+def validate_csv_data_codes(coding_system, codes):
+    # Fully implemented codings systems have a `lookup_names` method that is used to
+    # validate the codes in the CSV upload.  However, we also support uploads for some
+    # coding systems that we don't maintain data for (e.g. OPCS4, ReadV2).  Skip code
+    # validation for these systems, and just allow upload of the CSV data as it is.
+    if not coding_system.has_database:
+        return
+    unknown_codes = set(codes) - set(coding_system.lookup_names(codes))
+    unknown_codes_and_ixs = sorted(
+        [(codes.index(code), code) for code in unknown_codes],
+        key=operator.itemgetter(0),
+    )
+
+    if unknown_codes_and_ixs:
+        line = unknown_codes_and_ixs[0][0] + 1
+        code = unknown_codes_and_ixs[0][1]
+        if len(unknown_codes_and_ixs) == 1:
+            msg = f"CSV file contains 1 unknown code ({code}) on line {line}"
+        else:
+            num = len(unknown_codes_and_ixs)
+            suffix = "" if num == 1 else "s"
+            msg = f"CSV file contains {num} unknown code{suffix} -- the first ({code}) is on line {line}"
+        msg += f" ({coding_system.short_name} release {coding_system.release_name}, valid from {coding_system.release.valid_from})"
+        raise forms.ValidationError(msg)
 
 
 class CSVValidationMixin:
@@ -44,9 +72,13 @@ class CSVValidationMixin:
                 "Multiple possible code headers found: {code_headers}"
             )
 
+        # TODO: validate that there's only one match?
+        # Maybe rethink header handling.
         return csv_headers.index(next(iter(code_headers)))
 
     def get_codes_from_header_csv(self, csv_rows, code_col_ix):
+        # This was the previous only existing path for
+        # the `codelist/user/<name>/add` upload mechanism.
         num_columns = len(csv_rows[0])
 
         number_of_column_errors = []
@@ -71,4 +103,12 @@ class CSVValidationMixin:
         return codes
 
     def get_codes_from_nonheader_csv(self, csv_rows):
+        # This was the previous only existing path for "Create a codelist" upload CSV.
+        # It is still used for upload page for codelists with no header.
+        # It does not apply for the `codelist/user/<name>/add/` upload page.
         return [row[0] for row in csv_rows if row]
+
+    def process_csv_data(self):
+        # TODO: to make into `_clean_csv_data`
+        # and call with minimum setup from `_clean_csv_data`.
+        pass

@@ -2,7 +2,9 @@ import "@testing-library/jest-dom";
 import { render, screen } from "@testing-library/react";
 import React from "react";
 import { beforeEach, describe, expect, it } from "vitest";
-import Versions, { VersionProps } from "../../../components/Cards/Versions";
+import Versions, {
+  type VersionProps,
+} from "../../../components/Cards/Versions";
 
 describe("Version Component", () => {
   const mockVersions: VersionProps[] = [

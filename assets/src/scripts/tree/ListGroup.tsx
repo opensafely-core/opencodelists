@@ -27,7 +27,10 @@ function Status({ status }: { status: "+" | "-" }) {
 function Codename({
   name,
   status,
-}: { name: CodeProps["name"]; status: CodeProps["status"] }) {
+}: {
+  name: CodeProps["name"];
+  status: CodeProps["status"];
+}) {
   return (
     <>
       <dt className="sr-only">Name:</dt>

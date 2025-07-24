@@ -24,9 +24,9 @@ const renderCodelistBuilder = (data, hierarchy, visiblePaths) => {
     hierarchy = new Hierarchy(data.parent_map, data.child_map);
   }
   if (!visiblePaths) {
-    const ancestorCodes = data.tree_tables
-      .map(([_, ancestorCodes]) => ancestorCodes)
-      .flat();
+    const ancestorCodes = data.tree_tables.flatMap(
+      ([_, ancestorCodes]) => ancestorCodes,
+    );
     visiblePaths = hierarchy.initiallyVisiblePaths(
       ancestorCodes,
       data.code_to_status,
@@ -74,9 +74,9 @@ it("renders version_from_scratch without error", () => {
 it("does the right thing when clicking around", async () => {
   const data = versionWithSomeSearchesData;
   const hierarchy = new Hierarchy(data.parent_map, data.child_map);
-  const ancestorCodes = data.tree_tables
-    .map(([_, ancestorCodes]) => ancestorCodes)
-    .flat();
+  const ancestorCodes = data.tree_tables.flatMap(
+    ([_, ancestorCodes]) => ancestorCodes,
+  );
   const visiblePaths = hierarchy.initiallyVisiblePaths(
     ancestorCodes,
     data.code_to_status,

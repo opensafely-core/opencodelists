@@ -1,7 +1,7 @@
 import React from "react";
 import { ButtonGroup } from "react-bootstrap";
-import Hierarchy from "../../_hierarchy";
-import {
+import type Hierarchy from "../../_hierarchy";
+import type {
   Code,
   IsExpanded,
   PageData,

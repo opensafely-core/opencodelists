@@ -1,7 +1,7 @@
 import React from "react";
-import Hierarchy from "../../_hierarchy";
+import type Hierarchy from "../../_hierarchy";
 import { readValueFromPage } from "../../_utils";
-import { AncestorCode, PageData, ToggleVisibility } from "../../types";
+import type { AncestorCode, PageData, ToggleVisibility } from "../../types";
 import Row from "./Row";
 
 interface TreeProps {

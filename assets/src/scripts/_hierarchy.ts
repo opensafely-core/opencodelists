@@ -1,4 +1,4 @@
-import {
+import type {
   AncestorCode,
   AncestorCodes,
   Code,
@@ -27,11 +27,11 @@ class Hierarchy {
 
   getAncestors(node: string) {
     if (!(node in this.ancestorMap)) {
-      let ancestors: Set<string> = new Set();
+      const ancestors: Set<string> = new Set();
       if (node in this.parentMap) {
-        for (let parent of this.parentMap[node]) {
+        for (const parent of this.parentMap[node]) {
           ancestors.add(parent);
-          for (let ancestor of this.getAncestors(parent)) {
+          for (const ancestor of this.getAncestors(parent)) {
             ancestors.add(ancestor);
           }
         }
@@ -45,12 +45,12 @@ class Hierarchy {
 
   getDescendants(node: string) {
     if (!(node in this.descendantMap)) {
-      let descendants: Set<string> = new Set();
+      const descendants: Set<string> = new Set();
 
       if (node in this.childMap) {
-        for (let child of this.childMap[node]) {
+        for (const child of this.childMap[node]) {
           descendants.add(child);
-          for (let descendant of this.getDescendants(child)) {
+          for (const descendant of this.getDescendants(child)) {
             descendants.add(descendant);
           }
         }
@@ -70,10 +70,10 @@ class Hierarchy {
     // Given mapping from codes to statuses, a code, and that code's new
     // status, return an updated mapping.
 
-    let included = Object.keys(codeToStatus).filter(
+    const included = Object.keys(codeToStatus).filter(
       (c) => codeToStatus[c] === "+" && c !== code,
     );
-    let excluded = Object.keys(codeToStatus).filter(
+    const excluded = Object.keys(codeToStatus).filter(
       (c) => codeToStatus[c] === "-" && c !== code,
     );
 

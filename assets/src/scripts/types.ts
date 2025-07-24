@@ -1,4 +1,4 @@
-import { SearchesProps } from "./components/Cards/Searches";
+import type { SearchesProps } from "./components/Cards/Searches";
 
 export type AncestorCode = string;
 export type AncestorCodes = AncestorCode[];

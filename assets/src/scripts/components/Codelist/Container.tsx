@@ -1,6 +1,6 @@
-import React, { useState, useCallback } from "react";
-import Hierarchy from "../../_hierarchy";
-import { PageData, Path } from "../../types";
+import React, { useCallback, useState } from "react";
+import type Hierarchy from "../../_hierarchy";
+import type { PageData, Path } from "../../types";
 import Section from "./Section";
 
 interface ContainerProps {

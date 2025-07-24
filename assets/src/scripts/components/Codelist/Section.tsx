@@ -1,6 +1,6 @@
 import React from "react";
-import Hierarchy from "../../_hierarchy";
-import { AncestorCodes, PageData, ToggleVisibility } from "../../types";
+import type Hierarchy from "../../_hierarchy";
+import type { AncestorCodes, PageData, ToggleVisibility } from "../../types";
 import Tree from "./Tree";
 
 interface SectionProps {

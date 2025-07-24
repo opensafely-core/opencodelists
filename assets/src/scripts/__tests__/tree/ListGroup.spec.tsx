@@ -2,7 +2,7 @@ import "@testing-library/jest-dom";
 import { render, screen } from "@testing-library/react";
 import React from "react";
 import { describe, expect, it } from "vitest";
-import ListGroup, { CodeProps } from "../../tree/ListGroup";
+import ListGroup, { type CodeProps } from "../../tree/ListGroup";
 
 const mockCode: CodeProps = {
   id: "test-code",

@@ -1,8 +1,8 @@
 import React from "react";
 import { Col } from "react-bootstrap";
+import Searches, { type SearchesProps } from "../Cards/Searches";
 import SearchForm from "../Cards/SearchForm";
-import Searches, { SearchesProps } from "../Cards/Searches";
-import Summary, { SummaryProps } from "../Cards/Summary";
+import Summary, { type SummaryProps } from "../Cards/Summary";
 import Tools from "../Cards/Tools";
 import Versions from "../Cards/Versions";
 

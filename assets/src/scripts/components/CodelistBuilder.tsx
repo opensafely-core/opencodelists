@@ -1,8 +1,8 @@
 import React from "react";
 import { Col, Form, Row, Tab, Tabs } from "react-bootstrap";
-import Hierarchy from "../_hierarchy";
+import type Hierarchy from "../_hierarchy";
 import { getCookie } from "../_utils";
-import { Code, PageData, Reference, Status } from "../types";
+import type { Code, PageData, Reference, Status } from "../types";
 import EmptyState from "./EmptyState";
 import CodelistTab from "./Layout/CodelistTab";
 import Header from "./Layout/Header";

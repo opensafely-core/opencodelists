@@ -10,7 +10,7 @@ import "datatables.net/js/jquery.dataTables.mjs";
 import "datatables.net-bs4/js/dataTables.bootstrap4.mjs";
 import "datatables.net-bs4/css/dataTables.bootstrap4.css";
 
-$(function () {
+$(() => {
   $("#js-codelist-table").DataTable({
     paging: false,
   });

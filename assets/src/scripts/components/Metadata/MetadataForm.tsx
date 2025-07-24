@@ -11,8 +11,7 @@ export default function MetadataForm({
 }) {
   const isEditable = readValueFromPage("is-editable");
   const metadata = readValueFromPage("metadata");
-  const fieldMetadata = metadata[id];
-  const titleCaseName = name.charAt(0).toUpperCase() + name.slice(1);
+  const fieldMetadata = metadata?.[id];
 
   const [isEditing, setIsEditing] = useState(false);
 
@@ -35,6 +34,8 @@ export default function MetadataForm({
       setIsEditing(false);
     },
   });
+
+  if (!fieldMetadata) return null;
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -64,7 +65,7 @@ export default function MetadataForm({
       onSubmit={handleSubmit}
     >
       <div className="card-header d-flex flex-row align-items-center">
-        <h3 className="h5 mb-0 mr-auto">{titleCaseName}</h3>
+        <h3 className="h5 mb-0 mr-auto">{name}</h3>
         {isEditable ? (
           isEditing ? (
             <>
@@ -113,9 +114,7 @@ export default function MetadataForm({
             dangerouslySetInnerHTML={{ __html: data.html }}
           />
         ) : (
-          <p className="mb-0 text-muted font-italic">
-            {titleCaseName} not provided
-          </p>
+          <p className="mb-0 text-muted font-italic">{name} not provided</p>
         )}
       </div>
     </form>

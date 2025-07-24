@@ -148,24 +148,6 @@ export default class CodelistBuilder extends React.Component<
     }, counts);
   }
 
-  // Add save handler:
-  handleSaveReferences = async (
-    newReferences: Array<{ text: string; url: string }>,
-  ) => {
-    const fetchOptions = getFetchOptions({ references: newReferences });
-
-    try {
-      await fetch(this.props.updateURL, fetchOptions);
-
-      this.setState({
-        metadata: { ...this.state.metadata, references: newReferences },
-      });
-    } catch (error) {
-      // biome-ignore lint/suspicious/noConsole: legacy console implementation
-      console.error("Failed to save references:", error);
-    }
-  };
-
   render() {
     const {
       allCodes,

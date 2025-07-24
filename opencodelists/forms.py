@@ -4,9 +4,8 @@ from django.core.validators import RegexValidator
 
 from codelists.coding_systems import builder_compatible_coding_systems
 from codelists.models import Handle
-from codelists.validation import CSVValidationMixin, validate_csv_data_codes
+from codelists.validation import CSVValidationMixin
 
-from .csv_utils import csv_data_to_rows
 from .models import User
 
 
@@ -103,28 +102,11 @@ class CodelistCreateForm(forms.Form, CSVValidationMixin):
         if not self.cleaned_data["csv_data"]:
             return
 
-        decoded_csv_data = self.decode_csv_data()
-        csv_rows = csv_data_to_rows(decoded_csv_data)
-
-        coding_system = self.get_coding_system()
-
-        # Attempt to detect a valid header
-        try:
-            code_col_ix = self.get_code_column_index(csv_rows[0], coding_system)
-        # If no valid header, skip the first row.
-        except forms.ValidationError:
-            header_is_detected = False
-        else:
-            header_is_detected = True
-
-        if header_is_detected:
-            codes = self.get_codes_from_header_csv(csv_rows, code_col_ix)
-        else:
-            codes = self.get_codes_from_nonheader_csv(csv_rows)
-
-        validate_csv_data_codes(coding_system, codes)
-
-        return codes
+        # This upload path uses the codes from the CSV data.
+        # We allow CSVs with headers or without,
+        # and autodetect them.
+        result = self.process_csv_data(allow_no_header=True)
+        return result.codes
 
 
 class RegisterForm(forms.ModelForm):

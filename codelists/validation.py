@@ -1,8 +1,17 @@
 import operator
+from dataclasses import dataclass
 
 from django import forms
 
+from opencodelists.csv_utils import csv_data_to_rows
+
 from .coding_systems import CODING_SYSTEMS
+
+
+@dataclass(frozen=True)
+class CSVValidationResult:
+    csv_data: str
+    codes: list
 
 
 def validate_csv_data_codes(coding_system, codes):
@@ -65,11 +74,11 @@ class CSVValidationMixin:
         code_headers = possible_code_headers & set(csv_headers)
         if not code_headers:
             raise forms.ValidationError(
-                "Expected code header not found: one of {possible_code_headers} required"
+                f"Expected code header not found: one of {possible_code_headers} required"
             )
         if len(code_headers) > 1:
             raise forms.ValidationError(
-                "Multiple possible code headers found: {code_headers}"
+                f"Multiple possible code headers found: {code_headers}"
             )
 
         # TODO: validate that there's only one match?
@@ -83,7 +92,7 @@ class CSVValidationMixin:
 
         number_of_column_errors = []
         codes = []
-        for i, row in enumerate(csv_rows[1:], start=2):
+        for i, row in enumerate(csv_rows[1:], start=1):
             # Ignore completely blank lines
             if not row:
                 continue
@@ -108,7 +117,33 @@ class CSVValidationMixin:
         # It does not apply for the `codelist/user/<name>/add/` upload page.
         return [row[0] for row in csv_rows if row]
 
-    def process_csv_data(self):
+    def process_csv_data(self, allow_no_header=False):
         # TODO: to make into `_clean_csv_data`
         # and call with minimum setup from `_clean_csv_data`.
-        pass
+        decoded_csv_data = self.decode_csv_data()
+        csv_rows = csv_data_to_rows(decoded_csv_data)
+
+        coding_system = self.get_coding_system()
+
+        # Attempt to detect a valid column header.
+        try:
+            code_col_ix = self.get_code_column_index(csv_rows[0], coding_system)
+        except forms.ValidationError:
+            # We haven't found a header and don't allow
+            # processing without a header.
+            if not allow_no_header:
+                raise
+
+            header_is_detected = False
+        else:
+            header_is_detected = True
+
+        if header_is_detected:
+            codes = self.get_codes_from_header_csv(csv_rows, code_col_ix)
+        else:
+            codes = self.get_codes_from_nonheader_csv(csv_rows)
+
+        validate_csv_data_codes(coding_system, codes)
+
+        result = CSVValidationResult(csv_data=decoded_csv_data, codes=codes)
+        return result

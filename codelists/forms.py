@@ -2,12 +2,11 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 from django import forms
 
-from opencodelists.csv_utils import csv_data_to_rows
 from opencodelists.forms import form_field_from_model
 from opencodelists.models import Organisation, User
 
 from .models import Codelist, CodelistVersion, Handle, Reference, SignOff
-from .validation import CSVValidationMixin, validate_csv_data_codes
+from .validation import CSVValidationMixin
 
 
 def data_without_delete(cleaned_data):
@@ -95,20 +94,15 @@ class CodelistCreateForm(forms.Form, CSVValidationMixin):
         super().__init__(*args, **kwargs)
 
     def clean_csv_data(self):
-        # This form can only use CSV data.
-        decoded_csv_data = self.decode_csv()
-        csv_rows = csv_data_to_rows(decoded_csv_data)
+        # This upload path uploads the CSV data directly.
+        # We only need to validate the data,
+        # not use the codes it returns.
+        # It only allows CSV with a header,
+        # which is the existing behaviour before refactoring.
+        # This could be changed.
+        result = self.process_csv_data(allow_no_header=False)
 
-        coding_system = self.get_coding_system()
-
-        code_col_ix = self.get_code_column_index(csv_rows[0], coding_system)
-
-        # We currently enforce a header for CSVs uploaded with this form.
-        codes = self.get_codes_from_header_csv(csv_rows, code_col_ix)
-
-        validate_csv_data_codes(coding_system, codes)
-
-        return self.cleaned_data["csv_data"]
+        return result.csv_data
 
 
 class CodelistUpdateForm(forms.Form):

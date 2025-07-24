@@ -2,7 +2,7 @@
 
 {% load django_vite %}
 
-{% load markdown_filter %}
+{% load text_filters %}
 
 {% block content %}
 
@@ -58,7 +58,9 @@
           <dd>
 
             {% if cl.description %}
-              <div>{{ cl.description|markdown_filter|safe }}</div>
+              <div>
+                {{ cl.description|truncatechars:500|truncatelines:4|linebreaksbr }}
+              </div>
             {% endif %}
 
             {% if not organisation %}

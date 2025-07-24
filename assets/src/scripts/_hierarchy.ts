@@ -17,6 +17,7 @@ class Hierarchy {
   nodes: Set<string>;
   parentMap: Record<string, string[]>;
 
+  // biome-ignore lint/complexity/noBannedTypes: legacy constructor
   constructor(parentMap: {}, childMap: {}) {
     this.nodes = new Set([...Object.keys(parentMap), ...Object.keys(childMap)]);
     this.parentMap = parentMap;

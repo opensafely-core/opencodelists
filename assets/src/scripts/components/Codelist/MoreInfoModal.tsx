@@ -175,6 +175,7 @@ function MoreInfoModal({
               {!synonyms || synonyms?.length === 0 ? (
                 <li>No synonyms</li>
               ) : (
+                // biome-ignore lint/suspicious/noArrayIndexKey: item won't be re-rendered based on key
                 synonyms.map((synonym, idx) => <li key={idx}>{synonym}</li>)
               )}
             </ul>
@@ -188,6 +189,7 @@ function MoreInfoModal({
                 <li>No references</li>
               ) : (
                 references.map((reference, idx) => (
+                  // biome-ignore lint/suspicious/noArrayIndexKey: item won't be re-rendered based on key
                   <li key={idx}>
                     <a href={reference[1]}>{reference[0]}</a>
                   </li>

@@ -72,6 +72,7 @@ export default class ReferenceList extends React.Component<
           </p>
           <ul>
             {references.map((ref, index) => (
+              // biome-ignore lint/suspicious/noArrayIndexKey: Move to functional component will fix this
               <li key={index} className="mb-2">
                 {editingIndex === index ? (
                   <ReferenceForm

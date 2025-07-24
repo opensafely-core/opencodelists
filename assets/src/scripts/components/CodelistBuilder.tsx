@@ -236,6 +236,7 @@ export default class CodelistBuilder extends React.Component<
           this.setState(() => ({ metadata: data.metadata }));
         });
     } catch (error) {
+      // biome-ignore lint/suspicious/noConsole: legacy console implementation
       console.error(`Failed to save ${field}:`, error);
     }
   };
@@ -253,6 +254,7 @@ export default class CodelistBuilder extends React.Component<
         metadata: { ...this.state.metadata, references: newReferences },
       });
     } catch (error) {
+      // biome-ignore lint/suspicious/noConsole: legacy console implementation
       console.error("Failed to save references:", error);
     }
   };
@@ -334,6 +336,7 @@ export default class CodelistBuilder extends React.Component<
               ) : (
                 <div
                   className="builder__markdown"
+                  // biome-ignore lint/security/noDangerouslySetInnerHtml: backend is validating the markdown content
                   dangerouslySetInnerHTML={{
                     __html:
                       htmlContent ||
@@ -352,6 +355,7 @@ export default class CodelistBuilder extends React.Component<
               <hr />
               <div
                 className="builder__markdown"
+                // biome-ignore lint/security/noDangerouslySetInnerHtml: backend is validating the markdown content
                 dangerouslySetInnerHTML={{
                   __html:
                     htmlContent ||

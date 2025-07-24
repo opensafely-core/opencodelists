@@ -72,13 +72,18 @@ class CSVValidationMixin:
         csv_headers = [header.lower().strip() for header in first_csv_row]
 
         code_headers = possible_code_headers & set(csv_headers)
+        # TODO: order of the headers in display?
+        # should it be as in the CSV?
+        # This means not using sets.
         if not code_headers:
             raise forms.ValidationError(
-                f"Expected code header not found: one of {possible_code_headers} required"
+                # TODO: fix the formatting
+                f"Expected code header not found; one of the following headers required: {sorted(possible_code_headers)}"
             )
         if len(code_headers) > 1:
             raise forms.ValidationError(
-                f"Multiple possible code headers found: {code_headers}"
+                # TODO: fix the formatting
+                f"Multiple possible code headers found: {sorted(code_headers)}"
             )
 
         # TODO: validate that there's only one match?

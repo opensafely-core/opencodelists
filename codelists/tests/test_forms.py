@@ -118,7 +118,7 @@ def test_codelistform_no_code_header(setup_coding_systems):
     assert len(e.value.messages) == 1
     assert (
         e.value.messages[0]
-        == "Expected code header not found: 'dmd_id' or 'code' required"
+        == "Expected code header not found; one of the following headers required: ['code']"
     )
 
 
@@ -127,16 +127,20 @@ def test_codelistform_ambiguous_code_header(setup_coding_systems):
 
     # wrap CSV up in SimpleUploadedFile to mirror how a Django view would
     # handle it
+    # TODO: make this data make sense.
     csv_data = "code,dmd_id,description\n0301012A0AA,0301012A0AA,Adrenaline (Asthma)"
     upload_file = csv_builder(csv_data)
     uploaded_file = SimpleUploadedFile("our csv", upload_file.read())
-    form.cleaned_data = {"csv_data": uploaded_file, "coding_system_id": "bnf"}
+    form.cleaned_data = {"csv_data": uploaded_file, "coding_system_id": "dmd"}
 
     with pytest.raises(ValidationError) as e:
         form.process_csv_data()
 
     assert len(e.value.messages) == 1
-    assert e.value.messages[0] == "Ambiguous headers: both 'dmd_id' and 'code' found"
+    assert (
+        e.value.messages[0]
+        == "Multiple possible code headers found: ['code', 'dmd_id']"
+    )
 
 
 def test_codelistform_invalid_codes(setup_coding_systems):

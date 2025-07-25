@@ -1,4 +1,5 @@
 import pytest
+from django.urls import reverse
 
 from codelists.views.version_diff import summarise
 
@@ -197,3 +198,32 @@ def test_version_diff_default_columns(client, null_codelist):
     rsp = client.get(version1.get_diff_url(version2))
     assert rsp.context["rhs_only_codes"] == {"5678"}
     assert rsp.context["lhs_only_codes"] == {"1234"}
+
+
+def test_version_diff_by_tag_in_codelist(
+    client, version_with_no_searches, version_with_some_searches, version_from_scratch
+):
+    # This tests the situation where you do a diff like /codelist_slug/version_hash/diff/tag/
+    # where the tag is not unique to the codelist version, but is a tag of the lhs codelist so
+    # we can assume that's what they're trying to diff agains.
+
+    # version with no seaches and version with some searches are in the same codelist
+    # version_from_scratch is in a different codelist
+    shared_tag = "shared-tag"
+    version_with_some_searches.tag = shared_tag
+    version_with_some_searches.save()
+    version_from_scratch.tag = shared_tag
+    version_from_scratch.save()
+    url = reverse(
+        "codelists:organisation_version_diff",
+        args=[
+            version_with_no_searches.organisation.slug,
+            version_with_no_searches.codelist.slug,
+            version_with_no_searches.hash,
+            shared_tag,
+        ],
+    )
+    rsp = client.get(url)
+    assert rsp.status_code == 200
+    assert rsp.context["lhs"].id == version_with_no_searches.id
+    assert rsp.context["rhs"].id == version_with_some_searches.id

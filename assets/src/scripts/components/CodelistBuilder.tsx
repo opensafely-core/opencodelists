@@ -297,7 +297,7 @@ export default class CodelistBuilder extends React.Component<
                 ) : (
                   <button
                     type="button"
-                    className="btn btn-sm btn-warning"
+                    className={`plausible-event-name=Edit+metadata+${field} btn btn-sm btn-warning`}
                     onClick={() => this.handleEdit(field)}
                     title={`Edit ${field}`}
                   >

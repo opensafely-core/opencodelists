@@ -2,6 +2,7 @@ import pytest
 from django.core.exceptions import ObjectDoesNotExist
 
 from builder import actions
+from codelists.models import Search
 from opencodelists.tests.assertions import assert_difference
 
 
@@ -478,3 +479,33 @@ def test_discard_draft_from_scratch(version_from_scratch):
     actions.discard_draft(draft=version_from_scratch)
     with pytest.raises(ObjectDoesNotExist):
         codelist.refresh_from_db()
+
+
+class FakeLargeCodeList:
+    def __len__(self):
+        return self.fake_length
+
+    def __init__(self, codes, fake_length):
+        self.codes = codes
+        self.fake_length = fake_length
+
+    def __iter__(self):
+        return iter(self.codes)
+
+
+def test_create_search_codes_at_limit(version_from_scratch):
+    codes = FakeLargeCodeList(codes=[], fake_length=20000)
+    result = actions.create_search(draft=version_from_scratch, term="test", codes=codes)
+    assert isinstance(result, Search)
+
+
+def test_create_search_codes_over_limit(version_from_scratch):
+    codes = FakeLargeCodeList(codes=[], fake_length=20001)
+    result = actions.create_search(
+        draft=version_from_scratch, term="term-returning-loads", codes=codes
+    )
+    assert isinstance(result, dict)
+    assert "error" in result
+    assert "returned 20,001" in result["message"]
+    assert "which exceeds the maximum limit of 20,000" in result["message"]
+    assert "term-returning-loads" in result["message"]

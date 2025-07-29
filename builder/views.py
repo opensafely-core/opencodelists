@@ -321,6 +321,10 @@ def new_search(request, draft):
 
     search = actions.create_search(draft=draft, term=term, code=code, codes=codes)
 
+    if isinstance(search, dict) and search.get("error"):
+        messages.error(request, search["message"])
+        return redirect(draft.get_builder_draft_url())
+
     return redirect(draft.get_builder_search_url(search.id, search.slug))
 
 

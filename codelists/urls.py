@@ -51,6 +51,7 @@ for subpath, view in [
     ("add/", views.codelist_create),
     ("<slug:codelist_slug>/", views.codelist),
     ("<slug:codelist_slug>/edit/", views.codelist_update),
+    ("<slug:codelist_slug>/fork/", views.codelist_fork),
     ("<slug:codelist_slug>/upload-version/", views.version_upload),
     ("<slug:codelist_slug>/<str:tag_or_hash>/", views.version),
     (

@@ -1,15 +1,12 @@
-import csv
-from io import StringIO
-
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 from django import forms
 
-from opencodelists.forms import form_field_from_model, validate_csv_data_codes
+from opencodelists.forms import form_field_from_model
 from opencodelists.models import Organisation, User
 
-from .coding_systems import CODING_SYSTEMS
 from .models import Codelist, CodelistVersion, Handle, Reference, SignOff
+from .validation import CSVValidationMixin
 
 
 def data_without_delete(cleaned_data):
@@ -84,66 +81,6 @@ SignOffFormSet = forms.modelformset_factory(
 )
 
 
-class CSVValidationMixin:
-    def clean_csv_data(self):
-        # Eventually coding system version may be a selectable field, but for now it
-        # just defaults to using the most recent one
-        coding_system = CODING_SYSTEMS[
-            self.cleaned_data["coding_system_id"]
-        ].get_by_release_or_most_recent()
-
-        data = self.cleaned_data["csv_data"].read().decode("utf-8-sig")
-
-        reader = csv.reader(StringIO(data))
-        header = next(reader)  # expected to be headers
-
-        for i, value in enumerate(header):
-            if value != value.strip():
-                raise forms.ValidationError(
-                    f'Header {i + 1} ("{value}") contains extraneous whitespace'
-                )
-
-        # restrict the headers we expect
-        # BNF codelists downloaded as dm+d will have a `dmd_id` column that contains the
-        # code; for all others, expect a `code` column.
-        possible_code_headers = {"dmd_id", "code"}
-        code_headers = possible_code_headers & set(header)
-        if not code_headers:
-            raise forms.ValidationError(
-                "Expected code header not found: 'dmd_id' or 'code' required"
-            )
-        if code_headers == possible_code_headers:
-            raise forms.ValidationError(
-                "Ambiguous headers: both 'dmd_id' and 'code' found"
-            )
-
-        code_header = next(col for col in possible_code_headers if col in header)
-        code_col_ix = header.index(code_header)
-        num_columns = len(header)
-
-        number_of_column_errors = []
-        codes = []
-        for i, row in enumerate(reader, start=1):
-            # Ignore completely blank lines
-            if not row:
-                continue
-            if len(row) != num_columns:
-                number_of_column_errors.append(i)
-            codes.append(row[code_col_ix])
-
-        if number_of_column_errors:
-            msg = "Incorrect number of columns on row {}"
-            raise forms.ValidationError(
-                [
-                    forms.ValidationError(msg.format(i), code=f"row{i}")
-                    for i in number_of_column_errors
-                ]
-            )
-
-        validate_csv_data_codes(coding_system, codes)
-        return data
-
-
 class CodelistCreateForm(forms.Form, CSVValidationMixin):
     name = form_field_from_model(Handle, "name")
     coding_system_id = form_field_from_model(Codelist, "coding_system_id")
@@ -155,6 +92,17 @@ class CodelistCreateForm(forms.Form, CSVValidationMixin):
         self.helper = FormHelper()
         self.helper.form_tag = False
         super().__init__(*args, **kwargs)
+
+    def clean_csv_data(self):
+        # This upload path uploads the CSV data directly.
+        # We only need to validate the data,
+        # not use the codes it returns.
+        # It only allows CSV with a header,
+        # which is the existing behaviour before refactoring.
+        # This could be changed.
+        result = self.process_csv_data(allow_no_header=False)
+
+        return result.csv_data
 
 
 class CodelistUpdateForm(forms.Form):

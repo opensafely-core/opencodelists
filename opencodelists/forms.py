@@ -1,13 +1,10 @@
-import csv
-import operator
-from io import StringIO
-
 from django import forms
 from django.contrib.auth import password_validation
 from django.core.validators import RegexValidator
 
-from codelists.coding_systems import CODING_SYSTEMS, builder_compatible_coding_systems
+from codelists.coding_systems import builder_compatible_coding_systems
 from codelists.models import Handle
+from codelists.validation import CSVValidationMixin
 
 from .models import User
 
@@ -68,7 +65,7 @@ def form_field_from_model(model_class, field_name, **kwargs):
     return field_class(validators=validators, **kwargs)
 
 
-class CodelistCreateForm(forms.Form):
+class CodelistCreateForm(forms.Form, CSVValidationMixin):
     owner = forms.ChoiceField()
     name = form_field_from_model(Handle, "name", label="Codelist name")
     coding_system_id = forms.ChoiceField(choices=[], label="Coding system")
@@ -101,54 +98,15 @@ class CodelistCreateForm(forms.Form):
             del self.fields["owner"]
 
     def clean_csv_data(self):
-        f = self.cleaned_data["csv_data"]
-        if not f:
+        # check if any CSV data
+        if not self.cleaned_data["csv_data"]:
             return
 
-        try:
-            data = f.read().decode("utf-8-sig")
-        except UnicodeDecodeError as exception:
-            raise forms.ValidationError(
-                "File could not be read. Please ensure the file contains CSV "
-                "data (not Excel, for example). It should be a text file encoded "
-                f"in the UTF-8 format. Error details: {exception}."
-            )
-
-        # Eventually coding system version may be a selectable field, but for now it
-        # just defaults to using the most recent one.
-        coding_system = CODING_SYSTEMS[
-            self.cleaned_data["coding_system_id"]
-        ].get_by_release_or_most_recent()
-
-        codes = [row[0] for row in csv.reader(StringIO(data)) if row]
-        validate_csv_data_codes(coding_system, codes)
-        return codes
-
-
-def validate_csv_data_codes(coding_system, codes):
-    # Fully implemented codings systems have a `lookup_names` method that is used to
-    # validate the codes in the CSV upload.  However, we also support uploads for some
-    # coding systems that we don't maintain data for (e.g. OPCS4, ReadV2).  Skip code
-    # validation for these systems, and just allow upload of the CSV data as it is.
-    if not coding_system.has_database:
-        return
-    unknown_codes = set(codes) - set(coding_system.lookup_names(codes))
-    unknown_codes_and_ixs = sorted(
-        [(codes.index(code), code) for code in unknown_codes],
-        key=operator.itemgetter(0),
-    )
-
-    if unknown_codes_and_ixs:
-        line = unknown_codes_and_ixs[0][0] + 1
-        code = unknown_codes_and_ixs[0][1]
-        if len(unknown_codes_and_ixs) == 1:
-            msg = f"CSV file contains 1 unknown code ({code}) on line {line}"
-        else:
-            num = len(unknown_codes_and_ixs)
-            suffix = "" if num == 1 else "s"
-            msg = f"CSV file contains {num} unknown code{suffix} -- the first ({code}) is on line {line}"
-        msg += f" ({coding_system.short_name} release {coding_system.release_name}, valid from {coding_system.release.valid_from})"
-        raise forms.ValidationError(msg)
+        # This upload path uses the codes from the CSV data.
+        # We allow CSVs with headers or without,
+        # and autodetect them.
+        result = self.process_csv_data(allow_no_header=True)
+        return result.codes
 
 
 class RegisterForm(forms.ModelForm):

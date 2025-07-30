@@ -47,3 +47,39 @@ export interface Reference {
   text: string;
   url: string;
 }
+
+/**
+ * Set up types for data passed from Django
+ */
+
+// {{ is_editable|json_script:"is-editable" }}
+export type IS_EDITABLE = boolean;
+
+// {{ metadata|json_script:"metadata" }}
+export type METADATA = {
+  description: {
+    text: string;
+    html: string;
+  };
+  methodology: {
+    text: string;
+    html: string;
+  };
+  references: {
+    text: string;
+    url: string;
+  }[];
+  coding_system_id: string;
+  coding_system_name: string;
+  coding_system_release: {
+    release_name: string;
+    valid_from: string;
+  };
+  organisation_name: string;
+  codelist_full_slug: string;
+  hash: string;
+  codelist_name: string;
+};
+
+// {{ search_url|json_script:"update-url" }}
+export type UPDATE_URL = string;

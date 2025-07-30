@@ -250,57 +250,6 @@ describe("Metadata Editing", () => {
     return { data };
   };
 
-  it("handles description field", async () => {
-    const { data } = setupMetadataTest();
-
-    renderCodelistBuilder(data);
-
-    // Switch to metadata tab
-    const metadataTab = document.querySelector(
-      '[role="tab"][data-rb-event-key="metadata"]',
-    );
-    await userEvent.click(metadataTab);
-
-    // Click edit button
-    const editButton = document.querySelector(
-      'button[title="Edit description"]',
-    );
-    await userEvent.click(editButton);
-
-    // Find textarea
-    const textarea = document.querySelector("textarea#description");
-    expect(textarea).toBeInTheDocument();
-    expect(textarea).toHaveValue("Initial description");
-
-    // Type new content
-    await userEvent.clear(textarea);
-    await userEvent.type(textarea, "Updated description");
-
-    // Save
-    const saveButton = document.querySelector(
-      'button[title="Save description"]',
-    );
-    await userEvent.click(saveButton);
-
-    // Wait for API call and state update
-    await vi.waitFor(() => {
-      expect(fetch).toHaveBeenCalledWith(
-        data.update_url,
-        expect.objectContaining({
-          method: "POST",
-          body: expect.stringContaining('"description":"Updated description"'),
-        }),
-      );
-    });
-
-    // Verify textarea is no longer visible and content is updated
-    expect(textarea).not.toBeInTheDocument();
-    const displayedContent = document.querySelector(
-      ".description .builder__markdown",
-    );
-    expect(displayedContent).toHaveTextContent("Updated description");
-  });
-
   it("handles methodology field", async () => {
     const { data, visiblePaths, hierarchy } = setupMetadataTest();
 

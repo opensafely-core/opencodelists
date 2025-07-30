@@ -131,7 +131,7 @@ class TestCodelistCreateForm:
 
         assert not form.is_valid()
         errors = form.errors.get("csv_data")
-        len(errors) == 1
+        assert len(errors) == 1
         assert (
             "File could not be read. Please ensure the file contains CSV" in errors[0]
         )

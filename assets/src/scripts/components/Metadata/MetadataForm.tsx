@@ -98,7 +98,8 @@ export default function MetadataForm({
             </label>
             <textarea
               className="form-control"
-              // @ts-ignore
+              // @ts-ignore: we're not currently using react-query to return
+              // the expected values of the typescript compiler
               defaultValue={data.text}
               id={`metadata-${id}`}
               name={id}
@@ -114,7 +115,8 @@ export default function MetadataForm({
         ) : data?.html ? (
           <div
             className="builder__markdown"
-            // @ts-ignore
+            // @ts-ignore: we're not currently using react-query to return
+            // the expected values of the typescript compiler
             // biome-ignore lint/security/noDangerouslySetInnerHtml: backend is validating the markdown content
             dangerouslySetInnerHTML={{ __html: data.html }}
           />

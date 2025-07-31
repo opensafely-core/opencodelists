@@ -1,7 +1,6 @@
 from django.core.exceptions import BadRequest
-from django.db.models import Q
 from django.http import Http404, HttpResponseBadRequest
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import render
 
 from opencodelists.hash_utils import unhash
 
@@ -12,17 +11,36 @@ from .decorators import load_version
 
 @load_version
 def version_diff(request, clv, other_tag_or_hash):
-    q = Q(tag=other_tag_or_hash)
+    other_clv = None
+
+    # 1. If other_tag_or_hash is a hash, try to find the CodelistVersion by ID
     try:
         id = unhash(other_tag_or_hash, "CodelistVersion")
+        codelist_versions_matching_id = CodelistVersion.objects.filter(id=id)
+        if codelist_versions_matching_id.count() == 1:
+            other_clv = codelist_versions_matching_id.first()
     except ValueError:
         pass
-    else:
-        q |= Q(id=id)
 
-    other_clv = get_object_or_404(CodelistVersion.objects.filter(q))
+    # 2. If no match, then probably a tag, so see if a unique tag matches
+    if other_clv is None:
+        codelist_versions_matching_tag = CodelistVersion.objects.filter(
+            tag=other_tag_or_hash
+        )
+        if codelist_versions_matching_tag.count() == 1:
+            other_clv = codelist_versions_matching_tag.first()
 
-    if clv.coding_system_id != other_clv.coding_system_id:
+    # 3. If still no match, see if the tag matches a CodelistVersion for the LHS codelist
+    #    so e.g. diffing pcd refsets like ./depr_cod/20210127/diff/20241205/ where every
+    #    refset in an import has the same tag
+    if other_clv is None:
+        codelist_versions_matching_tag_in_codelist = CodelistVersion.objects.filter(
+            tag=other_tag_or_hash, codelist=clv.codelist
+        ).exclude(id=clv.id)
+        if codelist_versions_matching_tag_in_codelist.count() == 1:
+            other_clv = codelist_versions_matching_tag_in_codelist.first()
+
+    if other_clv is None or clv.coding_system_id != other_clv.coding_system_id:
         raise Http404
 
     lhs_coding_system = clv.coding_system

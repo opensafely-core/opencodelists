@@ -1,39 +1,17 @@
 import React from "react";
-import { Col, Form, Row, Tab, Tabs } from "react-bootstrap";
+import { Col, Row, Tab, Tabs } from "react-bootstrap";
 import type Hierarchy from "../_hierarchy";
 import { getCookie } from "../_utils";
-import type { Code, PageData, Reference, Status } from "../types";
+import type { Code, METADATA, PageData, Reference, Status } from "../types";
 import EmptyState from "./EmptyState";
 import CodelistTab from "./Layout/CodelistTab";
 import Header from "./Layout/Header";
 import MetadataTab from "./Layout/MetadataTab";
 import Sidebar from "./Layout/Sidebar";
 
-export type MetadataFieldName = "description" | "methodology";
-interface MetadataField {
-  text: string;
-  html: string;
-  isEditing: boolean;
-}
-interface MetadataProps {
-  description: MetadataField;
-  methodology: MetadataField;
-  references: Reference[];
-}
 interface CodelistBuilderProps extends PageData {
   hierarchy: Hierarchy;
-  metadata: MetadataProps & {
-    coding_system_id: string;
-    coding_system_name: string;
-    coding_system_release: {
-      release_name: string;
-      valid_from: string;
-    };
-    organisation_name: string;
-    codelist_full_slug: string;
-    hash: string;
-    codelist_name: string;
-  };
+  metadata: METADATA;
 }
 
 /**
@@ -65,15 +43,11 @@ export default class CodelistBuilder extends React.Component<
   {
     codeToStatus: PageData["codeToStatus"];
     expandedCompatibleReleases: boolean;
-    metadata: MetadataProps;
+    metadata: { references: Reference[] };
     updateQueue: string[][];
     updating: boolean;
   }
 > {
-  private textareaRefs: {
-    description: React.RefObject<HTMLTextAreaElement>;
-    methodology: React.RefObject<HTMLTextAreaElement>;
-  };
   constructor(props: CodelistBuilderProps) {
     super(props);
 
@@ -81,16 +55,6 @@ export default class CodelistBuilder extends React.Component<
       codeToStatus: props.codeToStatus,
       expandedCompatibleReleases: false,
       metadata: {
-        description: {
-          text: props.metadata.description.text,
-          html: props.metadata.description.html,
-          isEditing: false,
-        },
-        methodology: {
-          text: props.metadata.methodology.text,
-          html: props.metadata.methodology.html,
-          isEditing: false,
-        },
         references: props.metadata.references || [],
       },
       updateQueue: [],
@@ -102,10 +66,6 @@ export default class CodelistBuilder extends React.Component<
       : () => null;
     this.toggleExpandedCompatibleReleases =
       this.toggleExpandedCompatibleReleases.bind(this);
-    this.textareaRefs = {
-      description: React.createRef(),
-      methodology: React.createRef(),
-    };
   }
 
   toggleExpandedCompatibleReleases() {
@@ -181,66 +141,6 @@ export default class CodelistBuilder extends React.Component<
     }, counts);
   }
 
-  handleEdit = (field: MetadataFieldName) => {
-    this.setState(
-      (prevState) => ({
-        metadata: {
-          ...prevState.metadata,
-          [field]: {
-            ...prevState.metadata[field],
-            isEditing: true,
-          },
-        },
-      }),
-      () => {
-        // Auto-focus the textarea after clicking edit
-        setTimeout(() => {
-          this.textareaRefs[field].current?.focus();
-        }, 0);
-      },
-    );
-  };
-
-  handleCancel = (field: MetadataFieldName) => {
-    this.setState((prevState) => ({
-      metadata: {
-        ...prevState.metadata,
-        [field]: {
-          ...prevState.metadata[field],
-          isEditing: false,
-        },
-      },
-    }));
-  };
-
-  handleSave = async (field: MetadataFieldName) => {
-    const updateBody = {
-      description:
-        field === "description"
-          ? this.textareaRefs[field].current?.value
-          : this.state.metadata.description.text,
-      methodology:
-        field === "methodology"
-          ? this.textareaRefs[field].current?.value
-          : this.state.metadata.methodology.text,
-    };
-
-    const fetchOptions = getFetchOptions(updateBody);
-
-    try {
-      fetch(this.props.updateURL, fetchOptions)
-        .then((response) => response.json())
-        .then((data) => {
-          // We rely on the backend rendering the html from the updated markdown
-          // so we need to update the state here with the response from the server
-          this.setState(() => ({ metadata: data.metadata }));
-        });
-    } catch (error) {
-      // biome-ignore lint/suspicious/noConsole: legacy console implementation
-      console.error(`Failed to save ${field}:`, error);
-    }
-  };
-
   // Add save handler:
   handleSaveReferences = async (
     newReferences: Array<{ text: string; url: string }>,
@@ -257,116 +157,6 @@ export default class CodelistBuilder extends React.Component<
       // biome-ignore lint/suspicious/noConsole: legacy console implementation
       console.error("Failed to save references:", error);
     }
-  };
-
-  renderMetadataField = (field: MetadataFieldName) => {
-    const label = field.charAt(0).toUpperCase() + field.slice(1);
-    const htmlContent = this.state.metadata[field].html;
-    const isEditing = this.state.metadata[field].isEditing;
-    const draftContent = this.state.metadata[field].text;
-
-    return (
-      <Form.Group className={`card ${field}`} controlId={field}>
-        <div className="card-body">
-          {this.props.isEditable ? (
-            <>
-              {" "}
-              <div className="card-title d-flex flex-row justify-content-between align-items-center">
-                <Form.Label className="h5" as="h3">
-                  {label}
-                </Form.Label>
-                {isEditing && this.props.isEditable ? (
-                  <div>
-                    <button
-                      type="button"
-                      className="btn btn-primary btn-sm"
-                      onClick={() => this.handleSave(field)}
-                      title={`Save ${field}`}
-                    >
-                      Save
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-secondary btn-sm ml-2"
-                      onClick={() => this.handleCancel(field)}
-                      title={`Cancel ${field} edit`}
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    className={`plausible-event-name=Edit+metadata+${field} btn btn-sm btn-warning`}
-                    onClick={() => this.handleEdit(field)}
-                    title={`Edit ${field}`}
-                  >
-                    Edit
-                  </button>
-                )}
-              </div>
-              <hr />
-              {isEditing ? (
-                <>
-                  <Form.Control
-                    ref={this.textareaRefs[field]}
-                    as="textarea"
-                    rows={5}
-                    defaultValue={draftContent}
-                    onFocus={() => this.textareaRefs[field].current?.focus()}
-                    onKeyDown={(e) => {
-                      // Handle Ctrl+Enter for Save
-                      if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
-                        e.preventDefault();
-                        this.handleSave(field);
-                      }
-                      // Handle Escape for Cancel
-                      if (e.key === "Escape") {
-                        e.preventDefault();
-                        this.handleCancel(field);
-                      }
-                    }}
-                  />
-                  <Form.Text className="text-muted">
-                    If you make changes, please remember to click Save
-                    (shortcut: CTRL-ENTER) to keep them or Cancel (shortcut:
-                    ESC) to discard.
-                  </Form.Text>
-                </>
-              ) : (
-                <div
-                  className="builder__markdown"
-                  // biome-ignore lint/security/noDangerouslySetInnerHtml: backend is validating the markdown content
-                  dangerouslySetInnerHTML={{
-                    __html:
-                      htmlContent ||
-                      `<em class="text-muted">No ${field} provided yet</em>`,
-                  }}
-                />
-              )}
-            </>
-          ) : (
-            <>
-              <div className="card-title d-flex flex-row justify-content-between align-items-center">
-                <Form.Label className="h5" as="h3">
-                  {label}
-                </Form.Label>
-              </div>
-              <hr />
-              <div
-                className="builder__markdown"
-                // biome-ignore lint/security/noDangerouslySetInnerHtml: backend is validating the markdown content
-                dangerouslySetInnerHTML={{
-                  __html:
-                    htmlContent ||
-                    `<em class="text-muted">No ${field} provided yet</em>`,
-                }}
-              />
-            </>
-          )}
-        </div>
-      </Form.Group>
-    );
   };
 
   render() {
@@ -430,7 +220,6 @@ export default class CodelistBuilder extends React.Component<
                     handleSaveReferences={this.handleSaveReferences}
                     isEditable={isEditable}
                     references={this.state.metadata.references}
-                    renderMetadataField={this.renderMetadataField}
                   />
                 </Tab>
               </Tabs>

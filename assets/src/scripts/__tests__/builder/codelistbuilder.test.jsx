@@ -250,53 +250,6 @@ describe("Metadata Editing", () => {
     return { data };
   };
 
-  it("handles methodology field", async () => {
-    const { data, visiblePaths, hierarchy } = setupMetadataTest();
-
-    renderCodelistBuilder(data, hierarchy, visiblePaths);
-
-    // Switch to metadata tab
-    const metadataTab = document.querySelector(
-      '[role="tab"][data-rb-event-key="metadata"]',
-    );
-    await userEvent.click(metadataTab);
-
-    // Click edit button
-    const editButton = document.querySelector(
-      'button[title="Edit methodology"]',
-    );
-    await userEvent.click(editButton);
-
-    // Find textarea
-    const textarea = document.querySelector("textarea#methodology");
-    expect(textarea).toBeInTheDocument();
-    expect(textarea).toHaveValue("Initial methodology");
-
-    // Type new content
-    await userEvent.clear(textarea);
-    await userEvent.type(textarea, "Updated methodology");
-
-    // Cancel
-    const cancelButton = document.querySelector(
-      'button[title="Cancel methodology edit"]',
-    );
-    await userEvent.click(cancelButton);
-
-    // Wait to ensure no API call was made
-    await vi.waitFor(() => {
-      expect(fetch).not.toHaveBeenCalled();
-    });
-
-    // Verify content remains unchanged
-    const methodologyText = document.querySelector(
-      ".methodology .builder__markdown",
-    );
-    expect(methodologyText).toHaveTextContent("Initial methodology");
-
-    // Verify edit mode is exited
-    expect(textarea).not.toBeInTheDocument();
-  });
-
   it("handles reference management", async () => {
     // helper for finding and clicking a button based on its text
     const clickButton = async (buttonText) => {

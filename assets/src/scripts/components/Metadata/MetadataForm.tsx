@@ -80,7 +80,7 @@ export default function MetadataForm({
             </>
           ) : (
             <button
-              className="btn btn-primary btn-sm"
+              className={`btn btn-primary btn-sm plausible-event-name=Edit+metadata+${id}`}
               onClick={() => setIsEditing(true)}
               type="button"
             >

@@ -1,22 +1,10 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import React from "react";
-import { Form } from "react-bootstrap";
-import type { PageData, Reference } from "../../types";
 import MetadataForm from "../Metadata/MetadataForm";
-import ReferenceList from "../Metadata/ReferenceList";
+import References from "../Metadata/References";
 
-interface MetadataTabProps {
-  handleSaveReferences: (references: Reference[]) => void;
-  isEditable: PageData["isEditable"];
-  references: Reference[];
-}
-
-export default function MetadataTab({
-  handleSaveReferences,
-  isEditable,
-  references,
-}: MetadataTabProps) {
+export default function MetadataTab() {
   const client = new QueryClient({
     defaultOptions: {
       queries: {
@@ -38,15 +26,8 @@ export default function MetadataTab({
       <div className="builder__metadata-forms">
         <MetadataForm id="description" name="Description" />
         <MetadataForm id="methodology" name="Methodology" />
+        <References />
       </div>
-      <Form className="mt-2" noValidate>
-        <ReferenceList
-          isEditable={isEditable}
-          references={references}
-          onSave={handleSaveReferences}
-        />
-      </Form>
-
       <ReactQueryDevtools />
     </QueryClientProvider>
   );

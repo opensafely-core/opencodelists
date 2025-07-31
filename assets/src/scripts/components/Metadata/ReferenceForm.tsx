@@ -1,70 +1,60 @@
 import React from "react";
-import { Form } from "react-bootstrap";
-import type { Reference } from "../../types";
 
 interface ReferenceFormProps {
-  reference?: Reference;
-  onCancel: () => void;
-  onSave: (reference: Reference) => void;
+  defaultValue?: {
+    text: string;
+    url: string;
+  };
+  onReset: React.FormEventHandler<HTMLFormElement>;
+  onSubmit: React.FormEventHandler<HTMLFormElement>;
 }
 
-/**
- * Form component for adding or editing reference links in a codelist's metadata.
- * @param reference - Optional existing reference to edit, or blank if creating a new one
- * @param onCancel - Callback when user cancels editing
- * @param onSave - Callback when user saves changes, receives updated reference object
- */
 export default function ReferenceForm({
-  reference = { text: "", url: "" },
-  onCancel,
-  onSave,
+  defaultValue,
+  onReset,
+  onSubmit,
 }: ReferenceFormProps) {
-  const textInputRef = React.useRef<HTMLInputElement>(null);
-  const urlInputRef = React.useRef<HTMLInputElement>(null);
-
-  const handleSave = () => {
-    onSave({
-      text: textInputRef.current?.value || "",
-      url: urlInputRef.current?.value || "",
-    });
-  };
-
   return (
-    <div className="card p-3">
-      <Form.Group className="mb-2">
-        <Form.Label>Text</Form.Label>
-        <Form.Control
-          ref={textInputRef}
-          type="text"
-          defaultValue={reference.text}
+    <form onReset={onReset} onSubmit={onSubmit}>
+      <div className="form-group">
+        <label className="form-label" htmlFor="addReferenceText">
+          Text
+        </label>
+        <input
+          className="form-control"
+          defaultValue={defaultValue?.text}
+          id="addReferenceText"
+          name="text"
           placeholder="Text to display"
+          required
+          type="text"
         />
-      </Form.Group>
-      <Form.Group className="mb-3">
-        <Form.Label>URL</Form.Label>
-        <Form.Control
-          ref={urlInputRef}
+      </div>
+      <div className="form-group">
+        <label className="form-label" htmlFor="addReferenceUrl">
+          URL
+        </label>
+        <input
+          className="form-control"
+          defaultValue={defaultValue?.url}
+          id="addReferenceUrl"
+          name="url"
+          placeholder="Website to link to"
+          required
           type="url"
-          defaultValue={reference.url}
-          placeholder="URL to link to"
         />
-      </Form.Group>
-      <div className="mt-2 d-flex flex-row justify-content-end">
+      </div>
+      <div className="btn-group-sm">
         <button
-          type="button"
-          className="btn btn-secondary btn-sm m-1"
-          onClick={onCancel}
-        >
-          Cancel
-        </button>
-        <button
-          type="button"
-          className="plausible-event-name=Metadata+save+references btn btn-primary btn-sm m-1"
-          onClick={handleSave}
+          type="submit"
+          className="plausible-event-name=Metadata+save+references btn btn-primary"
         >
           Save
         </button>
+        <button type="reset" className="btn btn-secondary ml-1">
+          Cancel
+        </button>
       </div>
-    </div>
+    </form>
   );
 }

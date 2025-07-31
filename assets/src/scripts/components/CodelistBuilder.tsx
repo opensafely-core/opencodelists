@@ -145,7 +145,6 @@ export default class CodelistBuilder extends React.Component<
       hierarchy,
       isEditable,
       isEmptyCodelist,
-      metadata,
       resultsHeading,
       searches,
       treeTables,
@@ -154,12 +153,7 @@ export default class CodelistBuilder extends React.Component<
 
     return (
       <>
-        <Header
-          counts={this.counts()}
-          isEditable={isEditable}
-          metadata={metadata}
-        />
-
+        <Header counts={this.counts()} />
         <Row>
           <Sidebar
             counts={this.counts()}

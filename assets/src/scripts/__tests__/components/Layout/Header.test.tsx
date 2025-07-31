@@ -1,24 +1,71 @@
 import "@testing-library/jest-dom";
 import { render, screen } from "@testing-library/react";
 import React from "react";
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import Header from "../../../components/Layout/Header";
+import type { METADATA } from "../../../types";
+
+// biome-ignore lint/suspicious/noExplicitAny: we can pass in any data in this test
+function setScript(id: string, value: any) {
+  const el = document.createElement("script");
+  el.id = id;
+  el.type = "application/json";
+  el.textContent = JSON.stringify(value);
+  document.body.appendChild(el);
+}
+
+function scriptTagSetup({
+  isEditable = true,
+  metadata,
+}: {
+  isEditable?: boolean;
+  metadata?: METADATA;
+} = {}) {
+  setScript("metadata", metadata);
+  setScript("is-editable", isEditable);
+}
+
+function cleanupScriptTags() {
+  ["metadata", "update-url", "is-editable"].forEach((id) =>
+    document.getElementById(id)?.remove(),
+  );
+}
+
+const metadata = {
+  description: { text: "", html: "" },
+  methodology: { text: "", html: "" },
+  references: [],
+  coding_system_id: "test",
+  coding_system_name: "Test Coding System",
+  coding_system_release: {
+    release_name: "v1.0",
+    valid_from: "2024-01-01",
+  },
+  organisation_name: "Test Organisation",
+  codelist_full_slug: "test/codelist",
+  codelist_name: "Test Codelist",
+  hash: "abc123",
+};
+
+const counts = {
+  "!": 0,
+  "(+)": 0,
+  "(-)": 0,
+  "+": 0,
+  "-": 0,
+  "?": 0,
+  total: 0,
+};
 
 describe("Header component", () => {
-  const metadata = {
-    coding_system_id: "test",
-    coding_system_name: "Test Coding System",
-    coding_system_release: {
-      release_name: "v1.0",
-      valid_from: "2024-01-01",
-    },
-    organisation_name: "Test Organisation",
-    codelist_full_slug: "test/codelist",
-    codelist_name: "Test Codelist",
-    draft: false,
-    hash: "abc123",
-  };
-  const isEditable = true;
+  beforeEach(() =>
+    scriptTagSetup({
+      metadata: metadata,
+      isEditable: true,
+    }),
+  );
+  afterEach(() => cleanupScriptTags());
+
   const counts = {
     "!": 0,
     "(+)": 0,
@@ -30,25 +77,19 @@ describe("Header component", () => {
   };
 
   it("renders the title with the provided name", () => {
-    render(
-      <Header isEditable={isEditable} counts={counts} metadata={metadata} />,
-    );
+    render(<Header counts={counts} />);
     expect(screen.getByText(metadata.codelist_name)).toBeVisible();
   });
 
   it("renders the Draft badge", () => {
-    render(
-      <Header isEditable={isEditable} counts={counts} metadata={metadata} />,
-    );
+    render(<Header counts={counts} />);
     const badge = screen.getByText("Draft");
     expect(screen.getByText("Draft")).toBeVisible();
     expect(badge).toHaveClass("badge-secondary");
   });
 
   it("renders all required metadata fields", () => {
-    render(
-      <Header isEditable={isEditable} counts={counts} metadata={metadata} />,
-    );
+    render(<Header counts={counts} />);
 
     expect(screen.getByText("Coding system").tagName).toBe("DT");
     expect(screen.getByText(metadata.coding_system_name).tagName).toBe("DD");
@@ -81,20 +122,24 @@ describe("Header component", () => {
       screen.getByText("Version ID"),
     );
   });
+});
+
+describe("Header component", () => {
+  const dataWithoutOrg = {
+    ...metadata,
+    organisation_name: "",
+  };
+
+  beforeEach(() =>
+    scriptTagSetup({
+      metadata: dataWithoutOrg,
+      isEditable: true,
+    }),
+  );
+  afterEach(() => cleanupScriptTags());
 
   it("handles empty organisation name", () => {
-    const dataWithoutOrg = {
-      ...metadata,
-      organisation_name: "",
-    };
-
-    render(
-      <Header
-        isEditable={isEditable}
-        counts={counts}
-        metadata={dataWithoutOrg}
-      />,
-    );
+    render(<Header counts={counts} />);
 
     // Organisation field should not be present
     expect(screen.queryByText("Organisation")).not.toBeInTheDocument();
@@ -106,23 +151,27 @@ describe("Header component", () => {
       screen.getByText("Version ID"),
     );
   });
+});
+
+describe("Header component", () => {
+  const dataWithoutValidFrom = {
+    ...metadata,
+    coding_system_release: {
+      release_name: "v1.0",
+      valid_from: "",
+    },
+  };
+
+  beforeEach(() =>
+    scriptTagSetup({
+      metadata: dataWithoutValidFrom,
+      isEditable: true,
+    }),
+  );
+  afterEach(() => cleanupScriptTags());
 
   it("handles empty valid_from date in coding system release", () => {
-    const dataWithoutValidFrom = {
-      ...metadata,
-      coding_system_release: {
-        release_name: "v1.0",
-        valid_from: "",
-      },
-    };
-
-    render(
-      <Header
-        isEditable={isEditable}
-        counts={counts}
-        metadata={dataWithoutValidFrom}
-      />,
-    );
+    render(<Header counts={counts} />);
 
     expect(screen.getByText("Coding system release").tagName).toBe("DT");
     expect(

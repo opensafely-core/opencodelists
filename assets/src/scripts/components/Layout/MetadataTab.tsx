@@ -20,7 +20,16 @@ export default function MetadataTab({
   references,
   renderMetadataField,
 }: MetadataTabProps) {
-  const client = new QueryClient();
+  const client = new QueryClient({
+    defaultOptions: {
+      queries: {
+        refetchOnMount: false,
+        refetchOnReconnect: false,
+        refetchOnWindowFocus: false,
+        staleTime: "static",
+      },
+    },
+  });
 
   return (
     <QueryClientProvider client={client}>

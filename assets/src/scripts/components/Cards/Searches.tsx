@@ -1,26 +1,14 @@
 import React, { useState } from "react";
-import { Button, Card, Form, ListGroup } from "react-bootstrap";
-import { getCookie } from "../../_utils";
-import type { PageData } from "../../types";
+import { getCookie, readValueFromPage } from "../../_utils";
+import type { DRAFT_URL, IS_EDITABLE, SEARCHES } from "../../types";
 
-export interface SearchesProps {
-  draftURL: PageData["draftURL"];
-  isEditable: PageData["isEditable"];
-  searches: {
-    active: boolean;
-    delete_url: string;
-    term_or_code: string;
-    url: string;
-  }[];
-}
+export default function Searches() {
+  const draftURL: DRAFT_URL = readValueFromPage("draft-url");
+  const isEditable: IS_EDITABLE = readValueFromPage("is-editable");
+  const searches: SEARCHES = readValueFromPage("searches");
 
-export default function Searches({
-  draftURL,
-  isEditable,
-  searches,
-}: SearchesProps) {
   const [activeUrl, setActiveUrl] = useState<string>(
-    () => searches.find((search) => search.active)?.url || "",
+    () => searches?.find((search) => search.active)?.url || "",
   );
 
   const handleClick = (url: string) => (e: React.MouseEvent) => {
@@ -30,69 +18,56 @@ export default function Searches({
     }
   };
 
+  if (!searches?.length) return null;
+
   return (
-    <Card>
-      <Card.Header as="h2" className="h6 font-weight-bold">
-        Previous searches
-      </Card.Header>
-      <ListGroup variant="flush">
+    <div className="card">
+      <h2 className="card-header h6 font-weight-bold">Previous searches</h2>
+      <div className="list-group list-group-flush">
         {searches.map((search) => (
-          <React.Fragment key={search.url}>
+          <a
+            aria-label={search.term_or_code}
+            className={`
+              list-group-item list-group-item-action
+              d-flex justify-content-between align-items-center flex-wrap break-word
+              ${search.url === activeUrl ? "active" : ""}
+            `}
+            href={search.url}
+            key={search.url}
+            onClick={handleClick(search.url)}
+          >
+            {search.term_or_code}
             {search.delete_url && isEditable ? (
-              <ListGroup.Item
-                action
-                active={search.url === activeUrl}
-                href={search.url}
-                onClick={handleClick(search.url)}
-              >
-                <Form
-                  action={search.delete_url}
-                  className="d-flex justify-content-between align-items-center"
-                  method="post"
+              <form action={search.delete_url} className="" method="POST">
+                <input
+                  className="form-control"
+                  name="csrfmiddlewaretoken"
+                  type="hidden"
+                  value={getCookie("csrftoken")}
+                />
+                <button
+                  aria-label="remove search"
+                  className={`btn btn-sm btn-${search.url === activeUrl ? "light" : "outline-danger"}`}
+                  name="delete-search"
+                  type="submit"
                 >
-                  <Form.Control
-                    name="csrfmiddlewaretoken"
-                    type="hidden"
-                    value={getCookie("csrftoken")}
-                  />
-                  {search.term_or_code}
-                  <Button
-                    aria-label="remove search"
-                    className="ml-2"
-                    name="delete-search"
-                    type="submit"
-                    size="sm"
-                    variant={
-                      search.url === activeUrl ? "light" : "outline-danger"
-                    }
-                  >
-                    Remove
-                  </Button>
-                </Form>
-              </ListGroup.Item>
-            ) : (
-              <ListGroup.Item
-                action
-                active={search.active}
-                href={encodeURI(search.url)}
-              >
-                {search.term_or_code}
-              </ListGroup.Item>
-            )}
-          </React.Fragment>
+                  Remove
+                </button>
+              </form>
+            ) : null}
+          </a>
         ))}
 
         {searches.some((search) => search.active) ? (
-          <ListGroup.Item
-            action
-            className="font-italic"
+          <a
+            className="list-group-item list-group-item-action font-italic"
             href={encodeURI(draftURL)}
             onClick={handleClick(draftURL)}
           >
             show all
-          </ListGroup.Item>
+          </a>
         ) : null}
-      </ListGroup>
-    </Card>
+      </div>
+    </div>
   );
 }

@@ -38,7 +38,6 @@ if (container) {
         isEmptyCodelist={readValueFromPage("is-empty-codelist")}
         metadata={readValueFromPage("metadata")}
         resultsHeading={readValueFromPage("results-heading")}
-        searches={readValueFromPage("searches")}
         sortByTerm={readValueFromPage("sortByTerm")}
         treeTables={treeTables}
         updateURL={readValueFromPage("update-url")}

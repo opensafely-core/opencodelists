@@ -1,5 +1,5 @@
 import React from "react";
-import Searches, { type SearchesProps } from "../Cards/Searches";
+import Searches from "../Cards/Searches";
 import SearchForm from "../Cards/SearchForm";
 import Summary, { type SummaryProps } from "../Cards/Summary";
 import Tools from "../Cards/Tools";
@@ -7,27 +7,17 @@ import Versions from "../Cards/Versions";
 
 export default function Sidebar({
   counts,
-  draftURL,
   isEditable,
   isEmptyCodelist,
-  searches,
 }: {
   counts: SummaryProps["counts"];
-  draftURL: string;
   isEditable: boolean;
   isEmptyCodelist: boolean;
-  searches: SearchesProps["searches"];
 }) {
   return (
     <div className="col-md-3 builder__sidebar">
       {!isEmptyCodelist && <Summary counts={counts} />}
-      {searches.length > 0 && (
-        <Searches
-          draftURL={draftURL}
-          isEditable={isEditable}
-          searches={searches}
-        />
-      )}
+      <Searches />
       {isEditable && <SearchForm />}
       {!isEmptyCodelist && <Versions />}
       <Tools />

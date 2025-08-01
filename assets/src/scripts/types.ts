@@ -1,5 +1,3 @@
-import type { SearchesProps } from "./components/Cards/Searches";
-
 export type AncestorCode = string;
 export type AncestorCodes = AncestorCode[];
 export type Code = string;
@@ -34,7 +32,6 @@ export interface PageData {
     organisation_name: string;
   };
   resultsHeading: string;
-  searches: SearchesProps["searches"];
   sortByTerm: boolean;
   treeTables: [string, string[]][];
   updateURL: string;
@@ -58,11 +55,11 @@ export type IS_EDITABLE = boolean;
 // {{ metadata|json_script:"metadata" }}
 export type METADATA = {
   description: {
-    text: string;
+    text: string | null;
     html: string;
   };
   methodology: {
-    text: string;
+    text: string | null;
     html: string;
   };
   references: {
@@ -84,5 +81,22 @@ export type METADATA = {
 // {{ search_url|json_script:"update-url" }}
 export type UPDATE_URL = string;
 
-// {{ search_url|json_script:"draft-url" }}
+// {{ draft_url|json_script:"draft-url" }}
 export type DRAFT_URL = string;
+
+// {{ searches|json_script:"searches" }}
+export type SEARCHES = {
+  active: boolean;
+  delete_url: string;
+  term_or_code: string;
+  url: string;
+}[];
+
+// {{ versions|json_script:"versions" }}
+export type VERSIONS = {
+  created_at: string;
+  current: boolean;
+  status: string;
+  tag_or_hash: string;
+  url: string;
+}[];

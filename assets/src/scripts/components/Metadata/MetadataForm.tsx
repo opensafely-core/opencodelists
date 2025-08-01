@@ -61,6 +61,13 @@ export default function MetadataForm({
     }
   }
 
+  function handleFocus(e: React.FocusEvent<HTMLTextAreaElement>) {
+    // Trick to put the cursor at the end of the text area
+    var temp_value = e.target.value;
+    e.target.value = "";
+    e.target.value = temp_value;
+  }
+
   return (
     <div className="card">
       <div className="card-header d-flex flex-row align-items-center">
@@ -111,12 +118,15 @@ export default function MetadataForm({
                 {name}
               </label>
               <textarea
+                // biome-ignore lint/a11y/noAutofocus: It's fine to use this in a modal dialog which this is
+                autoFocus
                 className="form-control"
                 // @ts-ignore: we're not currently using react-query to return
                 // the expected values of the typescript compiler
                 defaultValue={data?.text ?? ""}
                 id={`metadata-${id}`}
                 name={id}
+                onFocus={handleFocus}
                 onKeyDown={handleKeyDown}
                 rows={5}
               ></textarea>

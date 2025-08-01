@@ -1,5 +1,4 @@
 import React from "react";
-import { Button } from "react-bootstrap";
 import type { Code, Status, UpdateStatus } from "../../types";
 
 interface StatusToggleProps {
@@ -15,21 +14,23 @@ export default function StatusToggle({
   symbol,
   updateStatus,
 }: StatusToggleProps) {
+  let className = "outline-secondary";
+  const explicitSelection = status === symbol;
+  const implicitSelection = status === `(${symbol})`;
+  if (explicitSelection) {
+    className = "primary";
+  } else if (implicitSelection) {
+    className = "secondary";
+  }
+
   return (
-    <Button
-      className="py-0 text-monospace"
+    <button
+      className={`py-0 text-monospace btn btn-sm btn-${className}`}
       data-symbol={symbol}
       onClick={updateStatus?.bind(null, code, symbol)}
-      size="sm"
-      variant={
-        status === symbol
-          ? "primary"
-          : status === `(${symbol})`
-            ? "secondary"
-            : "outline-secondary"
-      }
+      type="button"
     >
       {symbol === "+" ? "+" : <>&minus;</>}
-    </Button>
+    </button>
   );
 }

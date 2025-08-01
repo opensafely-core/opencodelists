@@ -1,5 +1,4 @@
 import React from "react";
-import { ButtonGroup } from "react-bootstrap";
 import type Hierarchy from "../../_hierarchy";
 import type {
   Code,
@@ -74,7 +73,7 @@ export default function Row({
       data-code={code}
       data-path={path}
     >
-      <ButtonGroup>
+      <div className="btn-group">
         <StatusToggle
           code={code}
           status={status}
@@ -87,7 +86,7 @@ export default function Row({
           symbol="-"
           updateStatus={updateStatus}
         />
-      </ButtonGroup>
+      </div>
 
       <div className="pl-2 whitespace-nowrap">
         <Pipes pipes={pipes} />

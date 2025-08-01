@@ -56,6 +56,44 @@ def get_codes_to_keep(codeset_version, potential_codes):
 
 @transaction.atomic
 def create_search(*, draft, term=None, code=None, codes):
+    if len(codes) > 20000:
+        # If we have too many codes then we risk breaching the MAX_VARIABLE_SIZE
+        # limit in sqlite in the below queries. However, having too many codes
+        # is also a sign that the search is too broad, and we should probably
+        # not allow it. The current MAX_VARIABLE_SIZE is 250,000, and the default
+        # for sqlite after v3.32.0 (2020-05-22) is 32766, so 20,000 will not hit
+        # that limit.
+        logger.info(
+            "Search request rejected due to large code count",
+            code_count=len(codes),
+            term=term,
+            code=code,
+        )
+
+        message = (
+            (
+                f'Your search for "{term}" returned {len(codes):,} codes, '
+                "which exceeds the maximum limit of 20,000. It's likely that "
+                "you have searched for a very common term, or one that "
+                "appears near the top of the coding system hierarchy. Please "
+                "try to refine your search to return fewer results."
+            )
+            if term
+            else (
+                f'Your search for code "{code}" returned {len(codes):,} codes, '
+                "which exceeds the maximum limit of 20,000. When you search "
+                "for a code, we return all codes that are descendants of that "
+                "code, so if you search for a code near the top of the coding "
+                "system hierarchy you get an unmanageable number of results. "
+                "Please try to refine your search to return fewer results."
+            )
+        )
+
+        return {
+            "error": True,
+            "message": message,
+        }
+
     slug = create_search_slug(term, code)
     search, new = draft.searches.get_or_create(term=term, code=code, slug=slug)
     if not new:

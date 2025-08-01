@@ -200,3 +200,32 @@ it("does the right thing when clicking around", async () => {
   checkSummary();
   checkStatus();
 });
+
+it("switches tabs when the tab is clicked", async () => {
+  renderCodelistBuilder(versionWithNoSearchesData);
+
+  // Initially, the codelist tab should be active
+  expect(
+    document.querySelector(".tab-pane.active .builder__metadata-forms"),
+  ).toBeFalsy();
+
+  const metadataTab = document.querySelector(
+    '[role="tab"][data-rb-event-key="metadata"]',
+  );
+  await userEvent.click(metadataTab);
+
+  // The metadata tab should now be active (adjust selector as needed)
+  expect(
+    document.querySelector(".tab-pane.active .builder__metadata-forms"),
+  ).toBeTruthy();
+});
+
+it("renders the metadata tab when the URL has #metadata", () => {
+  window.location.hash = "#metadata"; // Simulate the URL having #metadata
+  renderCodelistBuilder(versionWithNoSearchesData);
+
+  // The metadata tab should be active
+  expect(
+    document.querySelector(".tab-pane.active .builder__metadata-forms"),
+  ).toBeTruthy();
+});

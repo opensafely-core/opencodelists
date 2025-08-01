@@ -330,6 +330,14 @@ docker-test: _env
 docker-serve env="dev" *args="": _env
     {{ just_executable() }} docker/serve {{ if env == "dev" { docker_env } else { env } }} {{ args }}
 
+# run test server on a different port
+docker-serve-test port="7001": _env
+    {{ just_executable() }} docker/serve-test {{ port }}
+
+# stop the test server
+docker-stop-test: _env
+    {{ just_executable() }} docker/stop-test
+
 
 # run cmd in dev docker continer
 docker-run *args="bash": _env

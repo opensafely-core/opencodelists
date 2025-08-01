@@ -83,3 +83,6 @@ export type METADATA = {
 
 // {{ search_url|json_script:"update-url" }}
 export type UPDATE_URL = string;
+
+// {{ search_url|json_script:"draft-url" }}
+export type DRAFT_URL = string;

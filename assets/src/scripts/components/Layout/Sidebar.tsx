@@ -20,7 +20,7 @@ export default function Sidebar({
 }) {
   return (
     <div className="col-md-3 builder__sidebar">
-      {!isEmptyCodelist && <Summary counts={counts} draftURL={draftURL} />}
+      {!isEmptyCodelist && <Summary counts={counts} />}
       {searches.length > 0 && (
         <Searches
           draftURL={draftURL}

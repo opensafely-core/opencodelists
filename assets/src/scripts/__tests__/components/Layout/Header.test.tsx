@@ -4,15 +4,7 @@ import React from "react";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import Header from "../../../components/Layout/Header";
 import type { METADATA } from "../../../types";
-
-// biome-ignore lint/suspicious/noExplicitAny: we can pass in any data in this test
-function setScript(id: string, value: any) {
-  const el = document.createElement("script");
-  el.id = id;
-  el.type = "application/json";
-  el.textContent = JSON.stringify(value);
-  document.body.appendChild(el);
-}
+import { setScript } from "../../utils";
 
 function scriptTagSetup({
   isEditable = true,
@@ -26,7 +18,7 @@ function scriptTagSetup({
 }
 
 function cleanupScriptTags() {
-  ["metadata", "update-url", "is-editable"].forEach((id) =>
+  ["metadata", "is-editable"].forEach((id) =>
     document.getElementById(id)?.remove(),
   );
 }

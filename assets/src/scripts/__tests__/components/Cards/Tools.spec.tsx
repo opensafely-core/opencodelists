@@ -3,6 +3,7 @@ import { render, screen } from "@testing-library/react";
 import React from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import Tools from "../../../components/Cards/Tools";
+import { cleanupScriptTags, mockMetadata, scriptTagSetup } from "../../utils";
 
 vi.mock("../../../data/tools.json", () => ({
   default: [
@@ -24,10 +25,7 @@ vi.mock("../../../data/tools.json", () => ({
 }));
 
 describe("<Tools />", () => {
-  afterEach(() => {
-    const script = document.getElementById("metadata");
-    if (script) script.remove();
-  });
+  afterEach(() => cleanupScriptTags(["metadata"]));
 
   it("returns null if coding system is not present", async () => {
     const { container } = render(<Tools />);
@@ -35,24 +33,18 @@ describe("<Tools />", () => {
   });
 
   it("returns null if no tools for coding system", async () => {
-    const script = document.createElement("script");
-    script.id = "metadata";
-    script.type = "application/json";
-    script.textContent = JSON.stringify({
-      coding_system_id: "ctv3",
+    scriptTagSetup({
+      metadata: { ...mockMetadata, coding_system_id: "ctv3" },
     });
-    document.body.appendChild(script);
 
     const { container } = render(<Tools />);
     expect(container.firstChild).toBeNull();
   });
 
   it("renders tools for icd10", async () => {
-    const script = document.createElement("script");
-    script.id = "metadata";
-    script.type = "application/json";
-    script.textContent = JSON.stringify({ coding_system_id: "icd10" });
-    document.body.appendChild(script);
+    scriptTagSetup({
+      metadata: { ...mockMetadata, coding_system_id: "icd10" },
+    });
 
     render(<Tools />);
     expect(screen.getByRole("heading", { name: "Tools" })).toBeVisible();
@@ -72,11 +64,9 @@ describe("<Tools />", () => {
   });
 
   it("renders tools for BNF", async () => {
-    const script = document.createElement("script");
-    script.id = "metadata";
-    script.type = "application/json";
-    script.textContent = JSON.stringify({ coding_system_id: "bnf" });
-    document.body.appendChild(script);
+    scriptTagSetup({
+      metadata: { ...mockMetadata, coding_system_id: "bnf" },
+    });
 
     render(<Tools />);
     expect(screen.getByRole("heading", { name: "Tools" })).toBeVisible();

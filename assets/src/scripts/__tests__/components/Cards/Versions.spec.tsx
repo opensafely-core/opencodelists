@@ -1,10 +1,11 @@
 import "@testing-library/jest-dom";
 import { render, screen } from "@testing-library/react";
 import React from "react";
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import Versions, {
   type VersionProps,
 } from "../../../components/Cards/Versions";
+import { cleanupScriptTags, scriptTagSetup } from "../../utils";
 
 describe("Version Component", () => {
   const mockVersions: VersionProps[] = [
@@ -32,12 +33,12 @@ describe("Version Component", () => {
   ];
 
   beforeEach(() => {
-    const script = document.createElement("script");
-    script.id = "versions";
-    script.type = "application/json";
-    script.textContent = JSON.stringify(mockVersions);
-    document.body.appendChild(script);
+    scriptTagSetup({
+      versions: mockVersions,
+    });
   });
+
+  afterEach(() => cleanupScriptTags(["versions"]));
 
   it("renders the versions card with header", () => {
     render(<Versions />);

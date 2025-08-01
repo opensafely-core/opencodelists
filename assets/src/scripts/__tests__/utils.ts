@@ -3,6 +3,7 @@ import type {
   IS_EDITABLE,
   METADATA,
   SEARCHES,
+  UPDATE_URL,
   VERSIONS,
 } from "../types";
 import version_from_scratch from "./fixtures/version_from_scratch.json";
@@ -25,18 +26,21 @@ export function scriptTagSetup({
   isEditable,
   metadata,
   searches,
+  updateURL,
   versions,
 }: {
   draftURL?: DRAFT_URL;
   isEditable?: IS_EDITABLE;
   metadata?: METADATA;
   searches?: SEARCHES;
+  updateURL?: UPDATE_URL;
   versions?: VERSIONS;
 }) {
   setScript("draft-url", draftURL);
   setScript("is-editable", isEditable);
   setScript("metadata", metadata);
   setScript("searches", searches);
+  setScript("update-url", updateURL);
   setScript("versions", versions);
 }
 

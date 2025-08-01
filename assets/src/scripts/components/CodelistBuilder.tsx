@@ -2,7 +2,7 @@ import React from "react";
 import { Col, Row, Tab, Tabs } from "react-bootstrap";
 import type Hierarchy from "../_hierarchy";
 import { getCookie } from "../_utils";
-import type { Code, METADATA, PageData, Reference, Status } from "../types";
+import type { Code, METADATA, PageData, Status } from "../types";
 import EmptyState from "./EmptyState";
 import CodelistTab from "./Layout/CodelistTab";
 import Header from "./Layout/Header";
@@ -43,7 +43,6 @@ export default class CodelistBuilder extends React.Component<
   {
     codeToStatus: PageData["codeToStatus"];
     expandedCompatibleReleases: boolean;
-    metadata: { references: Reference[] };
     updateQueue: string[][];
     updating: boolean;
   }
@@ -54,9 +53,6 @@ export default class CodelistBuilder extends React.Component<
     this.state = {
       codeToStatus: props.codeToStatus,
       expandedCompatibleReleases: false,
-      metadata: {
-        references: props.metadata.references || [],
-      },
       updateQueue: [],
       updating: false,
     };
@@ -141,24 +137,6 @@ export default class CodelistBuilder extends React.Component<
     }, counts);
   }
 
-  // Add save handler:
-  handleSaveReferences = async (
-    newReferences: Array<{ text: string; url: string }>,
-  ) => {
-    const fetchOptions = getFetchOptions({ references: newReferences });
-
-    try {
-      await fetch(this.props.updateURL, fetchOptions);
-
-      this.setState({
-        metadata: { ...this.state.metadata, references: newReferences },
-      });
-    } catch (error) {
-      // biome-ignore lint/suspicious/noConsole: legacy console implementation
-      console.error("Failed to save references:", error);
-    }
-  };
-
   render() {
     const {
       allCodes,
@@ -216,11 +194,7 @@ export default class CodelistBuilder extends React.Component<
                   title="Metadata"
                   className="max-w-80ch"
                 >
-                  <MetadataTab
-                    handleSaveReferences={this.handleSaveReferences}
-                    isEditable={isEditable}
-                    references={this.state.metadata.references}
-                  />
+                  <MetadataTab />
                 </Tab>
               </Tabs>
             </Col>

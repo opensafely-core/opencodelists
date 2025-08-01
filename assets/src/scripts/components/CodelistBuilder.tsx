@@ -1,5 +1,5 @@
 import React from "react";
-import { Col, Row, Tab, Tabs } from "react-bootstrap";
+import { Tab, Tabs } from "react-bootstrap";
 import type Hierarchy from "../_hierarchy";
 import { getCookie } from "../_utils";
 import type { Code, METADATA, PageData, Status } from "../types";
@@ -154,7 +154,7 @@ export default class CodelistBuilder extends React.Component<
     return (
       <>
         <Header counts={this.counts()} />
-        <Row>
+        <div className="row">
           <Sidebar
             counts={this.counts()}
             draftURL={draftURL}
@@ -164,11 +164,11 @@ export default class CodelistBuilder extends React.Component<
           />
 
           {isEmptyCodelist ? (
-            <Col md="9">
+            <div className="col-md-9">
               <EmptyState />
-            </Col>
+            </div>
           ) : (
-            <Col md="9">
+            <div className="col-md-9">
               <Tabs defaultActiveKey="codelist" className="mb-3">
                 <Tab eventKey="codelist" title="Codelist">
                   <CodelistTab
@@ -191,9 +191,9 @@ export default class CodelistBuilder extends React.Component<
                   <MetadataTab />
                 </Tab>
               </Tabs>
-            </Col>
+            </div>
           )}
-        </Row>
+        </div>
       </>
     );
   }

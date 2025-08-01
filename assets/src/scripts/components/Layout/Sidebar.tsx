@@ -1,5 +1,4 @@
 import React from "react";
-import { Col } from "react-bootstrap";
 import Searches, { type SearchesProps } from "../Cards/Searches";
 import SearchForm from "../Cards/SearchForm";
 import Summary, { type SummaryProps } from "../Cards/Summary";
@@ -20,7 +19,7 @@ export default function Sidebar({
   searches: SearchesProps["searches"];
 }) {
   return (
-    <Col className="builder__sidebar" md="3">
+    <div className="col-md-3 builder__sidebar">
       {!isEmptyCodelist && <Summary counts={counts} draftURL={draftURL} />}
       {searches.length > 0 && (
         <Searches
@@ -32,6 +31,6 @@ export default function Sidebar({
       {isEditable && <SearchForm />}
       {!isEmptyCodelist && <Versions />}
       <Tools />
-    </Col>
+    </div>
   );
 }

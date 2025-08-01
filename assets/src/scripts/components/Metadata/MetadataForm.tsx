@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import React, { useState } from "react";
+import { Modal } from "react-bootstrap";
 import { postFetchWithOptions, readValueFromPage } from "../../_utils";
 import type { IS_EDITABLE, METADATA, UPDATE_URL } from "../../types";
 
@@ -60,70 +61,90 @@ export default function MetadataForm({
     }
   }
 
+  function handleFocus(e: React.FocusEvent<HTMLTextAreaElement>) {
+    // Trick to put the cursor at the end of the text area
+    var temp_value = e.target.value;
+    e.target.value = "";
+    e.target.value = temp_value;
+  }
+
   return (
-    <form
-      className="card"
-      onReset={() => setIsEditing(false)}
-      onSubmit={handleSubmit}
-    >
+    <div className="card">
       <div className="card-header d-flex flex-row align-items-center">
         <h3 className="h5 mb-0 mr-auto">{name}</h3>
         {isEditable ? (
-          isEditing ? (
-            <>
-              <button className="btn btn-primary btn-sm" type="submit">
-                Save
-              </button>
-              <button className="btn btn-secondary btn-sm ml-1" type="reset">
-                Cancel
-              </button>
-            </>
-          ) : (
-            <button
-              className={`btn btn-primary btn-sm plausible-event-name=Edit+metadata+${id}`}
-              onClick={() => setIsEditing(true)}
-              type="button"
-            >
-              Edit <span className="sr-only">{name}</span>
-            </button>
-          )
+          <button
+            className={`btn btn-primary btn-sm plausible-event-name=Edit+metadata+${id}`}
+            onClick={() => setIsEditing(true)}
+            type="button"
+          >
+            Edit <span className="sr-only">{name}</span>
+          </button>
         ) : null}
       </div>
 
       <div className="card-body">
-        {isEditing ? (
-          <div className="form-group">
-            <label className="form-label sr-only" htmlFor={`metadata-${id}`}>
-              {name}
-            </label>
-            <textarea
-              className="form-control"
+        {
+          // @ts-ignore
+          data?.html ? (
+            <div
+              className="builder__markdown"
               // @ts-ignore: we're not currently using react-query to return
               // the expected values of the typescript compiler
-              defaultValue={data.text}
-              id={`metadata-${id}`}
-              name={id}
-              onKeyDown={handleKeyDown}
-              rows={5}
-            ></textarea>
-            <small className="form-text text-muted">
-              If you make changes, please remember to click Save (shortcut:
-              CTRL-ENTER) to keep them or Cancel (shortcut: ESC) to discard.
-            </small>
-          </div>
-          // @ts-ignore
-        ) : data?.html ? (
-          <div
-            className="builder__markdown"
-            // @ts-ignore: we're not currently using react-query to return
-            // the expected values of the typescript compiler
-            // biome-ignore lint/security/noDangerouslySetInnerHtml: backend is validating the markdown content
-            dangerouslySetInnerHTML={{ __html: data.html }}
-          />
-        ) : (
-          <p className="mb-0 text-muted font-italic">{name} not provided</p>
-        )}
+              // biome-ignore lint/security/noDangerouslySetInnerHtml: backend is validating the markdown content
+              dangerouslySetInnerHTML={{ __html: data.html }}
+            />
+          ) : (
+            <p className="mb-0 text-muted font-italic">{name} not provided</p>
+          )
+        }
       </div>
-    </form>
+      <Modal
+        animation={false}
+        show={isEditing}
+        onHide={() => setIsEditing(false)}
+        backdrop="static"
+        size="lg"
+        aria-labelledby="metadata-edit-modal"
+        centered
+      >
+        <form onReset={() => setIsEditing(false)} onSubmit={handleSubmit}>
+          <Modal.Header closeButton>
+            <Modal.Title id="metadata-edit-modal">Edit {name}</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <div className="form-group">
+              <label className="form-label sr-only" htmlFor={`metadata-${id}`}>
+                {name}
+              </label>
+              <textarea
+                // biome-ignore lint/a11y/noAutofocus: It's fine to use this in a modal dialog which this is
+                autoFocus
+                className="form-control"
+                // @ts-ignore: we're not currently using react-query to return
+                // the expected values of the typescript compiler
+                defaultValue={data?.text ?? ""}
+                id={`metadata-${id}`}
+                name={id}
+                onFocus={handleFocus}
+                onKeyDown={handleKeyDown}
+                rows={5}
+              ></textarea>
+              <small className="form-text text-muted">
+                Keyboard shortcuts: Save (CTRL-ENTER) / Cancel (ESC)
+              </small>
+            </div>
+          </Modal.Body>
+          <Modal.Footer>
+            <button className="btn btn-primary btn-sm" type="submit">
+              Save
+            </button>
+            <button className="btn btn-secondary btn-sm ml-1" type="reset">
+              Cancel
+            </button>
+          </Modal.Footer>
+        </form>
+      </Modal>
+    </div>
   );
 }

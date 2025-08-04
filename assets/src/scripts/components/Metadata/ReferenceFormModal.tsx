@@ -38,6 +38,8 @@ export default function ReferenceFormModal({
               Text
             </label>
             <input
+              // biome-ignore lint/a11y/noAutofocus: It's fine to use this in a modal dialog
+              autoFocus
               className="form-control"
               defaultValue={defaultValue?.text}
               id="addReferenceText"

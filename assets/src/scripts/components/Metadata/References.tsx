@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { postFetchWithOptions, readValueFromPage } from "../../_utils";
 import type { IS_EDITABLE, METADATA } from "../../types";
 import Reference from "./Reference";
-import ReferenceForm from "./ReferenceForm";
+import ReferenceFormModal from "./ReferenceFormModal";
 
 export default function References() {
   const isEditable: IS_EDITABLE = readValueFromPage("is-editable");
@@ -82,7 +82,7 @@ export default function References() {
           ))}
         </ul>
       ) : null}
-      <ReferenceForm
+      <ReferenceFormModal
         onReset={() => setShowAddReference(false)}
         onSubmit={handleSubmit}
         show={showAddReference}

@@ -1,7 +1,7 @@
 import React from "react";
 import { Modal } from "react-bootstrap";
 
-interface ReferenceFormProps {
+interface ReferenceFormModalProps {
   defaultValue?: {
     text: string;
     url: string;
@@ -11,12 +11,12 @@ interface ReferenceFormProps {
   show: boolean;
 }
 
-export default function ReferenceForm({
+export default function ReferenceFormModal({
   defaultValue,
   onReset,
   onSubmit,
   show,
-}: ReferenceFormProps) {
+}: ReferenceFormModalProps) {
   return (
     <Modal
       animation={false}

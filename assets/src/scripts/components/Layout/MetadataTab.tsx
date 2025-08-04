@@ -1,23 +1,11 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import React from "react";
 import MetadataForm from "../Metadata/MetadataForm";
 import References from "../Metadata/References";
 
 export default function MetadataTab() {
-  const client = new QueryClient({
-    defaultOptions: {
-      queries: {
-        refetchOnMount: false,
-        refetchOnReconnect: false,
-        refetchOnWindowFocus: false,
-        staleTime: "static",
-      },
-    },
-  });
-
   return (
-    <QueryClientProvider client={client}>
+    <>
       <p className="font-italic">
         Users have found it helpful to record their decision strategy as they
         build their codelist. Text added here will be ready for you to edit
@@ -29,6 +17,6 @@ export default function MetadataTab() {
         <References />
       </div>
       <ReactQueryDevtools />
-    </QueryClientProvider>
+    </>
   );
 }

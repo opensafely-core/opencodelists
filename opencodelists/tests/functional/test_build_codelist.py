@@ -797,3 +797,50 @@ def test_build_dmd_codelist_single_search(
     validate_codelist_exists_on_site(
         navigator, Status.PUBLISHED, username, initial_page_navigation=True
     )
+
+
+@pytest.mark.django_db(
+    databases=[
+        "default",
+        "snomedct_test_20200101",
+    ],
+    transaction=True,
+)
+def test_edit_metadata_in_draft_codelist(
+    login_context_for_user,
+    live_server,
+    snomedct_data,
+):
+    """Test that metadata can be edited in a draft codelist."""
+    page = setup_playwright_page(
+        login_context=login_context_for_user("org_user", "Test University"),
+        url=live_server.url,
+    )
+
+    coding_system = "snomedct"
+    codelist_name = "Test Metadata Edit"
+    navigator = Navigator(page, codelist_name)
+
+    create_codelist(navigator, coding_system, initial_page_navigation=True)
+
+    # Do a search to make metadata tab visible
+    search_actions = SearchActions(
+        items=[
+            SearchAction(
+                search=Search(query="asthma", is_code=False),
+                concept_selections=[],
+            ),
+        ],
+    )
+    search_actions.apply_all(navigator, initial_page_navigation=False)
+
+    # Edit metadata
+    navigator.page.get_by_role("tab", name="Metadata").click()
+    navigator.page.get_by_role("button", name="Edit Description").click()
+    navigator.page.get_by_role("textbox", name="description").fill(
+        "This is a test description."
+    )
+    navigator.page.get_by_role("button", name="Save").click()
+
+    # Verify the metadata was saved
+    expect(navigator.page.get_by_text("This is a test description.")).to_be_visible()

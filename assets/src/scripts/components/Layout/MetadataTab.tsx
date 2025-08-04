@@ -1,4 +1,3 @@
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import React from "react";
 import MetadataForm from "../Metadata/MetadataForm";
 import References from "../Metadata/References";
@@ -16,7 +15,6 @@ export default function MetadataTab() {
         <MetadataForm id="methodology" name="Methodology" />
         <References />
       </div>
-      <ReactQueryDevtools />
     </>
   );
 }

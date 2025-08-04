@@ -1,4 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import React from "react";
 import { Col, Row, Tab, Tabs } from "react-bootstrap";
 import type { SelectCallback } from "react-bootstrap/esm/helpers";
@@ -244,6 +245,7 @@ export default class CodelistBuilder extends React.Component<
             </Col>
           )}
         </Row>
+        <ReactQueryDevtools />
       </QueryClientProvider>
     );
   }

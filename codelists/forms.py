@@ -144,10 +144,17 @@ class CSVValidationMixin:
         return data
 
 
+description_max_length = 500
+
+
 class CodelistCreateForm(forms.Form, CSVValidationMixin):
     name = form_field_from_model(Handle, "name")
     coding_system_id = form_field_from_model(Codelist, "coding_system_id")
-    description = form_field_from_model(Codelist, "description")
+    description = form_field_from_model(
+        Codelist,
+        "description",
+        widget=forms.Textarea(attrs={"maxlength": description_max_length}),
+    )
     methodology = form_field_from_model(Codelist, "methodology")
     csv_data = forms.FileField(label="CSV data")
 
@@ -161,7 +168,11 @@ class CodelistUpdateForm(forms.Form):
     name = form_field_from_model(Handle, "name")
     slug = form_field_from_model(Handle, "slug")
     owner = forms.ChoiceField()  # The choices are set in __init__
-    description = form_field_from_model(Codelist, "description")
+    description = form_field_from_model(
+        Codelist,
+        "description",
+        widget=forms.Textarea(attrs={"maxlength": description_max_length}),
+    )
     methodology = form_field_from_model(Codelist, "methodology")
 
     def __init__(self, *args, **kwargs):
@@ -170,6 +181,15 @@ class CodelistUpdateForm(forms.Form):
         owner_choices = kwargs.pop("owner_choices")
         super().__init__(*args, **kwargs)
         self.fields["owner"].choices = owner_choices
+
+        # Remove maxlength if initial description is too long so that
+        # we can support old descriptions that exceed the limit.
+        desc_field = self.fields["description"]
+        initial_desc = self.data.get("description")
+        if initial_desc:
+            normalized_desc = initial_desc.replace("\r\n", "\n").replace("\r", "\n")
+            if len(normalized_desc) > 500:
+                desc_field.widget.attrs.pop("maxlength", None)
 
     def clean_owner(self):
         owner_identifier = self.cleaned_data["owner"]

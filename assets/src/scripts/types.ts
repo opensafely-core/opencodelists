@@ -60,6 +60,7 @@ export type METADATA = {
   description: {
     text: string;
     html: string;
+    max_length?: number;
   };
   methodology: {
     text: string;

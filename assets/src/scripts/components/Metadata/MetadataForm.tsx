@@ -125,6 +125,9 @@ export default function MetadataForm({
                 // the expected values of the typescript compiler
                 defaultValue={data?.text ?? ""}
                 id={`metadata-${id}`}
+                // @ts-ignore: we're not currently using react-query to return
+                // the expected values of the typescript compiler
+                maxLength={data?.max_length || undefined}
                 name={id}
                 onFocus={handleFocus}
                 onKeyDown={handleKeyDown}

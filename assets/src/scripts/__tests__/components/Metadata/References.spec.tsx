@@ -208,6 +208,27 @@ describe("Metadata tab references", () => {
         screen.queryByRole("textbox", { name: "URL" }),
       ).not.toBeInTheDocument();
     });
+
+    it("closes the form edit view if a user opens it, then presses ESCAPE", async () => {
+      const user = userEvent.setup();
+      render(<References />, { wrapper });
+
+      await waitFor(() => {
+        expect(
+          screen.getByRole("button", { name: "Edit" }),
+        ).toBeInTheDocument();
+      });
+      await user.click(screen.getByRole("button", { name: "Edit" }));
+      expect(screen.getByRole("textbox", { name: "Text" })).toBeVisible();
+      expect(screen.getByRole("textbox", { name: "URL" })).toBeVisible();
+      await user.keyboard("{Escape}");
+      expect(
+        screen.queryByRole("textbox", { name: "Text" }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("textbox", { name: "URL" }),
+      ).not.toBeInTheDocument();
+    });
   });
 
   describe("Anonymous users", () => {

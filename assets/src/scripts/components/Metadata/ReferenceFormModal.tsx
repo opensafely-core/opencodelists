@@ -17,6 +17,14 @@ export default function ReferenceFormModal({
   onSubmit,
   show,
 }: ReferenceFormModalProps) {
+  function handleKeyDown(e: React.KeyboardEvent<HTMLFormElement>) {
+    // Handle Escape for Cancel
+    if (e.key === "Escape") {
+      e.preventDefault();
+      onReset(e);
+    }
+  }
+
   return (
     <Modal
       animation={false}
@@ -26,7 +34,7 @@ export default function ReferenceFormModal({
       aria-labelledby="reference-edit-modal"
       centered
     >
-      <form onReset={onReset} onSubmit={onSubmit}>
+      <form onKeyDown={handleKeyDown} onReset={onReset} onSubmit={onSubmit}>
         <Modal.Header>
           <Modal.Title id="reference-edit-modal">
             {defaultValue ? "Edit Reference" : "Add Reference"}
@@ -63,6 +71,9 @@ export default function ReferenceFormModal({
               type="url"
             />
           </div>
+          <small className="form-text text-muted">
+            Keyboard shortcuts: Save (ENTER) / Cancel (ESC)
+          </small>
         </Modal.Body>
         <Modal.Footer>
           <div className="btn-group-sm">

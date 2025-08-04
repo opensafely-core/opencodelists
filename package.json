@@ -22,8 +22,8 @@
     "@vitejs/plugin-react-swc": "^3.11.0",
     "@vitest/coverage-v8": "^3.2.4",
     "jsdom": "^26.1.0",
-    "nock": "^14.0.7",
-    "typescript": "^5.8.3",
+    "nock": "^14.0.8",
+    "typescript": "^5.9.2",
     "vite": "^7.0.0",
     "vite-plugin-live-reload": "^3.0.5",
     "vitest": "^3.2.4"

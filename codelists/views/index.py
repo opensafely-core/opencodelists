@@ -13,9 +13,13 @@ def index(request, organisation_slug=None, status=Status.PUBLISHED):
 
     q = request.GET.get("q")
     if q:
-        handles = handles.filter(
-            Q(name__contains=q) | Q(codelist__description__contains=q)
-        )
+        search_words = q.split()
+        combined_query = Q()
+        for word in search_words:
+            combined_query &= Q(name__icontains=word) | Q(
+                codelist__description__icontains=word
+            )
+        handles = handles.filter(combined_query)
 
     if organisation_slug:
         organisation = get_object_or_404(Organisation, slug=organisation_slug)

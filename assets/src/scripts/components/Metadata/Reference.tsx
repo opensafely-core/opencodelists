@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import React, { useState } from "react";
 import { postFetchWithOptions, readValueFromPage } from "../../_utils";
 import type { IS_EDITABLE, METADATA } from "../../types";
-import ReferenceForm from "./ReferenceForm";
+import ReferenceFormModal from "./ReferenceFormModal";
 
 export default function Reference({
   isEditable,
@@ -84,13 +84,12 @@ export default function Reference({
           </div>
         )}
       </div>
-      {isEditing && (
-        <ReferenceForm
-          defaultValue={reference}
-          onReset={() => setIsEditing(false)}
-          onSubmit={handleSubmit}
-        />
-      )}
+      <ReferenceFormModal
+        defaultValue={reference}
+        onReset={() => setIsEditing(false)}
+        onSubmit={handleSubmit}
+        show={isEditing}
+      />
     </li>
   );
 }

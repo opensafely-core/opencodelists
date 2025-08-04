@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { postFetchWithOptions, readValueFromPage } from "../../_utils";
 import type { IS_EDITABLE, METADATA } from "../../types";
 import Reference from "./Reference";
-import ReferenceForm from "./ReferenceForm";
+import ReferenceFormModal from "./ReferenceFormModal";
 
 export default function References() {
   const isEditable: IS_EDITABLE = readValueFromPage("is-editable");
@@ -71,17 +71,8 @@ export default function References() {
         </p>
       </div>
 
-      {data.length || showAddReference ? (
+      {data.length ? (
         <ul className="list-group list-group-flush">
-          {showAddReference && (
-            <li className="list-group-item">
-              <ReferenceForm
-                onReset={() => setShowAddReference(false)}
-                onSubmit={handleSubmit}
-              />
-            </li>
-          )}
-
           {data.map((reference) => (
             <Reference
               isEditable={isEditable}
@@ -91,6 +82,11 @@ export default function References() {
           ))}
         </ul>
       ) : null}
+      <ReferenceFormModal
+        onReset={() => setShowAddReference(false)}
+        onSubmit={handleSubmit}
+        show={showAddReference}
+      />
     </div>
   );
 }

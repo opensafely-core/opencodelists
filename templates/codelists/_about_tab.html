@@ -4,7 +4,7 @@
   <h2 class="sr-only">About</h2>
   {% if codelist.description %}
     <h3 class="h4">Description</h3>
-    <p>{{ codelist.description|markdown_filter|safe }}</p>
+    <p>{{ codelist.description|linebreaksbr }}</p>
   {% endif %}
 
   {% if codelist.methodology %}

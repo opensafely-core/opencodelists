@@ -7,6 +7,7 @@ from django.forms import ValidationError
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils.html import linebreaks
 from django.utils.text import slugify
 from django.views.decorators.http import require_http_methods
 
@@ -194,7 +195,7 @@ def _draft(request, draft, search_id):
         "codelist_name": codelist.name,
         "description": {
             "text": codelist.description,
-            "html": render_markdown(codelist.description),
+            "html": linebreaks(codelist.description),
         },
         "methodology": {
             "text": codelist.methodology,
@@ -277,7 +278,7 @@ def update(request, draft):
         response["metadata"] = {
             "description": {
                 "text": updated_fields["description"],
-                "html": render_markdown(updated_fields["description"]),
+                "html": linebreaks(updated_fields["description"]),
             },
             "methodology": {
                 "text": updated_fields["methodology"],

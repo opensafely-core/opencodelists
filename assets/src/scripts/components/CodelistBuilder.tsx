@@ -1,3 +1,5 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import React from "react";
 import { Col, Row, Tab, Tabs } from "react-bootstrap";
 import type { SelectCallback } from "react-bootstrap/esm/helpers";
@@ -15,6 +17,17 @@ interface CodelistBuilderProps extends PageData {
   metadata: METADATA;
 }
 type TabKey = "codelist" | "metadata";
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnMount: false,
+      refetchOnReconnect: false,
+      refetchOnWindowFocus: false,
+      staleTime: "static",
+    },
+  },
+});
 
 /**
  * Creates a fetch options object with standard headers including CSRF token
@@ -181,7 +194,7 @@ export default class CodelistBuilder extends React.Component<
     } = this.props;
 
     return (
-      <>
+      <QueryClientProvider client={queryClient}>
         <Header
           counts={this.counts()}
           isEditable={isEditable}
@@ -232,7 +245,8 @@ export default class CodelistBuilder extends React.Component<
             </Col>
           )}
         </Row>
-      </>
+        <ReactQueryDevtools />
+      </QueryClientProvider>
     );
   }
 }

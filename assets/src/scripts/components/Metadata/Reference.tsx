@@ -84,13 +84,12 @@ export default function Reference({
           </div>
         )}
       </div>
-      {isEditing && (
-        <ReferenceForm
-          defaultValue={reference}
-          onReset={() => setIsEditing(false)}
-          onSubmit={handleSubmit}
-        />
-      )}
+      <ReferenceForm
+        defaultValue={reference}
+        onReset={() => setIsEditing(false)}
+        onSubmit={handleSubmit}
+        show={isEditing}
+      />
     </li>
   );
 }

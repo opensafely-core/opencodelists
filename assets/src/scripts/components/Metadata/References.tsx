@@ -71,17 +71,8 @@ export default function References() {
         </p>
       </div>
 
-      {data.length || showAddReference ? (
+      {data.length ? (
         <ul className="list-group list-group-flush">
-          {showAddReference && (
-            <li className="list-group-item">
-              <ReferenceForm
-                onReset={() => setShowAddReference(false)}
-                onSubmit={handleSubmit}
-              />
-            </li>
-          )}
-
           {data.map((reference) => (
             <Reference
               isEditable={isEditable}
@@ -91,6 +82,11 @@ export default function References() {
           ))}
         </ul>
       ) : null}
+      <ReferenceForm
+        onReset={() => setShowAddReference(false)}
+        onSubmit={handleSubmit}
+        show={showAddReference}
+      />
     </div>
   );
 }

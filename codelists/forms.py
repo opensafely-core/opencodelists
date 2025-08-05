@@ -145,6 +145,14 @@ class CSVValidationMixin:
 
 
 description_max_length = 500
+description_help_text = (
+    f"This is the short summary (max {description_max_length} characters) that "
+    "will be shown with search results. E.g."
+    "<ul>"
+    '<li>This codelist contains all codes referred to in the "has_dementia" field of the QCovid assessment tool.</li>'
+    "<li>This codelist aims to identify SSRIs that are more likely to be prescribed in obsessive compulsive disorder</li>"
+    "</ul>"
+)
 
 
 class CodelistCreateForm(forms.Form, CSVValidationMixin):
@@ -153,6 +161,7 @@ class CodelistCreateForm(forms.Form, CSVValidationMixin):
     description = form_field_from_model(
         Codelist,
         "description",
+        help_text=description_help_text,
         widget=forms.Textarea(attrs={"maxlength": description_max_length}),
     )
     methodology = form_field_from_model(Codelist, "methodology")
@@ -171,6 +180,7 @@ class CodelistUpdateForm(forms.Form):
     description = form_field_from_model(
         Codelist,
         "description",
+        help_text=description_help_text,
         widget=forms.Textarea(attrs={"maxlength": description_max_length}),
     )
     methodology = form_field_from_model(Codelist, "methodology")

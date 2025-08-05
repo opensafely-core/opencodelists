@@ -192,14 +192,16 @@ class CodelistUpdateForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.fields["owner"].choices = owner_choices
 
-        # Remove maxlength if initial description is too long so that
-        # we can support old descriptions that exceed the limit.
-        desc_field = self.fields["description"]
-        initial_desc = self.data.get("description")
-        if initial_desc:
-            normalized_desc = initial_desc.replace("\r\n", "\n").replace("\r", "\n")
-            if len(normalized_desc) > description_max_length:
-                desc_field.widget.attrs.pop("maxlength", None)
+        # If this form is not bound (i.e., no POST data)
+        if not self.is_bound:
+            # Remove maxlength if initial description is too long so that
+            # we can support old descriptions that exceed the limit.
+            desc_field = self.fields["description"]
+            initial_desc = self.initial.get("description")
+            if initial_desc:
+                normalized_desc = initial_desc.replace("\r\n", "\n").replace("\r", "\n")
+                if len(normalized_desc) > description_max_length:
+                    desc_field.widget.attrs.pop("maxlength", None)
 
     def clean_owner(self):
         owner_identifier = self.cleaned_data["owner"]

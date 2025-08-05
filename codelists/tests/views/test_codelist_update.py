@@ -35,11 +35,11 @@ def test_get_success(client, codelist, organisation):
     assert response.status_code == 200
 
     form = response.context_data["codelist_form"]
-    assert form.data["name"] == codelist.name
-    assert form.data["slug"] == codelist.slug
-    assert form.data["owner"] == f"organisation:{organisation.pk}"
-    assert form.data["description"] == codelist.description
-    assert form.data["methodology"] == codelist.methodology
+    assert form.initial["name"] == codelist.name
+    assert form.initial["slug"] == codelist.slug
+    assert form.initial["owner"] == f"organisation:{organisation.pk}"
+    assert form.initial["description"] == codelist.description
+    assert form.initial["methodology"] == codelist.methodology
 
 
 def test_post_success(client, codelist, organisation_admin):

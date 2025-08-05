@@ -63,6 +63,15 @@ def _handle_post(request, draft):
         return HttpResponse(status=400)
 
 
+def _get_description_help_text(codelist):
+    """Get the help_text for description field from the form"""
+    # Create form instance
+    form = CodelistUpdateForm(owner_choices=[])
+
+    # Get the help_text attribute from the description field
+    return form.fields["description"].help_text
+
+
 def _get_description_max_length(codelist):
     """Get the max_length for description field from the form"""
     # Create form instance with current description
@@ -207,6 +216,7 @@ def _draft(request, draft, search_id):
         "description": {
             "text": codelist.description,
             "html": linebreaks(codelist.description),
+            "help_text": _get_description_help_text(codelist),
             "max_length": _get_description_max_length(codelist),
         },
         "methodology": {
@@ -291,6 +301,7 @@ def update(request, draft):
             "description": {
                 "text": updated_fields["description"],
                 "html": linebreaks(updated_fields["description"]),
+                "help_text": _get_description_help_text(draft.codelist),
                 "max_length": _get_description_max_length(draft.codelist),
             },
             "methodology": {

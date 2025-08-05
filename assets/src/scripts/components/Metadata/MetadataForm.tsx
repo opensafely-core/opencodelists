@@ -134,7 +134,16 @@ export default function MetadataForm({
                 rows={5}
               ></textarea>
               <small className="form-text text-muted">
-                Keyboard shortcuts: Save (CTRL-ENTER) / Cancel (ESC)
+                <div
+                  // biome-ignore lint/security/noDangerouslySetInnerHtml: help text is set by us and so safe
+                  dangerouslySetInnerHTML={
+                    // @ts-ignore: we're not currently using react-query to return
+                    // the expected values of the typescript compiler
+                    { __html: data?.help_text ?? "" }
+                  }
+                ></div>
+
+                <p>Keyboard shortcuts: Save (CTRL-ENTER) / Cancel (ESC)</p>
               </small>
             </div>
           </Modal.Body>

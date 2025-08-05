@@ -68,7 +68,8 @@ describe("Does not load", () => {
 });
 
 describe("Anonymous users", () => {
-  beforeEach(() =>
+  beforeEach(() => {
+    queryClient.clear();
     scriptTagSetup({
       isEditable: false,
       metadata: {
@@ -77,8 +78,8 @@ describe("Anonymous users", () => {
           html: "<p>This is a test</p>",
         },
       },
-    }),
-  );
+    });
+  });
   afterEach(() => cleanupScriptTags());
 
   it("does not show buttons to anonymous users", () => {
@@ -93,7 +94,8 @@ describe("Anonymous users", () => {
 });
 
 describe("Interacting with Metadata forms", () => {
-  beforeEach(() =>
+  beforeEach(() => {
+    queryClient.clear();
     scriptTagSetup({
       isEditable: true,
       metadata: {
@@ -106,8 +108,8 @@ describe("Interacting with Metadata forms", () => {
           html: "<p>This is a test</p>",
         },
       },
-    }),
-  );
+    });
+  });
 
   afterEach(() => cleanupScriptTags());
 
@@ -271,5 +273,42 @@ describe("Interacting with Metadata forms", () => {
         screen.getByText("This is some text which is going to be saved"),
       ).toBeVisible(),
     );
+  });
+});
+
+describe("Empty metadata", () => {
+  beforeEach(() => {
+    queryClient.clear();
+  });
+  afterEach(() => cleanupScriptTags());
+
+  it("renders the not provided message when no HTML is available", () => {
+    scriptTagSetup({
+      isEditable: true,
+      metadata: {
+        description: {
+          text: "This is a test",
+          html: "",
+        },
+      },
+    });
+    render(<MetadataForm id="description" name="Description" />, { wrapper });
+
+    expect(screen.getByText("Description not provided")).toBeVisible();
+  });
+
+  it("renders the `not provided` message when no text is available", () => {
+    scriptTagSetup({
+      isEditable: true,
+      metadata: {
+        description: {
+          text: "",
+          html: "<p></p>",
+        },
+      },
+    });
+    render(<MetadataForm id="description" name="Description" />, { wrapper });
+
+    expect(screen.getByText("Description not provided")).toBeVisible();
   });
 });

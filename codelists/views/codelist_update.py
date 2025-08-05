@@ -43,7 +43,7 @@ def get_owner_choices(codelist, user):
 
 def handle_get(request, codelist, owner_choices):
     codelist_form = CodelistUpdateForm(
-        {
+        initial={
             "name": codelist.name,
             "slug": codelist.slug,
             "owner": codelist.owner.owner_identifier,

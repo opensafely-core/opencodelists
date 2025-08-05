@@ -76,7 +76,7 @@ def _get_description_max_length(codelist):
     """Get the max_length for description field from the form"""
     # Create form instance with current description
     form_data = {"description": codelist.description}
-    form = CodelistUpdateForm(data=form_data, owner_choices=[])
+    form = CodelistUpdateForm(initial=form_data, owner_choices=[])
 
     # Get the max_length attribute from the description field widget
     return form.fields["description"].widget.attrs.get("maxlength")

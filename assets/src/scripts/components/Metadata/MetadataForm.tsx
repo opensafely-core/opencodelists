@@ -4,35 +4,46 @@ import { Modal } from "react-bootstrap";
 import { postFetchWithOptions, readValueFromPage } from "../../_utils";
 import type { IS_EDITABLE, METADATA, UPDATE_URL } from "../../types";
 
+interface MetadataField {
+  text: string;
+  html: string;
+  help_text: string | null;
+  max_length: number | null;
+}
+
 export default function MetadataForm({
   id,
   name,
+  rows = 10,
 }: {
   id: string;
   name: string;
+  rows?: number;
 }) {
   const isEditable: IS_EDITABLE = readValueFromPage("is-editable");
   const metadata: METADATA = readValueFromPage("metadata");
   const updateURL: UPDATE_URL = readValueFromPage("update-url");
-  const fieldMetadata = metadata?.[id as keyof METADATA];
+  const fieldMetadata = metadata?.[id as keyof METADATA] as
+    | MetadataField
+    | undefined;
 
   const [isEditing, setIsEditing] = useState(false);
 
   const queryClient = useQueryClient();
-  const { data } = useQuery({
+  const { data } = useQuery<MetadataField | undefined>({
     queryKey: ["metadata", id],
     initialData: fieldMetadata,
     queryFn: () => fieldMetadata,
   });
 
   const updateMetadata = useMutation({
-    mutationFn: async (body: Record<string, unknown>) => {
+    mutationFn: async (body: Record<string, FormDataEntryValue>) => {
       return postFetchWithOptions({
         body,
         url: updateURL,
       });
     },
-    onSuccess: (data) => {
+    onSuccess: (data: { metadata: Record<string, MetadataField> }) => {
       queryClient.setQueryData(["metadata", id], data.metadata[id]);
       setIsEditing(false);
     },
@@ -43,7 +54,8 @@ export default function MetadataForm({
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    const formFieldData = Object.fromEntries(formData);
+    const formFieldData: Record<string, FormDataEntryValue> =
+      Object.fromEntries(formData);
     updateMetadata.mutate(formFieldData);
   }
 
@@ -85,12 +97,11 @@ export default function MetadataForm({
 
       <div className="card-body">
         {
-          // @ts-ignore
-          data?.html ? (
+          // The html can be truthy but effectively empty (<p></p>) so we check
+          // both text and html to ensure we have meaningful content to display.
+          data?.text && data?.html ? (
             <div
               className="builder__markdown"
-              // @ts-ignore: we're not currently using react-query to return
-              // the expected values of the typescript compiler
               // biome-ignore lint/security/noDangerouslySetInnerHtml: backend is validating the markdown content
               dangerouslySetInnerHTML={{ __html: data.html }}
             />
@@ -121,17 +132,23 @@ export default function MetadataForm({
                 // biome-ignore lint/a11y/noAutofocus: It's fine to use this in a modal dialog which this is
                 autoFocus
                 className="form-control"
-                // @ts-ignore: we're not currently using react-query to return
-                // the expected values of the typescript compiler
-                defaultValue={data?.text ?? ""}
+                defaultValue={data?.text || undefined}
                 id={`metadata-${id}`}
+                maxLength={data?.max_length || undefined}
                 name={id}
                 onFocus={handleFocus}
                 onKeyDown={handleKeyDown}
-                rows={5}
+                rows={rows}
               ></textarea>
               <small className="form-text text-muted">
-                Keyboard shortcuts: Save (CTRL-ENTER) / Cancel (ESC)
+                {data?.help_text && (
+                  <div
+                    className="mt-3"
+                    // biome-ignore lint/security/noDangerouslySetInnerHtml: help text is set by us and so safe
+                    dangerouslySetInnerHTML={{ __html: data.help_text }}
+                  ></div>
+                )}
+                <p>Keyboard shortcuts: Save (CTRL-ENTER) / Cancel (ESC)</p>
               </small>
             </div>
           </Modal.Body>

@@ -530,3 +530,61 @@ def test_search_delete_non_int_search_id(client, minimal_draft):
 
     with pytest.raises(NoReverseMatch):
         client.post(minimal_draft.get_builder_delete_search_url(search_id, slug))
+
+
+def test_max_length_description(client, draft_with_some_searches):
+    from codelists.forms import description_max_length
+
+    client.force_login(draft_with_some_searches.author)
+
+    rsp = client.get(draft_with_some_searches.get_builder_draft_url())
+    assert f'max_length": {description_max_length}'.encode() in rsp.content
+
+
+# Test that existing long descriptions can be edited and saved
+def test_edit_long_description(client, draft_with_some_searches):
+    from codelists.forms import description_max_length
+
+    client.force_login(draft_with_some_searches.author)
+
+    # Set a longer than max_length description (for legacy codelists)
+    long_description = "A" * (description_max_length + 1)
+    draft_with_some_searches.codelist.description = long_description
+    draft_with_some_searches.codelist.save()
+
+    # Check that the description is set correctly
+    assert draft_with_some_searches.codelist.description == long_description
+
+    # The description is already longer than max_length characters, so the
+    # max_length attribute should not be present in the form field.
+    rsp = client.get(draft_with_some_searches.get_builder_draft_url())
+    assert rsp.status_code == 200
+    assert f'max_length": {description_max_length}'.encode() not in rsp.content
+
+    # Updating the description to a new longer than allowed value is ok
+    new_description = "B" * (description_max_length + 1)
+    client.post(
+        draft_with_some_searches.get_builder_update_url(),
+        {"description": new_description},
+        "application/json",
+        follow=True,
+    )
+
+    # The max_length attribute should still not be present
+    rsp = client.get(draft_with_some_searches.get_builder_draft_url())
+    assert rsp.status_code == 200
+    assert f'max_length": {description_max_length}'.encode() not in rsp.content
+
+    # Now we update to a description that is a valid length
+    new_description = "B" * (description_max_length)
+    client.post(
+        draft_with_some_searches.get_builder_update_url(),
+        {"description": new_description},
+        "application/json",
+        follow=True,
+    )
+
+    # This time the max_length attribute should be present
+    rsp = client.get(draft_with_some_searches.get_builder_draft_url())
+    assert rsp.status_code == 200
+    assert f'max_length": {description_max_length}'.encode() in rsp.content

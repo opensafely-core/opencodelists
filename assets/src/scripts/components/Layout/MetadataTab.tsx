@@ -11,7 +11,7 @@ export default function MetadataTab() {
         before you publish the codelist.
       </p>
       <div className="builder__metadata-forms">
-        <MetadataForm id="description" name="Description" />
+        <MetadataForm id="description" name="Description" rows={6} />
         <MetadataForm id="methodology" name="Methodology" />
         <References />
       </div>

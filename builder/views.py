@@ -12,6 +12,7 @@ from django.utils.text import slugify
 from django.views.decorators.http import require_http_methods
 
 from codelists.actions import update_codelist
+from codelists.forms import CodelistUpdateForm
 from codelists.models import Search
 from codelists.search import do_search
 from opencodelists.templatetags.markdown_filter import render_markdown
@@ -60,6 +61,25 @@ def _handle_post(request, draft):
         return redirect(reverse("user", args=(request.user.username,)))
     else:
         return HttpResponse(status=400)
+
+
+def _get_description_help_text(codelist):
+    """Get the help_text for description field from the form"""
+    # Create form instance
+    form = CodelistUpdateForm(owner_choices=[])
+
+    # Get the help_text attribute from the description field
+    return form.fields["description"].help_text
+
+
+def _get_description_max_length(codelist):
+    """Get the max_length for description field from the form"""
+    # Create form instance with current description
+    form_data = {"description": codelist.description}
+    form = CodelistUpdateForm(data=form_data, owner_choices=[])
+
+    # Get the max_length attribute from the description field widget
+    return form.fields["description"].widget.attrs.get("maxlength")
 
 
 def _draft(request, draft, search_id):
@@ -196,6 +216,8 @@ def _draft(request, draft, search_id):
         "description": {
             "text": codelist.description,
             "html": linebreaks(codelist.description),
+            "help_text": _get_description_help_text(codelist),
+            "max_length": _get_description_max_length(codelist),
         },
         "methodology": {
             "text": codelist.methodology,
@@ -279,6 +301,8 @@ def update(request, draft):
             "description": {
                 "text": updated_fields["description"],
                 "html": linebreaks(updated_fields["description"]),
+                "help_text": _get_description_help_text(draft.codelist),
+                "max_length": _get_description_max_length(draft.codelist),
             },
             "methodology": {
                 "text": updated_fields["methodology"],

@@ -198,7 +198,7 @@ class CodelistUpdateForm(forms.Form):
         initial_desc = self.data.get("description")
         if initial_desc:
             normalized_desc = initial_desc.replace("\r\n", "\n").replace("\r", "\n")
-            if len(normalized_desc) > 500:
+            if len(normalized_desc) > description_max_length:
                 desc_field.widget.attrs.pop("maxlength", None)
 
     def clean_owner(self):

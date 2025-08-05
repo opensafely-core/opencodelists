@@ -7,9 +7,11 @@ import type { IS_EDITABLE, METADATA, UPDATE_URL } from "../../types";
 export default function MetadataForm({
   id,
   name,
+  rows = 10,
 }: {
   id: string;
   name: string;
+  rows?: number;
 }) {
   const isEditable: IS_EDITABLE = readValueFromPage("is-editable");
   const metadata: METADATA = readValueFromPage("metadata");
@@ -131,7 +133,7 @@ export default function MetadataForm({
                 name={id}
                 onFocus={handleFocus}
                 onKeyDown={handleKeyDown}
-                rows={5}
+                rows={rows}
               ></textarea>
               <small className="form-text text-muted">
                 <div

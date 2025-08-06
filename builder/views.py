@@ -63,13 +63,15 @@ def _handle_post(request, draft):
         return HttpResponse(status=400)
 
 
-def _get_description_help_text(codelist):
-    """Get the help_text for description field from the form"""
-    # Create form instance
-    form = CodelistUpdateForm(owner_choices=[])
+def _get_help_text(codelist):
+    """Get the help_text for fields from the form"""
+    # Create form instance - we pass the current methodology
+    # because the help text may change based on its value
+    form_data = {"methodology": codelist.methodology}
+    form = CodelistUpdateForm(initial=form_data, owner_choices=[])
 
-    # Get the help_text attribute from the description field
-    return form.fields["description"].help_text
+    # Get the help_text attribute from the description and methodology fields
+    return form.fields["description"].help_text, form.fields["methodology"].help_text
 
 
 def _get_description_max_length(codelist):
@@ -200,6 +202,7 @@ def _draft(request, draft, search_id):
         if draft.coding_system_release.valid_from > date(1900, 1, 1)
         else None
     )
+    description_help_text, methodology_help_text = _get_help_text(codelist)
     metadata = {
         "coding_system_id": draft.coding_system.id,
         "coding_system_name": draft.coding_system.name,
@@ -216,12 +219,13 @@ def _draft(request, draft, search_id):
         "description": {
             "text": codelist.description,
             "html": linebreaks(codelist.description),
-            "help_text": _get_description_help_text(codelist),
+            "help_text": description_help_text,
             "max_length": _get_description_max_length(codelist),
         },
         "methodology": {
             "text": codelist.methodology,
             "html": render_markdown(codelist.methodology),
+            "help_text": methodology_help_text,
         },
         "references": [
             {"text": r.text, "url": r.url} for r in codelist.references.all()
@@ -297,16 +301,18 @@ def update(request, draft):
     response = {"updates": updates}
     if metadata_updated:
         update_codelist(codelist=draft.codelist, **updated_fields)
+        description_help_text, methodology_help_text = _get_help_text(draft.codelist)
         response["metadata"] = {
             "description": {
                 "text": updated_fields["description"],
                 "html": linebreaks(updated_fields["description"]),
-                "help_text": _get_description_help_text(draft.codelist),
+                "help_text": description_help_text,
                 "max_length": _get_description_max_length(draft.codelist),
             },
             "methodology": {
                 "text": updated_fields["methodology"],
                 "html": render_markdown(updated_fields["methodology"]),
+                "help_text": methodology_help_text,
             },
             "references": updated_fields["references"],
         }

@@ -12,7 +12,7 @@ export default function MetadataTab() {
       </p>
       <div className="builder__metadata-forms">
         <MetadataForm id="description" name="Description" rows={6} />
-        <MetadataForm id="methodology" name="Methodology" />
+        <MetadataForm id="methodology" name="Methodology" rows={20} />
         <References />
       </div>
     </>

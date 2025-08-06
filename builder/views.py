@@ -74,6 +74,17 @@ def _get_help_text(codelist):
     return form.fields["description"].help_text, form.fields["methodology"].help_text
 
 
+def _get_methodology_value(methodology):
+    """Get the current value for methodology field from the form"""
+    # Create form instance because the initial value of the methodology
+    # is changed during the initialization of the form
+    form_data = {"methodology": methodology}
+    form = CodelistUpdateForm(initial=form_data, owner_choices=[])
+
+    # Get the value attribute from the methodology field
+    return form.initial["methodology"]
+
+
 def _get_description_max_length(codelist):
     """Get the max_length for description field from the form"""
     # Create form instance with current description
@@ -223,7 +234,7 @@ def _draft(request, draft, search_id):
             "max_length": _get_description_max_length(codelist),
         },
         "methodology": {
-            "text": codelist.methodology,
+            "text": _get_methodology_value(codelist.methodology),
             "html": render_markdown(codelist.methodology),
             "help_text": methodology_help_text,
         },
@@ -310,7 +321,7 @@ def update(request, draft):
                 "max_length": _get_description_max_length(draft.codelist),
             },
             "methodology": {
-                "text": updated_fields["methodology"],
+                "text": _get_methodology_value(updated_fields["methodology"]),
                 "html": render_markdown(updated_fields["methodology"]),
                 "help_text": methodology_help_text,
             },

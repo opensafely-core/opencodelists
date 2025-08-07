@@ -192,3 +192,25 @@ def test_parse_search_query(query, expected_quoted_phrases, expected_individual_
     quoted_phrases, individual_words = _parse_search_query(query)
     assert quoted_phrases == expected_quoted_phrases
     assert individual_words == expected_individual_words
+
+
+def test_search_ranking(client, organisation, create_codelist):
+    """Tests that:
+    - words can appear in any order
+    - highest rank is exact match in name
+    - second is all words in name
+    - third is any word in name
+    - last is all words in description"""
+    codelist1 = create_codelist(name="Codelist 1", description="Type 2 diabetes")
+    codelist2 = create_codelist(name="Diabetes", description="type 2")
+    codelist3 = create_codelist(name="Diabetes type 2")
+    codelist4 = create_codelist(name="Type 2 diabetes")
+
+    rsp = client.get(f"/codelist/{organisation.slug}/?q=type+2+diabetes")
+    codelists_from_search = rsp.context["codelists_page"].object_list
+
+    assert len(codelists_from_search) == 4
+    assert codelists_from_search[0].slug == codelist4.slug
+    assert codelists_from_search[1].slug == codelist3.slug
+    assert codelists_from_search[2].slug == codelist2.slug
+    assert codelists_from_search[3].slug == codelist1.slug

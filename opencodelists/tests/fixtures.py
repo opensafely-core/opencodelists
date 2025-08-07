@@ -958,6 +958,25 @@ def new_style_draft(universe, request, organisation_user):
 
 
 @pytest.fixture
+def create_codelist(organisation):
+    def make_codelist(name, description="description", status=Status.PUBLISHED):
+        new_codelist = create_codelist_from_scratch(
+            owner=organisation,
+            name=name,
+            description=description,
+            coding_system_id="snomedct",
+            coding_system_database_alias=most_recent_database_alias("snomedct"),
+            author=None,
+        )
+        version = new_codelist.versions.last()
+        version.status = status
+        version.save()
+        return new_codelist
+
+    return make_codelist
+
+
+@pytest.fixture
 def create_codelists(organisation):
     """Fixture to create a batch of codelists with a specific status"""
 

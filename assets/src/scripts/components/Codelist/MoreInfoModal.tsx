@@ -103,13 +103,16 @@ function MoreInfoModal({
       if (csrfCookie) {
         requestHeaders.append("X-CSRFToken", csrfCookie);
       }
-      fetch(`/coding-systems/more-info/${codingSystemId}`, {
-        method: "POST",
-        credentials: "include" as RequestCredentials,
-        mode: "same-origin" as RequestMode,
-        headers: requestHeaders,
-        body: JSON.stringify({ codes: [code] }),
-      })
+      fetch(
+        `${document.location.origin}/coding-systems/more-info/${codingSystemId}`,
+        {
+          method: "POST",
+          credentials: "include" as RequestCredentials,
+          mode: "same-origin" as RequestMode,
+          headers: requestHeaders,
+          body: JSON.stringify({ codes: [code] }),
+        },
+      )
         .then((response) => response.json())
         .then((data) => {
           if (data.error) {

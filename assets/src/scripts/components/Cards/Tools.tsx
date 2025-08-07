@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { readValueFromPage } from "../../_utils";
 import listOfTools from "../../data/tools.json";
+import type { BUILDER_CONFIG } from "../../types";
 
 export default function Tools() {
-  const codingSystemId: string =
-    readValueFromPage("metadata")?.coding_system_id;
+  const {
+    coding_system: { id: codingSystemId },
+  }: BUILDER_CONFIG = readValueFromPage("builder-config");
 
   const [tools] = useState(() => {
     return listOfTools.filter((tool) =>

@@ -3,6 +3,8 @@ import { render, screen } from "@testing-library/react";
 import React from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import Tools from "../../../components/Cards/Tools";
+import { builder_config } from "../../fixtures/version_from_scratch.json";
+import { cleanupScriptTags, setScript } from "../../utils";
 
 vi.mock("../../../data/tools.json", () => ({
   default: [
@@ -24,35 +26,28 @@ vi.mock("../../../data/tools.json", () => ({
 }));
 
 describe("<Tools />", () => {
-  afterEach(() => {
-    const script = document.getElementById("metadata");
-    if (script) script.remove();
-  });
+  afterEach(() => cleanupScriptTags(["builder-config"]));
 
   it("returns null if coding system is not present", async () => {
+    setScript("builder-config", { ...builder_config, coding_system: {} });
     const { container } = render(<Tools />);
     expect(container.firstChild).toBeNull();
   });
 
   it("returns null if no tools for coding system", async () => {
-    const script = document.createElement("script");
-    script.id = "metadata";
-    script.type = "application/json";
-    script.textContent = JSON.stringify({
-      coding_system_id: "ctv3",
+    setScript("builder-config", {
+      ...builder_config,
+      coding_system: { ...builder_config.coding_system, id: "ctv3" },
     });
-    document.body.appendChild(script);
-
     const { container } = render(<Tools />);
     expect(container.firstChild).toBeNull();
   });
 
   it("renders tools for icd10", async () => {
-    const script = document.createElement("script");
-    script.id = "metadata";
-    script.type = "application/json";
-    script.textContent = JSON.stringify({ coding_system_id: "icd10" });
-    document.body.appendChild(script);
+    setScript("builder-config", {
+      ...builder_config,
+      coding_system: { ...builder_config.coding_system, id: "icd10" },
+    });
 
     render(<Tools />);
     expect(screen.getByRole("heading", { name: "Tools" })).toBeVisible();
@@ -72,11 +67,10 @@ describe("<Tools />", () => {
   });
 
   it("renders tools for BNF", async () => {
-    const script = document.createElement("script");
-    script.id = "metadata";
-    script.type = "application/json";
-    script.textContent = JSON.stringify({ coding_system_id: "bnf" });
-    document.body.appendChild(script);
+    setScript("builder-config", {
+      ...builder_config,
+      coding_system: { ...builder_config.coding_system, id: "bnf" },
+    });
 
     render(<Tools />);
     expect(screen.getByRole("heading", { name: "Tools" })).toBeVisible();

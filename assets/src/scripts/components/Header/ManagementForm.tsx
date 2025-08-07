@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Form, Modal, OverlayTrigger, Tooltip } from "react-bootstrap";
+import { Modal, OverlayTrigger, Tooltip } from "react-bootstrap";
 import { getCookie } from "../../_utils";
 import type { SummaryProps } from "../Cards/Summary";
 
@@ -23,23 +23,30 @@ export default function ManagementForm({ counts }: ManagementFormProps) {
 
   return (
     <>
-      <Form method="POST" className="d-flex flex-row">
-        <Form.Control
+      <form method="POST" className="d-flex flex-row">
+        <input
+          className="form-control"
           id="csrfmiddlewaretoken"
           name="csrfmiddlewaretoken"
           type="hidden"
           value={getCookie("csrftoken")}
         />
-        <Form.Control id="action" name="action" type="hidden" value="" />
+        <input
+          className="form-control"
+          id="action"
+          name="action"
+          type="hidden"
+          value=""
+        />
         {isComplete ? (
-          <Button
+          <button
+            className="btn btn-outline-success"
             name="action"
             type="submit"
             value="save-for-review"
-            variant="outline-success"
           >
             Save for review
-          </Button>
+          </button>
         ) : (
           <OverlayTrigger
             placement="right"
@@ -50,64 +57,68 @@ export default function ManagementForm({ counts }: ManagementFormProps) {
               </Tooltip>
             }
           >
-            <Button disabled variant="outline-secondary">
+            <button
+              className="btn btn-outline-secondary"
+              disabled
+              type="button"
+            >
               Save for review
-            </Button>
+            </button>
           </OverlayTrigger>
         )}
-        <Button
-          className="ml-2"
+        <button
+          className="btn btn-outline-primary ml-2"
           name="action"
           type="submit"
           value="save-draft"
-          variant="outline-primary"
         >
           Save draft
-        </Button>
-        <Button
-          className="ml-2"
+        </button>
+        <button
+          className="btn btn-outline-danger ml-2"
           onClick={() => setShowDiscardModal(true)}
           type="button"
-          variant="outline-danger"
         >
           Discard
-        </Button>
-      </Form>
+        </button>
+      </form>
 
       <Modal centered show={showDiscardModal}>
-        <Modal.Header>
+        <div className="modal-header">
           Are you sure you want to discard this draft?
-        </Modal.Header>
-        <Modal.Body>
-          <Form className="d-inline" method="POST">
-            <Form.Control
+        </div>
+        <div className="modal-body">
+          <form className="d-inline" method="POST">
+            <input
+              className="form-control"
               id="csrfmiddlewaretoken"
               name="csrfmiddlewaretoken"
               type="hidden"
               value={getCookie("csrftoken")}
             />
-            <Form.Control
+            <input
+              className="form-control"
               id="action"
               name="action"
               type="hidden"
               value="discard"
             />
-            <Button
-              className="mr-2"
+            <button
+              className="btn btn-danger mr-2"
               type="submit"
               value="discard"
-              variant="danger"
             >
               Discard draft
-            </Button>
-          </Form>
-          <Button
-            variant="outline-secondary"
+            </button>
+          </form>
+          <button
+            className="btn btn-outline-secondary"
             onClick={() => setShowDiscardModal(false)}
+            type="button"
           >
             Continue editing
-          </Button>
-        </Modal.Body>
+          </button>
+        </div>
       </Modal>
     </>
   );

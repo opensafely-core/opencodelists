@@ -1,4 +1,5 @@
 {
+  "results_heading": "Showing all matching concepts (13)",
   "searches": [
     {
       "term_or_code": "code: 439656005",
@@ -854,66 +855,60 @@
     "73583000": "(+)"
   },
   "is_editable": true,
+  "draft_url": "/builder/71bb8ca2/",
   "update_url": "/builder/71bb8ca2/update/",
   "search_url": "/builder/71bb8ca2/search/",
+  "sort_by_term": true,
   "versions": [
     {
       "tag_or_hash": "71bb8ca2",
       "url": "/codelist/test-university/new-style-codelist/71bb8ca2/",
       "status": "draft",
       "current": true,
-      "created_at": "2025-07-18 10:27:11.079350+00:00"
+      "created_at": "2025-08-07 13:54:40.289755+00:00"
     },
     {
       "tag_or_hash": "0acaffd8",
       "url": "/codelist/test-university/new-style-codelist/0acaffd8/",
       "status": "draft",
       "current": false,
-      "created_at": "2025-07-18 10:27:11.002476+00:00"
+      "created_at": "2025-08-07 13:54:40.250880+00:00"
     },
     {
       "tag_or_hash": "23da730d",
       "url": "/codelist/test-university/new-style-codelist/23da730d/",
       "status": "draft",
       "current": false,
-      "created_at": "2025-07-18 10:27:10.817077+00:00"
+      "created_at": "2025-08-07 13:54:40.107141+00:00"
     },
     {
       "tag_or_hash": "6c560cb6",
       "url": "/codelist/test-university/new-style-codelist/6c560cb6/",
       "status": "under review",
       "current": false,
-      "created_at": "2025-07-18 10:27:10.766556+00:00"
+      "created_at": "2025-08-07 13:54:40.047857+00:00"
     },
     {
       "tag_or_hash": "05657fec",
       "url": "/codelist/test-university/new-style-codelist/05657fec/",
       "status": "under review",
       "current": false,
-      "created_at": "2025-07-18 10:27:10.754647+00:00"
+      "created_at": "2025-08-07 13:54:40.035254+00:00"
     },
     {
       "tag_or_hash": "1e74f321",
       "url": "/codelist/test-university/new-style-codelist/1e74f321/",
       "status": "published",
       "current": false,
-      "created_at": "2025-07-18 10:27:10.750497+00:00"
+      "created_at": "2025-08-07 13:54:40.029923+00:00"
     }
   ],
   "metadata": {
-    "coding_system_id": "snomedct",
-    "coding_system_name": "SNOMED CT (UK Clinical Edition)",
-    "coding_system_release": {
-      "release_name": "test",
-      "valid_from": "2020-01-01"
-    },
-    "organisation_name": "Test University",
-    "codelist_full_slug": "test-university/new-style-codelist",
-    "hash": "71bb8ca2",
-    "codelist_name": "New-style Codelist",
     "description": {
       "text": null,
-      "html": ""
+      "html": "<p>None</p>",
+      "help_text": "This is the short summary (max 500 characters) that will be shown with search results. E.g.<ul><li>This codelist contains all codes referred to in the \"has_dementia\" field of the QCovid assessment tool.</li><li>This codelist aims to identify SSRIs that are more likely to be prescribed in obsessive compulsive disorder</li></ul>",
+      "max_length": 500
     },
     "methodology": {
       "text": null,
@@ -929,5 +924,23 @@
         "url": "https://example.com/reference2"
       }
     ]
+  },
+  "is_empty_codelist": false,
+  "builder_config": {
+    "coding_system": {
+      "id": "snomedct",
+      "name": "SNOMED CT (UK Clinical Edition)",
+      "release": {
+        "name": "test",
+        "valid_from_date": "2020-01-01"
+      }
+    },
+    "codelist": {
+      "full_slug": "test-university/new-style-codelist",
+      "hash": "71bb8ca2",
+      "is_editable": true,
+      "name": "New-style Codelist",
+      "organisation": "Test University"
+    }
   }
 }

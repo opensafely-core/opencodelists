@@ -39,8 +39,6 @@ def index(request, organisation_slug=None, status=Status.PUBLISHED):
         quoted_phrases, individual_words = _parse_search_query(q.strip())
         all_search_terms = quoted_phrases + individual_words
 
-        print(f"Search terms: {all_search_terms}")
-
         if not all_search_terms:
             # If no valid search terms, skip search and just order by name
             handles = handles.order_by("name")

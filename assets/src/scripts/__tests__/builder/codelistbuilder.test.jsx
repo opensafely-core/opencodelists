@@ -1,7 +1,7 @@
 import "@testing-library/jest-dom";
 import { render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import Hierarchy from "../../_hierarchy";
 import CodelistBuilder from "../../components/CodelistBuilder";
 // See builder/management/commands/generate_builder_fixtures.py and
@@ -10,18 +10,13 @@ import * as versionFromScratchData from "../fixtures/version_from_scratch.json";
 import * as versionWithCompleteSearchesData from "../fixtures/version_with_complete_searches.json";
 import * as versionWithNoSearchesData from "../fixtures/version_with_no_searches.json";
 import * as versionWithSomeSearchesData from "../fixtures/version_with_some_searches.json";
+import { cleanupScriptTags, setScript } from "../utils";
 
-// Not sure if this is the best approach, but it works!
-global.fetch = vi.fn().mockImplementation((_url, config) =>
-  Promise.resolve({
-    json: () => Promise.resolve(JSON.parse(config.body)),
-  }),
-);
-
-const renderCodelistBuilder = (data, hierarchy, visiblePaths) => {
+function renderCodelistBuilder(data, hierarchy, visiblePaths) {
   if (!hierarchy) {
     hierarchy = new Hierarchy(data.parent_map, data.child_map);
   }
+
   if (!visiblePaths) {
     const ancestorCodes = data.tree_tables.flatMap(
       ([_, ancestorCodes]) => ancestorCodes,
@@ -42,190 +37,198 @@ const renderCodelistBuilder = (data, hierarchy, visiblePaths) => {
       hierarchy={hierarchy}
       isEditable={data.is_editable}
       isEmptyCodelist={data.is_empty_codelist}
-      metadata={data.metadata}
       resultsHeading={data.results_heading}
       searches={data.searches}
-      searchURL={data.search_url}
+      sortByTerm={data.sortByTerm}
       treeTables={data.tree_tables}
       updateURL={data.update_url}
-      versions={data.versions}
       visiblePaths={visiblePaths}
     />,
   );
-};
+}
 
-it("renders version_with_no_searches without error", () => {
-  renderCodelistBuilder(versionWithNoSearchesData);
-});
+describe("CodelistBuilder", () => {
+  beforeEach(() => {
+    setScript("builder-config", versionWithCompleteSearchesData.builder_config);
+  });
 
-it("renders version_with_some_searches without error", () => {
-  renderCodelistBuilder(versionWithSomeSearchesData);
-});
+  afterEach(() => {
+    cleanupScriptTags(["builder-config"]);
+  });
 
-it("renders version_with_complete_searches without error", () => {
-  renderCodelistBuilder(versionWithCompleteSearchesData);
-});
+  it("renders version_with_no_searches without error", () => {
+    renderCodelistBuilder(versionWithNoSearchesData);
+  });
 
-it("renders version_from_scratch without error", () => {
-  renderCodelistBuilder(versionFromScratchData);
-});
+  it("renders version_with_some_searches without error", () => {
+    renderCodelistBuilder(versionWithSomeSearchesData);
+  });
 
-it("does the right thing when clicking around", async () => {
-  const data = versionWithSomeSearchesData;
-  const hierarchy = new Hierarchy(data.parent_map, data.child_map);
-  const ancestorCodes = data.tree_tables.flatMap(
-    ([_, ancestorCodes]) => ancestorCodes,
-  );
-  const visiblePaths = hierarchy.initiallyVisiblePaths(
-    ancestorCodes,
-    data.code_to_status,
-    100, // we want all codes to be visible so that we can check statuses
-  );
+  it("renders version_with_complete_searches without error", () => {
+    renderCodelistBuilder(versionWithCompleteSearchesData);
+  });
 
-  // Keep track of which visible concept has which status
-  const statuses = {
-    128133004: "+", // Disorder of elbow
-    239964003: "(+)", // Soft tissue lesion of elbow region
-    35185008: "(+)", // Enthesopathy of elbow region
-    73583000: "(+)", // Epicondylitis
-    202855006: "(+)", // Lateral epicondylitis
-    429554009: "(+)", // Arthropathy of elbow
-    439656005: "+", // Arthritis of elbow
-    3723001: "-", // Arthritis
-    156659008: "+", // (Epicondylitis &/or tennis elbow) or (golfers' elbow)
-  };
+  it("renders version_from_scratch without error", () => {
+    renderCodelistBuilder(versionFromScratchData);
+  });
 
-  // Keep track of how many concepts we expect to have each status
-  const summaryCounts = {
-    total: 9,
-    included: 8,
-    excluded: 1,
-    unresolved: 0,
-    "in-conflict": 0,
-  };
-
-  const checkStatus = () => {
-    Object.keys(statuses).forEach((code) => {
-      const row = document.querySelector(`[data-code='${code}']`);
-
-      switch (statuses[code]) {
-        case "+":
-          expect(row.querySelector("button[data-symbol='+']")).toHaveClass(
-            "btn-primary",
-          );
-          break;
-        case "(+)":
-          expect(row.querySelector("button[data-symbol='+']")).toHaveClass(
-            "btn-secondary",
-          );
-          break;
-        case "-":
-          expect(row.querySelector("button[data-symbol='-']")).toHaveClass(
-            "btn-primary",
-          );
-          break;
-        case "(-)":
-          expect(row.querySelector("button[data-symbol='-']")).toHaveClass(
-            "btn-secondary",
-          );
-          break;
-        case "?":
-          expect(row.querySelector("button[data-symbol='+']")).not.toHaveClass(
-            "btn-primary",
-          );
-          expect(row.querySelector("button[data-symbol='+']")).not.toHaveClass(
-            "btn-secondary",
-          );
-          expect(row.querySelector("button[data-symbol='-']")).not.toHaveClass(
-            "btn-primary",
-          );
-          expect(row.querySelector("button[data-symbol='-']")).not.toHaveClass(
-            "btn-secondary",
-          );
-          break;
-        case "!":
-          break;
-      }
-    });
-  };
-
-  const checkSummary = () => {
-    Object.keys(summaryCounts).forEach((key) => {
-      if (key === "total") return; // We don't display the total
-      if (summaryCounts[key] === 0) {
-        expect(document.querySelector(`#summary-${key}`)).toBe(null);
-      } else {
-        expect(
-          parseInt(document.querySelector(`#summary-${key}`).textContent),
-        ).toBe(summaryCounts[key]);
-      }
-    });
-  };
-
-  // Helper that simulates clicking on + or - for given code.
-  const findClick = (code, symbol) => {
-    return document.querySelector(
-      `[data-code='${code}'] button[data-symbol='${symbol}']`,
+  it("does the right thing when clicking around", async () => {
+    const data = versionWithSomeSearchesData;
+    const hierarchy = new Hierarchy(data.parent_map, data.child_map);
+    const ancestorCodes = data.tree_tables.flatMap(
+      ([_, ancestorCodes]) => ancestorCodes,
     );
-  };
+    const visiblePaths = hierarchy.initiallyVisiblePaths(
+      ancestorCodes,
+      data.code_to_status,
+      100, // we want all codes to be visible so that we can check statuses
+    );
 
-  renderCodelistBuilder(data, hierarchy, visiblePaths);
+    // Keep track of which visible concept has which status
+    const statuses = {
+      128133004: "+", // Disorder of elbow
+      239964003: "(+)", // Soft tissue lesion of elbow region
+      35185008: "(+)", // Enthesopathy of elbow region
+      73583000: "(+)", // Epicondylitis
+      202855006: "(+)", // Lateral epicondylitis
+      429554009: "(+)", // Arthropathy of elbow
+      439656005: "+", // Arthritis of elbow
+      3723001: "-", // Arthritis
+      156659008: "+", // (Epicondylitis &/or tennis elbow) or (golfers' elbow)
+    };
 
-  checkSummary();
-  checkStatus();
+    // Keep track of how many concepts we expect to have each status
+    const summaryCounts = {
+      total: 9,
+      included: 8,
+      excluded: 1,
+      unresolved: 0,
+      "in-conflict": 0,
+    };
 
-  await userEvent.click(findClick("35185008", "-")); // Exclude Enthesopathy of elbow region
+    const checkStatus = () => {
+      Object.keys(statuses).forEach((code) => {
+        const row = document.querySelector(`[data-code='${code}']`);
 
-  summaryCounts.excluded += 2;
-  summaryCounts["in-conflict"] += 1;
-  summaryCounts.included -= 3;
+        switch (statuses[code]) {
+          case "+":
+            expect(row.querySelector("button[data-symbol='+']")).toHaveClass(
+              "btn-primary",
+            );
+            break;
+          case "(+)":
+            expect(row.querySelector("button[data-symbol='+']")).toHaveClass(
+              "btn-secondary",
+            );
+            break;
+          case "-":
+            expect(row.querySelector("button[data-symbol='-']")).toHaveClass(
+              "btn-primary",
+            );
+            break;
+          case "(-)":
+            expect(row.querySelector("button[data-symbol='-']")).toHaveClass(
+              "btn-secondary",
+            );
+            break;
+          case "?":
+            expect(
+              row.querySelector("button[data-symbol='+']"),
+            ).not.toHaveClass("btn-primary");
+            expect(
+              row.querySelector("button[data-symbol='+']"),
+            ).not.toHaveClass("btn-secondary");
+            expect(
+              row.querySelector("button[data-symbol='-']"),
+            ).not.toHaveClass("btn-primary");
+            expect(
+              row.querySelector("button[data-symbol='-']"),
+            ).not.toHaveClass("btn-secondary");
+            break;
+          case "!":
+            break;
+        }
+      });
+    };
 
-  statuses["35185008"] = "-"; // Enthesopathy of elbow region
-  statuses["73583000"] = "(-)"; // Epicondylitis
-  statuses["202855006"] = "!"; // Lateral epicondylitis
+    const checkSummary = () => {
+      Object.keys(summaryCounts).forEach((key) => {
+        if (key === "total") return; // We don't display the total
+        if (summaryCounts[key] === 0) {
+          expect(document.querySelector(`#summary-${key}`)).toBe(null);
+        } else {
+          expect(
+            parseInt(document.querySelector(`#summary-${key}`).textContent),
+          ).toBe(summaryCounts[key]);
+        }
+      });
+    };
 
-  checkSummary();
-  checkStatus();
+    // Helper that simulates clicking on + or - for given code.
+    const findClick = (code, symbol) => {
+      return document.querySelector(
+        `[data-code='${code}'] button[data-symbol='${symbol}']`,
+      );
+    };
 
-  await userEvent.click(findClick("35185008", "-")); // Un-exclude Enthesopathy of elbow region
+    renderCodelistBuilder(data, hierarchy, visiblePaths);
 
-  summaryCounts.excluded -= 2;
-  summaryCounts["in-conflict"] -= 1;
-  summaryCounts.included += 3;
+    checkSummary();
+    checkStatus();
 
-  statuses["35185008"] = "(+)"; // Enthesopathy of elbow region
-  statuses["73583000"] = "(+)"; // Epicondylitis
-  statuses["202855006"] = "(+)"; // Lateral epicondylitis
+    await userEvent.click(findClick("35185008", "-")); // Exclude Enthesopathy of elbow region
 
-  checkSummary();
-  checkStatus();
-});
+    summaryCounts.excluded += 2;
+    summaryCounts["in-conflict"] += 1;
+    summaryCounts.included -= 3;
 
-it("switches tabs when the tab is clicked", async () => {
-  renderCodelistBuilder(versionWithNoSearchesData);
+    statuses["35185008"] = "-"; // Enthesopathy of elbow region
+    statuses["73583000"] = "(-)"; // Epicondylitis
+    statuses["202855006"] = "!"; // Lateral epicondylitis
 
-  // Initially, the codelist tab should be active
-  expect(
-    document.querySelector(".tab-pane.active .builder__metadata-forms"),
-  ).toBeFalsy();
+    checkSummary();
+    checkStatus();
 
-  const metadataTab = document.querySelector(
-    '[role="tab"][data-rb-event-key="metadata"]',
-  );
-  await userEvent.click(metadataTab);
+    await userEvent.click(findClick("35185008", "-")); // Un-exclude Enthesopathy of elbow region
 
-  // The metadata tab should now be active (adjust selector as needed)
-  expect(
-    document.querySelector(".tab-pane.active .builder__metadata-forms"),
-  ).toBeTruthy();
-});
+    summaryCounts.excluded -= 2;
+    summaryCounts["in-conflict"] -= 1;
+    summaryCounts.included += 3;
 
-it("renders the metadata tab when the URL has #metadata", () => {
-  window.location.hash = "#metadata"; // Simulate the URL having #metadata
-  renderCodelistBuilder(versionWithNoSearchesData);
+    statuses["35185008"] = "(+)"; // Enthesopathy of elbow region
+    statuses["73583000"] = "(+)"; // Epicondylitis
+    statuses["202855006"] = "(+)"; // Lateral epicondylitis
 
-  // The metadata tab should be active
-  expect(
-    document.querySelector(".tab-pane.active .builder__metadata-forms"),
-  ).toBeTruthy();
+    checkSummary();
+    checkStatus();
+  });
+
+  it("switches tabs when the tab is clicked", async () => {
+    renderCodelistBuilder(versionWithNoSearchesData);
+
+    // Initially, the codelist tab should be active
+    expect(
+      document.querySelector(".tab-pane.active .builder__metadata-forms"),
+    ).toBeFalsy();
+
+    const metadataTab = document.querySelector(
+      '[role="tab"][data-rb-event-key="metadata"]',
+    );
+    await userEvent.click(metadataTab);
+
+    // The metadata tab should now be active (adjust selector as needed)
+    expect(
+      document.querySelector(".tab-pane.active .builder__metadata-forms"),
+    ).toBeTruthy();
+  });
+
+  it("renders the metadata tab when the URL has #metadata", () => {
+    window.location.hash = "#metadata"; // Simulate the URL having #metadata
+    renderCodelistBuilder(versionWithNoSearchesData);
+
+    // The metadata tab should be active
+    expect(
+      document.querySelector(".tab-pane.active .builder__metadata-forms"),
+    ).toBeTruthy();
+  });
 });

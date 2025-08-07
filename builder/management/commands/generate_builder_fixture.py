@@ -44,6 +44,16 @@ class Command(BaseCommand):
             database="bnf_test_20200101",
         )
 
+        # Load DMD data so build_fixtures will work for DMD codelists
+        call_command(
+            "loaddata",
+            coding_systems_base_path
+            / "dmd"
+            / "fixtures"
+            / "asthma-medication.dmd_test_20200101.json",
+            database="dmd_test_20200101",
+        )
+
         # create the CodingSystemReleases so the fixtures can use them to select the coding
         # system version for a codelist, and the database for retrieving coding system data
         versioning_fixtures_path = coding_systems_base_path / "versioning" / "fixtures"
@@ -140,15 +150,17 @@ def set_up_db():
     databases["default"]["NAME"] = ":memory:"
     databases["snomedct_test_20200101"] = dict(databases["default"])
     databases["bnf_test_20200101"] = dict(databases["default"])
+    databases["dmd_test_20200101"] = dict(databases["default"])
     del connections.settings
     connections.__init__(settings=databases)
     # migrate all apps on the default db
     call_command("migrate")
     # migrate just the snomedct app for the test snomedct coding system db
     call_command("migrate", "snomedct", database="snomedct_test_20200101")
-    # this command doesn't use the bnf fixtures explicitly, but `build_fixtures` creates them,
-    # so we need the database to the available
+    # migrate just the bnf app for the test bnf coding system db
     call_command("migrate", "bnf", database="bnf_test_20200101")
+    # migrate just the dmd app for the test dmd coding system db
+    call_command("migrate", "dmd", database="dmd_test_20200101")
     # This is a belt-and-braces check to ensure that the above hackery has worked.
     if (
         Codelist.objects.using("default").count() > 0

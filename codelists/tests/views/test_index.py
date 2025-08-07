@@ -1,5 +1,8 @@
+import pytest
+
 from codelists.actions import publish_version
 from codelists.models import Handle, Status
+from codelists.views.index import _parse_search_query
 from opencodelists.list_utils import flatten
 
 
@@ -149,3 +152,43 @@ def test_search_only_returns_codelists_with_under_review_versions(
     assert version_under_review.id in [version.id for version in versions]
     for version in versions:
         assert version.codelist == version_under_review.codelist
+
+
+@pytest.mark.parametrize(
+    "query,expected_quoted_phrases,expected_individual_words",
+    [
+        # Basic functionality
+        ("oneword", [], ["oneword"]),
+        ("two words", [], ["two", "words"]),
+        ('"quoted words"', ["quoted words"], []),
+        ('word "and quoted" words', ["and quoted"], ["word", "words"]),
+        ('"two quoted" "phrases"', ["two quoted", "phrases"], []),
+        (
+            '"two quoted" "phrases" and other words',
+            ["two quoted", "phrases"],
+            ["and", "other", "words"],
+        ),
+        # Edge cases
+        ("", [], []),
+        ("   ", [], []),
+        ('empty "" quotes', [""], ["empty", "quotes"]),
+        ('lone "quote', [], ["lone", '"quote']),
+        # Other scenarios
+        (
+            '  lots   "of word"   padding  ',
+            ["of word"],
+            ["lots", "padding"],
+        ),
+        ('"adjacent""quotes"', ["adjacent", "quotes"], []),
+        (
+            '"three"quotes"',
+            ["three"],
+            ['quotes"'],
+        ),
+    ],
+)
+def test_parse_search_query(query, expected_quoted_phrases, expected_individual_words):
+    """Test parsing various search query formats."""
+    quoted_phrases, individual_words = _parse_search_query(query)
+    assert quoted_phrases == expected_quoted_phrases
+    assert individual_words == expected_individual_words

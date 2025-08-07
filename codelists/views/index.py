@@ -1,3 +1,5 @@
+import re
+
 from django.core.paginator import Paginator
 from django.db.models import Case, IntegerField, Q, Value, When
 from django.shortcuts import get_object_or_404, render
@@ -6,6 +8,18 @@ from opencodelists.list_utils import flatten
 from opencodelists.models import Organisation
 
 from ..models import Handle, Status
+
+
+def _parse_search_query(query):
+    """Parse search query to extract quoted phrases and individual words."""
+    # Find all quoted phrases
+    quoted_phrases = re.findall(r'"([^"]*)"', query)
+
+    # Remove quoted phrases from query to get remaining words
+    remaining_query = re.sub(r'"[^"]*"', "", query)
+    individual_words = remaining_query.split()
+
+    return quoted_phrases, individual_words
 
 
 def index(request, organisation_slug=None, status=Status.PUBLISHED):

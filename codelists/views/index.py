@@ -44,7 +44,7 @@ def index(request, organisation_slug=None, status=Status.PUBLISHED):
             handles = handles.order_by("name")
         else:
             # We search for codelists whose name/description contain all the words
-            # in the query string, or the whole phrase if it is quoted. We then
+            # in the query string. Quoted phrases are treated as single terms. We then
             # rank the results as follows:
             # 1. Exact phrase match in name (rank 1)
             # 2. All words in name (rank 2)

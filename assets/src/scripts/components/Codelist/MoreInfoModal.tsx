@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Button, Modal } from "react-bootstrap";
 import type Hierarchy from "../../_hierarchy";
 import { getCookie, readValueFromPage } from "../../_utils";
-import type { Code, PageData, Status, Term } from "../../types";
+import type { BUILDER_CONFIG, Code, PageData, Status, Term } from "../../types";
 
 interface CreateModalTextProps {
   allCodes: PageData["allCodes"];
@@ -82,7 +82,9 @@ function MoreInfoModal({
   status,
   term,
 }: MoreInfoModalProps) {
-  const codingSystemId = readValueFromPage("metadata")?.coding_system_id;
+  const {
+    coding_system: { id: codingSystemId },
+  }: BUILDER_CONFIG = readValueFromPage("builder-config");
 
   const [showMoreInfoModal, setShowMoreInfoModal] = useState(false);
   const [references, setReferences] = useState<string[] | null>(null);

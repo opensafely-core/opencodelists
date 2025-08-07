@@ -59,16 +59,6 @@ export type METADATA = {
     text: string;
     url: string;
   }[];
-  coding_system_id: string;
-  coding_system_name: string;
-  coding_system_release: {
-    release_name: string;
-    valid_from: string;
-  };
-  organisation_name: string;
-  codelist_full_slug: string;
-  hash: string;
-  codelist_name: string;
 };
 
 // {{ search_url|json_script:"update-url" }}

@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { Button, Card, Form, InputGroup } from "react-bootstrap";
 import { getCookie, readValueFromPage } from "../../_utils";
 
 export default function SearchForm() {
@@ -60,84 +59,88 @@ export default function SearchForm() {
   };
 
   return (
-    <Card>
-      <Card.Header as="h2" className="h6 font-weight-bold">
+    <div className="card">
+      <h2 className="card-header h6 font-weight-bold">
         Search the {codingSystemName} dictionary
-      </Card.Header>
-      <Card.Body className="pt-2 pb-1">
-        <Form action={encodeURI(searchURL)} method="post">
-          <Form.Control
+      </h2>
+      <div className="card-body pt-2 pb-1">
+        <form action={encodeURI(searchURL)} method="POST">
+          <input
+            className="form-control"
             name="csrfmiddlewaretoken"
             type="hidden"
             value={getCookie("csrftoken")}
           />
           <fieldset>
-            <Form.Group>
-              <Form.Label className="h6 mt-1" as="legend">
-                Search by:
-              </Form.Label>
+            <div className="form-group">
+              <legend className="form-label h6 mt-1">Search by:</legend>
               {Object.values(SEARCH_OPTIONS).map((option) => (
-                <Form.Check
+                <div
+                  className="form-check form-check-inline"
                   key={option.value}
-                  inline
-                  label={option.label}
-                  name="search-type"
-                  type="radio"
-                  id={`search-type-${option.value}`}
-                  value={option.value}
-                  checked={searchType === option.value}
-                  onChange={handleSearchTypeChange}
-                />
+                >
+                  <input
+                    checked={searchType === option.value}
+                    className="form-check-input"
+                    id={`search-type-${option.value}`}
+                    name="search-type"
+                    onChange={handleSearchTypeChange}
+                    type="radio"
+                    value={option.value}
+                  />
+                  <label
+                    className="form-check-label"
+                    htmlFor={`search-type-${option.value}`}
+                  >
+                    {option.label}
+                  </label>
+                </div>
               ))}
-            </Form.Group>
+            </div>
           </fieldset>
-          <Form.Group>
-            <InputGroup>
-              <Form.Label srOnly htmlFor="searchInput">
+          <div className="form-group">
+            <div className="input-group">
+              <label className="form-label sr-only" htmlFor="searchInput">
                 {SEARCH_OPTIONS[searchType].placeholder}
-              </Form.Label>
-              <Form.Control
+              </label>
+              <input
+                className={`form-control ${searchTerm.length >= SEARCH_OPTIONS[searchType].maxLength ? "is-invalid" : ""}`}
                 id="searchInput"
-                name="search"
-                placeholder={SEARCH_OPTIONS[searchType].placeholder}
-                type="search"
-                value={searchTerm}
-                onInput={handleSearchChange}
                 minLength={SEARCH_OPTIONS[searchType].minLength}
                 maxLength={SEARCH_OPTIONS[searchType].maxLength}
-                isInvalid={
-                  searchTerm.length >= SEARCH_OPTIONS[searchType].maxLength
-                }
-                required
+                name="search"
+                onInput={handleSearchChange}
+                placeholder={SEARCH_OPTIONS[searchType].placeholder}
+                required={true}
+                type="search"
+                value={searchTerm}
               />
-              <InputGroup.Append>
-                <Button name="field" type="submit" variant="primary">
+              <div className="input-group-append">
+                <button className="btn btn-primary" name="field" type="submit">
                   Search
-                </Button>
-              </InputGroup.Append>
+                </button>
+              </div>
               {searchTerm.length >= SEARCH_OPTIONS[searchType].maxLength && (
-                <Form.Control.Feedback type="invalid">
+                <div className="invalid-feedback">
                   {SEARCH_OPTIONS[searchType].validationMaxLengthMsg}
-                </Form.Control.Feedback>
+                </div>
               )}
-            </InputGroup>
-          </Form.Group>
+            </div>
+          </div>
 
-          <Form.Group>
-            <Form.Text className="text-muted">
-              {codingSystemName === "ICD-10" &&
-              searchType === SEARCH_OPTIONS.code.value ? (
-                <p>
-                  You can use a wildcard search to find all ICD-10 codes
-                  starting with a certain string. E.g. use <code>xyz*</code> to
-                  find all codes starting with <code>xyz</code>. (Wildcard
-                  search only available for ICD-10.)
-                </p>
-              ) : null}
-            </Form.Text>
-          </Form.Group>
-        </Form>
-      </Card.Body>
-    </Card>
+          {codingSystemName === "ICD-10" &&
+          searchType === SEARCH_OPTIONS.code.value ? (
+            <small className="form-text text-muted">
+              <p>
+                You can use a wildcard search to find all ICD-10 codes starting
+                with a certain string. E.g. use <code>xyz*</code> to find all
+                codes starting with <code>xyz</code>. (Wildcard search only
+                available for ICD-10.)
+              </p>
+            </small>
+          ) : null}
+        </form>
+      </div>
+    </div>
   );
 }

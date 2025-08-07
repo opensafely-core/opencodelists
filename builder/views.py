@@ -190,16 +190,6 @@ def _draft(request, draft, search_id):
         for v in codelist.visible_versions(request.user)
     ]
 
-    # Each coding system release has a "valid_from" date.  For codelist versions imported
-    # before releases were tracked, the exact coding_system_release they were created with
-    # can't be confirmed, so it is set to a default CSR with release_name "unknown" and
-    # valid_from floor date 1900-01-01.  If the CSR is the default "unknown" one, we don't
-    # display the valid_from date to the user
-    coding_system_valid_from_date = (
-        draft.coding_system_release.valid_from.strftime("%Y-%m-%d")
-        if draft.coding_system_release.valid_from > date(1900, 1, 1)
-        else None
-    )
     metadata = {
         "coding_system_id": draft.coding_system.id,
         "coding_system_name": draft.coding_system.name,
@@ -228,6 +218,36 @@ def _draft(request, draft, search_id):
         ],
     }
 
+    # Each coding system release has a "valid_from" date.  For codelist versions imported
+    # before releases were tracked, the exact coding_system_release they were created with
+    # can't be confirmed, so it is set to a default CSR with release_name "unknown" and
+    # valid_from floor date 1900-01-01.  If the CSR is the default "unknown" one, we don't
+    # display the valid_from date to the user
+    coding_system_valid_from_date = (
+        draft.coding_system_release.valid_from.strftime("%Y-%m-%d")
+        if draft.coding_system_release.valid_from > date(1900, 1, 1)
+        else None
+    )
+    builder_config = {
+        "coding_system": {
+            "id": draft.coding_system.id,
+            "name": draft.coding_system.name,
+            "release": {
+                "name": draft.coding_system_release.release_name,
+                "valid_from_date": coding_system_valid_from_date,
+            },
+        },
+        "codelist": {
+            "full_slug": codelist.full_slug(),
+            "hash": draft.hash,
+            "is_editable": request.user == draft.author,
+            "name": codelist.name,
+            "organisation": (
+                codelist.organisation.name if codelist.organisation else None
+            ),
+        },
+    }
+
     ctx = {
         "user": draft.author,
         "draft": draft,
@@ -252,6 +272,7 @@ def _draft(request, draft, search_id):
         "versions": versions,
         "metadata": metadata,
         "is_empty_codelist": is_empty_codelist,
+        "builder_config": builder_config,
     }
 
     return render(request, "builder/draft.html", ctx)

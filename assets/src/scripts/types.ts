@@ -85,3 +85,22 @@ export type METADATA = {
 
 // {{ search_url|json_script:"update-url" }}
 export type UPDATE_URL = string;
+
+// {{ builder_config|json_script:"builder-config" }}
+export interface BUILDER_CONFIG {
+  coding_system: {
+    id: string;
+    name: string;
+    release: {
+      name: string;
+      valid_from_date: string;
+    };
+  };
+  codelist: {
+    full_slug: string;
+    hash: string;
+    is_editable: boolean;
+    name: string;
+    organisation: string | null;
+  };
+}

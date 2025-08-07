@@ -36,7 +36,6 @@ if (container) {
         hierarchy={hierarchy}
         isEditable={readValueFromPage("is-editable")}
         isEmptyCodelist={readValueFromPage("is-empty-codelist")}
-        metadata={readValueFromPage("metadata")}
         resultsHeading={readValueFromPage("results-heading")}
         searches={readValueFromPage("searches")}
         sortByTerm={readValueFromPage("sortByTerm")}

@@ -191,18 +191,6 @@ def _draft(request, draft, search_id):
     ]
 
     metadata = {
-        "coding_system_id": draft.coding_system.id,
-        "coding_system_name": draft.coding_system.name,
-        "coding_system_release": {
-            "release_name": draft.coding_system_release.release_name,
-            "valid_from": coding_system_valid_from_date,
-        },
-        "organisation_name": (
-            codelist.organisation.name if codelist.organisation else None
-        ),
-        "codelist_full_slug": codelist.full_slug(),
-        "hash": draft.hash,
-        "codelist_name": codelist.name,
         "description": {
             "text": codelist.description,
             "html": linebreaks(codelist.description),

@@ -5,7 +5,7 @@ import { Tab, Tabs } from "react-bootstrap";
 import type { SelectCallback } from "react-bootstrap/esm/helpers";
 import type Hierarchy from "../_hierarchy";
 import { getCookie } from "../_utils";
-import type { Code, METADATA, PageData, Status } from "../types";
+import type { Code, PageData, Status } from "../types";
 import EmptyState from "./EmptyState";
 import CodelistTab from "./Layout/CodelistTab";
 import Header from "./Layout/Header";
@@ -14,7 +14,6 @@ import Sidebar from "./Layout/Sidebar";
 
 interface CodelistBuilderProps extends PageData {
   hierarchy: Hierarchy;
-  metadata: METADATA;
 }
 type TabKey = "codelist" | "metadata";
 

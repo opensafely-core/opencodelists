@@ -21,18 +21,6 @@ export interface PageData {
   draftURL: string;
   isEditable: boolean;
   isEmptyCodelist: boolean;
-  metadata: {
-    codelist_full_slug: string;
-    codelist_name: string;
-    coding_system_id: string;
-    coding_system_name: string;
-    coding_system_release: {
-      release_name: string;
-      valid_from: string;
-    };
-    hash: string;
-    organisation_name: string;
-  };
   resultsHeading: string;
   searches: SearchesProps["searches"];
   sortByTerm: boolean;

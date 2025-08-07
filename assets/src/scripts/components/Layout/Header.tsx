@@ -24,7 +24,7 @@ export default function Header({
         {isEditable && <ManagementForm counts={counts} />}
       </div>
 
-      <dl className="small list-group list-group-horizontal small">
+      <dl className="list-group list-group-horizontal small">
         <div className="list-group-item py-1 px-2">
           <dt>Coding system</dt>
           <dd className="mb-0">{metadata.coding_system_name}</dd>

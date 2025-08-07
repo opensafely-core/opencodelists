@@ -102,6 +102,7 @@ class Command(BaseCommand):
             data = {
                 context_key: rsp.context[context_key]
                 for context_key in [
+                    "results_heading",
                     "searches",
                     "tree_tables",
                     "all_codes",
@@ -110,10 +111,14 @@ class Command(BaseCommand):
                     "code_to_term",
                     "code_to_status",
                     "is_editable",
+                    "draft_url",
                     "update_url",
                     "search_url",
+                    "sort_by_term",
                     "versions",
                     "metadata",
+                    "is_empty_codelist",
+                    "builder_config",
                 ]
             }
 

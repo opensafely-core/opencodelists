@@ -1,11 +1,4 @@
 import React from "react";
-import {
-  Badge,
-  Card,
-  ListGroup,
-  OverlayTrigger,
-  Tooltip,
-} from "react-bootstrap";
 import { readValueFromPage } from "../../_utils";
 
 export interface VersionProps {
@@ -36,10 +29,8 @@ function Version({ version }: { version: VersionProps }) {
   });
 
   return (
-    <ListGroup.Item
-      as="li"
-      key={version.tag_or_hash}
-      variant={version.current ? "secondary" : undefined}
+    <li
+      className={`list-group-item ${version.current ? "list-group-item-secondary" : ""}`}
     >
       <div className="d-flex justify-content-between align-items-center">
         <span className="d-block text-monospace font-weight-bold">
@@ -49,30 +40,23 @@ function Version({ version }: { version: VersionProps }) {
             <a href={encodeURI(version.url)}>{version.tag_or_hash}</a>
           )}
         </span>
-        {version.status === "draft" ? (
-          <Badge variant="light">Draft</Badge>
-        ) : null}
-        {version.status === "under review" ? (
-          <Badge variant="info">Under review</Badge>
-        ) : null}
-        {version.status === "published" ? (
-          <Badge variant="success">Published</Badge>
-        ) : null}
+        {version.status === "draft" && (
+          <span className="badge badge-light">Draft</span>
+        )}
+        {version.status === "under review" && (
+          <span className="badge badge-info">Under review</span>
+        )}
+        {version.status === "published" && (
+          <span className="badge badge-success">Published</span>
+        )}
       </div>
-      <span className="created d-block p-0">
-        <OverlayTrigger
-          placement="right"
-          overlay={
-            <Tooltip id={version.tag_or_hash}>
-              When this codelist version was added to OpenCodelists
-            </Tooltip>
-          }
-        >
-          <abbr className="font-weight-bold">Created</abbr>
-        </OverlayTrigger>
-        : {createdDate} at {createdTime}
-      </span>
-    </ListGroup.Item>
+      <div className="created d-block p-0 mt-1">
+        <span className="font-weight-bold">Added to OpenCodelists</span>
+        <span className="d-block">
+          {createdDate} at {createdTime}
+        </span>
+      </div>
+    </li>
   );
 }
 
@@ -82,15 +66,13 @@ export default function Versions() {
   if (!versions?.length) return null;
 
   return (
-    <Card>
-      <Card.Header as="h2" className="h6 font-weight-bold">
-        Versions
-      </Card.Header>
-      <ListGroup variant="flush" className="sidebar-versions" as="ol">
+    <div className="card">
+      <h2 className="card-header h6 font-weight-bold">Versions</h2>
+      <ol className="list-group list-group-flush sidebar-versions">
         {versions.map((version) => (
           <Version key={version.tag_or_hash} version={version} />
         ))}
-      </ListGroup>
-    </Card>
+      </ol>
+    </div>
   );
 }

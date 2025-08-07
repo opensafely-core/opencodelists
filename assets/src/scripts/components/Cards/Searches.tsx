@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { Button, Card, Form, ListGroup } from "react-bootstrap";
 import { getCookie } from "../../_utils";
 import type { PageData } from "../../types";
 
@@ -31,68 +30,55 @@ export default function Searches({
   };
 
   return (
-    <Card>
-      <Card.Header as="h2" className="h6 font-weight-bold">
-        Previous searches
-      </Card.Header>
-      <ListGroup variant="flush">
+    <div className="card">
+      <h2 className="card-header h6 font-weight-bold">Previous searches</h2>
+      <div className="list-group list-group-flush">
         {searches.map((search) => (
-          <React.Fragment key={search.url}>
+          <a
+            className={`
+                list-group-item list-group-item-action
+                d-flex justify-content-between align-items-center
+                ${search.url === activeUrl ? "active" : ""}
+              `}
+            href={search.url}
+            key={search.url}
+            onClick={handleClick(search.url)}
+          >
+            <div className="break-word">{search.term_or_code}</div>
             {search.delete_url && isEditable ? (
-              <ListGroup.Item
-                action
-                active={search.url === activeUrl}
-                href={search.url}
-                onClick={handleClick(search.url)}
-              >
-                <Form
-                  action={search.delete_url}
-                  className="d-flex justify-content-between align-items-center"
-                  method="post"
+              <form action={search.delete_url} className="ml-2" method="post">
+                <input
+                  name="csrfmiddlewaretoken"
+                  type="hidden"
+                  className="form-control"
+                  value={getCookie("csrftoken")}
+                />
+                <button
+                  type="submit"
+                  aria-label="remove search"
+                  className={`
+                    btn btn-sm
+                    ${search.url === activeUrl ? "btn-light" : "btn-outline-danger"}
+                  `}
+                  name="delete-search"
                 >
-                  <Form.Control
-                    name="csrfmiddlewaretoken"
-                    type="hidden"
-                    value={getCookie("csrftoken")}
-                  />
-                  {search.term_or_code}
-                  <Button
-                    aria-label="remove search"
-                    className="ml-2"
-                    name="delete-search"
-                    type="submit"
-                    size="sm"
-                    variant={
-                      search.url === activeUrl ? "light" : "outline-danger"
-                    }
-                  >
-                    Remove
-                  </Button>
-                </Form>
-              </ListGroup.Item>
-            ) : (
-              <ListGroup.Item
-                action
-                active={search.active}
-                href={encodeURI(search.url)}
-              >
-                {search.term_or_code}
-              </ListGroup.Item>
-            )}
-          </React.Fragment>
+                  Remove
+                </button>
+              </form>
+            ) : null}
+          </a>
         ))}
 
         {searches.some((search) => search.active) ? (
-          <ListGroup.Item
-            action
-            className="font-italic"
+          <a
+            className="list-group-item list-group-item-action font-italic"
             href={encodeURI(draftURL)}
             onClick={handleClick(draftURL)}
           >
             show all
-          </ListGroup.Item>
+          </a>
         ) : null}
-      </ListGroup>
-    </Card>
+      </div>
+    </div>
   );
 }

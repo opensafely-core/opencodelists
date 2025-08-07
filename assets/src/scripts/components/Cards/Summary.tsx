@@ -1,5 +1,4 @@
 import React from "react";
-import { Card, ListGroup } from "react-bootstrap";
 import type { PageData } from "../../types";
 
 export interface SummaryProps {
@@ -24,61 +23,56 @@ export default function Summary({ counts, draftURL }: SummaryProps) {
     encodeURI(`${draftURL}?filter=${filter}`);
 
   return (
-    <Card>
-      <Card.Header as="h2" className="h6 font-weight-bold">
+    <div className="card">
+      <h2 className="card-header h6 font-weight-bold">
         Concepts found ({counts.total})
-      </Card.Header>
-      <ListGroup variant="flush">
+      </h2>
+      <div className="list-group list-group-flush">
         {counts["+"] > 0 && (
-          <ListGroup.Item
-            action
-            active={currentFilter === "included"}
+          <a
+            className={`list-group-item list-group-item-action ${currentFilter === "included" ? "active" : ""}`}
             href={itemHref("included")}
             id="summary-included"
           >
             {counts["+"] + counts["(+)"]} included concepts
-          </ListGroup.Item>
+          </a>
         )}
         {counts["-"] > 0 && (
-          <ListGroup.Item
-            action
-            active={currentFilter === "excluded"}
+          <a
+            className={`list-group-item list-group-item-action ${currentFilter === "excluded" ? "active" : ""}`}
             href={itemHref("excluded")}
             id="summary-excluded"
           >
             {counts["-"] + counts["(-)"]} excluded concepts
-          </ListGroup.Item>
+          </a>
         )}
         {counts["?"] > 0 && (
-          <ListGroup.Item
-            action
-            active={currentFilter === "unresolved"}
+          <a
+            className={`list-group-item list-group-item-action ${currentFilter === "unresolved" ? "active" : ""}`}
             href={itemHref("unresolved")}
             id="summary-unresolved"
           >
             {counts["?"]} unresolved concepts
-          </ListGroup.Item>
+          </a>
         )}
         {counts["!"] > 0 && (
-          <ListGroup.Item
-            action
-            active={currentFilter === "in-conflict"}
+          <a
+            className={`list-group-item list-group-item-action ${currentFilter === "in-conflict" ? "active" : ""}`}
             href={itemHref("in-conflict")}
             id="summary-in-conflict"
           >
             {counts["!"]} conflicted concepts
-          </ListGroup.Item>
+          </a>
         )}
         {currentFilter ? (
-          <ListGroup.Item
-            action
-            className="font-italic"
+          <a
+            className="list-group-item list-group-item-action font-italic"
             href={encodeURI(draftURL)}
           >
             show all {counts.total} matching concepts
-          </ListGroup.Item>
+          </a>
         ) : null}
-      </ListGroup>
-    </Card>
+      </div>
+    </div>
   );
 }

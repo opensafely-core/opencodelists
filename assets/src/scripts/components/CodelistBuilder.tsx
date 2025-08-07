@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import React from "react";
-import { Col, Row, Tab, Tabs } from "react-bootstrap";
+import { Tab, Tabs } from "react-bootstrap";
 import type { SelectCallback } from "react-bootstrap/esm/helpers";
 import type Hierarchy from "../_hierarchy";
 import { getCookie } from "../_utils";
@@ -201,7 +201,7 @@ export default class CodelistBuilder extends React.Component<
           metadata={metadata}
         />
 
-        <Row>
+        <div className="row">
           <Sidebar
             counts={this.counts()}
             draftURL={draftURL}
@@ -211,11 +211,11 @@ export default class CodelistBuilder extends React.Component<
           />
 
           {isEmptyCodelist ? (
-            <Col md="9">
+            <div className="col-md-9">
               <EmptyState />
-            </Col>
+            </div>
           ) : (
-            <Col md="9">
+            <div className="col-md-9">
               <Tabs
                 activeKey={this.state.activeTab}
                 onSelect={this.handleTabSelect}
@@ -242,9 +242,9 @@ export default class CodelistBuilder extends React.Component<
                   <MetadataTab />
                 </Tab>
               </Tabs>
-            </Col>
+            </div>
           )}
-        </Row>
+        </div>
         <ReactQueryDevtools />
       </QueryClientProvider>
     );

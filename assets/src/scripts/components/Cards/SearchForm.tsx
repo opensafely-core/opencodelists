@@ -1,8 +1,11 @@
 import React, { useState } from "react";
 import { getCookie, readValueFromPage } from "../../_utils";
+import type { BUILDER_CONFIG } from "../../types";
 
 export default function SearchForm() {
-  const codingSystemName = readValueFromPage("metadata")?.coding_system_name;
+  const {
+    coding_system: { name: codingSystemName },
+  }: BUILDER_CONFIG = readValueFromPage("builder-config");
   const searchURL = readValueFromPage("search-url");
 
   // NB, if you change the max search length, remember to change it on

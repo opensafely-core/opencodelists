@@ -29,6 +29,9 @@ def present_definition_for_download(clv):
     """Return rows for CSV download of a definition."""
 
     codeset = clv.codeset
+    if not codeset:
+        raise ValueError("Codelist version does not have a codeset")
+
     code_to_term = clv.coding_system.code_to_term(codeset.all_codes())
     rows = [
         (code, code_to_term[code], status)

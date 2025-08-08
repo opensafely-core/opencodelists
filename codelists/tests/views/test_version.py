@@ -141,3 +141,16 @@ def test_author_hyperlink_in_version_detail(client, user_codelist):
     # Check url exists
     assert f'href="{user_url}"'.encode() in rsp.content
     assert user_codelist.user.name.encode() in rsp.content
+
+
+def test_fork_hyperlink_in_version_detail(client, user_codelist):
+    version = user_codelist.latest_published_version()
+
+    # Get the version detail page
+    rsp = client.get(version.get_absolute_url())
+    assert rsp.status_code == 200
+
+    fork_url = version.codelist.get_fork_url()
+
+    # Check url exists
+    assert f'href="{fork_url}"'.encode() in rsp.content

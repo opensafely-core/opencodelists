@@ -120,6 +120,11 @@ class Codelist(models.Model):
             f"codelists:{self.codelist_type}_codelist_update", kwargs=self.url_kwargs
         )
 
+    def get_fork_url(self):
+        return reverse(
+            f"codelists:{self.codelist_type}_codelist_fork", kwargs=self.url_kwargs
+        )
+
     def get_version_upload_url(self):
         return reverse(
             f"codelists:{self.codelist_type}_version_upload", kwargs=self.url_kwargs

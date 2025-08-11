@@ -33,7 +33,6 @@ function renderCodelistBuilder(data, hierarchy, visiblePaths) {
       allCodes={data.all_codes}
       codeToStatus={data.code_to_status}
       codeToTerm={data.code_to_term}
-      draftURL={data.draft_url}
       hierarchy={hierarchy}
       isEditable={data.is_editable}
       isEmptyCodelist={data.is_empty_codelist}

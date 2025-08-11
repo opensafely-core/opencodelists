@@ -181,7 +181,6 @@ export default class CodelistBuilder extends React.Component<
     const {
       allCodes,
       codeToTerm,
-      draftURL,
       hierarchy,
       isEditable,
       isEmptyCodelist,
@@ -198,7 +197,6 @@ export default class CodelistBuilder extends React.Component<
         <div className="row">
           <Sidebar
             counts={this.counts()}
-            draftURL={draftURL}
             isEditable={isEditable}
             isEmptyCodelist={isEmptyCodelist}
             searches={searches}

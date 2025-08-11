@@ -1,5 +1,6 @@
 import React from "react";
-import type { PageData } from "../../types";
+import { readValueFromPage } from "../../_utils";
+import type { BUILDER_CONFIG } from "../../types";
 
 export interface SummaryProps {
   counts: {
@@ -11,16 +12,16 @@ export interface SummaryProps {
     "?": number;
     total: number;
   };
-  draftURL: PageData["draftURL"];
 }
 
-export default function Summary({ counts, draftURL }: SummaryProps) {
+export default function Summary({ counts }: SummaryProps) {
+  const { url }: BUILDER_CONFIG = readValueFromPage("builder-config");
   const currentFilter = new URLSearchParams(window.location.search).get(
     "filter",
   );
 
   const itemHref = (filter: string) =>
-    encodeURI(`${draftURL}?filter=${filter}`);
+    encodeURI(`${url.draft}?filter=${filter}`);
 
   return (
     <div className="card">
@@ -67,7 +68,7 @@ export default function Summary({ counts, draftURL }: SummaryProps) {
         {currentFilter ? (
           <a
             className="list-group-item list-group-item-action font-italic"
-            href={encodeURI(draftURL)}
+            href={encodeURI(url.draft)}
           >
             show all {counts.total} matching concepts
           </a>

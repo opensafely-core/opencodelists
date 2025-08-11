@@ -18,7 +18,6 @@ export interface PageData {
   allCodes: AllCodes;
   codeToStatus: { [key: string]: Status };
   codeToTerm: { [key: string]: string };
-  draftURL: string;
   isEditable: boolean;
   isEmptyCodelist: boolean;
   resultsHeading: string;
@@ -80,5 +79,10 @@ export interface BUILDER_CONFIG {
     is_editable: boolean;
     name: string;
     organisation: string | null;
+  };
+  url: {
+    draft: string;
+    search: string;
+    update: string;
   };
 }

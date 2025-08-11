@@ -462,9 +462,6 @@
     "73583000": "(+)"
   },
   "is_editable": true,
-  "draft_url": "/builder/23da730d/",
-  "update_url": "/builder/23da730d/update/",
-  "search_url": "/builder/23da730d/search/",
   "sort_by_term": true,
   "versions": [
     {
@@ -472,28 +469,28 @@
       "url": "/codelist/test-university/new-style-codelist/23da730d/",
       "status": "draft",
       "current": true,
-      "created_at": "2025-08-07 13:54:40.107141+00:00"
+      "created_at": "2025-08-07 16:19:35.958204+00:00"
     },
     {
       "tag_or_hash": "6c560cb6",
       "url": "/codelist/test-university/new-style-codelist/6c560cb6/",
       "status": "under review",
       "current": false,
-      "created_at": "2025-08-07 13:54:40.047857+00:00"
+      "created_at": "2025-08-07 16:19:35.900208+00:00"
     },
     {
       "tag_or_hash": "05657fec",
       "url": "/codelist/test-university/new-style-codelist/05657fec/",
       "status": "under review",
       "current": false,
-      "created_at": "2025-08-07 13:54:40.035254+00:00"
+      "created_at": "2025-08-07 16:19:35.887190+00:00"
     },
     {
       "tag_or_hash": "1e74f321",
       "url": "/codelist/test-university/new-style-codelist/1e74f321/",
       "status": "published",
       "current": false,
-      "created_at": "2025-08-07 13:54:40.029923+00:00"
+      "created_at": "2025-08-07 16:19:35.882339+00:00"
     }
   ],
   "metadata": {
@@ -534,6 +531,11 @@
       "is_editable": true,
       "name": "New-style Codelist",
       "organisation": "Test University"
+    },
+    "url": {
+      "draft": "/builder/23da730d/",
+      "search": "/builder/23da730d/search/",
+      "update": "/builder/23da730d/update/"
     }
   }
 }

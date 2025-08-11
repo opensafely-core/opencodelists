@@ -1,9 +1,8 @@
 import React, { useState } from "react";
-import { getCookie } from "../../_utils";
-import type { PageData } from "../../types";
+import { getCookie, readValueFromPage } from "../../_utils";
+import type { BUILDER_CONFIG, PageData } from "../../types";
 
 export interface SearchesProps {
-  draftURL: PageData["draftURL"];
   isEditable: PageData["isEditable"];
   searches: {
     active: boolean;
@@ -13,11 +12,8 @@ export interface SearchesProps {
   }[];
 }
 
-export default function Searches({
-  draftURL,
-  isEditable,
-  searches,
-}: SearchesProps) {
+export default function Searches({ isEditable, searches }: SearchesProps) {
+  const { url }: BUILDER_CONFIG = readValueFromPage("builder-config");
   const [activeUrl, setActiveUrl] = useState<string>(
     () => searches.find((search) => search.active)?.url || "",
   );
@@ -72,8 +68,8 @@ export default function Searches({
         {searches.some((search) => search.active) ? (
           <a
             className="list-group-item list-group-item-action font-italic"
-            href={encodeURI(draftURL)}
-            onClick={handleClick(draftURL)}
+            href={encodeURI(url.draft)}
+            onClick={handleClick(url.draft)}
           >
             show all
           </a>

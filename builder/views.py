@@ -175,10 +175,6 @@ def _draft(request, draft, search_id):
         # errors
         results_heading = ""
 
-    draft_url = draft.get_builder_draft_url()
-    update_url = draft.get_builder_update_url()
-    search_url = draft.get_builder_new_search_url()
-
     versions = [
         {
             "tag_or_hash": v.tag_or_hash,
@@ -234,6 +230,11 @@ def _draft(request, draft, search_id):
                 codelist.organisation.name if codelist.organisation else None
             ),
         },
+        "url": {
+            "draft": draft.get_builder_draft_url(),
+            "search": draft.get_builder_new_search_url(),
+            "update": draft.get_builder_update_url(),
+        },
     }
 
     ctx = {
@@ -253,9 +254,6 @@ def _draft(request, draft, search_id):
         "code_to_term": code_to_term,
         "code_to_status": codeset.code_to_status,
         "is_editable": request.user == draft.author,
-        "draft_url": draft_url,
-        "update_url": update_url,
-        "search_url": search_url,
         "sort_by_term": coding_system.sort_by_term,
         "versions": versions,
         "metadata": metadata,

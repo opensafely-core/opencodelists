@@ -32,7 +32,6 @@ if (container) {
         allCodes={readValueFromPage("all-codes")}
         codeToStatus={codeToStatus}
         codeToTerm={codeToTerm}
-        draftURL={readValueFromPage("draft-url")}
         hierarchy={hierarchy}
         isEditable={readValueFromPage("is-editable")}
         isEmptyCodelist={readValueFromPage("is-empty-codelist")}

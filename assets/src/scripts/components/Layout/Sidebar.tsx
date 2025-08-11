@@ -7,26 +7,20 @@ import Versions from "../Cards/Versions";
 
 export default function Sidebar({
   counts,
-  draftURL,
   isEditable,
   isEmptyCodelist,
   searches,
 }: {
   counts: SummaryProps["counts"];
-  draftURL: string;
   isEditable: boolean;
   isEmptyCodelist: boolean;
   searches: SearchesProps["searches"];
 }) {
   return (
     <div className="col-md-3 builder__sidebar">
-      {!isEmptyCodelist && <Summary counts={counts} draftURL={draftURL} />}
+      {!isEmptyCodelist && <Summary counts={counts} />}
       {searches.length > 0 && (
-        <Searches
-          draftURL={draftURL}
-          isEditable={isEditable}
-          searches={searches}
-        />
+        <Searches isEditable={isEditable} searches={searches} />
       )}
       {isEditable && <SearchForm />}
       {!isEmptyCodelist && <Versions />}

@@ -21,7 +21,6 @@ describe("Search Component", () => {
   ];
 
   const baseProps = {
-    draftURL: "/draft/",
     searches: mockSearches,
   };
 

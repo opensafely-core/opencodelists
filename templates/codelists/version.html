@@ -208,13 +208,23 @@
               </div>
             {% endif %}
           {% else %}
-            <a
-              href="{{ clv.get_download_url }}"
-              role="button"
-              class="btn btn-outline-primary btn-block"
-            >
-              Download CSV
-            </a>
+            {% if clv.downloadable %}
+              <a
+                href="{{ clv.get_download_url }}"
+                role="button"
+                class="btn btn-outline-primary btn-block"
+              >
+                Download CSV
+              </a>
+            {% elif user_can_edit %}
+              <div class="btn btn-outline-primary btn-block disabled"
+                   data-toggle="tooltip"
+                   data-placement="right"
+                   title="This codelist cannot be downloaded, most likely because it's header does not contain a 'code' column. You can upload a new version if you want to fix this."
+              >
+                Download CSV
+              </div>
+            {% endif %}
           {% endif %}
           {% if clv.coding_system_id == "dmd" %}
             <a

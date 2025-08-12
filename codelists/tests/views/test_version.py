@@ -1,3 +1,5 @@
+import re
+
 from django.urls import reverse
 
 from builder.actions import save as save_for_review
@@ -141,3 +143,43 @@ def test_author_hyperlink_in_version_detail(client, user_codelist):
     # Check url exists
     assert f'href="{user_url}"'.encode() in rsp.content
     assert user_codelist.user.name.encode() in rsp.content
+
+
+def test_download_disabled_for_codelist_author_for_undownloadable_version(
+    client, organisation_user, null_codelist
+):
+    """Test that the download CSV button is disabled for codelist authors
+    when the codelist is not downloadable."""
+    version = null_codelist.versions.first()
+    version.csv_data = "header,without,correct,columns\n1,2,3,4\n5,6,7,8"
+    version.save()
+
+    client.force_login(organisation_user)
+
+    rsp = client.get(version.get_absolute_url())
+    assert rsp.status_code == 200
+
+    # The button (and tooltip) is present...
+    assert b"Download CSV" in rsp.content
+    assert b"This codelist cannot be downloaded" in rsp.content
+
+    # ...but disabled
+    content = rsp.content.decode("utf-8")
+    disabled_csv_pattern = r"disabled[^>]*>\s*Download CSV"
+    assert re.search(disabled_csv_pattern, content, re.DOTALL)
+
+
+def test_download_not_visible_for_non_codelist_for_undownloadable_version(
+    client, null_codelist
+):
+    """Test that the download CSV button is not visible for non-codelist authors."""
+    version = null_codelist.versions.first()
+    version.csv_data = "header,without,correct,columns\n1,2,3,4\n5,6,7,8"
+    version.save()
+
+    rsp = client.get(version.get_absolute_url())
+    assert rsp.status_code == 200
+
+    # The button and tooltip are not present
+    assert b"Download CSV" not in rsp.content
+    assert b"This codelist cannot be downloaded" not in rsp.content

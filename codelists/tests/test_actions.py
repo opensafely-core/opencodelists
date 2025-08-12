@@ -1,9 +1,18 @@
 import pytest
 from django.db import IntegrityError
+from django.db.models.fields import reverse_related
 
 from codelists import actions
 from codelists.coding_systems import most_recent_database_alias
-from codelists.models import Codelist, CodelistVersion
+from codelists.models import (
+    CachedHierarchy,
+    Codelist,
+    CodelistVersion,
+    CodeObj,
+    Search,
+    SearchResult,
+    Status,
+)
 from mappings.bnfdmd.models import Mapping as BnfDmdMapping
 from opencodelists.tests.assertions import assert_difference, assert_no_difference
 
@@ -679,3 +688,96 @@ def test_update_codelist_change_slug(
     codelist.refresh_from_db()
 
     assert codelist.handles.filter(slug="changed-slug").count() == 1
+
+
+def test_clone_codelist(new_style_codelist, user, collaborator):
+    new_style_codelist.methodology = "Test"
+    new_style_version = new_style_codelist.latest_visible_version(collaborator)
+
+    expected_version_count = CodelistVersion.objects.count() + 1
+    expected_cached_hierarchy_count = CachedHierarchy.objects.count() + 1
+    expected_codeobj_count = (
+        CodeObj.objects.count() + new_style_version.code_objs.count()
+    )
+    expected_search_count = Search.objects.count() + new_style_version.searches.count()
+    expected_searchresult_count = SearchResult.objects.count()
+    for search in new_style_version.searches.all():
+        expected_searchresult_count += search.results.count()
+
+    cloned_codelist = actions.clone_codelist(new_style_codelist, collaborator)
+
+    assert cloned_codelist.owner == collaborator
+
+    # check no references to the source codelist's versions in the clone
+    assert (
+        set(new_style_codelist.versions.all()).intersection(
+            cloned_codelist.versions.all()
+        )
+        == set()
+    )
+
+    # check methodology is retained alongside reference to source
+    assert new_style_codelist.methodology in cloned_codelist.methodology
+    assert new_style_version.get_absolute_url() in cloned_codelist.methodology
+
+    # check references to References are not the same, but the content is
+    assert (
+        set(new_style_codelist.references.all()).intersection(
+            cloned_codelist.references.all()
+        )
+        == set()
+    )
+    assert set(r.text for r in new_style_codelist.references.all()) == set(
+        r.text for r in cloned_codelist.references.all()
+    )
+    assert set(r.url for r in new_style_codelist.references.all()) == set(
+        r.url for r in cloned_codelist.references.all()
+    )
+
+    # check cloned codelist version
+    assert cloned_codelist.versions.count() == 1
+    cloned_version = cloned_codelist.versions.first()
+    assert cloned_version.status == Status.UNDER_REVIEW
+    assert cloned_version.created_at != new_style_version.created_at
+    assert cloned_version.updated_at != new_style_version.updated_at
+
+    # check no references to source codelist version's related objects in clone
+    # but count is the same
+    for field in CodelistVersion._meta.get_fields():
+        match field.__class__:
+            case reverse_related.OneToOneRel:
+                source = getattr(new_style_version, field.name)
+                clone = getattr(cloned_version, field.name)
+                assert clone is not None
+                assert source != clone
+            case reverse_related.ManyToOneRel:
+                source = set(getattr(new_style_version, field.name).all())
+                clone = set(getattr(cloned_version, field.name).all())
+                assert source.intersection(clone) == set()
+                assert len(source) == len(clone)
+
+    # check searches/code obj multiple relations
+    for cloned_search in cloned_version.searches.all():
+        original_search = new_style_version.searches.get(slug=cloned_search.slug)
+        assert cloned_search.results.count() == original_search.results.count()
+        for result in cloned_search.results.all():
+            assert result.code_obj in cloned_version.code_objs.all()
+
+    # check we've made the right number of objects
+    assert CodelistVersion.objects.count() == expected_version_count
+    assert CodeObj.objects.count() == expected_codeobj_count
+    assert Search.objects.count() == expected_search_count
+    assert SearchResult.objects.count() == expected_searchresult_count
+    assert CachedHierarchy.objects.count() == expected_cached_hierarchy_count
+
+
+def test_clone_codelist_user_own_codelist(user_codelist, organisation_user):
+    cloned_codelist = actions.clone_codelist(user_codelist, organisation_user)
+
+    assert user_codelist.name in cloned_codelist.name
+    assert "clone" in cloned_codelist.name
+
+    clone2 = actions.clone_codelist(user_codelist, organisation_user)
+
+    assert user_codelist.name in clone2.name
+    assert "clone1" in clone2.name

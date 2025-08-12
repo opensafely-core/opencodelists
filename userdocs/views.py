@@ -21,6 +21,7 @@ doc_sections = [
     "selecting-appropriate-codes",
     "editing-a-codelist",
     "viewing-your-codelists",
+    "cloning-a-codelist",
     "diffing-codelists",
     "converting-pseudo-bnf-codelists-to-dmd",
     "using-a-codelist-in-opensafely-research",

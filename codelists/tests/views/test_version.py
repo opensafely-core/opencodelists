@@ -183,3 +183,16 @@ def test_download_not_visible_for_non_codelist_for_undownloadable_version(
     # The button and tooltip are not present
     assert b"Download CSV" not in rsp.content
     assert b"This codelist cannot be downloaded" not in rsp.content
+
+
+def test_clone_hyperlink_in_version_detail(client, user_codelist):
+    version = user_codelist.latest_published_version()
+
+    # Get the version detail page
+    rsp = client.get(version.get_absolute_url())
+    assert rsp.status_code == 200
+
+    clone_url = version.codelist.get_clone_url()
+
+    # Check url exists
+    assert f'href="{clone_url}"'.encode() in rsp.content

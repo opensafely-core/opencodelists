@@ -50,7 +50,13 @@ def _handle_post(request, draft):
             messages.add_message(
                 request,
                 messages.ERROR,
-                "You cannot save this draft for review because it contains unresolved or in conflict codes.",
+                (
+                    "You cannot save this draft for review because it contains "
+                    "unresolved or in conflict codes. Please review the codes "
+                    "below and include or exclude them as appropriate. This "
+                    "error can arise when there is a problem with OpenCodelists, "
+                    "so if it continues to not work, please try again later."
+                ),
             )
             return redirect(draft.codelist)
         messages.add_message(

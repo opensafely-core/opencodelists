@@ -511,23 +511,15 @@ def test_create_search_codes_over_limit(version_from_scratch):
     assert "term-returning-loads" in result["message"]
 
 
-def test_cannot_save_with_unresolved_codes(draft_with_complete_searches):
+@pytest.mark.parametrize(
+    "incomplete_code_status", ["?", "!"], ids=["unresolved_code", "conflict_code"]
+)
+def test_cannot_save_with_incomplete_code_status(
+    draft_with_complete_searches, incomplete_code_status
+):
     draft = draft_with_complete_searches
     code_obj = draft.code_objs.first()
-    code_obj.status = "?"
-    code_obj.save()
-
-    with pytest.raises(actions.DraftNotReadyError):
-        actions.save(draft=draft)
-
-    draft.refresh_from_db()
-    assert draft.is_draft
-
-
-def test_cannot_save_with_in_conflict_codes(draft_with_complete_searches):
-    draft = draft_with_complete_searches
-    code_obj = draft.code_objs.first()
-    code_obj.status = "!"
+    code_obj.status = incomplete_code_status
     code_obj.save()
 
     with pytest.raises(actions.DraftNotReadyError):

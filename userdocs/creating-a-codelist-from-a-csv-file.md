@@ -6,7 +6,11 @@ From the _My codelists_ page, click _Create a codelist_.
 
 1. Choose a name for the codelist.
 1. Select a coding system.
+1. Press the `+` next to "Upload CSV" in the "Upload a CSV" section to show the CSV upload options.
 1. Choose a file to upload from your hard drive.
+1. Specify whether or not your CSV has a header row or not.
+
+        create-new-codelist-page-csv.png
 
 To create an OPCS-4 codelist, please see the [notes elsewhere on this documentation page](#adding-an-opcs-4-codelist).
 
@@ -18,7 +22,7 @@ If you are a member of an organisation, you can also choose an owner for the cod
 
 * Store the final codelist in CSV format.
 * Store codes in exactly one column.
-* Remove the header row. Standardised headers will automatically be added for you.
+* Check whether or not your codelist has a header row: you will need to specify this on upload.
 * There is currently a soft requirement that the first column must contain codes in the chosen coding system. These should preferably be named according to the CSV column names provided in the table above. (We plan to eventually remove this requirement.) The second column is typically a text description of the code.
 
 ### More about codelist columns

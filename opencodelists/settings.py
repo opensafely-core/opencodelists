@@ -81,6 +81,8 @@ if IN_PRODUCTION:
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
 
+TAKE_SCREENSHOTS = os.environ.get("TAKE_SCREENSHOTS", default=False) == "True"
+
 # https://docs.djangoproject.com/en/4.0/ref/settings/#std:setting-CSRF_TRUSTED_ORIGINS
 CSRF_TRUSTED_ORIGINS = BASE_URLS
 
@@ -156,6 +158,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "opencodelists.context_processors.in_production",
+                "opencodelists.context_processors.take_screenshots",
             ],
             "builtins": ["slippers.templatetags.slippers"],
         },

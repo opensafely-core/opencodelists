@@ -588,3 +588,24 @@ def test_edit_long_description(client, draft_with_some_searches):
     rsp = client.get(draft_with_some_searches.get_builder_draft_url())
     assert rsp.status_code == 200
     assert f'max_length": {description_max_length}'.encode() in rsp.content
+
+
+def test_post_save_for_review_unresolved_codes(client, draft_with_complete_searches):
+    """Saving for review with unresolved codes should fail gracefully."""
+    draft = draft_with_complete_searches
+    # Introduce an unresolved code
+    code_obj = draft.code_objs.first()
+    code_obj.status = "?"
+    code_obj.save()
+
+    client.force_login(draft.author)
+    rsp = client.post(
+        draft.get_builder_draft_url(), {"action": "save-for-review"}, follow=True
+    )
+
+    # Redirects back to the draft (not to the version detail page)
+    assert rsp.redirect_chain[-1][0] == draft.get_builder_draft_url()
+
+    draft.refresh_from_db()
+    assert draft.is_draft
+    assert b"You cannot save this draft" in rsp.content

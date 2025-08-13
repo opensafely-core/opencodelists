@@ -44,7 +44,21 @@ def no_search_term(request, draft):
 def _handle_post(request, draft):
     action = request.POST["action"]
     if action == "save-for-review":
-        actions.save(draft=draft)
+        try:
+            actions.save(draft=draft)
+        except actions.DraftNotReadyError:
+            messages.add_message(
+                request,
+                messages.ERROR,
+                (
+                    "You cannot save this draft for review because it contains "
+                    "unresolved or in conflict codes. Please review the codes "
+                    "below and include or exclude them as appropriate. This "
+                    "error can arise when there is a problem with OpenCodelists, "
+                    "so if it continues to not work, please try again later."
+                ),
+            )
+            return redirect(draft.codelist)
         messages.add_message(
             request, messages.INFO, "A new version has been saved for review"
         )

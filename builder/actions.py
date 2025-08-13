@@ -10,6 +10,10 @@ from coding_systems.base.import_data_utils import check_and_update_compatibile_v
 from coding_systems.versioning.models import CodingSystemRelease
 
 
+class DraftNotReadyError(Exception):
+    pass
+
+
 logger = structlog.get_logger()
 
 
@@ -180,7 +184,8 @@ def save(*, draft):
     under review.
     """
 
-    assert not draft.code_objs.filter(status__in=["?", "!"]).exists()
+    if draft.code_objs.filter(status__in=["?", "!"]).exists():
+        raise DraftNotReadyError()
     draft.status = Status.UNDER_REVIEW
     draft.save()
 

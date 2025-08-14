@@ -874,7 +874,6 @@ pip==25.0.1 \
     --hash=sha256:88f96547ea48b940a3a385494e181e29fb8637898f88d88737c5049780f196ea \
     --hash=sha256:c46efd13b6aa8279f33f2864459c8ce587ea6a1a59ee20de055868d8f7688f7f
     # via
-    #   -r requirements.dev.in
     #   litecli
     #   pip-tools
 setuptools==80.9.0 \

@@ -228,6 +228,16 @@ def test_generate_org_user_screen_shots(
         full_page=True,
     )
 
+    # Codelist creation page with CSV upload option shown.
+    page.locator("summary", has_text="Upload CSV").click()
+
+    screenshot_element_with_padding(
+        page,
+        page.locator('h2:text("Upload a CSV")').locator("..").locator(".."),
+        "create-new-codelist-page-csv.png",
+        extra={"x": 30, "width": -60, "y": 30, "height": -60},
+    )
+
     page.get_by_role("button", name="Create").click()
 
     # Initial codelist builder.

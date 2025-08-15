@@ -81,6 +81,8 @@ if IN_PRODUCTION:
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
 
+TAKE_SCREENSHOTS = os.environ.get("TAKE_SCREENSHOTS", default=False) == "True"
+
 # https://docs.djangoproject.com/en/4.0/ref/settings/#std:setting-CSRF_TRUSTED_ORIGINS
 CSRF_TRUSTED_ORIGINS = BASE_URLS
 
@@ -161,6 +163,11 @@ TEMPLATES = [
         },
     },
 ]
+
+if TAKE_SCREENSHOTS:
+    TEMPLATES[0]["OPTIONS"]["context_processors"].append(
+        "opencodelists.context_processors.take_screenshots"
+    )
 
 WSGI_APPLICATION = "opencodelists.wsgi.application"
 

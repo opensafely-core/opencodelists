@@ -153,6 +153,31 @@ description_help_text = (
     "<li>This codelist aims to identify SSRIs that are more likely to be prescribed in obsessive compulsive disorder</li>"
     "</ul>"
 )
+methodology_help_text = (
+    "<p>A longer description of how the codelist was created, its intended use, and any "
+    "relevant background information. It will be shown on the codelist page and help users understand "
+    "the codelist's purpose and context. This field supports "
+    "<a href='https://www.markdownguide.org/basic-syntax/' target='_blank' rel='noopener noreferrer'>markdown formatting</a>.</p>"
+)
+methodology_initial_help_text = methodology_help_text + (
+    "<p>The above is a markdown template with a suggested structure for your metadata. "
+    "We recommend keeping the subheadings, and replacing the text beneath each one. These "
+    "subheadings are generally seen as useful things to capture, but don't always apply, so "
+    "feel free to delete as appropriate, or add additional ones.</p>"
+)
+methodology_template = (
+    "# Context\n\n"
+    "Is this for a specific purpose or context, if so what, or could it be used more broadly?\n\n"
+    "# Inclusion/exclusion criteria\n\n"
+    "Describe the inclusion and exclusion criteria used to define the codelist.\n\n"
+    "# Borderline cases\n\n"
+    "List any codes which were considered borderline, and explain why they were included/excluded.\n\n"
+    "# Sensitivity vs specificity\n\n"
+    "Is the aim of this codelist to be specific (e.g. hypertension via confirmed diagnosis codes), "
+    "or sensitive (e.g. flu via potential symptom codes)?\n\n"
+    "# Additional information\n\n"
+    "Any other relevant information about the codelist."
+)
 
 
 class CodelistCreateForm(forms.Form, CSVValidationMixin):
@@ -164,7 +189,12 @@ class CodelistCreateForm(forms.Form, CSVValidationMixin):
         help_text=description_help_text,
         widget=forms.Textarea(attrs={"maxlength": description_max_length}),
     )
-    methodology = form_field_from_model(Codelist, "methodology")
+    methodology = form_field_from_model(
+        Codelist,
+        "methodology",
+        help_text=methodology_initial_help_text,
+        initial=methodology_template,
+    )
     csv_data = forms.FileField(label="CSV data")
 
     def __init__(self, *args, **kwargs):
@@ -183,7 +213,12 @@ class CodelistUpdateForm(forms.Form):
         help_text=description_help_text,
         widget=forms.Textarea(attrs={"maxlength": description_max_length}),
     )
-    methodology = form_field_from_model(Codelist, "methodology")
+    methodology = form_field_from_model(
+        Codelist,
+        "methodology",
+        help_text=methodology_initial_help_text,
+        initial=methodology_template,
+    )
 
     def __init__(self, *args, **kwargs):
         self.helper = FormHelper()
@@ -192,14 +227,29 @@ class CodelistUpdateForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.fields["owner"].choices = owner_choices
 
-        # Remove maxlength if initial description is too long so that
-        # we can support old descriptions that exceed the limit.
-        desc_field = self.fields["description"]
-        initial_desc = self.data.get("description")
-        if initial_desc:
-            normalized_desc = initial_desc.replace("\r\n", "\n").replace("\r", "\n")
-            if len(normalized_desc) > description_max_length:
-                desc_field.widget.attrs.pop("maxlength", None)
+        # If this form is not bound (i.e., no POST data)
+        if not self.is_bound:
+            # Remove maxlength if initial description is too long so that
+            # we can support old descriptions that exceed the limit.
+            desc_field = self.fields["description"]
+            initial_desc = self.initial.get("description")
+            if initial_desc:
+                normalized_desc = initial_desc.replace("\r\n", "\n").replace("\r", "\n")
+                if len(normalized_desc) > description_max_length:
+                    desc_field.widget.attrs.pop("maxlength", None)
+
+            # If the methodology is not set, use the template
+            methodology_initial = self.initial.get("methodology", "")
+            if methodology_initial == "":
+                self.initial["methodology"] = methodology_template
+
+            # Change the help text if the methodology is not the template i.e. edited by the user
+            if methodology_initial:
+                normalized_methodology = methodology_initial.replace(
+                    "\r\n", "\n"
+                ).replace("\r", "\n")
+                if normalized_methodology != methodology_template:
+                    self.fields["methodology"].help_text = methodology_help_text
 
     def clean_owner(self):
         owner_identifier = self.cleaned_data["owner"]

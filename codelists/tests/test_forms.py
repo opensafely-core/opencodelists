@@ -4,7 +4,12 @@ import pytest
 from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import SimpleUploadedFile
 
-from codelists.forms import CSVValidationMixin, SignOffForm
+from codelists.forms import (
+    CodelistUpdateForm,
+    CSVValidationMixin,
+    SignOffForm,
+    methodology_template,
+)
 from coding_systems.versioning.models import CodingSystemRelease, ReleaseState
 from opencodelists.models import User
 
@@ -197,3 +202,46 @@ def test_signoff_form_ordered_by_username(
         "eve",
         "Fred",
     ]
+
+
+def test_codelist_update_form_methodology_initial_values():
+    """Test methodology field initial value behavior in different scenarios"""
+
+    # (1) A new form has the methodology set to the template
+    form1 = CodelistUpdateForm(owner_choices=[])
+    assert form1.fields["methodology"].initial == methodology_template
+
+    # (2) A form with methodology initial set to "" ends up with initial set to the template
+    form2 = CodelistUpdateForm(owner_choices=[], initial={"methodology": ""})
+    assert form2.initial["methodology"] == methodology_template
+
+    # (3) A form with a non-blank methodology has that as the initial value
+    custom_methodology = "This is a custom methodology that the user has written."
+    form3 = CodelistUpdateForm(
+        owner_choices=[], initial={"methodology": custom_methodology}
+    )
+    assert form3.initial["methodology"] == custom_methodology
+
+
+def test_codelist_update_form_methodology_help_text():
+    """Test that help text changes when methodology is not the template"""
+
+    # Form with template methodology should have initial help text
+    form1 = CodelistUpdateForm(owner_choices=[])
+    initial_help_text = form1.fields["methodology"].help_text
+
+    # Form with blank methodology should have the same initial help text
+    form2 = CodelistUpdateForm(owner_choices=[], initial={"methodology": ""})
+    assert form2.fields["methodology"].help_text == initial_help_text
+
+    # Form with custom methodology should have different help text
+    form3 = CodelistUpdateForm(
+        owner_choices=[], initial={"methodology": "Non blank methodology"}
+    )
+    assert form3.fields["methodology"].help_text != initial_help_text
+
+    # Form with unchanged template should have same help text
+    form4 = CodelistUpdateForm(
+        owner_choices=[], initial={"methodology": methodology_template}
+    )
+    assert form4.fields["methodology"].help_text == initial_help_text

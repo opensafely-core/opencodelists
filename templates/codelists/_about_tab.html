@@ -1,5 +1,24 @@
 {% load markdown_filter %}
 
+<style>
+  .about__markdown h1{
+    font-size: 1.2rem;
+  }
+
+  .about__markdown h2 {
+    font-size: 1.1rem;
+  }
+
+  .about__markdown h3,
+  .about__markdown h4,
+  .about__markdown h5,
+  .about__markdown h6 {
+    font-size: 1.1rem;
+    font-style: italic;
+    font-weight: normal;
+  }
+</style>
+
 <div class="tab-about h-100 d-flex flex-column">
   <h2 class="sr-only">About</h2>
   {% if codelist.description %}
@@ -9,7 +28,9 @@
 
   {% if codelist.methodology %}
     <h3 class="h4">Methodology</h3>
-    <p>{{ codelist.methodology|markdown_filter|safe }}</p>
+    <div class="about__markdown">
+      {{ codelist.methodology|markdown_filter|safe }}
+    </div>
   {% endif %}
 
   {% if references %}

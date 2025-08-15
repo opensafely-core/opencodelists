@@ -41,6 +41,29 @@
   margin-bottom: 0;
 }
 
+/*
+The headings inside the builder markdown are already
+under a header, so should be suitably smaller. It seems
+unlikely someone would need all 6 heading levels, so we
+just use the first 3.
+*/
+.builder__markdown h1 {
+  font-size: 1.25rem;
+}
+
+.builder__markdown h2 {
+  font-size: 1.1rem;
+}
+
+.builder__markdown h3,
+.builder__markdown h4,
+.builder__markdown h5,
+.builder__markdown h6 {
+  font-size: 1.1rem;
+  font-style: italic;
+  font-weight: normal;
+}
+
 .builder__metadata-forms {
   display: flex;
   flex-direction: column;

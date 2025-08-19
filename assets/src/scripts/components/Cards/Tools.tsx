@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { readValueFromPage } from "../../_utils";
-import listOfTools from "../../data/tools.json";
+import listOfTools from "../../data/tools.json" with { type: "json" };
 
 export default function Tools() {
   const codingSystemId: string =

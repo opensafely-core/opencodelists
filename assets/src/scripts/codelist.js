@@ -7,7 +7,7 @@ const addForm = (name, event) => {
   $(`#add-${name}`).before(newForm);
 
   // Update the number of total forms
-  $(`#id_${name}-TOTAL_FORMS`).val(parseInt(formIndex) + 1);
+  $(`#id_${name}-TOTAL_FORMS`).val(parseInt(formIndex, 10) + 1);
 
   event.preventDefault();
 };

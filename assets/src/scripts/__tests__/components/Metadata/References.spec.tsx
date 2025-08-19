@@ -43,9 +43,9 @@ function scriptTagSetup({
 }
 
 function cleanupScriptTags() {
-  ["metadata", "update-url", "is-editable"].forEach((id) =>
-    document.getElementById(id)?.remove(),
-  );
+  ["metadata", "update-url", "is-editable"].forEach((id) => {
+    document.getElementById(id)?.remove();
+  });
 }
 
 function mockPostRequest(references: Reference[]) {

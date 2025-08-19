@@ -72,7 +72,6 @@ describe("Does not load", () => {
 
 describe("Anonymous users", () => {
   beforeEach(() => {
-    queryClient.clear();
     scriptTagSetup({
       isEditable: false,
       metadata: {
@@ -98,7 +97,6 @@ describe("Anonymous users", () => {
 
 describe("Interacting with Metadata forms", () => {
   beforeEach(() => {
-    queryClient.clear();
     scriptTagSetup({
       isEditable: true,
       metadata: {
@@ -280,9 +278,6 @@ describe("Interacting with Metadata forms", () => {
 });
 
 describe("Empty metadata", () => {
-  beforeEach(() => {
-    queryClient.clear();
-  });
   afterEach(() => cleanupScriptTags());
 
   it("renders the not provided message when no HTML is available", () => {

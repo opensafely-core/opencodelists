@@ -185,7 +185,22 @@ def test_download_not_visible_for_non_codelist_for_undownloadable_version(
     assert b"This codelist cannot be downloaded" not in rsp.content
 
 
-def test_clone_hyperlink_in_version_detail(client, user_codelist):
+def test_clone_hyperlink_in_organisation_published_version_detail(
+    client, new_style_codelist
+):
+    version = new_style_codelist.latest_published_version()
+
+    # Get the version detail page
+    rsp = client.get(version.get_absolute_url())
+    assert rsp.status_code == 200
+
+    clone_url = version.codelist.get_clone_url()
+
+    # Check url exists
+    assert f'href="{clone_url}"'.encode() in rsp.content
+
+
+def test_clone_hyperlink_in_user_published_version_detail(client, user_codelist):
     version = user_codelist.latest_published_version()
 
     # Get the version detail page
@@ -193,6 +208,45 @@ def test_clone_hyperlink_in_version_detail(client, user_codelist):
     assert rsp.status_code == 200
 
     clone_url = version.codelist.get_clone_url()
+
+    # Check url exists
+    assert f'href="{clone_url}"'.encode() in rsp.content
+
+
+def test_clone_hyperlink_not_in_draft_version_detail(client, minimal_draft):
+    # Get the version detail page (redirected)
+    rsp = client.get(minimal_draft.get_absolute_url())
+    assert rsp.status_code == 302
+
+    clone_url = minimal_draft.codelist.get_clone_url()
+
+    # Check url exists
+    assert f'href="{clone_url}"'.encode() not in rsp.content
+
+
+def test_clone_hyperlink_not_in_under_review_version_detail(
+    client, version_under_review
+):
+    # Get the version detail page
+    rsp = client.get(version_under_review.get_absolute_url())
+    assert rsp.status_code == 200
+
+    clone_url = version_under_review.codelist.get_clone_url()
+
+    # Check url exists
+    assert f'href="{clone_url}"'.encode() not in rsp.content
+
+
+def test_clone_hyperlink_in_editable_under_review_detail(
+    client, version_under_review, organisation_user
+):
+    force_login(organisation_user, client)
+
+    # Get the version detail page
+    rsp = client.get(version_under_review.get_absolute_url())
+    assert rsp.status_code == 200
+
+    clone_url = version_under_review.codelist.get_clone_url()
 
     # Check url exists
     assert f'href="{clone_url}"'.encode() in rsp.content

@@ -8,12 +8,15 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import MetadataForm from "../../../components/Metadata/MetadataForm";
 import type { IS_EDITABLE, METADATA, UPDATE_URL } from "../../../types";
 
-const queryClient = new QueryClient({
-  defaultOptions: { queries: { retry: false } },
-});
-const wrapper = ({ children }: { children: ReactNode }) => (
-  <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-);
+const wrapper = ({ children }: { children: ReactNode }) => {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+
+  return (
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  );
+};
 
 // biome-ignore lint/suspicious/noExplicitAny: we can pass in any data in this test
 function setScript(id: string, value: any) {

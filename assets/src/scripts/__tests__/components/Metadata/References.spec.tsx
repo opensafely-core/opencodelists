@@ -9,12 +9,15 @@ import References from "../../../components/Metadata/References";
 
 type Reference = { text: string; url: string };
 
-const queryClient = new QueryClient({
-  defaultOptions: { queries: { retry: false } },
-});
-const wrapper = ({ children }: { children: ReactNode }) => (
-  <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-);
+const wrapper = ({ children }: { children: ReactNode }) => {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+
+  return (
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  );
+};
 
 // biome-ignore lint/suspicious/noExplicitAny: we can pass in any data in this test
 function setScript(id: string, value: any) {

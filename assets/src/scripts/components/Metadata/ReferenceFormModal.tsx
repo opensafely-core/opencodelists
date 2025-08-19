@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/correctness/useUniqueElementIds: IDs required by Django */
 import React from "react";
 import { Modal } from "react-bootstrap";
 
@@ -34,6 +35,7 @@ export default function ReferenceFormModal({
       aria-labelledby="reference-edit-modal"
       centered
     >
+      {/** biome-ignore lint/a11y/noNoninteractiveElementInteractions: Form input has keydown */}
       <form onKeyDown={handleKeyDown} onReset={onReset} onSubmit={onSubmit}>
         <Modal.Header>
           <Modal.Title id="reference-edit-modal">

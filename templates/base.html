@@ -14,8 +14,8 @@
     <script
       defer
       data-domain="opencodelists.org"
-      event-is_logged_in="{% if user.is_authenticated %}true{% else %}false{% endif %}"
-      event-is_admin="{% if user.is_admin %}true{% else %}false{% endif %}"
+      event-is_logged_in="{% if request.user.is_authenticated %}true{% else %}false{% endif %}"
+      event-is_admin="{% if request.user.is_admin %}true{% else %}false{% endif %}"
       src="https://plausible.io/js/script.pageview-props.tagged-events.js"
     ></script>
     <script nonce="{{ request.csp_nonce }}">
@@ -69,7 +69,7 @@
               <li class="navbar-nav nav-item">
                 <a class="nav-link text-white" href="{% url 'user' request.user.username %}">My codelists</a>
               </li>
-              {% if user.memberships.exists %}
+              {% if request.user.memberships.exists %}
                 <li class="navbar-nav nav-item">
                   <a class="nav-link text-white" href="{% url 'organisations' %}">My organisations</a>
                 </li>

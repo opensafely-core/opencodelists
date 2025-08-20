@@ -244,7 +244,7 @@
               Download definition
             </a>
           {% endif %}
-          {% if clv.user %}
+          {% if clv.is_published or user_can_edit %}
             <a
               href="{{ clv.codelist.get_clone_url }}"
               role="button"

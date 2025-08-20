@@ -13,7 +13,7 @@
           {% url 'user' request.user.username as codelist_url %}
           {% nav_link title="My codelists" href=codelist_url %}
 
-          {% if user.memberships.exists %}
+          {% if request.user.memberships.exists %}
             {% url 'organisations' as organisations_url %}
             {% nav_link title="My organisations" href=organisations_url %}
           {% endif %}

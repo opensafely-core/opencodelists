@@ -1,12 +1,14 @@
-<li class="nav-item">
-  <a
-    class="nav-link{% if active %} active{% endif %}"
-    id="{{ tabname }}-tab"
-    data-toggle="tab"
-    href="#{{ tabname }}"
-    role="tab"
+<li class="nav-item" role="presentation">
+  <button
     aria-controls="{{ tabname }}"
-    aria-selected={{ active|yesno:"true,false" }}
-  >{{ label }}</a
-    >
-  </li>
+    aria-selected="{{ active|yesno:'true,false' }}"
+    class="nav-link font-weight-bold {% if active %}active{% else %}text-primary{% endif %}"
+    data-target="#{{ tabname }}"
+    data-toggle="tab"
+    id="{{ tabname }}-tab"
+    role="tab"
+    type="button"
+  >
+    {{ label }}
+  </button>
+</li>

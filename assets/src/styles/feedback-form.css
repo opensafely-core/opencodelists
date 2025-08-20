@@ -1,7 +1,7 @@
 .feedback-form {
   --color-green-50: oklch(98.2% 0.018 155.826);
-  --color-green-600: oklch(62.7% 0.194 149.214);
   --color-green-700: oklch(52.7% 0.154 150.069);
+  --color-green-800: oklch(44.8% 0.119 151.328);
 
   --color-blue-50: oklch(97% 0.014 254.604);
   --color-blue-700: oklch(48.8% 0.243 264.376);
@@ -26,7 +26,7 @@
 
 .feedback-form__summary {
   align-items: center;
-  background-color: var(--color-green-600);
+  background-color: var(--color-green-700);
   border-radius: 0.5rem;
   box-shadow: var(--shadow-sm);
   color: var(--color-green-50);
@@ -51,7 +51,7 @@
   }
 
   &:hover {
-    background-color: var(--color-green-700);
+    background-color: var(--color-green-800);
     color: white;
     transform: scale(1.05);
   }

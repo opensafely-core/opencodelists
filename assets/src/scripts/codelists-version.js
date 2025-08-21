@@ -15,24 +15,52 @@ $(() => {
   $("#js-codelist-table").DataTable({
     paging: false,
   });
+});
+/* v8 ignore end */
 
-  $('a[data-toggle="tab"]').on("click", function () {
-    var url = location.href.split("#")[0];
+const tabList = document.getElementById("tab-list");
+const tabNavButtons = tabList?.querySelectorAll(`button[data-toggle="tab"]`);
 
-    if ($(this).attr("href") !== "#about") {
-      url += $(this).attr("href");
-    }
+function setActiveTab(hash) {
+  // Show tab via Bootstrap's tab API
+  $(tabList).find(`[data-target="${hash}"]`).tab("show");
 
-    history.pushState(null, null, url);
+  // Reset all tab button styles
+  tabNavButtons.forEach((btn) => {
+    btn.classList.remove("active");
+    btn.classList.add("text-primary");
   });
 
-  switchToTab();
-});
-
-window.addEventListener("hashchange", switchToTab);
+  // Activate the correct tab button
+  const activeBtn = tabList.querySelector(`[data-target="${hash}"]`);
+  if (activeBtn) {
+    activeBtn.classList.add("active");
+    activeBtn.classList.remove("text-primary");
+  }
+}
 
 function switchToTab() {
-  var hash = location.hash || "#about";
-  $(`#tab-list a[href="${hash}"]`).tab("show");
+  setActiveTab(location.hash || "#about");
 }
-/* v8 ignore end */
+
+if (tabList && tabNavButtons.length) {
+  // Initialize on page load
+  switchToTab();
+
+  // Handle clicks + pushState
+  tabNavButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const baseUrl = location.origin + location.pathname;
+      const tabUrl = btn.dataset.target;
+      history.pushState(
+        null,
+        null,
+        tabUrl !== "#about" ? baseUrl + tabUrl : baseUrl,
+      );
+      setActiveTab(tabUrl);
+    });
+  });
+
+  // Handle back/forward navigation
+  window.addEventListener("hashchange", switchToTab);
+}

@@ -38,11 +38,13 @@
         <hr />
   {% endif %}
 
-  {% if organisation %}
-    <h3>{{ organisation.name }} codelists</h3>
-  {% else %}
-    <h3>All codelists</h3>
-  {% endif %}
+  <h2 class="h3">
+    {% if organisation %}
+      {{ organisation.name }} codelists
+    {% else %}
+      All codelists
+    {% endif %}
+  </h2>
   <br />
 
   {% include "codelists/_search_form.html" %}

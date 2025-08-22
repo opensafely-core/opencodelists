@@ -264,27 +264,26 @@
       {% endif %}
 
       {% if clv.coding_system_id == "bnf" %}
-        <form action="{{ clv.get_dmd_convert_url }}" method="POST">
-          {% csrf_token %}
-          <div class="btn-group-vertical d-block">
-            <a
-              href="{{ clv.get_dmd_download_url }}"
-              role="button"
-              class="btn btn-outline-primary"
-            >
-              Download dm+d
-            </a>
-            {% if user_can_edit %}
+        <div class="btn-group-vertical">
+          <a
+            href="{{ clv.get_dmd_download_url }}"
+            role="button"
+            class="btn btn-outline-primary btn-block"
+          >
+            Download dm+d
+          </a>
+          {% if user_can_edit %}
+            <form action="{{ clv.get_dmd_convert_url }}" class="btn-group" method="POST">
               <button
-                class="btn btn-outline-primary"
-                data-toggle="tooltip"
+                class="btn btn-outline-primary rounded-bottom"
                 title="Convert this version to a new dm+d codelist"
                 type="submit">
                 Convert to dm+d
               </button>
-            {% endif %}
-          </div>
-        </form>
+              {% csrf_token %}
+            </form>
+          {% endif %}
+        </div>
       {% endif %}
 
       {% if user_can_edit %}

@@ -308,6 +308,13 @@ def process_file_to_dataframe(filepath, config):
     for column in relevant_df_columns:
         codelist_df[column] = codelist_df[column].str.strip()
 
+    # Remove non-alphanumeric from code column
+    if config.get("strip_nonalphanumeric_from_codes", False):
+        codelist_df["code"] = codelist_df["code"].str.replace(
+            "[^a-zA-Z0-9]", "", regex=True
+        )
+        codelist_df = codelist_df.dropna(subset=["code"])
+
     return codelist_df
 
 

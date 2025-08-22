@@ -213,7 +213,7 @@
             </a>
           {% endif %}
 
-          {% if clv.user %}
+          {% if clv.is_published or user_can_edit %}
             <a class="btn btn-outline-primary" href="{{ clv.codelist.get_clone_url }}">
               Clone this codelist
             </a>
@@ -254,7 +254,7 @@
               </a>
             {% endif %}
 
-            {% if clv.user %}
+            {% if clv.is_published or user_can_edit %}
               <a class="btn btn-outline-primary" href="{{ clv.codelist.get_clone_url }}">
                 Clone this codelist
               </a>

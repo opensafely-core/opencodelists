@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/correctness/useUniqueElementIds: IDs required by Django */
 import React, { useEffect, useState } from "react";
 import { Modal, OverlayTrigger, Tooltip } from "react-bootstrap";
 import { getCookie } from "../../_utils";

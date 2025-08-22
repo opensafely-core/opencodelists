@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/correctness/useUniqueElementIds: IDs required by DOM */
 import React from "react";
 import type { PageData } from "../../types";
 

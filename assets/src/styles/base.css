@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/complexity/noImportantStyles: Overriding Bootstrap styles */
 @import "./_builder.css";
 @import "./_codelists_list.css";
 @import "./_tree.css";

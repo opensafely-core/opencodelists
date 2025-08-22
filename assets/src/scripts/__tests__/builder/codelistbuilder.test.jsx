@@ -156,7 +156,7 @@ it("does the right thing when clicking around", async () => {
         expect(document.querySelector(`#summary-${key}`)).toBe(null);
       } else {
         expect(
-          parseInt(document.querySelector(`#summary-${key}`).textContent),
+          parseInt(document.querySelector(`#summary-${key}`).textContent, 10),
         ).toBe(summaryCounts[key]);
       }
     });

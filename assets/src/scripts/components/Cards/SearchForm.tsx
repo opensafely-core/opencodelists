@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/correctness/useUniqueElementIds: IDs required by Django */
 import React, { useState } from "react";
 import { getCookie, readValueFromPage } from "../../_utils";
 

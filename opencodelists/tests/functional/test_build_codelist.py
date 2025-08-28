@@ -299,7 +299,7 @@ def verify_codelist_csv(navigator, search_actions, initial_page_navigation=True)
         navigator.go_to_codelist()
 
     with navigator.page.expect_download() as download_info:
-        navigator.page.get_by_role("button", name="Download CSV").click()
+        navigator.page.get_by_role("link", name="Download CSV").click()
 
     codelist_table_from_csv = {}
 

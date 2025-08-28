@@ -115,7 +115,8 @@ a:focus {
   row-gap: 1rem;
 }
 
-.version__sidebar {
+.version__sidebar,
+.versions__sidebar-buttons {
   display: flex;
   flex-direction: column;
   row-gap: 2rem;

@@ -101,8 +101,8 @@
       {% endif %}
     </div>
 
-    <section>
-      <h2 class="sr-only">Codelist metadata</h2>
+    <section aria-labelledby="metadata-heading">
+      <h2 class="sr-only" id="metadata-heading">Metadata</h2>
       <dl class="list-group list-group-horizontal small">
         <div class="list-group-item py-1 px-2">
           <dt>
@@ -190,105 +190,112 @@
 
   <div class="row">
     <div class="col-md-3 version__sidebar">
-      <form action="{{ clv.get_dmd_convert_url }}" method="POST">
-        {% csrf_token %}
-        <div class="btn-group-vertical btn-block" role="group">
-          {% if clv.coding_system_id == "dmd" %}
+
+      <section aria-labelledby="actions-heading" class="versions__sidebar-buttons">
+        <h2 class="sr-only" id="actions-heading">Actions</h2>
+        {% if clv.coding_system_id == "dmd" %}
+          <div class="btn-group-vertical">
             {% if clv.downloadable %}
-              <a
-                href="{{ clv.get_download_url }}"
-                role="button"
-                class="btn btn-outline-primary btn-block"
-              >
+              <a class="btn btn-outline-primary" href="{{ clv.get_download_url }}">
                 Download CSV <small class="d-block">with mapped VMPs*</small>
               </a>
             {% else %}
-              <div class="btn btn-outline-primary btn-block disabled">
+              <button class="btn btn-outline-primary btn-block" disabled type="button">
                 Download CSV <small class="d-block">with mapped VMPs*</small>
-              </div>
+              </button>
             {% endif %}
-          {% else %}
-            {% if clv.downloadable %}
-              <a
-                href="{{ clv.get_download_url }}"
-                role="button"
-                class="btn btn-outline-primary btn-block"
-              >
-                Download CSV
-              </a>
-            {% elif user_can_edit %}
-              <div class="btn btn-outline-primary btn-block disabled"
-                   data-toggle="tooltip"
-                   data-placement="right"
-                   title="This codelist cannot be downloaded, most likely because it's header does not contain a 'code' column. You can upload a new version if you want to fix this."
-              >
-                Download CSV
-              </div>
-            {% endif %}
-          {% endif %}
-          {% if clv.coding_system_id == "dmd" %}
-            <a
-              href="{{ clv.get_download_url }}?omit-mapped-vmps"
-              role="button"
-              class="btn btn-outline-primary btn-block"
-            >
+
+            <a class="btn btn-outline-primary" href="{{ clv.get_download_url }}?omit-mapped-vmps">
               Download CSV <small class="d-block">original</small>
             </a>
+
+            {% if clv.codeset %}
+              <a class="btn btn-outline-primary" href="{{ clv.get_download_definition_url }}">
+                Download definition
+              </a>
+            {% endif %}
+
+            {% if clv.is_published or user_can_edit %}
+              <a class="btn btn-outline-primary" href="{{ clv.codelist.get_clone_url }}">
+                Clone this codelist
+              </a>
+            {% endif %}
+          </div>
+        {% endif %}
+
+        {% if clv.coding_system_id != "dmd" %}
+          {% if user_can_edit or clv.codeset or clv.downloadable %}
+            <div class="btn-group-vertical" data-testid="not-dmd-buttons">
+              {% if clv.downloadable %}
+                <a
+                  class="btn btn-outline-primary"
+                  href="{{ clv.get_download_url }}"
+                >
+                  Download CSV
+                </a>
+              {% endif %}
+
+              {% if not clv.downloadable and user_can_edit %}
+                <span
+                  class="w-100"
+                  data-placement="right"
+                  data-toggle="tooltip"
+                  tabindex="0"
+                  title="This codelist cannot be downloaded, most likely because it's header does not contain a 'code' column. You can upload a new version if you want to fix this."
+                >
+                  <button class="btn btn-outline-primary" disabled>
+                    Download CSV
+                  </button>
+                </span>
+              {% endif %}
+
+              {% if clv.codeset %}
+                <a class="btn btn-outline-primary" href="{{ clv.get_download_definition_url }}">
+                  Download definition
+                </a>
+              {% endif %}
+
+              {% if clv.is_published or user_can_edit %}
+                <a class="btn btn-outline-primary" href="{{ clv.codelist.get_clone_url }}">
+                  Clone this codelist
+                </a>
+              {% endif %}
+            </div>
           {% endif %}
-          {% if clv.codeset %}
-            <a
-              href="{{ clv.get_download_definition_url }}"
-              role="button"
-              class="btn btn-outline-primary btn-block"
-            >
-              Download definition
-            </a>
-          {% endif %}
-          {% if clv.is_published or user_can_edit %}
-            <a
-              href="{{ clv.codelist.get_clone_url }}"
-              role="button"
-              class="btn btn-outline-primary btn-block"
-            >
-              Clone this codelist
-            </a>
-          {% endif %}
-          {% if clv.coding_system_id == "bnf" %}
+        {% endif %}
+
+        {% if clv.coding_system_id == "bnf" %}
+          <div class="btn-group-vertical">
             <a
               href="{{ clv.get_dmd_download_url }}"
-              role="button"
               class="btn btn-outline-primary btn-block"
             >
               Download dm+d
             </a>
             {% if user_can_edit %}
-              <button
-                type="submit"
-                role="button"
-                class="btn btn-outline-primary btn-block"
-                data-toggle="tooltip"
-                title="Convert this version to a new dm+d codelist">
-                Convert to dm+d
-              </button>
+              <form action="{{ clv.get_dmd_convert_url }}" class="btn-group" method="POST">
+                <button
+                  class="btn btn-outline-primary rounded-bottom"
+                  title="Convert this version to a new dm+d codelist"
+                  type="submit">
+                  Convert to dm+d
+                </button>
+                {% csrf_token %}
+              </form>
             {% endif %}
-          {% endif %}
-        </div>
-      </form>
+          </div>
+        {% endif %}
 
-
-      {% if user_can_edit %}
-        <div class="btn-group-vertical btn-block" role="group">
-          <a
-            class="btn btn-outline-primary btn-block"
-            href="{{ codelist.get_update_url }}">
+        {% if user_can_edit %}
+          <a class="btn btn-outline-primary" href="{{ codelist.get_update_url }}">
             Edit metadata
           </a>
-        </div>
-      {% endif %}
+        {% endif %}
+      </section>
 
       {% if versions %}
-        <div class="card">
-          <h2 class="card-header h6 font-weight-bold">Versions</h2>
+        <section class="card" aria-labelledby="versions-card-header">
+          <h2 class="card-header h6 font-weight-bold" id="versions-card-header">Versions</h2>
           <ol class="list-group list-group-flush sidebar-versions">
             {% for version in versions %}
               <li class="list-group-item{% if version == clv %} list-group-item-secondary{% endif %}">
@@ -325,7 +332,7 @@
               </li>
             {% endfor %}
           </ol>
-        </div>
+        </section>
       {% endif %}
     </div>
 

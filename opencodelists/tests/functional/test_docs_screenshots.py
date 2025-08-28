@@ -112,7 +112,7 @@ These 3 lists were mapped into CTV3 by TPP to create one list. This list was exa
     # The download buttons
     screenshot_element_with_padding(
         page,
-        page.locator("div.version__sidebar form"),
+        page.get_by_test_id("not-dmd-buttons"),
         "download-buttons.png",
         full_page=True,
     )
@@ -173,7 +173,7 @@ def test_generate_non_org_user_screen_shots(
 
     screenshot_element_with_padding(
         page,
-        page.get_by_role("button", name="Convert to dm+d").locator(".."),
+        page.get_by_role("button", name="Convert to dm+d"),
         "download-convert-buttons-bnf.png",
     )
 

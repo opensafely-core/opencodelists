@@ -173,7 +173,7 @@ def test_generate_non_org_user_screen_shots(
 
     screenshot_element_with_padding(
         page,
-        page.get_by_role("button", name="Convert to dm+d").locator(".."),
+        page.get_by_role("button", name="Convert to dm+d"),
         "download-convert-buttons-bnf.png",
     )
 

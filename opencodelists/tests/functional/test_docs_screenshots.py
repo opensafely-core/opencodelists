@@ -112,7 +112,7 @@ These 3 lists were mapped into CTV3 by TPP to create one list. This list was exa
     # The download buttons
     screenshot_element_with_padding(
         page,
-        page.locator(".version__sidebar .btn-group-vertical"),
+        page.get_by_test_id("not-dmd-buttons"),
         "download-buttons.png",
         full_page=True,
     )

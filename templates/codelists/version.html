@@ -225,7 +225,7 @@
 
         {% if clv.coding_system_id != "dmd" %}
           {% if user_can_edit or clv.codeset or clv.downloadable %}
-            <div class="btn-group-vertical">
+            <div class="btn-group-vertical" data-testid="not-dmd-buttons">
               {% if clv.downloadable %}
                 <a
                   class="btn btn-outline-primary"

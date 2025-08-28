@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/correctness/useUniqueElementIds: IDs required by elements */
 import React from "react";
 import MetadataForm from "../Metadata/MetadataForm";
 import References from "../Metadata/References";

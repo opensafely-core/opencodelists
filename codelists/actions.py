@@ -798,7 +798,10 @@ def clone_codelist(codelist, new_owner):
         + (codelist.methodology or "")
     )
     name = codelist.name
-    if Handle.objects.filter(user=new_owner, name=name).exists():
+    if (
+        Handle.objects.filter(user=new_owner, name=name).exists()
+        | Handle.objects.filter(user=new_owner, slug=codelist.slug).exists()
+    ):
         n = 0
         while True:
             try:

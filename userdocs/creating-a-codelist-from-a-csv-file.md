@@ -18,23 +18,11 @@ If you are a member of an organisation, you can also choose an owner for the cod
 
         create-codelist-button.png
 
-### Requirements for uploading codelists to OpenCodelists
+### Requirements for uploading codelists to OpenCodelists via the "Create a codelist" form
 
 * Store the final codelist in CSV format.
-* Store codes in exactly one column.
+* Store codes in the first column: only the first column is processed by the form.
 * Check whether or not your codelist has a header row: you will need to specify this on upload.
-* There is currently a soft requirement that the first column must contain codes in the chosen coding system. These should preferably be named according to the CSV column names provided in the table above. (We plan to eventually remove this requirement.) The second column is typically a text description of the code.
-
-### More about codelist columns
-
-The codelist page allow you to upload two columns:
-
-* a code
-* a text description of the code
-
-However, some codelists may require a 'classification' or 'type' column, which classifies the codes into subcategories. For example, when using a codelist for venous thromboembolism, you may wish to classify these codes into deep vein thromboses and pulmonary embolisms. By using subcategories, you can keep all the codes in a single codelist, rather than uploading separate lists for each clinical subcategory. The OpenSAFELY documentation has [guidance for using category columns with OpenSAFELY ehrQL dataset definition](https://docs.opensafely.org/ehrql/how-to/examples/#using-codelists-with-category-columns).
-
-**Uploading more than two columns is currently only possible for the OpenSAFELY core team. If your study requires this feature, [please get in touch](https://www.opensafely.org/contact/).**
 
 ### Potential issues when editing codelists in spreadsheet software, such as Excel
 
@@ -54,7 +42,7 @@ Where it is unavoidable to do so, rather than opening a dm+d codelist csv file d
 
 ### Adding an OPCS-4 codelist
 
-Note: OPCS-4 codelists can not currently be created using the form described above.
+Note: OPCS-4 codelists can not currently be created using the "Create a codelist" form described above.
 
 To add an OPCS-4 codelist, navigate to `https://www.opencodelists.org/codelist/{ACCOUNT}/add/` — where `{ACCOUNT}` in the URL is substituted with one of the following options:
 
@@ -62,3 +50,12 @@ To add an OPCS-4 codelist, navigate to `https://www.opencodelists.org/codelist/{
 * Or the name of the organisation your account is associated with, to add the codelist under the organisation.
 
 **The OPCS-4 codes you upload should NOT include the decimal point.**
+
+#### More about codelist columns
+
+The codelist `/add/` page allow you to upload multiple columns such as:
+
+* a code
+* a text description of the code
+
+Some codelists may require a 'classification' or 'type' column, which classifies the codes into subcategories. For example, when using a codelist for venous thromboembolism, you may wish to classify these codes into deep vein thromboses and pulmonary embolisms. By using subcategories, you can keep all the codes in a single codelist, rather than uploading separate lists for each clinical subcategory. The OpenSAFELY documentation has [guidance for using category columns with OpenSAFELY ehrQL dataset definition](https://docs.opensafely.org/ehrql/how-to/examples/#using-codelists-with-category-columns).

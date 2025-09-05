@@ -349,3 +349,8 @@ docker-smoke-test host="http://localhost:7000" env="prod": _env
 # check migrations in the dev docker container
 docker-check-migrations *args="":
     {{ just_executable() }} docker/check-migrations {{ docker_env }} {{ args }}
+
+local-deploy branch="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    ./deploy/local/deploy.sh {{branch}}

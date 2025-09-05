@@ -124,7 +124,7 @@ def create_or_update_codelist(
             methodology=methodology,
             references=references,
             signoffs=signoffs,
-            status=Status.PUBLISHED,
+            status=Status.PUBLISHED if should_publish else Status.UNDER_REVIEW,
             ignore_unfound_codes=ignore_unfound_codes,
         )
 

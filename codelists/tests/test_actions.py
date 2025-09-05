@@ -781,3 +781,14 @@ def test_clone_codelist_user_own_codelist(user_codelist, organisation_user):
 
     assert user_codelist.name in clone2.name
     assert "clone1" in clone2.name
+
+
+def test_re_clone_organisational_codelist(new_style_codelist, user):
+    cloned_codelist = actions.clone_codelist(new_style_codelist, user)
+
+    assert new_style_codelist.name in cloned_codelist.name
+
+    clone2 = actions.clone_codelist(new_style_codelist, user)
+
+    assert new_style_codelist.name in clone2.name
+    assert "clone" in clone2.name

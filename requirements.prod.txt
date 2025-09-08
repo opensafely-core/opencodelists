@@ -241,9 +241,9 @@ dj-database-url==3.0.1 \
     --hash=sha256:43950018e1eeea486bf11136384aec0fe55b29fe6fd8a44553231b85661d9383 \
     --hash=sha256:8994961efb888fc6bf8c41550870c91f6f7691ca751888ebaa71442b7f84eff8
     # via -r requirements.prod.in
-django==5.1.11 \
-    --hash=sha256:3bcdbd40e4d4623b5e04f59c28834323f3086df583058e65ebce99f9982385ce \
-    --hash=sha256:e48091f364007068728aca938e7450fbfe3f2217079bfd2b8af45122585acf64
+django==5.1.12 \
+    --hash=sha256:8a8991b1ec052ef6a44fefd1ef336ab8daa221287bcb91a4a17d5e1abec5bbcc \
+    --hash=sha256:9eb695636cea3601b65690f1596993c042206729afb320ca0960b55f8ed4477b
     # via
     #   -r requirements.prod.in
     #   crispy-bootstrap4
@@ -257,9 +257,9 @@ django==5.1.11 \
     #   django-vite
     #   djangorestframework
     #   slippers
-django-anymail[mailgun]==13.0.1 \
-    --hash=sha256:f2c20c9f240d93789aa8da2ee54d701c6b0345d101133d65d67e9355a914af81 \
-    --hash=sha256:fd93b36c167eb968bd68a351218c29ae23a68682e67340ae8554478cf27f9d56
+django-anymail[mailgun]==13.1 \
+    --hash=sha256:63e48402ec8258f17640eb73c8c64141f16d2f8ae7d448d0fb1c66e82b7cbcf6 \
+    --hash=sha256:b51783176f8a8382e958808151551558e4a46d1375fbc343742d1ebd06ce8e9e
     # via -r requirements.prod.in
 django-cors-headers==4.7.0 \
     --hash=sha256:6fdf31bf9c6d6448ba09ef57157db2268d515d94fc5c89a0a1028e1fc03ee52b \
@@ -692,9 +692,9 @@ requests==2.32.5 \
     #   -r requirements.prod.in
     #   django-anymail
     #   opentelemetry-exporter-otlp-proto-http
-sentry-sdk==2.35.1 \
-    --hash=sha256:13b6d6cfdae65d61fe1396a061cf9113b20f0ec1bcb257f3826b88f01bb55720 \
-    --hash=sha256:241b41e059632fe1f7c54ae6e1b93af9456aebdfc297be9cf7ecfd6da5167e8e
+sentry-sdk==2.37.0 \
+    --hash=sha256:2c661a482dd5accf3df58464f31733545745bb4d5cf8f5e46e0e1c4eed88479f \
+    --hash=sha256:89c1ed205d5c25926558b64a9bed8a5b4fb295b007cecc32c0ec4bf7694da2e1
     # via -r requirements.prod.in
 six==1.17.0 \
     --hash=sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274 \

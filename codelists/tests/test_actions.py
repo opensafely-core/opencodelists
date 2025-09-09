@@ -792,3 +792,14 @@ def test_re_clone_organisational_codelist(new_style_codelist, user):
 
     assert new_style_codelist.name in clone2.name
     assert "clone" in clone2.name
+
+
+def test_ten_clone_limit(user_codelist, user):
+    with pytest.raises(
+        ValueError, match="No more than 10 clones of a codelist can be created."
+    ):
+        n = 0
+        while n <= 11:
+            actions.clone_codelist(user_codelist, user)
+            n += 1
+    assert n == 11

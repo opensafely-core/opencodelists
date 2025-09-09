@@ -798,9 +798,14 @@ def clone_codelist(codelist, new_owner):
         + (codelist.methodology or "")
     )
     name = codelist.name
-    if codelist.user == new_owner:
+    if (
+        Handle.objects.filter(user=new_owner, name=name).exists()
+        | Handle.objects.filter(user=new_owner, slug=codelist.slug).exists()
+    ):
         n = 0
         while True:
+            if n > 10:
+                raise ValueError("No more than 10 clones of a codelist can be created.")
             try:
                 new_name = f"{codelist.name} (clone{str(n) if n > 0 else ''})"
                 Handle.objects.get(user=new_owner, name=new_name)

@@ -149,6 +149,7 @@ def main(
                 force_publish,
                 force_slug,
                 ignore_unfound_codes,
+                host,
             )
 
             message_part = f"new {'version for ' if action == 'update' else ''}{coding_system_id} codelist '{codelist_name}'"
@@ -321,6 +322,7 @@ def get_post_data(
     force_publish,
     force_slug,
     ignore_unfound_codes,
+    host,
 ):
     """
     Return the relevant data to post to the api endpoint to create a new
@@ -331,6 +333,30 @@ def get_post_data(
     coding_system_from_data = first_row["coding_system"]
     coding_system_id = config["coding_systems"][coding_system_from_data]["id"]
     release_db_alias = config["coding_systems"][coding_system_from_data]["release"]
+
+    # In dev mode you might not have the coding system db installed which causes 500
+    # errors. For better developer experience, if running against localhost we check
+    # that the db exists and is not empty before proceeding. Also ensure the TEST_IN_DOCKER var
+    # is not set as the docker environment doesn't have the dbs installed either, but
+    # we don't want to block the CI tests.
+    if "localhost" in host and not os.environ.get("TEST_IN_DOCKER"):
+        db_path = (
+            Path(__file__).resolve().parent.parent.parent
+            / "coding_systems"
+            / coding_system_id
+            / f"{release_db_alias}.sqlite3"
+        )
+        # check file exists and is not an empty sqlite3 file e.g. larger than 4096 bytes (but
+        # let's do 100kb to be sure e.g. the test snomed db is 300kb)
+        if not db_path.exists() or db_path.stat().st_size < 100_000:
+            print(
+                f"\n\nYou're running against localhost, but I don't think you have the "
+                f"correct coding system database. Please check that the db exists at:\n\n"
+                f"  {db_path}\n\nNB - it might exist but be empty if it's < 100KB in size "
+                "so you may still need to download it - or change the config to use a different db.\n"
+            )
+            sys.exit(1)
+
     tag = config.get("tag")
     description = first_row.get("codelist_description", None)
     if "description_template" in config:

@@ -659,7 +659,7 @@ def test_create_with_unfound_codes(new_style_codelist):
 
 def test_create_with_unfound_codes_no_error(new_style_codelist):
     # No error is raised if the codes are not found in the coding system, but
-    # a note is added to the description
+    # a note is added to the methodology
     unfound_code = "999999999"
     clv = actions.create_version_with_codes(
         codelist=new_style_codelist,
@@ -669,7 +669,7 @@ def test_create_with_unfound_codes_no_error(new_style_codelist):
         ignore_unfound_codes=True,
     )
     assert clv.codes == ()
-    assert unfound_code in clv.codelist.description
+    assert unfound_code in clv.codelist.methodology
 
 
 def test_update_codelist_change_slug(

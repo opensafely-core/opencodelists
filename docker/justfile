@@ -37,7 +37,9 @@ check-migrations env="dev" *args="": build
 
 # run Python (non-functional) tests in docker container
 test-py *args="":
-    docker compose run --rm test python -m pytest \
+    docker compose run --rm \
+    -e TEST_IN_DOCKER="true" \
+    test python -m pytest \
     --cov=builder \
     --cov=codelists \
     --cov=coding_systems \

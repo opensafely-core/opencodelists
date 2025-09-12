@@ -402,12 +402,10 @@ def _create_version_with_codes(
         if ignore_unfound_codes:
             # This means we're importing (almost certainly bulk importing from the API)
             # and want to (a) ignore codes that aren't in the dictionary, (b) add them
-            # to the description so it's transparent
+            # to the methodology so it's transparent
             unfound_codes = codes - found_codes
 
-            if not codelist.description:
-                codelist.description = ""
-            codelist.description += (
+            codelist.methodology = (
                 "\n\nThis codelist was imported automatically. The following codes "
                 f"were not found in the {codelist.coding_system_cls.name} dictionary "
                 "and so excluded from this codelist: "

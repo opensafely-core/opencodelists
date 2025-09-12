@@ -132,6 +132,7 @@ def main(
     version_count = 0
     failed_codelists = []
     failed_versions = []
+    is_first_api_call = True
 
     for action, codelist_slugs in all_codelist_slugs.items():
         for codelist_slug in codelist_slugs:
@@ -166,6 +167,24 @@ def main(
                         url, headers=headers, data=json.dumps(post_data)
                     )
 
+                    if is_first_api_call:
+                        # If the first call fails, it's very likely that they'll all fail.
+                        # Instead of just showing hundreds of failures, but not the actual
+                        # reason, we instead exit here and show the response body.
+                        if response.status_code != 200:
+                            # Truncate the response body as if it's a large HTML page it's
+                            # not that helpful. But shorter JSON responses are useful.
+                            response_body = (
+                                response.text
+                                if len(response.text) < 1000
+                                else f"{response.text[:500]}\n\n...(truncated)...\n\n{response.text[-500:]}"
+                            )
+                            print(
+                                "The first API call failed, so no further attempts will be made.\n"
+                                f"The {'truncated ' if len(response.text) >= 1000 else ''}response body was:\n\n {response_body}\n"
+                            )
+                            sys.exit(1)
+                    is_first_api_call = False
                     if response.status_code == 200:
                         if action == "create":
                             codelist_count += 1

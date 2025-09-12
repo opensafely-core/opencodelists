@@ -73,6 +73,19 @@ def test_import_from_txt(
     # test version tag set
     assert CodelistVersion.objects.filter(tag=config["tag"]).count() == 2
 
+    # attempting to run a second time with the same tag causes script to ignore those codelists
+    captured = capsys.readouterr()
+    assert "2 existing codelists ignored as the tag already exists" not in captured.out
+    main(
+        file_path,
+        config,
+        dry_run=False,
+        host=url,
+        force_new_version=True,
+    )
+    captured = capsys.readouterr()
+    assert "2 existing codelists ignored as the tag already exists" in captured.out
+
     # increment tag to avoid violating UNIQUE constraint
     config["tag"] = "5678"
 

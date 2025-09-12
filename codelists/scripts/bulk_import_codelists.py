@@ -78,6 +78,10 @@ def main(
         for codelist in codelists_resp.json()["codelists"]
     }
     existing_slugs = [slug for slug in codelists_by_name.values()]
+    tags_by_slug = {
+        codelist["slug"]: [version["tag"] for version in codelist["versions"]]
+        for codelist in codelists_resp.json()["codelists"]
+    }
 
     # Add a codelist_slug column to the dataframe, using the codelist names from the file
     new_codelist_identifier = "".join(
@@ -129,6 +133,7 @@ def main(
             return urljoin(base_url, f"{codelist_slug}/versions/")
 
     codelist_count = 0
+    ignore_duplicate_tag_count = 0
     version_count = 0
     failed_codelists = []
     failed_versions = []
@@ -152,6 +157,13 @@ def main(
                 ignore_unfound_codes,
                 host,
             )
+
+            if action == "update" and config["tag"] in tags_by_slug.get(codelist_slug):
+                ignore_duplicate_tag_count += 1
+                print(
+                    f"Not creating new version for {coding_system_id} codelist '{codelist_name}' because the tag '{config['tag']}' already exists for this codelist."
+                )
+                continue
 
             message_part = f"new {'version for ' if action == 'update' else ''}{coding_system_id} codelist '{codelist_name}'"
             if dry_run:
@@ -221,12 +233,14 @@ def main(
             "No codelists or versions were created, but the above messages indicate what would be done.\n"
             f" - {codelist_count} new codelists would be created\n"
             f" - {version_count} existing codelists would be updated with a new version\n"
+            f" - {ignore_duplicate_tag_count} existing codelists would be ignored as the tag already exists\n"
         )
     else:
         print(
             "\nSTATUS\n"
             f" - {codelist_count} new codelists successfully created\n"
             f" - {version_count} existing codelists successfully updated with a new version\n"
+            f" - {ignore_duplicate_tag_count} existing codelists ignored as the tag already exists\n"
             f" - {len(failed_codelists)} codelists failed to be created\n"
             f" - {len(failed_versions)} existing codelists failed to be updated with a new version\n"
         )

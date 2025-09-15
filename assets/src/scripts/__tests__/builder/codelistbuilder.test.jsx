@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom";
-import { render } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { expect, it, vi } from "vitest";
 import Hierarchy from "../../_hierarchy";
@@ -202,22 +202,28 @@ it("does the right thing when clicking around", async () => {
 });
 
 it("switches tabs when the tab is clicked", async () => {
+  const user = userEvent.setup();
   renderCodelistBuilder(versionWithNoSearchesData);
 
   // Initially, the codelist tab should be active
   expect(
-    document.querySelector(".tab-pane.active .builder__metadata-forms"),
-  ).toBeFalsy();
-
-  const metadataTab = document.querySelector(
-    '[role="tab"][data-rb-event-key="metadata"]',
-  );
-  await userEvent.click(metadataTab);
-
-  // The metadata tab should now be active (adjust selector as needed)
+    screen.getByRole("tab", { name: "Codelist", selected: true }),
+  ).toBeVisible();
   expect(
-    document.querySelector(".tab-pane.active .builder__metadata-forms"),
-  ).toBeTruthy();
+    screen.getByRole("tab", { name: "Metadata", selected: false }),
+  ).toBeVisible();
+
+  await user.click(screen.getByRole("tab", { name: "Metadata" }));
+
+  // The metadata tab should now be active
+  expect(
+    screen.getByRole("tab", { name: "Codelist", selected: false }),
+  ).toBeVisible();
+  expect(
+    screen.getByRole("tab", { name: "Metadata", selected: true }),
+  ).toBeVisible();
+
+  expect(document.querySelector(".builder__metadata-forms")).toBeVisible();
 });
 
 it("renders the metadata tab when the URL has #metadata", () => {
@@ -226,6 +232,11 @@ it("renders the metadata tab when the URL has #metadata", () => {
 
   // The metadata tab should be active
   expect(
-    document.querySelector(".tab-pane.active .builder__metadata-forms"),
-  ).toBeTruthy();
+    screen.getByRole("tab", { name: "Codelist", selected: false }),
+  ).toBeVisible();
+  expect(
+    screen.getByRole("tab", { name: "Metadata", selected: true }),
+  ).toBeVisible();
+
+  expect(document.querySelector(".builder__metadata-forms")).toBeVisible();
 });

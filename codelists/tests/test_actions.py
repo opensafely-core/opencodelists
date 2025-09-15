@@ -803,3 +803,18 @@ def test_ten_clone_limit(user_codelist, user):
             actions.clone_codelist(user_codelist, user)
             n += 1
     assert n == 11
+
+
+def test_re_clone_after_name_change(user_codelist, user):
+    # make an initial clone of the codelist
+    cloned_codelist = actions.clone_codelist(user_codelist, user)
+
+    # rename the clone but don't change the slug
+    cloned_handle = cloned_codelist.current_handle
+    cloned_handle.name = "renamed clone"
+    cloned_handle.save()
+
+    # re-clone the first codelist
+    re_cloned_codelist = actions.clone_codelist(user_codelist, user)
+    assert "clone" in re_cloned_codelist.slug
+    assert "clone" in re_cloned_codelist.name

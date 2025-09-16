@@ -349,3 +349,7 @@ docker-smoke-test host="http://localhost:7000" env="prod": _env
 # check migrations in the dev docker container
 docker-check-migrations *args="":
     {{ just_executable() }} docker/check-migrations {{ docker_env }} {{ args }}
+
+# Run script to update the PCD refsets following a new release
+update-pcd-refsets *args="":
+    $BIN/python manage.py runscript update_pcd_refsets --script-args='{{ args }}'

@@ -1,6 +1,6 @@
 <footer class="bg-slate-900 mt-auto">
   <div class="container py-20">
-    <nav class="flex flex-wrap justify-center gap-x-12 gap-y-3 text-base/snug" aria-label="Footer">
+    <nav class="flex flex-col gap-y-4 md:flex-row md:flex-wrap md:gap-x-8 text-base/snug" aria-label="Footer">
       <a href="{% url 'contact' %}" class="text-slate-200 underline decoration-slate-600 underline-offset-4 font-semibold transition-colors hover:text-white hover:decoration-white">
         Contact
       </a>
@@ -20,7 +20,7 @@
         University of Oxford
       </a>
     </nav>
-    <div class="mt-10 text-sm/6 text-center text-slate-300 space-y-6 mx-auto max-w-[80ch]">
+    <div class="mt-10 text-sm/6 text-slate-300 space-y-6 max-w-[80ch]">
       <p>© University of Oxford for the Bennett Institute for Applied Data Science {% now "Y" %}. This work may be copied freely for non-commercial research and study. If you wish to do any of the other acts restricted by the copyright you should apply in writing to <a class="text-slate-200 underline decoration-slate-600 underline-offset-4 font-semibold transition-colors hover:text-white hover:decoration-white" href="mailto:team@opensafely.org">team@opensafely.org</a>.</p>
       <p>SNOMED Clinical Terms® content © International Health Terminology Standards Development Organisation.</p>
       <p>ICD-10 codes, terms and text © World Health Organization, Third Edition. 2007.</p>

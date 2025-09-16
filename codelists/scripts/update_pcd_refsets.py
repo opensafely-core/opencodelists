@@ -405,6 +405,18 @@ def get_user_choice_for_release(releases, current_tag):
 def run(*args):
     args = parse_args(args)
 
+    # if TRUD_API_KEY not set, abort
+    if not os.environ.get("TRUD_API_KEY"):
+        print(
+            "Error: TRUD_API_KEY environment variable not set. This is required to access the TRUD API."
+        )
+        exit(1)
+    if os.environ.get("TRUD_API_KEY") == "dummy-key":
+        print(
+            "Error: TRUD_API_KEY environment variable is set to 'dummy-key'. Please set it to a valid key."
+        )
+        exit(1)
+
     db_release, latest_tag = get_latest_db_release_and_refset_tag_from_api(args.host)
 
     if not db_release or not latest_tag:

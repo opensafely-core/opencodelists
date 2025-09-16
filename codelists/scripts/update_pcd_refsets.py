@@ -279,7 +279,7 @@ def run_bulk_import(cluster_file, config_file, host, release, live_run, names=No
             "  then you should update the PCDRefsetVersion record. If any failed, you may want to rerun"
         )
         print(
-            "  this script with the --names option to filter to just those refsets, and then update the"
+            "  this script but just for the failed refsets (retrying often works), and then update the"
         )
         print("  PCDRefsetVersion record once they have successfully imported.\n")
 

@@ -257,7 +257,12 @@ def run_bulk_import(cluster_file, config_file, host, release, live_run, names=No
         return
 
     print(f"Running bulk import: {' '.join(cmd)}")
-    process = subprocess.run(cmd, check=True)
+    try:
+        process = subprocess.run(cmd, check=True)
+    except subprocess.CalledProcessError as e:
+        print("Bulk import script failed.")
+        print(e)
+        return
 
     # After successful import
     if live_run and process.returncode == 0:

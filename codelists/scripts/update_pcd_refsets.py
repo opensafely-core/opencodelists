@@ -25,25 +25,29 @@ You must also be a member of the "NHSD Primary Care Domain Refsets" organisation
 opencodelists, and have an API_TOKEN set up via the admin interface.
 
 Usage:
-    just manage "runscript update_pcd_refsets --script-args='[--live-run] [--host=xxx] [REFSET_ID [REFSET_ID ...]]'"
+    just update-pcd-refsets [--live-run] [--host=xxx] [REFSET_ID [REFSET_ID ...]]'"
 
 Flags:
-    --live-run      Actually update the config and run the bulk import for real (not a dry run).
-                    If not set, the script will perform a dry run and not update the config.
+    --live-run      Actually run the bulk import for real (not a dry run).
     --host          Base URL for the API (default: http://localhost:7000) but likely
                     https://www.opencodelists.org/ for the live run
 
 Arguments:
-    REFSET_ID       Optional space-separated list of Cluster_IDs (refset IDs) to include in the output CSV.
+    REFSET_IDs      Optional space-separated list of Cluster_IDs (refset IDs) to include in the output CSV.
                     If omitted, all clusters are included.
 
 Examples:
+    # Dry run, process everything
+    just update-pcd-refsets
+
     # Dry run, process only specific clusters
-    just manage "runscript update_pcd_refsets --script-args='ANTIPSYONLYDRUG_COD C19ACTIVITY_COD'"
+    just update-pcd-refsets AST_COD C19ACTIVITY_COD
+
+    # Live run, default dev host, process all drug clusters
+    just update-pcd-refsets --live-run
 
     # Live run, production host, process all clusters
-    just manage "runscript update_pcd_refsets --script-args='--live-run --host=https://www.opencodelists.org/'"
-
+    just update-pcd-refsets --live-run --host=https://www.opencodelists.org/
 
 """
 

@@ -158,10 +158,13 @@ def get_latest_db_release_and_refset_tag_from_api(base_url):
             return database_alias, latest_refset_tag
         else:
             print(f"No database_alias found for {SNOMED_ID} in API response.")
-            return None
+            return None, None
     except Exception as e:
-        print(f"Error fetching latest DB release from API: {e}")
-        return None
+        print(e)
+        print(
+            f"Failed to connect to API at {url}, if this is a local instance ensure it is running."
+        )
+        return None, None
 
 
 def build_temp_config(static_config_file, db_release, latest_tag):
@@ -403,6 +406,10 @@ def run(*args):
     args = parse_args(args)
 
     db_release, latest_tag = get_latest_db_release_and_refset_tag_from_api(args.host)
+
+    if not db_release or not latest_tag:
+        print("Could not determine the latest database release or refset tag from API.")
+        exit(1)
 
     # Create temporary directory for extraction
     with tempfile.TemporaryDirectory() as temp_dir:

@@ -323,6 +323,42 @@ def test_codelists_get_exclude_previous_owner(
     assert len(data["codelists"]) == 0
 
 
+def test_org_codelist_with_two_handles_is_included(client, organisation, dmd_codelist):
+    """When an organisation codelist has two Handles it should still appear
+    in the organisation codelists API response.
+
+    Regression test for a case where duplicate handles caused the API to
+    exclude the codelist entirely.
+    """
+    rsp = client.get(f"/api/v1/codelist/{organisation.slug}/")
+    assert rsp.status_code == 200
+    data = json.loads(rsp.content)
+    num_codelists = len(data["codelists"])
+    # Create an additional handle for the same codelist using the public
+    # update path so we exercise the application's handle-creation logic.
+    update_codelist(
+        codelist=dmd_codelist,
+        owner=organisation,
+        name=f"{dmd_codelist.name} Alt",
+        slug=f"{dmd_codelist.slug}-alt",
+        description=dmd_codelist.description,
+        methodology=dmd_codelist.methodology,
+        references={},
+        signoffs={},
+    )
+
+    rsp = client.get(f"/api/v1/codelist/{organisation.slug}/")
+    assert rsp.status_code == 200
+    data = json.loads(rsp.content)
+
+    expected_full_slug = f"{organisation.slug}/{dmd_codelist.slug}"
+    assert any(cl["full_slug"] == expected_full_slug for cl in data["codelists"]), (
+        "Expected codelist with two handles to appear in API response"
+    )
+    # Ensure the original codelist is still present
+    assert len(data["codelists"]) == num_codelists
+
+
 def test_codelists_get_with_no_organisation(client, organisation):
     rsp = client.get("/api/v1/codelist/?coding_system_id=snomedct&include-users")
     data = json.loads(rsp.content)

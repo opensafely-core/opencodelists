@@ -78,6 +78,10 @@ def main(
         for codelist in codelists_resp.json()["codelists"]
     }
     existing_slugs = [slug for slug in codelists_by_name.values()]
+    tags_by_slug = {
+        codelist["slug"]: [version["tag"] for version in codelist["versions"]]
+        for codelist in codelists_resp.json()["codelists"]
+    }
 
     # Add a codelist_slug column to the dataframe, using the codelist names from the file
     new_codelist_identifier = "".join(
@@ -129,9 +133,11 @@ def main(
             return urljoin(base_url, f"{codelist_slug}/versions/")
 
     codelist_count = 0
+    ignore_duplicate_tag_count = 0
     version_count = 0
     failed_codelists = []
     failed_versions = []
+    is_first_api_call = True
 
     for action, codelist_slugs in all_codelist_slugs.items():
         for codelist_slug in codelist_slugs:
@@ -149,7 +155,15 @@ def main(
                 force_publish,
                 force_slug,
                 ignore_unfound_codes,
+                host,
             )
+
+            if action == "update" and config["tag"] in tags_by_slug.get(codelist_slug):
+                ignore_duplicate_tag_count += 1
+                print(
+                    f"Not creating new version for {coding_system_id} codelist '{codelist_name}' because the tag '{config['tag']}' already exists for this codelist."
+                )
+                continue
 
             message_part = f"new {'version for ' if action == 'update' else ''}{coding_system_id} codelist '{codelist_name}'"
             if dry_run:
@@ -171,7 +185,24 @@ def main(
                         else:
                             version_count += 1
                         print(f"Created {message_part}")
+                        is_first_api_call = False
                     else:
+                        # If the first call fails, it's very likely that they'll all fail.
+                        # Instead of just showing hundreds of failures, but not the actual
+                        # reason, we instead exit here and show the response body.
+                        if is_first_api_call:
+                            # Truncate the response body as if it's a large HTML page it's
+                            # not that helpful. But shorter JSON responses are useful.
+                            response_body = (
+                                response.text
+                                if len(response.text) < 1000
+                                else f"{response.text[:500]}\n\n...(truncated)...\n\n{response.text[-500:]}"
+                            )
+                            print(
+                                "The first API call failed, so no further attempts will be made.\n"
+                                f"The {'truncated ' if len(response.text) >= 1000 else ''}response body was:\n\n {response_body}\n"
+                            )
+                            sys.exit(1)
                         if action == "create":
                             failed_codelists.append((codelist_slug, url, post_data))
                         else:
@@ -202,12 +233,14 @@ def main(
             "No codelists or versions were created, but the above messages indicate what would be done.\n"
             f" - {codelist_count} new codelists would be created\n"
             f" - {version_count} existing codelists would be updated with a new version\n"
+            f" - {ignore_duplicate_tag_count} existing codelists would be ignored as the tag already exists\n"
         )
     else:
         print(
             "\nSTATUS\n"
             f" - {codelist_count} new codelists successfully created\n"
             f" - {version_count} existing codelists successfully updated with a new version\n"
+            f" - {ignore_duplicate_tag_count} existing codelists ignored as the tag already exists\n"
             f" - {len(failed_codelists)} codelists failed to be created\n"
             f" - {len(failed_versions)} existing codelists failed to be updated with a new version\n"
         )
@@ -321,6 +354,7 @@ def get_post_data(
     force_publish,
     force_slug,
     ignore_unfound_codes,
+    host,
 ):
     """
     Return the relevant data to post to the api endpoint to create a new
@@ -331,6 +365,30 @@ def get_post_data(
     coding_system_from_data = first_row["coding_system"]
     coding_system_id = config["coding_systems"][coding_system_from_data]["id"]
     release_db_alias = config["coding_systems"][coding_system_from_data]["release"]
+
+    # In dev mode you might not have the coding system db installed which causes 500
+    # errors. For better developer experience, if running against localhost we check
+    # that the db exists and is not empty before proceeding. Also ensure the TEST_IN_DOCKER var
+    # is not set as the docker environment doesn't have the dbs installed either, but
+    # we don't want to block the CI tests.
+    if "localhost" in host and not os.environ.get("TEST_IN_DOCKER"):
+        db_path = (
+            Path(__file__).resolve().parent.parent.parent
+            / "coding_systems"
+            / coding_system_id
+            / f"{release_db_alias}.sqlite3"
+        )
+        # check file exists and is not an empty sqlite3 file e.g. larger than 4096 bytes (but
+        # let's do 100kb to be sure e.g. the test snomed db is 300kb)
+        if not db_path.exists() or db_path.stat().st_size < 100_000:
+            print(
+                f"\n\nYou're running against localhost, but I don't think you have the "
+                f"correct coding system database. Please check that the db exists at:\n\n"
+                f"  {db_path}\n\nNB - it might exist but be empty if it's < 100KB in size "
+                "so you may still need to download it - or change the config to use a different db.\n"
+            )
+            sys.exit(1)
+
     tag = config.get("tag")
     description = first_row.get("codelist_description", None)
     if "description_template" in config:

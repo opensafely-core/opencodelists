@@ -24,7 +24,9 @@ as it is the only aspect that is not tested by test_import_from_txt
     transaction=True,
     databases=["default", "snomedct_test_20200101"],
 )
-def test_import_from_txt(snomedct_data, organisation, organisation_user, live_server):
+def test_import_from_txt(
+    snomedct_data, organisation, organisation_user, live_server, capsys
+):
     config = {
         "organisation": "test-university",
         "sheet": "codelists",
@@ -71,6 +73,19 @@ def test_import_from_txt(snomedct_data, organisation, organisation_user, live_se
     # test version tag set
     assert CodelistVersion.objects.filter(tag=config["tag"]).count() == 2
 
+    # attempting to run a second time with the same tag causes script to ignore those codelists
+    captured = capsys.readouterr()
+    assert "2 existing codelists ignored as the tag already exists" not in captured.out
+    main(
+        file_path,
+        config,
+        dry_run=False,
+        host=url,
+        force_new_version=True,
+    )
+    captured = capsys.readouterr()
+    assert "2 existing codelists ignored as the tag already exists" in captured.out
+
     # increment tag to avoid violating UNIQUE constraint
     config["tag"] = "5678"
 
@@ -102,6 +117,20 @@ def test_import_from_txt(snomedct_data, organisation, organisation_user, live_se
     expected_clv_count += 1
     assert Codelist.objects.count() == expected_cl_count
     assert CodelistVersion.objects.count() == expected_clv_count
+
+    # Test that if the first API call fails then the script exits early with
+    # the correct message. We can't test this in a separate tests due to the
+    # limitations described above
+    # increment tag to avoid violating UNIQUE constraint
+    config["tag"] = "9013"
+    environ["API_TOKEN"] = "invalid-token"
+    with pytest.raises(SystemExit):
+        main(file_path, config, host=url, dry_run=False)
+
+    captured = capsys.readouterr()
+    assert (
+        "The first API call failed, so no further attempts will be made" in captured.out
+    )
 
 
 def test_process_file_to_dataframe_excel():

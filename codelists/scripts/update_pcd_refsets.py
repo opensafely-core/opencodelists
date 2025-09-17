@@ -67,7 +67,6 @@ from coding_systems.base.trud_utils import TrudDownloader
 from coding_systems.versioning.models import PCDRefsetVersion
 
 
-CONFIG_FILE = Path(__file__).parent / "nhsd_primary_care_refsets.json"
 CLUSTER_REFSET_PATTERN = r"GPData_Cluster_Refset_1000230_\d+\.csv"
 SNOMED_ID = "snomedct"
 
@@ -167,9 +166,27 @@ def get_latest_db_release_and_refset_tag_from_api(base_url):
         return None, None
 
 
-def build_temp_config(static_config_file, db_release, latest_tag):
-    with open(static_config_file) as f:
-        config = json.load(f)
+def build_temp_config(db_release, latest_tag):
+    config = {
+        "organisation": "nhsd-primary-care-domain-refsets",
+        "coding_systems": {
+            SNOMED_ID: {"id": SNOMED_ID, "release": db_release},
+        },
+        "column_aliases": {
+            "codelist_name": "Cluster_Desc",
+            "code": "ConceptId",
+            "term": "ConceptId_Description",
+            "codelist_description": "Cluster_ID",
+            "codelist_new_slug": "Cluster_Slug",
+        },
+        "tag": latest_tag,
+        "description_template": (
+            "Taken from the `%s` refset published by NHSD.",
+            " Contains public sector information "
+            "licensed under the UK Open Government Licence v3.0 ("
+            "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/).",
+        ),
+    }
 
     # Update config with dynamic bits
     config["tag"] = latest_tag
@@ -458,9 +475,7 @@ def run(*args):
             return
 
         # Build a temporary config file with dynamic bits from API
-        temp_config_file = build_temp_config(
-            CONFIG_FILE, db_release, release_to_use["release_name"]
-        )
+        temp_config_file = build_temp_config(db_release, release_to_use["release_name"])
         run_bulk_import(
             processed_file,
             temp_config_file,

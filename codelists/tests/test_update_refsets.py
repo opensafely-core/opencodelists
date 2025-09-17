@@ -8,11 +8,7 @@ def test_build_temp_config_updates_tag_and_release():
     db_release = "snomedct_test_20200101"
     latest_tag = "20200101"
 
-    config_file = (
-        Path(__file__).parent.parent / "scripts" / "nhsd_primary_care_refsets.json"
-    )
-
-    temp_path = build_temp_config(config_file, db_release, latest_tag)
+    temp_path = build_temp_config(db_release, latest_tag)
 
     # Assert the temp file exists and contains the updated values
     assert Path(temp_path).exists()

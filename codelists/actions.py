@@ -804,10 +804,12 @@ def clone_codelist(codelist, new_owner):
         while True:
             if n > 10:
                 raise ValueError("No more than 10 clones of a codelist can be created.")
-            try:
-                new_name = f"{codelist.name} (clone{str(n) if n > 0 else ''})"
-                Handle.objects.get(user=new_owner, name=new_name)
-            except Handle.DoesNotExist:
+            new_name = f"{codelist.name} (clone{str(n) if n > 0 else ''})"
+            new_slug = slugify(new_name)
+            if not (
+                Handle.objects.filter(user=new_owner, name=new_name).exists()
+                | Handle.objects.filter(user=new_owner, slug=new_slug).exists()
+            ):
                 name = new_name
                 break
             n += 1

@@ -24,4 +24,13 @@
       <li>Imported: {{ pcd_refset_version.import_timestamp }}</li>
     </ul>
   {% endif %}
+  {% if nhs_drug_refset_version %}
+    <h4>NHS Drug Refsets</h4>
+    <ul>
+      <li>Release: {{ nhs_drug_refset_version.release }}</li>
+      <li>Tag: {{ nhs_drug_refset_version.tag }}</li>
+      <li>Release Date: {{ nhs_drug_refset_version.release_date }}</li>
+      <li>Imported: {{ nhs_drug_refset_version.import_timestamp }}</li>
+    </ul>
+  {% endif %}
 {% endblock %}

@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
 
 from codelists.coding_systems import CODING_SYSTEMS
-from coding_systems.versioning.models import PCDRefsetVersion
+from coding_systems.versioning.models import NHSDrugRefsetVersion, PCDRefsetVersion
 
 
 def latest_releases(request):
@@ -18,8 +18,9 @@ def latest_releases(request):
         if cs.has_database
     ]
 
-    # Get the latest PCD refset version
+    # Get the latest PCD refset version and the latest NHS drug refset version
     latest_pcd = PCDRefsetVersion.get_latest()
+    latest_drug = NHSDrugRefsetVersion.get_latest()
     ctx = {"latest_releases": coding_system_releases}
 
     if request.GET.get("type") == "json":
@@ -41,10 +42,20 @@ def latest_releases(request):
                 "valid_from": latest_pcd.release_date.isoformat(),
                 "import_timestamp": latest_pcd.import_timestamp.isoformat(),
             }
+        # Add NHS drug refset data if available
+        if latest_drug:
+            data["nhs_drug_refsets"] = {
+                "release": latest_drug.release,
+                "tag": latest_drug.tag,
+                "valid_from": latest_drug.release_date.isoformat(),
+                "import_timestamp": latest_drug.import_timestamp.isoformat(),
+            }
         return JsonResponse(data)
 
     if latest_pcd:
         ctx["pcd_refset_version"] = latest_pcd
+    if latest_drug:
+        ctx["nhs_drug_refset_version"] = latest_drug
     return render(request, "versioning/latest_releases.html", ctx)
 
 

@@ -38,7 +38,7 @@ def test_latest_releases_json_without_pcd_refset(client, setup_coding_systems):
 
 
 def test_latest_releases_json_with_pcd_refset(
-    client, setup_coding_systems, pcd_refset_version
+    client, setup_coding_systems, pcd_refset_version, nhs_drug_refset_version
 ):
     response = client.get(
         reverse("versioning:latest_releases"),
@@ -54,5 +54,7 @@ def test_latest_releases_json_with_pcd_refset(
         "dmd",
         "bnf",
         "pcd_refsets",
+        "nhs_drug_refsets",
     }
     assert data["pcd_refsets"]["release"] == pcd_refset_version.release
+    assert data["nhs_drug_refsets"]["release"] == nhs_drug_refset_version.release

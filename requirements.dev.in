@@ -16,7 +16,6 @@ requests>=2.32.4 # mimmum version for security patch
 
 # dev
 djhtml
-litecli
 pip-tools
 pre-commit
 ruff

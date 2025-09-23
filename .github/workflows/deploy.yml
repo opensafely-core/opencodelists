@@ -66,7 +66,7 @@ jobs:
             docker push $PUBLIC_IMAGE_NAME:latest
 
       - name: Create Sentry release
-        uses: getsentry/action-release@526942b68292201ac6bbb99b9a0747d4abee354c  # v3.2.0
+        uses: getsentry/action-release@4f502acc1df792390abe36f2dcb03612ef144818  # v3.3.0
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_RELEASE_INTEGRATION_TOKEN }}
           SENTRY_ORG: ebm-datalab
@@ -87,7 +87,7 @@ jobs:
             ssh -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" dokku@dokku3.ebmdatalab.net git:from-image opencodelists $SHA
 
       - name: Create Sentry release
-        uses: getsentry/action-release@526942b68292201ac6bbb99b9a0747d4abee354c  # v3.2.0
+        uses: getsentry/action-release@4f502acc1df792390abe36f2dcb03612ef144818  # v3.3.0
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_RELEASE_INTEGRATION_TOKEN }}
           SENTRY_ORG: ebm-datalab

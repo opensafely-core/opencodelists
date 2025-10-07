@@ -1,0 +1,17 @@
+{
+    "comment": "For loading of the IHME Global Burden of Disease ICD 10 bundles",
+    "organisation": "ihme",
+    "coding_systems": {
+        "icd10": {
+            "id": "icd10",
+            "release": "icd10_2019-covid-expanded_20190101"
+        }
+    },
+    "column_aliases": {
+        "codelist_name": "bundle_name",
+        "code": "cause_code",
+        "term": "cause_name",
+        "codelist_description": "bundle_id"
+    },
+    "description_template": "IHME GBD Bundle ID: %s"
+}

@@ -25,9 +25,10 @@ You must also be a member of the "NHSD Primary Care Domain Refsets" organisation
 opencodelists, and have an API_TOKEN set up via the admin interface.
 
 Usage:
-    just update-pcd-refsets [--live-run] [--host=xxx] [REFSET_ID [REFSET_ID ...]]'"
+    just update-pcd-refsets [--drugs] [--live-run] [--host=xxx] [REFSET_ID [REFSET_ID ...]]'"
 
 Flags:
+    --drugs         If set, update NHS Drug Refsets instead of PCD refsets
     --live-run      Actually run the bulk import for real (not a dry run).
     --host          Base URL for the API (default: http://localhost:7000) but likely
                     https://www.opencodelists.org/ for the live run
@@ -64,18 +65,44 @@ from zipfile import ZipFile
 import requests
 
 from coding_systems.base.trud_utils import TrudDownloader
-from coding_systems.versioning.models import PCDRefsetVersion
+from coding_systems.versioning.models import NHSDrugRefsetVersion, PCDRefsetVersion
 
 
 CLUSTER_REFSET_PATTERN = r"GPData_Cluster_Refset_1000230_\d+\.csv"
 SNOMED_ID = "snomedct"
+DMD_ID = "dmd"
 
-organisation = "nhsd-primary-care-domain-refsets"
-tag_id = "pcd_refsets"
-description_intro = "refset published by NHSD."
-coding_system_id = SNOMED_ID
-type_of_inclusion = "PC refset"
-RefsetVersionModel = PCDRefsetVersion
+
+def set_pcd_refset_props():
+    global \
+        organisation, \
+        tag_id, \
+        description_intro, \
+        coding_system_id, \
+        type_of_inclusion, \
+        RefsetVersionModel
+    organisation = "nhsd-primary-care-domain-refsets"
+    tag_id = "pcd_refsets"
+    description_intro = "refset published by NHSD."
+    coding_system_id = SNOMED_ID
+    type_of_inclusion = "PC refset"
+    RefsetVersionModel = PCDRefsetVersion
+
+
+def set_drug_refset_props():
+    global \
+        organisation, \
+        tag_id, \
+        description_intro, \
+        coding_system_id, \
+        type_of_inclusion, \
+        RefsetVersionModel
+    organisation = "nhs-drug-refsets"
+    tag_id = "nhs_drug_refsets"
+    description_intro = "NHS drug refset."
+    coding_system_id = DMD_ID
+    type_of_inclusion = "Refset"
+    RefsetVersionModel = NHSDrugRefsetVersion
 
 
 class Downloader(TrudDownloader):
@@ -212,8 +239,11 @@ def build_temp_config(db_release, latest_tag):
 def parse_args(args):
     import argparse
 
-    parser = argparse.ArgumentParser(
-        description="Update NHS Primary Care Domain Refsets"
+    parser = argparse.ArgumentParser(description="Update NHS refsets (PCD or Drug)")
+    parser.add_argument(
+        "--drugs",
+        action="store_true",
+        help="If set, update NHS Drug Refsets instead of PCD refsets",
     )
     parser.add_argument(
         "--live-run",
@@ -377,10 +407,20 @@ def process_cluster_file(input_file, output_file, names=None):
                     # (which is in the unused Active_Code_Status field in this csv) and we want to
                     # include those because analyses may well involve a time when these codes were active.
                     # The possible "Type_of_Inclusion" values are "PC refset" for the primary care (clinical)
-                    # ones, and "Refset" for the drug refsets. We currently only import the clinical ones.
+                    # ones, and "Refset" for the drug refsets.
+
+                    # For drug refsets we further restrict to specific cluster categories.
+                    category_ok = True
+                    if type_of_inclusion == "Refset":
+                        category_ok = row.get("Cluster_Category") in [
+                            "Medications",
+                            "Vaccinations and immunisations",
+                        ]
+
                     if (
                         row.get("Active_in_Refset") == "1"
-                        and row.get("Type_of_Inclusion") == "PC refset"
+                        and row.get("Type_of_Inclusion") == type_of_inclusion
+                        and category_ok
                         and (not names_lower or cluster_id.lower() in names_lower)
                     ):
                         new_row = {
@@ -451,6 +491,11 @@ def run(*args):
             "Error: TRUD_API_KEY environment variable is set to 'dummy-key'. Please set it to a valid key."
         )
         exit(1)
+
+    if args.drugs:
+        set_drug_refset_props()
+    else:
+        set_pcd_refset_props()
 
     db_release, latest_tag = get_latest_db_release_and_refset_tag_from_api(args.host)
 

@@ -405,14 +405,26 @@ def _create_version_with_codes(
             # to the methodology so it's transparent
             unfound_codes = codes - found_codes
 
+            suggested_reason = (
+                "This may be because this codelist contains both clinical terms and "
+                "medications. In which case you may need to create another codelist "
+                "for the missing clinical/medication codes."
+            )
+
+            if codelist.coding_system_cls.name == "dm+d":
+                suggested_reason = (
+                    "This may be because this codelist contains non-prescribable "
+                    "SNOMED codes, such as 108535009 - Product containing felodipine. "
+                    "As these are not prescribable, they are not in the dm+d dictionary "
+                    "but do sometimes appear in things like the NHS drug refsets."
+                )
+
             codelist.methodology = (
                 "\n\nThis codelist was imported automatically. The following codes "
                 f"were not found in the {codelist.coding_system_cls.name} dictionary "
                 "and so excluded from this codelist: "
                 f"{', '.join(unfound_codes)}."
-                "\n\nThis may be because this codelist contains both clinical terms and "
-                "medications. In which case you may need to create another codelist "
-                "for the missing clinical/medication codes."
+                f"\n\n{suggested_reason}"
             )
             codelist.save()
             codes = found_codes

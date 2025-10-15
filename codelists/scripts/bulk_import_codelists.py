@@ -33,7 +33,7 @@ import requests
 from django.utils.text import slugify
 
 
-CODING_SYSTEMS_WITH_OLD_STYLE_CODELISTS = ["dmd", "opcs4", "readv2"]
+CODING_SYSTEMS_WITH_OLD_STYLE_CODELISTS = ["opcs4", "readv2"]
 
 
 def read_config(config_filepath):

@@ -70,6 +70,13 @@ from coding_systems.versioning.models import PCDRefsetVersion
 CLUSTER_REFSET_PATTERN = r"GPData_Cluster_Refset_1000230_\d+\.csv"
 SNOMED_ID = "snomedct"
 
+organisation = "nhsd-primary-care-domain-refsets"
+tag_id = "pcd_refsets"
+description_intro = "refset published by NHSD."
+coding_system_id = SNOMED_ID
+type_of_inclusion = "PC refset"
+RefsetVersionModel = PCDRefsetVersion
+
 
 class Downloader(TrudDownloader):
     item_number = 659
@@ -150,13 +157,13 @@ def get_latest_db_release_and_refset_tag_from_api(base_url):
         resp = requests.get(url)
         resp.raise_for_status()
         data = resp.json()
-        if SNOMED_ID in data and "database_alias" in data[SNOMED_ID]:
-            database_alias = data[SNOMED_ID]["database_alias"]
+        if coding_system_id in data and "database_alias" in data[coding_system_id]:
+            database_alias = data[coding_system_id]["database_alias"]
             # Get latest refset tag if available, or default to a known version if not
-            latest_refset_tag = data.get("pcd_refsets", {}).get("tag", "20250627")
+            latest_refset_tag = data.get(tag_id, {}).get("tag", "20250627")
             return database_alias, latest_refset_tag
         else:
-            print(f"No database_alias found for {SNOMED_ID} in API response.")
+            print(f"No database_alias found for {coding_system_id} in API response.")
             return None, None
     except Exception as e:
         print(e)
@@ -168,9 +175,9 @@ def get_latest_db_release_and_refset_tag_from_api(base_url):
 
 def build_temp_config(db_release, latest_tag):
     config = {
-        "organisation": "nhsd-primary-care-domain-refsets",
+        "organisation": organisation,
         "coding_systems": {
-            SNOMED_ID: {"id": SNOMED_ID, "release": db_release},
+            coding_system_id: {"id": coding_system_id, "release": db_release},
         },
         "column_aliases": {
             "codelist_name": "Cluster_Desc",
@@ -181,16 +188,16 @@ def build_temp_config(db_release, latest_tag):
         },
         "tag": latest_tag,
         "description_template": (
-            "Taken from the `%s` refset published by NHSD.",
+            f"Taken from the `%s` {description_intro}"
             " Contains public sector information "
             "licensed under the UK Open Government Licence v3.0 ("
-            "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/).",
+            "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/)."
         ),
     }
 
     # Update config with dynamic bits
     config["tag"] = latest_tag
-    config["coding_systems"][SNOMED_ID]["release"] = db_release
+    config["coding_systems"][coding_system_id]["release"] = db_release
 
     # Write to a temporary file
     temp_config_path = Path(tempfile.gettempdir()) / f"temp_config_{os.getpid()}.json"
@@ -284,44 +291,50 @@ def run_bulk_import(cluster_file, config_file, host, release, live_run, names=No
     # After successful import
     if live_run and process.returncode == 0:
         # get current tag - but get_latest() might return None
-        latest_refset = PCDRefsetVersion.get_latest()
+        latest_refset = RefsetVersionModel.get_latest()
         current_refset_tag = latest_refset.tag if latest_refset else "Not yet set"
 
         print(release)
         print("\nThe bulk import script has finished.")
-        print("  If you want you can now update the PCDRefsetVersion record.")
         print(
-            f"  Currently the most recent PCD refset version is: '{current_refset_tag}'"
+            f"  If you want you can now update the {RefsetVersionModel.__name__} record."
+        )
+        print(
+            f"  Currently the most recent {RefsetVersionModel.__name__} refset version is: '{current_refset_tag}'"
         )
         print(f"  If you confirm, this will be updated to '{release['release_name']}'")
         print(
-            "  The suggestion is that if all the latest PCD refsets were successfully imported above,"
+            "  The suggestion is that if all the latest refsets were successfully imported above,"
         )
         print(
-            "  then you should update the PCDRefsetVersion record. If any failed, you may want to rerun"
+            f"  then you should update the {RefsetVersionModel.__name__} record. If any failed, you may want to rerun"
         )
         print(
             "  this script but just for the failed refsets (retrying often works), and then update the"
         )
-        print("  PCDRefsetVersion record once they have successfully imported.\n")
+        print(
+            f"  {RefsetVersionModel.__name__} record once they have successfully imported.\n"
+        )
 
         update_confirm = (
             input(
-                f"Would you like to update the PCDRefsetVersion record from {current_refset_tag} to {release['release_name']}? (y/n): "
+                f"Would you like to update the {RefsetVersionModel.__name__} record from {current_refset_tag} to {release['release_name']}? (y/n): "
             )
             .strip()
             .lower()
         )
         if update_confirm in ("y", "yes"):
             # Create a new version record
-            PCDRefsetVersion.objects.create(
+            RefsetVersionModel.objects.create(
                 release=release["release"],
                 tag=release["release_name"],
                 release_date=release["valid_from"],
             )
-            print(f"Recorded new PCD refset version: {release['release_name']}")
+            print(
+                f"Recorded new {RefsetVersionModel.__name__} version: {release['release_name']}"
+            )
         else:
-            print("PCDRefsetVersion record not updated.")
+            print(f"{RefsetVersionModel.__name__} record not updated.")
     else:
         print("\nDry run completed successfully. No changes were made to the database.")
 

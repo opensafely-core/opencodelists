@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from codelists.scripts.update_pcd_refsets import build_temp_config, set_pcd_refset_props
+from codelists.scripts.update_nhs_refsets import build_temp_config, set_pcd_refset_props
 
 
 def test_build_temp_config_updates_tag_and_release():

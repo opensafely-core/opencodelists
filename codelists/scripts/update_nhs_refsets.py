@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
 """
-Django Script to automatically update NHS Primary Care Domain Refsets
+Django Script to automatically update either the NHS Primary Care Domain (PCD) Refsets
+or the NHS Drug Refsets
 
 These are released whenever they are updated i.e. not on a particular release cycle. There
 are roughly 4 a year. This script allows them to be loaded into opencodelists, as either new
@@ -21,14 +22,15 @@ below for how to run just for a few cluster ids.
 
 This script requires a TRUD_API_KEY env var to either be set or defined in your .env file.
 
-You must also be a member of the "NHSD Primary Care Domain Refsets" organisation on
-opencodelists, and have an API_TOKEN set up via the admin interface.
+You must be a member of the "NHSD Primary Care Domain Refsets" organisation on
+opencodelists to upload the PCD refsets, and a member of the "NHS Drug Refsets" organisation
+to upload the drug refsets. You must also have an API_TOKEN set up via the admin interface.
 
 Usage:
-    just update-pcd-refsets [--drugs] [--live-run] [--host=xxx] [REFSET_ID [REFSET_ID ...]]'"
+    just update-pcd-refsets [--live-run] [--host=xxx] [REFSET_ID [REFSET_ID ...]]'"
+    just update-drug-refsets [--live-run] [--host=xxx] [REFSET_ID [REFSET_ID ...]]'"
 
 Flags:
-    --drugs         If set, update NHS Drug Refsets instead of PCD refsets
     --live-run      Actually run the bulk import for real (not a dry run).
     --host          Base URL for the API (default: http://localhost:7000) but likely
                     https://www.opencodelists.org/ for the live run
@@ -37,7 +39,7 @@ Arguments:
     REFSET_IDs      Optional space-separated list of Cluster_IDs (refset IDs) to include in the output CSV.
                     If omitted, all clusters are included.
 
-Examples:
+Examples (for PCD refsets, replace with `just update-drug-refsets` for drug refsets):
     # Dry run, process everything
     just update-pcd-refsets
 
@@ -113,7 +115,7 @@ class Downloader(TrudDownloader):
         return release_metadata["release"][-8:]
 
 
-def fetch_pcd_releases(downloader, current_tag):
+def fetch_nhs_refset_releases(downloader, current_tag):
     """
     Fetch available releases from TRUD API, filter to those the same or newer
     than the current tag, and return the tag, id, date, and url.
@@ -275,7 +277,7 @@ def run_bulk_import(cluster_file, config_file, host, release, live_run, names=No
             "         to pass the API_TOKEN.\n"
             "NB the API_TOKEN is for connecting to the opencodelists API (either locally "
             "or in production. The TRUD_API_KEY is different, and is what is needed to get "
-            "the PCD refset files from TRUD."
+            "the NHS refset files from TRUD."
         )
         live_run = False
 
@@ -507,7 +509,7 @@ def run(*args):
     with tempfile.TemporaryDirectory() as temp_dir:
         downloader = Downloader(temp_dir)
         # Fetch possible new releases
-        releases = fetch_pcd_releases(downloader, latest_tag)
+        releases = fetch_nhs_refset_releases(downloader, latest_tag)
 
         if not releases:
             print(

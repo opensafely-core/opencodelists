@@ -92,10 +92,10 @@ def main(
         # Return slug for this codelist using these rules:
         # - if an existing slug is passed then we use that
         # - if not, but the name matches an existing codelist we return that slug
-        # - PCD refsets created with slugified name tags ("name-of-refset"), rather than
+        # - NHS (PCD and drug) refsets created with slugified name tags ("name-of-refset"), rather than
         #   the refset label ("refset_cod") are marked as " (obsolete)". If we can't match
         #   the name, but we can match "{name} (obsolete)", then we return the slug for that.
-        #   The script (for PCD refsets) will automatically update the name.
+        #   The script (for NHS refsets) will automatically update the name.
         # - if not, but the passed slug is actually a valid slug then we return that
         # - if none of the above, we slugify the name and prefix with a unique identifier
         # Any codelist names that would produce duplicate slugs will error later when we try to create them.
@@ -474,7 +474,7 @@ def parse_args():
         help=(
             "If set, will force the creation of codelists even if the codes "
             "aren't found in the coding system. This is useful if e.g. you "
-            "are importing the PCD refsets which occasionally contain codes "
+            "are importing the NHS refsets which occasionally contain codes "
             "from the clinical AND medication SNOMED dictionaries. This causes "
             "unfound codes to be ignored, but appends the ignored codes to the description."
         ),

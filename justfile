@@ -350,6 +350,10 @@ docker-smoke-test host="http://localhost:7000" env="prod": _env
 docker-check-migrations *args="":
     {{ just_executable() }} docker/check-migrations {{ docker_env }} {{ args }}
 
-# Run script to update the PCD refsets following a new release
+# Run script to update the NHS PCD refsets following a new release
 update-pcd-refsets *args="":
-    $BIN/python manage.py runscript update_pcd_refsets --script-args='{{ args }}'
+    $BIN/python manage.py runscript update_nhs_refsets --script-args='{{ args }}'
+
+# Run script to update the NHS drug refsets following a new release
+update-drug-refsets *args="":
+    $BIN/python manage.py runscript update_nhs_refsets --script-args='--drugs {{ args }}'

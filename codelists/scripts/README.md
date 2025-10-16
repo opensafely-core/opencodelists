@@ -1,7 +1,8 @@
 # Bulk import codelists from a file
 
 `codelists/scripts/bulk_import_codelists.py` reads a file and creates new
-codelists/codelist versions. All new versions are created as "under review".
+codelists/codelist versions. By default, new versions are created as "under review";
+pass `--force-publish` to publish immediately.
 
 This script is intended to be run on a local machine, and will use the OpenCodelists
 API to create the new codelist versions.
@@ -9,9 +10,11 @@ API to create the new codelist versions.
 ## Running the script
 
 ```
-usage: bulk_import_codelists.py [-h] [--force-new-version] [--live-run]
-                                     [--host HOST]
-                                     file_path config_file
+usage: bulk_import_codelists.py [-h] [--force-new-version] [--force-description]
+                                [--force-name] [--force-publish] [--force-slug]
+                                [--ignore-unfound-codes] [--live-run]
+                                [--host HOST]
+                                file_path config_file
 
 positional arguments:
   file_path             Path/to/file
@@ -22,6 +25,19 @@ options:
   --force-new-version, -f
                         Always create a new version, even if a version with
                         identical codes already exists.
+  --force-description   Always update the description, even if it already
+                        exists.
+  --force-name          Always update the name, even if it already exists.
+  --force-publish       Auto-publish new versions rather than leaving them
+                        under review.
+  --force-slug          Use the provided slug for new codelists instead of
+                        generating one (requires a `codelist_new_slug`
+                        column).
+  --ignore-unfound-codes
+                        Ignore codes that are not found in the coding system.
+                        Useful for combined refsets that mix clinical and
+                        medication codes; ignored codes are appended to the
+                        methodology for reference.
   --live-run            Run this command for real; if not specified, this will be a
                         dry run that reports codelists/versions that will be
                         created but does not actually do anything.
@@ -55,13 +71,14 @@ return 405s.
 
 ## Create API token
 
-Create a token on the server (via the django shell) with:
+Create an API token via the django admin interface at {host}/admin. Alternatively,
+create a token on the server (via the django shell) with:
 ```python
 from rest_framework.authtoken.models import Token
 
 user = User.objects.get(username=...)
 token = Token.objects.create(user=user)
-print(user.api_token)
+print(token.key)
 ```
 
 NOTE: the token user must be a member of the relevant organisation on OpenCodelists.
@@ -73,6 +90,9 @@ Provide a path to an xlsx or tab/comma-delimited file (.txt files must state `de
  - codelist_name
  - code
  - term (only required if file includes dm+d codelists)
+ - codelist_new_slug (optional; required only when using `--force-slug`)
+
+The `coding_system` column may be omitted when the config specifies only a single coding system.
 
 Optionally, a codelist_description field may be provided either to be used verbatim or with a template string specified in the [config](#config).
 
@@ -116,7 +136,9 @@ Provide a config file in json format
 - **limit_to_named_codelists**: boolean, defaults to False; only import update for
   codelists named in codelist_name_aliases
 - **description_template**: template string for interpolation of
-  `codelist_description` field in codelist descriptions
+  `codelist_description` field in codelist descriptions (use standard `%` string
+  formatting, e.g. `"Imported %s"`).
+- **delimiter**: delimiter to use when reading `.txt` files.
 
 ### example_config.json:
 ```json
@@ -156,12 +178,14 @@ Provide a config file in json format
 
 ## Source-specific notes
 
-### NHS Digital Primary Care Domain Refsets
+### NHS Digital Primary Care Domain Refsets and NHS Drug Refsets
 
-A configuration file is provided for loading of the `[release]_PCD_Refset_Content.txt`,
-which contains all the refsets in a single file.
-
-The `tag` and `coding_systems.snomedct.release` config values will need to be updated for each run.
+There are just commands to update the NHS PCD refsets:
+```sh
+just update-pcd-refsets
+just update-drug-refsets
+```
+Please see `codelists/scripts/update_nhs_refsets.py` for more details.
 
 #### Handling Errors
 

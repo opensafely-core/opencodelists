@@ -67,7 +67,6 @@ from zipfile import ZipFile
 import requests
 
 from coding_systems.base.trud_utils import TrudDownloader
-from coding_systems.versioning.models import NHSDrugRefsetVersion, PCDRefsetVersion
 
 
 CLUSTER_REFSET_PATTERN = r"GPData_Cluster_Refset_1000230_\d+\.csv"
@@ -82,13 +81,15 @@ def set_pcd_refset_props():
         description_intro, \
         coding_system_id, \
         type_of_inclusion, \
-        RefsetVersionModel
+        refset_version_model, \
+        refset_type
     organisation = "nhsd-primary-care-domain-refsets"
     tag_id = "pcd_refsets"
     description_intro = "refset published by NHSD."
     coding_system_id = SNOMED_ID
     type_of_inclusion = "PC refset"
-    RefsetVersionModel = PCDRefsetVersion
+    refset_version_model = "PCDRefsetVersion"
+    refset_type = "pcd"
 
 
 def set_drug_refset_props():
@@ -98,13 +99,15 @@ def set_drug_refset_props():
         description_intro, \
         coding_system_id, \
         type_of_inclusion, \
-        RefsetVersionModel
+        refset_version_model, \
+        refset_type
     organisation = "nhs-drug-refsets"
     tag_id = "nhs_drug_refsets"
     description_intro = "NHS drug refset."
     coding_system_id = DMD_ID
     type_of_inclusion = "Refset"
-    RefsetVersionModel = NHSDrugRefsetVersion
+    refset_version_model = "NHSDrugRefsetVersion"
+    refset_type = "drug"
 
 
 class Downloader(TrudDownloader):
@@ -265,7 +268,9 @@ def parse_args(args):
     return parser.parse_args(shlex.split(args[0]) if args else [])
 
 
-def run_bulk_import(cluster_file, config_file, host, release, live_run, names=None):
+def run_bulk_import(
+    cluster_file, config_file, host, release, live_run, latest_tag, names=None
+):
     """Run the bulk import script with the extracted file."""
     bulk_import_script = Path(__file__).parent / "bulk_import_codelists.py"
 
@@ -322,51 +327,67 @@ def run_bulk_import(cluster_file, config_file, host, release, live_run, names=No
 
     # After successful import
     if live_run and process.returncode == 0:
-        # get current tag - but get_latest() might return None
-        latest_refset = RefsetVersionModel.get_latest()
-        current_refset_tag = latest_refset.tag if latest_refset else "Not yet set"
-
         print(release)
         print("\nThe bulk import script has finished.")
+        print(f"  If you want you can now update the {refset_version_model} record.")
         print(
-            f"  If you want you can now update the {RefsetVersionModel.__name__} record."
-        )
-        print(
-            f"  Currently the most recent {RefsetVersionModel.__name__} refset version is: '{current_refset_tag}'"
+            f"  Currently the most recent {refset_version_model} refset version is: '{latest_tag}'"
         )
         print(f"  If you confirm, this will be updated to '{release['release_name']}'")
         print(
             "  The suggestion is that if all the latest refsets were successfully imported above,"
         )
         print(
-            f"  then you should update the {RefsetVersionModel.__name__} record. If any failed, you may want to rerun"
+            f"  then you should update the {refset_version_model} record. If any failed, you may want to rerun"
         )
         print(
             "  this script but just for the failed refsets (retrying often works), and then update the"
         )
         print(
-            f"  {RefsetVersionModel.__name__} record once they have successfully imported.\n"
+            f"  {refset_version_model} record once they have successfully imported.\n"
         )
 
         update_confirm = (
             input(
-                f"Would you like to update the {RefsetVersionModel.__name__} record from {current_refset_tag} to {release['release_name']}? (y/n): "
+                f"Would you like to update the {refset_version_model} record from {latest_tag} to {release['release_name']}? (y/n): "
             )
             .strip()
             .lower()
         )
         if update_confirm in ("y", "yes"):
-            # Create a new version record
-            RefsetVersionModel.objects.create(
-                release=release["release"],
-                tag=release["release_name"],
-                release_date=release["valid_from"],
-            )
-            print(
-                f"Recorded new {RefsetVersionModel.__name__} version: {release['release_name']}"
-            )
+            # Update via API
+            update_url = f"{host}/coding-systems/update-refset-version/{refset_type}"
+            token = os.environ.get("API_TOKEN")
+            headers = {
+                "Authorization": f"Token {token}",
+                "Content-Type": "application/json",
+            }
+            payload = {
+                "release": release["release"],
+                "tag": release["release_name"],
+                "release_date": release["valid_from"].isoformat(),
+            }
+
+            try:
+                update_resp = requests.post(update_url, headers=headers, json=payload)
+                update_resp.raise_for_status()
+                result = update_resp.json()
+                print(
+                    f"✓ Successfully recorded new {refset_version_model} version: {release['release_name']}"
+                )
+                print(f"  Response: {result.get('message', 'Success')}")
+            except requests.exceptions.HTTPError as e:
+                print(f"Error updating refset version via API: {e}")
+                if e.response is not None:
+                    try:
+                        error_detail = e.response.json()
+                        print(f"  Error details: {error_detail}")
+                    except Exception:
+                        print(f"  Response: {e.response.text}")
+            except Exception as e:
+                print(f"Error updating refset version via API: {e}")
         else:
-            print(f"{RefsetVersionModel.__name__} record not updated.")
+            print(f"{refset_version_model} record not updated.")
     else:
         print("\nDry run completed successfully. No changes were made to the database.")
 
@@ -542,5 +563,6 @@ def run(*args):
             args.host,
             release_to_use,
             live_run=args.live_run,
+            latest_tag=latest_tag,
             names=args.names,
         )

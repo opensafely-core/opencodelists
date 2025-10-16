@@ -2,10 +2,13 @@ import json
 
 from django.http import JsonResponse
 from django.shortcuts import render
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
+from codelists.api_decorators import require_authentication
 from codelists.coding_systems import CODING_SYSTEMS
 from coding_systems.versioning.models import NHSDrugRefsetVersion, PCDRefsetVersion
+from opencodelists.models import Organisation
 
 
 def latest_releases(request):
@@ -74,3 +77,93 @@ def more_info(request, coding_system):
     synonyms = {"synonyms": cs.lookup_synonyms(codes)}
     references = {"references": cs.lookup_references(codes)}
     return JsonResponse(synonyms | references)
+
+
+@csrf_exempt
+@require_authentication
+@require_http_methods(["POST"])
+def update_refset_version(request, refset_type):
+    """
+    API endpoint to update NHS refset versions (PCD or Drug).
+    Only users who are members of the corresponding organisation can update.
+    """
+    # Map refset type to organisation and model
+    REFSET_CONFIG = {
+        "pcd": {
+            "organisation_slug": "nhsd-primary-care-domain-refsets",
+            "model": PCDRefsetVersion,
+        },
+        "drug": {
+            "organisation_slug": "nhs-drug-refsets",
+            "model": NHSDrugRefsetVersion,
+        },
+    }
+
+    if refset_type not in REFSET_CONFIG:
+        return JsonResponse(
+            {"error": "Invalid refset type. Must be 'pcd' or 'drug'"}, status=400
+        )
+
+    config = REFSET_CONFIG[refset_type]
+
+    # Check user has permission (member of the organisation)
+    organisation = Organisation.objects.get(slug=config["organisation_slug"])
+
+    if not request.user.is_member(organisation):
+        return JsonResponse(
+            {
+                "error": f"Unauthorised. You must be a member of {organisation.name} to update this refset version."
+            },
+            status=403,
+        )
+
+    # Parse request body
+    try:
+        from datetime import datetime
+
+        data = json.loads(request.body)
+        release = data.get("release")
+        tag = data.get("tag")
+        release_date_str = data.get("release_date")
+
+        if not all([release, tag, release_date_str]):
+            return JsonResponse(
+                {"error": "Missing required fields: release, tag, release_date"},
+                status=400,
+            )
+
+        # Parse the release_date string to a date object
+        try:
+            release_date = datetime.strptime(release_date_str, "%Y-%m-%d").date()
+        except ValueError:
+            return JsonResponse(
+                {"error": "Invalid release_date format. Expected YYYY-MM-DD"},
+                status=400,
+            )
+    except (json.JSONDecodeError, ValueError) as e:
+        return JsonResponse({"error": f"Invalid JSON: {str(e)}"}, status=400)
+
+    # Create the new refset version
+    try:
+        refset_version = config["model"].objects.create(
+            release=release,
+            tag=tag,
+            release_date=release_date,
+        )
+        return JsonResponse(
+            {
+                "success": True,
+                "message": f"Created new {config['model'].__name__} version: {tag}",
+                "version": {
+                    "release": refset_version.release,
+                    "tag": refset_version.tag,
+                    "release_date": refset_version.release_date.isoformat(),
+                    "import_timestamp": refset_version.import_timestamp.isoformat(),
+                },
+            },
+            status=201,
+        )
+    except Exception as e:
+        return JsonResponse(
+            {"error": f"Failed to create version: {str(e)}"}, status=500
+        )

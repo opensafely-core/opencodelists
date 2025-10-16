@@ -248,6 +248,17 @@ def pcd_refset_version(db):
     return obj
 
 
+@pytest.fixture
+def nhs_drug_refset_version(db):
+    """Fixture to create a NHSDrugRefsetVersion object."""
+    from coding_systems.versioning.models import NHSDrugRefsetVersion
+
+    obj = NHSDrugRefsetVersion.objects.create(
+        release="test_drug_release", tag="20250618", release_date="2025-06-18"
+    )
+    return obj
+
+
 @pytest.fixture(scope=get_fixture_scope)
 def universe(snomedct_data, dmd_data, bnf_data, django_db_setup, django_db_blocker):
     """Create universe of fixture objects.

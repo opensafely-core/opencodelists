@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
 """
-Django Script to automatically update NHS Primary Care Domain Refsets
+Django Script to automatically update either the NHS Primary Care Domain (PCD) Refsets
+or the NHS Drug Refsets
 
 These are released whenever they are updated i.e. not on a particular release cycle. There
 are roughly 4 a year. This script allows them to be loaded into opencodelists, as either new
@@ -21,29 +22,35 @@ below for how to run just for a few cluster ids.
 
 This script requires a TRUD_API_KEY env var to either be set or defined in your .env file.
 
-You must also be a member of the "NHSD Primary Care Domain Refsets" organisation on
-opencodelists, and have an API_TOKEN set up via the admin interface.
+You must be a member of the "NHSD Primary Care Domain Refsets" organisation on
+opencodelists to upload the PCD refsets, and a member of the "NHS Drug Refsets" organisation
+to upload the drug refsets. You must also have an API_TOKEN set up via the admin interface.
 
 Usage:
-    just manage "runscript update_pcd_refsets --script-args='[--live-run] [--host=xxx] [REFSET_ID [REFSET_ID ...]]'"
+    just update-pcd-refsets [--live-run] [--host=xxx] [REFSET_ID [REFSET_ID ...]]'"
+    just update-drug-refsets [--live-run] [--host=xxx] [REFSET_ID [REFSET_ID ...]]'"
 
 Flags:
-    --live-run      Actually update the config and run the bulk import for real (not a dry run).
-                    If not set, the script will perform a dry run and not update the config.
+    --live-run      Actually run the bulk import for real (not a dry run).
     --host          Base URL for the API (default: http://localhost:7000) but likely
                     https://www.opencodelists.org/ for the live run
 
 Arguments:
-    REFSET_ID       Optional space-separated list of Cluster_IDs (refset IDs) to include in the output CSV.
+    REFSET_IDs      Optional space-separated list of Cluster_IDs (refset IDs) to include in the output CSV.
                     If omitted, all clusters are included.
 
-Examples:
+Examples (for PCD refsets, replace with `just update-drug-refsets` for drug refsets):
+    # Dry run, process everything
+    just update-pcd-refsets
+
     # Dry run, process only specific clusters
-    just manage "runscript update_pcd_refsets --script-args='ANTIPSYONLYDRUG_COD C19ACTIVITY_COD'"
+    just update-pcd-refsets AST_COD C19ACTIVITY_COD
+
+    # Live run, default dev host, process all drug clusters
+    just update-pcd-refsets --live-run
 
     # Live run, production host, process all clusters
-    just manage "runscript update_pcd_refsets --script-args='--live-run --host=https://www.opencodelists.org/'"
-
+    just update-pcd-refsets --live-run --host=https://www.opencodelists.org/
 
 """
 
@@ -60,12 +67,47 @@ from zipfile import ZipFile
 import requests
 
 from coding_systems.base.trud_utils import TrudDownloader
-from coding_systems.versioning.models import PCDRefsetVersion
 
 
-CONFIG_FILE = Path(__file__).parent / "nhsd_primary_care_refsets.json"
 CLUSTER_REFSET_PATTERN = r"GPData_Cluster_Refset_1000230_\d+\.csv"
 SNOMED_ID = "snomedct"
+DMD_ID = "dmd"
+
+
+def set_pcd_refset_props():
+    global \
+        organisation, \
+        tag_id, \
+        description_intro, \
+        coding_system_id, \
+        type_of_inclusion, \
+        refset_version_model, \
+        refset_type
+    organisation = "nhsd-primary-care-domain-refsets"
+    tag_id = "pcd_refsets"
+    description_intro = "refset published by NHSD."
+    coding_system_id = SNOMED_ID
+    type_of_inclusion = "PC refset"
+    refset_version_model = "PCDRefsetVersion"
+    refset_type = "pcd"
+
+
+def set_drug_refset_props():
+    global \
+        organisation, \
+        tag_id, \
+        description_intro, \
+        coding_system_id, \
+        type_of_inclusion, \
+        refset_version_model, \
+        refset_type
+    organisation = "nhs-drug-refsets"
+    tag_id = "nhs_drug_refsets"
+    description_intro = "NHS drug refset."
+    coding_system_id = DMD_ID
+    type_of_inclusion = "Refset"
+    refset_version_model = "NHSDrugRefsetVersion"
+    refset_type = "drug"
 
 
 class Downloader(TrudDownloader):
@@ -76,7 +118,7 @@ class Downloader(TrudDownloader):
         return release_metadata["release"][-8:]
 
 
-def fetch_pcd_releases(downloader, current_tag):
+def fetch_nhs_refset_releases(downloader, current_tag):
     """
     Fetch available releases from TRUD API, filter to those the same or newer
     than the current tag, and return the tag, id, date, and url.
@@ -147,26 +189,47 @@ def get_latest_db_release_and_refset_tag_from_api(base_url):
         resp = requests.get(url)
         resp.raise_for_status()
         data = resp.json()
-        if SNOMED_ID in data and "database_alias" in data[SNOMED_ID]:
-            database_alias = data[SNOMED_ID]["database_alias"]
+        if coding_system_id in data and "database_alias" in data[coding_system_id]:
+            database_alias = data[coding_system_id]["database_alias"]
             # Get latest refset tag if available, or default to a known version if not
-            latest_refset_tag = data.get("pcd_refsets", {}).get("tag", "20250627")
+            latest_refset_tag = data.get(tag_id, {}).get("tag", "20250627")
             return database_alias, latest_refset_tag
         else:
-            print(f"No database_alias found for {SNOMED_ID} in API response.")
-            return None
+            print(f"No database_alias found for {coding_system_id} in API response.")
+            return None, None
     except Exception as e:
-        print(f"Error fetching latest DB release from API: {e}")
-        return None
+        print(e)
+        print(
+            f"Failed to connect to API at {url}, if this is a local instance ensure it is running."
+        )
+        return None, None
 
 
-def build_temp_config(static_config_file, db_release, latest_tag):
-    with open(static_config_file) as f:
-        config = json.load(f)
+def build_temp_config(db_release, latest_tag):
+    config = {
+        "organisation": organisation,
+        "coding_systems": {
+            coding_system_id: {"id": coding_system_id, "release": db_release},
+        },
+        "column_aliases": {
+            "codelist_name": "Cluster_Desc",
+            "code": "ConceptId",
+            "term": "ConceptId_Description",
+            "codelist_description": "Cluster_ID",
+            "codelist_new_slug": "Cluster_Slug",
+        },
+        "tag": latest_tag,
+        "description_template": (
+            f"Taken from the `%s` {description_intro}"
+            " Contains public sector information "
+            "licensed under the UK Open Government Licence v3.0 ("
+            "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/)."
+        ),
+    }
 
     # Update config with dynamic bits
     config["tag"] = latest_tag
-    config["coding_systems"][SNOMED_ID]["release"] = db_release
+    config["coding_systems"][coding_system_id]["release"] = db_release
 
     # Write to a temporary file
     temp_config_path = Path(tempfile.gettempdir()) / f"temp_config_{os.getpid()}.json"
@@ -181,8 +244,11 @@ def build_temp_config(static_config_file, db_release, latest_tag):
 def parse_args(args):
     import argparse
 
-    parser = argparse.ArgumentParser(
-        description="Update NHS Primary Care Domain Refsets"
+    parser = argparse.ArgumentParser(description="Update NHS refsets (PCD or Drug)")
+    parser.add_argument(
+        "--drugs",
+        action="store_true",
+        help="If set, update NHS Drug Refsets instead of PCD refsets",
     )
     parser.add_argument(
         "--live-run",
@@ -202,7 +268,9 @@ def parse_args(args):
     return parser.parse_args(shlex.split(args[0]) if args else [])
 
 
-def run_bulk_import(cluster_file, config_file, host, release, live_run, names=None):
+def run_bulk_import(
+    cluster_file, config_file, host, release, live_run, latest_tag, names=None
+):
     """Run the bulk import script with the extracted file."""
     bulk_import_script = Path(__file__).parent / "bulk_import_codelists.py"
 
@@ -214,7 +282,7 @@ def run_bulk_import(cluster_file, config_file, host, release, live_run, names=No
             "         to pass the API_TOKEN.\n"
             "NB the API_TOKEN is for connecting to the opencodelists API (either locally "
             "or in production. The TRUD_API_KEY is different, and is what is needed to get "
-            "the PCD refset files from TRUD."
+            "the NHS refset files from TRUD."
         )
         live_run = False
 
@@ -250,49 +318,76 @@ def run_bulk_import(cluster_file, config_file, host, release, live_run, names=No
         return
 
     print(f"Running bulk import: {' '.join(cmd)}")
-    process = subprocess.run(cmd, check=True)
+    try:
+        process = subprocess.run(cmd, check=True)
+    except subprocess.CalledProcessError as e:
+        print("Bulk import script failed.")
+        print(e)
+        return
 
     # After successful import
     if live_run and process.returncode == 0:
-        # get current tag - but get_latest() might return None
-        latest_refset = PCDRefsetVersion.get_latest()
-        current_refset_tag = latest_refset.tag if latest_refset else "Not yet set"
-
         print(release)
         print("\nThe bulk import script has finished.")
-        print("  If you want you can now update the PCDRefsetVersion record.")
+        print(f"  If you want you can now update the {refset_version_model} record.")
         print(
-            f"  Currently the most recent PCD refset version is: '{current_refset_tag}'"
+            f"  Currently the most recent {refset_version_model} refset version is: '{latest_tag}'"
         )
         print(f"  If you confirm, this will be updated to '{release['release_name']}'")
         print(
-            "  The suggestion is that if all the latest PCD refsets were successfully imported above,"
+            "  The suggestion is that if all the latest refsets were successfully imported above,"
         )
         print(
-            "  then you should update the PCDRefsetVersion record. If any failed, you may want to rerun"
+            f"  then you should update the {refset_version_model} record. If any failed, you may want to rerun"
         )
         print(
-            "  this script with the --names option to filter to just those refsets, and then update the"
+            "  this script but just for the failed refsets (retrying often works), and then update the"
         )
-        print("  PCDRefsetVersion record once they have successfully imported.\n")
+        print(
+            f"  {refset_version_model} record once they have successfully imported.\n"
+        )
 
         update_confirm = (
             input(
-                f"Would you like to update the PCDRefsetVersion record from {current_refset_tag} to {release['release_name']}? (y/n): "
+                f"Would you like to update the {refset_version_model} record from {latest_tag} to {release['release_name']}? (y/n): "
             )
             .strip()
             .lower()
         )
         if update_confirm in ("y", "yes"):
-            # Create a new version record
-            PCDRefsetVersion.objects.create(
-                release=release["release"],
-                tag=release["release_name"],
-                release_date=release["valid_from"],
-            )
-            print(f"Recorded new PCD refset version: {release['release_name']}")
+            # Update via API
+            update_url = f"{host}/coding-systems/update-refset-version/{refset_type}"
+            token = os.environ.get("API_TOKEN")
+            headers = {
+                "Authorization": f"Token {token}",
+                "Content-Type": "application/json",
+            }
+            payload = {
+                "release": release["release"],
+                "tag": release["release_name"],
+                "release_date": release["valid_from"].isoformat(),
+            }
+
+            try:
+                update_resp = requests.post(update_url, headers=headers, json=payload)
+                update_resp.raise_for_status()
+                result = update_resp.json()
+                print(
+                    f"✓ Successfully recorded new {refset_version_model} version: {release['release_name']}"
+                )
+                print(f"  Response: {result.get('message', 'Success')}")
+            except requests.exceptions.HTTPError as e:
+                print(f"Error updating refset version via API: {e}")
+                if e.response is not None:
+                    try:
+                        error_detail = e.response.json()
+                        print(f"  Error details: {error_detail}")
+                    except Exception:
+                        print(f"  Response: {e.response.text}")
+            except Exception as e:
+                print(f"Error updating refset version via API: {e}")
         else:
-            print("PCDRefsetVersion record not updated.")
+            print(f"{refset_version_model} record not updated.")
     else:
         print("\nDry run completed successfully. No changes were made to the database.")
 
@@ -335,10 +430,20 @@ def process_cluster_file(input_file, output_file, names=None):
                     # (which is in the unused Active_Code_Status field in this csv) and we want to
                     # include those because analyses may well involve a time when these codes were active.
                     # The possible "Type_of_Inclusion" values are "PC refset" for the primary care (clinical)
-                    # ones, and "Refset" for the drug refsets. We currently only import the clinical ones.
+                    # ones, and "Refset" for the drug refsets.
+
+                    # For drug refsets we further restrict to specific cluster categories.
+                    category_ok = True
+                    if type_of_inclusion == "Refset":
+                        category_ok = row.get("Cluster_Category") in [
+                            "Medications",
+                            "Vaccinations and immunisations",
+                        ]
+
                     if (
                         row.get("Active_in_Refset") == "1"
-                        and row.get("Type_of_Inclusion") == "PC refset"
+                        and row.get("Type_of_Inclusion") == type_of_inclusion
+                        and category_ok
                         and (not names_lower or cluster_id.lower() in names_lower)
                     ):
                         new_row = {
@@ -398,13 +503,34 @@ def get_user_choice_for_release(releases, current_tag):
 def run(*args):
     args = parse_args(args)
 
+    # if TRUD_API_KEY not set, abort
+    if not os.environ.get("TRUD_API_KEY"):
+        print(
+            "Error: TRUD_API_KEY environment variable not set. This is required to access the TRUD API."
+        )
+        exit(1)
+    if os.environ.get("TRUD_API_KEY") == "dummy-key":
+        print(
+            "Error: TRUD_API_KEY environment variable is set to 'dummy-key'. Please set it to a valid key."
+        )
+        exit(1)
+
+    if args.drugs:
+        set_drug_refset_props()
+    else:
+        set_pcd_refset_props()
+
     db_release, latest_tag = get_latest_db_release_and_refset_tag_from_api(args.host)
+
+    if not db_release or not latest_tag:
+        print("Could not determine the latest database release or refset tag from API.")
+        exit(1)
 
     # Create temporary directory for extraction
     with tempfile.TemporaryDirectory() as temp_dir:
         downloader = Downloader(temp_dir)
         # Fetch possible new releases
-        releases = fetch_pcd_releases(downloader, latest_tag)
+        releases = fetch_nhs_refset_releases(downloader, latest_tag)
 
         if not releases:
             print(
@@ -430,14 +556,13 @@ def run(*args):
             return
 
         # Build a temporary config file with dynamic bits from API
-        temp_config_file = build_temp_config(
-            CONFIG_FILE, db_release, release_to_use["release_name"]
-        )
+        temp_config_file = build_temp_config(db_release, release_to_use["release_name"])
         run_bulk_import(
             processed_file,
             temp_config_file,
             args.host,
             release_to_use,
             live_run=args.live_run,
+            latest_tag=latest_tag,
             names=args.names,
         )

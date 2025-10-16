@@ -94,15 +94,30 @@ def build_db_path(coding_system_release):
     return db_path
 
 
-class PCDRefsetVersion(models.Model):
+class NHSRefsetVersion(models.Model):
     release = models.CharField(max_length=255)
     tag = models.CharField(max_length=20)
     release_date = models.DateField()
     import_timestamp = models.DateTimeField(auto_now_add=True)
 
     class Meta:
+        abstract = True
         ordering = ["-release_date"]
 
     @classmethod
     def get_latest(cls):
         return cls.objects.first()
+
+
+class PCDRefsetVersion(NHSRefsetVersion):
+    """
+    PCD Refset Version model. Clusters of codes used within various NHS business rules.
+    (https://digital.nhs.uk/data-and-information/data-collections-and-data-sets/data-collections/quality-and-outcomes-framework-qof/quality-and-outcome-framework-qof-business-rules/primary-care-domain-reference-set-portal)
+    """
+
+
+class NHSDrugRefsetVersion(NHSRefsetVersion):
+    """
+    NHS Drug Refset Version model. Clusters of codes used within various NHS business rules.
+    (https://digital.nhs.uk/data-and-information/data-collections-and-data-sets/data-collections/quality-and-outcomes-framework-qof/quality-and-outcome-framework-qof-business-rules/primary-care-domain-reference-set-portal)
+    """

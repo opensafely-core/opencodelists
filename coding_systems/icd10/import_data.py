@@ -1,6 +1,7 @@
 """Import ICD-10 data from
 https://apps.who.int/classifications/apps/icd/ClassificationDownload/DLArea/Download.aspx"""
 
+import pickle
 from collections import defaultdict
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -19,19 +20,7 @@ logger = structlog.get_logger()
 def import_data(
     release_zipfile, release_name, valid_from, import_ref=None, check_compatibility=True
 ):
-    with TemporaryDirectory() as tempdir:
-        release_zip = ZipFile(release_zipfile)
-        logger.info("Extracting", release_zip=release_zip.filename)
-
-        release_zip.extractall(path=tempdir)
-        paths = list(Path(tempdir).glob("*.xml"))
-        assert len(paths) == 1, (
-            f"Expected 1 and only one .xml file (found {len(paths)})"
-        )
-        release_path = paths[0]
-
-        with open(release_path) as f:
-            doc = etree.parse(f)
+    doc = extract_document(release_zipfile)
 
     with CodingSystemImporter(
         "icd10", release_name, valid_from, import_ref, check_compatibility
@@ -43,8 +32,36 @@ def import_data(
         )
 
 
+def extract_document(release_zipfile):
+    with TemporaryDirectory() as tempdir:
+        release_zip = ZipFile(release_zipfile)
+        logger.info("Extracting", release_zip=release_zip.filename)
+
+        release_zip.extractall(path=tempdir)
+        paths = list(Path(tempdir).glob("*.xml")) or list(
+            Path(tempdir).glob("*.pickle")
+        )
+        assert len(paths) == 1, (
+            f"Expected 1 and only one .xml or .pickle file (found {len(paths)})"
+        )
+        release_path = paths[0]
+
+        if release_path.suffix == ".xml":
+            with open(release_path) as f:
+                doc = etree.parse(f)
+        else:
+            with release_path.open("rb") as f:
+                doc = pickle.load(f)
+
+    return doc
+
+
 def load_concepts(doc):
-    """Yield dicts with `code`, `kind`, `term` and `parent_id` attributes of all
+    """
+    If "doc" is actually a combined pre-processed release Concept set,
+    yield dict of Concept attributes from it.
+
+    Otherwise, yield dicts with `code`, `kind`, `term` and `parent_id` attributes of all
     concepts.
 
     Concepts are defined in `Class` elements, which have `code` and `kind` attributes.
@@ -87,6 +104,10 @@ def load_concepts(doc):
     elsewhere, we strip the `.` from codes.  So eg `E13.0` is recorded as `E130`.  We
     don't think that this ever introduces ambiguity!
     """
+
+    if isinstance(doc, set):
+        for concept in doc:
+            yield {k: v for k, v in concept.__dict__.items() if not k.startswith("_")}
 
     root = doc.getroot()
 

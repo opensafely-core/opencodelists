@@ -333,23 +333,20 @@ def run_bulk_import(
     # After successful import
     if live_run and process.returncode == 0:
         print(release)
-        print("\nThe bulk import script has finished.")
-        print(f"  If you want you can now update the {REFSET_VERSION_MODEL} record.")
         print(
-            f"  Currently the most recent {REFSET_VERSION_MODEL} refset version is: '{latest_tag}'"
-        )
-        print(f"  If you confirm, this will be updated to '{release['release_name']}'")
-        print(
-            "  The suggestion is that if all the latest refsets were successfully imported above,"
-        )
-        print(
-            f"  then you should update the {REFSET_VERSION_MODEL} record. If any failed, you may want to rerun"
-        )
-        print(
-            "  this script but just for the failed refsets (retrying often works), and then update the"
-        )
-        print(
-            f"  {REFSET_VERSION_MODEL} record once they have successfully imported.\n"
+            "\nThe bulk import script has finished.\n\n"
+            f"If you want you can now update the {REFSET_VERSION_MODEL} record. "
+            f"Currently the most recent {REFSET_VERSION_MODEL} refset version is: '{latest_tag}'\n\n"
+            f"If you confirm, this will be updated to '{release['release_name']}'\n\n"
+            "The suggestion is that if all the latest refsets were successfully imported above, "
+            f"then you should update the {REFSET_VERSION_MODEL} record. If any failed, you may want "
+            "to rerun this script but just for the failed refsets (retrying often works), and then "
+            f"update the {REFSET_VERSION_MODEL} record once they have successfully imported.\n\n"
+            f"E.g. if just the 'AST_COD' refset failed, you would run:\n\n"
+            "    just update-pcd-refsets --host <host_name> --live-run AST_COD\n\n"
+            "to retry just that one refset.\n\n"
+            "You could also just run the command again, as it won't overwrite existing ones, but it "
+            "will cause the API to be called unnecessarily for anything that succeeded the first time."
         )
 
         update_confirm = (

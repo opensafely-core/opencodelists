@@ -152,20 +152,21 @@ def update_refset_version(request, refset_type):
             tag=tag,
             release_date=release_date,
         )
-        return JsonResponse(
-            {
-                "success": True,
-                "message": f"Created new {config['model'].__name__} version: {tag}",
-                "version": {
-                    "release": refset_version.release,
-                    "tag": refset_version.tag,
-                    "release_date": refset_version.release_date.isoformat(),
-                    "import_timestamp": refset_version.import_timestamp.isoformat(),
-                },
-            },
-            status=201,
-        )
     except Exception as e:
         return JsonResponse(
             {"error": f"Failed to create version: {str(e)}"}, status=500
         )
+
+    return JsonResponse(
+        {
+            "success": True,
+            "message": f"Created new {config['model'].__name__} version: {tag}",
+            "version": {
+                "release": refset_version.release,
+                "tag": refset_version.tag,
+                "release_date": refset_version.release_date.isoformat(),
+                "import_timestamp": refset_version.import_timestamp.isoformat(),
+            },
+        },
+        status=201,
+    )

@@ -435,3 +435,7 @@ PRs: first, a PR with models and migrations to create the new table or column
 and replicate existing data; then a PR updating the application code to use the
 new table/column; and finally, a PR to remove the old field or model and the
 corresponding migration.
+
+## Testing deployments locally
+
+Please refer to the [local deployment document](./deploy/local/LOCAL_DEPLOYMENT_TESTING.md) for instructions on how to test deployments locally.

@@ -15,3 +15,7 @@ node_modules/
 staticfiles/
 # dockerfile image build its own dir
 assets/dist/
+
+# Database files
+**/*.sqlite*
+db.sqlite*

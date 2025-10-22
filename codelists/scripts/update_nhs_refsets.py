@@ -328,7 +328,7 @@ def run_bulk_import(
     except subprocess.CalledProcessError as e:
         print("Bulk import script failed.")
         print(e)
-        return
+        sys.exit(1)
 
     # After successful import
     if live_run and process.returncode == 0:

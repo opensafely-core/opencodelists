@@ -1,13 +1,13 @@
 import re
 
 from django.core.paginator import Paginator
-from django.db.models import Case, IntegerField, Q, Value, When
+from django.db.models import Case, IntegerField, Prefetch, Q, Value, When
 from django.shortcuts import get_object_or_404, render
 
 from opencodelists.list_utils import flatten
 from opencodelists.models import Organisation
 
-from ..models import Handle, Status
+from ..models import CodelistVersion, Handle, Status
 
 
 def _parse_search_query(query):
@@ -109,17 +109,30 @@ def _get_page_obj(objects, page_number, paginate_by=30):
 
 
 def _all_published_codelists(handles):
-    return [
-        handle.codelist
-        for handle in handles
-        if handle.codelist.has_published_versions()
-    ]
+    handles = (
+        handles.filter(codelist__versions__status=Status.PUBLISHED)
+        .select_related("codelist")
+        .distinct()
+    )
+
+    return [handle.codelist for handle in handles]
+
+
+_under_review_prefetch = Prefetch(
+    "codelist__versions",
+    queryset=CodelistVersion.objects.filter(
+        status=Status.UNDER_REVIEW,
+    ),
+    to_attr="_under_review_versions",
+)
 
 
 def _all_under_review_codelist_versions(handles):
-    return flatten(
-        [
-            list(handle.codelist.versions.filter(status=Status.UNDER_REVIEW))
-            for handle in handles
-        ]
+    handles = (
+        handles.filter(codelist__versions__status=Status.UNDER_REVIEW)
+        .select_related("codelist")
+        .distinct()
+        .prefetch_related(_under_review_prefetch)
     )
+
+    return flatten(handle.codelist._under_review_versions for handle in handles)

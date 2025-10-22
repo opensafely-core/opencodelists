@@ -46,7 +46,7 @@ Examples (for PCD refsets, replace with `just update-drug-refsets` for drug refs
     # Dry run, process only specific clusters
     just update-pcd-refsets AST_COD C19ACTIVITY_COD
 
-    # Live run, default dev host, process all drug clusters
+    # Live run, default dev host, process all clusters
     just update-pcd-refsets --live-run
 
     # Live run, production host, process all clusters

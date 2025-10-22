@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 
 from django.http import JsonResponse
 from django.shortcuts import render
@@ -121,29 +122,28 @@ def update_refset_version(request, refset_type):
 
     # Parse request body
     try:
-        from datetime import datetime
-
         data = json.loads(request.body)
-        release = data.get("release")
-        tag = data.get("tag")
-        release_date_str = data.get("release_date")
-
-        if not all([release, tag, release_date_str]):
-            return JsonResponse(
-                {"error": "Missing required fields: release, tag, release_date"},
-                status=400,
-            )
-
-        # Parse the release_date string to a date object
-        try:
-            release_date = datetime.strptime(release_date_str, "%Y-%m-%d").date()
-        except ValueError:
-            return JsonResponse(
-                {"error": "Invalid release_date format. Expected YYYY-MM-DD"},
-                status=400,
-            )
     except (json.JSONDecodeError, ValueError) as e:
         return JsonResponse({"error": f"Invalid JSON: {str(e)}"}, status=400)
+
+    release = data.get("release")
+    tag = data.get("tag")
+    release_date_str = data.get("release_date")
+
+    if not all([release, tag, release_date_str]):
+        return JsonResponse(
+            {"error": "Missing required fields: release, tag, release_date"},
+            status=400,
+        )
+
+    # Parse the release_date string to a date object
+    try:
+        release_date = datetime.strptime(release_date_str, "%Y-%m-%d").date()
+    except ValueError:
+        return JsonResponse(
+            {"error": "Invalid release_date format. Expected YYYY-MM-DD"},
+            status=400,
+        )
 
     # Create the new refset version
     try:

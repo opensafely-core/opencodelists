@@ -88,7 +88,9 @@ def set_pcd_refset_props():
     tag_id = "pcd_refsets"
     description_intro = "refset published by NHSD."
     coding_system_id = SNOMED_ID
-    type_of_inclusion = "PC refset"
+    type_of_inclusion = (
+        "PC refset"  # This is the value in a CSV and is either "PC refset" or "Refset"
+    )
     refset_version_model = "PCDRefsetVersion"
     refset_type = "pcd"
 
@@ -106,7 +108,9 @@ def set_drug_refset_props():
     tag_id = "nhs_drug_refsets"
     description_intro = "NHS drug refset."
     coding_system_id = DMD_ID
-    type_of_inclusion = "Refset"
+    type_of_inclusion = (
+        "Refset"  # This is the value in a CSV and is either "PC refset" or "Refset"
+    )
     refset_version_model = "NHSDrugRefsetVersion"
     refset_type = "drug"
 

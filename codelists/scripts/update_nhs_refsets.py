@@ -77,42 +77,42 @@ DMD_ID = "dmd"
 
 def set_pcd_refset_props():
     global \
-        organisation, \
-        tag_id, \
-        description_intro, \
-        coding_system_id, \
-        type_of_inclusion, \
-        refset_version_model, \
-        refset_type
-    organisation = "nhsd-primary-care-domain-refsets"
-    tag_id = "pcd_refsets"
-    description_intro = "refset published by NHSD."
-    coding_system_id = SNOMED_ID
-    type_of_inclusion = (
+        ORG, \
+        TAG_ID, \
+        DESCRIPTION_INTRO, \
+        CODING_SYSTEM_ID, \
+        TYPE_OF_INCLUSION, \
+        REFSET_VERSION_MODEL, \
+        REFSET_TYPE
+    ORG = "nhsd-primary-care-domain-refsets"
+    TAG_ID = "pcd_refsets"
+    DESCRIPTION_INTRO = "refset published by NHSD."
+    CODING_SYSTEM_ID = SNOMED_ID
+    TYPE_OF_INCLUSION = (
         "PC refset"  # This is the value in a CSV and is either "PC refset" or "Refset"
     )
-    refset_version_model = "PCDRefsetVersion"
-    refset_type = "pcd"
+    REFSET_VERSION_MODEL = "PCDRefsetVersion"
+    REFSET_TYPE = "pcd"
 
 
 def set_drug_refset_props():
     global \
-        organisation, \
-        tag_id, \
-        description_intro, \
-        coding_system_id, \
-        type_of_inclusion, \
-        refset_version_model, \
-        refset_type
-    organisation = "nhs-drug-refsets"
-    tag_id = "nhs_drug_refsets"
-    description_intro = "NHS drug refset."
-    coding_system_id = DMD_ID
-    type_of_inclusion = (
+        ORG, \
+        TAG_ID, \
+        DESCRIPTION_INTRO, \
+        CODING_SYSTEM_ID, \
+        TYPE_OF_INCLUSION, \
+        REFSET_VERSION_MODEL, \
+        REFSET_TYPE
+    ORG = "nhs-drug-refsets"
+    TAG_ID = "nhs_drug_refsets"
+    DESCRIPTION_INTRO = "NHS drug refset."
+    CODING_SYSTEM_ID = DMD_ID
+    TYPE_OF_INCLUSION = (
         "Refset"  # This is the value in a CSV and is either "PC refset" or "Refset"
     )
-    refset_version_model = "NHSDrugRefsetVersion"
-    refset_type = "drug"
+    REFSET_VERSION_MODEL = "NHSDrugRefsetVersion"
+    REFSET_TYPE = "drug"
 
 
 class Downloader(TrudDownloader):
@@ -194,13 +194,13 @@ def get_latest_db_release_and_refset_tag_from_api(base_url):
         resp = requests.get(url)
         resp.raise_for_status()
         data = resp.json()
-        if coding_system_id in data and "database_alias" in data[coding_system_id]:
-            database_alias = data[coding_system_id]["database_alias"]
+        if CODING_SYSTEM_ID in data and "database_alias" in data[CODING_SYSTEM_ID]:
+            database_alias = data[CODING_SYSTEM_ID]["database_alias"]
             # Get latest refset tag if available, or default to a known version if not
-            latest_refset_tag = data.get(tag_id, {}).get("tag", "20250627")
+            latest_refset_tag = data.get(TAG_ID, {}).get("tag", "20250627")
             return database_alias, latest_refset_tag
         else:
-            print(f"No database_alias found for {coding_system_id} in API response.")
+            print(f"No database_alias found for {CODING_SYSTEM_ID} in API response.")
             return None, None
     except Exception as e:
         print(e)
@@ -212,9 +212,9 @@ def get_latest_db_release_and_refset_tag_from_api(base_url):
 
 def build_temp_config(db_release, latest_tag):
     config = {
-        "organisation": organisation,
+        "organisation": ORG,
         "coding_systems": {
-            coding_system_id: {"id": coding_system_id, "release": db_release},
+            CODING_SYSTEM_ID: {"id": CODING_SYSTEM_ID, "release": db_release},
         },
         "column_aliases": {
             "codelist_name": "Cluster_Desc",
@@ -225,7 +225,7 @@ def build_temp_config(db_release, latest_tag):
         },
         "tag": latest_tag,
         "description_template": (
-            f"Taken from the `%s` {description_intro}"
+            f"Taken from the `%s` {DESCRIPTION_INTRO}"
             " Contains public sector information "
             "licensed under the UK Open Government Licence v3.0 ("
             "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/)."
@@ -234,7 +234,7 @@ def build_temp_config(db_release, latest_tag):
 
     # Update config with dynamic bits
     config["tag"] = latest_tag
-    config["coding_systems"][coding_system_id]["release"] = db_release
+    config["coding_systems"][CODING_SYSTEM_ID]["release"] = db_release
 
     # Write to a temporary file
     temp_config_path = Path(tempfile.gettempdir()) / f"temp_config_{os.getpid()}.json"
@@ -334,34 +334,34 @@ def run_bulk_import(
     if live_run and process.returncode == 0:
         print(release)
         print("\nThe bulk import script has finished.")
-        print(f"  If you want you can now update the {refset_version_model} record.")
+        print(f"  If you want you can now update the {REFSET_VERSION_MODEL} record.")
         print(
-            f"  Currently the most recent {refset_version_model} refset version is: '{latest_tag}'"
+            f"  Currently the most recent {REFSET_VERSION_MODEL} refset version is: '{latest_tag}'"
         )
         print(f"  If you confirm, this will be updated to '{release['release_name']}'")
         print(
             "  The suggestion is that if all the latest refsets were successfully imported above,"
         )
         print(
-            f"  then you should update the {refset_version_model} record. If any failed, you may want to rerun"
+            f"  then you should update the {REFSET_VERSION_MODEL} record. If any failed, you may want to rerun"
         )
         print(
             "  this script but just for the failed refsets (retrying often works), and then update the"
         )
         print(
-            f"  {refset_version_model} record once they have successfully imported.\n"
+            f"  {REFSET_VERSION_MODEL} record once they have successfully imported.\n"
         )
 
         update_confirm = (
             input(
-                f"Would you like to update the {refset_version_model} record from {latest_tag} to {release['release_name']}? (y/n): "
+                f"Would you like to update the {REFSET_VERSION_MODEL} record from {latest_tag} to {release['release_name']}? (y/n): "
             )
             .strip()
             .lower()
         )
         if update_confirm in ("y", "yes"):
             # Update via API
-            update_url = f"{host}/coding-systems/update-refset-version/{refset_type}"
+            update_url = f"{host}/coding-systems/update-refset-version/{REFSET_TYPE}"
             token = os.environ.get("API_TOKEN")
             headers = {
                 "Authorization": f"Token {token}",
@@ -378,7 +378,7 @@ def run_bulk_import(
                 update_resp.raise_for_status()
                 result = update_resp.json()
                 print(
-                    f"✓ Successfully recorded new {refset_version_model} version: {release['release_name']}"
+                    f"✓ Successfully recorded new {REFSET_VERSION_MODEL} version: {release['release_name']}"
                 )
                 print(f"  Response: {result.get('message', 'Success')}")
             except requests.exceptions.HTTPError as e:
@@ -392,7 +392,7 @@ def run_bulk_import(
             except Exception as e:
                 print(f"Error updating refset version via API: {e}")
         else:
-            print(f"{refset_version_model} record not updated.")
+            print(f"{REFSET_VERSION_MODEL} record not updated.")
     else:
         print("\nDry run completed successfully. No changes were made to the database.")
 
@@ -439,7 +439,7 @@ def process_cluster_file(input_file, output_file, names=None):
 
                     # For drug refsets we further restrict to specific cluster categories.
                     category_ok = True
-                    if type_of_inclusion == "Refset":
+                    if TYPE_OF_INCLUSION == "Refset":
                         category_ok = row.get("Cluster_Category") in [
                             "Medications",
                             "Vaccinations and immunisations",
@@ -447,7 +447,7 @@ def process_cluster_file(input_file, output_file, names=None):
 
                     if (
                         row.get("Active_in_Refset") == "1"
-                        and row.get("Type_of_Inclusion") == type_of_inclusion
+                        and row.get("Type_of_Inclusion") == TYPE_OF_INCLUSION
                         and category_ok
                         and (not names_lower or cluster_id.lower() in names_lower)
                     ):

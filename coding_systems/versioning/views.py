@@ -1,11 +1,15 @@
 import json
+from datetime import datetime
 
 from django.http import JsonResponse
 from django.shortcuts import render
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
+from codelists.api_decorators import require_authentication
 from codelists.coding_systems import CODING_SYSTEMS
-from coding_systems.versioning.models import PCDRefsetVersion
+from coding_systems.versioning.models import NHSDrugRefsetVersion, PCDRefsetVersion
+from opencodelists.models import Organisation
 
 
 def latest_releases(request):
@@ -18,8 +22,9 @@ def latest_releases(request):
         if cs.has_database
     ]
 
-    # Get the latest PCD refset version
+    # Get the latest PCD refset version and the latest NHS drug refset version
     latest_pcd = PCDRefsetVersion.get_latest()
+    latest_drug = NHSDrugRefsetVersion.get_latest()
     ctx = {"latest_releases": coding_system_releases}
 
     if request.GET.get("type") == "json":
@@ -41,10 +46,20 @@ def latest_releases(request):
                 "valid_from": latest_pcd.release_date.isoformat(),
                 "import_timestamp": latest_pcd.import_timestamp.isoformat(),
             }
+        # Add NHS drug refset data if available
+        if latest_drug:
+            data["nhs_drug_refsets"] = {
+                "release": latest_drug.release,
+                "tag": latest_drug.tag,
+                "valid_from": latest_drug.release_date.isoformat(),
+                "import_timestamp": latest_drug.import_timestamp.isoformat(),
+            }
         return JsonResponse(data)
 
     if latest_pcd:
         ctx["pcd_refset_version"] = latest_pcd
+    if latest_drug:
+        ctx["nhs_drug_refset_version"] = latest_drug
     return render(request, "versioning/latest_releases.html", ctx)
 
 
@@ -63,3 +78,95 @@ def more_info(request, coding_system):
     synonyms = {"synonyms": cs.lookup_synonyms(codes)}
     references = {"references": cs.lookup_references(codes)}
     return JsonResponse(synonyms | references)
+
+
+@csrf_exempt
+@require_authentication
+@require_http_methods(["POST"])
+def update_refset_version(request, refset_type):
+    """
+    API endpoint to update NHS refset versions (PCD or Drug).
+    Only users who are members of the corresponding organisation can update.
+    """
+    # Map refset type to organisation and model
+    REFSET_CONFIG = {
+        "pcd": {
+            "organisation_slug": "nhsd-primary-care-domain-refsets",
+            "model": PCDRefsetVersion,
+        },
+        "drug": {
+            "organisation_slug": "nhs-drug-refsets",
+            "model": NHSDrugRefsetVersion,
+        },
+    }
+
+    config = REFSET_CONFIG.get(refset_type)
+    if config is None:
+        return JsonResponse(
+            {
+                "error": f"Invalid refset type. Must be one of {', '.join(REFSET_CONFIG.keys())}"
+            },
+            status=400,
+        )
+
+    # Check user has permission (member of the organisation)
+    organisation = Organisation.objects.get(slug=config["organisation_slug"])
+
+    if not request.user.is_member(organisation):
+        return JsonResponse(
+            {
+                "error": f"Unauthorised. You must be a member of {organisation.name} to update this refset version."
+            },
+            status=403,
+        )
+
+    # Parse request body
+    try:
+        data = json.loads(request.body)
+    except (json.JSONDecodeError, ValueError) as e:
+        return JsonResponse({"error": f"Invalid JSON: {str(e)}"}, status=400)
+
+    release = data.get("release")
+    tag = data.get("tag")
+    release_date_str = data.get("release_date")
+
+    if not all([release, tag, release_date_str]):
+        return JsonResponse(
+            {"error": "Missing required fields: release, tag, release_date"},
+            status=400,
+        )
+
+    # Parse the release_date string to a date object
+    try:
+        release_date = datetime.strptime(release_date_str, "%Y-%m-%d").date()
+    except ValueError:
+        return JsonResponse(
+            {"error": "Invalid release_date format. Expected YYYY-MM-DD"},
+            status=400,
+        )
+
+    # Create the new refset version
+    try:
+        refset_version = config["model"].objects.create(
+            release=release,
+            tag=tag,
+            release_date=release_date,
+        )
+    except Exception as e:
+        return JsonResponse(
+            {"error": f"Failed to create version: {str(e)}"}, status=500
+        )
+
+    return JsonResponse(
+        {
+            "success": True,
+            "message": f"Created new {config['model'].__name__} version: {tag}",
+            "version": {
+                "release": refset_version.release,
+                "tag": refset_version.tag,
+                "release_date": refset_version.release_date.isoformat(),
+                "import_timestamp": refset_version.import_timestamp.isoformat(),
+            },
+        },
+        status=201,
+    )

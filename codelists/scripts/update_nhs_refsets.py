@@ -60,6 +60,7 @@ import os
 import re
 import shlex
 import subprocess
+import sys
 import tempfile
 from pathlib import Path
 from zipfile import ZipFile
@@ -508,12 +509,12 @@ def run(*args):
         print(
             "Error: TRUD_API_KEY environment variable not set. This is required to access the TRUD API."
         )
-        exit(1)
+        sys.exit(1)
     if os.environ.get("TRUD_API_KEY") == "dummy-key":
         print(
             "Error: TRUD_API_KEY environment variable is set to 'dummy-key'. Please set it to a valid key."
         )
-        exit(1)
+        sys.exit(1)
 
     if args.drugs:
         set_drug_refset_props()
@@ -524,7 +525,7 @@ def run(*args):
 
     if not db_release or not latest_tag:
         print("Could not determine the latest database release or refset tag from API.")
-        exit(1)
+        sys.exit(1)
 
     # Create temporary directory for extraction
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -538,7 +539,7 @@ def run(*args):
                 "than all releases available from the TRUD api. Something's gone "
                 "wrong because you should always at least match the latest tag."
             )
-            exit(0)
+            sys.exit(0)
 
         release_to_use = get_user_choice_for_release(releases, latest_tag)
 

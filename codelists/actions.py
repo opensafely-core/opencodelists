@@ -38,6 +38,7 @@ def create_old_style_codelist(
     references=None,
     signoffs=None,
     tag=None,
+    author=None,
 ):
     """Create a new codelist with an old-style version with given csv_data."""
 
@@ -56,6 +57,7 @@ def create_old_style_codelist(
         csv_data=csv_data,
         coding_system_database_alias=coding_system_database_alias,
         tag=tag,
+        author=author,
     )
     logger.info("Created Codelist", codelist_pk=codelist.pk)
     return codelist
@@ -244,7 +246,7 @@ def _create_codelist_with_handle(
 
 
 def create_old_style_version(
-    *, codelist, csv_data, coding_system_database_alias=None, tag=None
+    *, codelist, csv_data, coding_system_database_alias=None, tag=None, author=None
 ):
     coding_system = codelist.coding_system_cls.get_by_release(
         coding_system_database_alias
@@ -266,6 +268,7 @@ def create_old_style_version(
         status=Status.UNDER_REVIEW,
         coding_system_release=coding_system.release,
         tag=tag,
+        author=author,
     )
     cache_hierarchy(version=version)
     logger.info("Created Version", version_pk=version.pk)
@@ -755,6 +758,7 @@ def convert_bnf_codelist_version_to_dmd(version, published=False):
             codelist=existing_handle.codelist,
             csv_data=dmd_csv_data,
             coding_system_database_alias=dmd_alias,
+            author=version.author,
         ).codelist
 
         update_codelist(
@@ -781,6 +785,7 @@ def convert_bnf_codelist_version_to_dmd(version, published=False):
             description=dmd_description,
             csv_data=dmd_csv_data,
             references=dmd_references,
+            author=version.author,
         )
     if published:
         publish_version(version=converted_codelist.versions.last())

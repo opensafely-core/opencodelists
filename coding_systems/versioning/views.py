@@ -99,12 +99,14 @@ def update_refset_version(request, refset_type):
         },
     }
 
-    if refset_type not in REFSET_CONFIG:
+    config = REFSET_CONFIG.get(refset_type)
+    if config is None:
         return JsonResponse(
-            {"error": "Invalid refset type. Must be 'pcd' or 'drug'"}, status=400
+            {
+                "error": f"Invalid refset type. Must be one of {', '.join(REFSET_CONFIG.keys())}"
+            },
+            status=400,
         )
-
-    config = REFSET_CONFIG[refset_type]
 
     # Check user has permission (member of the organisation)
     organisation = Organisation.objects.get(slug=config["organisation_slug"])

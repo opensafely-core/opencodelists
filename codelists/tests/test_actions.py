@@ -640,6 +640,19 @@ def test_can_update_converted_dmd_codelist(bnf_version_asthma, dmd_bnf_mapping_d
     )
 
 
+def test_converting_bnf_to_dmd_preserves_author(
+    bnf_version_asthma, dmd_bnf_mapping_data, user
+):
+    # bnf_version_asthma is an organisation-owned codelist version with no authors
+    # add one for this test
+    bnf_version_asthma.author = user
+
+    dmd_codelist = actions.convert_bnf_codelist_version_to_dmd(bnf_version_asthma)
+    dmd_version = dmd_codelist.versions.first()
+
+    assert dmd_version.author == user
+
+
 def test_create_with_unfound_codes(new_style_codelist):
     # Error is raised if any of the codes are not found in the coding system
     db_alias = most_recent_database_alias("snomedct")

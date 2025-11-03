@@ -44,8 +44,8 @@ function run_backup() {
     ln -sf "$BACKUP_FILENAME.zst" "$BACKUP_DIR/latest-db.sqlite3.zst"
     ln -sf "$SANITISED_BACKUP_FILENAME.zst" "$BACKUP_DIR/sanitised-latest-db.sqlite3.zst"
 
-    # Keep only the last 30 days of raw backups.
-    find "$BACKUP_DIR" -name "*-db.sqlite3.zst" -type f -mtime +30 -exec rm {} \;
+    # Keep only the last 14 days of raw backups.
+    find "$BACKUP_DIR" -name "*-db.sqlite3.zst" -type f -mtime +14 -exec rm {} \;
 
     # Keep only the most recent sanitised backup.
     find "$BACKUP_DIR" -name "*sanitised*-db.sqlite3.zst" ! -wholename "$SANITISED_BACKUP_FILEPATH.zst" -type f -exec rm {} \;

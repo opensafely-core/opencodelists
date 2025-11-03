@@ -86,7 +86,7 @@ jobs:
           docker save opencodelists | zstd --fast -o /tmp/opencodelists.tar.zst
 
       - name: Upload docker image
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
             name: opencodelists-image
             path: /tmp/opencodelists.tar.zst

@@ -150,3 +150,7 @@ a:focus {
   width: 100%;
   z-index: 30;
 }
+
+.pointer-events-none {
+  pointer-events: none;
+}

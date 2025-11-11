@@ -237,13 +237,13 @@
 
               {% if not clv.downloadable and user_can_edit %}
                 <span
-                  class="w-100"
-                  data-placement="right"
+                  class="d-block w-100"
+                  data-placement="top"
                   data-toggle="tooltip"
                   tabindex="0"
                   title="This codelist cannot be downloaded, most likely because it's header does not contain a 'code' column. You can upload a new version if you want to fix this."
                 >
-                  <button class="btn btn-outline-primary" disabled>
+                  <button class="btn btn-outline-primary w-100 pointer-events-none" disabled>
                     Download CSV
                   </button>
                 </span>

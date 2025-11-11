@@ -12,6 +12,8 @@ import jQuery from "jquery/dist/jquery.slim";
 Object.assign(window, { $: jQuery, jQuery });
 
 // Bootstrap
+import "@popperjs/core";
+
 import "bootstrap";
 import "bootstrap/dist/css/bootstrap.css";
 

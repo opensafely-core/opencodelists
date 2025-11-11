@@ -34,14 +34,14 @@
     <link rel="manifest" href="{% static 'manifest.webmanifest' %}">
   </head>
 
-  <body class="d-flex flex-column h-100 position-relative {% if not in_production %}header--banner{% endif %}">
+  <body class="d-flex flex-column h-100 position-relative">
     {% if not in_production %}
       <div class="development-banner">
         Development
       </div>
     {% endif %}
     <nav
-      class="navbar navbar-expand-sm navbar-dark bg-secondary justify-content-between align-items-baseline"
+      class="navbar navbar-expand-sm navbar-dark bg-secondary justify-content-between align-items-baseline {% if not in_production %}nav--banner{% endif %}"
     >
       <div class="mr-auto">
         <a class="navbar-brand" href="{% url 'codelists:index' %}"

@@ -265,7 +265,7 @@
         {% endif %}
 
         {% if clv.coding_system_id == "bnf" %}
-          <div class="btn-group-vertical">
+          <div class="btn-group-vertical" data-testid="dmd-buttons">
             <a
               href="{{ clv.get_dmd_download_url }}"
               class="btn btn-outline-primary btn-block"

@@ -119,7 +119,7 @@ Backups are taken via the `sqlite3` `.backup` command . These are effectively
 copies of the database file. They are compressed to save space.
 
 To restore from a backup, use the command-line tool to create a fresh temporary
-backup of the current state of the database (in case anything gones wrong),
+backup of the current state of the database (in case anything goes wrong),
 then restore from the decompressed backup file. On the production server:
 
 ```sh
@@ -301,7 +301,7 @@ IN_PRODUCTION=True TAKE_SCREENSHOTS=True just test-functional opencodelists/test
 
 Only images that have changed will be committed to github - but it's worth noting that:
 - running the tests in different environments will likely lead to subtle visual differences and so may appear different even when nothing has changed
-- any screenshots that contain date or time stamps, or have hash ids, may change everytime the command is run
+- any screenshots that contain date or time stamps, or have hash ids, may change every time the command is run
 
 
 ## Other production maintenance tasks
@@ -328,8 +328,8 @@ dokku$ dokku run opencodelists \
 
 The command will create a new draft version, and will assign statuses to each unknown code where
 possible. i.e. if a new code has an ancestor code that is included, it will be implicitly
-included (`(+)` status), and if it has an ancestor code that is excluded, it will be implictly
 excluded (`(-)` status).  The command will output a list of codes that were returned as "unknown"
+included (`(+)` status), and if it has an ancestor code that is excluded, it will be implicitly
 (`?`) status from the re-run searches, and have been assigned an assumed status. These should be passed on to the user to confirm.
 
 ### Deleting published codelists

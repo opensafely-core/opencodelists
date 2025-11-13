@@ -44,6 +44,20 @@ on_error() { # shellcheck disable=SC2329
 }
 trap on_error ERR
 
+# Verify SQLite file passes an integrity check
+verify_sqlite_integrity() {
+    local file="$1"
+
+    # Use sqlite3 CLI to run integrity_check.
+    # Expect single line 'ok'
+    if ! sqlite3 "$file" "PRAGMA integrity_check;" | grep -qx "ok"; then
+        echo "integrity_check failed for $file" >&2
+        return 1
+    fi
+
+    return 0
+}
+
 # Log start of backup in a way that won't fail the whole script if Sentry down
 sentry_cron_start "$SENTRY_CRON_URL" "$CRONTAB" || true
 
@@ -59,6 +73,9 @@ cp --preserve=mode,timestamps "$BACKUP_FILEPATH" "$SANITISED_BACKUP_TMP"
 
 # Run sanitisation on the tmp file
 python "$SCRIPT_DIR/sanitise_backup.py" "$SANITISED_BACKUP_TMP"
+
+# After sanitisation, verify the integrity of the SQLite DB
+verify_sqlite_integrity "$SANITISED_BACKUP_TMP"
 
 # Move tmp in to final sanitised path
 mv -f "$SANITISED_BACKUP_TMP" "$SANITISED_BACKUP_FILEPATH"

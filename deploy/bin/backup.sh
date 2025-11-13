@@ -89,10 +89,10 @@ else
 fi
 
 # Keep only the last 14 days of raw backups.
-find "$BACKUP_DIR" -name "*-db.sqlite3.zst" -type f -mtime +14 -exec rm {} \;
+find "$BACKUP_DIR" -name "*-db.sqlite3.zst" -type f -mtime +14 -delete
 
 # Keep only the most recent sanitised backup.
-find "$BACKUP_DIR" -name "*sanitised*-db.sqlite3.zst" ! -wholename "$SANITISED_BACKUP_FILEPATH.zst" -type f -exec rm {} \;
+find "$BACKUP_DIR" -name "*sanitised*-db.sqlite3.zst" ! -wholename "$SANITISED_BACKUP_FILEPATH.zst" -type f -delete
 
 # If we've reached this point, send ok to Sentry cron monitoring
 sentry_cron_ok "$SENTRY_CRON_URL"

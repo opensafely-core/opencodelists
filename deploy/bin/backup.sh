@@ -58,6 +58,27 @@ verify_sqlite_integrity() {
     return 0
 }
 
+# Verify file exists and has a size
+verify_file_min_size() {
+    # Default thresholds for file size sanity checks (500 MB)
+    MIN_BACKUP_BYTES=500000000
+
+    local file="$1"
+    if [ ! -f "$file" ]; then
+        echo "file missing: $file" >&2
+        return 2
+    fi
+
+    local sz
+    sz=$(stat -c%s "$file" || echo 0)
+    if [ "$sz" -lt "$MIN_BACKUP_BYTES" ]; then
+        echo "file too small: $file ($sz bytes)" >&2
+        return 3
+    fi
+
+    return 0
+}
+
 # Log start of backup in a way that won't fail the whole script if Sentry down
 sentry_cron_start "$SENTRY_CRON_URL" "$CRONTAB" || true
 
@@ -67,9 +88,13 @@ mkdir "$BACKUP_DIR" -p
 # Take a datestamped backup.
 sqlite3 "$DATABASE_DIR/db.sqlite3" ".backup $BACKUP_FILEPATH"
 
+# Verify produced raw backup exists and is of a non-trivial size
+verify_file_min_size "$BACKUP_FILEPATH"
+
 # Make a sanitised copy of the backup, by copying raw backup to a tmp
 # backup, and then running sanitiser on the tmp file
 cp --preserve=mode,timestamps "$BACKUP_FILEPATH" "$SANITISED_BACKUP_TMP"
+verify_file_min_size "$SANITISED_BACKUP_TMP"
 
 # Run sanitisation on the tmp file
 python "$SCRIPT_DIR/sanitise_backup.py" "$SANITISED_BACKUP_TMP"
@@ -92,6 +117,10 @@ mv -f "$SANITISED_BACKUP_TMP" "$SANITISED_BACKUP_FILEPATH"
 # exists with today's date.
 zstd -q -f "$BACKUP_FILEPATH" -o "${BACKUP_FILEPATH}.zst"
 zstd -q -f "$SANITISED_BACKUP_FILEPATH" -o "${SANITISED_BACKUP_FILEPATH}.zst"
+
+# Verify compressed files exist and have size
+verify_file_min_size "${BACKUP_FILEPATH}.zst"
+verify_file_min_size "${SANITISED_BACKUP_FILEPATH}.zst"
 
 # Only now remove the uncompressed originals
 rm "$BACKUP_FILEPATH" "$SANITISED_BACKUP_FILEPATH"

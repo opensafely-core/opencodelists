@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Bash strict mode:
+# Bash strict mode
 # -e: exit on error
 # -u: undefined variables are errors
 # -x: print each command as executed to stderr
@@ -9,11 +9,12 @@
 #              command substitutions
 set -euxo pipefail -o errtrace
 
-# import sentry functions (must be in same dir as this script)
+# Import Sentry functions
+# Must be in same directory as this script
 SCRIPT_DIR=$(dirname "$0")
 source "$SCRIPT_DIR/sentry_cron_functions.sh"
 
-# set up sentry monitoring
+# Set up Sentry cron monitoring
 SENTRY_MONITOR_NAME=$(basename "$0")
 CRONTAB=$(extract_crontab "$SENTRY_MONITOR_NAME" "/app/app.json")
 SENTRY_CRON_URL=$(sentry_cron_url "$SENTRY_DSN" "$SENTRY_MONITOR_NAME")
@@ -22,11 +23,14 @@ SENTRY_CRON_URL=$(sentry_cron_url "$SENTRY_DSN" "$SENTRY_MONITOR_NAME")
 BACKUP_DIR="$DATABASE_DIR/backup/db"
 BACKUP_FILENAME="$(date +%F)-db.sqlite3"
 BACKUP_FILEPATH="$BACKUP_DIR/$BACKUP_FILENAME"
+
+# Sanitised backup file locations, used primarily for local development
 SANITISED_BACKUP_FILENAME="sanitised-$BACKUP_FILENAME"
 SANITISED_BACKUP_FILEPATH="$BACKUP_DIR/$SANITISED_BACKUP_FILENAME"
 SANITISED_BACKUP_TMP="$BACKUP_DIR/$SANITISED_BACKUP_FILENAME.tmp"
 
 # Capture all errors in this function
+# errtrace is required for this to trigger in functions
 on_error() { # shellcheck disable=SC2329
     local exit_code=$?
     RESULT=${exit_code:-1}
@@ -34,11 +38,11 @@ on_error() { # shellcheck disable=SC2329
     # Clean up a stale tmp on failure
     [ -n "${SANITISED_BACKUP_TMP:-}" ] && rm -f "$SANITISED_BACKUP_TMP" 2>/dev/null || true
 
-    # Avoid exiting inside the handler on failures of sentry call
+    # Avoid exiting inside the handler on failures of Sentry call
     set +e
     echo "Backup failed with exit code $RESULT" >&2
 
-    # best-effort Sentry error reporting; do not cause further exit if it fails
+    # Best-effort Sentry error reporting - do not cause further exit if it fails
     sentry_cron_error "$SENTRY_CRON_URL" || true
     exit "$RESULT"
 }
@@ -82,10 +86,10 @@ verify_file_min_size() {
 # Log start of backup in a way that won't fail the whole script if Sentry down
 sentry_cron_start "$SENTRY_CRON_URL" "$CRONTAB" || true
 
-# Make the backup dir if it doesn't exist.
-mkdir "$BACKUP_DIR" -p
+# Make the backup directory if it doesn't exist
+mkdir -p "$BACKUP_DIR"
 
-# Take a datestamped backup.
+# Take a date-stamped backup
 sqlite3 "$DATABASE_DIR/db.sqlite3" ".backup $BACKUP_FILEPATH"
 
 # Verify produced raw backup exists and is of a non-trivial size
@@ -129,7 +133,7 @@ rm "$BACKUP_FILEPATH" "$SANITISED_BACKUP_FILEPATH"
 # Make the target a relative path -- an absolute one won't mean the same thing
 # in the host file system if executed inside a container as we expect.
 
-# Ensure target files exist before linking
+# Ensure target backup file exists before trying to link
 if [ -f "${BACKUP_FILEPATH}.zst" ]; then
     ln -sf "$BACKUP_FILENAME.zst" "$BACKUP_DIR/latest-db.sqlite3.zst"
 else
@@ -137,6 +141,7 @@ else
     exit 4
 fi
 
+# Ensure target sanitised backup file exists before trying to link
 if [ -f "${SANITISED_BACKUP_FILEPATH}.zst" ]; then
     ln -sf "$SANITISED_BACKUP_FILENAME.zst" "$BACKUP_DIR/sanitised-latest-db.sqlite3.zst"
 else
@@ -144,7 +149,7 @@ else
     exit 5
 fi
 
-# Keep only the last 14 days of raw backups.
+# Keep only the last 14 days of raw backups
 find "$BACKUP_DIR" -name "*-db.sqlite3.zst" -type f -mtime +14 -delete
 
 # Keep only the most recent sanitised backup.

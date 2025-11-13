@@ -25,8 +25,20 @@ BACKUP_FILEPATH="$BACKUP_DIR/$BACKUP_FILENAME"
 SANITISED_BACKUP_FILENAME="sanitised-$BACKUP_FILENAME"
 SANITISED_BACKUP_FILEPATH="$BACKUP_DIR/$SANITISED_BACKUP_FILENAME"
 
-# Use the result variable to capture errors when exit code is greater than 0
-RESULT=0
+# Capture all errors in this function
+on_error() { # shellcheck disable=SC2329
+    local exit_code=$?
+    RESULT=${exit_code:-1}
+
+    # Avoid exiting inside the handler on failures of sentry call
+    set +e
+    echo "Backup failed with exit code $RESULT" >&2
+
+    # best-effort Sentry error reporting; do not cause further exit if it fails
+    sentry_cron_error "$SENTRY_CRON_URL" || true
+    exit "$RESULT"
+}
+trap on_error ERR
 
 # Log start of backup in a way that won't fail the whole script if Sentry down
 sentry_cron_start "$SENTRY_CRON_URL" "$CRONTAB" || true
@@ -62,8 +74,5 @@ find "$BACKUP_DIR" -name "*-db.sqlite3.zst" -type f -mtime +14 -exec rm {} \;
 # Keep only the most recent sanitised backup.
 find "$BACKUP_DIR" -name "*sanitised*-db.sqlite3.zst" ! -wholename "$SANITISED_BACKUP_FILEPATH.zst" -type f -exec rm {} \;
 
-if [ $RESULT == 0 ]; then
-    sentry_cron_ok "$SENTRY_CRON_URL"
-else
-    sentry_cron_error "$SENTRY_CRON_URL"
-fi
+# If we've reached this point, send ok to Sentry cron monitoring
+sentry_cron_ok "$SENTRY_CRON_URL"

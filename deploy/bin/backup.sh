@@ -72,8 +72,21 @@ rm "$BACKUP_FILEPATH" "$SANITISED_BACKUP_FILEPATH"
 # Symlink to the new latest backups to make it easy to discover.
 # Make the target a relative path -- an absolute one won't mean the same thing
 # in the host file system if executed inside a container as we expect.
-ln -sf "$BACKUP_FILENAME.zst" "$BACKUP_DIR/latest-db.sqlite3.zst"
-ln -sf "$SANITISED_BACKUP_FILENAME.zst" "$BACKUP_DIR/sanitised-latest-db.sqlite3.zst"
+
+# Ensure target files exist before linking
+if [ -f "${BACKUP_FILEPATH}.zst" ]; then
+    ln -sf "$BACKUP_FILENAME.zst" "$BACKUP_DIR/latest-db.sqlite3.zst"
+else
+    echo "expected compressed raw backup missing: ${BACKUP_FILEPATH}.zst" >&2
+    exit 4
+fi
+
+if [ -f "${SANITISED_BACKUP_FILEPATH}.zst" ]; then
+    ln -sf "$SANITISED_BACKUP_FILENAME.zst" "$BACKUP_DIR/sanitised-latest-db.sqlite3.zst"
+else
+    echo "expected compressed sanitised backup missing: ${SANITISED_BACKUP_FILEPATH}.zst" >&2
+    exit 5
+fi
 
 # Keep only the last 14 days of raw backups.
 find "$BACKUP_DIR" -name "*-db.sqlite3.zst" -type f -mtime +14 -exec rm {} \;

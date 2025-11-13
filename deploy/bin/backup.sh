@@ -58,9 +58,16 @@ python "$SCRIPT_DIR/sanitise_backup.py" "$SANITISED_BACKUP_FILEPATH"
 # marginally better compression ratios than gzip on the backup and much faster
 # compression and particularly decompression.  We want the backup process to be
 # quick as it's a CPU-intensive activity that could affect site performance.
-# --rm flag removes the source file after compression.
-zstd "$BACKUP_FILEPATH" --rm
-zstd "$SANITISED_BACKUP_FILEPATH" --rm
+#
+# We're going to compress both backups, but not remove originals until
+# compressed files have been verified.
+# Make sure that -f is used to force an overwrite of any backup that already
+# exists with today's date.
+zstd -q -f "$BACKUP_FILEPATH" -o "${BACKUP_FILEPATH}.zst"
+zstd -q -f "$SANITISED_BACKUP_FILEPATH" -o "${SANITISED_BACKUP_FILEPATH}.zst"
+
+# Only now remove the uncompressed originals
+rm "$BACKUP_FILEPATH" "$SANITISED_BACKUP_FILEPATH"
 
 # Symlink to the new latest backups to make it easy to discover.
 # Make the target a relative path -- an absolute one won't mean the same thing

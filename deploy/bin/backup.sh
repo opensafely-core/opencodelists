@@ -24,11 +24,15 @@ BACKUP_FILENAME="$(date +%F)-db.sqlite3"
 BACKUP_FILEPATH="$BACKUP_DIR/$BACKUP_FILENAME"
 SANITISED_BACKUP_FILENAME="sanitised-$BACKUP_FILENAME"
 SANITISED_BACKUP_FILEPATH="$BACKUP_DIR/$SANITISED_BACKUP_FILENAME"
+SANITISED_BACKUP_TMP="$BACKUP_DIR/$SANITISED_BACKUP_FILENAME.tmp"
 
 # Capture all errors in this function
 on_error() { # shellcheck disable=SC2329
     local exit_code=$?
     RESULT=${exit_code:-1}
+
+    # Clean up a stale tmp on failure
+    [ -n "${SANITISED_BACKUP_TMP:-}" ] && rm -f "$SANITISED_BACKUP_TMP" 2>/dev/null || true
 
     # Avoid exiting inside the handler on failures of sentry call
     set +e
@@ -49,9 +53,15 @@ mkdir "$BACKUP_DIR" -p
 # Take a datestamped backup.
 sqlite3 "$DATABASE_DIR/db.sqlite3" ".backup $BACKUP_FILEPATH"
 
-# Make a sanitised copy of the backup.
-cp "$BACKUP_FILEPATH" "$SANITISED_BACKUP_FILEPATH"
-python "$SCRIPT_DIR/sanitise_backup.py" "$SANITISED_BACKUP_FILEPATH"
+# Make a sanitised copy of the backup, by copying raw backup to a tmp
+# backup, and then running sanitiser on the tmp file
+cp --preserve=mode,timestamps "$BACKUP_FILEPATH" "$SANITISED_BACKUP_TMP"
+
+# Run sanitisation on the tmp file
+python "$SCRIPT_DIR/sanitise_backup.py" "$SANITISED_BACKUP_TMP"
+
+# Move tmp in to final sanitised path
+mv -f "$SANITISED_BACKUP_TMP" "$SANITISED_BACKUP_FILEPATH"
 
 # Compress the latest backups.
 # Zstandard is a fast, modern, lossless data compression algorithm.  It gives

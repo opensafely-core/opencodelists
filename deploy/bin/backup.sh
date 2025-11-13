@@ -1,6 +1,13 @@
 #!/bin/bash
 
-set -euxo pipefail
+# Bash strict mode:
+# -e: exit on error
+# -u: undefined variables are errors
+# -x: print each command as executed to stderr
+# -o pipefail: fail pipelines if any command fails
+# -o errtrace: propagate the ERR trap into functions, subshells, and
+#              command substitutions
+set -euxo pipefail -o errtrace
 
 # import sentry functions (must be in same dir as this script)
 SCRIPT_DIR=$(dirname "$0")

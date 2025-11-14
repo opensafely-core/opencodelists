@@ -67,6 +67,9 @@ DEBUG = os.environ.get("DEBUG", default=False) == "True"
 
 DEBUG_TOOLBAR = os.environ.get("DJANGO_DEBUG_TOOLBAR", default=False) == "True"
 
+# Disable migrations for the django-debug-toolbar
+MIGRATION_MODULES = {"debug_toolbar": None}
+
 BASE_URLS = os.environ.get("BASE_URLS", default="").split(",")
 # note localhost is required on production for dokku checks
 BASE_URLS += ["http://localhost:7000"]

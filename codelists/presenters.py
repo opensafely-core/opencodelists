@@ -1,7 +1,16 @@
+from django.db.models import Prefetch
+
+from codelists.models import SearchResult
+
+
 def present_search_results(clv, code_to_term):
     results = []
+
     for search in clv.searches.prefetch_related(
-        "results", "results__code_obj"
+        Prefetch(
+            "results",
+            queryset=SearchResult.objects.select_related("code_obj"),
+        )
     ).order_by("code", "term"):
         rows = [
             {

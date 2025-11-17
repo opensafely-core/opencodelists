@@ -19,7 +19,6 @@ from opencodelists.hash_utils import hash, unhash
 from .codeset import Codeset
 from .coding_systems import CODING_SYSTEMS, most_recent_database_alias
 from .hierarchy import Hierarchy
-from .presenters import present_definition_for_download
 
 
 class Codelist(models.Model):
@@ -904,9 +903,6 @@ class CodelistVersion(models.Model):
                 )
             )
         return additional_rows
-
-    def definition_csv_data_for_download(self):
-        return rows_to_csv_data(present_definition_for_download(self))
 
     def dmd_csv_data_for_download(self, dmd_database_alias=None):
         assert self.coding_system_id == "bnf"

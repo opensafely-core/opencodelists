@@ -133,7 +133,7 @@ a:focus {
   max-width: 80ch;
 }
 
-.header--banner {
+.nav--banner {
   margin-top: 2.25rem;
 }
 
@@ -149,4 +149,8 @@ a:focus {
   top: 0;
   width: 100%;
   z-index: 30;
+}
+
+.pointer-events-none {
+  pointer-events: none;
 }

@@ -4,20 +4,20 @@
 
 There are several config files in the root directory of the repo.
 
-#### `opencodelists/`
+### `opencodelists/`
 
 The project configuration module, containing the main `settings.py`, `urls.py`
 and `wsgi.py`. Also an app, with models for users and organisations.
 
-#### `codelists/`
+### `codelists/`
 
 App with models and views for viewing, downloading, creating, and updating codelists.
 
-#### `builder/`
+### `builder/`
 
 App with forms, views, and actions for the codelist builder in the web UI.
 
-#### `coding_systems/`
+### `coding_systems/`
 
 A directory containing one app per coding system. Each of these apps contains a
 `coding_system.py` which defines a common interface, and an `import_data.py`
@@ -25,7 +25,8 @@ which contains code for importing new data.
 
 Each directory contains a README with information about the underlying data.
 
-##### `coding_systems/versioning`
+#### `coding_systems/versioning`
+
 An app that holds information about coding system releases.
 
 Each release of a coding system is imported into a separate sqlite database,
@@ -33,56 +34,56 @@ and has a `CodingSystemRelease` instance associated with it which allows us to
 identify the specific release database to use to retrieve codes and terms for a
 codelist version.
 
-#### `mappings/`
+### `mappings/`
 
 A directory containing one app per mapping between coding systems. Each of
 these apps will have an `import_data.py`, a `mappers.py` and a `models.py`
 containing a `Mapping` class.
 
-#### `conversions/`
+### `conversions/`
 
 App with views/forms for applying a mapping to convert a codelist from one
 coding system to another.
 
-#### `services/`
+### `services/`
 
 Code for services used by multiple apps such as logging or OTel tracing.
 
-#### `superusers/`
+### `superusers/`
 
 App with staff/admin-facing functionality. A view to list all the codelists
 (the main `codelists` app index only shows codelists that come from
 organisations).
 
-#### `templates/`
+### `templates/`
 
 Django templates.
 
-#### `static/`
+### `static/`
 
 Static files such as images.
 
-#### `assets/`
+### `assets/`
 
 Frontend assets such as JavaScript and CSS.
 
-#### `deploy/`
+### `deploy/`
 
 Resources for deployment. Deployment is via dokku (see [deployment notes](DEPLOY.md)).
 
-#### `docker/`
+### `docker/`
 
 Docker files for building and testing development and production images of the site.
 
-#### `scripts/`
+### `scripts/`
 
 A place to put scripts to be run via [runscript](https://django-extensions.readthedocs.io/en/latest/runscript.html).
 
-#### `docs/`
+### `docs/`
 
 Developer-facing documentation including architecture decision records (ADRs).
 
-#### `userdocs/`
+### `userdocs/`
 
 Simple app serving user-facing documentation at docs/. Each document is a
 markdown file for ease of editing and they are served by a generic view.
@@ -118,7 +119,7 @@ Backups are taken via the `sqlite3` `.backup` command . These are effectively
 copies of the database file. They are compressed to save space.
 
 To restore from a backup, use the command-line tool to create a fresh temporary
-backup of the current state of the database (in case anything gones wrong),
+backup of the current state of the database (in case anything goes wrong),
 then restore from the decompressed backup file. On the production server:
 
 ```sh
@@ -300,7 +301,7 @@ IN_PRODUCTION=True TAKE_SCREENSHOTS=True just test-functional opencodelists/test
 
 Only images that have changed will be committed to github - but it's worth noting that:
 - running the tests in different environments will likely lead to subtle visual differences and so may appear different even when nothing has changed
-- any screenshots that contain date or time stamps, or have hash ids, may change everytime the command is run
+- any screenshots that contain date or time stamps, or have hash ids, may change every time the command is run
 
 
 ## Other production maintenance tasks
@@ -327,8 +328,8 @@ dokku$ dokku run opencodelists \
 
 The command will create a new draft version, and will assign statuses to each unknown code where
 possible. i.e. if a new code has an ancestor code that is included, it will be implicitly
-included (`(+)` status), and if it has an ancestor code that is excluded, it will be implictly
 excluded (`(-)` status).  The command will output a list of codes that were returned as "unknown"
+included (`(+)` status), and if it has an ancestor code that is excluded, it will be implicitly
 (`?`) status from the re-run searches, and have been assigned an assumed status. These should be passed on to the user to confirm.
 
 ### Deleting published codelists

@@ -250,3 +250,22 @@ def test_clone_hyperlink_in_editable_under_review_detail(
 
     # Check url exists
     assert f'href="{clone_url}"'.encode() in rsp.content
+
+
+def test_under_review_version_visible_in_sidebar_for_non_editor(
+    client, version_under_review, latest_published_version, user_without_organisation
+):
+    force_login(user_without_organisation, client)
+
+    rsp = client.get(version_under_review.get_absolute_url())
+    assert rsp.status_code == 200
+
+    html = rsp.content.decode()
+    versions_section = re.search(
+        r'<section[^>]*id="versions"[^>]*>(.*?)</section>', html, re.DOTALL
+    )
+    assert versions_section is not None
+    versions_html = versions_section.group(1)
+
+    assert version_under_review.tag_or_hash in versions_html
+    assert latest_published_version.tag_or_hash in versions_html

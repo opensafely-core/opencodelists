@@ -53,7 +53,9 @@ def version(request, clv):
 
     headers, *rows = clv.table
     user_can_edit = clv.codelist.can_be_edited_by(request.user)
-    visible_versions = clv.codelist.visible_versions(request.user)
+    visible_versions = clv.codelist.visible_versions(
+        user=request.user, codelist_version_id=clv.id
+    )
     can_create_new_version = not clv.codelist.versions.filter(
         status=Status.DRAFT
     ).exists()

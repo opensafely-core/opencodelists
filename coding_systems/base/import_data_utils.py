@@ -1,4 +1,3 @@
-import json
 import shutil
 from itertools import islice
 from pathlib import Path
@@ -12,7 +11,7 @@ from tqdm import tqdm
 
 from codelists.coding_systems import CODING_SYSTEMS
 from codelists.hierarchy import Hierarchy
-from codelists.models import CodelistVersion, Status
+from codelists.models import CachedHierarchy, CodelistVersion, Status
 from codelists.search import do_search
 from coding_systems.versioning.models import (
     CodingSystemRelease,
@@ -353,10 +352,12 @@ def _check_version_by_hierarchy(coding_system, version):
     # will have a cached hierarchy, built with the original coding system release.
     # We compare this to a hierarchy built from the same codes, but with the new release.
     original_hierarchy_data = _hierarchy_excl_cache_items(
-        json.loads(version.cached_hierarchy.data)
+        CachedHierarchy.deserialise(version.cached_hierarchy.data)
     )
     new_hierarchy_data = _hierarchy_excl_cache_items(
-        json.loads(Hierarchy.from_codes(coding_system, version.codes).data_for_cache())
+        CachedHierarchy.deserialise(
+            Hierarchy.from_codes(coding_system, version.codes).data_for_cache()
+        )
     )
     return original_hierarchy_data == new_hierarchy_data
 

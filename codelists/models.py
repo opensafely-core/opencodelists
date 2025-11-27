@@ -182,19 +182,22 @@ class Codelist(models.Model):
     def visible_versions(
         self,
         user,
-        codelist_version_id: int | None = None,
+        include_version_id: int | None = None,
     ) -> models.QuerySet["CodelistVersion"]:
         """Return all versions visible to the user, with newest first.
-        If the user is on a "Under Review" codelist, show that version in
-        the list."""
+
+        If the user can edit the codelist, all versions are returned.
+        Otherwise, only published versions are returned, plus the one
+        corresponding to the `include_version_id` if provided.
+        """
         versions = self.versions.order_by("-id")
 
         if self.can_be_edited_by(user):
             return versions
 
         q = Q(status=Status.PUBLISHED)
-        if codelist_version_id is not None:
-            q |= Q(id=codelist_version_id)
+        if include_version_id is not None:
+            q |= Q(id=include_version_id)
 
         return versions.filter(q)
 

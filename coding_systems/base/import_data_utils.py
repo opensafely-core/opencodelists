@@ -1,4 +1,3 @@
-import json
 import shutil
 from itertools import islice
 from pathlib import Path
@@ -339,11 +338,6 @@ def _check_version_by_hierarchy(coding_system, version):
     and identical hierarchies.
     """
 
-    def _hierarchy_excl_cache_items(hierarchy):
-        # `_descendants_cache` and `_ancestors_cache` will not have been generated for the
-        # new hierarchy
-        return {k: v for k, v in hierarchy.items() if not k.endswith("_cache")}
-
     # All codelist versions that existed prior to implementation of coding system releases
     # have an "unknown" coding system release, which represents the coding system data at that
     # point. For older codelist versions, that is not the actual coding system release that was
@@ -352,13 +346,8 @@ def _check_version_by_hierarchy(coding_system, version):
     # All existing codelist versions, including those with the "unknown" coding system release,
     # will have a cached hierarchy, built with the original coding system release.
     # We compare this to a hierarchy built from the same codes, but with the new release.
-    original_hierarchy_data = _hierarchy_excl_cache_items(
-        json.loads(version.cached_hierarchy.data)
-    )
-    new_hierarchy_data = _hierarchy_excl_cache_items(
-        json.loads(Hierarchy.from_codes(coding_system, version.codes).data_for_cache())
-    )
-    return original_hierarchy_data == new_hierarchy_data
+
+    return version.hierarchy == Hierarchy.from_codes(coding_system, version.codes)
 
 
 def _check_version_by_search(coding_system, version):

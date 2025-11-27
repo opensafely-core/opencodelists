@@ -3,6 +3,7 @@ import hashlib
 from django.contrib.auth.models import AnonymousUser
 from django.core.validators import MinLengthValidator, RegexValidator
 from django.db import models
+from django.db.models import Q
 from django.urls import reverse
 from django.utils.functional import cached_property
 from taggit.managers import TaggableManager
@@ -178,14 +179,27 @@ class Codelist(models.Model):
         else:
             return user.is_member(self.organisation)
 
-    def visible_versions(self, user):
-        """Return all versions visible to the user, with newest first."""
+    def visible_versions(
+        self,
+        user,
+        include_version_id: int | None = None,
+    ) -> models.QuerySet["CodelistVersion"]:
+        """Return all versions visible to the user, with newest first.
 
+        If the user can edit the codelist, all versions are returned.
+        Otherwise, only published versions are returned, plus the one
+        corresponding to the `include_version_id` if provided.
+        """
         versions = self.versions.order_by("-id")
-        if not self.can_be_edited_by(user):
-            versions = versions.filter(status=Status.PUBLISHED)
 
-        return versions
+        if self.can_be_edited_by(user):
+            return versions
+
+        q = Q(status=Status.PUBLISHED)
+        if include_version_id is not None:
+            q |= Q(id=include_version_id)
+
+        return versions.filter(q)
 
     def latest_visible_version(self, user):
         """Return latest version visible to the user, or None if no such version

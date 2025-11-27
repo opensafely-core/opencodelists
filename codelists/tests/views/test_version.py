@@ -1,5 +1,6 @@
 import re
 
+from bs4 import BeautifulSoup
 from django.urls import reverse
 
 from builder.actions import save as save_for_review
@@ -250,3 +251,20 @@ def test_clone_hyperlink_in_editable_under_review_detail(
 
     # Check url exists
     assert f'href="{clone_url}"'.encode() in rsp.content
+
+
+def test_under_review_version_visible_in_sidebar_for_non_editor(
+    client, version_under_review, latest_published_version, user_without_organisation
+):
+    force_login(user_without_organisation, client)
+
+    rsp = client.get(version_under_review.get_absolute_url())
+    assert rsp.status_code == 200
+
+    parsed_html = BeautifulSoup(rsp.content, "html.parser")
+    versions_section = parsed_html.find("section", id="versions")
+    assert versions_section
+
+    section_text = versions_section.get_text(" ", strip=True)
+    assert version_under_review.tag_or_hash in section_text
+    assert latest_published_version.tag_or_hash in section_text

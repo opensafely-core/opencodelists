@@ -1,5 +1,6 @@
 import re
 
+from bs4 import BeautifulSoup
 from django.urls import reverse
 
 from builder.actions import save as save_for_review
@@ -260,12 +261,10 @@ def test_under_review_version_visible_in_sidebar_for_non_editor(
     rsp = client.get(version_under_review.get_absolute_url())
     assert rsp.status_code == 200
 
-    html = rsp.content.decode()
-    versions_section = re.search(
-        r'<section[^>]*id="versions"[^>]*>(.*?)</section>', html, re.DOTALL
-    )
-    assert versions_section is not None
-    versions_html = versions_section.group(1)
+    parsed_html = BeautifulSoup(rsp.content, "html.parser")
+    versions_section = parsed_html.find("section", id="versions")
+    assert versions_section
 
-    assert version_under_review.tag_or_hash in versions_html
-    assert latest_published_version.tag_or_hash in versions_html
+    section_text = versions_section.get_text(" ", strip=True)
+    assert version_under_review.tag_or_hash in section_text
+    assert latest_published_version.tag_or_hash in section_text

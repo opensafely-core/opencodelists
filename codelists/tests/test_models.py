@@ -263,6 +263,27 @@ def test_visible_versions_user_doesnt_have_edit_permissions(
     assert len(new_style_codelist.visible_versions(user_without_organisation)) == 1
 
 
+def test_visible_versions_can_include_requested_version(
+    new_style_codelist,
+    latest_published_version,
+    version_under_review,
+    user_without_organisation,
+):
+    visible_without_included = list(
+        new_style_codelist.visible_versions(user_without_organisation)
+    )
+    assert visible_without_included == [latest_published_version]
+
+    visible_with_included = list(
+        new_style_codelist.visible_versions(
+            user=user_without_organisation, include_version_id=version_under_review.id
+        )
+    )
+    assert latest_published_version in visible_with_included
+    assert version_under_review in visible_with_included
+    assert len(visible_with_included) == 2
+
+
 def test_latest_visible_version_user_has_edit_permissions(
     new_style_codelist,
     latest_version,

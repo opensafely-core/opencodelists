@@ -4,6 +4,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.core.validators import MinLengthValidator, RegexValidator
 from django.db import models
 from django.db.models import Q
+from django.db.models.query import QuerySet
 from django.urls import reverse
 from django.utils.functional import cached_property
 from taggit.managers import TaggableManager
@@ -217,6 +218,19 @@ class Codelist(models.Model):
         return self.versions.filter(status="published").exists()
 
 
+class DeleteHandleException(Exception):
+    """Raised when attempting to delete Handle via the ORM."""
+
+
+class NoDeleteHandleQuerySet(QuerySet):
+    def delete(self):
+        """Prevent deletion of Handle QuerySets via ORM."""
+        raise DeleteHandleException(
+            "Bulk deletion of Handle instances via the ORM is not permitted. "
+            f"Attempted on QuerySet `{self}`"
+        )
+
+
 class Handle(models.Model):
     codelist = models.ForeignKey(
         "Codelist", on_delete=models.CASCADE, related_name="handles"
@@ -270,6 +284,27 @@ class Handle(models.Model):
     @cached_property
     def owner(self):
         return self.organisation or self.user
+
+    # Attempt to stop deletion of Handle instances via the ORM.
+    # Codelist are created with one Handle. They may gain more later, but
+    # business logic in actions.py does not permit deletion of any of them,
+    # and parts of the application may expect that there is always a current
+    # Handle for a Codelist.
+    # Note that this does not stop deletion via on_delete=models.CASCADE, see
+    # https://docs.djangoproject.com/en/5.2/topics/db/queries/#deleting-objects
+    # We enforce this constraint only in the Django model layer. That does not
+    # stop Handles being deleted by other means such as via direct SQL,  such
+    # as via a cascade.
+
+    # Prevent deletion via QuerySet.
+    objects = NoDeleteHandleQuerySet.as_manager()
+
+    # Prevent deletion via instance method.
+    def delete(self, using=None, keep_parents=False):
+        """Prevent deletion of instances via the ORM."""
+        raise DeleteHandleException(
+            f"May not delete handles - attempted on `{self}` for codelist `{self.codelist}`"
+        )
 
 
 class Status(models.TextChoices):

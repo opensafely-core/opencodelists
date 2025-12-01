@@ -3,9 +3,10 @@ import json
 from datetime import datetime
 
 import pytest
+from django.db import connection
 
 from codelists.actions import update_codelist
-from codelists.models import Codelist
+from codelists.models import Codelist, Handle
 from mappings.dmdvmpprevmap.models import Mapping as VmpPrevMapping
 from opencodelists.tests.assertions import assert_difference, assert_no_difference
 
@@ -272,9 +273,13 @@ def test_codelists_get_all_still_works_for_a_codelist_with_a_missing_handle(
     # We found a Codelist without an associated Handle,
     # which broke this API endpoint.
 
-    # Delete the Handle for one codelist.
+    # Delete the Handle for one codelist. Via SQL as we disallow via ORM.
     codelist_to_break = Codelist.objects.get(handles__name="User Codelist From Scratch")
-    codelist_to_break.current_handle.delete()
+    table = Handle._meta.db_table
+    with connection.cursor() as cursor:
+        cursor.execute(
+            f'DELETE FROM "{table}" WHERE id = {codelist_to_break.current_handle.pk}'
+        )
 
     rsp = client.get("/api/v1/codelist/?include-users")
     assert rsp.status_code == 200

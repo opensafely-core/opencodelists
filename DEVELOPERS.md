@@ -305,7 +305,35 @@ Only images that have changed will be committed to github - but it's worth notin
 
 ## Other production maintenance tasks
 
-### Manually creating and updating codelist versions
+### Modifying the production database
+
+Sometimes, we may need to modify the production database to fix integrity
+errors due to bugs or to perform some management actions. We should not make
+any such changes by directly logging into the Django management shell or a
+dbshell. Entering commands manually is error-prone and not auditable,
+reviewable, repeatable, or testable.
+
+It may be okay to directly run management commands in production, discuss it
+with the team. Safest is probably to make the change via a migration, which
+also provides an audit trail and makes it easier to review, test, and
+potentially repeat. Create any such migrations in the `maintenance` app, see
+the history of that app for examples.
+
+You can create a fresh empty migration in a development environment with:
+
+```
+just manage makemigrations maintenance --empty --name XXX
+```
+
+Populate the logic and mark it as dependent on the latest migrations from other
+relevant apps (likely just `codelists` and potentially previous migrations in
+the same app. Ideally it is idempotent and reversible (even if the reverse is
+just a noop). These don't necessarily need automated testing if you do
+sufficiently robust manual testing on near-production data. This is because
+they are not used in any other components and we don't expect them to change
+once merged.
+
+#### Manually creating and updating codelist versions
 
 Currently OpenCodelists handles multiple coding system releases, however it can't always handle
 new versions of codelists when the coding system has changed significantly since the original
@@ -350,23 +378,8 @@ not organisation codelists.
 
 #### Process for deleting a single version of a codelist
 
-First, visit the codelist URL of interest
-and note down the version ID hash on the page.
-
-On dokku3:
-
-1. Start `shell_plus` which loads the database models for you:
-   ```sh
-   $ dokku run opencodelists python manage.py shell_plus
-   ```
-2. Access the specific version of the codelist:
-   ```pycon
-   >>> version = CodelistVersion.objects.get_by_hash("<hash>")
-   ```
-3. Delete the **codelist version**:
-   ```pycon
-   >>> version.delete()
-   ```
+Write a migration to delete the single version of the codelist and make it
+easy for anyone doing the same in future to repeat this.
 
 #### Process for deleting a codelist entirely
 

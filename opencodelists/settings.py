@@ -110,6 +110,7 @@ INSTALLED_APPS = [
     "mappings.bnfdmd",
     "mappings.ctv3sctmap2",
     "mappings.dmdvmpprevmap",
+    "maintenance",
     "corsheaders",
     "crispy_forms",
     "crispy_bootstrap4",

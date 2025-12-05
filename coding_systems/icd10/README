@@ -4,7 +4,7 @@ ICD-10
 ICD-10 is the tenth edition of the International Statistical Classification of Diseases
 and Related Health Problems, published by the WHO.
 
-Data was downloaded and imported from [0].  We don't know how often new releases are
+Data was downloaded and imported from [0] (**December 2025 update** the link has moved here [1]).  We don't know how often new releases are
 published.
 
 Download the latest release.  Select the ClaML format to download (ClaML is a an XML-based format, designed for classifications). It will be downloaded as a zipped .xml file, named e.g.
@@ -40,3 +40,4 @@ After importing, restart the opencodelists app with:
     dokku ps:restart opencodelists
 
 [0] https://apps.who.int/classifications/apps/icd/ClassificationDownload/DLArea/Download.aspx
+[1] https://icdcdn.who.int/icd10/index.html

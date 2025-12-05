@@ -31,6 +31,21 @@ class Hierarchy:
         self._descendants_cache = {}
         self._ancestors_cache = {}
 
+    def __eq__(self, other):
+        """Compare hierarchies excluding cache items, resolving possible deserialisation differences"""
+
+        def resolve_deser_nulls(_dict):
+            return {k or "null": {i or "null" for i in v} for k, v in _dict.items()}
+
+        return (
+            self.root == other.root
+            and self.nodes == other.nodes
+            and resolve_deser_nulls(self.child_map)
+            == resolve_deser_nulls(other.child_map)
+            and resolve_deser_nulls(self.parent_map)
+            == resolve_deser_nulls(other.parent_map)
+        )
+
     @classmethod
     def from_codes(cls, coding_system, codes):
         """Build a hierarchy containing the given codes, and their ancestors/descendants

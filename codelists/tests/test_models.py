@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from django.db.utils import IntegrityError
 
 from builder import actions as builder_actions
-from codelists.models import CodelistVersion, Handle
+from codelists.models import CodelistVersion, DeleteHandleException, Handle
 
 
 def test_handle_cannot_belong_to_user_and_organisation(codelist, user, organisation):
@@ -148,6 +148,16 @@ def test_handle_name_validation_valid(user_codelist):
     clean_name = handle._meta.get_field("name").clean(handle.name, handle)
 
     assert clean_name == name
+
+
+def test_handle_delete_not_allowed_method(codelist):
+    with pytest.raises(DeleteHandleException):
+        codelist.current_handle.delete()
+
+
+def test_handle_delete_not_allowed_queryset(codelist):
+    with pytest.raises(DeleteHandleException):
+        Handle.objects.first().delete()
 
 
 def test_old_style_codes(old_style_version):

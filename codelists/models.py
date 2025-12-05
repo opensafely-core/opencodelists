@@ -1,5 +1,4 @@
 import hashlib
-import json
 
 from django.contrib.auth.models import AnonymousUser
 from django.core.validators import MinLengthValidator, RegexValidator
@@ -944,22 +943,6 @@ class CachedHierarchy(models.Model):
         "CodelistVersion", related_name="cached_hierarchy", on_delete=models.CASCADE
     )
     data = models.TextField()
-
-    @classmethod
-    def deserialise(cls, data):
-        """
-        Deserialise cached hierarchy data using sets of codes
-        (per original Hierarchy) rather than `json.loads` default of lists"""
-
-        def settify(data):
-            for k, v in data.items():
-                if isinstance(v, list):
-                    data[k] = set(v)
-                if isinstance(v, dict):
-                    data[k] = settify(v)
-            return data
-
-        return settify(json.loads(data))
 
 
 class CodeObj(models.Model):

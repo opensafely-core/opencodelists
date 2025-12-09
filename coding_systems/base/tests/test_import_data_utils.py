@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 
 import pytest
@@ -323,3 +324,46 @@ class TestSaveCodelistDraftUpdatesCompatibilityMultipleReleases(
             self.bnf_version_with_search.compatible_releases.first().database_alias
             == "bnf_import-data_20220901"
         )
+
+
+class TestUpdateCodelistVersionCompatibilityIsOrderInsensitive(
+    BaseCodingSystemDynamicDatabaseTestCase
+):
+    db_aliases = [
+        "bnf_import-data_20221101",
+    ]
+
+    @pytest.mark.usefixtures("_get_bnf_release", "_get_bnf_review_version_with_search")
+    def test_update_codelist_version_compatibility_is_order_insensitive(
+        self,
+    ):
+        # modify the cached hierarchy data such that order of list elements is reversed
+        modified_existing_cached_hierarchy = json.loads(
+            self.bnf_review_version_with_search.cached_hierarchy.data
+        )
+        modified_existing_cached_hierarchy["nodes"] = list(
+            reversed(modified_existing_cached_hierarchy["nodes"])
+        )
+        modified_existing_cached_hierarchy["child_map"] = {
+            k: list(reversed(v))
+            for k, v in modified_existing_cached_hierarchy["child_map"].items()
+        }
+        modified_existing_cached_hierarchy["parent_map"] = {
+            k: list(reversed(v))
+            for k, v in modified_existing_cached_hierarchy["parent_map"].items()
+        }
+        modified_existing_cached_hierarchy_data = json.dumps(
+            modified_existing_cached_hierarchy
+        )
+        assert (
+            modified_existing_cached_hierarchy_data
+            != self.bnf_review_version_with_search.cached_hierarchy.data
+        )
+
+        self.bnf_review_version_with_search.cached_hierarchy.data = (
+            modified_existing_cached_hierarchy_data
+        )
+        self.bnf_review_version_with_search.cached_hierarchy.save()
+
+        update_codelist_version_compatibility("bnf", self.bnf_release.database_alias)
+        assert self.bnf_review_version_with_search.compatible_releases.exists()

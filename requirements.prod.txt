@@ -266,9 +266,9 @@ django==5.2.9 \
     #   django-vite
     #   djangorestframework
     #   slippers
-django-anymail[mailgun]==13.1 \
-    --hash=sha256:63e48402ec8258f17640eb73c8c64141f16d2f8ae7d448d0fb1c66e82b7cbcf6 \
-    --hash=sha256:b51783176f8a8382e958808151551558e4a46d1375fbc343742d1ebd06ce8e9e
+django-anymail[mailgun]==14.0 \
+    --hash=sha256:98e5575bcff231952a92117b7d0a4dd37fab582333a343de302d415a31dc72b1 \
+    --hash=sha256:ca42e52da62d2c96ce92412f9d68ef6d2067d96a384096b6e932d6a247e9fd61
     # via -r requirements.prod.in
 django-cors-headers==4.9.0 \
     --hash=sha256:15c7f20727f90044dcee2216a9fd7303741a864865f0c3657e28b7056f61b449 \
@@ -308,9 +308,9 @@ et-xmlfile==2.0.0 \
     --hash=sha256:7a91720bc756843502c3b7504c77b8fe44217c85c537d85037f0f536151b2caa \
     --hash=sha256:dab3f4764309081ce75662649be815c4c9081e88f0837825f90fd28317d4da54
     # via openpyxl
-faker==38.2.0 \
-    --hash=sha256:20672803db9c7cb97f9b56c18c54b915b6f1d8991f63d1d673642dc43f5ce7ab \
-    --hash=sha256:35fe4a0a79dee0dc4103a6083ee9224941e7d3594811a50e3969e547b0d2ee65
+faker==39.0.0 \
+    --hash=sha256:c72f1fca8f1a24b8da10fcaa45739135a19772218ddd61b86b7ea1b8c790dce7 \
+    --hash=sha256:ddae46d3b27e01cea7894651d687b33bcbe19a45ef044042c721ceac6d3da0ff
     # via -r requirements.prod.in
 furl==2.1.4 \
     --hash=sha256:877657501266c929269739fb5f5980534a41abd6bbabcb367c136d1d3b2a6015 \
@@ -392,10 +392,12 @@ gunicorn==23.0.0 \
 idna==3.11 \
     --hash=sha256:771a87f49d9defaf64091e6e6fe9c18d4833f140bd19464795bc32d966ca37ea \
     --hash=sha256:795dafcc9c04ed0c1fb032c2aa73654d8e8c5023a7df64a53f39190ada629902
-    # via requests
-importlib-metadata==8.7.0 \
-    --hash=sha256:d13b81ad223b890aa16c5471f2ac3056cf76c5f10f82d6f9292f0b415f389000 \
-    --hash=sha256:e5dd1551894c77868a30651cef00984d50e1002d06942a7101d34870c5f02afd
+    # via
+    #   django-anymail
+    #   requests
+importlib-metadata==8.7.1 \
+    --hash=sha256:49fef1ae6440c182052f407c8d34a68f72efc36db9ca90dc0113398f2fdde8bb \
+    --hash=sha256:5a1f80bf1daa489495071efbb095d75a634cf28a8bc299581244063b53176151
     # via opentelemetry-api
 lxml==6.0.2 \
     --hash=sha256:058027e261afed589eddcfe530fcc6f3402d7fd7e89bfd0532df82ebc1563dba \
@@ -756,9 +758,9 @@ requests==2.32.5 \
     #   -r requirements.prod.in
     #   django-anymail
     #   opentelemetry-exporter-otlp-proto-http
-sentry-sdk==2.47.0 \
-    --hash=sha256:8218891d5e41b4ea8d61d2aed62ed10c80e39d9f2959d6f939efbf056857e050 \
-    --hash=sha256:d72f8c61025b7d1d9e52510d03a6247b280094a327dd900d987717a4fce93412
+sentry-sdk==2.48.0 \
+    --hash=sha256:5213190977ff7fdff8a58b722fb807f8d5524a80488626ebeda1b5676c0c1473 \
+    --hash=sha256:6b12ac256769d41825d9b7518444e57fa35b5642df4c7c5e322af4d2c8721172
     # via -r requirements.prod.in
 six==1.17.0 \
     --hash=sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274 \
@@ -770,9 +772,9 @@ slippers==0.6.2 \
     --hash=sha256:4cb555b8822ba0d404e5405723f5d723994022c29046008ee917081031bc0cf1 \
     --hash=sha256:739e05f85354becbf0a65daab831eea62557d89e7512042209ab629af4378bca
     # via -r requirements.prod.in
-soupsieve==2.8 \
-    --hash=sha256:0cc76456a30e20f5d7f2e14a98a4ae2ee4e5abdc7c5ea0aafe795f344bc7984c \
-    --hash=sha256:e2dd4a40a628cb5f28f6d4b0db8800b8f581b65bb380b97de22ba5ca8d72572f
+soupsieve==2.8.1 \
+    --hash=sha256:4cf733bc50fa805f5df4b8ef4740fc0e0fa6218cf3006269afd3f9d6d80fd350 \
+    --hash=sha256:a11fe2a6f3d76ab3cf2de04eb339c1be5b506a8a47f2ceb6d139803177f85434
     # via beautifulsoup4
 sqlean-py==3.50.4.5 \
     --hash=sha256:05eb8d758104339c8d8ecf99238e15bbf6ba07a572f770f1a92589d487a8282c \
@@ -797,9 +799,9 @@ sqlean-py==3.50.4.5 \
     --hash=sha256:e63b246ceb0eb48d37abeada97b2a7695dfe79655b7a8285c001e5ad9e79711b \
     --hash=sha256:ed29b050cbb13a4f7b80518d379f2742dfb15f079b2b237497738dfe8cdf1b59
     # via -r requirements.prod.in
-sqlparse==0.5.4 \
-    --hash=sha256:4396a7d3cf1cd679c1be976cf3dc6e0a51d0111e87787e7a8d780e7d5a998f9e \
-    --hash=sha256:99a9f0314977b76d776a0fcb8554de91b9bb8a18560631d6bc48721d07023dcb
+sqlparse==0.5.5 \
+    --hash=sha256:12a08b3bf3eec877c519589833aed092e2444e68240a3577e8e26148acc7b1ba \
+    --hash=sha256:e20d4a9b0b8585fdf63b10d30066c7c94c5d7a7ec47c889a2d83a3caa93ff28e
     # via django
 structlog==25.5.0 \
     --hash=sha256:098522a3bebed9153d4570c6d0288abf80a031dfdb2048d59a49e9dc2190fc98 \

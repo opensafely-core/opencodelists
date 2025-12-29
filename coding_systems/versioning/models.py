@@ -68,11 +68,11 @@ def database_ready():
     return not versioning_plan
 
 
-def update_coding_system_database_connections():
+def update_coding_system_database_connections(running_in_migration=False):
     """Add the database config for each coding system release"""
     # ensure that the database is ready and the CodingSystemRelease table is available
     # (i.e. migrations have been run)
-    if database_ready():  # pragma: no cover
+    if running_in_migration or database_ready():  # pragma: no cover
         for coding_system_release in CodingSystemRelease.objects.all():
             if not CODING_SYSTEMS[coding_system_release.coding_system].has_database:
                 continue

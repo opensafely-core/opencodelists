@@ -39,7 +39,8 @@ def mocked_responses_homepage():
             "https://www.nhsbsa.nhs.uk/prescription-data/understanding-our-data/bnf-snomed-mapping",
             body=f"""
             <p><a href="/sites/default/files/{MOCK_FILEPATH}">January 2024 (ZIP file: 16.76MB)</a></p>
-            <p><a href="/sites/default/files/2023-01/BNF%20Snomed%20Mapping%20data%2020230116.zip">January 2023 (ZIP file: 16.76MB)</a></p>
+            <p><a href="/sites/default/files/2023-01/BNF%20Snomed%20Mapping%20data%2020230116.zip">January</a> 2023 (ZIP file: 16.76MB)</p>
+            <p>September<a href="/sites/default/files/2023-11/BNF%20Snomed%20Mapping%20data%2020231120.zip"> 2023 (ZIP file: 18.77MB)</a></p>
         """,
             status=200,
         )

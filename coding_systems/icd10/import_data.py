@@ -178,10 +178,14 @@ def import_data(
         ]
 
         for category in categories_2019:
-            category["parent_id"] = next(
-                block["code"]
-                for block in blocks_2019
-                if block["code"].startswith(category["parent_id"])
+            category["parent_id"] = (
+                next(
+                    block["code"]
+                    for block in blocks_2019
+                    if block["code"].startswith(category["parent_id"])
+                )
+                if len(category["code"]) == 3
+                else category["code"][:3]
             )
 
         existing_categories = {

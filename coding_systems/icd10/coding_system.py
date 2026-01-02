@@ -4,7 +4,7 @@ from functools import lru_cache
 from opencodelists.db_utils import query
 
 from ..base.coding_system_base import BuilderCompatibleCodingSystem
-from .models import Concept
+from .models import Concept, ConceptEdition, ConceptKind
 
 
 class CodingSystem(BuilderCompatibleCodingSystem):
@@ -22,7 +22,7 @@ class CodingSystem(BuilderCompatibleCodingSystem):
     def search_by_term(self, term):
         return set(
             Concept.objects.using(self.database_alias)
-            .filter(kind="category")
+            .filter(kind=ConceptKind.CATEGORY)
             .filter(term__contains=term)
             .values_list("code", flat=True)
         )
@@ -36,7 +36,7 @@ class CodingSystem(BuilderCompatibleCodingSystem):
 
         return set(
             Concept.objects.using(self.database_alias)
-            .exclude(kind="chapter")
+            .exclude(kind=ConceptKind.CHAPTER)
             .filter(**kwargs)
             .values_list("code", flat=True)
         )
@@ -113,6 +113,18 @@ class CodingSystem(BuilderCompatibleCodingSystem):
             codes_by_type[chapter_name].append(code)
         return dict(codes_by_type)
 
+    def lookup_synonyms(self, codes):
+        alternate_edition_terms = (
+            ConceptEdition.objects.using(self.database_alias)
+            .filter(concept_id__in=codes)
+            .filter(term__isnull=False)
+            .exclude(term="")
+        )
+        result = defaultdict(list)
+        for a in alternate_edition_terms:
+            result[a.concept.code].append(a.term)
+        return dict(result)
+
     @lru_cache
     def code_to_chapter(self):
         """Return mapping from a concept's code to the code of its chapter.
@@ -138,31 +150,31 @@ class CodingSystem(BuilderCompatibleCodingSystem):
         code_to_chapter = {
             chapter.code: chapter.code
             for chapter in Concept.objects.using(self.database_alias).filter(
-                kind="chapter"
+                kind=ConceptKind.CHAPTER
             )
         }
 
         # Add mappings from blocks that are children of chapters.
         for block in Concept.objects.using(self.database_alias).filter(
-            kind="block", parent__kind="chapter"
+            kind=ConceptKind.BLOCK, parent__kind=ConceptKind.CHAPTER
         ):
             code_to_chapter[block.code] = code_to_chapter[block.parent_id]
 
         # Add mappings from blocks that are children of other blocks.
         for block in Concept.objects.using(self.database_alias).filter(
-            kind="block", parent__kind="block"
+            kind=ConceptKind.BLOCK, parent__kind=ConceptKind.BLOCK
         ):
             code_to_chapter[block.code] = code_to_chapter[block.parent_id]
 
         # Add mappings from categories that are children of blocks.
         for category in Concept.objects.using(self.database_alias).filter(
-            kind="category", parent__kind="block"
+            kind=ConceptKind.CATEGORY, parent__kind=ConceptKind.BLOCK
         ):
             code_to_chapter[category.code] = code_to_chapter[category.parent_id]
 
         # Add mappings from categories that are children of other categories.
         for category in Concept.objects.using(self.database_alias).filter(
-            kind="category", parent__kind="category"
+            kind=ConceptKind.CATEGORY, parent__kind=ConceptKind.CATEGORY
         ):
             code_to_chapter[category.code] = code_to_chapter[category.parent_id]
 
@@ -179,7 +191,7 @@ class CodingSystem(BuilderCompatibleCodingSystem):
         return {
             concept.code: f"{concept.code}: {concept.term}"
             for concept in Concept.objects.using(self.database_alias).filter(
-                kind="chapter"
+                kind=ConceptKind.CHAPTER
             )
         }
 

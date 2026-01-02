@@ -77,7 +77,10 @@ def more_info(request, coding_system):
     cs = CODING_SYSTEMS[coding_system].get_by_release_or_most_recent()
     synonyms = {"synonyms": cs.lookup_synonyms(codes)}
     references = {"references": cs.lookup_references(codes)}
-    return JsonResponse(synonyms | references)
+    editions = {}
+    if getattr(cs, "lookup_editions"):
+        editions = {"editions": cs.lookup_editions(codes)}
+    return JsonResponse(synonyms | references | editions)
 
 
 @csrf_exempt

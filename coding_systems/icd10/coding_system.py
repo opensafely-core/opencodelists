@@ -95,7 +95,25 @@ class CodingSystem(BuilderCompatibleCodingSystem):
         )
 
     def code_to_term(self, codes):
-        lookup = self.lookup_names(codes)
+        editions = defaultdict(list)
+        for c in (
+            ConceptEdition.objects.using(self.database_alias)
+            .filter(concept_id__in=codes)
+            .values_list("concept_id", "edition__version", "edition__year")
+        ):
+            editions[c[0]].append(f"v{c[1]}-{c[2]}")
+
+        def fmt_editions(code):
+            e = editions.get(code, [])
+            if e:
+                return " [" + ", ".join(e) + "]"
+            else:
+                return ""
+
+        lookup = {
+            code: f"{name}{fmt_editions(code)}"
+            for code, name in self.lookup_names(codes).items()
+        }
         unknown = set(codes) - set(lookup)
         return {**lookup, **{code: "Unknown" for code in unknown}}
 
@@ -124,6 +142,18 @@ class CodingSystem(BuilderCompatibleCodingSystem):
         for a in alternate_edition_terms:
             result[a.concept.code].append(a.term)
         return dict(result)
+
+    def lookup_editions(self, codes):
+        def fmt_edition(edition):
+            return f"Version {edition.version}, {edition.year}\n ({edition.source_description})"
+
+        editions = ConceptEdition.objects.using(self.database_alias).filter(
+            concept_id__in=codes
+        )
+        result = defaultdict(list)
+        for e in editions:
+            result[e.concept.code].append(fmt_edition(e.edition))
+        return result
 
     @lru_cache
     def code_to_chapter(self):

@@ -58,6 +58,7 @@ function getTabFromHash(): TabKey {
   return hash === "metadata" ? "metadata" : "codelist";
 }
 
+// biome-ignore lint/style/useReactFunctionComponents: Component created before Biome config
 export default class CodelistBuilder extends React.Component<
   CodelistBuilderProps,
   {

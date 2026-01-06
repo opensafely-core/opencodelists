@@ -47,7 +47,10 @@ class Downloader:
                     valid_from := datepat.search(inner_text.replace("\xa0", " "))
                 ):
                     # sometimes "valid from" inner text is across adjacent elements
-                    inner_text += a_tag.next_sibling()[0].text
+                    if a_tag.next_sibling:
+                        inner_text += a_tag.next_sibling.text
+                    elif a_tag.previous_sibling:
+                        inner_text = a_tag.previous_sibling.text + inner_text
                 valid_from = datetime.strptime(valid_from.group(), datefmt)
                 matches.append((match.group("date"), url, filename, valid_from))
 

@@ -1,0 +1,31 @@
+<div class="flex flex-row gap-x-8 items-center">
+  <fieldset class="flex flex-col gap-y-2 min-w-full items-start">
+    <legend class="float-left font-semibold text-lg text-slate-900">
+      {{ field.label }}
+    </legend>
+    {% if field.help_text %}
+      <p class="text-sm text-slate-600 max-w-prose">{{ field.help_text }}</p>
+    {% endif %}
+    {% for radio in field %}
+      <label for="{{ radio.id_for_label }}" class="w-fit max-w-full flex flex-row gap-x-3 items-start cursor-pointer text-lg group">
+        <input
+          type="radio"
+          name="{{ field.html_name }}"
+          id="{{ radio.id_for_label }}"
+          value="{{ radio.data.value }}"
+          class="
+                 scale-125 ml-1 mt-[0.33em] transition-colors
+                 group-hover:bg-oxford-50 group-hover:border-oxford-700
+                 checked:group-hover:bg-oxford-600 checked:group-hover:border-oxford-600
+                 checked:bg-oxford-600 checked:border-oxford-600
+                "
+          {% if field.field.initial and radio.data.value|stringformat:"s" == field.field.initial|stringformat:"s" %}checked{% endif %}
+          {% if field.field.required %}required{% endif %}
+        />
+        <span class="transition-colors group-hover:text-oxford-600 ">
+          {{ radio.choice_label }}
+        </span>
+      </label>
+    {% endfor %}
+  </fieldset>
+</div>

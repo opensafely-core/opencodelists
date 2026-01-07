@@ -72,6 +72,25 @@ class CodelistCreateForm(forms.Form):
     owner = forms.ChoiceField()
     name = form_field_from_model(Handle, "name", label="Codelist name")
     coding_system_id = forms.ChoiceField(choices=[], label="Coding system")
+    descendant_handling = forms.ChoiceField(
+        choices=(
+            ("exclude_all", "Exclude descendants (only codes in CSV)"),
+            ("include_all", "Include all descendants of uploaded codes"),
+            (
+                "case_by_case",
+                "Let me choose descendants case by case in the builder",
+            ),
+        ),
+        widget=forms.RadioSelect,
+        help_text=(
+            "Clinical codes are hierarchical. If you only include the codes "
+            "in your CSV you may miss their child codes; choose whether to "
+            "auto-include all descendants, exclude them, or decide on each "
+            "one in the builder."
+        ),
+        label="How should we handle descendants of uploaded codes?",
+        required=False,
+    )
     csv_has_header = forms.TypedChoiceField(
         choices=(
             ("True", "Yes"),

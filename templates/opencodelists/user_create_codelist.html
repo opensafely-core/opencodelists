@@ -81,7 +81,12 @@
         </summary>
         <div class="border-t border-t-blue-100 py-6 pl-10 pr-6">
           {% form_input_upload field=form.csv_data %}
-          {{ form.csv_has_header.label }} {{ form.csv_has_header }}
+          <div class="mt-6">
+            {% include "opencodelists/includes/radio_group.html" with field=form.csv_has_header%}
+          </div>
+          <div class="mt-6">
+            {% include "opencodelists/includes/radio_group.html" with field=form.descendant_handling %}
+          </div>
         </div>
       </details>
     </div>

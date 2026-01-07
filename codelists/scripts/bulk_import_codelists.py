@@ -368,10 +368,10 @@ def get_post_data(
 
     # In dev mode you might not have the coding system db installed which causes 500
     # errors. For better developer experience, if running against localhost we check
-    # that the db exists and is not empty before proceeding. Also ensure the TEST_IN_DOCKER var
-    # is not set as the docker environment doesn't have the dbs installed either, but
-    # we don't want to block the CI tests.
-    if "localhost" in host and not os.environ.get("TEST_IN_DOCKER"):
+    # that the db exists and is not empty before proceeding. But also check that we
+    # aren't running a test because that uses an in memory sqlite db and would
+    # otherwise fail this check.
+    if "localhost" in host and not os.environ.get("IS_TESTING"):
         db_path = (
             Path(__file__).resolve().parent.parent.parent
             / "coding_systems"

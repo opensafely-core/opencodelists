@@ -49,6 +49,7 @@ def test_import_from_txt(
 
     url = live_server.url
     environ["API_TOKEN"] = organisation_user.api_token
+    environ["IS_TESTING"] = "true"
 
     expected_cl_count = Codelist.objects.count()
     expected_clv_count = CodelistVersion.objects.count()

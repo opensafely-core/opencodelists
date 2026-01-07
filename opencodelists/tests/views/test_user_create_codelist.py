@@ -55,6 +55,7 @@ def test_post_with_csv(client, organisation_user, disorder_of_elbow_csv_data_no_
         "owner": "user:bob",
         "csv_data": csv_builder(disorder_of_elbow_csv_data_no_header),
         "csv_has_header": "False",
+        "descendant_handling": "exclude_all",
     }
 
     with assert_difference(Codelist.objects.count, expected_difference=1):
@@ -116,6 +117,7 @@ def test_post_create_organisation_codelist_with_csv(
         "owner": "organisation:test-university",
         "csv_data": csv_builder(disorder_of_elbow_csv_data_no_header),
         "csv_has_header": "False",
+        "descendant_handling": "exclude_all",
     }
 
     with assert_difference(Codelist.objects.count, expected_difference=1):
@@ -171,6 +173,103 @@ def test_post_invalid_with_csv_multiple_bad_codes(
     assert (
         b"CSV file contains 3 unknown codes -- the first (2563070072) is on line 3"
         in response.content
+    )
+
+
+def test_post_with_csv_exclude_all_removes_descendants(
+    client, organisation_user, disorder_of_elbow_excl_arthritis_csv_data
+):
+    client.force_login(organisation_user)
+    uploaded_codes = {
+        row.split(",")[0]
+        for row in disorder_of_elbow_excl_arthritis_csv_data.strip().split("\n")[1:]
+    }
+    data = {
+        "name": "Test exclude all",
+        "coding_system_id": "snomedct",
+        "owner": "user:bob",
+        "csv_data": csv_builder(disorder_of_elbow_excl_arthritis_csv_data),
+        "csv_has_header": "True",
+        "descendant_handling": "exclude_all",
+    }
+
+    with assert_difference(Codelist.objects.count, expected_difference=1):
+        client.post("/users/bob/new-codelist/", data, follow=True)
+
+    codelist = organisation_user.codelists.get(handles__name="Test exclude all")
+    version = codelist.versions.get()
+
+    # Expect all uploaded_codes to be "included"
+    included_codes = set(
+        version.code_objs.filter(status__in=["+", "(+)"]).values_list("code", flat=True)
+    )
+    assert set(uploaded_codes) == included_codes
+
+    # At least one non-uploaded code should be excluded
+    assert (
+        version.code_objs.exclude(code__in=uploaded_codes).filter(status="-").exists()
+    )
+
+
+def test_post_with_csv_include_all_adds_descendants(
+    client, organisation_user, disorder_of_elbow_excl_arthritis_csv_data
+):
+    client.force_login(organisation_user)
+    uploaded_codes = disorder_of_elbow_excl_arthritis_csv_data.strip().split("\n")[1:]
+    data = {
+        "name": "Test include all",
+        "coding_system_id": "snomedct",
+        "owner": "user:bob",
+        "csv_data": csv_builder(disorder_of_elbow_excl_arthritis_csv_data),
+        "csv_has_header": "True",
+        "descendant_handling": "include_all",
+    }
+
+    with assert_difference(Codelist.objects.count, expected_difference=1):
+        client.post("/users/bob/new-codelist/", data, follow=True)
+
+    codelist = organisation_user.codelists.get(handles__name="Test include all")
+    version = codelist.versions.get()
+
+    # Expect more codes than were uploaded because descendants are added
+    assert len(version.codes) > len(uploaded_codes)
+
+    # Expect no unresolved or excluded codes
+    assert not version.code_objs.filter(status__in=["?", "-"]).exists()
+
+
+def test_post_with_csv_case_by_case_marks_descendants_unresolved(
+    client, organisation_user, disorder_of_elbow_excl_arthritis_csv_data
+):
+    client.force_login(organisation_user)
+    uploaded_codes = {
+        row.split(",")[0]
+        for row in disorder_of_elbow_excl_arthritis_csv_data.strip().split("\n")[1:]
+    }
+    data = {
+        "name": "Test case by case",
+        "coding_system_id": "snomedct",
+        "owner": "user:bob",
+        "csv_data": csv_builder(disorder_of_elbow_excl_arthritis_csv_data),
+        "csv_has_header": "True",
+        "descendant_handling": "case_by_case",
+    }
+
+    with assert_difference(Codelist.objects.count, expected_difference=1):
+        response = client.post("/users/bob/new-codelist/", data, follow=True)
+
+    codelist = organisation_user.codelists.get(handles__name="Test case by case")
+    version = codelist.versions.get()
+
+    assert response.redirect_chain[-1][0] == version.get_builder_draft_url()
+    # Uploaded codes should be included
+    included_codes = set(
+        version.code_objs.filter(status="+").values_list("code", flat=True)
+    )
+    assert uploaded_codes == included_codes
+    # At least one non-uploaded code should be unresolved
+    assert (
+        version.code_objs.exclude(code__in=uploaded_codes).filter(status="?").exists()
     )
 
 

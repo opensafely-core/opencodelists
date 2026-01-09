@@ -115,13 +115,11 @@ class TestCodelistCreateForm:
         file.name = "valid_data_no_header.csv"
         form = self._bind_form(file, csv_has_header=None)
 
-        assert not form.is_valid()
-        errors = form.errors.get("csv_data")
-        assert len(errors) == 1
-        assert (
-            "CSV file contains 1 unknown code (code) on line 1 (SNOMED CT release test, valid from 2020-01-01)"
-            in errors[0]
-        )
+        # Now that we autodetect headers this is now valid
+        assert form.is_valid()
+        assert form.cleaned_data["name"] == "test name"
+        assert form.cleaned_data["coding_system_id"] == "snomedct"
+        assert form.cleaned_data["csv_data"] == disorder_of_elbow_codes
 
     def test_bound_form_invalid_file_unicode_error(self):
         invalid_utf8_data = b"\xff\xfe\xfd"

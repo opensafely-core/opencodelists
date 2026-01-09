@@ -54,7 +54,6 @@ def test_post_with_csv(client, organisation_user, disorder_of_elbow_csv_data_no_
         "coding_system_id": "snomedct",
         "owner": "user:bob",
         "csv_data": csv_builder(disorder_of_elbow_csv_data_no_header),
-        "csv_has_header": "False",
         "descendant_handling": "exclude_all",
     }
 
@@ -116,7 +115,6 @@ def test_post_create_organisation_codelist_with_csv(
         "coding_system_id": "snomedct",
         "owner": "organisation:test-university",
         "csv_data": csv_builder(disorder_of_elbow_csv_data_no_header),
-        "csv_has_header": "False",
         "descendant_handling": "exclude_all",
     }
 
@@ -139,7 +137,6 @@ def test_post_invalid_with_csv(client, organisation_user):
         "coding_system_id": "snomedct",
         "owner": "user:bob",
         "csv_data": csv_builder(csv_data),
-        "csv_has_header": "False",
     }
 
     with assert_no_difference(Codelist.objects.count):
@@ -164,7 +161,6 @@ def test_post_invalid_with_csv_multiple_bad_codes(
         "coding_system_id": "snomedct",
         "owner": "user:bob",
         "csv_data": csv_builder(csv_data),
-        "csv_has_header": "False",
     }
 
     with assert_no_difference(Codelist.objects.count):
@@ -189,7 +185,6 @@ def test_post_with_csv_exclude_all_removes_descendants(
         "coding_system_id": "snomedct",
         "owner": "user:bob",
         "csv_data": csv_builder(disorder_of_elbow_excl_arthritis_csv_data),
-        "csv_has_header": "True",
         "descendant_handling": "exclude_all",
     }
 
@@ -221,7 +216,6 @@ def test_post_with_csv_include_all_adds_descendants(
         "coding_system_id": "snomedct",
         "owner": "user:bob",
         "csv_data": csv_builder(disorder_of_elbow_excl_arthritis_csv_data),
-        "csv_has_header": "True",
         "descendant_handling": "include_all",
     }
 
@@ -251,7 +245,6 @@ def test_post_with_csv_case_by_case_marks_descendants_unresolved(
         "coding_system_id": "snomedct",
         "owner": "user:bob",
         "csv_data": csv_builder(disorder_of_elbow_excl_arthritis_csv_data),
-        "csv_has_header": "True",
         "descendant_handling": "case_by_case",
     }
 

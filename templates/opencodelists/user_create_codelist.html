@@ -67,7 +67,7 @@
     </div>
 
     <div class="bg-white px-6 py-12 shadow-sm sm:rounded-lg sm:px-12">
-      <div class="prose text-slate-700 mb-6">
+      <div id="csv-upload-help" class="prose text-slate-700 mb-6">
         <h2 class="text-lg font-semibold">Upload a CSV <small>(optional)</small></h2>
         <p>If you have prepared a CSV of data, you can upload it here.</p>
       </div>
@@ -81,11 +81,83 @@
         </summary>
         <div class="border-t border-t-blue-100 py-6 pl-10 pr-6">
           {% form_input_upload field=form.csv_data %}
-          <div class="mt-6">
-            {% include "opencodelists/includes/radio_group.html" with field=form.csv_has_header%}
+
+          <!-- Loading indicator -->
+          <div id="csv-loading" class="mt-6 hidden">
+            <div class="flex items-center gap-3 text-slate-700">
+              <svg class="animate-spin h-5 w-5 text-blue-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <span class="text-sm">Processing CSV...</span>
+            </div>
           </div>
-          <div class="mt-6">
-            {% include "opencodelists/includes/radio_group.html" with field=form.descendant_handling %}
+
+          <!-- CSV Preview and Detection Results -->
+          <div id="csv-analysis-section" class="mt-6 hidden">
+            <div class="bg-slate-100 p-4 rounded-sm mb-4">
+              <div class="text-sm text-slate-700 mb-3">
+                <p><strong>Detected structure:</strong></p>
+                <ul class="list-disc pl-5 mt-2 space-y-1">
+                  <li id="no-header-detected">No header row detected</li>
+                  <li id="header-detected">
+                    <span id="detected-header-rows" class="font-mono font-semibold text-black">-</span>
+                    <span class="inline-block rounded-sm border border-slate-200 bg-yellow-100 px-1 py-0.5 font-medium text-yellow-900">header</span>
+                    row<span id="detected-header-rows-plural"></span> detected, data starts at row
+                    <span id="detected-data-start" class="font-mono font-semibold text-black">-</span>
+                  </li>
+                  <li>
+                    <span id="detected-code-count" class="font-mono font-semibold text-black">-</span>
+                    <span id="detected-coding-system" class="inline-block rounded-sm border border-slate-200 px-1 py-0.5 bg-blue-100 text-black font-bold">-</span>
+                    code<span id="detected-code-count-plural"></span> in column
+                    <span id="detected-code-column" class="font-mono font-semibold text-black">-</span>
+                  </li>
+                </ul>
+              </div>
+              <div id="csv-preview-container" class="mt-3 bg-white border border-slate-300 rounded-sm overflow-auto max-h-48">
+                <table class="text-xs border-collapse w-full">
+                  <tbody id="csv-preview-table">
+                  </tbody>
+                </table>
+              </div>
+              <div id="csv-warnings" class="mt-4 text-sm text-red-700 hidden">
+                <p class="font-semibold">Warning:</p>
+                <p id="csv-warning-message">${data.warning}</p>
+                <p>This will fail to create a codelist, so please edit the csv file and try again</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Error display -->
+          <div id="csv-errors" class="mt-6 hidden">
+            <div class="rounded-md bg-red-50 p-4">
+              <div class="flex">
+                <div class="shrink-0">
+                  {% icon_exclamation_circle_mini class="size-5 text-red-400" %}
+                </div>
+                <div class="ml-3">
+                  <h3 class="text-sm font-medium text-red-800">There is a problem with your CSV:</h3>
+                  <p id="csv-error-message" class="text-sm text-red-700"></p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Descendants Info (shows after preview if descendants exist) -->
+          <div id="csv-descendants-section" class="mt-6 hidden">
+            <div class="bg-amber-50 border border-amber-200 p-4 rounded-sm">
+              <!-- Descendant Handling (only shown if descendants exist) -->
+              <div class="mb-6">
+                {% include "opencodelists/includes/radio_group.html" with field=form.descendant_handling %}
+              </div>
+
+              <!-- Descendants Summary -->
+              <div id="csv-descendants-summary" class="mb-6 p-4 bg-white border border-amber-300 rounded-sm">
+                <p id="descendants-summary-text" class="text-sm text-slate-900"></p>
+              </div>
+
+              <div id="csv-descendants-examples" class="space-y-4"></div>
+            </div>
           </div>
         </div>
       </details>
@@ -96,7 +168,8 @@
     </div>
 
     <button
-      class="flex w-fit mx-auto justify-center cursor-pointer rounded-md bg-green-700 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs transition-colors hover:bg-green-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700"
+      id="create-codelist-button"
+      class="flex w-fit mx-auto justify-center cursor-pointer rounded-md bg-green-700 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs transition-colors hover:bg-green-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-green-700"
       type="submit"
     >
       Create a draft codelist
@@ -115,5 +188,379 @@
       const codingSystemId = e.target.value.toLowerCase().replace(/\W/g, "");
       newCodelistForm.classList = `${newCodelistFormClassList} plausible-event-newcodelist=${codingSystemId}`;
     });
+
+    // CSV descendants preview
+    (function() {
+      function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+          const cookies = document.cookie.split(';');
+          for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+              break;
+            }
+          }
+        }
+        return cookieValue;
+      }
+
+      const fileInput = document.querySelector('input[type="file"][name="csv_data"]');
+      if (!fileInput) return;
+
+      const codingSystemSelect = document.getElementById("{{ form.coding_system_id.id_for_label }}");
+      const helpTextDiv = document.getElementById('id_{{ form.csv_data.html_name }}_helptext');
+      const loadingDiv = document.getElementById('csv-loading');
+      const analysisSection = document.getElementById('csv-analysis-section');
+      const errorDiv = document.getElementById('csv-errors');
+      const errorMessageEl = document.getElementById('csv-error-message');
+      const descendantsSection = document.getElementById('csv-descendants-section');
+      const dataStartEl = document.getElementById('detected-data-start');
+      const detectedHeaderRowsEl = document.getElementById('detected-header-rows');
+      const detectedHeaderRowsPluralEl = document.getElementById('detected-header-rows-plural');
+      const detectedCodeCountPluralEl = document.getElementById('detected-code-count-plural');
+      const noHeaderEl = document.getElementById('no-header-detected');
+      const headerEl = document.getElementById('header-detected');
+
+      const codeColumnEl = document.getElementById('detected-code-column');
+      const codingSystemEl = document.getElementById('detected-coding-system');
+      const codeCountEl = document.getElementById('detected-code-count');
+      const previewTable = document.getElementById('csv-preview-table');
+      const warningsDiv = document.getElementById('csv-warnings');
+      const csvWarningMessage = document.getElementById('csv-warning-message');
+      const examplesContainer = document.getElementById('csv-descendants-examples');
+      const descendantsSummaryEl = document.getElementById('descendants-summary-text');
+      const createButton = document.getElementById('create-codelist-button');
+
+      let previewRows = null;
+      let descendantsData = null; // Store data for summary updates
+      let hasErrors = false; // Track if there are errors
+
+      function clearAnalysis() {
+        if (helpTextDiv) helpTextDiv.classList.remove('hidden');
+        loadingDiv.classList.add('hidden');
+        analysisSection.classList.add('hidden');
+        descendantsSection.classList.add('hidden');
+        errorDiv.classList.add('hidden');
+        if (examplesContainer) examplesContainer.innerHTML = '';
+        previewTable.innerHTML = '';
+        hasErrors = false;
+        updateButtonState();
+      }
+
+      function updateButtonState() {
+        if (createButton) {
+          createButton.disabled = hasErrors;
+        }
+      }
+      previewRows = null;
+
+      function renderCsvPreview(rows, numberOfRows, firstDataRowIdx, codeColumnIdx) {
+        previewTable.innerHTML = '';
+
+        for (let i = 0; i < rows.length; i++) {
+          const row = rows[i];
+          const tr = document.createElement('tr');
+          if(i < firstDataRowIdx) {
+            tr.className = 'bg-yellow-100';
+          }
+
+          for (let j = 0; j < row.length; j++) {
+            const td = document.createElement('td');
+            td.className = 'border border-slate-200 px-2 py-1';
+            if (j === codeColumnIdx && i >= firstDataRowIdx) {
+              td.className += ' bg-blue-100 font-bold';
+            } else if (i < firstDataRowIdx) {
+              td.className += ' text-yellow-900 font-medium font-semibold';
+            } else {
+              td.className += ' text-slate-700';
+            }
+            td.textContent = row[j] || '';
+            tr.appendChild(td);
+          }
+          previewTable.appendChild(tr);
+        }
+        // append row with ellipsis if more rows exist
+        if (numberOfRows + firstDataRowIdx > rows.length) {
+          const tr = document.createElement('tr');
+          for (let j = 0; j < rows[0].length; j++) {
+            const td = document.createElement('td');
+            td.className = 'border border-slate-200 px-2 py-1 text-slate-700';
+            if (j === codeColumnIdx) {
+              td.className += ' bg-blue-100 font-semibold';
+            }
+            td.textContent = '...' + (numberOfRows - rows.length + firstDataRowIdx) + ' more rows';
+            tr.appendChild(td);
+          }
+          previewTable.appendChild(tr);
+        }
+      }
+
+      async function handlePreview() {
+        clearAnalysis();
+        const file = fileInput.files && fileInput.files[0];
+        if (!file) return;
+
+        // Show loading indicator and disable button
+        if (helpTextDiv) helpTextDiv.classList.add('hidden');
+        loadingDiv.classList.remove('hidden');
+        createButton.disabled = true;
+
+        try {
+          const formData = new FormData();
+          formData.append('csv_data', file, file.name || 'upload.csv');
+          const codingSystemId = codingSystemSelect ? codingSystemSelect.value : '';
+          if (codingSystemId) {
+            formData.append('coding_system_id', codingSystemId);
+          }
+
+          const url = "{% url 'csv-descendants-preview' username=user.username %}";
+          const resp = await fetch(url, {
+            method: 'POST',
+            body: formData,
+            headers: {
+              'X-Requested-With': 'fetch',
+              'X-CSRFToken': getCookie('csrftoken') || ''
+            }
+          });
+
+          // Hide loading indicator
+          loadingDiv.classList.add('hidden');
+
+          const data = await resp.json();
+          if (!resp.ok) {
+            analysisSection.classList.add('hidden');
+            errorDiv.classList.remove('hidden');
+            let errorText = data.error || 'Unknown error';
+            errorMessageEl.textContent = errorText;
+            hasErrors = true;
+            updateButtonState();
+            return;
+          }
+
+          const numberOfRows = data.uploaded_count || 0;
+          const descCount = data.descendant_count || 0;
+
+          if (numberOfRows === 0) {
+            hasErrors = false;
+            updateButtonState();
+            return;
+          }
+
+          if (data.warning) {
+            csvWarningMessage.textContent = data.warning;
+            warningsDiv.classList.remove('hidden');
+            hasErrors = true;
+          } else {
+            warningsDiv.classList.add('hidden');
+            hasErrors = false;
+          }
+          updateButtonState();
+
+          previewRows = data.rows;
+          const firstDataRowIdx = data.detected_first_data_row || 0;
+          const codeColIdx = data.detected_code_column || 0;
+          const detectedSystem = data.detected_coding_system_id;
+
+          // Hide help text after successful upload
+          if (helpTextDiv) helpTextDiv.classList.add('hidden');
+
+          // Show analysis section with 1-based row numbering
+          analysisSection.classList.remove('hidden');
+          // Convert 0-based first_data_row_idx to 1-based display
+          const dataStartRow = firstDataRowIdx + 1;
+          dataStartEl.textContent = `${dataStartRow}`;
+          codeColumnEl.textContent = codeColIdx + 1;
+          if(firstDataRowIdx > 0) {
+            detectedHeaderRowsEl.textContent = firstDataRowIdx;
+            if (firstDataRowIdx > 1) {
+              detectedHeaderRowsPluralEl.textContent = 's';
+            } else {
+              detectedHeaderRowsPluralEl.textContent = '';
+            }
+            headerEl.classList.remove('hidden');
+            noHeaderEl.classList.add('hidden');
+          } else {
+            noHeaderEl.classList.remove('hidden');
+            headerEl.classList.add('hidden');
+          }
+          if (numberOfRows === 1) {
+            detectedCodeCountPluralEl.textContent = '';
+          } else {
+            detectedCodeCountPluralEl.textContent = 's';
+          }
+          codingSystemEl.textContent = detectedSystem || 'Unknown';
+          codeCountEl.textContent = numberOfRows;
+          renderCsvPreview(previewRows, numberOfRows, firstDataRowIdx, codeColIdx);
+
+          // Show descendants section only if there are missing descendants
+          if (descCount > 0 && data.parent_examples && data.parent_examples.length > 0) {
+            descendantsSection.classList.remove('hidden');
+
+            // Store data for summary updates
+            descendantsData = {
+              descendantCount: descCount,
+              totalParentsWithMissingChildren: data.total_parents_with_missing_children || data.parent_examples.length,
+              exampleCount: data.parent_examples.length,
+              uploadedCount: numberOfRows
+            };
+
+            // Update summary
+            updateDescendantSummary();
+
+            // Display hierarchical examples showing parent and missing children
+            examplesContainer.innerHTML = '';
+            data.parent_examples.forEach(example => {
+              const exampleDiv = document.createElement('div');
+              exampleDiv.className = 'bg-white border border-amber-300 rounded-sm p-3';
+
+              // Parent code (in CSV)
+              const parentDiv = document.createElement('div');
+              parentDiv.className = 'font-semibold text-slate-900 mb-2';
+              parentDiv.innerHTML = `<span class="text-green-700 status-icon" data-present="true">✓</span> ${example.parent_code} — ${example.parent_term}`;
+              exampleDiv.appendChild(parentDiv);
+
+              // Descendants (condensed: include included + omitted, with ellipses)
+              const childrenDiv = document.createElement('div');
+              childrenDiv.className = 'ml-6 space-y-1';
+
+              const childrenLabel = document.createElement('div');
+              childrenLabel.className = 'text-xs text-slate-600 mb-1';
+              const total = example.total_descendants || 0;
+              const missing = example.missing_count || 0;
+              childrenLabel.textContent = `Descendants: ${total} total, ${missing} omitted (sample below)`;
+              childrenDiv.appendChild(childrenLabel);
+
+              (example.display_children || []).forEach(item => {
+                if (item.type === 'ellipsis') {
+                  const ell = document.createElement('div');
+                  ell.className = 'text-slate-400 select-none';
+                  ell.textContent = '…';
+                  childrenDiv.appendChild(ell);
+                } else if (item.type === 'item') {
+                  const childDiv = document.createElement('div');
+                  childDiv.className = 'text-sm text-slate-700 flex items-center gap-1';
+                  const icon = document.createElement('span');
+                  icon.className = 'status-icon';
+                  icon.dataset.present = item.present ? 'true' : 'false';
+                  icon.textContent = item.present ? '✓' : '?';
+                  childDiv.appendChild(icon);
+                  const text = document.createElement('span');
+                  text.textContent = ` ${item.code} — ${item.term}`;
+                  childDiv.appendChild(text);
+                  childrenDiv.appendChild(childDiv);
+                }
+              });
+
+              exampleDiv.appendChild(childrenDiv);
+              examplesContainer.appendChild(exampleDiv);
+            });
+
+            // After rendering, apply icon colors based on radio selection
+            updateDescendantIcons();
+          }
+        } catch (e) {
+          console.error('CSV analysis error:', e);
+          loadingDiv.classList.add('hidden');
+          analysisSection.classList.add('hidden');
+          errorDiv.classList.remove('hidden');
+          errorMessageEl.textContent = `An unexpected error occurred while analyzing the CSV: ${e.message}`;
+          hasErrors = true;
+          updateButtonState();
+        }
+      }
+
+      function getDescendantMode() {
+        const sel = document.querySelector('input[name="descendant_handling"]:checked');
+        return sel ? sel.value : 'case_by_case';
+      }
+
+      function updateDescendantSummary() {
+        if (!descendantsData || !descendantsSummaryEl) return;
+
+        const mode = getDescendantMode();
+        const { descendantCount, totalParentsWithMissingChildren, exampleCount, uploadedCount } = descendantsData;
+
+        let summaryText = '';
+        const descendantCountText = descendantCount === 1 ? '1 code' : `${descendantCount} codes`;
+        const childText = descendantCount === 1 ? 'is a child' : 'are children';
+
+        // Determine if we're showing all parents or just examples
+        const showingAll = totalParentsWithMissingChildren === exampleCount;
+        let parentText = '';
+
+        if (showingAll) {
+          // We have all parents (fewer than 3)
+          parentText = totalParentsWithMissingChildren === 1 ? '1 code' : `${totalParentsWithMissingChildren} codes`;
+        } else {
+          // We have 3+ parents, showing examples
+          parentText = totalParentsWithMissingChildren === 1 ? '1 code' : `${totalParentsWithMissingChildren} codes`;
+        }
+
+        if (mode === 'include_all') {
+          if (showingAll) {
+            summaryText = `You have selected to include ${descendantCountText} missing from your CSV, that ${childText} of ${parentText} in your CSV.`;
+          } else {
+            summaryText = `There are ${parentText} with missing children. You have selected to include ${descendantCountText} missing from your CSV. For example, ${exampleCount} of these parent codes are shown below.`;
+          }
+        } else if (mode === 'exclude_all') {
+          if (showingAll) {
+            summaryText = `You have selected to exclude ${descendantCountText} missing from your CSV, that ${childText} of ${parentText} in your CSV.`;
+          } else {
+            summaryText = `There are ${parentText} with missing children. You have selected to exclude ${descendantCountText} missing from your CSV. For example, ${exampleCount} of these parent codes are shown below.`;
+          }
+        } else {
+          const parentIsText = totalParentsWithMissingChildren === 1 ? 'is 1 code' : `are ${parentText}`;
+          const descendantText = descendantCount === 1 ? '1 missing child' : `${descendantCount} missing children`;
+          if (showingAll) {
+            summaryText = `There ${parentIsText} with ${descendantText}. With the current selection, you will be asked about each missing child individually in the next step.`;
+          } else {
+            summaryText = `There ${parentIsText} with ${descendantText}. With the current selection, you will be asked about each missing child individually in the next step. For example, ${exampleCount} of these parent codes are shown below.`;
+          }
+        }
+
+        descendantsSummaryEl.textContent = summaryText;
+      }
+
+      function updateDescendantIcons() {
+        const mode = getDescendantMode();
+        document.querySelectorAll('.status-icon').forEach(el => {
+          const present = el.dataset.present === 'true';
+          el.classList.remove('text-green-700', 'text-red-600', 'text-slate-700');
+          el.classList.add('inline-flex','h-5','w-5','items-center','justify-center','rounded-lg','text-2xl','font-semibold');
+          if (present) {
+            el.textContent = '✓';
+            el.classList.add('text-green-700');
+          } else {
+            if (mode === 'exclude_all') {
+              el.textContent = '✕';
+              el.classList.add('text-red-600');
+            } else if (mode === 'include_all') {
+              el.textContent = '✓';
+              el.classList.add('text-green-700');
+            } else {
+              el.textContent = '?';
+              el.classList.add('text-slate-700');
+            }
+          }
+        });
+      }
+
+      fileInput.addEventListener('change', handlePreview);
+      if (codingSystemSelect) {
+        codingSystemSelect.addEventListener('change', () => {
+          if (fileInput.files && fileInput.files.length) handlePreview();
+        });
+      }
+
+      // React to changes in descendant handling radios
+      document.addEventListener('change', (e) => {
+        if (e.target && e.target.name === 'descendant_handling') {
+          updateDescendantIcons();
+          updateDescendantSummary();
+        }
+      });
+    })();
   </script>
 {% endblock %}

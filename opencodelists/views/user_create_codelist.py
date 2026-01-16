@@ -103,21 +103,12 @@ def handle_post_valid(request, form, user, owner_choices):
     original_codes = list(codes) if codes else []
     descendant_handling = form.cleaned_data.get("descendant_handling")
 
+    print("Descendant handling:", descendant_handling)
+
     coding_system_database_alias = most_recent_database_alias(coding_system_id)
 
     try:
         if codes:
-            if descendant_handling == "include_all":
-                # User wants to include all descendants even if not in uploaded CSV
-                coding_system = CODING_SYSTEMS[coding_system_id].get_by_release(
-                    database_alias=coding_system_database_alias
-                )
-                hierarchy = Hierarchy.from_codes(coding_system, set(codes))
-                expanded = set()
-                for code in codes:
-                    expanded |= hierarchy.descendants(code)
-                    expanded.add(code)
-                codes = list(expanded)
             codelist = create_codelist_with_codes(
                 owner=owner,
                 name=name,
@@ -126,7 +117,7 @@ def handle_post_valid(request, form, user, owner_choices):
                 coding_system_database_alias=coding_system_database_alias,
                 author=user,
             )
-            if descendant_handling == "case_by_case":
+            if not descendant_handling:
                 # User wants to decide on descendants later in the builder so
                 # we reset statuses of non-uploaded codes to unresolved
                 version = codelist.versions.get()

@@ -72,27 +72,32 @@ class CodelistCreateForm(forms.Form):
     owner = forms.ChoiceField()
     name = form_field_from_model(Handle, "name", label="Codelist name")
     coding_system_id = forms.ChoiceField(choices=[], label="Coding system")
-    descendant_handling = forms.ChoiceField(
-        choices=(
-            ("exclude_all", "Exclude all missing children"),
-            ("include_all", "Include all missing children"),
-            (
-                "case_by_case",
-                "Let me decide, case by case, on the next screen",
-            ),
-        ),
-        initial="case_by_case",
-        widget=forms.RadioSelect,
-        help_text=(
-            "Clinical codes are hierarchical. There are one or more codes in "
-            "your CSV that have child codes (more specific codes) that are "
-            "not in your CSV. There could be valid reasons for excluding these "
-            "codes, but we still recommend reviewing these cases carefully. "
-            "You will need to decide whether to include or exclude these codes "
-            "individually on the next screen, but if you are sure, you can "
-            "include or exclude all of them at once by choosing that option here."
-        ),
-        label="Missing child codes detected",
+    # descendant_handling = forms.ChoiceField(
+    #     choices=(
+    #         ("exclude_all", "Exclude all missing children"),
+    #         ("include_all", "Include all missing children"),
+    #         (
+    #             "case_by_case",
+    #             "Let me decide, case by case, on the next screen",
+    #         ),
+    #     ),
+    #     initial="case_by_case",
+    #     widget=forms.RadioSelect,
+    #     help_text=(
+    #         "Clinical codes are hierarchical. There are one or more codes in "
+    #         "your CSV that have child codes (more specific codes) that are "
+    #         "not in your CSV. There could be valid reasons for excluding these "
+    #         "codes, but we still recommend reviewing these cases carefully. "
+    #         "You will need to decide whether to include or exclude these codes "
+    #         "individually on the next screen, but if you are sure, you can "
+    #         "include or exclude all of them at once by choosing that option here."
+    #     ),
+    #     label="Missing child codes detected",
+    #     required=False,
+    # )
+    descendant_handling = forms.BooleanField(
+        widget=forms.CheckboxInput,
+        label="Exclude all missing child codes",
         required=False,
     )
     csv_data = forms.FileField(

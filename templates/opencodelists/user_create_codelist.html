@@ -97,7 +97,7 @@
           <div id="csv-analysis-section" class="rounded-md outline-2 -outline-offset-1 outline-slate-300 hidden">
             <div class="bg-slate-100 p-4 rounded-sm mb-4">
               <div class="text-sm text-slate-700 mb-3">
-                <p><strong>Detected structure:</strong></p>
+                <h2 class="text-lg font-semibold text-slate-900 mb-4">Detected structure</h2>
                 <ul class="list-disc pl-5 mt-2 space-y-1">
                   <li id="no-header-detected">No header row detected</li>
                   <li id="header-detected">
@@ -146,13 +146,26 @@
           <!-- Descendants Info (shows after preview if descendants exist) -->
           <div id="csv-descendants-section" class="mt-6 hidden">
             <div class="bg-amber-50 border border-amber-200 p-4 rounded-sm">
+
+              <h2 class="text-lg font-semibold mb-4">Missing child codes detected</h2>
+              <p class="mb-4">
+                Some of the codes you uploaded have related child codes that are not included
+                in your CSV - see table below. This may be intentional.
+              </p>
+              <p class="mb-4">
+                If you are sure you want to exclude all of these child codes, select the checkbox
+                below. Otherwise, you can continue by clicking "Create a draft codelist", and on the
+                next screen you'll be able to review each missing child code and decide individually
+                whether to include or exclude it.
+              </p>
+
               <!-- Descendant Handling (only shown if descendants exist) -->
               <div class="mb-6">
-                {% include "opencodelists/includes/radio_group.html" with field=form.descendant_handling %}
+                {% include "opencodelists/includes/checkbox.html" with field=form.descendant_handling %}
               </div>
 
               <!-- Descendants Summary -->
-              <div id="csv-descendants-summary" class="mb-6 p-4 bg-white border border-amber-300 rounded-sm">
+              <div id="csv-descendants-summary" class="mb-6 p-4 bg-white border border-amber-300 rounded-sm hidden">
                 <p id="descendants-summary-text" class="text-sm text-slate-900"></p>
               </div>
 
@@ -185,7 +198,7 @@
                     </table>
                   </div>
                   <div id="csv-missing-descendants-show-more" class="mt-3 text-center hidden">
-                    <button type="button" class="text-sm text-blue-700 hover:text-blue-800 font-semibold underline">
+                    <button type="button" class="text-sm text-blue-700 hover:text-blue-800 font-semibold underline cursor-pointer">
                       Show all
                     </button>
                   </div>
@@ -594,7 +607,7 @@
             if (data.full_hierarchy && data.full_hierarchy.length > 0) {
               const fullHierarchySection = document.getElementById('csv-full-hierarchy-section');
               const fullHierarchyContainer = document.getElementById('csv-full-hierarchy');
-              fullHierarchySection.classList.remove('hidden');
+              //fullHierarchySection.classList.remove('hidden');
               fullHierarchyContainer.innerHTML = '';
 
               renderHierarchyTree(data.full_hierarchy, fullHierarchyContainer);
@@ -637,6 +650,7 @@
           toShow.forEach((item, index) => {
             const tr = document.createElement('tr');
             tr.className = index % 2 === 0 ? 'bg-white' : 'bg-slate-50';
+            tr.dataset.missingRow = 'true';
 
             const codeTd = document.createElement('td');
             codeTd.className = 'py-2 px-3 font-mono text-xs';
@@ -659,13 +673,28 @@
         }
 
         renderRows(currentShowCount);
+        // Apply mode-based styling (strike-through when excluding)
+        updateMissingDescendantsStyle();
 
         // Handle "Show all" button
         const showMoreBtn = showMoreContainer.querySelector('button');
         showMoreBtn.onclick = () => {
           currentShowCount = allMissing.length;
           renderRows(currentShowCount);
+          updateMissingDescendantsStyle();
         };
+      }
+
+      function updateMissingDescendantsStyle() {
+        const mode = getDescendantMode();
+        const strike = mode === 'on';
+        const rows = document.querySelectorAll('#csv-missing-descendants-table tr[data-missing-row="true"]');
+        rows.forEach((tr) => {
+          tr.querySelectorAll('td').forEach((td) => {
+            td.classList.toggle('line-through', strike);
+            td.classList.toggle('text-neutral-500', strike);
+          });
+        });
       }
 
       function getDescendantMode() {
@@ -908,6 +937,7 @@
           updateDescendantIcons();
           updateDescendantSummary();
           updateHierarchyBadges();
+          updateMissingDescendantsStyle();
         }
       });
     })();

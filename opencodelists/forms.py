@@ -78,7 +78,7 @@ class CodelistCreateForm(forms.Form):
             ("include_all", "Include all missing children"),
             (
                 "case_by_case",
-                "Let me choose case by case in the next step",
+                "Let me decide, case by case, on the next screen",
             ),
         ),
         initial="case_by_case",
@@ -87,11 +87,10 @@ class CodelistCreateForm(forms.Form):
             "Clinical codes are hierarchical. There are one or more codes in "
             "your CSV that have child codes (more specific codes) that are "
             "not in your CSV. There could be valid reasons for excluding these "
-            "codes, but we still recommend reviewing these cases carefully. An "
-            "example code with missing child codes is shown below. By default "
-            "you can choose how to handle these codes later in the process, but "
-            "if you are sure, you can include or exclude all of them by "
-            "choosing that option here."
+            "codes, but we still recommend reviewing these cases carefully. "
+            "You will need to decide whether to include or exclude these codes "
+            "individually on the next screen, but if you are sure, you can "
+            "include or exclude all of them at once by choosing that option here."
         ),
         label="Missing child codes detected",
         required=False,

@@ -94,7 +94,7 @@
           </div>
 
           <!-- CSV Preview and Detection Results -->
-          <div id="csv-analysis-section" class="mt-6 hidden">
+          <div id="csv-analysis-section" class="rounded-md outline-2 -outline-offset-1 outline-slate-300 hidden">
             <div class="bg-slate-100 p-4 rounded-sm mb-4">
               <div class="text-sm text-slate-700 mb-3">
                 <p><strong>Detected structure:</strong></p>
@@ -156,7 +156,41 @@
                 <p id="descendants-summary-text" class="text-sm text-slate-900"></p>
               </div>
 
-              <div id="csv-descendants-examples" class="space-y-4"></div>
+              <div id="csv-descendants-examples" class="space-y-4 hidden"></div>
+
+              <!-- Full Hierarchy Display -->
+              <div id="csv-full-hierarchy-section" class="mt-6 hidden">
+                <div class="bg-white border border-amber-300 rounded-sm p-4">
+                  <h3 class="text-base font-semibold text-slate-900 mb-3">Full Hierarchy</h3>
+                  <div id="csv-full-hierarchy" class="text-sm overflow-x-auto pb-4"></div>
+                </div>
+              </div>
+
+              <!-- All Missing Descendants Table -->
+              <div id="csv-missing-descendants-section" class="mt-6 hidden">
+                <div class="bg-white border border-amber-300 rounded-sm p-4">
+                  <h3 class="text-base font-semibold text-slate-900 mb-3">
+                    <span id="missing-descendants-count">0</span> missing codes
+                  </h3>
+                  <div class="overflow-x-auto">
+                    <table class="min-w-full text-sm border-collapse">
+                      <thead>
+                        <tr class="border-b border-slate-300">
+                          <th class="text-left py-2 px-3 font-semibold text-slate-700">Code</th>
+                          <th class="text-left py-2 px-3 font-semibold text-slate-700">Description</th>
+                        </tr>
+                      </thead>
+                      <tbody id="csv-missing-descendants-table">
+                      </tbody>
+                    </table>
+                  </div>
+                  <div id="csv-missing-descendants-show-more" class="mt-3 text-center hidden">
+                    <button type="button" class="text-sm text-blue-700 hover:text-blue-800 font-semibold underline">
+                      Show all
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -413,52 +447,164 @@
             examplesContainer.innerHTML = '';
             data.parent_examples.forEach(example => {
               const exampleDiv = document.createElement('div');
-              exampleDiv.className = 'bg-white border border-amber-300 rounded-sm p-3';
+              exampleDiv.className = 'text-sm mb-3 overflow-x-auto pb-4 bg-white border border-amber-300 rounded-sm p-3';
 
-              // Parent code (in CSV)
-              const parentDiv = document.createElement('div');
-              parentDiv.className = 'font-semibold text-slate-900 mb-2';
-              parentDiv.innerHTML = `<span class="text-green-700 status-icon" data-present="true">✓</span> ${example.parent_code} — ${example.parent_term}`;
-              exampleDiv.appendChild(parentDiv);
+              // Parent code (in CSV) - using tree structure
+              const parentDetails = document.createElement('details');
+              parentDetails.className = 'group';
+              parentDetails.open = true;
 
-              // Descendants (condensed: include included + omitted, with ellipses)
-              const childrenDiv = document.createElement('div');
-              childrenDiv.className = 'ml-6 space-y-1';
+              const parentSummary = document.createElement('summary');
+              parentSummary.className = 'flex flex-row items-center gap-1 bg-white rounded hover:bg-sky-50 transition-colors w-fit cursor-pointer';
 
-              const childrenLabel = document.createElement('div');
-              childrenLabel.className = 'text-xs text-slate-600 mb-1';
-              const total = example.total_descendants || 0;
-              const missing = example.missing_count || 0;
-              childrenLabel.textContent = `Descendants: ${total} total, ${missing} omitted (sample below)`;
-              childrenDiv.appendChild(childrenLabel);
+              // Arrow icon
+              const arrow = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+              arrow.setAttribute('class', 'w-4 h-4 transition-transform duration-200 group-open:rotate-90 flex-shrink-0');
+              arrow.setAttribute('fill', 'currentColor');
+              arrow.setAttribute('height', '20');
+              arrow.setAttribute('viewBox', '0 0 20 20');
+              arrow.setAttribute('width', '20');
+              const arrowPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+              arrowPath.setAttribute('clip-rule', 'evenodd');
+              arrowPath.setAttribute('d', 'M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06Z');
+              arrowPath.setAttribute('fill-rule', 'evenodd');
+              arrow.appendChild(arrowPath);
+              parentSummary.appendChild(arrow);
 
-              (example.display_children || []).forEach(item => {
-                if (item.type === 'ellipsis') {
-                  const ell = document.createElement('div');
-                  ell.className = 'text-slate-400 select-none';
-                  ell.textContent = '…';
-                  childrenDiv.appendChild(ell);
-                } else if (item.type === 'item') {
-                  const childDiv = document.createElement('div');
-                  childDiv.className = 'text-sm text-slate-700 flex items-center gap-1';
-                  const icon = document.createElement('span');
-                  icon.className = 'status-icon';
-                  icon.dataset.present = item.present ? 'true' : 'false';
-                  icon.textContent = item.present ? '✓' : '?';
-                  childDiv.appendChild(icon);
-                  const text = document.createElement('span');
-                  text.textContent = ` ${item.code} — ${item.term}`;
-                  childDiv.appendChild(text);
-                  childrenDiv.appendChild(childDiv);
+              const parentDl = document.createElement('dl');
+              parentDl.className = 'flex flex-row items-center gap-2 leading-none m-0 py-0.5 px-1';
+
+              // Status badge
+              const statusDt = document.createElement('dt');
+              statusDt.className = 'sr-only';
+              statusDt.textContent = 'Status:';
+              parentDl.appendChild(statusDt);
+
+              const statusDd = document.createElement('dd');
+              statusDd.className = 'shrink-0 m-0 rounded inline-block font-mono text-[0.7rem] font-semibold leading-none px-1.5 py-1 text-center uppercase whitespace-nowrap bg-sky-600 text-sky-50 status-badge';
+              statusDd.dataset.present = 'true';
+              statusDd.textContent = 'INCLUDE';
+              parentDl.appendChild(statusDd);
+
+              // Name
+              const nameDt = document.createElement('dt');
+              nameDt.className = 'sr-only';
+              nameDt.textContent = 'Name:';
+              parentDl.appendChild(nameDt);
+
+              const nameDd = document.createElement('dd');
+              nameDd.className = 'shrink-0 m-0';
+              nameDd.textContent = example.parent_term;
+              parentDl.appendChild(nameDd);
+
+              // Code
+              const codeDt = document.createElement('dt');
+              codeDt.className = 'sr-only';
+              codeDt.textContent = 'Code:';
+              parentDl.appendChild(codeDt);
+
+              const codeDd = document.createElement('dd');
+              codeDd.className = 'shrink-0 m-0';
+              const codeElement = document.createElement('code');
+              codeElement.textContent = example.parent_code;
+              codeDd.appendChild(document.createTextNode('('));
+              codeDd.appendChild(codeElement);
+              codeDd.appendChild(document.createTextNode(')'));
+              parentDl.appendChild(codeDd);
+
+              parentSummary.appendChild(parentDl);
+              parentDetails.appendChild(parentSummary);
+
+              // Immediate children list
+              const childrenList = document.createElement('ul');
+              childrenList.className = 'flex flex-col gap-1 list-none mt-1 ml-2 pl-2 border-l border-dotted border-neutral-500';
+
+              const immediateChildren = example.immediate_children || [];
+              immediateChildren.forEach(child => {
+                const childLi = document.createElement('li');
+                childLi.className = 'w-fit';
+
+                const childDl = document.createElement('dl');
+                childDl.className = 'flex flex-row items-center gap-2 leading-none m-0 py-0.5 px-1 pl-5';
+
+                // Status badge
+                const childStatusDt = document.createElement('dt');
+                childStatusDt.className = 'sr-only';
+                childStatusDt.textContent = 'Status:';
+                childDl.appendChild(childStatusDt);
+
+                const childStatusDd = document.createElement('dd');
+                childStatusDd.className = 'shrink-0 m-0 rounded inline-block font-mono text-[0.7rem] font-semibold leading-none px-1.5 py-1 text-center uppercase whitespace-nowrap status-badge';
+                childStatusDd.dataset.present = child.present ? 'true' : 'false';
+                if (child.present) {
+                  childStatusDd.classList.add('bg-sky-600', 'text-sky-50');
+                  childStatusDd.textContent = 'INCLUDE';
+                } else {
+                  // Default to "TO DECIDE"
+                  childStatusDd.classList.add('bg-amber-600', 'text-amber-50');
+                  childStatusDd.textContent = 'TO DECIDE';
                 }
+                childDl.appendChild(childStatusDd);
+
+                // Name
+                const childNameDt = document.createElement('dt');
+                childNameDt.className = 'sr-only';
+                childNameDt.textContent = 'Name:';
+                childDl.appendChild(childNameDt);
+
+                const childNameDd = document.createElement('dd');
+                childNameDd.className = 'shrink-0 m-0 child-name';
+                if (!child.present) {
+                  childNameDd.classList.add('text-neutral-500');
+                }
+                childNameDd.textContent = child.term;
+                if (child.has_children) {
+                  childNameDd.textContent += ' [has children]';
+                }
+                childDl.appendChild(childNameDd);
+
+                // Code
+                const childCodeDt = document.createElement('dt');
+                childCodeDt.className = 'sr-only';
+                childCodeDt.textContent = 'Code:';
+                childDl.appendChild(childCodeDt);
+
+                const childCodeDd = document.createElement('dd');
+                childCodeDd.className = 'shrink-0 m-0';
+                const childCodeElement = document.createElement('code');
+                childCodeElement.textContent = child.code;
+                childCodeDd.appendChild(document.createTextNode('('));
+                childCodeDd.appendChild(childCodeElement);
+                childCodeDd.appendChild(document.createTextNode(')'));
+                childDl.appendChild(childCodeDd);
+
+                childLi.appendChild(childDl);
+                childrenList.appendChild(childLi);
               });
 
-              exampleDiv.appendChild(childrenDiv);
+              parentDetails.appendChild(childrenList);
+              exampleDiv.appendChild(parentDetails);
               examplesContainer.appendChild(exampleDiv);
             });
 
             // After rendering, apply icon colors based on radio selection
             updateDescendantIcons();
+
+            // Render full hierarchy if available
+            if (data.full_hierarchy && data.full_hierarchy.length > 0) {
+              const fullHierarchySection = document.getElementById('csv-full-hierarchy-section');
+              const fullHierarchyContainer = document.getElementById('csv-full-hierarchy');
+              fullHierarchySection.classList.remove('hidden');
+              fullHierarchyContainer.innerHTML = '';
+
+              renderHierarchyTree(data.full_hierarchy, fullHierarchyContainer);
+              updateHierarchyBadges();
+            }
+
+            // Render all missing descendants table if available
+            if (data.all_missing_descendants && data.all_missing_descendants.length > 0) {
+              renderMissingDescendantsTable(data.all_missing_descendants);
+            }
           }
         } catch (e) {
           console.error('CSV analysis error:', e);
@@ -469,6 +615,57 @@
           hasErrors = true;
           updateButtonState();
         }
+      }
+
+      function renderMissingDescendantsTable(allMissing) {
+        const section = document.getElementById('csv-missing-descendants-section');
+        const countEl = document.getElementById('missing-descendants-count');
+        const tableBody = document.getElementById('csv-missing-descendants-table');
+        const showMoreContainer = document.getElementById('csv-missing-descendants-show-more');
+
+        section.classList.remove('hidden');
+        countEl.textContent = allMissing.length;
+        tableBody.innerHTML = '';
+
+        const initialShowCount = 10;
+        let currentShowCount = initialShowCount;
+
+        function renderRows(count) {
+          tableBody.innerHTML = '';
+          const toShow = allMissing.slice(0, count);
+
+          toShow.forEach((item, index) => {
+            const tr = document.createElement('tr');
+            tr.className = index % 2 === 0 ? 'bg-white' : 'bg-slate-50';
+
+            const codeTd = document.createElement('td');
+            codeTd.className = 'py-2 px-3 font-mono text-xs';
+            codeTd.textContent = item.code;
+            tr.appendChild(codeTd);
+
+            const termTd = document.createElement('td');
+            termTd.className = 'py-2 px-3';
+            termTd.textContent = item.term;
+            tr.appendChild(termTd);
+
+            tableBody.appendChild(tr);
+          });
+
+          if (count < allMissing.length) {
+            showMoreContainer.classList.remove('hidden');
+          } else {
+            showMoreContainer.classList.add('hidden');
+          }
+        }
+
+        renderRows(currentShowCount);
+
+        // Handle "Show all" button
+        const showMoreBtn = showMoreContainer.querySelector('button');
+        showMoreBtn.onclick = () => {
+          currentShowCount = allMissing.length;
+          renderRows(currentShowCount);
+        };
       }
 
       function getDescendantMode() {
@@ -484,7 +681,7 @@
 
         let summaryText = '';
         const descendantCountText = descendantCount === 1 ? '1 code' : `${descendantCount} codes`;
-        const childText = descendantCount === 1 ? 'is a child' : 'are children';
+        const childText = descendantCount === 1 ? 'child' : 'children';
 
         // Determine if we're showing all parents or just examples
         const showingAll = totalParentsWithMissingChildren === exampleCount;
@@ -492,31 +689,29 @@
 
         if (showingAll) {
           // We have all parents (fewer than 3)
-          parentText = totalParentsWithMissingChildren === 1 ? '1 code' : `${totalParentsWithMissingChildren} codes`;
+          parentText = totalParentsWithMissingChildren === 1 ? '1 code has' : `${totalParentsWithMissingChildren} codes have`;
         } else {
           // We have 3+ parents, showing examples
-          parentText = totalParentsWithMissingChildren === 1 ? '1 code' : `${totalParentsWithMissingChildren} codes`;
+          parentText = `${totalParentsWithMissingChildren} codes have`;
         }
 
         if (mode === 'include_all') {
           if (showingAll) {
-            summaryText = `You have selected to include ${descendantCountText} missing from your CSV, that ${childText} of ${parentText} in your CSV.`;
+            summaryText = `You have selected to include ${descendantCountText} missing from your CSV. ${parentText.replace(' have', '')} ${parentText.includes('1 code') ? 'has' : 'have'} missing immediate ${childText}.`;
           } else {
-            summaryText = `There are ${parentText} with missing children. You have selected to include ${descendantCountText} missing from your CSV. For example, ${exampleCount} of these parent codes are shown below.`;
+            summaryText = `${parentText} missing immediate children. You have selected to include ${descendantCountText} missing from your CSV. For example, ${exampleCount} of these parent codes are shown below.`;
           }
         } else if (mode === 'exclude_all') {
           if (showingAll) {
-            summaryText = `You have selected to exclude ${descendantCountText} missing from your CSV, that ${childText} of ${parentText} in your CSV.`;
+            summaryText = `You have selected to exclude ${descendantCountText} missing from your CSV. ${parentText.replace(' have', '')} ${parentText.includes('1 code') ? 'has' : 'have'} missing immediate ${childText}.`;
           } else {
-            summaryText = `There are ${parentText} with missing children. You have selected to exclude ${descendantCountText} missing from your CSV. For example, ${exampleCount} of these parent codes are shown below.`;
+            summaryText = `${parentText} missing immediate children. You have selected to exclude ${descendantCountText} missing from your CSV. For example, ${exampleCount} of these parent codes are shown below.`;
           }
         } else {
-          const parentIsText = totalParentsWithMissingChildren === 1 ? 'is 1 code' : `are ${parentText}`;
-          const descendantText = descendantCount === 1 ? '1 missing child' : `${descendantCount} missing children`;
           if (showingAll) {
-            summaryText = `There ${parentIsText} with ${descendantText}. With the current selection, you will be asked about each missing child individually in the next step.`;
+            summaryText = `${parentText} missing immediate ${childText}. With the current selection, you will be asked about each missing child individually in the next step.`;
           } else {
-            summaryText = `There ${parentIsText} with ${descendantText}. With the current selection, you will be asked about each missing child individually in the next step. For example, ${exampleCount} of these parent codes are shown below.`;
+            summaryText = `${parentText} missing immediate children. With the current selection, you will be asked about each missing child individually in the next step. For example, ${exampleCount} of these parent codes are shown below.`;
           }
         }
 
@@ -525,23 +720,176 @@
 
       function updateDescendantIcons() {
         const mode = getDescendantMode();
-        document.querySelectorAll('.status-icon').forEach(el => {
+        document.querySelectorAll('.status-badge').forEach(el => {
           const present = el.dataset.present === 'true';
-          el.classList.remove('text-green-700', 'text-red-600', 'text-slate-700');
-          el.classList.add('inline-flex','h-5','w-5','items-center','justify-center','rounded-lg','text-2xl','font-semibold');
+
+          // Remove all badge color classes
+          el.classList.remove('bg-sky-600', 'text-sky-50', 'bg-amber-600', 'text-amber-50', 'bg-neutral-500', 'text-neutral-50');
+
           if (present) {
-            el.textContent = '✓';
-            el.classList.add('text-green-700');
+            // Always include for codes that are in the CSV
+            el.classList.add('bg-sky-600', 'text-sky-50');
+            el.textContent = 'INCLUDE';
           } else {
+            // For codes not in the CSV, apply based on mode
             if (mode === 'exclude_all') {
-              el.textContent = '✕';
-              el.classList.add('text-red-600');
+              el.classList.add('bg-neutral-500', 'text-neutral-50');
+              el.textContent = 'EXCLUDE';
+              // Update the name styling
+              const nameEl = el.parentElement.querySelector('.child-name');
+              if (nameEl) nameEl.classList.add('text-neutral-500');
             } else if (mode === 'include_all') {
-              el.textContent = '✓';
-              el.classList.add('text-green-700');
+              el.classList.add('bg-sky-600', 'text-sky-50');
+              el.textContent = 'INCLUDE';
+              // Update the name styling
+              const nameEl = el.parentElement.querySelector('.child-name');
+              if (nameEl) nameEl.classList.remove('text-neutral-500');
             } else {
-              el.textContent = '?';
-              el.classList.add('text-slate-700');
+              // case_by_case mode - show as "TO DECIDE"
+              el.classList.add('bg-amber-600', 'text-amber-50');
+              el.textContent = 'TO DECIDE';
+              // Keep excluded styling for names
+              const nameEl = el.parentElement.querySelector('.child-name');
+              if (nameEl) nameEl.classList.add('text-neutral-500');
+            }
+          }
+        });
+      }
+
+      function renderHierarchyTree(nodes, container) {
+        nodes.forEach(node => {
+          const li = document.createElement('li');
+          li.className = 'w-fit';
+          li.title = node.name;
+
+          if (node.has_children && node.children && node.children.length > 0) {
+            // Node with children - use details/summary structure
+            const details = document.createElement('details');
+            details.className = 'group';
+            // Expand if: node is excluded OR has any excluded descendants (not all_descendants_included)
+            details.open = node.status === '-' || !node.all_descendants_included;
+
+            const summary = document.createElement('summary');
+            summary.className = 'flex flex-row items-center gap-1 bg-white rounded w-fit transition-colors duration-200 hover:bg-sky-100/50';
+
+            // Arrow
+            const arrow = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            arrow.setAttribute('class', 'w-4 h-4 transition-transform duration-200 group-open:rotate-90 flex-shrink-0');
+            arrow.setAttribute('fill', 'currentColor');
+            arrow.setAttribute('height', '20');
+            arrow.setAttribute('viewBox', '0 0 20 20');
+            arrow.setAttribute('width', '20');
+            const arrowTitle = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+            arrowTitle.textContent = 'Expand/Collapse Arrow';
+            arrow.appendChild(arrowTitle);
+            const arrowPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            arrowPath.setAttribute('clip-rule', 'evenodd');
+            arrowPath.setAttribute('d', 'M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06Z');
+            arrowPath.setAttribute('fill-rule', 'evenodd');
+            arrow.appendChild(arrowPath);
+            summary.appendChild(arrow);
+
+            // Node content
+            const dl = createHierarchyNodeDl(node, true);
+            summary.appendChild(dl);
+            details.appendChild(summary);
+
+            // Children list
+            const childrenUl = document.createElement('ul');
+            childrenUl.className = 'flex flex-col gap-1 list-none mt-1 ml-2 pl-2 border-l border-dotted border-neutral-500';
+            renderHierarchyTree(node.children, childrenUl);
+            details.appendChild(childrenUl);
+
+            li.appendChild(details);
+          } else {
+            // Leaf node - no children
+            const dl = createHierarchyNodeDl(node, false);
+            li.appendChild(dl);
+          }
+
+          container.appendChild(li);
+        });
+      }
+
+      function createHierarchyNodeDl(node, isDropdown) {
+        const dl = document.createElement('dl');
+        dl.className = isDropdown ? 'flex flex-row items-center gap-2 leading-none m-0 py-0.5 px-1' : 'flex flex-row items-center gap-2 leading-none m-0 py-0.5 px-1 pl-5';
+
+        // Status badge
+        const statusDt = document.createElement('dt');
+        statusDt.className = 'sr-only';
+        statusDt.textContent = 'Status:';
+        dl.appendChild(statusDt);
+
+        const statusDd = document.createElement('dd');
+        const isIncluded = node.status === '+';
+        statusDd.className = `shrink-0 m-0 rounded inline-block font-mono text-[0.7rem] font-semibold leading-none px-1.5 py-1 text-center uppercase whitespace-nowrap ${isIncluded ? 'bg-sky-600 text-sky-50' : 'bg-neutral-500 text-neutral-50'} hierarchy-badge`;
+        statusDd.dataset.status = node.status;
+        dl.appendChild(statusDd);
+
+        // Name
+        const nameDt = document.createElement('dt');
+        nameDt.className = 'sr-only';
+        nameDt.textContent = 'Name:';
+        dl.appendChild(nameDt);
+
+        const nameDd = document.createElement('dd');
+        nameDd.className = `shrink-0 m-0 ${node.status === '-' ? 'text-neutral-500' : ''} hierarchy-name`;
+        nameDd.textContent = node.name;
+        dl.appendChild(nameDd);
+
+        // Code
+        const codeDt = document.createElement('dt');
+        codeDt.className = 'sr-only';
+        codeDt.textContent = 'Code:';
+        dl.appendChild(codeDt);
+
+        const codeDd = document.createElement('dd');
+        codeDd.className = 'shrink-0 m-0';
+        const codeElement = document.createElement('code');
+        codeElement.textContent = node.id;
+        codeDd.appendChild(document.createTextNode('('));
+        codeDd.appendChild(codeElement);
+        codeDd.appendChild(document.createTextNode(')'));
+        dl.appendChild(codeDd);
+
+        return dl;
+      }
+
+      function updateHierarchyBadges() {
+        const mode = getDescendantMode();
+        document.querySelectorAll('.hierarchy-badge').forEach(el => {
+          const status = el.dataset.status;
+          const isIncluded = status === '+';
+
+          // Remove all badge color classes
+          el.classList.remove('bg-sky-600', 'text-sky-50', 'bg-neutral-500', 'text-neutral-50');
+
+          if (isIncluded) {
+            // Included in CSV
+            el.classList.add('bg-sky-600', 'text-sky-50');
+            el.textContent = 'Included';
+          } else {
+            // Not in CSV - apply based on mode
+            if (mode === 'exclude_all') {
+              el.classList.add('bg-neutral-500', 'text-neutral-50');
+              el.textContent = 'Excluded';
+              // Update name styling
+              const nameEl = el.parentElement.querySelector('.hierarchy-name');
+              if (nameEl) nameEl.classList.add('text-neutral-500');
+            } else if (mode === 'include_all') {
+              el.classList.add('bg-sky-600', 'text-sky-50');
+              el.textContent = 'Included';
+              // Update name styling
+              const nameEl = el.parentElement.querySelector('.hierarchy-name');
+              if (nameEl) nameEl.classList.remove('text-neutral-500');
+            } else {
+              // case_by_case mode - show as excluded (will be decided later)
+              el.classList.add('bg-neutral-500', 'text-neutral-50');
+              el.textContent = 'Decide';
+              // Keep excluded styling for names
+              const nameEl = el.parentElement.querySelector('.hierarchy-name');
+              if (nameEl) nameEl.classList.add('text-neutral-500');
             }
           }
         });
@@ -559,6 +907,7 @@
         if (e.target && e.target.name === 'descendant_handling') {
           updateDescendantIcons();
           updateDescendantSummary();
+          updateHierarchyBadges();
         }
       });
     })();

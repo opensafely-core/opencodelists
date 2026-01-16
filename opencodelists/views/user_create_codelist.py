@@ -313,99 +313,164 @@ def csv_descendants_preview(request, username):
         missing_desc |= hierarchy.descendants(code)
     missing_desc -= code_set
 
-    # Find all parent codes from the CSV that have missing descendants
-    # But only count the highest level of each subtree: if both a parent and child
-    # are in the CSV, ignore the child for counting purposes
-    codes_with_missing_children = {}
-    for code in codes:
-        # Get all descendants of this code
-        all_descendants = hierarchy.descendants(code)
-        if not all_descendants:
+    # Find all parent codes from the CSV that have missing immediate children
+    # Only count codes that have at least one immediate child missing
+    codes_with_missing_immediate_children = []
+    for code in code_set:
+        # Get immediate children only
+        immediate_children = hierarchy.child_map.get(code, set())
+        if not immediate_children:
             continue
 
-        # Find missing descendants
-        omitted_set = all_descendants - code_set
-        if not omitted_set:
+        # Find which immediate children are missing from the CSV
+        missing_immediate = immediate_children - code_set
+        if not missing_immediate:
             continue
 
         # Check if this code is itself a descendant of another code in the CSV
         # If so, skip it (we only want the highest level)
-        is_child_of_another = False
-        for other_code in code_set:
-            if other_code != code:
-                if code in hierarchy.descendants(other_code):
-                    is_child_of_another = True
-                    break
+        # is_child_of_another = False
+        # for other_code in code_set:
+        #     if other_code != code:
+        #         if code in hierarchy.descendants(other_code):
+        #             is_child_of_another = True
+        #             break
 
-        if not is_child_of_another:
-            codes_with_missing_children[code] = {
-                "missing_count": len(omitted_set),
-                "all_descendants": all_descendants,
-                "omitted_set": omitted_set,
-            }
+        # if not is_child_of_another:
+        num_immediate = len(immediate_children)
+        num_missing = len(missing_immediate)
+        proportion_missing = num_missing / num_immediate if num_immediate > 0 else 0
 
-    # Generate examples (up to 3) from the codes with missing children
-    parent_examples = []
-    for code in list(codes_with_missing_children.keys())[:3]:
-        info = codes_with_missing_children[code]
-        all_descendants = info["all_descendants"]
-        omitted_set = info["omitted_set"]
-
-        sorted_desc = sorted(all_descendants)
-        present_set = code_set & all_descendants
-
-        # Build a condensed display list with context around first 3 omitted items when many descendants
-        display_children = []
-        if len(sorted_desc) <= 5:
-            # Show all descendants
-            terms = coding_system.code_to_term(sorted_desc)
-            for d in sorted_desc:
-                display_children.append(
-                    {
-                        "type": "item",
-                        "code": d,
-                        "term": terms.get(d, "[Unknown]"),
-                        "present": d in present_set,
-                    }
-                )
+        # Priority: codes with 1 immediate child (all missing) get lowest priority
+        # Higher proportion of missing children gets higher priority when >=2 children
+        if num_immediate == 1:
+            sort_key = (0, 0, 0)  # Lowest priority
         else:
-            # Show first 3 omitted with at least one before/after, with ellipses between gaps
-            omitted_indices = [i for i, d in enumerate(sorted_desc) if d in omitted_set]
-            chosen = omitted_indices[:3]
-            indices_to_show = set()
-            for idx in chosen:
-                for j in (idx - 1, idx, idx + 1):
-                    if 0 <= j < len(sorted_desc):
-                        indices_to_show.add(j)
-            ordered_indices = sorted(indices_to_show)
-            terms = coding_system.code_to_term(sorted_desc)
-            prev_idx = None
-            for idx in ordered_indices:
-                if prev_idx is not None and idx - prev_idx > 1:
-                    display_children.append({"type": "ellipsis"})
-                d = sorted_desc[idx]
-                display_children.append(
-                    {
-                        "type": "item",
-                        "code": d,
-                        "term": terms.get(d, "[Unknown]"),
-                        "present": d in present_set,
-                    }
-                )
-                prev_idx = idx
+            sort_key = (
+                1,
+                proportion_missing,
+                num_immediate,
+            )  # Higher priority by proportion
 
-        parent_term = coding_system.code_to_term([code]).get(code, "[Unknown]")
+        codes_with_missing_immediate_children.append(
+            {
+                "code": code,
+                "immediate_children": immediate_children,
+                "missing_immediate": missing_immediate,
+                "sort_key": sort_key,
+            }
+        )
+
+    # Sort by priority: codes with >=2 children sorted by proportion missing (descending),
+    # then codes with 1 child (all at the end)
+    codes_with_missing_immediate_children.sort(
+        key=lambda x: x["sort_key"], reverse=True
+    )
+
+    # Generate examples (up to 3) from the sorted codes
+    parent_examples = []
+    for item in codes_with_missing_immediate_children[:3]:
+        code = item["code"]
+        immediate_children = item["immediate_children"]
+
+        # Get terms for parent and all immediate children
+        all_codes_to_lookup = [code] + list(immediate_children)
+        terms = coding_system.code_to_term(all_codes_to_lookup)
+
+        # Build list of all immediate children with their status
+        children_info = []
+        for child_code in sorted(immediate_children):
+            is_present = child_code in code_set
+            has_children = bool(hierarchy.child_map.get(child_code))
+
+            children_info.append(
+                {
+                    "code": child_code,
+                    "term": terms.get(child_code, "[Unknown]"),
+                    "present": is_present,
+                    "has_children": has_children,
+                }
+            )
+
+        parent_term = terms.get(code, "[Unknown]")
         parent_examples.append(
             {
                 "parent_code": code,
                 "parent_term": parent_term,
-                "missing_count": info["missing_count"],
-                "total_descendants": len(all_descendants),
-                "display_children": display_children,
+                "immediate_children": children_info,
             }
         )
 
     response["descendant_count"] = len(missing_desc)
     response["parent_examples"] = parent_examples
-    response["total_parents_with_missing_children"] = len(codes_with_missing_children)
+    response["total_parents_with_missing_children"] = len(
+        codes_with_missing_immediate_children
+    )
+
+    # Build full hierarchy tree for display
+    def build_hierarchy_node(code, depth=0):
+        """Build a hierarchical node with all its descendants."""
+        immediate_children = hierarchy.child_map.get(code, set())
+        is_present = code in code_set
+        has_children = bool(immediate_children)
+
+        # Check if all descendants are included (for initial collapse state)
+        all_descendants_included = True
+        if immediate_children:
+            descendants_of_code = hierarchy.descendants(code)
+            for desc in descendants_of_code:
+                if desc not in code_set:
+                    all_descendants_included = False
+                    break
+
+        node = {
+            "id": code,
+            "name": coding_system.code_to_term([code]).get(code, "[Unknown]"),
+            "status": "+" if is_present else "-",
+            "children": [],
+            "depth": depth,
+            "has_children": has_children,
+            "all_descendants_included": all_descendants_included and is_present,
+        }
+
+        # Recursively build children
+        for child_code in sorted(immediate_children):
+            child_node = build_hierarchy_node(child_code, depth + 1)
+            node["children"].append(child_node)
+
+        return node
+
+    # Find root codes (codes in CSV that are not descendants of other codes in CSV)
+    root_codes = []
+    for code in sorted(code_set):
+        is_root = True
+        for other_code in code_set:
+            if other_code != code:
+                if code in hierarchy.descendants(other_code):
+                    is_root = False
+                    break
+        if is_root:
+            root_codes.append(code)
+
+    # Build hierarchy tree starting from root codes
+    full_hierarchy = []
+    for root_code in root_codes:
+        root_node = build_hierarchy_node(root_code)
+        full_hierarchy.append(root_node)
+
+    response["full_hierarchy"] = full_hierarchy
+
+    # Collect all missing descendants with their terms
+    all_missing_descendants = []
+    for code in sorted(missing_desc):
+        all_missing_descendants.append(
+            {
+                "code": code,
+                "term": coding_system.lookup_names([code])[code],
+            }
+        )
+
+    response["all_missing_descendants"] = all_missing_descendants
+    response["total_missing_count"] = len(all_missing_descendants)
+
     return JsonResponse(response)

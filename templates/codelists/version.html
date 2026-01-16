@@ -123,16 +123,12 @@
         {% if clv.compatible_releases.exists %}
           <div class="list-group-item py-1 px-2">
             <dt>
-              Other compatible releases
+              Latest compatible release
             </dt>
             <dd class="mb-0">
-              <ul class="list-inline">
-                {% for release in clv.compatible_releases.all %}
-                  <li>
-                    {{ release.release_name }} ({{ release.valid_from|date:'Y-m-d'}}){% if not forloop.last %};{% endif %}
-                  </li>
-                {% endfor %}
-              </ul>
+              {% with release=clv.compatible_releases.last %}
+                {{ release.release_name }} ({{ release.valid_from|date:'Y-m-d'}})
+              {% endwith %}
             </dd>
           </div>
         {% endif %}

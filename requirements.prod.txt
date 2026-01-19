@@ -308,9 +308,9 @@ et-xmlfile==2.0.0 \
     --hash=sha256:7a91720bc756843502c3b7504c77b8fe44217c85c537d85037f0f536151b2caa \
     --hash=sha256:dab3f4764309081ce75662649be815c4c9081e88f0837825f90fd28317d4da54
     # via openpyxl
-faker==40.1.0 \
-    --hash=sha256:a616d35818e2a2387c297de80e2288083bc915e24b7e39d2fb5bc66cce3a929f \
-    --hash=sha256:c402212a981a8a28615fea9120d789e3f6062c0c259a82bfb8dff5d273e539d2
+faker==40.1.2 \
+    --hash=sha256:93503165c165d330260e4379fd6dc07c94da90c611ed3191a0174d2ab9966a42 \
+    --hash=sha256:b76a68163aa5f171d260fc24827a8349bc1db672f6a665359e8d0095e8135d30
     # via -r requirements.prod.in
 furl==2.1.4 \
     --hash=sha256:877657501266c929269739fb5f5980534a41abd6bbabcb367c136d1d3b2a6015 \
@@ -658,17 +658,17 @@ packaging==25.0 \
     # via
     #   gunicorn
     #   opentelemetry-instrumentation
-protobuf==6.33.3 \
-    --hash=sha256:08a6ca12f60ba99097dd3625ef4275280f99c9037990e47ce9368826b159b890 \
-    --hash=sha256:1fd18f030ae9df97712fbbb0849b6e54c63e3edd9b88d8c3bb4771f84d8db7a4 \
-    --hash=sha256:2756963dcfd414eba46bcbb341f0e2c652036e5d700f112b3bb90fa1a031893a \
-    --hash=sha256:642fce7187526c98683c79a3ad68e5d646a5ef5eb004582fe123fc9a33a9456b \
-    --hash=sha256:648b7b0144222eb06cf529a3d7b01333c5f30b4196773b682d388f04db373759 \
-    --hash=sha256:6fa9b5f4baa12257542273e5e6f3c3d3867b30bc2770c14ad9ac8315264bf986 \
-    --hash=sha256:b4046f9f2ede57ad5b1d9917baafcbcad42f8151a73c755a1e2ec9557b0a764f \
-    --hash=sha256:c2bf221076b0d463551efa2e1319f08d4cffcc5f0d864614ccd3d0e77a637794 \
-    --hash=sha256:c46dcc47b243b299f4f7eabeed21929c07f0d36fffe2ea8431793b53c308ab80 \
-    --hash=sha256:c8794debeb402963fddff41a595e1f649bcd76616ba56c835645cab4539e810e
+protobuf==6.33.4 \
+    --hash=sha256:0f12ddbf96912690c3582f9dffb55530ef32015ad8e678cd494312bd78314c4f \
+    --hash=sha256:1fe3730068fcf2e595816a6c34fe66eeedd37d51d0400b72fabc848811fdc1bc \
+    --hash=sha256:2fe67f6c014c84f655ee06f6f66213f9254b3a8b6bda6cda0ccd4232c73c06f0 \
+    --hash=sha256:3df850c2f8db9934de4cf8f9152f8dc2558f49f298f37f90c517e8e5c84c30e9 \
+    --hash=sha256:757c978f82e74d75cba88eddec479df9b99a42b31193313b75e492c06a51764e \
+    --hash=sha256:8f11ffae31ec67fc2554c2ef891dcb561dae9a2a3ed941f9e134c2db06657dbc \
+    --hash=sha256:918966612c8232fc6c24c78e1cd89784307f5814ad7506c308ee3cf86662850d \
+    --hash=sha256:955478a89559fa4568f5a81dce77260eabc5c686f9e8366219ebd30debf06aa6 \
+    --hash=sha256:c7c64f259c618f0bef7bee042075e390debbf9682334be2b67408ec7c1c09ee6 \
+    --hash=sha256:dc2e61bca3b10470c1912d166fe0af67bfc20eb55971dcef8dfa48ce14f0ed91
     # via
     #   googleapis-common-protos
     #   opentelemetry-proto
@@ -772,9 +772,9 @@ slippers==0.6.2 \
     --hash=sha256:4cb555b8822ba0d404e5405723f5d723994022c29046008ee917081031bc0cf1 \
     --hash=sha256:739e05f85354becbf0a65daab831eea62557d89e7512042209ab629af4378bca
     # via -r requirements.prod.in
-soupsieve==2.8.1 \
-    --hash=sha256:4cf733bc50fa805f5df4b8ef4740fc0e0fa6218cf3006269afd3f9d6d80fd350 \
-    --hash=sha256:a11fe2a6f3d76ab3cf2de04eb339c1be5b506a8a47f2ceb6d139803177f85434
+soupsieve==2.8.2 \
+    --hash=sha256:0f4c2f6b5a5fb97a641cf69c0bd163670a0e45e6d6c01a2107f93a6a6f93c51a \
+    --hash=sha256:78a66b0fdee2ab40b7199dc3e747ee6c6e231899feeaae0b9b98a353afd48fd8
     # via beautifulsoup4
 sqlean-py==3.50.4.5 \
     --hash=sha256:05eb8d758104339c8d8ecf99238e15bbf6ba07a572f770f1a92589d487a8282c \
@@ -829,10 +829,6 @@ typing-extensions==4.15.0 \
     #   opentelemetry-sdk
     #   opentelemetry-semantic-conventions
     #   slippers
-tzdata==2025.3 \
-    --hash=sha256:06a47e5700f3081aab02b2e513160914ff0694bce9947d6b76ebd6bf57cfc5d1 \
-    --hash=sha256:de39c2ca5dc7b0344f2eba86f49d614019d29f060fc4ebc8a417896a620b56a7
-    # via faker
 urllib3==2.6.3 \
     --hash=sha256:1b62b6884944a57dbe321509ab94fd4d3b307075e0c2eae991ac71ee15ad38ed \
     --hash=sha256:bf272323e553dfb2e87d9bfd225ca7b0f467b919d7bbd355436d3fd37cb0acd4

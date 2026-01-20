@@ -371,7 +371,11 @@ def get_post_data(
     # that the db exists and is not empty before proceeding. Also ensure the TEST_IN_DOCKER var
     # is not set as the docker environment doesn't have the dbs installed either, but
     # we don't want to block the CI tests.
-    if "localhost" in host and not os.environ.get("TEST_IN_DOCKER"):
+    if (
+        "localhost" in host
+        and not os.environ.get("TEST_IN_DOCKER")
+        and coding_system_id not in CODING_SYSTEMS_WITH_OLD_STYLE_CODELISTS
+    ):
         db_path = (
             Path(__file__).resolve().parent.parent.parent
             / "coding_systems"

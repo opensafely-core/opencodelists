@@ -403,7 +403,12 @@ def get_post_data(
     post_data = {"coding_system_database_alias": release_db_alias, "tag": tag}
     if coding_system_id in CODING_SYSTEMS_WITH_OLD_STYLE_CODELISTS:
         # create an old-style codelist/version with csv_data
-        post_data["csv_data"] = codelist_df[["code", "term"]].to_csv()
+        csv_columns = [
+            c
+            for c in codelist_df.columns
+            if not c.startswith("codelist") and c != "coding_system"
+        ]
+        post_data["csv_data"] = codelist_df[csv_columns].to_csv()
     else:
         post_data.update(
             {

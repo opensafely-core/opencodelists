@@ -20,6 +20,7 @@ See additional documentation at codelists/scripts/README.md
 """
 
 import argparse
+import glob
 import json
 import os
 import random
@@ -60,8 +61,11 @@ def main(
         headers = get_headers()
     base_url = urljoin(host, f"api/v1/codelist/{config['organisation']}/")
 
-    # Read the file and apply any aliases specified in the config
-    codelists_df = process_file_to_dataframe(filepath, config)
+    # Read the files and apply any aliases specified in the config
+    codelists_df = pd.concat(
+        process_file_to_dataframe(Path(csv_file), config)
+        for csv_file in glob.glob(str(filepath))
+    )
 
     # Identify codelist slugs for existing codelists
     # First retrieve all codelists for this organisation

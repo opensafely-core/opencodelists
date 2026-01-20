@@ -162,7 +162,11 @@ def main(
                 host,
             )
 
-            if action == "update" and config["tag"] in tags_by_slug.get(codelist_slug):
+            if (
+                action == "update"
+                and (tag := config.get("tag"))
+                and tag in tags_by_slug.get(codelist_slug)
+            ):
                 ignore_duplicate_tag_count += 1
                 print(
                     f"Not creating new version for {coding_system_id} codelist '{codelist_name}' because the tag '{config['tag']}' already exists for this codelist."

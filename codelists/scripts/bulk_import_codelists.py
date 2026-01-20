@@ -377,7 +377,9 @@ def get_post_data(
         and coding_system_id not in CODING_SYSTEMS_WITH_OLD_STYLE_CODELISTS
     ):
         db_path = (
-            Path(__file__).resolve().parent.parent.parent
+            Path(dbpath)
+            if (dbpath := os.environ.get("DATABASE_DIR"))
+            else (Path(__file__).resolve().parent.parent.parent)
             / "coding_systems"
             / coding_system_id
             / f"{release_db_alias}.sqlite3"

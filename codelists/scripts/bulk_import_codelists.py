@@ -48,6 +48,7 @@ def main(
     host,
     force_new_version=False,
     force_description=False,
+    force_methodology=False,
     force_name=False,
     force_slug=False,
     force_publish=False,
@@ -155,6 +156,7 @@ def main(
                 action == "create",
                 force_new_version,
                 force_description,
+                force_methodology,
                 force_name,
                 force_publish,
                 force_slug,
@@ -358,6 +360,7 @@ def get_post_data(
     create_new_codelist,
     force_new_version,
     force_description,
+    force_methodology,
     force_name,
     force_publish,
     force_slug,
@@ -408,6 +411,8 @@ def get_post_data(
     if "description_template" in config:
         description = config["description_template"] % description
 
+    methodology = first_row.get("codelist_methodology", None)
+
     post_data = {"coding_system_database_alias": release_db_alias, "tag": tag}
     if coding_system_id in CODING_SYSTEMS_WITH_OLD_STYLE_CODELISTS:
         # create an old-style codelist/version with csv_data
@@ -431,12 +436,14 @@ def get_post_data(
                 "name": codelist_name,
                 "coding_system_id": coding_system_id,
                 "description": description,
-                "methodology": None,
+                "methodology": methodology,
             }
         )
 
     if force_description:
         post_data["description"] = description
+    if force_methodology:
+        post_data["methodology"] = methodology
     if force_name:
         post_data["name"] = codelist_name
     if force_publish:
@@ -471,6 +478,11 @@ def parse_args():
         "--force-description",
         action="store_true",
         help="Always update the description, even if it already exists.",
+    )
+    parser.add_argument(
+        "--force-methodology",
+        action="store_true",
+        help="Always update the methodology, even if it already exists.",
     )
     parser.add_argument(
         "--force-name",
@@ -521,6 +533,7 @@ def parse_args():
         arguments.host,
         arguments.force_new_version,
         arguments.force_description,
+        arguments.force_methodology,
         arguments.force_name,
         arguments.force_publish,
         arguments.force_slug,

@@ -9,6 +9,7 @@
     },
     "column_aliases": {
         "code": "code",
-        "term": "description"
+        "term": "description",
+        "codelist_methodology": "methodology"
     }
 }

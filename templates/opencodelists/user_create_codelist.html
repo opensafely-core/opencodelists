@@ -142,6 +142,28 @@
               </div>
             </div>
           </div>
+
+          <!-- Descendants Info (shows after preview if descendants exist) -->
+          <div id="csv-descendants-section" class="mt-6 hidden">
+            <div class="bg-amber-50 border border-amber-200 p-4 rounded-sm">
+
+              <h2 class="text-lg font-semibold mb-4">Missing child codes detected</h2>
+              <p class="mb-4">
+                Some of the codes you uploaded have related child codes that are not included
+                in your CSV. This may be intentional.
+              </p>
+              <p class="mb-4">
+                If you are sure you want to exclude all of these child codes, select the checkbox
+                below. Otherwise, you can continue by clicking "Create a draft codelist", and on the
+                next screen you'll be able to review each missing child code and decide individually
+                whether to include or exclude it.
+              </p>
+
+              <div class="mb-6">
+                {% include "opencodelists/checkbox.html" with field=form.exclude_child_codes %}
+              </div>
+            </div>
+          </div>
         </div>
       </details>
     </div>
@@ -206,6 +228,7 @@
     const previewTable = document.getElementById('csv-preview-table');
     const warningsDiv = document.getElementById('csv-warnings');
     const csvWarningMessage = document.getElementById('csv-warning-message');
+    const descendantsSection = document.getElementById('csv-descendants-section');
 
 
     function clearAnalysis() {
@@ -213,6 +236,7 @@
       loadingDiv.classList.add('hidden');
       analysisSection.classList.add('hidden');
       errorDiv.classList.add('hidden');
+      descendantsSection.classList.add('hidden');
       previewTable.innerHTML = '';
     }
 
@@ -307,6 +331,14 @@
       }
     }
 
+    function renderMissingDescendants(missingDescendants) {
+      if (missingDescendants && missingDescendants.length > 0) {
+        descendantsSection.classList.remove('hidden');
+      } else {
+        descendantsSection.classList.add('hidden');
+      }
+    }
+
     async function handlePreview() {
       clearAnalysis();
       const file = fileInput.files && fileInput.files[0];
@@ -355,6 +387,7 @@
         renderHeaderRowBullet(dataStartRow, firstDataRowIdx);
         renderCodingSystemBullet(detectedSystem, numberOfRows, codeColIdx);
         renderCsvPreview(data.rows_preview, numberOfRows, firstDataRowIdx, codeColIdx);
+        renderMissingDescendants(data.all_missing_descendants);
       } catch (e) {
         displayError(`An unexpected error occurred while analyzing the CSV: ${e.message}`);
       }

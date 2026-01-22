@@ -9,6 +9,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
 from codelists.actions import (
+    cache_hierarchy,
     create_codelist_from_scratch,
     create_codelist_with_codes,
 )
@@ -99,6 +100,8 @@ def handle_post_valid(request, form, user, owner_choices):
     name = form.cleaned_data["name"]
     coding_system_id = form.cleaned_data["coding_system_id"]
     codes = form.cleaned_data["csv_data"]
+    original_codes = list(codes) if codes else []
+    exclude_child_codes = form.cleaned_data.get("exclude_child_codes")
 
     coding_system_database_alias = most_recent_database_alias(coding_system_id)
 
@@ -112,6 +115,14 @@ def handle_post_valid(request, form, user, owner_choices):
                 coding_system_database_alias=coding_system_database_alias,
                 author=user,
             )
+            if not exclude_child_codes:
+                # User wants to decide on descendants later in the builder so
+                # we reset statuses of non-uploaded codes to unresolved
+                version = codelist.versions.get()
+                # Reset statuses: uploaded codes stay included, everything else becomes unresolved
+                version.code_objs.filter(code__in=original_codes).update(status="+")
+                version.code_objs.exclude(code__in=original_codes).update(status="?")
+                cache_hierarchy(version=version)
         else:
             codelist = create_codelist_from_scratch(
                 owner=owner,

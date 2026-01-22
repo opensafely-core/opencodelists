@@ -72,6 +72,11 @@ class CodelistCreateForm(forms.Form):
     owner = forms.ChoiceField()
     name = form_field_from_model(Handle, "name", label="Codelist name")
     coding_system_id = forms.ChoiceField(choices=[], label="Coding system")
+    exclude_child_codes = forms.BooleanField(
+        widget=forms.CheckboxInput,
+        label="Exclude all missing child codes",
+        required=False,
+    )
     csv_data = forms.FileField(
         label="CSV data",
         required=False,

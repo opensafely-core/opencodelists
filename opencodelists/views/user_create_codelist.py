@@ -1,7 +1,12 @@
+import csv
+from io import StringIO
+
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import NON_FIELD_ERRORS
 from django.db.utils import IntegrityError
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.http import require_POST
 
 from codelists.actions import (
     create_codelist_from_scratch,
@@ -12,6 +17,8 @@ from codelists.coding_systems import (
     builder_compatible_coding_systems,
     most_recent_database_alias,
 )
+from codelists.hierarchy import Hierarchy
+from opencodelists.forms import validate_csv_data_codes
 
 from ..forms import CodelistCreateForm
 from ..models import Organisation, User
@@ -181,3 +188,110 @@ def _detect_code_column_header_and_system(rows: list[list[str]]):
                 continue
 
     return 0, 0, None
+
+
+@login_required
+@require_POST
+def csv_descendants_preview(request, username):
+    """Parse an uploaded CSV and report descendants not included.
+
+    Auto-detects: first data row, code column, and coding system.
+
+    Returns JSON: {
+      rows_preview: [[row1col1, row1col2, ...], [row2col1, ...], ...],  - first 5 rows of the CSV for preview
+      uploaded_count: int,                                              - number of unique codes uploaded
+      detected_first_data_row: int (0-based),                           - index of first data row
+      detected_code_column: int (0-based),                              - index of column with clinical codes
+      detected_coding_system_id: str or null,                           - detected coding system ID
+      missing_descendants: [{code, term}],                              - list of missing descendant codes with terms (descriptions)
+      error: str,                                                       - error message if applicable
+      warning: str                                                      - warning message if applicable
+    }
+    """
+
+    user = get_object_or_404(User, username=username)
+    if user != request.user:
+        return JsonResponse({"error": "Not allowed"}, status=403)
+
+    csv_file = request.FILES.get("csv_data")
+    coding_system_id = request.POST.get("coding_system_id")
+
+    if not csv_file:
+        return JsonResponse({"error": "csv_data required"}, status=400)
+
+    try:
+        data = csv_file.read().decode("utf-8-sig")
+    except UnicodeDecodeError as e:
+        return JsonResponse({"error": f"Failed to read CSV: {e}"}, status=400)
+
+    # Parse all rows to support auto-detection
+    all_rows = list(csv.reader(StringIO(data)))
+    if not all_rows:
+        return JsonResponse({"error": "CSV is empty"}, status=400)
+
+    detected_first_data_row, detected_code_column, detected_coding_system_id = (
+        _detect_code_column_header_and_system(all_rows)
+    )
+
+    if not detected_coding_system_id:
+        return JsonResponse(
+            {
+                "error": "No coding system could be detected in the CSV - are you sure it contains valid codes?"
+            },
+            status=400,
+        )
+    elif coding_system_id and detected_coding_system_id != coding_system_id:
+        return JsonResponse(
+            {
+                "error": f"Detected coding system ({detected_coding_system_id}) does not match specified coding system ({coding_system_id})."
+            },
+            status=400,
+        )
+
+    # Extract codes from detected column skipping header rows
+    codes = [
+        row[detected_code_column]
+        for row in all_rows[detected_first_data_row:]
+        if detected_code_column < len(row) and row[detected_code_column].strip()
+    ]
+
+    code_set = set(codes)
+
+    response = {
+        "rows_preview": all_rows[: max(detected_first_data_row + 3, 5)],
+        "uploaded_count": len(code_set),
+        "detected_first_data_row": detected_first_data_row,
+        "detected_code_column": detected_code_column,
+        "detected_coding_system_id": detected_coding_system_id,
+    }
+
+    # Validate codes
+    coding_system = CODING_SYSTEMS[
+        detected_coding_system_id
+    ].get_by_release_or_most_recent()
+    try:
+        validate_csv_data_codes(coding_system, codes)
+    except Exception as e:
+        response["warning"] = e.message
+        return JsonResponse(response)
+
+    # Compute descendants not included
+    hierarchy = Hierarchy.from_codes(coding_system, code_set)
+    missing_desc = set()
+    for code in code_set:
+        missing_desc |= hierarchy.descendants(code)
+    missing_desc -= code_set
+
+    # Collect all missing descendants with their terms
+    all_missing_descendants = []
+    for code in sorted(missing_desc):
+        all_missing_descendants.append(
+            {
+                "code": code,
+                "term": coding_system.lookup_names([code])[code],
+            }
+        )
+
+    response["all_missing_descendants"] = all_missing_descendants
+
+    return JsonResponse(response)

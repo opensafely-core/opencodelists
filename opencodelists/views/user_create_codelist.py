@@ -3,8 +3,12 @@ from django.core.exceptions import NON_FIELD_ERRORS
 from django.db.utils import IntegrityError
 from django.shortcuts import get_object_or_404, redirect, render
 
-from codelists.actions import create_codelist_from_scratch, create_codelist_with_codes
+from codelists.actions import (
+    create_codelist_from_scratch,
+    create_codelist_with_codes,
+)
 from codelists.coding_systems import (
+    CODING_SYSTEMS,
     builder_compatible_coding_systems,
     most_recent_database_alias,
 )
@@ -123,3 +127,57 @@ def handle_post_valid(request, form, user, owner_choices):
 def handle_post_invalid(request, form, user):
     ctx = {"user": user, "form": form}
     return render(request, "opencodelists/user_create_codelist.html", ctx)
+
+
+def _detect_code_column_header_and_system(rows: list[list[str]]):
+    """
+    Input: rows from a CSV file as list of lists of strings.
+
+    Purpose: Attempt to detect:
+      - which column contains clinical codes
+      - the clinical coding system
+      - which row is the first data row (everything before is header)
+
+    Returns: (first_data_row_idx, code_column_idx, detected_system_id) or (0, 0, None) if detection fails.
+    """
+    if not rows or len(rows) < 1:
+        return 0, 0, None
+
+    # Try each column
+    for col_idx in range(len(rows[0])):
+        sample_codes = [
+            row[col_idx] for row in rows[: min(10, len(rows))] if col_idx < len(row)
+        ]
+
+        if not sample_codes:
+            continue
+
+        # Try each coding system to see if it recognizes these codes
+        for cs_id, cs_class in CODING_SYSTEMS.items():
+            if not cs_class.is_builder_compatible():
+                continue
+            try:
+                cs = cs_class.get_by_release_or_most_recent()
+                if not cs.has_database:
+                    continue
+                # Check if any codes validate
+                valid = set(sample_codes) & set(cs.lookup_names(sample_codes))
+
+                # If any valid we, first find the first row with a valid code
+                # then see if enough codes are valid to consider this a match
+                if not valid:
+                    continue
+
+                for first_valid_code_idx, code in enumerate(sample_codes):
+                    if code in valid:
+                        break
+
+                if len(valid) >= max(
+                    1, (len(sample_codes[first_valid_code_idx:]) * 8) // 10
+                ):  # >80% match
+                    return first_valid_code_idx, col_idx, cs_id
+
+            except Exception:
+                continue
+
+    return 0, 0, None

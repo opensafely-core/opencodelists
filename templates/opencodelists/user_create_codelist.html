@@ -199,6 +199,7 @@
     </div>
 
     <button
+      id="create-codelist-button"
       class="flex w-fit mx-auto justify-center cursor-pointer rounded-md bg-green-700 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs transition-colors hover:bg-green-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-green-700"
       type="submit"
     >
@@ -256,6 +257,7 @@
     const csvWarningMessage = document.getElementById('csv-warning-message');
     const descendantsSection = document.getElementById('csv-descendants-section');
     const excludeChildCodesCheckbox = document.querySelector('input[name="exclude_child_codes"]');
+    const createButton = document.getElementById('create-codelist-button');
 
 
     function clearAnalysis() {
@@ -265,6 +267,7 @@
       errorDiv.classList.add('hidden');
       descendantsSection.classList.add('hidden');
       previewTable.innerHTML = '';
+      enableButton();
     }
 
     function renderCsvPreview(rows, numberOfRows, firstDataRowIdx, codeColumnIdx) {
@@ -314,6 +317,7 @@
       analysisSection.classList.add('hidden');
       errorDiv.classList.remove('hidden');
       errorMessageEl.textContent = message;
+      disableButton();
     }
 
     function renderHeaderRowBullet(dataStartRow, firstDataRowIdx) {
@@ -353,8 +357,10 @@
       if (warning) {
         csvWarningMessage.textContent = warning;
         warningsDiv.classList.remove('hidden');
+        disableButton();
       } else {
         warningsDiv.classList.add('hidden');
+        enableButton();
       }
     }
 
@@ -421,6 +427,14 @@
       } else {
         descendantsSection.classList.add('hidden');
       }
+    }
+
+    function disableButton() {
+      createButton.disabled = true;
+    }
+
+    function enableButton() {
+      createButton.disabled = false;
     }
 
     async function handlePreview() {

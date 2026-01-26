@@ -20,7 +20,7 @@
     "@testing-library/user-event": "^14.6.1",
     "@types/react-dom": "^18.3.7",
     "@vitejs/plugin-react-swc": "^4.2.2",
-    "@vitest/coverage-v8": "^4.0.16",
+    "@vitest/coverage-v8": "^4.0.17",
     "jsdom": "^27.4.0",
     "nock": "^14.0.10",
     "typescript": "^5.9.3",

@@ -201,3 +201,16 @@ and note their removal in the Description of the Codelist on OpenCodelists.
 You may find the problematic codes by uploading a subset of the combined refset file
 containing only the refset of interest as a new codelist in your own account
 which will show the codes causing the errors.
+
+### UKHSA Surgical Site Infection codelists
+
+These are loaded from [this](https://github.com/bennettoxford/surgical-site-infections) GitHub repository.
+There is a degree of preprocessing of the codelists, which are supplied by UKHSA in pdf format,
+which is detailed in the above-linked repository.
+
+The configuration for bulk loading these preprocessed files  is in `ssi-opcs.json`
+and can be executed thusly:
+
+```sh
+API_TOKEN=[your_token_here] python codelists/scripts/bulk_import_codelists.py /path/to/folder/containing/codelist/csvs/ codelists/scripts/ssi-opcs.json [see above for live-run and --host params]
+```

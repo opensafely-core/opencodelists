@@ -212,5 +212,5 @@ The configuration for bulk loading these preprocessed files  is in `ssi-opcs.jso
 and can be executed thusly:
 
 ```sh
-API_TOKEN=[your_token_here] python codelists/scripts/bulk_import_codelists.py /path/to/folder/containing/codelist/csvs/ codelists/scripts/ssi-opcs.json [see above for live-run and --host params]
+API_TOKEN=[your_token_here] python codelists/scripts/bulk_import_codelists.py '/path/to/folder/containing/codelist/csvs/*.csv' codelists/scripts/ssi-opcs.json [see above for live-run and --host params]
 ```

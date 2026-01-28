@@ -485,6 +485,36 @@ def test_versions_post_codes_with_force_new_version(client, user, user_codelist)
     assert rsp.status_code == 200
 
 
+def test_versions_post_codes_with_updated_description(client, user, user_codelist):
+    data = {
+        "name": "New codelist",
+        "coding_system_id": "snomedct",
+        "coding_system_database_alias": "snomedct_test_20200101",
+        "codes": ["128133004", "156659008"],
+        "description": "Test description",
+    }
+    rsp = post(client, user_codelist.get_versions_api_url(), data, user)
+
+    assert rsp.status_code == 200
+    user_codelist.refresh_from_db()
+    assert user_codelist.description == "Test description"
+
+
+def test_versions_post_codes_with_updated_methodology(client, user, user_codelist):
+    data = {
+        "name": "New codelist",
+        "coding_system_id": "snomedct",
+        "coding_system_database_alias": "snomedct_test_20200101",
+        "codes": ["128133004", "156659008"],
+        "methodology": "Test methodology",
+    }
+    rsp = post(client, user_codelist.get_versions_api_url(), data, user)
+
+    assert rsp.status_code == 200
+    user_codelist.refresh_from_db()
+    assert user_codelist.methodology == "Test methodology"
+
+
 def test_versions_post_ecl(client, user, user_codelist):
     data = {
         "ecl": "<<128133004 OR 156659008",

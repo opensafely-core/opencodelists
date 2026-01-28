@@ -1,0 +1,15 @@
+{
+    "comment": "For loading of the UKHSA surgical site infection procedure codelists",
+    "organisation": "ukhsa",
+    "coding_systems": {
+        "opcs4": {
+            "id": "opcs4",
+            "release": "opcs4_unknown_19000101"
+        }
+    },
+    "column_aliases": {
+        "code": "code",
+        "term": "description",
+        "codelist_methodology": "methodology"
+    }
+}

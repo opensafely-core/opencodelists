@@ -20,6 +20,7 @@ See additional documentation at codelists/scripts/README.md
 """
 
 import argparse
+import glob
 import json
 import os
 import random
@@ -47,6 +48,7 @@ def main(
     host,
     force_new_version=False,
     force_description=False,
+    force_methodology=False,
     force_name=False,
     force_slug=False,
     force_publish=False,
@@ -60,8 +62,11 @@ def main(
         headers = get_headers()
     base_url = urljoin(host, f"api/v1/codelist/{config['organisation']}/")
 
-    # Read the file and apply any aliases specified in the config
-    codelists_df = process_file_to_dataframe(filepath, config)
+    # Read the files and apply any aliases specified in the config
+    codelists_df = pd.concat(
+        process_file_to_dataframe(Path(csv_file), config)
+        for csv_file in glob.glob(str(filepath))
+    )
 
     # Identify codelist slugs for existing codelists
     # First retrieve all codelists for this organisation
@@ -151,6 +156,7 @@ def main(
                 action == "create",
                 force_new_version,
                 force_description,
+                force_methodology,
                 force_name,
                 force_publish,
                 force_slug,
@@ -158,7 +164,11 @@ def main(
                 host,
             )
 
-            if action == "update" and config["tag"] in tags_by_slug.get(codelist_slug):
+            if (
+                action == "update"
+                and (tag := config.get("tag"))
+                and tag in tags_by_slug.get(codelist_slug)
+            ):
                 ignore_duplicate_tag_count += 1
                 print(
                     f"Not creating new version for {coding_system_id} codelist '{codelist_name}' because the tag '{config['tag']}' already exists for this codelist."
@@ -350,6 +360,7 @@ def get_post_data(
     create_new_codelist,
     force_new_version,
     force_description,
+    force_methodology,
     force_name,
     force_publish,
     force_slug,
@@ -371,9 +382,15 @@ def get_post_data(
     # that the db exists and is not empty before proceeding. Also ensure the TEST_IN_DOCKER var
     # is not set as the docker environment doesn't have the dbs installed either, but
     # we don't want to block the CI tests.
-    if "localhost" in host and not os.environ.get("TEST_IN_DOCKER"):
+    if (
+        "localhost" in host
+        and not os.environ.get("TEST_IN_DOCKER")
+        and coding_system_id not in CODING_SYSTEMS_WITH_OLD_STYLE_CODELISTS
+    ):
         db_path = (
-            Path(__file__).resolve().parent.parent.parent
+            Path(dbpath)
+            if (dbpath := os.environ.get("DATABASE_DIR"))
+            else (Path(__file__).resolve().parent.parent.parent)
             / "coding_systems"
             / coding_system_id
             / f"{release_db_alias}.sqlite3"
@@ -394,10 +411,17 @@ def get_post_data(
     if "description_template" in config:
         description = config["description_template"] % description
 
+    methodology = first_row.get("codelist_methodology", None)
+
     post_data = {"coding_system_database_alias": release_db_alias, "tag": tag}
     if coding_system_id in CODING_SYSTEMS_WITH_OLD_STYLE_CODELISTS:
         # create an old-style codelist/version with csv_data
-        post_data["csv_data"] = codelist_df[["code", "term"]].to_csv()
+        csv_columns = [
+            c
+            for c in codelist_df.columns
+            if not c.startswith("codelist") and c != "coding_system"
+        ]
+        post_data["csv_data"] = codelist_df[csv_columns].to_csv()
     else:
         post_data.update(
             {
@@ -412,12 +436,14 @@ def get_post_data(
                 "name": codelist_name,
                 "coding_system_id": coding_system_id,
                 "description": description,
-                "methodology": None,
+                "methodology": methodology,
             }
         )
 
     if force_description:
         post_data["description"] = description
+    if force_methodology:
+        post_data["methodology"] = methodology
     if force_name:
         post_data["name"] = codelist_name
     if force_publish:
@@ -452,6 +478,11 @@ def parse_args():
         "--force-description",
         action="store_true",
         help="Always update the description, even if it already exists.",
+    )
+    parser.add_argument(
+        "--force-methodology",
+        action="store_true",
+        help="Always update the methodology, even if it already exists.",
     )
     parser.add_argument(
         "--force-name",
@@ -502,6 +533,7 @@ def parse_args():
         arguments.host,
         arguments.force_new_version,
         arguments.force_description,
+        arguments.force_methodology,
         arguments.force_name,
         arguments.force_publish,
         arguments.force_slug,

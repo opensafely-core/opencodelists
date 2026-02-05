@@ -234,7 +234,7 @@ def load_2016_concepts(rows):
                 "term": row["description"],
                 "kind": ConceptKind(row["kind"]),
             }
-            | ({"parent_id": row["parent"]} if row["parent"] else {})
+            | ({"parent_id": row["parent"].replace(".", "")} if row["parent"] else {})
         )
         yield (
             concept,

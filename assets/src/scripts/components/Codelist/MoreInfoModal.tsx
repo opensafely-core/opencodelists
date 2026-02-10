@@ -87,6 +87,7 @@ function MoreInfoModal({
   const [showMoreInfoModal, setShowMoreInfoModal] = useState(false);
   const [references, setReferences] = useState<string[] | null>(null);
   const [synonyms, setSynonyms] = useState<string[] | null>(null);
+  const [editions, setEditions] = useState<string[] | null>(null);
   const [modalText, setModalText] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -121,6 +122,7 @@ function MoreInfoModal({
             ) || [],
           );
           setReferences(data.references?.[code] || []);
+          setEditions(data.editions?.[code] || []);
         })
         .catch(() => {
           setSynonyms([]);
@@ -177,6 +179,19 @@ function MoreInfoModal({
               ) : (
                 // biome-ignore lint/suspicious/noArrayIndexKey: item won't be re-rendered based on key
                 synonyms.map((synonym, idx) => <li key={idx}>{synonym}</li>)
+              )}
+            </ul>
+          )}
+          <h2 className="h6 font-weight-bold">Editions</h2>
+          {loading ? (
+            <p>Loading editions...</p>
+          ) : (
+            <ul>
+              {!editions || editions?.length === 0 ? (
+                <li>No editions</li>
+              ) : (
+                // biome-ignore lint/suspicious/noArrayIndexKey: item won't be re-rendered based on key
+                editions.map((edition, idx) => <li key={idx}>{edition}</li>)
               )}
             </ul>
           )}

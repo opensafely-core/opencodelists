@@ -3,6 +3,7 @@ name: Deploy
 
 env:
     IMAGE_NAME: opencodelists
+    HOST: dokku3.ebmdatalab.net
     PUBLIC_IMAGE_NAME: ghcr.io/opensafely-core/opencodelists
     REGISTRY: ghcr.io
     SSH_AUTH_SOCK: /tmp/agent.sock
@@ -83,9 +84,24 @@ jobs:
 
       - name: Deploy
         run: |
-            SHA=$(docker inspect --format='{{join .RepoDigests "\n"}}' "$PUBLIC_IMAGE_NAME:latest" | grep "$PUBLIC_IMAGE_NAME")
-            echo "Deploying $SHA to dokku3"
-            ssh -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" dokku@dokku3.ebmdatalab.net git:from-image opencodelists $SHA
+            set -euo pipefail
+
+            # Find the full qualified "repo digest" for this image
+            IMAGE_DIGEST="$(
+              docker inspect --format='{{join .RepoDigests "\n"}}' "$PUBLIC_IMAGE_NAME:latest" \
+                | grep --fixed-strings "$PUBLIC_IMAGE_NAME" || true
+            )"
+            # Fail if we have none or more than one (as indicated by the presence of whitespace)
+            if [[ -z "$IMAGE_DIGEST" || "$IMAGE_DIGEST" =~ [[:space:]] ]]; then
+              echo "Expected exactly one value in IMAGE_DIGEST, got: $IMAGE_DIGEST"
+              echo
+              echo "Debug info:"
+              set -x
+              docker inspect --format='{{join .RepoDigests "\n"}}' "$PUBLIC_IMAGE_NAME:latest"
+              exit 1
+            fi
+            echo "Deploying $IMAGE_DIGEST to $HOST"
+            ssh -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" "dokku@$HOST" git:from-image opencodelists "$IMAGE_DIGEST"
 
       - name: Create Sentry release
         uses: getsentry/action-release@dab6548b3c03c4717878099e43782cf5be654289  # v3.5.0

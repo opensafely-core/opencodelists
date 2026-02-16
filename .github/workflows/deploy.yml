@@ -101,7 +101,8 @@ jobs:
               exit 1
             fi
             echo "Deploying $IMAGE_DIGEST to $HOST"
-            ssh -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" "dokku@$HOST" git:from-image opencodelists "$IMAGE_DIGEST"
+            ssh -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" "dokku@$HOST" \
+              git:from-image opencodelists "$IMAGE_DIGEST"
 
       - name: Create Sentry release
         uses: getsentry/action-release@dab6548b3c03c4717878099e43782cf5be654289  # v3.5.0

@@ -85,11 +85,13 @@ To deploy manually:
 just docker-build prod
 
 # tag image and push
-docker tag opencodelists ghcr.io/opensafely-core/opencodelists:latest
-docker push ghcr.io/opensafely-core/opencodelists:latest
+export PUBLIC_IMAGE_NAME=ghcr.io/opensafely-core/opencodelists
+docker tag opencodelists "$PUBLIC_IMAGE_NAME:latest"
+docker push "$PUBLIC_IMAGE_NAME:latest"
 
 # get the SHA for the latest image
-SHA=$(docker inspect --format='{{index .RepoDigests 0}}' ghcr.io/opensafely-core/opencodelists:latest)
+SHA=$(docker inspect --format='{{join .RepoDigests "\n"}}' "$PUBLIC_IMAGE_NAME:latest" \
+| grep --fixed-strings "$PUBLIC_IMAGE_NAME")
 ```
 
 On dokku3, as the `dokku` user:

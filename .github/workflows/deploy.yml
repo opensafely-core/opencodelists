@@ -83,7 +83,6 @@ jobs:
 
       - name: Deploy
         run: |
-            set -x
             SHA=$(docker inspect --format='{{join .RepoDigests "\n"}}' "$PUBLIC_IMAGE_NAME:latest" | grep "$PUBLIC_IMAGE_NAME")
             echo "Deploying $SHA to dokku3"
             ssh -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" dokku@dokku3.ebmdatalab.net git:from-image opencodelists $SHA

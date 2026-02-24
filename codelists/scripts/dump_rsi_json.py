@@ -1,11 +1,12 @@
 import json
 import re
-from collections import Counter
+from collections import Counter, defaultdict
 from enum import Enum, auto
 
 from django.db.models import Q
 
 from codelists.models import Codelist, CodelistVersion, Handle, Status
+from coding_systems.versioning.models import CodingSystemRelease
 from opencodelists.hash_utils import unhash
 from opencodelists.models import Organisation, User
 
@@ -180,6 +181,9 @@ def run():
                     "clone_source_creation_method": cscm.name.title()
                     if (cscm := get_clone_source_creation_method(version))
                     else None,
+                    "release_compatibility": [
+                        r.database_alias for r in version.compatible_releases.all()
+                    ],
                 }
                 for version in codelist.versions.filter(
                     status__in=[Status.PUBLISHED, Status.UNDER_REVIEW]
@@ -197,6 +201,19 @@ def run():
     creation_methods = Counter([version["creation_method"] for version in versions])
     coding_systems = Counter([codelist["coding_system"] for codelist in codelists])
 
+    releases = defaultdict(list)
+
+    for (
+        coding_system,
+        database_alias,
+        valid_from,
+    ) in CodingSystemRelease.objects.all().values_list(
+        "coding_system", "database_alias", "valid_from"
+    ):
+        releases[coding_system].append(
+            {"database_alias": database_alias, "valid_from": str(valid_from)}
+        )
+
     print(f"""
     Codelists: {len(codelists)}
     Versions: {len(versions)}
@@ -210,4 +227,4 @@ def run():
     """)
 
     with open("rsi-codelists-analysis.json", "w") as f:
-        json.dump(codelists, f, indent=4)
+        json.dump({"codelists": codelists, "releases": releases}, f, indent=4)

@@ -1,3 +1,5 @@
+from django.db.utils import OperationalError
+
 from codelists.coding_systems import CODING_SYSTEMS
 from coding_systems.base.import_data_utils import (
     update_codelist_version_compatibility,
@@ -19,4 +21,20 @@ def run():
             # The first release has no "prior" release so exclude
             if i == 0:
                 continue
-            update_codelist_version_compatibility(coding_system, release.database_alias)
+            while True:
+                failcount = 0
+                try:
+                    update_codelist_version_compatibility(
+                        coding_system, release.database_alias
+                    )
+                except OperationalError as e:
+                    if failcount == 5:
+                        raise RuntimeError(
+                            "More than 5 database is locked errors encountered"
+                        )
+                    elif "database is locked" in str(e):
+                        failcount += 1
+                        continue
+                    else:
+                        raise e
+                break

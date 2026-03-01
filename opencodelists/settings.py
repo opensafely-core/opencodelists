@@ -104,6 +104,7 @@ INSTALLED_APPS = [
     "coding_systems.bnf",
     "coding_systems.ctv3",
     "coding_systems.dmd",
+    "coding_systems.icd9",
     "coding_systems.icd10",
     "coding_systems.readv2",
     "coding_systems.snomedct",

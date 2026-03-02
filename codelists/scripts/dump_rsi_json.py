@@ -172,7 +172,7 @@ def run():
                     "slug": version.full_slug(),
                     "created_at": str(version.created_at),
                     "updated_at": str(version.updated_at),
-                    "coding_system_release": str(version.coding_system_release),
+                    "coding_system_release": version.coding_system_release.database_alias,
                     "author": str(version.author),
                     "status": version.status,
                     "creation_method": cm.name.title()

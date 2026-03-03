@@ -172,7 +172,7 @@ def run():
                     "slug": version.full_slug(),
                     "created_at": str(version.created_at),
                     "updated_at": str(version.updated_at),
-                    "coding_system_release": version.coding_system_release.database_alias,
+                    "coding_system_release": str(version.coding_system_release),
                     "author": str(version.author),
                     "status": version.status,
                     "creation_method": cm.name.title()
@@ -182,7 +182,7 @@ def run():
                     if (cscm := get_clone_source_creation_method(version))
                     else None,
                     "release_compatibility": [
-                        r.database_alias for r in version.compatible_releases.all()
+                        str(r) for r in version.compatible_releases.all()
                     ],
                 }
                 for version in codelist.versions.filter(
@@ -203,15 +203,13 @@ def run():
 
     releases = defaultdict(list)
 
-    for (
-        coding_system,
-        database_alias,
-        valid_from,
-    ) in CodingSystemRelease.objects.all().values_list(
-        "coding_system", "database_alias", "valid_from"
-    ):
-        releases[coding_system].append(
-            {"database_alias": database_alias, "valid_from": str(valid_from)}
+    for csr in CodingSystemRelease.objects.all():
+        releases[csr.coding_system].append(
+            {
+                "database_alias": csr.database_alias,
+                "valid_from": str(csr.valid_from),
+                "release_name": str(csr),
+            }
         )
 
     print(f"""

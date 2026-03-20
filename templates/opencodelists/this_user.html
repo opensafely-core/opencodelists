@@ -28,13 +28,19 @@
               <thead class="bg-slate-100 text-left text-sm font-semibold text-slate-900 border-b-slate-300">
                 <tr class="align-bottom">
                   <th class="py-3.5 pr-3 pl-4 whitespace-nowrap sm:pl-6" rowspan="2">
-                    <div class="inline-flex gap-x-1">
+                    <div class="inline-flex items-center gap-x-1">
                       Name
-                      <span class="ml-2 flex-none rounded-sm bg-gray-200 text-gray-900 group-hover:bg-gray-300">
+                      <button
+                        id="sort-codelists-by-name"
+                        type="button"
+                        aria-label="Sort codelists by name"
+                        aria-pressed="false"
+                        class="ml-2 flex-none cursor-pointer rounded-sm bg-gray-200 text-gray-900 transition-colors hover:bg-gray-300"
+                      >
                         <svg viewBox="0 0 20 20" fill="currentColor" data-slot="icon" aria-hidden="true" class="size-5">
                           <path d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" fill-rule="evenodd" />
                         </svg>
-                      </span>
+                      </button>
                     </div>
                   </th>
                   <th class="px-3 py-3.5 whitespace-nowrap" rowspan="2">Owner</th>
@@ -45,7 +51,22 @@
                   <th class="px-3 py-3.5 whitespace-nowrap">Version ID</th>
                   <th class="px-3 py-3.5 whitespace-nowrap">Status</th>
                   <th class="px-3 py-3.5 whitespace-nowrap">Number of codes</th>
-                  <th class="px-3 py-3.5 whitespace-nowrap pl-3 sm:pr-3">Last updated</th>
+                  <th class="px-3 py-3.5 whitespace-nowrap pl-3 sm:pr-3">
+                    <div class="inline-flex items-center gap-x-1">
+                      Last updated
+                      <button
+                        id="sort-codelists-by-date"
+                        type="button"
+                        aria-label="Sort codelists by date"
+                        aria-pressed="false"
+                        class="ml-2 flex-none cursor-pointer rounded-sm bg-gray-200 text-gray-900 transition-colors hover:bg-gray-300"
+                      >
+                        <svg viewBox="0 0 20 20" fill="currentColor" data-slot="icon" aria-hidden="true" class="size-5">
+                          <path d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" fill-rule="evenodd" />
+                        </svg>
+                      </button>
+                    </div>
+                  </th>
                 </tr>
               </thead>
               {% for item in all_codelists %}
@@ -123,4 +144,110 @@
       </div>
     </div>
   </div>
+{% endblock %}
+
+{% block extra_js %}
+  <script nonce="{{ request.csp_nonce }}">
+    const nameSortButton = document.getElementById("sort-codelists-by-name");
+    const dateSortButton = document.getElementById("sort-codelists-by-date");
+    const codelistsTable = nameSortButton?.closest("table");
+    let isNameDescending = false;
+    let isDateDescending = false;
+
+    const getCodelistName = (tbody) => {
+      const nameCell = tbody.querySelector("tr td");
+      return nameCell ? nameCell.textContent.trim() : "";
+    };
+
+    const getTableBodies = () => {
+      if (!codelistsTable) {
+        return [];
+      }
+
+      return Array.from(codelistsTable.querySelectorAll("tbody"));
+    };
+
+    const getRowTimestamp = (row) => {
+      const timeElement = row.querySelector("time");
+      return timeElement ? Date.parse(timeElement.dateTime) : 0;
+    };
+
+    const sortRowsByDate = (tbody, isDescending) => {
+      Array.from(tbody.rows)
+        .sort((leftRow, rightRow) => {
+          const sortResult = getRowTimestamp(leftRow) - getRowTimestamp(rightRow);
+          return isDescending ? -sortResult : sortResult;
+        })
+        .forEach((row) => tbody.appendChild(row));
+    };
+
+    const getBoundaryTimestamp = (tbody, isDescending) => {
+      const timestamps = Array.from(tbody.rows).map(getRowTimestamp);
+      return isDescending
+        ? Math.max(...timestamps)
+        : Math.min(...timestamps);
+    };
+
+    const setSortState = (activeButton) => {
+      [nameSortButton, dateSortButton].forEach((button) => {
+        if (!button) {
+          return;
+        }
+
+        button.setAttribute("aria-pressed", String(button === activeButton));
+      });
+    };
+
+    const sortTableBodiesByName = () => {
+      const tableBodies = getTableBodies();
+      tableBodies
+        .sort((leftBody, rightBody) => {
+          const leftName = getCodelistName(leftBody);
+          const rightName = getCodelistName(rightBody);
+          const sortResult = leftName.localeCompare(rightName, undefined, {
+            sensitivity: "base",
+          });
+          return isNameDescending ? -sortResult : sortResult;
+        })
+        .forEach((tbody) => codelistsTable.appendChild(tbody));
+    };
+
+    const sortTableBodiesByDate = () => {
+      const tableBodies = getTableBodies();
+
+      tableBodies.forEach((tbody) => sortRowsByDate(tbody, isDateDescending));
+
+      tableBodies
+        .sort((leftBody, rightBody) => {
+          const sortResult =
+            getBoundaryTimestamp(leftBody, isDateDescending) -
+          getBoundaryTimestamp(rightBody, isDateDescending);
+
+          if (sortResult !== 0) {
+            return isDateDescending ? -sortResult : sortResult;
+          }
+
+          return getCodelistName(leftBody).localeCompare(getCodelistName(rightBody), undefined, {
+            sensitivity: "base",
+          });
+        })
+        .forEach((tbody) => codelistsTable.appendChild(tbody));
+    };
+
+    if (nameSortButton) {
+      nameSortButton.addEventListener("click", () => {
+        isNameDescending = !isNameDescending;
+        setSortState(nameSortButton);
+        sortTableBodiesByName();
+      });
+    }
+
+    if (dateSortButton) {
+      dateSortButton.addEventListener("click", () => {
+        isDateDescending = !isDateDescending;
+        setSortState(dateSortButton);
+        sortTableBodiesByDate();
+      });
+    }
+  </script>
 {% endblock %}

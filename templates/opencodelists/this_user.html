@@ -1,22 +1,109 @@
-{% extends 'base.html' %}
+{% extends 'base-tw.html' %}
 
 {% load crispy_forms_tags %}
 
-{% block title_extra %}: {{ user.name }}{% endblock %}
+{% block title_extra %}{{ user.name }}{% endblock %}
 
 {% block content %}
-  <br />
-  <h3>Hello, {{ user.name }}</h3>
-  <br />
+  <header class="grid gap-y-4 mb-4 mt-6 py-4 border-b border-b-slate-300">
+    <h1 class="text-2xl max-w-prose tracking-tight wrap-break-word md:text-4xl font-bold text-slate-900">
+      Hello, {{ user.name }}
+    </h1>
 
-  <div>
-    <a href="{% url 'user-create-codelist' user.username %}" class="btn btn-primary">
-      Create a codelist!
+    <a href="{% url 'user-create-codelist' user.username %}" class="flex w-fit justify-center cursor-pointer rounded-md bg-green-700 px-5 py-3 text-base/tight font-semibold text-white shadow-xs transition-colors hover:bg-green-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700">
+      Create a codelist &rarr;
     </a>
-  </div>
-  <br />
+  </header>
+{% endblock %}
 
-  {% if all_codelists %}
-    {% include "opencodelists/_codelist_links.html" with codelists=all_codelists show_unpublished=True %}
-  {% endif %}
+{% block full_width_content %}
+  <div class="mb-12 mx-6 grid gap-y-3">
+    <h2 class="text-xl max-w-prose tracking-tight wrap-break-word md:text-2xl font-bold text-slate-900">Your codelists</h2>
+
+    <div class="overflow-x-auto mb-12 bg-white shadow-sm rounded-sm text-slate-800">
+      <table class="min-w-full text-left relative divide-y divide-slate-300 [&_tbody_td]:transition-colors [&_tbody_tr:hover>td]:bg-yellow-50 [&_tbody_tr[data-has-versions]:has(~tr[data-has-versions]:hover):not(:has(~tr[data-start-version]~tr[data-has-versions]:hover))>td:nth-child(-n+3)]:bg-yellow-50">
+        <thead class="align-bottom">
+          <tr>
+            <th class="pt-2 pb-1 px-2" rowspan="2">Name</th>
+            <th class="pt-2 pb-1 px-2" rowspan="2">Owner</th>
+            <th class="pt-2 pb-1 px-2" rowspan="2">Coding system</th>
+            <th class="pt-2 pb-1 px-2" colspan="4">Versions</th>
+          </tr>
+          <tr>
+            <th class="pb-1 px-2">Version ID</th>
+            <th class="pb-1 px-2">Status</th>
+            <th class="pb-1 px-2">Number of codes</th>
+            <th class="pb-1 px-2">Last updated</th>
+          </tr>
+        </thead>
+        <tbody class="">
+          {% for item in all_codelists %}
+            {% if item.versions|length == 1 %}
+              {% with version=item.versions.0 %}
+                <tr class="border-b border-b-slate-200">
+                  <td class="py-1 px-2">{{ item.codelist.name }}</td>
+                  <td class="py-1 px-2">{{ item.codelist.owner }}</td>
+                  <td class="py-1 px-2">{{ item.codelist.coding_system_short_name }}</td>
+                  <td class="py-1 px-2">
+                    <a class="link" href="{{ version.get_absolute_url }}">
+                      {{ version.tag_or_hash }}
+                    </a>
+                  </td>
+                  <td class="py-1 px-2">
+                    {% if version.is_under_review %}
+                      <span class="inline-flex rounded-full px-2 text-sm/tight font-semibold border bg-blue-200 text-blue-900 border-blue-200">Under review</span>
+                    {% elif version.is_draft %}
+                      <span class="inline-flex rounded-full px-2 text-sm/tight font-semibold border bg-white text-slate-600 border-slate-200">Draft</span>
+                    {% elif version.is_published %}
+                      <span class="inline-flex rounded-full px-2 text-sm/tight font-semibold border bg-green-200 text-green-900 border-green-200">Published</span>
+                    {% endif %}
+                  </td>
+                  <td class="py-1 px-2">{{ version.codes|length }} code{{ version.codes|pluralize}}</td>
+                  <td class="py-1 px-2">
+                    <time datetime="{{ version.updated_at|date:"c" }}">
+                      {{ version.updated_at|date:'d M Y' }} at {{ version.updated_at|date:'H:i' }}
+                    </time>
+                  </td>
+                </tr>
+              {% endwith %}
+            {% else %}
+              {% for version in item.versions %}
+                <tr data-has-versions="true" {% if forloop.first %} data-start-version="true" {% endif %} class="align-top {% if forloop.last %}border-b border-b-slate-200 {% endif %}">
+                  <td class="py-1 px-2">
+                    <span class="{% if not forloop.first %}sr-only{% endif %}">{{ item.codelist.name }}</span>
+                  </td>
+                  <td class="py-1 px-2">
+                    <span class="{% if not forloop.first %}sr-only{% endif %}">{{ item.codelist.owner }}</span>
+                  </td>
+                  <td class="py-1 px-2">
+                    <span class="{% if not forloop.first %}sr-only{% endif %}">{{ item.codelist.coding_system_short_name }}</span>
+                  </td>
+                  <td class="py-1 px-2">
+                    <a class="link" href="{{ version.get_absolute_url }}">
+                      {{ version.tag_or_hash }}
+                    </a>
+                  </td>
+                  <td class="py-1 px-2">
+                    {% if version.is_under_review %}
+                      <span class="inline-flex rounded-full px-2 text-sm/tight font-semibold border bg-blue-200 text-blue-900 border-blue-200">Under review</span>
+                    {% elif version.is_draft %}
+                      <span class="inline-flex rounded-full px-2 text-sm/tight font-semibold border bg-white text-slate-600 border-slate-200">Draft</span>
+                    {% elif version.is_published %}
+                      <span class="inline-flex rounded-full px-2 text-sm/tight font-semibold border bg-green-200 text-green-900 border-green-200">Published</span>
+                    {% endif %}
+                  </td>
+                  <td class="py-1 px-2">{{ version.codes|length }} code{{ version.codes|pluralize}}</td>
+                  <td class="py-1 px-2">
+                    <time datetime="{{ version.updated_at|date:"c" }}">
+                      {{ version.updated_at|date:'d M Y' }} at {{ version.updated_at|date:'H:i' }}
+                    </time>
+                  </td>
+                </tr>
+              {% endfor %}
+            {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
 {% endblock %}

@@ -5,6 +5,14 @@ from codelists.models import Status
 from ..models import User
 
 
+def all_codelists_sort_key(codelist):
+    return (
+        codelist.name.casefold(),
+        str(codelist.owner).casefold(),
+        codelist.coding_system_short_name.casefold(),
+    )
+
+
 def user(request, username):
     user = get_object_or_404(User, username=username)
 
@@ -38,11 +46,8 @@ def user(request, username):
                 else []
             ),
         }
-        for codelist in sorted(
-            codelists_to_display, key=lambda x: (x.owner != user, str(x.owner), x.name)
-        )
-        # We sort first by owner, then by name - but making sure that the current user's
-        # codelists always come first
+        for codelist in sorted(codelists_to_display, key=all_codelists_sort_key)
+        # We sort by codelist name, then owner, then coding system, case-insensitively.
         # We can't use a queryset order_by (where versions_under_review/drafts are querysets of CodelistVersion
         # instances), as a codelist can have multiple versions and multiple handles, and this results in duplicates
         # in the returned queryset. See https://code.djangoproject.com/ticket/18165

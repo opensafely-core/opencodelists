@@ -3,7 +3,12 @@ from datetime import datetime
 from django.urls import reverse
 
 from builder.actions import save as save_for_review
-from codelists.actions import publish_version, update_codelist
+from codelists.actions import (
+    create_codelist_from_scratch,
+    publish_version,
+    update_codelist,
+)
+from codelists.coding_systems import most_recent_database_alias
 from opencodelists.actions import add_user_to_organisation
 
 
@@ -63,15 +68,19 @@ def test_user_codelists(
         if version.is_under_review
     ]
 
-    assert [
-        version.id
-        for codelist in response.context["all_codelists"]
-        for version in codelist["versions"]
-        if version.is_draft
-    ] == [
-        codelist.versions.first().id,
-        organisation_codelist.versions.first().id,
-    ]
+    assert sorted(
+        [
+            version.id
+            for codelist in response.context["all_codelists"]
+            for version in codelist["versions"]
+            if version.is_draft
+        ]
+    ) == sorted(
+        [
+            codelist.versions.first().id,
+            organisation_codelist.versions.first().id,
+        ]
+    )
 
     # make org codelist under-review
     save_for_review(draft=organisation_codelist.versions.first())
@@ -135,12 +144,87 @@ def test_user_codelists(
         for version in cl["versions"]
         if not version.organisation
     ]
-    assert [
-        version.id
-        for cl in response.context["all_codelists"]
-        for version in cl["versions"]
-        if version.organisation
-    ] == [
-        org_codelist_version_id,
-        user_codelist_version_id,
+    assert sorted(
+        [
+            version.id
+            for cl in response.context["all_codelists"]
+            for version in cl["versions"]
+            if version.organisation
+        ]
+    ) == sorted(
+        [
+            org_codelist_version_id,
+            user_codelist_version_id,
+        ]
+    )
+
+
+def test_all_codelists_sorted_case_insensitively_by_name_owner_then_coding_system(
+    client,
+    organisation,
+    user_without_organisation,
+):
+    test_user = user_without_organisation
+    client.force_login(test_user)
+
+    user_alpha_dmd = create_codelist_from_scratch(
+        owner=test_user,
+        author=test_user,
+        name="alpha",
+        slug="alpha-user-dmd",
+        coding_system_id="dmd",
+        coding_system_database_alias=most_recent_database_alias("dmd"),
+    )
+    org_alpha_snomed = create_codelist_from_scratch(
+        owner=organisation,
+        author=test_user,
+        name="Alpha",
+        slug="alpha-org-snomed",
+        coding_system_id="snomedct",
+        coding_system_database_alias=most_recent_database_alias("snomedct"),
+    )
+    user_alpha_snomed = create_codelist_from_scratch(
+        owner=test_user,
+        author=test_user,
+        name="ALPHA",
+        slug="alpha-user-snomed",
+        coding_system_id="snomedct",
+        coding_system_database_alias=most_recent_database_alias("snomedct"),
+    )
+    user_beta_snomed = create_codelist_from_scratch(
+        owner=test_user,
+        author=test_user,
+        name="beta",
+        slug="beta-user-snomed",
+        coding_system_id="snomedct",
+        coding_system_database_alias=most_recent_database_alias("snomedct"),
+    )
+
+    response = client.get(reverse("user", args=(test_user.username,)))
+
+    actual = [
+        (
+            codelist["codelist"].name,
+            str(codelist["codelist"].owner),
+            codelist["codelist"].coding_system_short_name,
+        )
+        for codelist in response.context["all_codelists"]
     ]
+    expected = [
+        (codelist.name, str(codelist.owner), codelist.coding_system_short_name)
+        for codelist in sorted(
+            [
+                user_alpha_dmd,
+                org_alpha_snomed,
+                user_alpha_snomed,
+                user_beta_snomed,
+            ],
+            key=lambda codelist: (
+                codelist.name.casefold(),
+                str(codelist.owner).casefold(),
+                codelist.coding_system_short_name.casefold(),
+            ),
+        )
+    ]
+
+    assert actual == expected

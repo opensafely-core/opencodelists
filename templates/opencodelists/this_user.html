@@ -17,93 +17,173 @@
 {% endblock %}
 
 {% block full_width_content %}
-  <div class="mb-12 mx-6 grid gap-y-3">
-    <h2 class="text-xl max-w-prose tracking-tight wrap-break-word md:text-2xl font-bold text-slate-900">Your codelists</h2>
-
-    <div class="overflow-x-auto mb-12 bg-white shadow-sm rounded-sm text-slate-800">
-      <table class="min-w-full text-left relative divide-y divide-slate-300 [&_tbody_td]:transition-colors [&_tbody_tr:hover>td]:bg-yellow-50 [&_tbody_tr[data-has-versions]:has(~tr[data-has-versions]:hover):not(:has(~tr[data-start-version]~tr[data-has-versions]:hover))>td:nth-child(-n+3)]:bg-yellow-50">
-        <thead class="align-bottom">
-          <tr>
-            <th class="pt-2 pb-1 px-2" rowspan="2">Name</th>
-            <th class="pt-2 pb-1 px-2" rowspan="2">Owner</th>
-            <th class="pt-2 pb-1 px-2" rowspan="2">Coding system</th>
-            <th class="pt-2 pb-1 px-2" colspan="4">Versions</th>
-          </tr>
-          <tr>
-            <th class="pb-1 px-2">Version ID</th>
-            <th class="pb-1 px-2">Status</th>
-            <th class="pb-1 px-2">Number of codes</th>
-            <th class="pb-1 px-2">Last updated</th>
-          </tr>
-        </thead>
-        <tbody class="">
-          {% for item in all_codelists %}
-            {% if item.versions|length == 1 %}
-              {% with version=item.versions.0 %}
-                <tr class="border-b border-b-slate-200">
-                  <td class="py-1 px-2">{{ item.codelist.name }}</td>
-                  <td class="py-1 px-2">{{ item.codelist.owner }}</td>
-                  <td class="py-1 px-2">{{ item.codelist.coding_system_short_name }}</td>
-                  <td class="py-1 px-2">
-                    <a class="link" href="{{ version.get_absolute_url }}">
-                      {{ version.tag_or_hash }}
-                    </a>
-                  </td>
-                  <td class="py-1 px-2">
-                    {% if version.is_under_review %}
-                      <span class="inline-flex rounded-full px-2 text-sm/tight font-semibold border bg-blue-200 text-blue-900 border-blue-200">Under review</span>
-                    {% elif version.is_draft %}
-                      <span class="inline-flex rounded-full px-2 text-sm/tight font-semibold border bg-white text-slate-600 border-slate-200">Draft</span>
-                    {% elif version.is_published %}
-                      <span class="inline-flex rounded-full px-2 text-sm/tight font-semibold border bg-green-200 text-green-900 border-green-200">Published</span>
-                    {% endif %}
-                  </td>
-                  <td class="py-1 px-2">{{ version.codes|length }} code{{ version.codes|pluralize}}</td>
-                  <td class="py-1 px-2">
-                    <time datetime="{{ version.updated_at|date:"c" }}">
-                      {{ version.updated_at|date:'d M Y' }} at {{ version.updated_at|date:'H:i' }}
-                    </time>
-                  </td>
+  <div class="px-4 sm:px-6 lg:px-8 pt-6 pb-24">
+    <h2 class="text-2xl/tight font-bold text-slate-900">Your codelists</h2>
+    <p class="mt-2 text-base/snug text-slate-700">A list of all the the codelists you have access to edit, update, and publish.</p>
+    <div class="mt-8 flow-root">
+      <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+        <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+          <div class="overflow-hidden shadow-sm outline-1 outline-black/5 sm:rounded-lg dark:shadow-none dark:-outline-offset-1 dark:outline-white/10">
+            <table class="relative min-w-full divide-y divide-slate-300">
+              <thead class="bg-slate-50 text-left text-sm font-semibold text-slate-900">
+                <tr class="align-bottom">
+                  <th class="py-3.5 pr-3 pl-4 whitespace-nowrap sm:pl-6" rowspan="2">
+                    <div class="inline-flex gap-x-1">
+                      Name
+                      <span class="ml-2 flex-none rounded-sm bg-gray-200 text-gray-900 group-hover:bg-gray-300">
+                        <svg viewBox="0 0 20 20" fill="currentColor" data-slot="icon" aria-hidden="true" class="size-5">
+                          <path d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" fill-rule="evenodd" />
+                        </svg>
+                      </span>
+                    </div>
+                  </th>
+                  <th class="px-3 py-3.5 whitespace-nowrap" rowspan="2">Owner</th>
+                  <th class="px-3 py-3.5 whitespace-nowrap" rowspan="2">Coding system</th>
+                  <th class="sr-only" colspan="4">Versions</th>
                 </tr>
-              {% endwith %}
-            {% else %}
-              {% for version in item.versions %}
-                <tr data-has-versions="true" {% if forloop.first %} data-start-version="true" {% endif %} class="align-top {% if forloop.last %}border-b border-b-slate-200 {% endif %}">
-                  <td class="py-1 px-2">
-                    <span class="{% if not forloop.first %}sr-only{% endif %}">{{ item.codelist.name }}</span>
-                  </td>
-                  <td class="py-1 px-2">
-                    <span class="{% if not forloop.first %}sr-only{% endif %}">{{ item.codelist.owner }}</span>
-                  </td>
-                  <td class="py-1 px-2">
-                    <span class="{% if not forloop.first %}sr-only{% endif %}">{{ item.codelist.coding_system_short_name }}</span>
-                  </td>
-                  <td class="py-1 px-2">
-                    <a class="link" href="{{ version.get_absolute_url }}">
-                      {{ version.tag_or_hash }}
-                    </a>
-                  </td>
-                  <td class="py-1 px-2">
-                    {% if version.is_under_review %}
-                      <span class="inline-flex rounded-full px-2 text-sm/tight font-semibold border bg-blue-200 text-blue-900 border-blue-200">Under review</span>
-                    {% elif version.is_draft %}
-                      <span class="inline-flex rounded-full px-2 text-sm/tight font-semibold border bg-white text-slate-600 border-slate-200">Draft</span>
-                    {% elif version.is_published %}
-                      <span class="inline-flex rounded-full px-2 text-sm/tight font-semibold border bg-green-200 text-green-900 border-green-200">Published</span>
-                    {% endif %}
-                  </td>
-                  <td class="py-1 px-2">{{ version.codes|length }} code{{ version.codes|pluralize}}</td>
-                  <td class="py-1 px-2">
-                    <time datetime="{{ version.updated_at|date:"c" }}">
-                      {{ version.updated_at|date:'d M Y' }} at {{ version.updated_at|date:'H:i' }}
-                    </time>
-                  </td>
+                <tr class="">
+                  <th class="px-3 py-3.5 whitespace-nowrap">Version ID</th>
+                  <th class="px-3 py-3.5 whitespace-nowrap">Status</th>
+                  <th class="px-3 py-3.5 whitespace-nowrap">Number of codes</th>
+                  <th class="px-3 py-3.5 whitespace-nowrap pl-3 sm:pr-3">Last updated</th>
                 </tr>
-              {% endfor %}
-            {% endif %}
-          {% endfor %}
-        </tbody>
-      </table>
+              </thead>
+              <tbody class="divide-y divide-slate-200 bg-white">
+                {% for item in all_codelists %}
+                  {% if item.versions|length == 1 %}
+                    {% with version=item.versions.0 %}
+                      <tr class="text-sm text-slate-900 hover:bg-yellow-50">
+                        <td class="py-4 pr-3 pl-4 text-base/snug font-semibold sm:pl-6">{{ item.codelist.name }}</td>
+                        <td class="px-3 py-4">{{ item.codelist.owner }}</td>
+                        <td class="px-3 py-4 whitespace-nowrap">{{ item.codelist.coding_system_short_name }}</td>
+                        <td class="px-3 py-4">
+                          <a class="link whitespace-nowrap" href="{{ version.get_absolute_url }}">
+                            {{ version.tag_or_hash }}
+                          </a>
+                        </td>
+                        <td class="px-3 py-4">
+                          {% if version.is_under_review %}
+                            <span class="inline-flex rounded-full px-2 py-0.5 text-sm/tight font-semibold border bg-blue-200 text-blue-900 border-blue-200 whitespace-nowrap">Under review</span>
+                          {% elif version.is_draft %}
+                            <span class="inline-flex rounded-full px-2 py-0.5 text-sm/tight font-semibold border bg-white text-slate-600 border-slate-200 whitespace-nowrap">Draft</span>
+                          {% elif version.is_published %}
+                            <span class="inline-flex rounded-full px-2 py-0.5 text-sm/tight font-semibold border bg-green-200 text-green-900 border-green-200 whitespace-nowrap">Published</span>
+                          {% endif %}
+                        </td>
+                        <td class="px-3 py-4 whitespace-nowrap">{{ version.codes|length }} code{{ version.codes|pluralize}}</td>
+                        <td class="px-3 py-4 pl-3 sm:pr-3">
+                          <time class="whitespace-nowrap" datetime="{{ version.updated_at|date:"c" }}">
+                            {{ version.updated_at|date:'d M Y' }} at {{ version.updated_at|date:'H:i' }}
+                          </time>
+                        </td>
+                      </tr>
+                    {% endwith %}
+                  {% else %}
+                    {% for version in item.versions %}
+                      <tr
+                        class="text-sm text-slate-900 {% if not forloop.last %}border-b-transparent{% endif %}"
+                        {% if forloop.first %}
+                          data-version="first"
+                        {% elif forloop.last %}
+                          data-version="last"
+                        {% else %}
+                          data-version="middle"
+                        {% endif %}
+                      >
+                        <td class="py-2 pr-3 pl-4 font-semibold sm:pl-6">
+                          <span class="{% if not forloop.first %}sr-only{% endif %}">{{ item.codelist.name }}</span>
+                        </td>
+                        <td class="px-3 py-2 min-w-[20ch]">
+                          <span class="{% if not forloop.first %}sr-only{% endif %}">{{ item.codelist.owner }}</span>
+                        </td>
+                        <td class="px-3 py-2 whitespace-nowrap">
+                          <span class="{% if not forloop.first %}sr-only{% endif %}">{{ item.codelist.coding_system_short_name }}</span>
+                        </td>
+                        <td class="px-3 py-2">
+                          <a class="link whitespace-nowrap" href="{{ version.get_absolute_url }}">
+                            {{ version.tag_or_hash }}
+                          </a>
+                        </td>
+                        <td class="px-3 py-2">
+                          {% if version.is_under_review %}
+                            <span class="inline-flex rounded-full px-2 py-0.5 text-sm/tight font-semibold border bg-blue-200 text-blue-900 border-blue-200 whitespace-nowrap">Under review</span>
+                          {% elif version.is_draft %}
+                            <span class="inline-flex rounded-full px-2 py-0.5 text-sm/tight font-semibold border bg-white text-slate-600 border-slate-200 whitespace-nowrap">Draft</span>
+                          {% elif version.is_published %}
+                            <span class="inline-flex rounded-full px-2 py-0.5 text-sm/tight font-semibold border bg-green-200 text-green-900 border-green-200 whitespace-nowrap">Published</span>
+                          {% endif %}
+                        </td>
+                        <td class="px-3 py-2 whitespace-nowrap">{{ version.codes|length }} code{{ version.codes|pluralize}}</td>
+                        <td class="px-3 py-2 pl-3 sm:pr-3">
+                          <time class="whitespace-nowrap" datetime="{{ version.updated_at|date:"c" }}">
+                            {{ version.updated_at|date:'d M Y' }} at {{ version.updated_at|date:'H:i' }}
+                          </time>
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  {% endif %}
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
+{% endblock %}
+
+{% block extra_js %}
+  <script nonce="{{ request.csp_nonce }}">
+    const versionRows = Array.from(document.querySelectorAll("tr[data-version]"));
+    const rowGroups = new Map();
+    let currentGroup = [];
+
+    versionRows.forEach((row) => {
+      if (row.dataset.version === "first" || currentGroup.length === 0) {
+        currentGroup = [];
+      }
+
+      currentGroup.push(row);
+
+      if (row.dataset.version === "last") {
+        const completedGroup = [...currentGroup];
+        completedGroup.forEach((groupRow) => rowGroups.set(groupRow, completedGroup));
+        currentGroup = [];
+      }
+    });
+
+    const toggleGroupHighlight = (groupRows, isHighlighted) => {
+      groupRows.forEach((row) => {
+        row.querySelectorAll("td").forEach((cell) => {
+          cell.classList.toggle("bg-yellow-50", isHighlighted);
+        });
+      });
+    };
+
+    const getGroupForRelatedTarget = (relatedTarget) => {
+      if (!(relatedTarget instanceof Element)) {
+        return null;
+      }
+
+      const relatedRow = relatedTarget.closest("tr[data-version]");
+      return relatedRow ? rowGroups.get(relatedRow) : null;
+    };
+
+    rowGroups.forEach((groupRows, row) => {
+      row.addEventListener("mouseenter", () => toggleGroupHighlight(groupRows, true));
+      row.addEventListener("focusin", () => toggleGroupHighlight(groupRows, true));
+
+      row.addEventListener("mouseleave", (event) => {
+        if (getGroupForRelatedTarget(event.relatedTarget) !== groupRows) {
+          toggleGroupHighlight(groupRows, false);
+        }
+      });
+
+      row.addEventListener("focusout", (event) => {
+        if (getGroupForRelatedTarget(event.relatedTarget) !== groupRows) {
+          toggleGroupHighlight(groupRows, false);
+        }
+      });
+    });
+  </script>
 {% endblock %}

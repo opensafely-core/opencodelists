@@ -21,6 +21,16 @@
     <div class="container">
       <h2 class="text-2xl/tight font-bold text-slate-900">Your codelists</h2>
       <p class="mt-2 text-base/snug text-slate-700">A list of all the the codelists you have access to edit, update, and publish.</p>
+      <div class="mt-6 max-w-xl">
+        <label class="sr-only" for="codelist-search">Search codelists</label>
+        <input
+          id="codelist-search"
+          type="search"
+          placeholder="Search by name, owner, or coding system"
+          aria-label="Search codelists"
+          class="block w-full rounded-md border border-slate-300 bg-white px-4 py-3 text-base text-slate-900 placeholder:text-slate-400 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"
+        >
+      </div>
     </div>
     <div class="mt-8 flow-root">
       <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
@@ -190,6 +200,7 @@
 
 {% block extra_js %}
   <script nonce="{{ request.csp_nonce }}">
+    const searchInput = document.getElementById("codelist-search");
     const nameSortButton = document.getElementById("sort-codelists-by-name");
     const dateSortButton = document.getElementById("sort-codelists-by-date");
     const nameSortIcon = nameSortButton?.querySelector('[data-sort-icon="direction"]');
@@ -205,6 +216,22 @@
     const getCodelistName = (tbody) => {
       const nameCell = tbody.querySelector("tr td");
       return nameCell ? nameCell.textContent.trim() : "";
+    };
+
+    const getCodelistFilterText = (tbody) => {
+      const cells = tbody.querySelector("tr")?.cells;
+
+      if (!cells || cells.length < 3) {
+        return "";
+      }
+
+      return [
+        cells[0].textContent.trim(),
+        cells[1].textContent.trim(),
+        cells[2].textContent.trim(),
+      ]
+        .join(" ")
+        .toLowerCase();
     };
 
     const getTableBodies = () => {
@@ -295,6 +322,15 @@
       highlightSortedColumn(activeButton === nameSortButton ? "name" : "date");
     };
 
+    const applyFilter = () => {
+      const query = searchInput?.value.trim().toLowerCase() || "";
+
+      getTableBodies().forEach((tbody) => {
+        const matches = query === "" || getCodelistFilterText(tbody).includes(query);
+        tbody.classList.toggle("hidden", !matches);
+      });
+    };
+
     const sortTableBodiesByName = () => {
       const tableBodies = getTableBodies();
       tableBodies.forEach((tbody) => sortRowsByDate(tbody, true));
@@ -338,6 +374,7 @@
         isNameDescending = !isNameDescending;
         setSortState(nameSortButton);
         sortTableBodiesByName();
+        applyFilter();
       });
     }
 
@@ -346,7 +383,10 @@
         isDateDescending = !isDateDescending;
         setSortState(dateSortButton);
         sortTableBodiesByDate();
+        applyFilter();
       });
     }
+
+    searchInput?.addEventListener("input", applyFilter);
   </script>
 {% endblock %}

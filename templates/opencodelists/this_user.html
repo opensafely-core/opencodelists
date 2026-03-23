@@ -5,7 +5,7 @@
 {% block title_extra %}{{ user.name }}{% endblock %}
 
 {% block content %}
-  <header class="grid gap-y-4 mb-4 mt-6 py-4 border-b border-b-slate-300">
+  <header class="grid gap-y-4 mb-4 mt-6 py-8 border-b border-b-slate-300">
     <h1 class="text-2xl max-w-prose tracking-tight wrap-break-word md:text-4xl font-bold text-slate-900">
       Hello, {{ user.name }}
     </h1>
@@ -18,8 +18,10 @@
 
 {% block full_width_content %}
   <div class="px-4 sm:px-6 lg:px-8 pt-6 pb-24">
-    <h2 class="text-2xl/tight font-bold text-slate-900">Your codelists</h2>
-    <p class="mt-2 text-base/snug text-slate-700">A list of all the the codelists you have access to edit, update, and publish.</p>
+    <div class="container">
+      <h2 class="text-2xl/tight font-bold text-slate-900">Your codelists</h2>
+      <p class="mt-2 text-base/snug text-slate-700">A list of all the the codelists you have access to edit, update, and publish.</p>
+    </div>
     <div class="mt-8 flow-root">
       <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
         <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
@@ -27,21 +29,41 @@
             <table class="relative min-w-full divide-y divide-slate-200">
               <thead class="bg-slate-100 text-left text-sm font-semibold text-slate-900 border-b-slate-300">
                 <tr class="align-bottom">
-                  <th class="py-3.5 pr-3 pl-4 whitespace-nowrap sm:pl-6" rowspan="2">
-                    <div class="inline-flex items-center gap-x-1">
-                      Name
-                      <button
-                        id="sort-codelists-by-name"
-                        type="button"
-                        aria-label="Sort codelists by name"
-                        aria-pressed="false"
-                        class="ml-2 flex-none cursor-pointer rounded-sm bg-gray-200 text-gray-900 transition-colors hover:bg-gray-300"
+                  <th id="name-column-heading" class="py-3.5 pr-3 pl-4 whitespace-nowrap sm:pl-6" rowspan="2">
+                    <button
+                      id="sort-codelists-by-name"
+                      type="button"
+                      aria-label="Sort codelists by name"
+                      aria-pressed="false"
+                      class="group inline-flex items-center gap-x-1 cursor-pointer rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400"
+                    >
+                      <span>Name</span>
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        aria-hidden="true"
+                        data-sort-icon="unsorted"
+                        class="size-5 text-gray-400"
                       >
-                        <svg viewBox="0 0 20 20" fill="currentColor" data-slot="icon" aria-hidden="true" class="size-5">
-                          <path d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" fill-rule="evenodd" />
-                        </svg>
-                      </button>
-                    </div>
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M3 7.5 7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5"
+                        />
+                      </svg>
+                      <svg
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        data-slot="icon"
+                        aria-hidden="true"
+                        data-sort-icon="direction"
+                        class="hidden size-5 rounded-sm transition-transform"
+                      >
+                        <path d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" fill-rule="evenodd" />
+                      </svg>
+                    </button>
                   </th>
                   <th class="px-3 py-3.5 whitespace-nowrap" rowspan="2">Owner</th>
                   <th class="px-3 py-3.5 whitespace-nowrap" rowspan="2">Coding system</th>
@@ -51,38 +73,58 @@
                   <th class="px-3 py-3.5 whitespace-nowrap">Version ID</th>
                   <th class="px-3 py-3.5 whitespace-nowrap">Status</th>
                   <th class="px-3 py-3.5 whitespace-nowrap">Number of codes</th>
-                  <th class="px-3 py-3.5 whitespace-nowrap pl-3 sm:pr-3">
-                    <div class="inline-flex items-center gap-x-1">
-                      Last updated
-                      <button
-                        id="sort-codelists-by-date"
-                        type="button"
-                        aria-label="Sort codelists by date"
-                        aria-pressed="false"
-                        class="ml-2 flex-none cursor-pointer rounded-sm bg-gray-200 text-gray-900 transition-colors hover:bg-gray-300"
+                  <th id="date-column-heading" class="px-3 py-3.5 whitespace-nowrap pl-3 sm:pr-3">
+                    <button
+                      id="sort-codelists-by-date"
+                      type="button"
+                      aria-label="Sort codelists by date"
+                      aria-pressed="false"
+                      class="group inline-flex items-center gap-x-1 cursor-pointer rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400"
+                    >
+                      <span>Last updated</span>
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        aria-hidden="true"
+                        data-sort-icon="unsorted"
+                        class="size-5 text-gray-400"
                       >
-                        <svg viewBox="0 0 20 20" fill="currentColor" data-slot="icon" aria-hidden="true" class="size-5">
-                          <path d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" fill-rule="evenodd" />
-                        </svg>
-                      </button>
-                    </div>
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M3 7.5 7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5"
+                        />
+                      </svg>
+                      <svg
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        data-slot="icon"
+                        aria-hidden="true"
+                        data-sort-icon="direction"
+                        class="hidden size-5 rounded-sm transition-transform"
+                      >
+                        <path d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" fill-rule="evenodd" />
+                      </svg>
+                    </button>
                   </th>
                 </tr>
               </thead>
               {% for item in all_codelists %}
                 {% if item.versions|length == 1 %}
-                  <tbody class="bg-white even:bg-slate-50 hover:bg-yellow-50">
+                  <tbody class="bg-white even:bg-slate-50 group">
                     {% with version=item.versions.0 %}
                       <tr class="text-sm text-slate-900">
-                        <td class="py-4 pr-3 pl-4 text-base/snug font-semibold sm:pl-6">{{ item.codelist.name }}</td>
-                        <td class="px-3 py-4">{{ item.codelist.owner }}</td>
-                        <td class="px-3 py-4 whitespace-nowrap">{{ item.codelist.coding_system_short_name }}</td>
-                        <td class="px-3 py-4">
+                        <td class="name-sort-column py-4 pr-3 group-hover:bg-yellow-50 pl-4 text-base/snug font-semibold sm:pl-6">{{ item.codelist.name }}</td>
+                        <td class="px-3 py-4 group-hover:bg-yellow-50">{{ item.codelist.owner }}</td>
+                        <td class="px-3 py-4 group-hover:bg-yellow-50 whitespace-nowrap">{{ item.codelist.coding_system_short_name }}</td>
+                        <td class="px-3 py-4 group-hover:bg-yellow-50">
                           <a class="link whitespace-nowrap" href="{{ version.get_absolute_url }}">
                             {{ version.tag_or_hash }}
                           </a>
                         </td>
-                        <td class="px-3">
+                        <td class="px-3 group-hover:bg-yellow-50">
                           {% if version.is_under_review %}
                             <span class="inline-flex rounded-full px-2 py-0.5 text-sm/tight font-semibold border bg-blue-200 text-blue-900 border-blue-200 whitespace-nowrap">Under review</span>
                           {% elif version.is_draft %}
@@ -91,8 +133,8 @@
                             <span class="inline-flex rounded-full px-2 py-0.5 text-sm/tight font-semibold border bg-green-200 text-green-900 border-green-200 whitespace-nowrap">Published</span>
                           {% endif %}
                         </td>
-                        <td class="px-3 py-4 whitespace-nowrap">{{ version.codes|length }} code{{ version.codes|pluralize}}</td>
-                        <td class="px-3 py-4 pl-3 sm:pr-3">
+                        <td class="px-3 py-4 group-hover:bg-yellow-50 whitespace-nowrap">{{ version.codes|length }} code{{ version.codes|pluralize}}</td>
+                        <td class="date-sort-column px-3 py-4 group-hover:bg-yellow-50 pl-3 sm:pr-3">
                           <time class="whitespace-nowrap" datetime="{{ version.updated_at|date:"c" }}">
                             {{ version.updated_at|date:'d M Y' }} at {{ version.updated_at|date:'H:i' }}
                           </time>
@@ -103,22 +145,22 @@
                 {% else %}
                   <tbody class="group bg-white even:bg-slate-50">
                     {% for version in item.versions %}
-                      <tr class="text-sm text-slate-900 group-hover:bg-yellow-50">
-                        <td class="py-2 pr-3 pl-4 font-semibold sm:pl-6 text-base/snug">
+                      <tr class="text-sm text-slate-900">
+                        <td class="name-sort-column py-2 pr-3 pl-4 font-semibold sm:pl-6 text-base/snug group-hover:bg-yellow-50">
                           <span class="{% if not forloop.first %}sr-only{% endif %}">{{ item.codelist.name }}</span>
                         </td>
-                        <td class="px-3 py-2 min-w-[20ch] ">
+                        <td class="px-3 py-2 min-w-[20ch] group-hover:bg-yellow-50">
                           <span class="{% if not forloop.first %}sr-only{% endif %}">{{ item.codelist.owner }}</span>
                         </td>
-                        <td class="px-3 py-2 whitespace-nowrap ">
+                        <td class="px-3 py-2 whitespace-nowrap group-hover:bg-yellow-50">
                           <span class="{% if not forloop.first %}sr-only{% endif %}">{{ item.codelist.coding_system_short_name }}</span>
                         </td>
-                        <td class="px-3 py-2 ">
+                        <td class="px-3 py-2 group-hover:bg-yellow-50">
                           <a class="link whitespace-nowrap" href="{{ version.get_absolute_url }}">
                             {{ version.tag_or_hash }}
                           </a>
                         </td>
-                        <td class="px-3">
+                        <td class="px-3 group-hover:bg-yellow-50">
                           {% if version.is_under_review %}
                             <span class="inline-flex rounded-full px-2 py-0.5 text-sm/tight font-semibold border bg-blue-200 text-blue-900 border-blue-200 whitespace-nowrap">Under review</span>
                           {% elif version.is_draft %}
@@ -127,8 +169,8 @@
                             <span class="inline-flex rounded-full px-2 py-0.5 text-sm/tight font-semibold border bg-green-200 text-green-900 border-green-200 whitespace-nowrap">Published</span>
                           {% endif %}
                         </td>
-                        <td class="px-3 py-2 whitespace-nowrap ">{{ version.codes|length }} code{{ version.codes|pluralize}}</td>
-                        <td class="px-3 py-2 pl-3  sm:pr-3">
+                        <td class="px-3 py-2 whitespace-nowrap group-hover:bg-yellow-50">{{ version.codes|length }} code{{ version.codes|pluralize}}</td>
+                        <td class="date-sort-column px-3 py-2 pl-3  sm:pr-3 group-hover:bg-yellow-50">
                           <time class="whitespace-nowrap" datetime="{{ version.updated_at|date:"c" }}">
                             {{ version.updated_at|date:'d M Y' }} at {{ version.updated_at|date:'H:i' }}
                           </time>
@@ -150,9 +192,15 @@
   <script nonce="{{ request.csp_nonce }}">
     const nameSortButton = document.getElementById("sort-codelists-by-name");
     const dateSortButton = document.getElementById("sort-codelists-by-date");
+    const nameSortIcon = nameSortButton?.querySelector('[data-sort-icon="direction"]');
+    const dateSortIcon = dateSortButton?.querySelector('[data-sort-icon="direction"]');
+    const nameUnsortedIcon = nameSortButton?.querySelector('[data-sort-icon="unsorted"]');
+    const dateUnsortedIcon = dateSortButton?.querySelector('[data-sort-icon="unsorted"]');
     const codelistsTable = nameSortButton?.closest("table");
     let isNameDescending = false;
     let isDateDescending = false;
+    const activeIconClasses = ["bg-gray-200", "text-gray-900", "group-hover:bg-gray-300"];
+    const sortedColumnClass = "bg-transparent";
 
     const getCodelistName = (tbody) => {
       const nameCell = tbody.querySelector("tr td");
@@ -188,6 +236,49 @@
         : Math.min(...timestamps);
     };
 
+    const updateSortIcon = (icon, isActive, isDescending) => {
+      if (!icon) {
+        return;
+      }
+
+      icon.classList.remove(...activeIconClasses, "rotate-180", "hidden");
+
+      if (isActive) {
+        icon.classList.add(...activeIconClasses);
+        if (!isDescending) {
+          icon.classList.add("rotate-180");
+        }
+      } else {
+        icon.classList.add("hidden");
+      }
+    };
+
+    const updateUnsortedIcon = (icon, shouldShow) => {
+      if (!icon) {
+        return;
+      }
+
+      icon.classList.toggle("hidden", !shouldShow);
+    };
+
+    const highlightSortedColumn = (columnName) => {
+      document.querySelectorAll(".name-sort-column, .date-sort-column").forEach((cell) => {
+        cell.classList.remove(sortedColumnClass);
+      });
+
+      if (columnName === "name") {
+        document.querySelectorAll(".name-sort-column").forEach((cell) => {
+          cell.classList.add(sortedColumnClass);
+        });
+      }
+
+      if (columnName === "date") {
+        document.querySelectorAll(".date-sort-column").forEach((cell) => {
+          cell.classList.add(sortedColumnClass);
+        });
+      }
+    };
+
     const setSortState = (activeButton) => {
       [nameSortButton, dateSortButton].forEach((button) => {
         if (!button) {
@@ -196,10 +287,18 @@
 
         button.setAttribute("aria-pressed", String(button === activeButton));
       });
+
+      updateSortIcon(nameSortIcon, activeButton === nameSortButton, isNameDescending);
+      updateSortIcon(dateSortIcon, activeButton === dateSortButton, isDateDescending);
+      updateUnsortedIcon(nameUnsortedIcon, activeButton !== nameSortButton);
+      updateUnsortedIcon(dateUnsortedIcon, activeButton !== dateSortButton);
+      highlightSortedColumn(activeButton === nameSortButton ? "name" : "date");
     };
 
     const sortTableBodiesByName = () => {
       const tableBodies = getTableBodies();
+      tableBodies.forEach((tbody) => sortRowsByDate(tbody, true));
+
       tableBodies
         .sort((leftBody, rightBody) => {
           const leftName = getCodelistName(leftBody);

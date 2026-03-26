@@ -43,3 +43,22 @@
     }
   }
 }
+
+@utility link {
+  color: var(--color-blue-800);
+  font-weight: 600;
+  text-decoration-line: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 2px;
+  transition-duration: 0.2s;
+  transition-property: color, text-decoration;
+  transition-timing-function: ease-in-out;
+
+  &:not(:is(:hover, :focus)) {
+    text-decoration-color: color-mix(in srgb, currentColor, transparent 75%);
+  }
+}
+
+.link {
+  @apply link;
+}

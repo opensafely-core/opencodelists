@@ -144,3 +144,89 @@ def test_user_codelists(
         org_codelist_version_id,
         user_codelist_version_id,
     ]
+
+
+def test_user_codelists_sort_user_first(
+    client,
+    user,
+    organisation,
+    codelist_from_scratch,
+    user_codelist_from_scratch,
+):
+    # Give both codelists the same name (case-insensitive), one user-owned and one org-owned
+    update_codelist(
+        codelist=user_codelist_from_scratch,
+        owner=user,
+        name="alpha list",
+        slug="alpha-list-user",
+        description=user_codelist_from_scratch.description,
+        methodology=user_codelist_from_scratch.methodology,
+        references={},
+        signoffs={},
+    )
+    update_codelist(
+        codelist=codelist_from_scratch,
+        owner=organisation,
+        name="ALPHA LIST",
+        slug="alpha-list-org",
+        description=codelist_from_scratch.description,
+        methodology=codelist_from_scratch.methodology,
+        references={},
+        signoffs={},
+    )
+
+    client.force_login(user)
+    response = client.get(reverse("user", args=(user.username,)))
+
+    matching_codelists = [
+        codelist["codelist"]
+        for codelist in response.context["all_codelists"]
+        if codelist["codelist"].name.casefold() == "alpha list"
+    ]
+    assert [codelist.owner for codelist in matching_codelists] == [user, organisation]
+
+
+def test_published_codelists_sorted_same_as_all_codelists(
+    client,
+    user,
+    user_codelist,
+    user_codelist_from_scratch,
+):
+    update_codelist(
+        codelist=user_codelist,
+        owner=user,
+        name="zeta list",
+        slug="zeta-list",
+        description=user_codelist.description,
+        methodology=user_codelist.methodology,
+        references={},
+        signoffs={},
+    )
+    update_codelist(
+        codelist=user_codelist_from_scratch,
+        owner=user,
+        name="ALPHA LIST",
+        slug="alpha-list",
+        description=user_codelist_from_scratch.description,
+        methodology=user_codelist_from_scratch.methodology,
+        references={},
+        signoffs={},
+    )
+    save_for_review(draft=user_codelist_from_scratch.versions.first())
+    publish_version(version=user_codelist_from_scratch.versions.last())
+
+    client.force_login(user)
+    response = client.get(reverse("user", args=(user.username,)))
+
+    codelist_ids = {user_codelist.id, user_codelist_from_scratch.id}
+    all_codelist_ids = [
+        codelist["codelist"].id
+        for codelist in response.context["all_codelists"]
+        if codelist["codelist"].id in codelist_ids
+    ]
+    published_codelist_ids = [
+        version.codelist.id
+        for version in response.context["published_codelists"]
+        if version.codelist.id in codelist_ids
+    ]
+    assert published_codelist_ids == all_codelist_ids

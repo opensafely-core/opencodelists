@@ -1,16 +1,34 @@
-{% extends 'base.html' %}
+{% extends 'base-tw.html' %}
 
-{% load crispy_forms_tags %}
-
-{% block title_extra %}: {{ user.name }}{% endblock %}
+{% block title_extra %}{{ user.name }}{% endblock %}
 
 {% block content %}
-  <br />
-  <h3>{{ user.name }}</h3>
-  <br />
-
-  {% if published_codelists %}
-    <h4>Codelists</h4>
-    {% include "opencodelists/_codelist_links.html" with codelists=published_codelists show_unpublished=False %}
-  {% endif %}
+  <header class="mb-4 mt-6 py-8 border-b border-b-slate-300">
+    <h1 class="text-2xl max-w-prose tracking-tight wrap-break-word md:text-4xl font-bold text-slate-900">
+      OpenCodelists User: {{ user.name }}
+    </h1>
+  </header>
 {% endblock %}
+
+{% block full_width_content %}
+  <section class="px-4 sm:px-6 lg:px-8 pt-6 pb-24">
+    <div class="container">
+      <h2 class="text-2xl/tight font-bold text-slate-900">Published codelists</h2>
+      <p class="mt-2 text-base/snug text-slate-700">All of the codelists published by {{ user.name }}</p>
+      {% comment %} <div class="mt-6 max-w-xl">
+        <label class="sr-only" for="codelist-search">Search codelists</label>
+        <input
+          aria-label="Search codelists"
+          class="block w-full rounded-md border border-slate-300 bg-white px-4 py-3 text-base text-slate-900 placeholder:text-slate-400 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"
+          id="codelist-search"
+          placeholder="Filter by name or coding system"
+          type="search"
+        >
+      </div> {% endcomment %}
+    </div>
+
+    {% if published_codelists %}
+      {% include "opencodelists/_codelist_links.html" with codelists=published_codelists show_unpublished=False %}
+    {% endif %}
+  </section>
+{% endblock full_width_content %}

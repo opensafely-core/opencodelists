@@ -1,22 +1,38 @@
-{% extends 'base.html' %}
+{% extends 'base-tw.html' %}
 
-{% load crispy_forms_tags %}
-
-{% block title_extra %}: {{ user.name }}{% endblock %}
+{% block title_extra %}{{ user.name }}{% endblock %}
 
 {% block content %}
-  <br />
-  <h3>Hello, {{ user.name }}</h3>
-  <br />
+  <header class="grid gap-y-4 mb-4 mt-6 py-8 border-b border-b-slate-300">
+    <h1 class="text-2xl max-w-prose tracking-tight wrap-break-word md:text-4xl font-bold text-slate-900">
+      Hello, {{ user.name }}
+    </h1>
 
-  <div>
-    <a href="{% url 'user-create-codelist' user.username %}" class="btn btn-primary">
-      Create a codelist!
+    <a href="{% url 'user-create-codelist' user.username %}" class="flex w-fit justify-center cursor-pointer rounded-md bg-green-700 px-5 py-3 text-base/tight font-semibold text-white shadow-xs transition-colors hover:bg-green-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700">
+      Create a codelist &rarr;
     </a>
-  </div>
-  <br />
-
-  {% if all_codelists %}
-    {% include "opencodelists/_codelist_links.html" with codelists=all_codelists show_unpublished=True %}
-  {% endif %}
+  </header>
 {% endblock %}
+
+{% block full_width_content %}
+  <section class="px-4 sm:px-6 lg:px-8 pt-6 pb-24">
+    <div class="container">
+      <h2 class="text-2xl/tight font-bold text-slate-900">Your codelists</h2>
+      <p class="mt-2 text-base/snug text-slate-700">Codelists you have access to edit, update, and publish.</p>
+      {% comment %} <div class="mt-6 max-w-xl">
+        <label class="sr-only" for="codelist-search">Search codelists</label>
+        <input
+          aria-label="Search codelists"
+          class="block w-full rounded-md border border-slate-300 bg-white px-4 py-3 text-base text-slate-900 placeholder:text-slate-400 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"
+          id="codelist-search"
+          placeholder="Filter by name, owner, or coding system"
+          type="search"
+        >
+      </div> {% endcomment %}
+    </div>
+
+    {% if all_codelists %}
+      {% include "opencodelists/_codelist_links.html" with codelists=all_codelists show_unpublished=True %}
+    {% endif %}
+  </section>
+{% endblock full_width_content %}

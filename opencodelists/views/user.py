@@ -8,6 +8,14 @@ from ..models import User
 def user(request, username):
     user = get_object_or_404(User, username=username)
 
+    def codelist_sort_key(codelist):
+        return (
+            codelist.name.casefold(),
+            codelist.owner != user,
+            str(codelist.owner).casefold(),
+            codelist.updated_at,
+        )
+
     # Find all of the codelists owned (in their current version) by this user with at least one published version.
     owned_codelists = user.codelists.filter(
         versions__status=Status.PUBLISHED
@@ -38,15 +46,7 @@ def user(request, username):
                 else []
             ),
         }
-        for codelist in sorted(
-            codelists_to_display,
-            key=lambda x: (
-                x.name.casefold(),
-                x.owner != user,
-                str(x.owner).casefold(),
-                x.updated_at,
-            ),
-        )
+        for codelist in sorted(codelists_to_display, key=codelist_sort_key)
         # We sort by name, then owner, then date (all case-insensitive where applicable),
         # while making sure the current user's codelists appear before organisation ones
         # when names are the same.
@@ -59,10 +59,8 @@ def user(request, username):
         "user": user,
         "published_codelists": [
             codelist.latest_published_version()
-            for codelist in owned_codelists.order_by("handles__name")
+            for codelist in sorted(owned_codelists, key=codelist_sort_key)
         ],
-        # note that name is a property on a codelist, not an attribute, and it comes from the current handle.
-        # If we want to order codelists or versions by codelist name, we actually need to order them by handle name.
         "all_codelists": all_codelists,
     }
 

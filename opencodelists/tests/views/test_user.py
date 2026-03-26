@@ -184,3 +184,49 @@ def test_user_codelists_case_insensitive_sort_with_user_first_for_same_name(
         if codelist["codelist"].name.casefold() == "alpha list"
     ]
     assert [codelist.owner for codelist in matching_codelists] == [user, organisation]
+
+
+def test_published_codelists_sorted_in_same_order_as_all_codelists(
+    client,
+    user,
+    user_codelist,
+    user_codelist_from_scratch,
+):
+    update_codelist(
+        codelist=user_codelist,
+        owner=user,
+        name="zeta list",
+        slug="zeta-list",
+        description=user_codelist.description,
+        methodology=user_codelist.methodology,
+        references={},
+        signoffs={},
+    )
+    update_codelist(
+        codelist=user_codelist_from_scratch,
+        owner=user,
+        name="ALPHA LIST",
+        slug="alpha-list",
+        description=user_codelist_from_scratch.description,
+        methodology=user_codelist_from_scratch.methodology,
+        references={},
+        signoffs={},
+    )
+    save_for_review(draft=user_codelist_from_scratch.versions.first())
+    publish_version(version=user_codelist_from_scratch.versions.last())
+
+    client.force_login(user)
+    response = client.get(reverse("user", args=(user.username,)))
+
+    codelist_ids = {user_codelist.id, user_codelist_from_scratch.id}
+    all_codelist_ids = [
+        codelist["codelist"].id
+        for codelist in response.context["all_codelists"]
+        if codelist["codelist"].id in codelist_ids
+    ]
+    published_codelist_ids = [
+        version.codelist.id
+        for version in response.context["published_codelists"]
+        if version.codelist.id in codelist_ids
+    ]
+    assert published_codelist_ids == all_codelist_ids

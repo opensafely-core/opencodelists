@@ -1,5 +1,7 @@
 {% extends 'base-tw.html' %}
 
+{% load django_vite %}
+
 {% block title_extra %}{{ user.name }}{% endblock %}
 
 {% block content %}
@@ -16,16 +18,16 @@
       {% if published_codelists %}
         <h2 class="text-2xl/tight font-bold text-slate-900">Published codelists</h2>
         <p class="mt-2 text-base/snug text-slate-700">All of the codelists published by {{ user.name }}</p>
-        {% comment %} <div class="mt-6 max-w-xl">
+        <div class="mt-6 max-w-xl">
           <label class="sr-only" for="codelist-search">Search codelists</label>
           <input
-            aria-label="Search codelists"
+            aria-label="Search for codelists published by {{ user.name }}"
             class="block w-full rounded-md border border-slate-300 bg-white px-4 py-3 text-base text-slate-900 placeholder:text-slate-400 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 focus:outline-none"
             id="codelist-search"
             placeholder="Filter by name or coding system"
             type="search"
           />
-        </div> {% endcomment %}
+        </div>
       {% else %}
         <p class="text-lg/snug text-slate-700">{{ user.name }} has not published any codelists.</p>
       {% endif %}
@@ -36,7 +38,7 @@
         <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
             <div class="overflow-hidden shadow-sm outline-1 outline-black/5 sm:rounded-lg dark:shadow-none dark:-outline-offset-1 dark:outline-white/10">
-              <table class="relative min-w-full divide-y divide-slate-200">
+              <table class="relative min-w-full divide-y divide-slate-200" id="published-codelists-table">
                 <thead class="border-b-slate-300 bg-slate-100 text-left text-sm font-semibold text-slate-900">
                   <tr>
                     <th class="px-3 py-3.5 pl-4 whitespace-nowrap sm:pl-6">Name</th>
@@ -47,7 +49,11 @@
                 </thead>
                 <tbody>
                   {% for item in published_codelists %}
-                    <tr class="bg-white align-top text-sm/relaxed text-slate-900 even:bg-slate-50 hover:bg-yellow-50">
+                    <tr
+                      class="bg-white align-top text-sm/relaxed text-slate-900 even:bg-slate-50 hover:bg-yellow-50"
+                      data-codelist-row
+                      data-search-text="{{ item.codelist.name|lower }} {{ item.codelist.coding_system_short_name|lower }}"
+                    >
                       <td class="px-3 py-2 pl-4 text-base/snug font-semibold sm:pl-6">
                         <a class="link" href="{{ item.get_absolute_url }}">
                           {{ item.codelist.name }}
@@ -71,3 +77,7 @@
     {% endif %}
   </section>
 {% endblock full_width_content %}
+
+{% block extra_js %}
+  {% vite_asset "assets/src/scripts/codelists-table.ts" %}
+{% endblock extra_js %}

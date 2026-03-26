@@ -69,8 +69,8 @@ def test_user_codelists(
         for version in codelist["versions"]
         if version.is_draft
     ] == [
-        codelist.versions.first().id,
         organisation_codelist.versions.first().id,
+        codelist.versions.first().id,
     ]
 
     # make org codelist under-review
@@ -144,3 +144,43 @@ def test_user_codelists(
         org_codelist_version_id,
         user_codelist_version_id,
     ]
+
+
+def test_user_codelists_case_insensitive_sort_with_user_first_for_same_name(
+    client,
+    user,
+    organisation,
+    codelist_from_scratch,
+    user_codelist_from_scratch,
+):
+    # Give both codelists the same name (case-insensitive), one user-owned and one org-owned.
+    update_codelist(
+        codelist=user_codelist_from_scratch,
+        owner=user,
+        name="alpha list",
+        slug="alpha-list-user",
+        description=user_codelist_from_scratch.description,
+        methodology=user_codelist_from_scratch.methodology,
+        references={},
+        signoffs={},
+    )
+    update_codelist(
+        codelist=codelist_from_scratch,
+        owner=organisation,
+        name="ALPHA LIST",
+        slug="alpha-list-organisation",
+        description=codelist_from_scratch.description,
+        methodology=codelist_from_scratch.methodology,
+        references={},
+        signoffs={},
+    )
+
+    client.force_login(user)
+    response = client.get(reverse("user", args=(user.username,)))
+
+    matching_codelists = [
+        codelist["codelist"]
+        for codelist in response.context["all_codelists"]
+        if codelist["codelist"].name.casefold() == "alpha list"
+    ]
+    assert [codelist.owner for codelist in matching_codelists] == [user, organisation]

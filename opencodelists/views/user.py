@@ -1,6 +1,8 @@
+from datetime import datetime
+
 from django.shortcuts import get_object_or_404, render
 
-from codelists.models import Status
+from codelists.models import Codelist, Status
 
 from ..models import User
 
@@ -8,7 +10,12 @@ from ..models import User
 def user(request, username):
     user = get_object_or_404(User, username=username)
 
-    def codelist_sort_key(codelist):
+    def codelist_sort_key(codelist: Codelist) -> tuple[str, bool, str, datetime]:
+        """
+        We sort by name, then owner, then date (all case-insensitive where applicable),
+        while making sure the current user's codelists appear before organisation ones
+        when names are the same.
+        """
         return (
             codelist.name.casefold(),
             codelist.owner != user,
@@ -47,10 +54,6 @@ def user(request, username):
             ),
         }
         for codelist in sorted(codelists_to_display, key=codelist_sort_key)
-        # We sort by name, then owner, then date (all case-insensitive where applicable),
-        # while making sure the current user's codelists appear before organisation ones
-        # when names are the same.
-        #
         # We can't use a queryset order_by (where versions_under_review/drafts are querysets of CodelistVersion
         # instances), as a codelist can have multiple versions and multiple handles, and this results in duplicates
         # in the returned queryset. See https://code.djangoproject.com/ticket/18165

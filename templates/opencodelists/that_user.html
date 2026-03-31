@@ -1,6 +1,7 @@
 {% extends 'base-tw.html' %}
 
 {% load django_vite %}
+{% load humanize %}
 
 {% block title_extra %}{{ user.name }}{% endblock %}
 
@@ -59,7 +60,7 @@
                         </a>
                       </td>
                       <td class="px-3 py-2 whitespace-nowrap" data-codelist-search-cell>{{ item.codelist.coding_system_short_name }}</td>
-                      <td class="px-3 py-2 whitespace-nowrap">{{ item.codes|length }} code{{ item.codes|pluralize }}</td>
+                      <td class="px-3 py-2 whitespace-nowrap">{{ item.codes|length|intcomma }} code{{ item.codes|pluralize }}</td>
                       <td class="px-3 py-2 pr-3 sm:pr-6">
                         <time class="whitespace-nowrap" datetime="{{ item.updated_at|date:"c" }}">
                           {{ item.updated_at|date:'d M Y' }}

@@ -1,16 +1,83 @@
-{% extends 'base.html' %}
+{% extends 'base-tw.html' %}
 
-{% load crispy_forms_tags %}
+{% load django_vite %}
 
-{% block title_extra %}: {{ user.name }}{% endblock %}
+{% block title_extra %}{{ user.name }}{% endblock %}
 
 {% block content %}
-  <br />
-  <h3>{{ user.name }}</h3>
-  <br />
-
-  {% if published_codelists %}
-    <h4>Codelists</h4>
-    {% include "opencodelists/_codelist_links.html" with codelists=published_codelists show_unpublished=False %}
-  {% endif %}
+  <header class="mb-8 border-b border-b-slate-300 py-8">
+    <h1 class="max-w-prose text-2xl font-bold tracking-tight wrap-break-word text-slate-900 md:text-4xl">
+      OpenCodelists User: {{ user.name }}
+    </h1>
+  </header>
 {% endblock %}
+
+{% block full_width_content %}
+  <section class="pb-24">
+    <div class="container">
+      {% if published_codelists %}
+        <h2 class="text-2xl/tight font-bold text-slate-900">Published codelists</h2>
+        <p class="mt-2 text-base/snug text-slate-700">All of the codelists published by {{ user.name }}</p>
+        {% comment %}
+        <div class="mt-6 max-w-xl grid gap-y-1">
+          <label class="font-bold w-fit cursor-pointer" for="codelist-search">Search codelists by name or coding system</label>
+          <input
+            aria-label="Search for codelists published by {{ user.name }}"
+            class="block w-full rounded-md border border-slate-300 bg-white px-4 py-3 text-base text-slate-900 placeholder:text-slate-600 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 focus:outline-none"
+            placeholder="Search for a codelist…"
+            type="search"
+          />
+        </div>
+        {% endcomment %}
+      {% else %}
+        <p class="text-lg/snug text-slate-700">{{ user.name }} has not published any codelists.</p>
+      {% endif %}
+    </div>
+
+    {% if published_codelists %}
+      <div class="mt-8 flow-root xl:mx-auto xl:max-w-384 px-4 xl:px-12">
+        <div class="-my-2 overflow-x-auto -mx-2">
+          <div class="inline-block min-w-full py-2 align-middle px-2">
+            <div class="overflow-hidden shadow-sm outline-1 outline-black/5 sm:rounded-lg dark:shadow-none dark:-outline-offset-1 dark:outline-white/10">
+              <table class="relative min-w-full divide-y divide-slate-200">
+                <thead class="border-b-slate-300 bg-slate-100 text-left text-sm font-semibold text-slate-900">
+                  <tr>
+                    <th class="px-3 py-3.5 pl-4 whitespace-nowrap sm:pl-6">Name</th>
+                    <th class="px-3 py-3.5 whitespace-nowrap">Coding system</th>
+                    <th class="px-3 py-3.5 whitespace-nowrap">Number of codes</th>
+                    <th class="px-3 py-3.5 pr-3 whitespace-nowrap sm:pr-6">Last updated</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for item in published_codelists %}
+                    <tr
+                      class="bg-white align-top text-sm/relaxed text-slate-900 even:bg-slate-50 hover:bg-yellow-50"
+                    >
+                      <td class="px-3 py-2 pl-4 text-base/snug font-semibold sm:pl-6">
+                        <a class="link" href="{{ item.get_absolute_url }}">
+                          {{ item.codelist.name }}
+                        </a>
+                      </td>
+                      <td class="px-3 py-2 whitespace-nowrap">{{ item.codelist.coding_system_short_name }}</td>
+                      <td class="px-3 py-2 whitespace-nowrap">{{ item.codes|length }} code{{ item.codes|pluralize }}</td>
+                      <td class="px-3 py-2 pr-3 sm:pr-6">
+                        <time class="whitespace-nowrap" datetime="{{ item.updated_at|date:"c" }}">
+                          {{ item.updated_at|date:'d M Y' }} at {{ item.updated_at|date:'H:i' }}
+                        </time>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                  <tr class="hidden bg-white text-slate-700">
+                    <td class="px-3 py-4 pl-4 text-base/snug sm:pl-6" colspan="4">
+                      No codelists found
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+  </section>
+{% endblock full_width_content %}

@@ -18,17 +18,17 @@
       {% if published_codelists %}
         <h2 class="text-2xl/tight font-bold text-slate-900">Published codelists</h2>
         <p class="mt-2 text-base/snug text-slate-700">All of the codelists published by {{ user.name }}</p>
-        {% comment %}
         <div class="mt-6 max-w-xl grid gap-y-1">
           <label class="font-bold w-fit cursor-pointer" for="codelist-search">Search codelists by name or coding system</label>
           <input
             aria-label="Search for codelists published by {{ user.name }}"
             class="block w-full rounded-md border border-slate-300 bg-white px-4 py-3 text-base text-slate-900 placeholder:text-slate-600 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 focus:outline-none"
+            data-codelist-search-input
+            id="codelist-search"
             placeholder="Search for a codelist…"
             type="search"
           />
         </div>
-        {% endcomment %}
       {% else %}
         <p class="text-lg/snug text-slate-700">{{ user.name }} has not published any codelists.</p>
       {% endif %}
@@ -39,7 +39,7 @@
         <div class="-my-2 overflow-x-auto -mx-2">
           <div class="inline-block min-w-full py-2 align-middle px-2">
             <div class="overflow-hidden shadow-sm outline-1 outline-black/5 sm:rounded-lg dark:shadow-none dark:-outline-offset-1 dark:outline-white/10">
-              <table class="relative min-w-full divide-y divide-slate-200">
+              <table class="relative min-w-full divide-y divide-slate-200" data-codelist-search-table>
                 <thead class="border-b-slate-300 bg-slate-100 text-left text-sm font-semibold text-slate-900">
                   <tr>
                     <th class="px-3 py-3.5 pl-4 whitespace-nowrap sm:pl-6">Name</th>
@@ -53,12 +53,12 @@
                     <tr
                       class="bg-white align-top text-sm/relaxed text-slate-900 even:bg-slate-50 hover:bg-yellow-50"
                     >
-                      <td class="px-3 py-2 pl-4 text-base/snug font-semibold sm:pl-6">
+                      <td class="px-3 py-2 pl-4 text-base/snug font-semibold sm:pl-6" data-codelist-search-cell>
                         <a class="link" href="{{ item.get_absolute_url }}">
                           {{ item.codelist.name }}
                         </a>
                       </td>
-                      <td class="px-3 py-2 whitespace-nowrap">{{ item.codelist.coding_system_short_name }}</td>
+                      <td class="px-3 py-2 whitespace-nowrap" data-codelist-search-cell>{{ item.codelist.coding_system_short_name }}</td>
                       <td class="px-3 py-2 whitespace-nowrap">{{ item.codes|length }} code{{ item.codes|pluralize }}</td>
                       <td class="px-3 py-2 pr-3 sm:pr-6">
                         <time class="whitespace-nowrap" datetime="{{ item.updated_at|date:"c" }}">
@@ -67,7 +67,7 @@
                       </td>
                     </tr>
                   {% endfor %}
-                  <tr class="hidden bg-white text-slate-700">
+                  <tr class="hidden bg-white text-slate-700" data-codelist-search-no-results>
                     <td class="px-3 py-4 pl-4 text-base/snug sm:pl-6" colspan="4">
                       No codelists found
                     </td>
@@ -81,3 +81,7 @@
     {% endif %}
   </section>
 {% endblock full_width_content %}
+
+{% block extra_js %}
+  {% vite_asset "assets/src/scripts/codelists-table.ts" %}
+{% endblock extra_js %}

@@ -785,9 +785,9 @@ six==1.17.0 \
     # via
     #   furl
     #   orderedmultidict
-slippers==0.6.2 \
-    --hash=sha256:4cb555b8822ba0d404e5405723f5d723994022c29046008ee917081031bc0cf1 \
-    --hash=sha256:739e05f85354becbf0a65daab831eea62557d89e7512042209ab629af4378bca
+slippers==0.6.3 \
+    --hash=sha256:8602f462da79b707d25ec050fb51b6cbe5fb225b3c7faf40d1f02876d970e9f0 \
+    --hash=sha256:cddd92cb998fb48472f863a811566f5a187b392f65ae4b0df81008b56dff214c
     # via -r requirements.prod.in
 soupsieve==2.8.3 \
     --hash=sha256:3267f1eeea4251fb42728b6dfb746edc9acaffc4a45b27e19450b676586e8349 \

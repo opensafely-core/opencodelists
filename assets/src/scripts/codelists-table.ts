@@ -68,11 +68,7 @@ const searchCodelistTable = (): void => {
       }
     });
 
-    if (visibleRowCount === 0) {
-      noResultsRow.classList.remove("hidden");
-    } else {
-      noResultsRow.classList.add("hidden");
-    }
+    noResultsRow.classList.toggle("hidden", visibleRowCount > 0);
   };
 
   applyFilter();

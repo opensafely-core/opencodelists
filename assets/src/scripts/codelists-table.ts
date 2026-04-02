@@ -1,5 +1,5 @@
 // Helper function to check if all search words are included in a given text
-const matchesAllWords = (text: string, words: string[]): boolean => {
+export const matchesAllWords = (text: string, words: string[]): boolean => {
   return words.every((word) => text.includes(word));
 };
 

@@ -25,6 +25,19 @@ describe("codelists-table", () => {
     document.body.innerHTML = "";
   });
 
+  it("matches all words only when each word is present", async () => {
+    const { matchesAllWords } = await import("../codelists-table");
+
+    expect(matchesAllWords("asthma snomed 8 codes", ["asthma"])).toBe(true);
+    expect(matchesAllWords("asthma snomed 8 codes", ["asthma", "snomed"])).toBe(
+      true,
+    );
+    expect(matchesAllWords("asthma snomed 8 codes", ["asthma", "ctv3"])).toBe(
+      false,
+    );
+    expect(matchesAllWords("asthma snomed 8 codes", [])).toBe(true);
+  });
+
   it("filters on module init and on subsequent input events", async () => {
     document.body.innerHTML = `
     <label for="codelist-search">Search codelists</label>

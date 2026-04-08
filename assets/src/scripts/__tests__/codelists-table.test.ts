@@ -187,4 +187,67 @@ describe("codelists-table", () => {
       "hidden",
     );
   });
+
+  it("filters rows across multiple tbody groups", async () => {
+    document.body.innerHTML = `
+    <label for="codelist-search">Search codelists</label>
+    <input id="codelist-search" data-codelist-search-input type="search" />
+    <table data-codelist-search-table>
+      <tbody>
+        <tr>
+          <td data-codelist-search-cell>Asthma</td>
+          <td>owner-a</td>
+          <td data-codelist-search-cell>SNOMED</td>
+          <td>v1</td>
+        </tr>
+      </tbody>
+      <tbody>
+        <tr>
+          <td data-codelist-search-cell><span>Cardio pack</span></td>
+          <td><span>owner-b</span></td>
+          <td data-codelist-search-cell><span>CTV3</span></td>
+          <td>tag-a</td>
+        </tr>
+        <tr>
+          <td data-codelist-search-cell><span class="sr-only">Cardio pack</span></td>
+          <td><span class="sr-only">owner-b</span></td>
+          <td data-codelist-search-cell><span class="sr-only">CTV3</span></td>
+          <td>tag-b</td>
+        </tr>
+      </tbody>
+      <tbody>
+        <tr class="hidden bg-white text-slate-700" data-codelist-search-no-results>
+          <td colspan="4">No codelists found</td>
+        </tr>
+      </tbody>
+    </table>
+  `;
+
+    await loadScript();
+    const user = userEvent.setup();
+    const searchInput = getSearchInput();
+
+    await user.type(searchInput, "cardio");
+
+    expect(
+      screen.getByRole("cell", { name: "Asthma" }).parentElement,
+    ).toHaveClass("hidden");
+    expect(screen.getByText("tag-a").closest("tr")).not.toHaveClass("hidden");
+    expect(screen.getByText("tag-b").closest("tr")).not.toHaveClass("hidden");
+    expect(screen.getByRole("row", { name: "No codelists found" })).toHaveClass(
+      "hidden",
+    );
+
+    await user.clear(searchInput);
+    await user.type(searchInput, "no matches");
+
+    expect(
+      screen.getByRole("cell", { name: "Asthma" }).parentElement,
+    ).toHaveClass("hidden");
+    expect(screen.getByText("tag-a").closest("tr")).toHaveClass("hidden");
+    expect(screen.getByText("tag-b").closest("tr")).toHaveClass("hidden");
+    expect(
+      screen.getByRole("row", { name: "No codelists found" }),
+    ).not.toHaveClass("hidden");
+  });
 });

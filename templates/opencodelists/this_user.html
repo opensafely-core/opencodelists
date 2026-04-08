@@ -1,22 +1,151 @@
-{% extends 'base.html' %}
+{% extends 'base-tw.html' %}
 
-{% load crispy_forms_tags %}
+{% load django_vite %}
 
-{% block title_extra %}: {{ user.name }}{% endblock %}
+{% block title_extra %}{{ user.name }}{% endblock %}
 
 {% block content %}
-  <br />
-  <h3>Hello, {{ user.name }}</h3>
-  <br />
+  <header class="grid gap-y-4 mb-8 border-b border-b-slate-300 py-8">
+    <h1 class="max-w-prose text-2xl font-bold tracking-tight wrap-break-word text-slate-900 md:text-4xl">
+      Hello, {{ user.name }}
+    </h1>
 
-  <div>
-    <a href="{% url 'user-create-codelist' user.username %}" class="btn btn-primary">
-      Create a codelist!
+    <a href="{% url 'user-create-codelist' user.username %}" class="flex w-fit justify-center cursor-pointer rounded-md bg-green-700 px-5 py-3 text-base/tight font-semibold text-white shadow-xs transition-colors hover:bg-green-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700">
+      Create a codelist &rarr;
     </a>
-  </div>
-  <br />
+  </header>
+{% endblock %}
 
-  {% if all_codelists %}
-    {% include "opencodelists/_codelist_links.html" with codelists=all_codelists show_unpublished=True %}
-  {% endif %}
+{% block full_width_content %}
+  <section class="pb-24">
+    <div class="container">
+      {% if all_codelists %}
+        <h2 class="text-2xl/tight font-bold text-slate-900">Your codelists</h2>
+        <div class="mt-6 max-w-xl grid gap-y-1">
+          <label class="font-bold w-fit cursor-pointer" for="codelist-search">Search codelists by name, owner, or coding system</label>
+          <input
+            aria-label="Search for codelists published by {{ user.name }}"
+            class="block w-full rounded-md border border-slate-300 bg-white px-4 py-3 text-base text-slate-900 placeholder:text-slate-600 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 focus:outline-none"
+            data-codelist-search-input
+            id="codelist-search"
+            placeholder="Search for a codelist…"
+            type="search"
+          />
+        </div>
+      {% else %}
+        <p class="text-lg/snug text-slate-700">Create your first codelist above.</p>
+      {% endif %}
+    </div>
+
+    <div class="mt-8 flow-root xl:mx-auto xl:max-w-384 px-4 xl:px-12">
+      <div class="-my-2 overflow-x-auto -mx-2">
+        <div class="inline-block min-w-full py-2 align-middle px-2">
+          <div class="overflow-hidden shadow-sm outline-1 outline-black/5 sm:rounded-lg dark:shadow-none dark:-outline-offset-1 dark:outline-white/10">
+            <table class="relative min-w-full divide-y divide-slate-200" data-codelist-search-table>
+              <thead class="border-b-slate-300 bg-slate-100 text-left text-sm font-semibold text-slate-900">
+                <tr class="align-bottom">
+                  <th class="px-3 py-3.5 pl-4 whitespace-nowrap sm:pl-6" rowspan="2">Name</th>
+                  <th class="px-3 py-3.5 whitespace-nowrap" rowspan="2">Owner</th>
+                  <th class="px-3 py-3.5 whitespace-nowrap" rowspan="2">Coding system</th>
+                  <th class="sr-only" colspan="4">Versions</th>
+                </tr>
+                <tr>
+                  <th class="px-3 py-3.5 whitespace-nowrap">Version ID</th>
+                  <th class="px-3 py-3.5 whitespace-nowrap">Status</th>
+                  <th class="px-3 py-3.5 whitespace-nowrap">Number of codes</th>
+                  <th class="px-3 py-3.5 pr-3 whitespace-nowrap sm:pr-6">
+                    Last updated
+                  </th>
+                </tr>
+              </thead>
+              {% for item in all_codelists %}
+                {% if item.versions|length == 1 %}
+                  <tbody class="bg-white even:bg-slate-50">
+                    {% with version=item.versions.0 %}
+                      <tr class="text-sm/relaxed text-slate-900 hover:bg-yellow-50 relative">
+                        <td class="px-3 py-2 pl-4 text-base/snug font-semibold sm:pl-6" data-codelist-search-cell>
+                          {{ item.codelist.name }}
+                        </td>
+                        <td class="px-3 py-2 whitespace-nowrap" data-codelist-search-cell>
+                          {{ item.codelist.owner }}
+                        </td>
+                        <td class="px-3 py-4 whitespace-nowrap" data-codelist-search-cell>
+                          {{ item.codelist.coding_system_short_name }}
+                        </td>
+                        <td class="px-3 py-4">
+                          <a class="link whitespace-nowrap before:absolute before:w-full before:h-full before:inset-0" href="{{ version.get_absolute_url }}">
+                            {{ version.tag_or_hash }}
+                          </a>
+                        </td>
+                        <td class="px-3">
+                          {% if version.is_under_review %}
+                            <span class="inline-flex rounded-full px-2 py-0.5 text-sm/tight font-semibold border bg-blue-200 text-blue-900 border-blue-200 whitespace-nowrap">Under review</span>
+                          {% elif version.is_draft %}
+                            <span class="inline-flex rounded-full px-2 py-0.5 text-sm/tight font-semibold border bg-white text-slate-600 border-slate-200 whitespace-nowrap">Draft</span>
+                          {% elif version.is_published %}
+                            <span class="inline-flex rounded-full px-2 py-0.5 text-sm/tight font-semibold border bg-green-200 text-green-900 border-green-200 whitespace-nowrap">Published</span>
+                          {% endif %}
+                        </td>
+                        <td class="px-3 py-4 whitespace-nowrap">
+                          {{ version.codes|length }} code{{ version.codes|pluralize}}
+                        </td>
+                        <td class="px-3 py-2 pr-3 sm:pr-6">
+                          <time class="whitespace-nowrap" datetime="{{ version.updated_at|date:"c" }}">
+                            {{ version.updated_at|date:'d M Y' }} at {{ version.updated_at|date:'H:i' }}
+                          </time>
+                        </td>
+                      </tr>
+                    {% endwith %}
+                  </tbody>
+                {% else %}
+                  <tbody class="group bg-white even:bg-slate-50 hover:bg-yellow-50">
+                    {% for version in item.versions %}
+                      <tr class="text-sm text-slate-900">
+                        <td class="px-3 py-2 pl-4 text-base/snug font-semibold sm:pl-6" data-codelist-search-cell>
+                          <span class="{% if not forloop.first %}sr-only{% endif %}">{{ item.codelist.name }}</span>
+                        </td>
+                        <td class="px-3 py-2 min-w-[20ch]" data-codelist-search-cell>
+                          <span class="{% if not forloop.first %}sr-only{% endif %}">{{ item.codelist.owner }}</span>
+                        </td>
+                        <td class="px-3 py-2 whitespace-nowrap" data-codelist-search-cell>
+                          <span class="{% if not forloop.first %}sr-only{% endif %}">{{ item.codelist.coding_system_short_name }}</span>
+                        </td>
+                        <td class="px-3 py-2">
+                          <a class="link whitespace-nowrap" href="{{ version.get_absolute_url }}">
+                            {{ version.tag_or_hash }}
+                          </a>
+                        </td>
+                        <td class="px-3">
+                          {% if version.is_under_review %}
+                            <span class="inline-flex rounded-full px-2 py-0.5 text-sm/tight font-semibold border bg-blue-200 text-blue-900 border-blue-200 whitespace-nowrap">Under review</span>
+                          {% elif version.is_draft %}
+                            <span class="inline-flex rounded-full px-2 py-0.5 text-sm/tight font-semibold border bg-white text-slate-600 border-slate-200 whitespace-nowrap">Draft</span>
+                          {% elif version.is_published %}
+                            <span class="inline-flex rounded-full px-2 py-0.5 text-sm/tight font-semibold border bg-green-200 text-green-900 border-green-200 whitespace-nowrap">Published</span>
+                          {% endif %}
+                        </td>
+                        <td class="px-3 py-2 whitespace-nowrap">{{ version.codes|length }} code{{ version.codes|pluralize}}</td>
+                        <td class="px-3 py-2 pr-3 sm:pr-6">
+                          <time class="whitespace-nowrap" datetime="{{ version.updated_at|date:"c" }}">
+                            {{ version.updated_at|date:'d M Y' }} at {{ version.updated_at|date:'H:i' }}
+                          </time>
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                {% endif %}
+              {% endfor %}
+              <tbody>
+                <tr class="hidden bg-white text-slate-700" data-codelist-search-no-results>
+                  <td class="px-3 py-4 pl-4 text-base/snug sm:pl-6" colspan="4">
+                    No codelists found
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 {% endblock %}

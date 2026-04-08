@@ -30,7 +30,7 @@ class Navigator:
         """Navigates the Playwright Page to the "create a codelist" page."""
 
         self.go_to_my_codelists_page()
-        codelist_create_link = self.page.get_by_role("link", name="Create a codelist!")
+        codelist_create_link = self.page.get_by_role("link", name="Create a codelist")
         if is_experimental:
             url = urljoin(
                 self.page.url,
@@ -243,14 +243,17 @@ def validate_codelist_exists_on_site(
     """
     if initial_page_navigation:
         navigator.go_to_my_codelists_page()
-    codelist_row = navigator.page.get_by_role("row", name=navigator.codelist_name)
-    expect(codelist_row).to_be_visible()
-    expect(codelist_row).to_contain_text(codelist_owner, ignore_case=True)
-    codelist_version = codelist_row.get_by_role(
-        "row", name=navigator.codelist_version_tags[version_tag]
+
+    codelist_version_link = navigator.page.get_by_role(
+        "link", name=navigator.codelist_version_tags[version_tag]
     )
-    expect(codelist_version).to_be_visible()
-    expect(codelist_version).to_contain_text(codelist_status.value, ignore_case=True)
+    expect(codelist_version_link).to_be_visible()
+
+    codelist_row = navigator.page.get_by_role("row").filter(has=codelist_version_link)
+    expect(codelist_row).to_be_visible()
+    expect(codelist_row).to_contain_text(navigator.codelist_name, ignore_case=True)
+    expect(codelist_row).to_contain_text(codelist_owner, ignore_case=True)
+    expect(codelist_row).to_contain_text(codelist_status.value, ignore_case=True)
 
 
 def verify_review_codelist_codes(

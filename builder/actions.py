@@ -130,8 +130,9 @@ def create_search(*, draft, term=None, code=None, codes):
 
 @transaction.atomic
 def delete_search(*, search):
-    # Grab the PK before we delete the instance
+    # Grab the PK and related version before we delete the instance
     search_pk = search.pk
+    version = search.version
 
     # Delete any codes that:
     # - only belong to this search
@@ -139,16 +140,21 @@ def delete_search(*, search):
     # - are not descendants of an included code
 
     # Find all code objs that belong to this search and no others
-    search_only_code_objs = search.version.code_objs.annotate(
+    search_only_code_objs = version.code_objs.annotate(
         num_results=Count("results")
     ).filter(results__search=search, num_results=1)
-    codes_to_keep = get_codes_to_keep(search.version, search_only_code_objs)
+    codes_to_keep = get_codes_to_keep(version, search_only_code_objs)
 
     # Delete any code objs that belong to this search only, and are not in the codes_to_keep set
     search_only_code_objs.exclude(code__in=codes_to_keep).delete()
 
     # Delete the search
     search.delete()
+
+    # Update the cached hierarchy
+    from codelists.actions import cache_hierarchy  # avoid circular imports
+
+    cache_hierarchy(version=version)
 
     logger.info("Deleted Search", search_pk=search_pk)
 

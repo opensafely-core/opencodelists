@@ -17,7 +17,7 @@ export default defineConfig(({ mode }) => ({
         "codelists-version": "assets/src/scripts/codelists-version.js",
         tw: "assets/src/scripts/tw.js",
         "feedback-form": "assets/src/scripts/feedback-form.js",
-        "codelists-table": "assets/src/scripts/codelists-table.ts",
+        "codelists-filter": "assets/src/scripts/codelists-filter.ts",
       },
     },
     outDir: "assets/dist",

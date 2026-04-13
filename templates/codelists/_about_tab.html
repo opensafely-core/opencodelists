@@ -1,3 +1,4 @@
+{% load methodology_cloned_codelist_name_filter %}
 {% load markdown_filter %}
 
 <style>
@@ -29,7 +30,7 @@
   {% if codelist.methodology %}
     <h3 class="h4">Methodology</h3>
     <div class="about__markdown">
-      {{ codelist.methodology|markdown_filter|safe }}
+      {{ codelist.methodology|methodology_cloned_codelist_name_filter|markdown_filter|safe }}
     </div>
   {% endif %}
 

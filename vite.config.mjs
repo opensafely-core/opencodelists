@@ -18,6 +18,7 @@ export default defineConfig(({ mode }) => ({
         tw: "assets/src/scripts/tw.js",
         "feedback-form": "assets/src/scripts/feedback-form.js",
         "codelists-filter": "assets/src/scripts/codelists-filter.ts",
+        "codelists-sort": "assets/src/scripts/codelists-sort.ts",
       },
     },
     outDir: "assets/dist",

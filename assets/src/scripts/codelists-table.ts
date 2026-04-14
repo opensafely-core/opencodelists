@@ -5,24 +5,27 @@ export const matchesAllWords = (text: string, words: string[]): boolean => {
 
 // Initializes client-side filtering for the codelists table
 const searchCodelistTable = (): void => {
-  const searchInput = document.querySelector("[data-codelist-search-input]");
-  const searchableCodelistsTable = document.querySelector(
-    "[data-codelist-search-table]",
+  const searchInput = document.querySelector<HTMLInputElement>(
+    "[data-codelist-search-input]",
   );
-  const tableBody =
-    searchableCodelistsTable?.querySelector<HTMLTableSectionElement>("tbody");
-  const rows = tableBody?.querySelectorAll<HTMLTableRowElement>(
-    "tr:not([data-codelist-search-no-results])",
+  const searchableCodelistsTable =
+    document.querySelector<HTMLTableSectionElement>(
+      "[data-codelist-search-table]",
+    );
+  const rows = searchableCodelistsTable?.querySelectorAll<HTMLTableRowElement>(
+    "tbody tr:not([data-codelist-search-no-results])",
   );
-  const noResultsRow = tableBody?.querySelector<HTMLTableRowElement>(
-    "tr[data-codelist-search-no-results]",
-  );
+  const noResultsRow =
+    searchableCodelistsTable?.querySelector<HTMLTableRowElement>(
+      "tr[data-codelist-search-no-results]",
+    );
 
   // Return early if the elements we need are not present
   if (
-    !(searchInput instanceof HTMLInputElement) ||
-    !tableBody ||
+    !searchInput ||
+    !searchableCodelistsTable ||
     !rows ||
+    rows.length === 0 ||
     !noResultsRow
   ) {
     return;

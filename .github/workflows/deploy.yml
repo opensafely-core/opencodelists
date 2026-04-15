@@ -67,7 +67,7 @@ jobs:
             docker push $PUBLIC_IMAGE_NAME:latest
 
       - name: Create Sentry release
-        uses: getsentry/action-release@dab6548b3c03c4717878099e43782cf5be654289  # v3.5.0
+        uses: getsentry/action-release@5657c9e888b4e2cc85f4d29143ea4131fde4a73a  # v3.6.0
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_RELEASE_INTEGRATION_TOKEN }}
           SENTRY_ORG: ebm-datalab
@@ -105,7 +105,7 @@ jobs:
               git:from-image opencodelists "$IMAGE_DIGEST"
 
       - name: Create Sentry release
-        uses: getsentry/action-release@dab6548b3c03c4717878099e43782cf5be654289  # v3.5.0
+        uses: getsentry/action-release@5657c9e888b4e2cc85f4d29143ea4131fde4a73a  # v3.6.0
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_RELEASE_INTEGRATION_TOKEN }}
           SENTRY_ORG: ebm-datalab

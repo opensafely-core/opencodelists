@@ -3,9 +3,11 @@ import type Hierarchy from "../../_hierarchy";
 import { readValueFromPage } from "../../_utils";
 import type {
   AncestorCode,
+  CodeToUsage,
   PageData,
   ToggleVisibility,
   UpdateStatus,
+  UsagePillDisplayOptions,
 } from "../../types";
 import Row from "./Row";
 
@@ -14,10 +16,12 @@ interface TreeProps {
   ancestorCode: AncestorCode;
   codeToStatus: PageData["codeToStatus"];
   codeToTerm: PageData["codeToTerm"];
+  codeToUsage: CodeToUsage;
   hierarchy: Hierarchy;
   isEditable: PageData["isEditable"];
   toggleVisibility: ToggleVisibility;
   updateStatus: UpdateStatus;
+  usagePillDisplayOptions: UsagePillDisplayOptions;
   visiblePaths: PageData["visiblePaths"];
 }
 
@@ -26,10 +30,12 @@ export default function Tree({
   ancestorCode,
   codeToStatus,
   codeToTerm,
+  codeToUsage,
   hierarchy,
   isEditable,
   toggleVisibility,
   updateStatus,
+  usagePillDisplayOptions,
   visiblePaths,
 }: TreeProps) {
   const sortByTerm: PageData["sortByTerm"] = readValueFromPage("sort-by-term");
@@ -41,6 +47,7 @@ export default function Tree({
         code={row.code}
         codeToStatus={codeToStatus}
         codeToTerm={codeToTerm}
+        codeToUsage={codeToUsage}
         hasDescendants={row.hasDescendants}
         hierarchy={hierarchy}
         isEditable={isEditable}
@@ -52,6 +59,7 @@ export default function Tree({
         term={row.term}
         toggleVisibility={toggleVisibility}
         updateStatus={updateStatus}
+        usagePillDisplayOptions={usagePillDisplayOptions}
       />
     ));
 }

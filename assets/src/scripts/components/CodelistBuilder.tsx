@@ -191,6 +191,7 @@ export default class CodelistBuilder extends React.Component<
       resultsHeading,
       searches,
       treeTables,
+      usageData,
       visiblePaths,
     } = this.props;
 
@@ -232,6 +233,7 @@ export default class CodelistBuilder extends React.Component<
                     resultsHeading={resultsHeading}
                     treeTables={treeTables}
                     updateStatus={this.updateStatus}
+                    usageData={usageData}
                     visiblePaths={visiblePaths}
                   />
                 </Tab>

@@ -11,6 +11,21 @@ export type Term = string;
 export type ToggleVisibility = (path: Path) => void;
 export type UpdateStatus = (code: Code, status: Status) => void;
 
+export type CodeToUsage = { [key: string]: number | null };
+export type UsagePillPosition = "left" | "right";
+export type UsagePillNumberFormat = "full" | "condensed";
+
+export interface UsagePillDisplayOptions {
+  position: UsagePillPosition;
+  numberFormat: UsagePillNumberFormat;
+}
+
+export interface UsageData {
+  periods: string[];
+  byPeriod: { [period: string]: CodeToUsage };
+  sourceByPeriod: { [period: string]: string };
+}
+
 type AllCodes = Code[];
 type VisiblePaths = Set<string>;
 
@@ -38,6 +53,7 @@ export interface PageData {
   sortByTerm: boolean;
   treeTables: [string, string[]][];
   updateURL: string;
+  usageData: UsageData;
   visiblePaths: VisiblePaths;
 }
 

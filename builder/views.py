@@ -15,6 +15,7 @@ from codelists.actions import update_codelist
 from codelists.forms import CodelistUpdateForm
 from codelists.models import Search
 from codelists.search import do_search
+from coding_systems.usage.models import CodeUsageEntry, CodeUsageRelease
 from opencodelists.templatetags.markdown_filter import render_markdown
 
 from . import actions
@@ -172,6 +173,24 @@ def _draft(request, draft, search_id):
         ).items()
     )
 
+    # Build usage data for all periods (if available)
+    usage_data = {"periods": [], "byPeriod": {}, "sourceByPeriod": {}}
+    if coding_system.has_usage_data:
+        all_codes = codeset.all_codes()
+        releases = CodeUsageRelease.objects.filter(
+            coding_system=coding_system.id
+        ).order_by("-period")
+        periods = list(releases.values_list("period", flat=True))
+        usage_data["periods"] = periods
+        for release in releases:
+            usage_data["byPeriod"][release.period] = dict(
+                CodeUsageEntry.objects.filter(
+                    release=release,
+                    code__in=all_codes,
+                ).values_list("code", "usage")
+            )
+            usage_data["sourceByPeriod"][release.period] = release.source_url
+
     num_displayed_codes = len(displayed_codes)
     if search_id:
         # A search term has been selected OR there are codes orphaned from their search
@@ -273,6 +292,7 @@ def _draft(request, draft, search_id):
         "child_map": {c: list(pp) for c, pp in hierarchy.child_map.items()},
         "code_to_term": code_to_term,
         "code_to_status": codeset.code_to_status,
+        "usage_data": usage_data,
         "is_editable": request.user == draft.author,
         "draft_url": draft_url,
         "update_url": update_url,

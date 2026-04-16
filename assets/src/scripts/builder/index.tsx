@@ -42,6 +42,7 @@ if (container) {
         sortByTerm={readValueFromPage("sortByTerm")}
         treeTables={treeTables}
         updateURL={readValueFromPage("update-url")}
+        usageData={readValueFromPage("usage-data")}
         visiblePaths={visiblePaths}
       />
     </StrictMode>,

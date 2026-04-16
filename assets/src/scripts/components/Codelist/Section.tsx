@@ -2,9 +2,11 @@ import React from "react";
 import type Hierarchy from "../../_hierarchy";
 import type {
   AncestorCodes,
+  CodeToUsage,
   PageData,
   ToggleVisibility,
   UpdateStatus,
+  UsagePillDisplayOptions,
 } from "../../types";
 import Tree from "./Tree";
 
@@ -13,11 +15,13 @@ interface SectionProps {
   ancestorCodes: AncestorCodes;
   codeToStatus: PageData["codeToStatus"];
   codeToTerm: PageData["codeToTerm"];
+  codeToUsage: CodeToUsage;
   heading: string;
   hierarchy: Hierarchy;
   isEditable: PageData["isEditable"];
   toggleVisibility: ToggleVisibility;
   updateStatus: UpdateStatus;
+  usagePillDisplayOptions: UsagePillDisplayOptions;
   visiblePaths: PageData["visiblePaths"];
 }
 
@@ -26,11 +30,13 @@ export default function Section({
   ancestorCodes,
   codeToStatus,
   codeToTerm,
+  codeToUsage,
   heading,
   hierarchy,
   isEditable,
   toggleVisibility,
   updateStatus,
+  usagePillDisplayOptions,
   visiblePaths,
 }: SectionProps) {
   return (
@@ -43,11 +49,13 @@ export default function Section({
             ancestorCode={ancestorCode}
             codeToStatus={codeToStatus}
             codeToTerm={codeToTerm}
+            codeToUsage={codeToUsage}
             hierarchy={hierarchy}
             isEditable={isEditable}
             key={ancestorCode}
             toggleVisibility={toggleVisibility}
             updateStatus={updateStatus}
+            usagePillDisplayOptions={usagePillDisplayOptions}
             visiblePaths={visiblePaths}
           />
         ))}

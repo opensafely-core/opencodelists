@@ -178,6 +178,13 @@ run: devenv
 manage command *args: devenv
     $BIN/python manage.py {{command}} {{args}}
 
+# Temporary helpers for developing the SNOMED usage importer.
+snomed-usage-remove *args: devenv
+    $BIN/python scripts/remove_snomed_usage_imports.py {{args}}
+
+snomed-usage-history *args: devenv
+    $BIN/python scripts/show_snomed_usage_history.py {{args}}
+
 # Generate migrations and apply unapplied ones
 migrations: devenv
     just manage makemigrations

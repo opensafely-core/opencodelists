@@ -16,6 +16,7 @@ class CodingSystem(BuilderCompatibleCodingSystem):
     short_name = "SNOMED CT"
     description = "Primary and Secondary Care clinical events"
     root = "138875005"
+    has_usage_data = True
     csv_headers = {
         "code": ["code", "id", "snomedcode", "dmd_id"],
         "term": ["term", "long_name", "name", "ethnicity", "dmd_name"],

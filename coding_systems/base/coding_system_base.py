@@ -20,6 +20,9 @@ class BaseCodingSystem(ABC):
     root = None
     # flag to indicate that this CodingSystem is associated with a real database instance
     has_database = True
+    # flag to indicate that usage data is available for this coding system
+    # (i.e. importable via CodeUsageRelease / CodeUsageEntry)
+    has_usage_data = False
 
     # csv_headers is a dict of possible headers in uploaded csv_data representing the
     # code and term.  This is used to identify the code/term columns in older codelist

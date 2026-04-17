@@ -215,6 +215,10 @@ def test_codelist_update_form_methodology_initial_values():
     form2 = CodelistUpdateForm(owner_choices=[], initial={"methodology": ""})
     assert form2.initial["methodology"] == methodology_template
 
+    # (2b) A form with methodology initial set to None ends up with initial set to the template
+    form2b = CodelistUpdateForm(owner_choices=[], initial={"methodology": None})
+    assert form2b.initial["methodology"] == methodology_template
+
     # (3) A form with a non-blank methodology has that as the initial value
     custom_methodology = "This is a custom methodology that the user has written."
     form3 = CodelistUpdateForm(

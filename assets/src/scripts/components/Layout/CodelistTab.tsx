@@ -128,6 +128,42 @@ export default function CodelistTab({
                   ))}
                   <option value={ALL_TIME}>All time</option>
                 </select>
+                <span className="usage-bar__info-group">
+                  <button
+                    type="button"
+                    className="usage-bar__info-icon"
+                    aria-label="More information"
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <circle cx="12" cy="12" r="10" />
+                      <path d="M12 16v-4" />
+                      <path d="M12 8h.01" />
+                    </svg>
+                  </button>
+                  <div className="usage-bar__info-tooltip">
+                    <p className="usage-bar__info-tooltip-title">Code usage</p>
+                    <p className="usage-bar__info-tooltip-body">
+                      The NHS publishes data on how often clinical codes are
+                      used in practice. This data can be used to understand
+                      which codes are commonly used, and to identify codes that
+                      are rarely used or not used at all.
+                      <br />
+                      <br />
+                      The data is provided in yearly releases covering a 12
+                      month period, April 1st to March 31st. Selecting "All
+                      time" will show the total usage across all available
+                      periods.
+                    </p>
+                  </div>
+                </span>
               </div>
             </div>
             <p className="usage-bar__source">

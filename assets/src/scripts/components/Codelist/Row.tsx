@@ -153,7 +153,7 @@ function UsagePill({
   }
 
   const usage = codeToUsage[code];
-  const metaClassName = `builder__meta builder__meta--${usagePillDisplayOptions.position}`;
+  const metaClassName = `builder__meta builder__meta--${usagePillDisplayOptions.position} ${usagePillDisplayOptions.numberFormat === "condensed" ? "" : "builder__meta--uncondensed"}`;
 
   // Code not in usage data at all — render empty placeholder to keep buttons aligned
   if (usage === undefined) {

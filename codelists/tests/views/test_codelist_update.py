@@ -1,5 +1,6 @@
 import datetime
 
+from codelists.forms import methodology_template
 from codelists.models import Codelist
 from codelists.views.codelist_update import get_owner_choices
 
@@ -39,7 +40,7 @@ def test_get_success(client, codelist, organisation):
     assert form.initial["slug"] == codelist.slug
     assert form.initial["owner"] == f"organisation:{organisation.pk}"
     assert form.initial["description"] == codelist.description
-    assert form.initial["methodology"] == codelist.methodology
+    assert form.initial["methodology"] == (codelist.methodology or methodology_template)
 
 
 def test_post_success(client, codelist, organisation_admin):

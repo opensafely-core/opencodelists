@@ -167,10 +167,9 @@ export default function CodelistTab({
               </div>
             </div>
             <p className="usage-bar__source">
-              Data source:
-              {selectedPeriodSourceUrl ? (
+              {selectedPeriodSourceUrl && (
                 <>
-                  {" "}
+                  {"Data source: "}
                   <a
                     href={selectedPeriodSourceUrl}
                     target="_blank"
@@ -179,8 +178,6 @@ export default function CodelistTab({
                     published release for {selectedPeriod}
                   </a>
                 </>
-              ) : (
-                " published primary care usage releases"
               )}
             </p>
           </div>

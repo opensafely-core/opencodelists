@@ -240,7 +240,7 @@ class CodelistUpdateForm(forms.Form):
 
             # If the methodology is not set, use the template
             methodology_initial = self.initial.get("methodology", "")
-            if methodology_initial == "":
+            if not methodology_initial:
                 self.initial["methodology"] = methodology_template
 
             # Change the help text if the methodology is not the template i.e. edited by the user

@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import React from "react";
 import { describe, expect, it, vi } from "vitest";
@@ -118,9 +118,11 @@ describe("ManagementForm", () => {
     });
     await user.click(continueEditingButton);
 
-    expect(
-      screen.queryByText("Are you sure you want to discard this draft?"),
-    ).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(
+        screen.queryByText("Are you sure you want to discard this draft?"),
+      ).not.toBeInTheDocument();
+    });
   });
 
   it("includes CSRF token in all forms", async () => {

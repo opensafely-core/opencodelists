@@ -9,15 +9,21 @@
 #              command substitutions
 set -euxo pipefail -o errtrace
 
-# Import Sentry functions
-# Must be in same directory as this script
 SCRIPT_DIR=$(dirname "$0")
-source "$SCRIPT_DIR/sentry_cron_functions.sh"
 
-# Set up Sentry cron monitoring
-SENTRY_MONITOR_NAME=$(basename "$0")
-CRONTAB=$(extract_crontab "$SENTRY_MONITOR_NAME" "/app/app.json")
-SENTRY_CRON_URL=$(sentry_cron_url "$SENTRY_DSN" "$SENTRY_MONITOR_NAME")
+# Set this environment variable to 'true' to test locally without Sentry.
+SKIP_SENTRY="${SKIP_SENTRY:-false}"
+
+if [ "$SKIP_SENTRY" != "true" ]; then
+    # Import Sentry functions
+    # Must be in same directory as this script
+    source "$SCRIPT_DIR/sentry_cron_functions.sh"
+
+    # Set up Sentry cron monitoring
+    SENTRY_MONITOR_NAME=$(basename "$0")
+    CRONTAB=$(extract_crontab "$SENTRY_MONITOR_NAME" "/app/app.json")
+    SENTRY_CRON_URL=$(sentry_cron_url "$SENTRY_DSN" "$SENTRY_MONITOR_NAME")
+fi
 
 # DATABASE_DIR is configured via dokku (see DEPLOY.md)
 BACKUP_DIR="$DATABASE_DIR/backup/db"
@@ -40,13 +46,15 @@ on_error() { # shellcheck disable=SC2329
       rm -f "$SANITISED_BACKUP_TMP" 2>/dev/null || true
     fi
 
-    # Avoid exiting inside the handler on failures of Sentry call
-    set +e
-    echo "Backup failed with exit code $RESULT" >&2
+    if [ "$SKIP_SENTRY" != "true" ]; then
+        # Avoid exiting inside the handler on failures of Sentry call
+        set +e
+        echo "Backup failed with exit code $RESULT" >&2
 
-    # Best-effort Sentry error reporting - do not cause further exit if it fails
-    sentry_cron_error "$SENTRY_CRON_URL" || true
-    exit "$RESULT"
+        # Best-effort Sentry error reporting - do not cause further exit if it fails
+        sentry_cron_error "$SENTRY_CRON_URL" || true
+        exit "$RESULT"
+    fi
 }
 trap on_error ERR
 
@@ -85,8 +93,10 @@ verify_file_min_size() {
     return 0
 }
 
-# Log start of backup in a way that won't fail the whole script if Sentry down
-sentry_cron_start "$SENTRY_CRON_URL" "$CRONTAB" || true
+if [ "$SKIP_SENTRY" != "true" ]; then
+    # Log start of backup in a way that won't fail the whole script if Sentry down
+    sentry_cron_start "$SENTRY_CRON_URL" "$CRONTAB" || true
+fi
 
 # Make the backup directory if it doesn't exist
 mkdir -p "$BACKUP_DIR"
@@ -157,5 +167,7 @@ find "$BACKUP_DIR" -name "*-db.sqlite3.zst" -type f -mtime +14 -delete
 # Keep only the most recent sanitised backup.
 find "$BACKUP_DIR" -name "*sanitised*-db.sqlite3.zst" ! -wholename "$SANITISED_BACKUP_FILEPATH.zst" -type f -delete
 
+if [ "$SKIP_SENTRY" != "true" ]; then
 # If we've reached this point, send ok to Sentry cron monitoring
-sentry_cron_ok "$SENTRY_CRON_URL"
+    sentry_cron_ok "$SENTRY_CRON_URL"
+fi

@@ -40,6 +40,7 @@ dokku$ dokku config:set opencodelists OTEL_SERVICE_NAME='opencodelists'
 dokku$ dokku config:set opencodelists DJANGO_SETTINGS_MODULE="opencodelists.settings"
 dokku$ dokku config:set opencodelists EMAIL_BACKEND='anymail.backends.mailgun.EmailBackend'
 dokku$ dokku config:set opencodelists MAILGUN_API_KEY='xxx'
+dokku$ dokku config:set opencodelists BLOCK_STORAGE_DIR='/block_storage'
 ```
 
 ### Configure nginx

@@ -36,7 +36,9 @@ on_error() { # shellcheck disable=SC2329
     RESULT=${exit_code:-1}
 
     # Clean up a stale tmp on failure
-    [ -n "${SANITISED_BACKUP_TMP:-}" ] && rm -f "$SANITISED_BACKUP_TMP" 2>/dev/null || true
+    if [ -n "${SANITISED_BACKUP_TMP:-}" ]; then
+      rm -f "$SANITISED_BACKUP_TMP" 2>/dev/null || true
+    fi
 
     # Avoid exiting inside the handler on failures of Sentry call
     set +e

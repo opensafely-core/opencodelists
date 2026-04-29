@@ -25,8 +25,9 @@ if [ "$SKIP_SENTRY" != "true" ]; then
     SENTRY_CRON_URL=$(sentry_cron_url "$SENTRY_DSN" "$SENTRY_MONITOR_NAME")
 fi
 
-# DATABASE_DIR is configured via dokku (see DEPLOY.md)
+# DATABASE_DIR and BLOCK_STORAGE_DIR are configured via dokku (see DEPLOY.md)
 BACKUP_DIR="$DATABASE_DIR/backup/db"
+BLOCK_BACKUP_DIR="$BLOCK_STORAGE_DIR/backup/db"
 BACKUP_FILENAME="$(date +%F)-db.sqlite3"
 BACKUP_FILEPATH="$BACKUP_DIR/$BACKUP_FILENAME"
 
@@ -141,6 +142,16 @@ verify_file_min_size "${SANITISED_BACKUP_FILEPATH}.zst"
 # Only now remove the uncompressed originals
 rm "$BACKUP_FILEPATH" "$SANITISED_BACKUP_FILEPATH"
 
+# Copy the compressed backups to block storage to reduce local disk usage and
+# separate them from the production system.
+# This is WIP in https://github.com/opensafely-core/opencodelists/issues/2910
+# For now, just copy the files so they exist in both places. Once we are sure
+# this is working, this could be a move rather than a copy, and we could adjust
+# the symlinks and retention below to refer to the new location.
+mkdir -p "$BLOCK_BACKUP_DIR"
+cp --preserve=mode,timestamps "$BACKUP_FILEPATH.zst" "$BLOCK_BACKUP_DIR"
+cp --preserve=mode,timestamps "$SANITISED_BACKUP_FILEPATH.zst" "$BLOCK_BACKUP_DIR"
+
 # Symlink to the new latest backups to make it easy to discover.
 # Make the target a relative path -- an absolute one won't mean the same thing
 # in the host file system if executed inside a container as we expect.
@@ -161,11 +172,33 @@ else
     exit 5
 fi
 
+# Create symlinks in block storge location.
+# This is WIP in https://github.com/opensafely-core/opencodelists/issues/2910
+# For now, do both. Later we could remove the above ln commands.
+
+# Ensure target backup file exists before trying to link
+if [ -f "$BLOCK_BACKUP_DIR/$BACKUP_FILENAME.zst" ]; then
+    ln -sf "$BACKUP_FILENAME.zst" "$BLOCK_BACKUP_DIR/latest-db.sqlite3.zst"
+else
+    echo "expected compressed raw backup missing: $BLOCK_BACKUP_DIR/$BACKUP_FILENAME.zst" >&2
+    exit 4
+fi
+
+# Ensure target sanitised backup file exists before trying to link
+if [ -f "$BLOCK_BACKUP_DIR/${SANITISED_BACKUP_FILENAME}.zst" ]; then
+    ln -sf "$SANITISED_BACKUP_FILENAME.zst" "$BLOCK_BACKUP_DIR/sanitised-latest-db.sqlite3.zst"
+else
+    echo "expected compressed sanitised backup missing: $BLOCK_BACKUP_DIR/${SANITISED_BACKUP_FILENAME}.zst" >&2
+    exit 5
+fi
+
 # Keep only the last 14 days of raw backups
 find "$BACKUP_DIR" -name "*-db.sqlite3.zst" -type f -mtime +14 -delete
+find "$BLOCK_BACKUP_DIR" -name "*-db.sqlite3.zst" -type f -mtime +14 -delete
 
 # Keep only the most recent sanitised backup.
 find "$BACKUP_DIR" -name "*sanitised*-db.sqlite3.zst" ! -wholename "$SANITISED_BACKUP_FILEPATH.zst" -type f -delete
+find "$BLOCK_BACKUP_DIR" -name "*sanitised*-db.sqlite3.zst" ! -name "$SANITISED_BACKUP_FILENAME.zst" -type f -delete
 
 if [ "$SKIP_SENTRY" != "true" ]; then
 # If we've reached this point, send ok to Sentry cron monitoring

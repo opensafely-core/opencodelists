@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const loadScript = async () => {
-  await import("../codelists-table");
+  await import("../codelists-filter");
 };
 
 const getSearchInput = (): HTMLInputElement => {
@@ -19,14 +19,14 @@ const getSearchInput = (): HTMLInputElement => {
   return searchInput;
 };
 
-describe("codelists-table", () => {
+describe("codelists-filter", () => {
   beforeEach(() => {
     vi.resetModules();
     document.body.innerHTML = "";
   });
 
   it("matches all words only when each word is present", async () => {
-    const { matchesAllWords } = await import("../codelists-table");
+    const { matchesAllWords } = await import("../codelists-filter");
 
     expect(matchesAllWords("asthma snomed 8 codes", ["asthma"])).toBe(true);
     expect(matchesAllWords("asthma snomed 8 codes", ["asthma", "snomed"])).toBe(

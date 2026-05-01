@@ -3,13 +3,13 @@ import "../styles/codelist-sort.css";
 type AriaSortState = "ascending" | "descending" | "none";
 type ActiveAriaSortState = "ascending" | "descending";
 
-/** Read a comparable date value for a grouped tbody from its datetime values */
+/** Read a comparable date value for a grouped <tbody> from its datetime values */
 function getBodyDateSortValue(
   body: HTMLTableSectionElement,
   columnIndex: number,
   direction: ActiveAriaSortState,
 ): number {
-  // Collect every parseable timestamp in this grouped tbody.
+  // Collect every parseable timestamp in this grouped <tbody>.
   // Some groups have multiple rows (multiple versions), so we inspect each row.
   const values: number[] = [];
 
@@ -50,7 +50,7 @@ function getBodyDateSortValue(
   return Math.max(...values);
 }
 
-/** Sort grouped tbody elements by text in the requested column */
+/** Sort grouped <tbody> elements by text in the requested column */
 function sortBodiesByText(
   bodies: HTMLTableSectionElement[],
   columnIndex: number,
@@ -177,7 +177,7 @@ function handleSort(button: HTMLButtonElement) {
     }
   });
 
-  // Get the column index and the type of sort from the th dataset
+  // Get the column index and the type of sort from the <th> data attributes
   const columnIndex = Number(button.dataset.codelistSortColumn);
   const sortType = button.dataset.codelistSortButton as "string" | "date";
   let sortedBodies: HTMLTableSectionElement[];

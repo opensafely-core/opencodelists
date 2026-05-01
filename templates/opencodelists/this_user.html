@@ -44,8 +44,36 @@
             <table class="relative min-w-full divide-y divide-slate-200" data-codelist-search-table>
               <thead class="border-b-slate-300 bg-slate-100 text-left text-sm font-semibold text-slate-900">
                 <tr class="align-bottom">
-                  <th class="px-3 py-3.5 pl-4 whitespace-nowrap sm:pl-6" rowspan="2">Name</th>
-                  <th class="px-3 py-3.5 whitespace-nowrap" rowspan="2">Owner</th>
+                  <th aria-sort="ascending" class="px-3 py-3.5 pl-4 whitespace-nowrap sm:pl-6 group" rowspan="2">
+                    <button
+                      class="cursor-pointer inline-flex items-center gap-x-1 text-slate-900 transition-colors hover:text-slate-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                      data-codelist-sort-button="string"
+                      data-codelist-sort-column="0"
+                      type="button"
+                    >
+                      Name
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5 border rounded border-slate-300 p-0.5 ml-1 shrink-0 bg-white">
+                        <path class="hidden sort-icon__asc" clip-rule="evenodd" fill-rule="evenodd" d="M10 17a.75.75 0 0 1-.75-.75V5.612L5.29 9.77a.75.75 0 0 1-1.08-1.04l5.25-5.5a.75.75 0 0 1 1.08 0l5.25 5.5a.75.75 0 1 1-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0 1 10 17Z" />
+                        <path class="hidden sort-icon__desc" clip-rule="evenodd" fill-rule="evenodd" d="M10 3a.75.75 0 0 1 .75.75v10.638l3.96-4.158a.75.75 0 1 1 1.08 1.04l-5.25 5.5a.75.75 0 0 1-1.08 0l-5.25-5.5a.75.75 0 1 1 1.08-1.04l3.96 4.158V3.75A.75.75 0 0 1 10 3Z" />
+                        <path class="hidden sort-icon__none" clip-rule="evenodd" fill-rule="evenodd" d="M2.24 6.8a.75.75 0 0 0 1.06-.04l1.95-2.1v8.59a.75.75 0 0 0 1.5 0V4.66l1.95 2.1a.75.75 0 1 0 1.1-1.02l-3.25-3.5a.75.75 0 0 0-1.1 0L2.2 5.74a.75.75 0 0 0 .04 1.06Zm8 6.4a.75.75 0 0 0-.04 1.06l3.25 3.5a.75.75 0 0 0 1.1 0l3.25-3.5a.75.75 0 1 0-1.1-1.02l-1.95 2.1V6.75a.75.75 0 0 0-1.5 0v8.59l-1.95-2.1a.75.75 0 0 0-1.06-.04Z" />
+                      </svg>
+                    </button>
+                  </th>
+                  <th aria-sort="none" class="px-3 py-3.5 whitespace-nowrap" rowspan="2">
+                    <button
+                      class="cursor-pointer inline-flex items-center gap-x-1 text-slate-900 transition-colors hover:text-slate-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                      data-codelist-sort-button="string"
+                      data-codelist-sort-column="1"
+                      type="button"
+                    >
+                      Owner
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5 border rounded border-slate-300 p-0.5 ml-1 shrink-0 bg-white">
+                        <path class="hidden sort-icon__asc" clip-rule="evenodd" fill-rule="evenodd" d="M10 17a.75.75 0 0 1-.75-.75V5.612L5.29 9.77a.75.75 0 0 1-1.08-1.04l5.25-5.5a.75.75 0 0 1 1.08 0l5.25 5.5a.75.75 0 1 1-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0 1 10 17Z" />
+                        <path class="hidden sort-icon__desc" clip-rule="evenodd" fill-rule="evenodd" d="M10 3a.75.75 0 0 1 .75.75v10.638l3.96-4.158a.75.75 0 1 1 1.08 1.04l-5.25 5.5a.75.75 0 0 1-1.08 0l-5.25-5.5a.75.75 0 1 1 1.08-1.04l3.96 4.158V3.75A.75.75 0 0 1 10 3Z" />
+                        <path class="hidden sort-icon__none" clip-rule="evenodd" fill-rule="evenodd" d="M2.24 6.8a.75.75 0 0 0 1.06-.04l1.95-2.1v8.59a.75.75 0 0 0 1.5 0V4.66l1.95 2.1a.75.75 0 1 0 1.1-1.02l-3.25-3.5a.75.75 0 0 0-1.1 0L2.2 5.74a.75.75 0 0 0 .04 1.06Zm8 6.4a.75.75 0 0 0-.04 1.06l3.25 3.5a.75.75 0 0 0 1.1 0l3.25-3.5a.75.75 0 1 0-1.1-1.02l-1.95 2.1V6.75a.75.75 0 0 0-1.5 0v8.59l-1.95-2.1a.75.75 0 0 0-1.06-.04Z" />
+                      </svg>
+                    </button>
+                  </th>
                   <th class="px-3 py-3.5 whitespace-nowrap" rowspan="2">Coding system</th>
                   <th class="sr-only" colspan="4">Versions</th>
                 </tr>
@@ -53,8 +81,21 @@
                   <th class="px-3 py-3.5 whitespace-nowrap">Version ID</th>
                   <th class="px-3 py-3.5 whitespace-nowrap">Status</th>
                   <th class="px-3 py-3.5 whitespace-nowrap">Number of codes</th>
-                  <th class="px-3 py-3.5 pr-3 whitespace-nowrap sm:pr-6">
-                    Last updated
+                  <th aria-sort="none" class="px-3 py-3.5 pr-3 whitespace-nowrap sm:pr-6">
+
+                    <button
+                      class="cursor-pointer inline-flex items-center gap-x-1 text-slate-900 transition-colors hover:text-slate-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                      data-codelist-sort-button="date"
+                      data-codelist-sort-column="6"
+                      type="button"
+                    >
+                      Last updated
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5 border rounded border-slate-300 p-0.5 ml-1 shrink-0 bg-white">
+                        <path class="hidden sort-icon__asc" clip-rule="evenodd" fill-rule="evenodd" d="M10 17a.75.75 0 0 1-.75-.75V5.612L5.29 9.77a.75.75 0 0 1-1.08-1.04l5.25-5.5a.75.75 0 0 1 1.08 0l5.25 5.5a.75.75 0 1 1-1.08 1.04l-3.96-4.158V16.25A.75.75 0 0 1 10 17Z" />
+                        <path class="hidden sort-icon__desc" clip-rule="evenodd" fill-rule="evenodd" d="M10 3a.75.75 0 0 1 .75.75v10.638l3.96-4.158a.75.75 0 1 1 1.08 1.04l-5.25 5.5a.75.75 0 0 1-1.08 0l-5.25-5.5a.75.75 0 1 1 1.08-1.04l3.96 4.158V3.75A.75.75 0 0 1 10 3Z" />
+                        <path class="hidden sort-icon__none" clip-rule="evenodd" fill-rule="evenodd" d="M2.24 6.8a.75.75 0 0 0 1.06-.04l1.95-2.1v8.59a.75.75 0 0 0 1.5 0V4.66l1.95 2.1a.75.75 0 1 0 1.1-1.02l-3.25-3.5a.75.75 0 0 0-1.1 0L2.2 5.74a.75.75 0 0 0 .04 1.06Zm8 6.4a.75.75 0 0 0-.04 1.06l3.25 3.5a.75.75 0 0 0 1.1 0l3.25-3.5a.75.75 0 1 0-1.1-1.02l-1.95 2.1V6.75a.75.75 0 0 0-1.5 0v8.59l-1.95-2.1a.75.75 0 0 0-1.06-.04Z" />
+                      </svg>
+                    </button>
                   </th>
                 </tr>
               </thead>
@@ -135,7 +176,7 @@
                   </tbody>
                 {% endif %}
               {% endfor %}
-              <tbody>
+              <tbody data-codelist-search-no-results-body>
                 <tr class="hidden bg-white text-slate-700" data-codelist-search-no-results>
                   <td class="px-3 py-4 pl-4 text-base/snug sm:pl-6" colspan="4">
                     No codelists found
@@ -151,5 +192,6 @@
 {% endblock %}
 
 {% block extra_js %}
-  {% vite_asset "assets/src/scripts/codelists-table.ts" %}
+  {% vite_asset "assets/src/scripts/codelists-filter.ts" %}
+  {% vite_asset "assets/src/scripts/codelists-sort.ts" %}
 {% endblock extra_js %}

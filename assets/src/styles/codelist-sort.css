@@ -1,0 +1,29 @@
+th[aria-sort="ascending"] {
+  svg {
+    background-color: white;
+  }
+
+  .sort-icon__asc {
+    display: block;
+  }
+}
+
+th[aria-sort="descending"] {
+  svg {
+    background-color: white;
+  }
+
+  .sort-icon__desc {
+    display: block;
+  }
+}
+
+th[aria-sort="none"] {
+  svg {
+    background-color: transparent;
+  }
+
+  .sort-icon__none {
+    display: block;
+  }
+}

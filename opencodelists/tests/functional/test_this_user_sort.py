@@ -72,9 +72,9 @@ def create_codelist_with_all_statuses(
     )
 
 
-def test_this_user_table_sorting(
+@pytest.fixture
+def this_user_sort_setup(
     login_context_for_user,
-    live_server,
     setup_coding_systems,
 ):
     username = "ExampleUser"
@@ -121,6 +121,19 @@ def test_this_user_table_sorting(
         name="echo",
         updated_at=timezone.make_aware(datetime(2026, 4, 1, 11, 22)),
     )
+
+    return {
+        "login_context": login_context,
+        "username": username,
+    }
+
+
+def test_this_user_table_sorting(
+    this_user_sort_setup,
+    live_server,
+):
+    login_context = this_user_sort_setup["login_context"]
+    username = this_user_sort_setup["username"]
 
     page = login_context.new_page()
     page.goto(live_server.url + reverse("user", args=[username]))

@@ -1,2 +1,1 @@
 # list ubuntu packges needed to build dependencies, one per line
-python3.12-dev

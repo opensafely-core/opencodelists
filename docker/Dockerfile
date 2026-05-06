@@ -13,19 +13,19 @@ FROM ghcr.io/opensafely-core/base-docker:22.04 as base-python
 # docker clean up that deletes that cache on every apt install
 RUN rm -f /etc/apt/apt.conf.d/docker-clean
 
-# Add deadsnakes PPA for installing new Python versions
-# ensure fully working base python3 installation
-# see: https://gist.github.com/tiran/2dec9e03c6f901814f6d1e8dad09528e
-# use space efficient utility from base image
 
-RUN --mount=type=cache,target=/var/cache/apt \
-    echo "deb https://ppa.launchpadcontent.net/deadsnakes/ppa/ubuntu jammy main" > /etc/apt/sources.list.d/deadsnakes-ppa.list &&\
-    /usr/lib/apt/apt-helper download-file 'https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xf23c5a6cf475977595c89f51ba6932366a755776' /etc/apt/trusted.gpg.d/deadsnakes.asc
 
 # install any system dependencies
 COPY docker/dependencies.txt /tmp/dependencies.txt
 RUN --mount=type=cache,target=/var/cache/apt \
     /root/docker-apt-install.sh /tmp/dependencies.txt
+
+# Install uv into a global binary path so it's available in all later stages
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+
+# Installs python to a location that is readable by non-root users
+ENV UV_PYTHON_INSTALL_DIR=/opt/uv/python
+RUN uv python install 3.12
 
 #################################################
 #
@@ -69,7 +69,8 @@ RUN --mount=type=cache,target=/var/cache/apt \
     /root/docker-apt-install.sh /tmp/build-dependencies.txt
 
 # Install everything in venv for isolation from system python libraries
-RUN python3.12 -m venv /opt/venv
+# Use uv to create and manage the venv directly - seed pip to allow python -m pip usage
+RUN uv venv /opt/venv --python 3.12 --seed
 ENV VIRTUAL_ENV=/opt/venv/ PATH="/opt/venv/bin:$PATH"
 
 # The cache mount means a) /root/.cache is not in the image, and b) it's preserved

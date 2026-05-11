@@ -54,6 +54,10 @@ App with staff/admin-facing functionality. A view to list all the codelists
 (the main `codelists` app index only shows codelists that come from
 organisations).
 
+#### `maintenance/`
+This app is for maintenance migrations to fix data issues in the production
+environment. Refer to the `__init__.py` file.
+
 #### `templates/`
 
 Django templates.

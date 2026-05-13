@@ -24,6 +24,23 @@ dokku$ chown dokku:dokku /var/lib/dokku/data/storage/opencodelists/*
 dokku$ dokku storage:mount opencodelists /var/lib/dokku/data/storage/opencodelists/:/storage
 ```
 
+Add block storage to the droplet with the following steps:
+
+- Log in to the DigitalOcean Dashboard
+- Go to Droplets
+- Select dokku3
+- Select Volumes tab
+- Press the Add Volume button
+- Use the modal to configure, create, and mount the volume, selecting the droplet name, desired volume size,  "Automatically format and mount", and "EXT4".
+
+Run the following commands to set up the mount manually:
+```
+mkdir -p /mnt/volume_opencodelists_backups/opencodelists
+sudo chown -R 10003:10003 /mnt/volume_opencodelists_backups/opencodelists
+sudo chmod 755 /mnt/volume_opencodelists_backups/opencodelists
+dokku storage:mount opencodelists /mnt/volume_opencodelists_backups/opencodelists:/block_storage
+```
+
 ### Configure app
 
 ```sh

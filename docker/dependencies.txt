@@ -8,3 +8,5 @@ tzdata
 zstd
 # Needed to make HTTP calls to the Sentry API
 curl
+# Remote file-copying tool, used for copying backups to block storage.
+rsync

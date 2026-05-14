@@ -41,6 +41,30 @@ sudo chmod 755 /mnt/volume_opencodelists_backups/opencodelists
 dokku storage:mount opencodelists /mnt/volume_opencodelists_backups/opencodelists:/block_storage
 ```
 
+You can resize block storage to increase its size but never decrease. You must
+ensure that nothing is writing to the volume while you do this to avoid data
+corruption. Steps:
+
+- Log in to the DigitalOcean Dashboard
+- Go to Droplets
+- Select dokku3
+- Select Volumes tab
+- Select "Increase storage size" from the "..." menu against the volume.
+- Increase by the required amount in the modal and click the "Increase storage size" button.
+
+Then SSH to the droplet to resize the file system to use all available blocks:
+
+```
+# Check the free disk on the mounted device before your change.
+df /mnt/volume_opencodelists_backups/ -h
+# Check the size of the block device.
+lsblk
+# Resize the device in the file system to use all available blocks.
+sudo resize2fs /dev/sda
+# Check the free disk on the mounted device after your change.
+df /mnt/volume_opencodelists_backups/ -h
+```
+
 ### Configure app
 
 ```sh

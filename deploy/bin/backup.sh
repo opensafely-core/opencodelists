@@ -175,6 +175,17 @@ find "$BLOCK_BACKUP_DIR" -name "*-db.sqlite3.zst" -type f -mtime +14 -delete
 find "$BLOCK_BACKUP_DIR" -name "*sanitised*-db.sqlite3.zst" ! -name "$SANITISED_BACKUP_FILENAME.zst" -type f -delete
 
 if [ "$SKIP_SENTRY" != "true" ]; then
-# If we've reached this point, send ok to Sentry cron monitoring
+    # Alert if low disk free on volume, so it can be resized before space runs
+    # out. If we exit the script early, the backup will still exist but we
+    # don't check in to Sentry, so it will alert and someone can see the error
+    # message.
+    DISK_USAGE=$(df --output=pcent "$BLOCK_STORAGE_DIR" | tail -1 | tr -d ' %')
+
+    if [ "$DISK_USAGE" -gt 80 ]; then
+        echo "Disk usage $DISK_USAGE% above 80%"
+        exit 6
+    fi
+
+    # If we've reached this point, send ok to Sentry cron monitoring
     sentry_cron_ok "$SENTRY_CRON_URL"
 fi

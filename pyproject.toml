@@ -1,3 +1,12 @@
+[project]
+name = "opencodelists"
+version = "0.1.0"
+description = "OpenCodelists"
+readme = "README.md"
+authors = [{name = "OpenSAFELY", email = "tech@opensafely.org"}]
+license = {file = "LICENSE"}
+requires-python = ">=3.12"
+
 [tool.coverage.run]
 branch = true
 omit = [
@@ -79,3 +88,6 @@ lines-after-imports = 2
 "manage.py" = ["INP001"]
 "codelists/views/__init__.py" = ["F401"]
 "opencodelists/views/__init__.py" = ["F401"]
+
+[tool.uv]
+required-version = ">=0.9"

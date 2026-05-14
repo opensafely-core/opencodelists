@@ -6,6 +6,42 @@ readme = "README.md"
 authors = [{name = "OpenSAFELY", email = "tech@opensafely.org"}]
 license = {file = "LICENSE"}
 requires-python = ">=3.12"
+dependencies = [
+    "antlr4-python3-runtime>=4.13.2",
+    "beautifulsoup4>=4.14.3",
+    "crispy-bootstrap4>=2026.2",
+    "dj-database-url>=3.1.2",
+    # Pin to 5.2.x until 6.0 is released and we are happy with 6.0 compatibility
+    "django~=5.2.13",
+    "django-anymail[mailgun]>=15.0",
+    "django-cors-headers>=4.9.0",
+    "django-crispy-forms>=2.6",
+    "django-extensions>=4.1",
+    "django-structlog>=10.0.0",
+    "django-taggit>=6.1.0",
+    "django-vite>=3.1.0",
+    "djangorestframework>=3.17.1",
+    "faker>=40.15.0",
+    "furl>=2.1.4",
+    "gunicorn>=25.3.0",
+    "lxml>=6.1.0",
+    "markdown2>=2.5.5",
+    "nh3>=0.3.5",
+    "openpyxl>=3.1.5",
+    "opentelemetry-exporter-otlp>=1.41.1",
+    "opentelemetry-instrumentation-django>=0.62b1",
+    "opentelemetry-sdk>=1.41.1",
+    # pinned to mimmum version for security patch (https://github.com/opensafely-core/opencodelists/commit/99374a6aee474e6873f41f0fb2af766b9a8da61d)
+    "requests>=2.32.4",
+    "sentry-sdk>=2.58.0",
+    "slippers>=0.7.0",
+    "sqlean-py>=3.50.4.5",
+    "structlog>=25.5.0",
+    "tqdm>=4.67.3",
+    # Serves static files. Dependabot wasn't updating past 6.3.0 for
+    # unclear reasons, and we want fix #612 from 6.8.0.
+    "whitenoise[brotli]>=6.8.0",
+]
 
 [tool.coverage.run]
 branch = true
@@ -91,3 +127,21 @@ lines-after-imports = 2
 
 [tool.uv]
 required-version = ">=0.9"
+
+[dependency-groups]
+dev = [
+    "django-debug-toolbar>=6.3.0",
+    "djhtml>=3.0.11",
+    "hypothesis>=6.152.3",
+    # for scripts/import_codelists_from_xlsx.py
+    "pandas>=3.0.2",
+    # For scripts/fetch_vmp_prev.py
+    "paramiko>=4.0.0",
+    "pip-tools>=7.5.3",
+    "pre-commit>=4.6.0",
+    "pytest-cov>=7.1.0",
+    "pytest-django>=4.12.0",
+    "pytest-playwright>=0.7.2",
+    "responses>=0.26.0",
+    "ruff>=0.15.12",
+]

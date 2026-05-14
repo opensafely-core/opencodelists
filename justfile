@@ -3,9 +3,6 @@
 export VIRTUAL_ENV  := `echo ${VIRTUAL_ENV:-.venv}`
 
 export BIN := VIRTUAL_ENV + "/bin"
-export PIP := BIN + "/python -m pip"
-# enforce our chosen pip compile flags
-export COMPILE := BIN + "/pip-compile --allow-unsafe --generate-hashes"
 
 # Load .env files by default
 set dotenv-load := true
@@ -37,42 +34,23 @@ virtualenv:
         { echo "Did not find $PYTHON_VERSION in $VIRTUAL_ENV (try deleting the virtualenv (just clean) and letting it re-build)"; exit 1; }
     fi
 
-    # create venv and upgrade pip
-    test -d $VIRTUAL_ENV || { $PYTHON_VERSION -m venv $VIRTUAL_ENV && $PIP install --upgrade pip; }
-
-    # ensure we have pip-tools so we can run pip-compile
-    test -e $BIN/pip-compile || $PIP install pip-tools
+    # create venv
+    test -d $VIRTUAL_ENV || uv venv $VIRTUAL_ENV
 
 
-_compile src dst *args: virtualenv
+# ensure prod dependencies installed and up to date
+prodenv:
     #!/usr/bin/env bash
     set -euo pipefail
 
-    # exit if src file is older than dst file (-nt = 'newer than', but we negate with || to avoid error exit code)
-    test "${FORCE:-}" = "true" -o {{ src }} -nt {{ dst }} || exit 0
-    $BIN/pip-compile --allow-unsafe --generate-hashes --output-file={{ dst }} {{ src }} {{ args }}
-
-
-# update requirements.prod.txt if requirements.prod.in has changed
-requirements-prod *args:
-    {{ just_executable() }} _compile requirements.prod.in requirements.prod.txt {{ args }}
-
-
-# update requirements.dev.txt if requirements.dev.in has changed
-requirements-dev *args: requirements-prod
-    {{ just_executable() }} _compile requirements.dev.in requirements.dev.txt {{ args }}
-
-
-# ensure prod requirements installed and up to date
-prodenv: requirements-prod
-    #!/usr/bin/env bash
-    set -euo pipefail
-
-    # exit if .txt file has not changed since we installed them (-nt == "newer than', but we negate with || to avoid error exit code)
-    test requirements.prod.txt -nt $VIRTUAL_ENV/.prod || exit 0
-
-    $PIP install -r requirements.prod.txt
-    touch $VIRTUAL_ENV/.prod
+    # Ensure all project dependencies are installed and up-to-date with
+    # the lockfile. The project is re-locked before syncing, so any
+    # changes to pyproject.toml are reflected in the environment
+    # (https://docs.astral.sh/uv/concepts/projects/sync/#locking-and-syncing).
+    # Disable the dev dependency group (--no-dev) and remove any
+    # extraneous packages (default uv sync behaviour)
+    # (https://docs.astral.sh/uv/reference/cli/#uv-sync)
+    uv sync --no-dev
 
 
 _env:
@@ -85,16 +63,18 @@ _env:
 # && dependencies are run after the recipe has run. Needs just>=0.9.9. This is
 # a killer feature over Makefiles.
 #
-# ensure dev requirements installed and up to date
-devenv: _env prodenv requirements-dev && install-precommit
+# ensure dev dependencies installed and up to date
+devenv: _env && install-precommit
     #!/usr/bin/env bash
     set -euo pipefail
 
-    # exit if .txt file has not changed since we installed them (-nt == "newer than', but we negate with || to avoid error exit code)
-    test requirements.dev.txt -nt $VIRTUAL_ENV/.dev || exit 0
-
-    $PIP install -r requirements.dev.txt
-    touch $VIRTUAL_ENV/.dev
+    # Ensure all project dependencies are installed and up-to-date with
+    # the lockfile. The project is re-locked before syncing, so any
+    # changes to pyproject.toml are reflected in the environment
+    # (https://docs.astral.sh/uv/concepts/projects/sync/#locking-and-syncing).
+    # Do not remove extraneous packages (--inexact)
+    # (https://docs.astral.sh/uv/reference/cli/#uv-sync--inexact)
+    uv sync --inexact
 
 
 # ensure precommit is installed
@@ -106,22 +86,19 @@ install-precommit:
     test -f $BASE_DIR/.git/hooks/pre-commit || $BIN/pre-commit install
 
 
-# upgrade dev or prod dependencies (specify package to upgrade single package, all by default)
-upgrade env package="": virtualenv
+# Upgrade a single package to the latest version per pyproject.toml
+upgrade-package package: && devenv
     #!/usr/bin/env bash
     set -euo pipefail
 
-    opts="--upgrade"
-    test -z "{{ package }}" || opts="--upgrade-package {{ package }}"
-    FORCE=true {{ just_executable() }} requirements-{{ env }} $opts
+    uv lock --upgrade-package {{ package }}
 
 
-# Upgrade all dev and prod dependencies.
+# Upgrade all dev and prod dependencies to the latest versions per the pyproject.toml
 # This is the default input command to update-dependencies action
 # https://github.com/bennettoxford/update-dependencies-action
-update-dependencies:
-    just upgrade prod
-    just upgrade dev
+update-dependencies: && devenv
+    uv lock --upgrade
 
 
 # *ARGS is variadic, 0 or more. This allows us to do `just test -k match`, for example.

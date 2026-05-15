@@ -1,4 +1,9 @@
 # syntax=docker/dockerfile:1.2
+
+## These build args are used in FROM lines, so need to be declared globally and have defaults set.
+ARG NODE_VERSION
+ARG UV_VERSION=0.11
+
 #################################################
 #
 # Create base image with python installed.
@@ -17,6 +22,28 @@ RUN rm -f /etc/apt/apt.conf.d/docker-clean
 COPY docker/dependencies.txt /tmp/dependencies.txt
 RUN --mount=type=cache,target=/var/cache/apt \
     /root/docker-apt-install.sh /tmp/dependencies.txt
+
+# uv env var documentation: https://docs.astral.sh/uv/reference/environment/
+# copy files rather than symlink since the cache and the target are on different filesystems
+ENV UV_LINK_MODE=copy
+# compile at installation time, not import time
+ENV UV_COMPILE_BYTECODE=1
+# we are using the ubuntu 24.04 system default python (3.12)
+ENV UV_PYTHON_DOWNLOADS=never
+# set the directory for the venv
+ENV UV_PROJECT_ENVIRONMENT="/opt/venv"
+
+##################################################
+#
+# Reusable uv CLI layer
+#
+# This allows us to specify the version in one place, and also works around
+# a limitation that you cannot use build args directly in `COPY --from`.
+#
+# See: https://github.com/moby/buildkit/issues/2412 for more infor
+#
+#
+FROM ghcr.io/astral-sh/uv:${UV_VERSION} AS uv-cli
 
 #################################################
 #
@@ -59,20 +86,27 @@ COPY docker/build-dependencies.txt /tmp/build-dependencies.txt
 RUN --mount=type=cache,target=/var/cache/apt \
     /root/docker-apt-install.sh /tmp/build-dependencies.txt
 
+# Pull in the binaries from our pinned uv-cli stage
+COPY --from=uv-cli /uv /uvx /usr/local/bin/
+
+# Create a venv with uv (https://docs.astral.sh/uv/reference/cli/#uv-venv)
 # Install everything in venv for isolation from system python libraries
-RUN python3.12 -m venv /opt/venv
-ENV VIRTUAL_ENV=/opt/venv/ PATH="/opt/venv/bin:$PATH"
+RUN uv venv
 
-# The cache mount means a) /root/.cache is not in the image, and b) it's preserved
-# between docker builds locally, for faster dev rebuild.
-COPY requirements.prod.txt /tmp/requirements.prod.txt
-
-# DL3042: using cache mount instead
-# DL3013: we always want latest pip/setuptools/wheel, at least for now
-# hadolint ignore=DL3042,DL3013
+# The cache mount means a) /root/.cache is not in the image, and b) it's
+# preserved between docker builds locally, for faster dev rebuild.
 RUN --mount=type=cache,target=/root/.cache \
-    python -m pip install -U pip setuptools wheel && \
-    python -m pip install --require-hashes --requirement /tmp/requirements.prod.txt
+--mount=type=bind,source=pyproject.toml,target=/root/pyproject.toml \
+--mount=type=bind,source=uv.lock,target=/root/uv.lock \
+    # install prod dependencies
+    # --frozen for deterministic installs
+    # (https://docs.astral.sh/uv/reference/cli/#uv-sync--frozen)
+    # --no-dev so we only install prod dependencies
+    #  (https://docs.astral.sh/uv/reference/cli/#uv-sync--no-dev)
+    # --no-install-project so we only install the dependencies, not the
+    # project (https://docs.astral.sh/uv/reference/cli/#uv-sync--no-install-project)
+    # --directory /root lets `uv` detect the pyproject.toml, uv.lock etc.
+    uv sync --frozen --no-dev --no-install-project --directory /root
 
 
 ##################################################
@@ -186,12 +220,19 @@ USER ${USERID}:${GROUPID}
 #
 FROM opencodelists-base as opencodelists-dev
 
-# install development requirements
-COPY requirements.dev.txt /tmp/requirements.dev.txt
-# using cache mount instead
-# hadolint ignore=DL3042
+# Pull in the binaries from our pinned uv-cli stage
+COPY --from=uv-cli /uv /uvx /usr/local/bin/
+
 RUN --mount=type=cache,target=/root/.cache \
-    python -m pip install --require-hashes --requirement /tmp/requirements.dev.txt
+--mount=type=bind,source=pyproject.toml,target=/root/pyproject.toml \
+--mount=type=bind,source=uv.lock,target=/root/uv.lock \
+    # install dev dependencies
+    # --frozen for deterministic installs
+    # (https://docs.astral.sh/uv/reference/cli/#uv-sync--frozen)
+    # --no-install-project so we only install the dependencies, not the
+    # project (https://docs.astral.sh/uv/reference/cli/#uv-sync--no-install-project)
+    # --directory /root lets `uv` detect the pyproject.toml, uv.lock etc.
+    uv sync --frozen --no-install-project --directory /root
 
 # Install playwright chromium dependencies. This needs to be done AFTER
 # playwright is pip-installed

@@ -39,6 +39,8 @@ jobs:
       - uses: opensafely-core/setup-action@5b3030fbbcf069c94e352b4f0a94100fae4dbd82 # v1.6.1
         with:
           install-just: true
+          install-uv: true
+          cache: uv
 
       - name: Build docker image and run checks in it
         run: |
@@ -58,6 +60,8 @@ jobs:
       - uses: opensafely-core/setup-action@5b3030fbbcf069c94e352b4f0a94100fae4dbd82 # v1.6.1
         with:
           install-just: true
+          install-uv: true
+          cache: uv
 
       - name: Build docker image for both prod and dev
         run: |
@@ -109,6 +113,8 @@ jobs:
       - uses: opensafely-core/setup-action@5b3030fbbcf069c94e352b4f0a94100fae4dbd82 # v1.6.1
         with:
           install-just: true
+          install-uv: true
+          cache: uv
 
       - name: Build docker image and run functional tests in it
         run: |
@@ -147,6 +153,8 @@ jobs:
       - uses: opensafely-core/setup-action@5b3030fbbcf069c94e352b4f0a94100fae4dbd82 # v1.6.1
         with:
           install-just: true
+          install-uv: true
+          cache: uv
 
       - name: Build docker image and run JS tests in it
         run: |

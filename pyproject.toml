@@ -137,7 +137,6 @@ dev = [
     "pandas>=3.0.2",
     # For scripts/fetch_vmp_prev.py
     "paramiko>=4.0.0",
-    "pip-tools>=7.5.3",
     "pre-commit>=4.6.0",
     "pytest-cov>=7.1.0",
     "pytest-django>=4.12.0",

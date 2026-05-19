@@ -43,6 +43,8 @@ jobs:
       - uses: opensafely-core/setup-action@5b3030fbbcf069c94e352b4f0a94100fae4dbd82 # v1.6.1
         with:
           install-just: true
+          install-uv: true
+          cache: uv
 
       - name: Download docker image
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1

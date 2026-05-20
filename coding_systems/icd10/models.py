@@ -22,10 +22,21 @@ class ConceptUsage(models.TextChoices):
 
 
 class RubricKind(models.TextChoices):
-    INCLUSION = "inclusion"
-    EXCLUSION = "exclusion"
-    NOTE = "note"
+    FOOTNOTE = "footnote"
     TEXT = "text"
+    CODING_HINT = "coding_hint"
+    DEFINITION = "definition"
+    INTRODUCTION = "introduction"
+    MODIFIERLINK = "modifierlink"
+    NOTE = "note"
+    EXCLUSION = "exclusion"
+    INCLUSION = "inclusion"
+    PREFERREDLONG = "preferredlong"
+    PREFERRED = "preferred"
+    SMALL = "small"
+    SMALL2 = "small2"
+    SMALL3 = "small3"
+    SMALL2PLAIN = "small2plain"
 
 
 class Edition(models.Model):

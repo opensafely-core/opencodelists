@@ -30,9 +30,14 @@ repos:
         entry: djhtml --tabwidth 2 # Use a tabwidth of 2 for HTML files
         files: ^templates/.*\.html$ # Indent only HTML files in template directories
 
-  - repo: https://github.com/jumanjihouse/pre-commit-hooks
-    rev: 2.1.6
+  - repo: local
     hooks:
     - id: shellcheck
+      name: shellcheck
+      description: Test shell scripts with shellcheck
+      entry: shellcheck
+      language: system
+      types: [shell]
+      args: [-e, SC1091]
 
 exclude: coding_systems/snomedct/parser_utils/

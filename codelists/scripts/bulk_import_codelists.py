@@ -349,7 +349,10 @@ def process_file_to_dataframe(filepath, config):
 
     # Remove extraneous whitespace from all columns of interest
     for column in relevant_df_columns:
-        codelist_df[column] = codelist_df[column].str.strip()
+        try:
+            codelist_df[column] = codelist_df[column].str.strip()
+        except AttributeError:
+            pass
 
     return codelist_df
 
@@ -414,7 +417,9 @@ def get_post_data(
     methodology = first_row.get("codelist_methodology", None)
 
     post_data = {"coding_system_database_alias": release_db_alias, "tag": tag}
-    if coding_system_id in CODING_SYSTEMS_WITH_OLD_STYLE_CODELISTS:
+    if coding_system_id in CODING_SYSTEMS_WITH_OLD_STYLE_CODELISTS or config.get(
+        "force_old_style"
+    ):
         # create an old-style codelist/version with csv_data
         csv_columns = [
             c

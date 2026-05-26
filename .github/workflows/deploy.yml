@@ -19,6 +19,7 @@ jobs:
     uses: ./.github/workflows/main.yml
 
   deploy:
+    name: Deploy OpenCodelists
     needs: [test-and-build-docker-image]
 
     runs-on: ubuntu-latest

@@ -7,25 +7,29 @@ on:
   workflow_dispatch:
 
 jobs:
-
   lint-dockerfile:
-    runs-on: ubuntu-latest
+    name: Dockerfile lint
+    runs-on: ubuntu-24.04
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
-      - uses: hadolint/hadolint-action@2332a7b74a6de0dda2e2221d575162eba76ba5e5  # v3.3.0
+
+      - uses: hadolint/hadolint-action@2332a7b74a6de0dda2e2221d575162eba76ba5e5 # v3.3.0
         with:
           dockerfile: docker/Dockerfile
 
   check-py:
-    runs-on: ubuntu-latest
+    name: Python formatting check
+    runs-on: ubuntu-24.04
+    needs: lint-dockerfile
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
+
       - uses: opensafely-core/setup-action@5b3030fbbcf069c94e352b4f0a94100fae4dbd82 # v1.6.1
         with:
           install-just: true
@@ -35,29 +39,16 @@ jobs:
           # build docker and run checks
           just docker-check-py
 
-  check-js:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          persist-credentials: false
-      - uses: opensafely-core/setup-action@5b3030fbbcf069c94e352b4f0a94100fae4dbd82 # v1.6.1
-        with:
-          install-just: true
-
-      - name: Build docker image and run checks in it
-        run: |
-          # build docker and run checks
-          just docker-check-js
-
   test-py:
-    runs-on: ubuntu-latest
+    name: Python tests
+    runs-on: ubuntu-24.04
+    needs: check-py
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
+
       - uses: opensafely-core/setup-action@5b3030fbbcf069c94e352b4f0a94100fae4dbd82 # v1.6.1
         with:
           install-just: true
@@ -101,7 +92,9 @@ jobs:
             compression-level: 0
 
   test-functional:
-    runs-on: ubuntu-latest
+    name: Functional tests
+    runs-on: ubuntu-24.04
+    needs: check-py
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -116,13 +109,35 @@ jobs:
           # build docker and run test
           TAKE_SCREENSHOTS=True just docker-test-functional --migrations
 
-  test-js:
-    runs-on: ubuntu-latest
+  check-js:
+    name: JS formatting check
+    runs-on: ubuntu-24.04
+    needs: lint-dockerfile
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
+
+      - uses: opensafely-core/setup-action@5b3030fbbcf069c94e352b4f0a94100fae4dbd82 # v1.6.1
+        with:
+          install-just: true
+
+      - name: Build docker image and run checks in it
+        run: |
+          # build docker and run checks
+          just docker-check-js
+
+  test-js:
+    name: JavaScript tests
+    runs-on: ubuntu-24.04
+    needs: check-js
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
       - uses: opensafely-core/setup-action@5b3030fbbcf069c94e352b4f0a94100fae4dbd82 # v1.6.1
         with:
           install-just: true

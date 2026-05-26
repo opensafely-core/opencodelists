@@ -5,6 +5,8 @@ on:
   schedule:
     - cron:  "12 6 * * 1"
 
+permissions: {}
+
 jobs:
   update-dependencies:
     name: Update Python dependencies

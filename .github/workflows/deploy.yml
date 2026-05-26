@@ -67,8 +67,10 @@ jobs:
             }
 
       - name: Publish docker image
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-            echo ${{ secrets.GITHUB_TOKEN }} | docker login $REGISTRY -u ${GITHUB_ACTOR} --password-stdin
+            printf '%s' "$GITHUB_TOKEN" | docker login "$REGISTRY" -u "$GITHUB_ACTOR" --password-stdin
             docker tag $IMAGE_NAME $PUBLIC_IMAGE_NAME:latest
             docker push $PUBLIC_IMAGE_NAME:latest
 
@@ -84,9 +86,11 @@ jobs:
           finalize: false
 
       - name: Setup SSH Agent
+        env:
+          DOKKU3_DEPLOY_SSH_KEY: ${{ secrets.DOKKU3_DEPLOY_SSH_KEY }}
         run: |
             ssh-agent -a $SSH_AUTH_SOCK > /dev/null
-            ssh-add - <<< "${{ secrets.DOKKU3_DEPLOY_SSH_KEY }}"
+            ssh-add - <<< "$DOKKU3_DEPLOY_SSH_KEY"
 
       - name: Deploy
         run: |

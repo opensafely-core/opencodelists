@@ -63,7 +63,7 @@ jobs:
 
       - name: Publish docker image
         run: |
-            echo ${{ secrets.GITHUB_TOKEN }} | docker login $REGISTRY -u ${{ github.actor }} --password-stdin
+            echo ${{ secrets.GITHUB_TOKEN }} | docker login $REGISTRY -u ${GITHUB_ACTOR} --password-stdin
             docker tag $IMAGE_NAME $PUBLIC_IMAGE_NAME:latest
             docker push $PUBLIC_IMAGE_NAME:latest
 

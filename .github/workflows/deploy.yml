@@ -14,7 +14,9 @@ on:
 
 permissions: {}
 
-concurrency: deploy-production
+concurrency:
+  group: deploy-production
+  cancel-in-progress: true
 
 jobs:
   test-and-build-docker-image:

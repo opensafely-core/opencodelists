@@ -385,12 +385,15 @@ def get_post_data(
     if (
         "localhost" in host
         and not os.environ.get("TEST_IN_DOCKER")
+        and not os.environ.get("PYTEST_VERSION")
         and coding_system_id not in CODING_SYSTEMS_WITH_OLD_STYLE_CODELISTS
     ):
         db_path = (
-            Path(dbpath)
-            if (dbpath := os.environ.get("DATABASE_DIR"))
-            else (Path(__file__).resolve().parent.parent.parent)
+            (
+                Path(dbpath)
+                if (dbpath := os.environ.get("DATABASE_DIR"))
+                else (Path(__file__).resolve().parent.parent.parent)
+            )
             / "coding_systems"
             / coding_system_id
             / f"{release_db_alias}.sqlite3"

@@ -101,6 +101,7 @@ AB  239964003  Soft tissue lesion of elbow region                       X
 
 import csv
 from copy import deepcopy
+from datetime import date
 from io import StringIO
 from pathlib import Path
 
@@ -123,6 +124,7 @@ from codelists.coding_systems import CODING_SYSTEMS, most_recent_database_alias
 from codelists.models import Status
 from codelists.search import do_search
 from coding_systems.base.coding_system_base import BuilderCompatibleCodingSystem
+from coding_systems.versioning.models import CodingSystemRelease, ReleaseState
 from opencodelists.actions import (
     add_user_to_organisation,
     create_organisation,
@@ -1022,3 +1024,53 @@ def icd10_data():
         "icd10.icd10_test_20200101.json",
     )
     call_command("loaddata", path, database="icd10_test_20200101")
+
+
+# Fixtures for testing the medication warning banner
+@pytest.fixture
+def dmd_version_asthma_medication_published(
+    dmd_codelist,
+    dmd_version_asthma_medication,
+):
+    version = create_old_style_version(
+        codelist=dmd_codelist,
+        csv_data=dmd_version_asthma_medication.csv_data,
+        coding_system_database_alias=most_recent_database_alias("dmd"),
+    )
+
+    version.status = Status.PUBLISHED
+    version.save()
+
+    return version
+
+
+@pytest.fixture
+def create_coding_system_release():
+    """
+    Create a CodingSystemRelease that is newer than the fixture data.
+
+    Args:
+        coding_system (str): Coding system identifier, e.g. "dmd", "bnf", or "snomedct".
+
+    Defaults:
+        release_name = f"test_{coding_system}"
+        valid_from = date.today()
+        state = ReleaseState.READY
+
+    Note:
+        This fixture creates a CodingSystemRelease record only. It does not create or configure
+        a corresponding coding system database. Tests that exercise code
+        which accesses release.database_alias may require a real
+        configured coding system database.
+    """
+
+    def make_new_coding_system_release(coding_system):
+        new_coding_system_release = CodingSystemRelease.objects.create(
+            coding_system=coding_system,
+            release_name=f"test_{coding_system}",
+            valid_from=date.today(),
+            state=ReleaseState.READY,
+        )
+        return new_coding_system_release
+
+    return make_new_coding_system_release

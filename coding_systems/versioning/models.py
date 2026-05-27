@@ -65,13 +65,13 @@ def database_ready():
     executor = MigrationExecutor(connection)
     targets = executor.loader.graph.leaf_nodes()
     versioning_plan = executor.migration_plan(targets)
-    return not versioning_plan
+    return not {m.app_label for m, _ in versioning_plan} - (CODING_SYSTEMS.keys())
 
 
 def update_coding_system_database_connections():
     """Add the database config for each coding system release"""
     # ensure that the database is ready and the CodingSystemRelease table is available
-    # (i.e. migrations have been run)
+    # (i.e. migrations for everything but the coding systems have been run)
     if database_ready():  # pragma: no cover
         for coding_system_release in CodingSystemRelease.objects.all():
             if not CODING_SYSTEMS[coding_system_release.coding_system].has_database:

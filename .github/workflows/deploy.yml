@@ -12,13 +12,18 @@ on:
   push:
     branches: [main]
 
-concurrency: deploy-production
+permissions: {}
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: true
 
 jobs:
   test-and-build-docker-image:
     uses: ./.github/workflows/main.yml
 
   deploy:
+    name: Deploy OpenCodelists
     needs: [test-and-build-docker-image]
 
     runs-on: ubuntu-latest
@@ -30,16 +35,17 @@ jobs:
     if: github.ref == 'refs/heads/main'
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
+          persist-credentials: false
 
-      - uses: opensafely-core/setup-action@v1
+      - uses: opensafely-core/setup-action@5b3030fbbcf069c94e352b4f0a94100fae4dbd82 # v1.6.1
         with:
           install-just: true
 
       - name: Download docker image
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: opencodelists-image
           path: /tmp/image
@@ -61,8 +67,10 @@ jobs:
             }
 
       - name: Publish docker image
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-            echo ${{ secrets.GITHUB_TOKEN }} | docker login $REGISTRY -u ${{ github.actor }} --password-stdin
+            printf '%s' "$GITHUB_TOKEN" | docker login "$REGISTRY" -u "$GITHUB_ACTOR" --password-stdin
             docker tag $IMAGE_NAME $PUBLIC_IMAGE_NAME:latest
             docker push $PUBLIC_IMAGE_NAME:latest
 
@@ -78,9 +86,11 @@ jobs:
           finalize: false
 
       - name: Setup SSH Agent
+        env:
+          DOKKU3_DEPLOY_SSH_KEY: ${{ secrets.DOKKU3_DEPLOY_SSH_KEY }}
         run: |
             ssh-agent -a $SSH_AUTH_SOCK > /dev/null
-            ssh-add - <<< "${{ secrets.DOKKU3_DEPLOY_SSH_KEY }}"
+            ssh-add - <<< "$DOKKU3_DEPLOY_SSH_KEY"
 
       - name: Deploy
         run: |

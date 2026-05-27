@@ -5,22 +5,34 @@ on:
   schedule:
     - cron:  "12 6 * * 1"
 
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   update-dependencies:
+    name: Update Python dependencies
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
-    - uses: "opensafely-core/setup-action@v1"
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        persist-credentials: false
+
+    - uses: opensafely-core/setup-action@5b3030fbbcf069c94e352b4f0a94100fae4dbd82 # v1.6.1
       with:
         python-version: "3.12"
         install-just: true
 
-    - uses: actions/create-github-app-token@v3.1.1
+    - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
       id: generate-token
       with:
         app-id: 1031449  # opensafely-core Create PR app
         private-key: ${{ secrets.CREATE_PR_APP_PRIVATE_KEY }}
+        permission-contents: write
+        permission-pull-requests: write
 
-    - uses: bennettoxford/update-dependencies-action@v1
+    - uses: bennettoxford/update-dependencies-action@b77a22bcfe1d06020d908e64c9828fe944da3a5e # v1
       with:
         token: ${{ steps.generate-token.outputs.token }}

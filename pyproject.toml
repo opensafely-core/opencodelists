@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "OpenCodelists"
 readme = "README.md"
 authors = [{name = "OpenSAFELY", email = "tech@opensafely.org"}]
-license = {file = "LICENSE"}
+license = {file = "LICENCE"}
 requires-python = ">=3.12"
 dependencies = [
     "antlr4-python3-runtime>=4.13.2",
@@ -38,9 +38,7 @@ dependencies = [
     "sqlean-py>=3.50.4.5",
     "structlog>=25.5.0",
     "tqdm>=4.67.3",
-    # Serves static files. Dependabot wasn't updating past 6.3.0 for
-    # unclear reasons, and we want fix #612 from 6.8.0.
-    "whitenoise[brotli]>=6.8.0",
+    "whitenoise[brotli]>=6.12.0",
 ]
 
 [tool.coverage.run]

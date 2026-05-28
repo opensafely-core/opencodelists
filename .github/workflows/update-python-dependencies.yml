@@ -23,8 +23,6 @@ jobs:
     - uses: opensafely-core/setup-action@5b3030fbbcf069c94e352b4f0a94100fae4dbd82 # v1.6.1
       with:
         install-just: true
-        install-uv: true
-        cache: uv
 
     - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
       id: generate-token

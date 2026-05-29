@@ -1,3 +1,46 @@
+[project]
+name = "opencodelists"
+version = "0.1.0"
+description = "OpenCodelists"
+readme = "README.md"
+authors = [{name = "OpenSAFELY", email = "tech@opensafely.org"}]
+license = {file = "LICENCE"}
+requires-python = ">=3.12"
+dependencies = [
+    "antlr4-python3-runtime",
+    "beautifulsoup4",
+    "crispy-bootstrap4",
+    "dj-database-url",
+    # Pin to 5.2.x until 6.0 is released and we are happy with 6.0 compatibility
+    "django>=5.2,<6.0",
+    "django-anymail[mailgun]",
+    "django-cors-headers",
+    "django-crispy-forms",
+    "django-extensions",
+    "django-structlog",
+    "django-taggit",
+    "django-vite",
+    "djangorestframework",
+    "faker",
+    "furl",
+    "gunicorn",
+    "lxml",
+    "markdown2",
+    "nh3",
+    "openpyxl",
+    "opentelemetry-exporter-otlp",
+    "opentelemetry-instrumentation-django",
+    "opentelemetry-sdk",
+    # pinned to mimmum version for security patch (https://github.com/opensafely-core/opencodelists/commit/99374a6aee474e6873f41f0fb2af766b9a8da61d)
+    "requests>=2.32.4",
+    "sentry-sdk",
+    "slippers",
+    "sqlean-py",
+    "structlog",
+    "tqdm",
+    "whitenoise[brotli]",
+]
+
 [tool.coverage.run]
 branch = true
 omit = [
@@ -79,3 +122,27 @@ lines-after-imports = 2
 "manage.py" = ["INP001"]
 "codelists/views/__init__.py" = ["F401"]
 "opencodelists/views/__init__.py" = ["F401"]
+
+# Note: any `exclude-newer-package` timestamps should be removed if > 7 days old.
+# See https://github.com/opensafely-core/opencodelists/blob/main/DEVELOPERS.md for details.
+[tool.uv]
+required-version = ">=0.9"
+exclude-newer = "2026-05-18T00:00:00Z"
+exclude-newer-package = {}
+
+[dependency-groups]
+dev = [
+    "django-debug-toolbar",
+    "djhtml",
+    "hypothesis",
+    # for scripts/import_codelists_from_xlsx.py
+    "pandas",
+    # For scripts/fetch_vmp_prev.py
+    "paramiko",
+    "pre-commit",
+    "pytest-cov",
+    "pytest-django",
+    "pytest-playwright",
+    "responses",
+    "ruff",
+]

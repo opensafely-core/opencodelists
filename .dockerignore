@@ -7,7 +7,6 @@
 venv/
 .coverage
 htmlcov/
-pyproject.toml
 **/*.pyc
 **/__pycache__/
 node_modules/

@@ -4,7 +4,7 @@ from functools import lru_cache
 from opencodelists.db_utils import query
 
 from ..base.coding_system_base import BuilderCompatibleCodingSystem
-from .models import Concept, ConceptEdition, Edition
+from .models import Concept, ConceptEdition, ConceptKind, Edition
 
 
 class CodingSystem(BuilderCompatibleCodingSystem):
@@ -141,40 +141,64 @@ class CodingSystem(BuilderCompatibleCodingSystem):
         will be the child of a block.
         """
 
+        # Work out mappings only for latest edition, of which there will only be one for now
+        latest_edition_concepts = ConceptEdition.objects.using(
+            self.database_alias
+        ).filter(edition=self.latest_edition)
+
         # Start with mappings from chapter code to chapter code.
         code_to_chapter = {
-            chapter.code: chapter.code
-            for chapter in Concept.objects.using(self.database_alias).filter(
-                kind="chapter"
-            )
+            chapter.concept.code: chapter.concept.code
+            for chapter in latest_edition_concepts.filter(kind=ConceptKind.CHAPTER)
         }
 
         # Add mappings from blocks that are children of chapters.
-        for block in Concept.objects.using(self.database_alias).filter(
-            kind="block", parent__kind="chapter"
+        for block in latest_edition_concepts.filter(
+            kind=ConceptKind.BLOCK,
+            concept__parent__in=latest_edition_concepts.filter(
+                kind=ConceptKind.CHAPTER
+            ).values_list("concept_id", flat=True),
         ):
-            code_to_chapter[block.code] = code_to_chapter[block.parent_id]
+            code_to_chapter[block.concept.code] = code_to_chapter[
+                block.concept.parent_id
+            ]
 
         # Add mappings from blocks that are children of other blocks.
-        for block in Concept.objects.using(self.database_alias).filter(
-            kind="block", parent__kind="block"
+        for block in latest_edition_concepts.filter(
+            kind=ConceptKind.BLOCK,
+            concept__parent__in=latest_edition_concepts.filter(
+                kind=ConceptKind.BLOCK
+            ).values_list("concept_id", flat=True),
         ):
-            code_to_chapter[block.code] = code_to_chapter[block.parent_id]
+            code_to_chapter[block.concept.code] = code_to_chapter[
+                block.concept.parent_id
+            ]
 
         # Add mappings from categories that are children of blocks.
-        for category in Concept.objects.using(self.database_alias).filter(
-            kind="category", parent__kind="block"
+        for category in latest_edition_concepts.filter(
+            kind=ConceptKind.CATEGORY,
+            concept__parent__in=latest_edition_concepts.filter(
+                kind=ConceptKind.BLOCK
+            ).values_list("concept_id", flat=True),
         ):
-            code_to_chapter[category.code] = code_to_chapter[category.parent_id]
+            code_to_chapter[category.concept.code] = code_to_chapter[
+                category.concept.parent_id
+            ]
 
         # Add mappings from categories that are children of other categories.
-        for category in Concept.objects.using(self.database_alias).filter(
-            kind="category", parent__kind="category"
+        for category in latest_edition_concepts.filter(
+            kind=ConceptKind.CATEGORY,
+            concept__parent__in=latest_edition_concepts.filter(
+                kind=ConceptKind.CATEGORY
+            ).values_list("concept_id", flat=True),
         ):
-            code_to_chapter[category.code] = code_to_chapter[category.parent_id]
+            code_to_chapter[category.concept.code] = code_to_chapter[
+                category.concept.parent_id
+            ]
 
         assert (
-            len(code_to_chapter) == Concept.objects.using(self.database_alias).count()
+            len(code_to_chapter)
+            == ConceptEdition.objects.using(self.database_alias).count()
         )
 
         return code_to_chapter
@@ -184,10 +208,10 @@ class CodingSystem(BuilderCompatibleCodingSystem):
         """Return mapping from a chapter code to its name."""
 
         return {
-            concept.code: f"{concept.code}: {concept.term}"
-            for concept in Concept.objects.using(self.database_alias).filter(
-                kind="chapter"
-            )
+            conceptedition.concept.code: f"{conceptedition.concept.code}: {conceptedition.term}"
+            for conceptedition in ConceptEdition.objects.using(
+                self.database_alias
+            ).filter(edition=self.latest_edition, kind=ConceptKind.CHAPTER)
         }
 
     def matching_codes(self, codes):

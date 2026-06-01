@@ -25,7 +25,7 @@ def index(request):
     handles, q = _search_handles(handles, request.GET.get("q"))
     codelists = _all_published_codelists(handles)
     ctx = {
-        "codelists_page": _get_page_obj(codelists, request.GET.get("page"), 15),
+        "codelists_page": Paginator(codelists, 15).get_page(request.GET.get("page")),
         "q": q,
     }
     return render(request, "codelists/index.html", ctx)
@@ -84,12 +84,6 @@ def _search_handles(handles, q):
         handles = handles.order_by("name")
 
     return handles, q
-
-
-def _get_page_obj(objects, page_number, paginate_by=30):
-    paginator = Paginator(objects, paginate_by)
-    page_obj = paginator.get_page(page_number)
-    return page_obj
 
 
 def _all_published_codelists(handles):

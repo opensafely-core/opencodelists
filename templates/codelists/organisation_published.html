@@ -52,28 +52,28 @@
   <div class="row">
     <div class="col-12">
       <dl class="home-codelists">
-        {% for cl in codelists_page %}
+        {% for codelist in page_obj %}
           <dt>
-            <a href="{{ cl.get_absolute_url }}">{{ cl.name }}</a>
-            <span class="badge badge-secondary">{{ cl.coding_system_short_name }}</span>
+            <a href="{{ codelist.get_absolute_url }}">{{ codelist.name }}</a>
+            <span class="badge badge-secondary">{{ codelist.coding_system_short_name }}</span>
           </dt>
           <dd>
 
-            {% if cl.description %}
+            {% if codelist.description %}
               <div>
-                {{ cl.description|truncatechars:500|truncatelines:4|linebreaksbr }}
+                {{ codelist.description|truncatechars:500|truncatelines:4|linebreaksbr }}
               </div>
             {% endif %}
 
             {% if not organisation %}
-              <div>Published by <a href="{% url 'codelists:organisation_published' cl.organisation_id %}">{{ cl.organisation.name }}</a></div>
+              <div>Published by <a href="{% url 'codelists:organisation_published' codelist.organisation_id %}">{{ codelist.organisation.name }}</a></div>
             {% endif %}
           </dd>
         {% endfor %}
       </dl>
     </div>
 
-    {% include "./_pagination.html" with page_obj=codelists_page %}
+    {% include "./_pagination.html" with page_obj=page_obj %}
 
   </div>
 {% endblock %}

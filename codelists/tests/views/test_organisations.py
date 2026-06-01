@@ -41,7 +41,7 @@ def test_under_review_index(
     # Get the under-review index.
     rsp = client.get(f"/codelist/{organisation.slug}/under-review/")
     # Assert that only under-review versions are returned
-    versions = rsp.context["versions_page"].object_list
+    versions = rsp.context["page_obj"].object_list
     assert (
         len(versions)
         == under_review_count
@@ -54,8 +54,8 @@ def test_under_review_index(
 
 
 def test_paginate_under_review_versions(client, organisation, create_codelists):
-    # Create enough published codelists to paginate (under-review index page is paginated by 30)
-    create_codelists(40, status=Status.UNDER_REVIEW, owner=organisation)
+    # Create enough published codelists to paginate.
+    create_codelists(70, status=Status.UNDER_REVIEW, owner=organisation)
     under_review_for_organisation = flatten(
         [
             list(handle.codelist.versions.filter(status=Status.UNDER_REVIEW))
@@ -64,16 +64,16 @@ def test_paginate_under_review_versions(client, organisation, create_codelists):
             )
         ]
     )
-    assert len(under_review_for_organisation) > 40
+    assert len(under_review_for_organisation) > 70
 
     rsp = client.get(f"/codelist/{organisation.slug}/under-review/")
-    codelist_page_obj = rsp.context["versions_page"]
-    assert len(codelist_page_obj.object_list) == 30
-    assert codelist_page_obj.number == 1
+    page_obj = rsp.context["page_obj"]
+    assert len(page_obj.object_list) == 50
+    assert page_obj.number == 1
 
     rsp = client.get(f"/codelist/{organisation.slug}/under-review/?page=2")
-    codelist_page_obj = rsp.context["versions_page"]
-    assert len(codelist_page_obj.object_list) == len(under_review_for_organisation) - 30
+    page_obj = rsp.context["page_obj"]
+    assert len(page_obj.object_list) == 30
 
 
 def test_search_only_returns_codelists_with_under_review_versions(
@@ -102,7 +102,7 @@ def test_search_only_returns_codelists_with_under_review_versions(
     # Do a search.
     rsp = client.get(f"/codelist/{organisation.slug}/under-review/?q=style")
     # Assert that only versions related to one codelist are returned
-    versions = rsp.context["versions_page"].object_list
+    versions = rsp.context["page_obj"].object_list
     assert len(versions) == under_review_count
     assert version_under_review.id in [version.id for version in versions]
     for version in versions:

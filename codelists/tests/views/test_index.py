@@ -5,25 +5,19 @@ from codelists.views.index import _parse_search_query
 
 
 def test_search_only_returns_codelists_with_published_versions(
-    client, organisation, old_style_codelist, new_style_codelist
+    client, old_style_codelist, new_style_codelist
 ):
-    # The organisation has two codelists whose name matches "style" ("New-style
-    # codelist" and "Old-style codelist").  However, "Old-style codelist" does not have
-    # any published versions, and so should not appear in search results.
-
-    # Validate our assumptions about the fixtures.
-    assert old_style_codelist.organisation == organisation
+    # The fixtures include two codelists whose name matches "style".  However,
+    # "Old-style codelist" does not have any published versions, and so should not
+    # appear in search results.
     assert old_style_codelist.versions.filter(status="published").count() == 0
-    assert new_style_codelist.organisation == organisation
     assert new_style_codelist.versions.filter(status="published").count() > 0
 
-    # Do a search.
-    rsp = client.get(f"/codelist/{organisation.slug}/?q=style")
+    rsp = client.get("/?q=style")
 
-    # Assert that only one codelist is returned.
-    assert len(rsp.context["codelists_page"].object_list) == 1
-    codelist = rsp.context["codelists_page"].object_list[0]
-    assert codelist.slug == "new-style-codelist"
+    codelists = list(rsp.context["codelists_page"].object_list)
+    assert codelists == [new_style_codelist]
+    assert rsp.context["q"] == "style"
 
 
 def test_paginate_codelists(client, organisation, create_codelists):
@@ -36,12 +30,12 @@ def test_paginate_codelists(client, organisation, create_codelists):
     ]
     assert len(published_for_organisation) > 30
 
-    rsp = client.get(f"/codelist/{organisation.slug}/")
+    rsp = client.get("/")
     codelist_page_obj = rsp.context["codelists_page"]
     assert len(codelist_page_obj.object_list) == 15
     assert codelist_page_obj.number == 1
 
-    rsp = client.get(f"/codelist/{organisation.slug}/?page=3")
+    rsp = client.get("/?page=3")
     codelist_page_obj = rsp.context["codelists_page"]
     assert len(codelist_page_obj.object_list) == len(published_for_organisation) - 30
 
@@ -98,7 +92,7 @@ def test_search_ranking(client, organisation, create_codelist):
     codelist3 = create_codelist(name="Diabetes type 2")
     codelist4 = create_codelist(name="Type 2 diabetes")
 
-    rsp = client.get(f"/codelist/{organisation.slug}/?q=type+2+diabetes")
+    rsp = client.get("/?q=type+2+diabetes")
     codelists_from_search = rsp.context["codelists_page"].object_list
 
     assert len(codelists_from_search) == 4

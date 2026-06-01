@@ -4,7 +4,7 @@ from functools import lru_cache
 from opencodelists.db_utils import query
 
 from ..base.coding_system_base import BuilderCompatibleCodingSystem
-from .models import Concept
+from .models import Concept, ConceptEdition, Edition
 
 
 class CodingSystem(BuilderCompatibleCodingSystem):
@@ -18,6 +18,12 @@ class CodingSystem(BuilderCompatibleCodingSystem):
         "term": ["term", "description", "name", "diag_desc"],
     }
     sort_by_term = False
+
+    def __init__(self, database_alias):
+        super().__init__(database_alias)
+        self.latest_edition = (
+            Edition.objects.using(self.database_alias).order_by("-year").first()
+        )
 
     def search_by_term(self, term):
         return set(
@@ -89,9 +95,10 @@ class CodingSystem(BuilderCompatibleCodingSystem):
 
     def lookup_names(self, codes):
         return dict(
-            Concept.objects.using(self.database_alias)
-            .filter(code__in=codes)
-            .values_list("code", "term")
+            ConceptEdition.objects.using(self.database_alias)
+            .filter(edition=self.latest_edition)
+            .filter(concept_id__in=codes)
+            .values_list("concept_id", "term")
         )
 
     def code_to_term(self, codes):

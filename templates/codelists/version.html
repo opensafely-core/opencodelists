@@ -138,7 +138,7 @@
             <dt>
               Organisation
             </dt>
-            <dd class="mb-0"><a href="{% url 'codelists:organisation_index' codelist.organisation.slug %}">{{ codelist.organisation.name }}</a></dd>
+            <dd class="mb-0"><a href="{% url 'codelists:organisation_published' codelist.organisation.slug %}">{{ codelist.organisation.name }}</a></dd>
           </div>
         {% else %}
           <div class="list-group-item py-1 px-2">

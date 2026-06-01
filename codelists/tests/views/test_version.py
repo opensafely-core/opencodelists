@@ -110,7 +110,7 @@ def test_medication_banner_for_owner_of_codelist(client, bnf_version_asthma):
 
 
 def test_organisation_hyperlink_in_version_detail(client, organisation_codelist):
-    """Test that organisation-owned codelists have a hyperlink to organisation index page."""
+    """Test that organisation-owned codelists have a hyperlink to organisation published page."""
     # Get a published version of the organisation codelist
     version = organisation_codelist.latest_published_version()
 
@@ -120,7 +120,7 @@ def test_organisation_hyperlink_in_version_detail(client, organisation_codelist)
 
     # Get the URL using Django's reverse
     org_url = reverse(
-        "codelists:organisation_index",
+        "codelists:organisation_published",
         kwargs={"organisation_slug": organisation_codelist.organisation.slug},
     )
 

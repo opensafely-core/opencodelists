@@ -2,7 +2,6 @@ from django.urls import path
 from django.views.generic import RedirectView
 
 from . import views
-from .models import Status
 
 
 app_name = "codelists"
@@ -38,12 +37,15 @@ urlpatterns = [
     ),
     # ~~~
     path("", views.index, name="index"),
-    path("codelist/<slug:organisation_slug>/", views.index, name="organisation_index"),
+    path(
+        "codelist/<slug:organisation_slug>/",
+        views.organisation_published,
+        name="organisation_published",
+    ),
     path(
         "codelist/<slug:organisation_slug>/under-review/",
-        views.index,
-        {"status": Status.UNDER_REVIEW},
-        name="organisation_under_review_index",
+        views.organisation_review,
+        name="organisation_review",
     ),
 ]
 

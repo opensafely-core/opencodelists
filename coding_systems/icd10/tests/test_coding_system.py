@@ -67,3 +67,25 @@ def test_search_by_code_wildcard(icd10_data, coding_system):
         "A778",
         "A779",
     }
+
+
+def test_ancestor_relationships(icd10_data, coding_system):
+    assert coding_system.ancestor_relationships({"A770"}) == [
+        ("A77", "A770"),
+        ("A75-A79", "A77"),
+        ("I", "A75-A79"),
+        (None, "I"),
+    ]
+
+
+def test_descendant_relationships(icd10_data, coding_system):
+    assert coding_system.descendant_relationships({"I"}) == [
+        ("I", "A75-A79"),
+        ("A75-A79", "A77"),
+        ("A77", "A770"),
+        ("A77", "A771"),
+        ("A77", "A772"),
+        ("A77", "A773"),
+        ("A77", "A778"),
+        ("A77", "A779"),
+    ]

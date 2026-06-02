@@ -111,9 +111,9 @@ class CodingSystem(BuilderCompatibleCodingSystem):
 
         codes_by_type = defaultdict(list)
         for code in codes:
-            chapter_code = self.code_to_chapter().get(code)
+            chapter_code = self._code_to_chapter().get(code)
             chapter_name = (
-                self.chapter_code_to_chapter_name()[chapter_code]
+                self._chapter_code_to_chapter_name()[chapter_code]
                 if chapter_code
                 else "[Unknown]"
             )
@@ -121,7 +121,7 @@ class CodingSystem(BuilderCompatibleCodingSystem):
         return dict(codes_by_type)
 
     @lru_cache
-    def code_to_chapter(self):
+    def _code_to_chapter(self):
         """Return mapping from a concept's code to the code of its chapter.
 
         Each concept belongs exactly one chapter.
@@ -204,7 +204,7 @@ class CodingSystem(BuilderCompatibleCodingSystem):
         return code_to_chapter
 
     @lru_cache
-    def chapter_code_to_chapter_name(self):
+    def _chapter_code_to_chapter_name(self):
         """Return mapping from a chapter code to its name."""
 
         return {

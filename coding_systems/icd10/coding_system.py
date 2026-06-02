@@ -27,24 +27,24 @@ class CodingSystem(BuilderCompatibleCodingSystem):
 
     def search_by_term(self, term):
         return set(
-            Concept.objects.using(self.database_alias)
-            .filter(kind="category")
+            ConceptEdition.objects.using(self.database_alias)
+            .filter(kind=ConceptKind.CATEGORY)
             .filter(term__contains=term)
-            .values_list("code", flat=True)
+            .values_list("concept__code", flat=True)
         )
 
     def search_by_code(self, code):
         code = code.upper()
         if code.endswith("*"):
-            kwargs = {"code__startswith": code.rstrip("*")}
+            kwargs = {"concept__code__startswith": code.rstrip("*")}
         else:
-            kwargs = {"code": code}
+            kwargs = {"concept__code": code}
 
         return set(
-            Concept.objects.using(self.database_alias)
-            .exclude(kind="chapter")
+            ConceptEdition.objects.using(self.database_alias)
+            .exclude(kind=ConceptKind.CHAPTER)
             .filter(**kwargs)
-            .values_list("code", flat=True)
+            .values_list("concept__code", flat=True)
         )
 
     def ancestor_relationships(self, codes):

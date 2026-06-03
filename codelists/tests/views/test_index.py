@@ -4,20 +4,33 @@ from codelists.models import Handle, Status
 from codelists.views.index import _parse_search_query
 
 
-def test_search_only_returns_codelists_with_published_versions(
-    client, old_style_codelist, new_style_codelist
+def test_index_only_lists_public_published_organisation_codelists(
+    client,
+    old_style_codelist,
+    new_style_codelist,
+    user_codelist,
+    create_codelist,
 ):
-    # The fixtures include two codelists whose name matches "style".  However,
-    # "Old-style codelist" does not have any published versions, and so should not
-    # appear in search results.
+    private_codelist = create_codelist(name="Private published codelist")
+    private_codelist.is_private = True
+    private_codelist.save()
+
     assert old_style_codelist.versions.filter(status="published").count() == 0
     assert new_style_codelist.versions.filter(status="published").count() > 0
+    assert user_codelist.versions.filter(status="published").count() > 0
+    assert private_codelist.versions.filter(status="published").count() > 0
 
-    rsp = client.get("/?q=style")
+    rsp = client.get("/")
 
+    assert rsp.status_code == 200
+    assert "codelists/index.html" in [template.name for template in rsp.templates]
     codelists = list(rsp.context["codelists_page"].object_list)
-    assert codelists == [new_style_codelist]
-    assert rsp.context["q"] == "style"
+    assert new_style_codelist in codelists
+    assert old_style_codelist not in codelists
+    assert user_codelist not in codelists
+    assert private_codelist not in codelists
+    assert all(codelist.organisation_id for codelist in codelists)
+    assert all(codelist.has_published_versions() for codelist in codelists)
 
 
 def test_paginate_codelists(client, organisation, create_codelists):
@@ -38,6 +51,30 @@ def test_paginate_codelists(client, organisation, create_codelists):
     rsp = client.get("/?page=3")
     codelist_page_obj = rsp.context["codelists_page"]
     assert len(codelist_page_obj.object_list) == len(published_for_organisation) - 30
+
+
+def test_search_only_returns_codelists_with_published_versions(
+    client, old_style_codelist, new_style_codelist
+):
+    # The fixtures include two codelists whose name matches "style".  However,
+    # "Old-style codelist" does not have any published versions, and so should not
+    # appear in search results.
+    assert old_style_codelist.versions.filter(status="published").count() == 0
+    assert new_style_codelist.versions.filter(status="published").count() > 0
+
+    rsp = client.get("/?q=style")
+
+    codelists = list(rsp.context["codelists_page"].object_list)
+    assert codelists == [new_style_codelist]
+    assert rsp.context["q"] == "style"
+
+
+def test_search_with_no_valid_terms_orders_codelists_by_name(client):
+    rsp = client.get("/", {"q": "   "})
+
+    codelists = list(rsp.context["codelists_page"].object_list)
+    assert codelists == sorted(codelists, key=lambda codelist: codelist.name)
+    assert rsp.context["q"] == "   "
 
 
 @pytest.mark.parametrize(

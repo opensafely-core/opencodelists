@@ -23,13 +23,6 @@ repos:
     - id: check-yaml
     - id: detect-private-key
 
-  - repo: https://github.com/rtts/djhtml
-    rev: 8577ec017145d76a0b954ebb7cb3169d4303014c # v3.0.8
-    hooks:
-      - id: djhtml
-        entry: djhtml --tabwidth 2 # Use a tabwidth of 2 for HTML files
-        files: ^templates/.*\.html$ # Indent only HTML files in template directories
-
   - repo: local
     hooks:
     - id: shellcheck

@@ -10,7 +10,7 @@ published.
 Download the latest release.  Select the ClaML format to download (ClaML is a an XML-based format, designed for classifications). It will be downloaded as a zipped .xml file, named e.g.
 `icdClaML2019ens.zip`.  In the absence of a more specific release date, we label it as valid from the 1st of the year of release.
 
-The version can be retrieved from the <Title> tag of the XML file.  Usually this is just a year; 2019 includes extra COVID extensions and is labelled 2019-covid-expanded.
+The version can be retrieved from the `<Title>` tag of the XML file.  Usually this is just a year; 2019 includes extra COVID extensions and is labelled 2019-covid-expanded.
 
 To import the data, run:
 
@@ -41,3 +41,52 @@ After importing, restart the opencodelists app with:
 
 [0] https://apps.who.int/classifications/apps/icd/ClassificationDownload/DLArea/Download.aspx
 [1] https://icdcdn.who.int/icd10/index.html
+
+
+## Combined edition release process
+
+### In words
+
+1. Scrape the data from the NHS Classification Browser and convert to ClaML (using `./scripts/TODO.py`).
+2. This will produce a ClaML file (`./data/TODO.xml`)
+3. Check if the scraped data has changed since the last time we ran this process (via git diff). If it has, skip to step 8, otherwise continue.
+4. Run the script `./scripts/TODO.py` to check the last_modified timestamps and file sizes of the 2016 and 2019 WHO ClaML files.
+5. This produces a JSON file (`./data/TODO.json`) with the last_modified timestamps and file sizes of the 2016 and 2019 WHO ClaML files.
+6. If the 2016 WHO ClaML file has changed (via git diff) since the last time we ran this process, then skip to step 8. Otherwise continue.
+7. If the 2019 WHO ClaML file has changed (via git diff) since the last time we ran this process, then skip to step 9. Otherwise continue.
+8. Run the script `./scripts/TODO.py` to check the assumptions we make about the differences between the 2016 WHO ClaML file and the scraped file, and fix any issues if necessary.
+9. Run the script `./scripts/TODO.py` to check the assumptions we make about the differences between the combined 2016 WHO + NHS ClaML file and the 2019 WHO ClaML file, and fix any issues if necessary.
+10. Create a new combined release with the updated data.
+
+### In flowchart form
+
+```mermaid
+---
+title: Combined edition release process
+---
+flowchart TD
+    scraper[Script to scrape the data from the <a href='https://classbrowser.nhs.uk/#/book/ICD-10-5TH-Edition'>NHS Classification Browser</a> and convert to ClaML]
+    scraped_output[./data/2016_scraped_claml.xml]
+    scraped_diff{Has the<br>scraped data<br>changed?}
+    last_modified[Script to extract the last_modified date from the zip files at <a href='https://icdcdn.who.int/icd10/index.html'>https://icdcdn.who.int/icd10/index.html</a> TODO.py]
+    2016_change{Has the<br>2016 claml<br>file changed?}
+    2019_change{Has the<br>2019 claml<br>file changed?}
+    last_mod_output[TODO.json]
+    do_nothing[Nothing to do<br>or maybe record somewhere that no changes were detected?]
+    K[Run script to check 2016 scraped on claml assumptions and fix if necessary TODO.py]
+    L[Run script to check 2016 to 2019 assumptions and fix if necessary TODO.py]
+    M[Create new combined release]
+    scraper -->|Produces| scraped_output
+    scraped_output --> scraped_diff
+    scraped_diff -->|No| last_modified
+    scraped_diff -->|Yes| K
+    last_modified -->|Produces| last_mod_output
+    last_mod_output --> 2016_change
+    2016_change -->|No| 2019_change
+    2016_change -->|Yes| K
+    2019_change -->|No| do_nothing
+    2019_change -->|Yes| L
+    K --> L
+    L --> M
+
+```

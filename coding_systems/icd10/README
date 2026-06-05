@@ -55,7 +55,7 @@ After importing, restart the opencodelists app with:
 6. If the 2016 WHO ClaML file has changed (via git diff) since the last time we ran this process, then skip to step 8. Otherwise continue.
 7. If the 2019 WHO ClaML file has changed (via git diff) since the last time we ran this process, then skip to step 9. Otherwise continue.
 8. Run the script `python -m coding_systems.icd10.scripts.compare_2016_claml_with_scraped` to check the assumptions we make about the differences between the 2016 WHO ClaML file and the scraped file, and fix any issues if necessary.
-9. Run the script `./scripts/TODO.py` to check the assumptions we make about the differences between the combined 2016 WHO + NHS ClaML file and the 2019 WHO ClaML file, and fix any issues if necessary.
+9. Run the script `python -m coding_systems.icd10.scripts.compare_2016_combined_with_2019_claml` to check the assumptions we make about the differences between the combined 2016 WHO + NHS ClaML file and the 2019 WHO ClaML file, and fix any issues if necessary.
 10. Create a new combined release with the updated data.
 
 ### In flowchart form
@@ -74,7 +74,7 @@ flowchart TD
     last_mod_output[./data/claml_metadata.json]
     do_nothing[Nothing to do<br>or maybe record somewhere that no changes were detected?]
     K[Run script to check 2016 scraped on claml assumptions and fix if necessary ./scripts/compare_2016_claml_with_scraped.py]
-    L[Run script to check 2016 to 2019 assumptions and fix if necessary TODO.py]
+    L[Run script to check 2016 to 2019 assumptions and fix if necessary ./scripts/compare_2016_combined_with_2019_claml.py]
     M[Create new combined release]
     scraper -->|Produces| scraped_output
     scraped_output --> scraped_diff

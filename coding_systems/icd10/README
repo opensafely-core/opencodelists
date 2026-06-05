@@ -50,8 +50,8 @@ After importing, restart the opencodelists app with:
 1. Scrape the data from the NHS Classification Browser and convert to ClaML (using `./scripts/TODO.py`).
 2. This will produce a ClaML file (`./data/TODO.xml`)
 3. Check if the scraped data has changed since the last time we ran this process (via git diff). If it has, skip to step 8, otherwise continue.
-4. Run the script `./scripts/TODO.py` to check the last_modified timestamps and file sizes of the 2016 and 2019 WHO ClaML files.
-5. This produces a JSON file (`./data/TODO.json`) with the last_modified timestamps and file sizes of the 2016 and 2019 WHO ClaML files.
+4. Run `python -m coding_systems.icd10.scripts.check_icd10_claml_zip_timestamps` to check the last_modified timestamps and file sizes of the 2016 and 2019 WHO ClaML files.
+5. This produces a JSON file (`./data/claml_metadata.json`) with the last_modified timestamps and file sizes of the 2016 and 2019 WHO ClaML files.
 6. If the 2016 WHO ClaML file has changed (via git diff) since the last time we ran this process, then skip to step 8. Otherwise continue.
 7. If the 2019 WHO ClaML file has changed (via git diff) since the last time we ran this process, then skip to step 9. Otherwise continue.
 8. Run the script `./scripts/TODO.py` to check the assumptions we make about the differences between the 2016 WHO ClaML file and the scraped file, and fix any issues if necessary.
@@ -68,10 +68,10 @@ flowchart TD
     scraper[Script to scrape the data from the <a href='https://classbrowser.nhs.uk/#/book/ICD-10-5TH-Edition'>NHS Classification Browser</a> and convert to ClaML]
     scraped_output[./data/2016_scraped_claml.xml]
     scraped_diff{Has the<br>scraped data<br>changed?}
-    last_modified[Script to extract the last_modified date from the zip files at <a href='https://icdcdn.who.int/icd10/index.html'>https://icdcdn.who.int/icd10/index.html</a> TODO.py]
+    last_modified[Script to extract the last_modified date from the zip files at <a href='https://icdcdn.who.int/icd10/index.html'>https://icdcdn.who.int/icd10/index.html</a> ./scripts/check_icd10_claml_zip_timestamps.py]
     2016_change{Has the<br>2016 claml<br>file changed?}
     2019_change{Has the<br>2019 claml<br>file changed?}
-    last_mod_output[TODO.json]
+    last_mod_output[./data/claml_metadata.json]
     do_nothing[Nothing to do<br>or maybe record somewhere that no changes were detected?]
     K[Run script to check 2016 scraped on claml assumptions and fix if necessary TODO.py]
     L[Run script to check 2016 to 2019 assumptions and fix if necessary TODO.py]

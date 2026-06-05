@@ -8,6 +8,7 @@ from coding_systems.base.import_data_utils import (
 )
 from coding_systems.icd10.claml_parser import ICD10Code, parse_claml
 from coding_systems.icd10.data_downloader import download_release
+from coding_systems.icd10.known_diffs import apply_nhs_2016_alterations
 from coding_systems.icd10.models import (
     Concept,
     ConceptEdition,
@@ -174,7 +175,11 @@ def import_data(
 ):
     xml_path_2016 = download_release(release_dir, "2016")
     xml_path_2019 = download_release(release_dir, "2019")
-    output_2016, _ = parse_claml(xml_path_2016)
+    codes_2016, place_modifiers = parse_claml(xml_path_2016)
+    output_2016 = apply_nhs_2016_alterations(
+        codes_2016,
+        place_modifiers,
+    )
     output_2019, _ = parse_claml(xml_path_2019)
 
     with CodingSystemImporter(

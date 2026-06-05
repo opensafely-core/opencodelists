@@ -7,6 +7,9 @@ import zipfile
 from pathlib import Path
 
 
+DATA_DIR = Path(__file__).parent / "data"
+
+
 def get_release_metadata(year: str) -> dict[str, str]:
     if year == "2019":
         return {
@@ -25,7 +28,7 @@ def get_release_metadata(year: str) -> dict[str, str]:
 
 
 def download_zip(
-    release_dir: Path, year: str = "2016", force_download: bool = False
+    release_dir: Path = DATA_DIR, year: str = "2016", force_download: bool = False
 ) -> Path:
     """
     Ensure the ICD-10 ClaML ZIP file is available locally.
@@ -60,7 +63,7 @@ def extract_xml_from_zip(
 
 
 def download_release(
-    release_dir,
+    release_dir: Path = DATA_DIR,
     year: str = "2016",
     force_download: bool = False,
 ) -> Path:

@@ -6,7 +6,7 @@ from coding_systems.base.import_data_utils import (
     CodingSystemImporter,
     batched_bulk_create,
 )
-from coding_systems.icd10.claml_parser import parse_claml
+from coding_systems.icd10.claml_parser import ICD10Code, parse_claml
 from coding_systems.icd10.data_downloader import download_release
 from coding_systems.icd10.models import (
     Concept,
@@ -18,10 +18,6 @@ from coding_systems.icd10.models import (
 )
 
 
-def _normalise_code(code):
-    return code.replace(".", "")
-
-
 def _kind_for_code(code):
     # BLOCK if like A07-A09
     if re.match(r"^[A-Z]\d{2}-[A-Z]\d{2}$", code):
@@ -29,40 +25,22 @@ def _kind_for_code(code):
     # CHAPTER is roman numeral
     if re.match(r"^[IVX]+$", code):
         return ConceptKind.CHAPTER
-    # CATEGORY is A00, A00.0, A00.00, or A00.X0
-    if re.match(r"^[A-Z]\d{2}(\.[X\d]\d?)?$", code):
+    # CATEGORY is A00, A000, A0000, or A00X0
+    if re.match(r"^[A-Z]\d{2}([X\d]\d?)?$", code):
         return ConceptKind.CATEGORY
     raise ValueError(f"Unrecognised ICD-10 code format: {code}")
 
 
-def _normalise_parsed_output(parsed_output):
-    normalised = {}
-    for code, record in parsed_output.items():
-        normalised_code = _normalise_code(code)
-        normalised[normalised_code] = {
-            "code": normalised_code,
-            "kind": _kind_for_code(code),
-            "description": record.description,
-            "term_modifier": record.term_modifier,
-            "modifier_position": record.modifier_position,
-            "usage": record.usage,
-            "usage_pair_codes": tuple(
-                _normalise_code(related_code)
-                for related_code in (record.usage_pair_codes or ())
-            ),
-            "parent": _normalise_code(record.parent) if record.parent else None,
-        }
-    return normalised
-
-
-def _merged_code_records(normalised_output_2016, normalised_output_2019):
-    normalised_outputs = [normalised_output_2016, normalised_output_2019]
+def _merged_code_records(
+    output_2016: dict[str, ICD10Code], output_2019: dict[str, ICD10Code]
+) -> dict[str, dict]:
+    outputs = [output_2016, output_2019]
     merged = {}
-    all_codes = set(normalised_output_2016) | set(normalised_output_2019)
+    all_codes = set(output_2016) | set(output_2019)
 
     for code in all_codes:
-        records = [output[code] for output in normalised_outputs if code in output]
-        parents = {record["parent"] for record in records}
+        records = [output[code] for output in outputs if code in output]
+        parents = {record.parent for record in records}
         if len(parents) != 1:
             raise ValueError(
                 f"Conflicting parent for ICD-10 code {code}: {sorted(parents)}"
@@ -83,11 +61,15 @@ def _create_concepts(database_alias, merged_codes):
     }
 
 
-def _set_concept_parents(database_alias, concepts_by_code, merged_codes):
+def _set_concept_parents(
+    database_alias,
+    concepts_by_code: dict[str, Concept],
+    merged_codes: dict[str, ICD10Code],
+):
     concepts_to_update = []
 
     for code, record in merged_codes.items():
-        parent = record["parent"]
+        parent = record.parent
         if parent is None:
             continue
         if parent not in concepts_by_code:
@@ -99,16 +81,20 @@ def _set_concept_parents(database_alias, concepts_by_code, merged_codes):
     Concept.objects.using(database_alias).bulk_update(concepts_to_update, ["parent"])
 
 
-def _create_concept_editions(database_alias, concepts_by_code, edition_records):
+def _create_concept_editions(
+    database_alias,
+    concepts_by_code: dict[str, Concept],
+    edition_records: list[tuple[Edition, dict[str, ICD10Code]]],
+):
     concept_editions = (
         ConceptEdition(
             concept=concepts_by_code[code],
             edition=edition,
-            kind=record["kind"],
-            usage=record["usage"] or ConceptUsage.NORMAL,
-            term=record["description"],
-            term_modifier=record["term_modifier"],
-            modifier_position=record["modifier_position"],
+            kind=_kind_for_code(code),
+            usage=record.usage or ConceptUsage.NORMAL,
+            term=record.description,
+            term_modifier=record.term_modifier,
+            modifier_position=record.modifier_position,
         )
         for edition, records in edition_records
         for code, record in records.items()
@@ -138,7 +124,7 @@ def _create_dagger_asterisk_relations(
     for edition, records in edition_records:
         for code, record in records.items():
             if (
-                record["usage"]
+                record.usage
                 not in {
                     ConceptUsage.DAGGER,
                     ConceptUsage.ASTERISK,
@@ -147,7 +133,7 @@ def _create_dagger_asterisk_relations(
             ):
                 continue
 
-            for related_code in record["usage_pair_codes"]:
+            for related_code in record.usage_pair_codes:
                 related_key = (edition.id, related_code)
                 if related_key not in concept_editions_by_key:
                     print(
@@ -162,7 +148,7 @@ def _create_dagger_asterisk_relations(
                     # )
 
                 dagger_code, asterisk_code = _relation_codes(
-                    code, related_code, record["usage"]
+                    code, related_code, record.usage
                 )
                 relation_key = (edition.id, dagger_code, asterisk_code)
                 if relation_key in seen_relations:
@@ -188,10 +174,8 @@ def import_data(
 ):
     xml_path_2016 = download_release(release_dir, "2016")
     xml_path_2019 = download_release(release_dir, "2019")
-    output_2016 = parse_claml(xml_path_2016)
-    output_2019 = parse_claml(xml_path_2019)
-    normalised_output_2016 = _normalise_parsed_output(output_2016)
-    normalised_output_2019 = _normalise_parsed_output(output_2019)
+    output_2016, _ = parse_claml(xml_path_2016)
+    output_2019, _ = parse_claml(xml_path_2019)
 
     with CodingSystemImporter(
         "icd10", release_name, valid_from, import_ref, check_compatibility
@@ -216,9 +200,7 @@ def import_data(
             )
 
             # Create the Concept records from the merged 2016 and 2019 codes
-            merged_codes = _merged_code_records(
-                normalised_output_2016, normalised_output_2019
-            )
+            merged_codes = _merged_code_records(output_2016, output_2019)
             concepts_by_code = _create_concepts(database_alias, merged_codes)
 
             # Update the Concept records with the FK parent relation
@@ -226,8 +208,8 @@ def import_data(
 
             # We have the Editions and Concepts, so now add the ConceptEdition records
             edition_records = [
-                (edition_2016, normalised_output_2016),
-                (edition_2019, normalised_output_2019),
+                (edition_2016, output_2016),
+                (edition_2019, output_2019),
             ]
             concept_editions_by_key = _create_concept_editions(
                 database_alias, concepts_by_code, edition_records

@@ -59,60 +59,6 @@ Four expansion patterns (determined by tier suffix + whether the class has
       description:    base desc + " (" + modifier label + ")"
 
 
-Implicit ModifiedBy
--------------------
-Some Class elements have a <Rubric kind="modifierlink"> referencing a modifier
-set but no <ModifiedBy> element. These appear to be authoring gaps in the WHO
-source. The parser detects them, asserts that only the known code(s) are
-affected (currently only M13), and expands them as if <ModifiedBy> were
-present.
-
-
-Place of occurrence (W00–Y34)
------------------------------
-Per WHO ICD-10 coding guidance, a 4th character identifying place of occurrence
-must be assigned to all codes in categories W00–Y34.  The place digits come from
-modifier S20W00_4 (0=Home … 9=Unspecified) and are bare ("0"–"9"), so the dot is
-inserted by the parser: base + "." + digit → e.g. W00 → W00.0.
-
-Exceptions (own 4-char subcategories, no place expansion):
-  Y06  Neglect and abandonment
-  Y07  Other maltreatment
-
-Deferred subcategory parents (W26, X34, X59):
-  WHO introduced bespoke 4th-char subcategories for these three codes but UK
-  practice has deferred that re-designation.  Their ClaML-defined 4-char
-  children are therefore excluded from the parsed output; place codes are
-  generated instead.
-
-The activity modifier S20V01T_5 is intentionally ignored.
-
-Facts from https://classbrowser.nhs.uk/ref_books/ICD-10_2026_5th_Ed_NCCS.pdf
-
-1. 4th character modifiers for W00-Y34
-  p217: A fourth character must be assigned with codes from categories W00-Y34
-        to identify where the injury, poisoning or adverse effect took place.
-        The fourth characters can be found in the ‘Place of occurrence code’
-        section at the beginning of the chapter. The exceptions are codes in
-        categories Y06.- Neglect and abandonment and Y07.- Other maltreatment.
-
-  p219: ICD-10 provides an activity subclassification as an extra character for
-        use with categories V01–Y34 to indicate the activity of the injured
-        person at the time the event occurred. However, due to the general
-        unavailability of this information, these activity subclassification
-        codes shown at the beginning of this chapter must not be used."
-
-  p220: The fourth character codes printed at categories
-            W26.- Contact with other sharp object(s)
-            X34.- Victim of earthquake and
-            X59.- Exposure to unspecified factor
-        in the ICD-10 Tabular List must not be used and must be crossed through
-        in the ICD-10 5th Edition books. The content that must be crossed
-        through can be found in the ICD-10 and OPCS-4 Classifications Content
-        Changes document on Delen. The ‘Place of occurrence codes’ must be used
-        for fourth character code assignment with categories W26, X34 and X59.
-
-
 """
 
 import re
@@ -121,108 +67,16 @@ from dataclasses import dataclass
 from pathlib import Path
 
 
-# ---------------------------------------------------------------------------
-# Code-pattern regexes
-# ---------------------------------------------------------------------------
-#  3-char: "A00" – "Z99"
-THREE_CHAR_RE = re.compile(r"^[A-Z]\d{2}$")
-#  4-char: "A00.0" – "Z99.9"
-FOUR_CHAR_RE = re.compile(r"^[A-Z]\d{2}\.\d$")
-#  5-char: "A00.00", "M45.X0", etc.  (4th position after dot: digit or X)
-FIVE_CHAR_RE = re.compile(r"^[A-Z]\d{2}\.[\dX]\d$")
-
-
-def is_three_char(code: str) -> bool:
-    return bool(THREE_CHAR_RE.match(code))
-
-
-def is_four_char(code: str) -> bool:
-    return bool(FOUR_CHAR_RE.match(code))
-
-
-def is_five_char(code: str) -> bool:
-    return bool(FIVE_CHAR_RE.match(code))
-
-
-# ---------------------------------------------------------------------------
-# Place-of-occurrence constants
-# ---------------------------------------------------------------------------
-# Modifier that provides place digits 0–9 (Home, Residential institution, …)
+# Modifier that provides place digits 0-9 (Home, Residential institution, ...)
 PLACE_OF_OCCURRENCE_MODIFIER = "S20W00_4"
-# All 3-char codes in this inclusive range must carry a place 4th character …
-_PLACE_RANGE_START = "W00"
-_PLACE_RANGE_END = "Y34"
-# … except these two, which have their own specific 4-char subcategories.
-_PLACE_EXCEPTIONS: frozenset[str] = frozenset({"Y06", "Y07"})
-
 # Class elements that carry a <Rubric kind="modifierlink"> but no <ModifiedBy>.
 # These are treated as implicit ModifiedBy references.  Any code found beyond
 # this set causes a hard assertion failure.
-_KNOWN_IMPLICIT_MODIFIEDBY: frozenset[str] = frozenset({"M13"})
+_KNOWN_IMPLICIT_MODIFIEDBY = {"M13": "S13M00_5"}
 
-# WHO introduced 4-char subcategories for 3 of these codes in 2016, and a
-# further 4 codes in 2019. The NHS chooses to ignore those subcategories and
-# uses the place of occurrence modifier for all 3-char codes in the range instead
-# The below are all the codes in 2016 and 2019 that should be overwritte by
-# place-of-occurrence generated codes.
 
-_PLACE_MODIFIER_OVERRIDE_EXCEPTIONS: dict[str, frozenset[str]] = {
-    "chapters.claml": frozenset(),  # no exceptions in the chapter-level XML
-    "icd102016en": frozenset(
-        {
-            "W26.0",
-            "W26.8",
-            "W26.9",
-            "X34.0",
-            "X34.1",
-            "X34.8",
-            "X34.9",
-            "X59.0",
-            "X59.9",
-        }
-    ),
-    "icd102019en": frozenset(
-        {
-            "W26.0",
-            "W26.8",
-            "W26.9",
-            "X34.0",
-            "X34.1",
-            "X34.8",
-            "X34.9",
-            "X47.0",
-            "X47.1",
-            "X47.2",
-            "X47.3",
-            "X47.4",
-            "X47.8",
-            "X47.9",
-            "X59.0",
-            "X59.9",
-            "X67.0",
-            "X67.1",
-            "X67.2",
-            "X67.3",
-            "X67.4",
-            "X67.8",
-            "X67.9",
-            "X88.0",
-            "X88.1",
-            "X88.2",
-            "X88.3",
-            "X88.4",
-            "X88.8",
-            "X88.9",
-            "Y17.0",
-            "Y17.1",
-            "Y17.2",
-            "Y17.3",
-            "Y17.4",
-            "Y17.8",
-            "Y17.9",
-        }
-    ),
-}
+def _normalise_code(code):
+    return code.replace(".", "")
 
 
 # ---------------------------------------------------------------------------
@@ -297,9 +151,14 @@ def _get_label_text(rubric_element: ET.Element) -> str:
     return re.sub(r"\s+", " ", _extract_text(label)).strip()
 
 
+def _code(element: ET.Element) -> str:
+    """Extract and normalise the code from a Class element."""
+    return _normalise_code(element.get("code"))
+
+
 def _parent(element: ET.Element) -> str | None:
     superclass = element.find("SuperClass")
-    return superclass.get("code") if superclass is not None else None
+    return _code(superclass) if superclass is not None else None
 
 
 def _preferred_description(element: ET.Element) -> str:
@@ -316,7 +175,7 @@ def _preferred_description(element: ET.Element) -> str:
 def _usage(element: ET.Element) -> tuple[str, list[str]]:
     if element.get("usage"):
         related_code_fragments = element.iter("Reference")
-        related_codes = [el.text for el in related_code_fragments]
+        related_codes = [_normalise_code(el.text) for el in related_code_fragments]
         return (element.get("usage"), tuple(related_codes))
     else:
         return (None, None)
@@ -392,6 +251,18 @@ def _find_implicit_modifiedby(categories: list[ET.Element]) -> dict[str, str]:
             modifier_id = ref.get("code")
             if modifier_id:
                 result[cat.get("code")] = modifier_id
+
+    # Find any that aren't in the known set via pythonic dict comparison and assert that there are none.
+    unexpected = {
+        code: modifier_id
+        for code, modifier_id in result.items()
+        if _KNOWN_IMPLICIT_MODIFIEDBY.get(code) != modifier_id
+    }
+
+    assert not unexpected, (
+        f"Unexpected Class elements with modifierlink but no ModifiedBy: "
+        f"{sorted(unexpected)}"
+    )
     return result
 
 
@@ -421,7 +292,7 @@ def _expand_modifiers(
     _implicit = implicit_modifiedby or {}
 
     for cat in categories:
-        base_code = cat.get("code")
+        base_code = _code(cat)
 
         mb = cat.find("ModifiedBy")
         if mb is None:
@@ -431,17 +302,14 @@ def _expand_modifiers(
         else:
             modifier_id = mb.get("code")
 
-        if modifier_id == PLACE_OF_OCCURRENCE_MODIFIER:
-            continue
-
         digits = modifier_defs.get(modifier_id)
 
         tier = 5 if modifier_id.endswith("_5") else 4
 
-        child_codes = [sub.get("code") for sub in cat.findall("SubClass")]
+        child_codes = [_code(sub) for sub in cat.findall("SubClass")]
 
         # assert child codes, where they exist are always 4-char, for sanity check
-        assert all(is_four_char(c) for c in child_codes), (
+        assert all(len(c) == 4 for c in child_codes), (
             "Expected all modifier child codes to be 4-character"
         )
 
@@ -453,10 +321,12 @@ def _expand_modifiers(
             for child_code in child_codes:
                 child_desc = codes[child_code].description
                 for d in digits:
-                    new_code = child_code + d.digit_code  # "M00.0" + "0" = "M00.00"
+                    new_code = _normalise_code(
+                        child_code + d.digit_code
+                    )  # "M00.0" + "0" = "M00.00"
                     modifier_codes[new_code] = ICD10Code(
                         code=new_code,
-                        parent=base_code,
+                        parent=child_code,
                         description=child_desc,
                         term_modifier=d.description,
                         modifier_position=tier,
@@ -464,18 +334,22 @@ def _expand_modifiers(
         else:
             for d in digits:
                 if tier == 5:
-                    if is_four_char(base_code):
+                    if len(base_code) == 4:
                         # Pattern E: _5 modifier, 4 char code → new 5-char codes
-                        new_code = base_code + d.digit_code  # "T14.2" + "0" = "T14.20"
+                        new_code = _normalise_code(
+                            base_code + d.digit_code
+                        )  # "T14.2" + "0" = "T14.20"
                     else:
                         # Pattern C: _5 modifier, no 4-char children
-                        new_code = (
+                        new_code = _normalise_code(
                             base_code + ".X" + d.digit_code
                         )  # "M45" + ".X" + "0" = "M45.X0"
                 elif tier == 4:
                     # Pattern A: _4 modifier, no 4-char children → new 4-char codes
                     # Digit codes already include the dot: ".0", ".1", ...
-                    new_code = base_code + d.digit_code  # "E10" + ".0" = "E10.0"
+                    new_code = _normalise_code(
+                        base_code + d.digit_code
+                    )  # "E10" + ".0" = "E10.0"
 
                 modifier_codes[new_code] = ICD10Code(
                     code=new_code,
@@ -488,45 +362,15 @@ def _expand_modifiers(
     return modifier_codes
 
 
-def _expand_place_of_occurrence(
-    codes: dict[str, ICD10Code],
-    modifier_defs: dict[str, list[ModifierDigit]],
-) -> dict[str, ICD10Code]:
-    """
-    Generate place-of-occurrence 4-char codes for all 3-char codes in the
-    W00–Y34 range (except Y06 and Y07).
-    """
-    digits = modifier_defs.get(PLACE_OF_OCCURRENCE_MODIFIER)
-    place_modified_codes: dict[str, ICD10Code] = {}
-    for base_code in list(codes):
-        if not is_three_char(base_code):
-            continue
-        if not (_PLACE_RANGE_START <= base_code <= _PLACE_RANGE_END):
-            continue
-        if base_code in _PLACE_EXCEPTIONS:
-            continue
-
-        base_desc = codes[base_code].description
-        for d in digits:
-            new_code = (
-                base_code + "." + d.digit_code
-            )  # e.g. "W00" + "." + "0" = "W00.0"
-            place_modified_codes[new_code] = ICD10Code(
-                code=new_code,
-                parent=base_code,
-                description=base_desc,
-                term_modifier=d.description,
-                modifier_position=4,
-            )
-    return place_modified_codes
-
-
 # ---------------------------------------------------------------------------
 # Parser
 # ---------------------------------------------------------------------------
-def parse_claml(xml_path: str | Path) -> dict[str, ICD10Code]:
+def parse_claml(
+    xml_path: str | Path,
+) -> tuple[dict[str, ICD10Code], list[ModifierDigit]]:
     """
-    Parse a ClaML XML file and return a mapping of code → ICD10Code.
+    Parse a ClaML XML file and return a mapping of code → ICD10Code,
+    and the place of occurrence modifiers
     """
     root = ET.parse(str(xml_path)).getroot()
     icd_items = _items(root)
@@ -535,7 +379,7 @@ def parse_claml(xml_path: str | Path) -> dict[str, ICD10Code]:
     codes: dict[str, ICD10Code] = {}
 
     for item in icd_items:
-        code = item.get("code")
+        code = _code(item)
         usage, usage_pair_codes = _usage(item)
         codes[code] = ICD10Code(
             code=code,
@@ -549,14 +393,11 @@ def parse_claml(xml_path: str | Path) -> dict[str, ICD10Code]:
     # The modifier definitions are in the ModifierClass elements
     modifier_defs = _parse_modifier_defs(root.findall("ModifierClass"))
 
+    place_modifiers = modifier_defs.get(PLACE_OF_OCCURRENCE_MODIFIER)
+
     # Detect Class elements with a modifierlink rubric but no ModifiedBy and
     # assert that only the known set of codes is affected.
     implicit = _find_implicit_modifiedby(categories)
-    unexpected = set(implicit) - _KNOWN_IMPLICIT_MODIFIEDBY
-    assert not unexpected, (
-        f"Unexpected Class elements with modifierlink but no ModifiedBy: "
-        f"{sorted(unexpected)}"
-    )
 
     modifier_codes = _expand_modifiers(codes, categories, modifier_defs, implicit)
     # assert overlap of generated modifier codes with existing codes is empty, for sanity check
@@ -564,22 +405,11 @@ def parse_claml(xml_path: str | Path) -> dict[str, ICD10Code]:
     assert not overlap, "Generated modifier codes overlap with existing codes"
     codes.update(modifier_codes)
 
-    # Place of occurrence modifiers are a bit different and so done separately
-    place_modified_codes = _expand_place_of_occurrence(codes, modifier_defs)
-    # assert overlap of place-generated codes with existing codes only contains codes
-    # with deferred subcategories (W26, X34, X59), for sanity check
-    overlap = set(place_modified_codes) & set(codes)
-    expected_overlap = _PLACE_MODIFIER_OVERRIDE_EXCEPTIONS.get(xml_path.stem, set())
-    assert overlap == expected_overlap, (
-        "Place-of-occurrence generated codes overlap with existing codes"
-    )
-    codes.update(place_modified_codes)
-
-    return codes
+    return codes, place_modifiers
 
 
 # Not called if run via main, but useful for debugging the parser in isolation.
 # TODO REMOVE
 if __name__ == "__main__":
-    parse_claml(Path(".cache") / "icd102016en.xml")
-    parse_claml(Path(".cache") / "icd102019en.xml")
+    parse_claml(Path(__file__).parent / "data" / "icd102016en.xml")
+    parse_claml(Path(__file__).parent / "data" / "icd102019en.xml")

@@ -68,7 +68,7 @@ Five expansion patterns (determined by tier suffix + whether the class has
 
 import re
 import xml.etree.ElementTree as ET
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 
@@ -79,6 +79,25 @@ PLACE_OF_OCCURRENCE_MODIFIER = "S20W00_4"
 # These are treated as implicit ModifiedBy references.  Any code found beyond
 # this set causes a hard assertion failure.
 _KNOWN_IMPLICIT_MODIFIEDBY = {"M13": "S13M00_5"}
+
+# The types of rubrics we expect to see; others are treated as errors.
+ALLOWED_RUBRIC_KINDS = (
+    "footnote",
+    "text",
+    "coding-hint",
+    "definition",
+    "introduction",
+    "modifierlink",
+    "note",
+    "exclusion",
+    "inclusion",
+    "preferredlong",
+    "preferred",
+    "small",
+    "small2",
+    "small3",
+    "small2plain",
+)
 
 
 def _normalise_code(code):
@@ -100,6 +119,8 @@ class ICD10Code:
     modifier_position: int | None = None
     usage: str | None = None
     usage_pair_codes: tuple[str] | None = None
+    concept_rubrics: dict[str, list[str]] = field(default_factory=dict)
+    modifier_rubrics: dict[str, list[str]] = field(default_factory=dict)
 
     def __repr__(self) -> str:  # pragma: no cover
         return f"ICD10Code({self.code!r}, {self.description!r}{f' ({self.term_modifier!r})' if self.term_modifier else ''}{f', modifier_position={self.modifier_position!r}' if self.modifier_position else ''}, usage={self.usage!r}, usage_pair_codes={self.usage_pair_codes!r})"
@@ -129,12 +150,13 @@ class ModifierDigit:
     description: str  # preferred label for this digit
     usage: str = None
     usage_pair_codes: tuple[str] = None
+    rubrics: dict[str, list[str]] = field(default_factory=dict)
 
 
 # ---------------------------------------------------------------------------
 # XML helpers
 # ---------------------------------------------------------------------------
-def _get_label_text(rubric_element: ET.Element) -> str:
+def _get_label_text(rubric_element: ET.Element, ignore_daggers: bool = False) -> str:
     """Extract concatenated text from the first <Label> inside a <Rubric>.
     Excludes the text of <Reference> elements to avoid appending cross-reference
     (dagger/asterisk) codes to the description.
@@ -169,8 +191,19 @@ def _get_label_text(rubric_element: ET.Element) -> str:
         res = [el.text or ""]
         for child in el:
             if child.tag == "Reference":
-                # skip child's text and children, but keep its tail
-                res.append(child.tail or "")
+                if child.get("usage") is not None:
+                    assert child.get("class") == "in brackets", (
+                        f"Unexpected reference class: {child.get('class')}"
+                    )
+                    # It's a dagger/asterisk reference,
+                    if not ignore_daggers:
+                        # get the text and put into parentheses
+                        res.append(f" ({child.text})")
+                elif child.get("class") == "in brackets":
+                    # get the text and put into parentheses
+                    res.append(f" ({child.text})")
+                else:
+                    res.append(child.text)
             else:
                 res.append(_extract_text(child))
             res.append(child.tail or "")
@@ -197,7 +230,7 @@ def _preferred_description(element: ET.Element) -> str:
         f"Expected exactly one preferred Rubric in Class {element.get('code')!r}, "
         f"found {len(preferred)}"
     )
-    return _get_label_text(preferred[0])
+    return _get_label_text(preferred[0], ignore_daggers=True)
 
 
 def _preferred_description_long(element: ET.Element) -> str | None:
@@ -210,7 +243,7 @@ def _preferred_description_long(element: ET.Element) -> str | None:
         f"Expected at most one preferredLong Rubric in Class {element.get('code')!r}, "
         f"found {len(preferred_long)}"
     )
-    return _get_label_text(preferred_long[0])
+    return _get_label_text(preferred_long[0], ignore_daggers=True)
 
 
 def _usage(element: ET.Element) -> tuple[str, list[str]]:
@@ -238,6 +271,27 @@ def _usage(element: ET.Element) -> tuple[str, list[str]]:
             if el.get("usage") and el.get("usage") != usage
         ]
     return (usage, usage_pairs)
+
+
+def _rubrics(element: ET.Element) -> dict[str, list[str]]:
+    """Return the rubrics for this element, indexed by kind."""
+    rubrics = element.findall("Rubric")
+    rubric_dict = {}
+    for r in rubrics:
+        kind = r.get("kind")
+        if kind in ["preferred", "preferredLong"]:
+            continue
+        assert kind in ALLOWED_RUBRIC_KINDS, (
+            f"Found a Rubric with a Kind which does not fit the data model: "
+            f"Class {element.get('code')!r} has a Rubric with Kind {r.get('kind')}"
+        )
+        text = _get_label_text(r)
+        if kind in rubric_dict.keys():
+            rubric_dict[kind].append(text)
+        else:
+            rubric_dict[kind] = [text]
+
+    return rubric_dict
 
 
 def _items(root: list[ET.Element]) -> list[ET.Element]:
@@ -285,6 +339,7 @@ def _parse_modifier_defs(
                 description=desc,
                 usage=usage,
                 usage_pair_codes=usage_pair_codes,
+                rubrics=_rubrics(mc),
             )
         )
 
@@ -392,6 +447,7 @@ def _expand_modifiers(
                         modifier_position=tier,
                         usage=d.usage,
                         usage_pair_codes=d.usage_pair_codes,
+                        modifier_rubrics=d.rubrics,
                     )
         else:
             for d in digits:
@@ -421,6 +477,7 @@ def _expand_modifiers(
                     modifier_position=tier,
                     usage=d.usage,
                     usage_pair_codes=d.usage_pair_codes,
+                    modifier_rubrics=d.rubrics,
                 )
 
     return modifier_codes
@@ -452,6 +509,7 @@ def parse_claml(
             description_long=_preferred_description_long(item),
             usage=usage,
             usage_pair_codes=usage_pair_codes,
+            concept_rubrics=_rubrics(item),
         )
 
     # Add the modifier-derived codes to the main code dict

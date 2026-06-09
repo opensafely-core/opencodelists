@@ -74,6 +74,25 @@ PLACE_OF_OCCURRENCE_MODIFIER = "S20W00_4"
 # this set causes a hard assertion failure.
 _KNOWN_IMPLICIT_MODIFIEDBY = {"M13": "S13M00_5"}
 
+# The types of rubrics we expect to see; others are treated as errors.
+ALLOWED_RUBRIC_KINDS = (
+    "footnote",
+    "text",
+    "coding_hint",
+    "definition",
+    "introduction",
+    "modifierlink",
+    "note",
+    "exclusion",
+    "inclusion",
+    "preferredlong",
+    "preferred",
+    "small",
+    "small2",
+    "small3",
+    "small2plain",
+)
+
 
 def _normalise_code(code):
     return code.replace(".", "")
@@ -91,8 +110,9 @@ class ICD10Code:
     description: str
     term_modifier: str | None = None
     modifier_position: int | None = None
-    usage: str = None
-    usage_pair_codes: tuple[str] = None
+    usage: str | None = None
+    usage_pair_codes: tuple[str] | None = None
+    rubrics: dict[str, list[str]] | None = None
 
     def __repr__(self) -> str:
         return f"ICD10Code({self.code!r}, {self.description!r}{f' ({self.term_modifier!r})' if self.term_modifier else ''}{f', modifier_position={self.modifier_position!r}' if self.modifier_position else ''}, usage={self.usage!r}, usage_pair_codes={self.usage_pair_codes!r})"
@@ -179,6 +199,27 @@ def _usage(element: ET.Element) -> tuple[str, list[str]]:
         return (element.get("usage"), tuple(related_codes))
     else:
         return (None, None)
+
+
+def _rubrics(element: ET.Element) -> dict[str, list[str]]:
+    """Return the rubrics for this element, indexed by kind."""
+    rubrics = element.findall("Rubric")
+    rubric_dict = {}
+    for r in rubrics:
+        kind = r.get("kind")
+        if kind in ["preferred", "preferredLong"]:
+            continue
+        assert kind in ALLOWED_RUBRIC_KINDS, (
+            f"Found a Rubric with a Kind which does not fit the data model: "
+            f"Class {element.get('code')!r} has a Rubric with Kind {r.get('kind')}"
+        )
+        text = _get_label_text(r)
+        if kind in rubric_dict.keys():
+            rubric_dict[kind].append(text)
+        else:
+            rubric_dict[kind] = [text]
+
+    return rubric_dict
 
 
 def _items(root: list[ET.Element]) -> list[ET.Element]:
@@ -387,6 +428,7 @@ def parse_claml(
             description=_preferred_description(item),
             usage=usage,
             usage_pair_codes=usage_pair_codes,
+            rubrics=_rubrics(item),
         )
 
     # Add the modifier-derived codes to the main code dict

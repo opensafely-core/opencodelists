@@ -35,6 +35,12 @@ def test_parse_claml_handles_the_hierarchy():
         code="C40-C41",
         parent="C00-C75",
         description="Malignant neoplasms of bone and articular cartilage",
+        concept_rubrics={
+            "exclusion": [
+                "bone marrow NOS (C96.7)",
+                "synovia (C49.-)",
+            ]
+        },
     )
     assert records["C00-C75"] == ICD10Code(
         code="C00-C75",
@@ -67,6 +73,28 @@ def test_parse_claml_keeps_usage_pair_from_modifier_classes():
     assert records["E102"].usage_pair_codes == ["N083", "N083", "N083"]
 
 
+def test_parse_claml_separates_concept_and_modifier_rubrics():
+    records, _ = parse_claml(CLAML_FIXTURE)
+
+    assert records["C40-C41"].concept_rubrics == {
+        "exclusion": [
+            "bone marrow NOS (C96.7)",
+            "synovia (C49.-)",
+        ]
+    }
+    assert records["C40-C41"].modifier_rubrics == {}
+
+    assert records["E100"].concept_rubrics == {}
+    assert records["E100"].modifier_rubrics == {
+        "inclusion": [
+            "Diabetic: coma with or without ketoacidosis",
+            "Diabetic: hyperosmolar coma",
+            "Diabetic: hypoglycaemic coma",
+            "Hyperglycaemic coma NOS",
+        ]
+    }
+
+
 def test_parse_claml_handles_subscripts_in_descriptions():
     records, _ = parse_claml(CLAML_FIXTURE)
 
@@ -84,6 +112,14 @@ def test_parse_claml_expands_dotted_fourth_character_modifier():
         description="Type 1 diabetes mellitus",
         term_modifier="With coma",
         modifier_position=4,
+        modifier_rubrics={
+            "inclusion": [
+                "Diabetic: coma with or without ketoacidosis",
+                "Diabetic: hyperosmolar coma",
+                "Diabetic: hypoglycaemic coma",
+                "Hyperglycaemic coma NOS",
+            ]
+        },
     )
 
 
@@ -286,4 +322,18 @@ def test_parse_claml_returns_place_modifier_digits():
         ("7", "Farm"),
         ("8", "Other specified places"),
         ("9", "Unspecified place"),
+    ]
+    assert place_modifiers[0].rubrics["inclusion"] == [
+        "Apartment",
+        "Boarding-house",
+        "Caravan [trailer] park, residential",
+        "Farmhouse",
+        "Home premises",
+        "House (residential)",
+        "Noninstitutional place of residence",
+        "Private: driveway to home",
+        "Private: garage",
+        "Private: garden to home",
+        "Private: yard to home",
+        "Swimming-pool in private house or garden",
     ]

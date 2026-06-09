@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 from tempfile import TemporaryDirectory
 from zipfile import ZipFile
 
@@ -50,6 +50,9 @@ def import_release(release_zipfile, release_name, valid_from):
         release_zip = ZipFile(str(release_zipfile))
         logger.info("Extracting", release_zip=release_zip.filename)
         release_zip.extractall(path=tempdir)
-        import_data(
-            os.path.join(tempdir, release_zipfile.name.replace(".zip", ".xlsx"))
-        )
+        xlsx_files = list(Path(tempdir).rglob("*.xlsx"))
+        if len(xlsx_files) != 1:
+            raise ValueError(
+                f"Expected exactly one .xlsx file in {release_zipfile}, found {xlsx_files}"
+            )
+        import_data(str(xlsx_files[0]))

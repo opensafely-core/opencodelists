@@ -1,3 +1,8 @@
+from unittest.mock import patch
+from zipfile import ZipFile
+
+import pytest
+
 from mappings.bnfdmd.import_data import import_release
 from mappings.bnfdmd.models import Mapping
 
@@ -35,3 +40,81 @@ def test_import_release():
         mapping = Mapping.objects.get(dmd_type=dmd_type)
         assert mapping.dmd_code == dmd
         assert mapping.bnf_concept_id == bnf
+
+
+@pytest.mark.parametrize(
+    "workbook_zip_archive_path",
+    [
+        pytest.param(
+            "BNF Snomed Mapping data 20260519.xlsx",
+            id="root-xlsx-matching-zip-name",
+        ),
+        pytest.param(
+            "BNF+Snomed+Mapping+data+20260319.xlsx",
+            id="root-xlsx-not-matching-zip-name",
+        ),
+        pytest.param(
+            "BNF Snomed Mapping data 20260519/BNF Snomed Mapping data 20260519.xlsx",
+            id="nested-xlsx-matching-zip-name",
+        ),
+        pytest.param(
+            "BNF Snomed Mapping data 20260519/BNF+Snomed+Mapping+data+20260319.xlsx",
+            id="nested-xlsx-not-matching-zip-name",
+        ),
+    ],
+)
+def test_import_release_passes_correct_xlsx_path_to_import_data(
+    tmp_path, workbook_zip_archive_path
+):
+    """
+    Test that import_release() passes the correct xlsx workbook path to import_data().
+    """
+    zip_path = tmp_path / "BNF Snomed Mapping data 20260519.zip"
+
+    # The NHSBSA BNF SNOMED mapping release is a ZIP file containing one XLSX workbook.
+    with ZipFile(zip_path, "w") as zip_file:
+        zip_file.writestr(
+            workbook_zip_archive_path,
+            "dummy_workbook_data",
+        )
+
+    with patch("mappings.bnfdmd.import_data.import_data") as mock_import_data:
+        import_release(zip_path, None, None)
+
+    mock_import_data.assert_called_once()
+
+    workbook_path = mock_import_data.call_args.args[0]
+
+    assert workbook_path.endswith(workbook_zip_archive_path)
+
+
+@pytest.mark.parametrize(
+    "zip_archive_files",
+    [
+        pytest.param({}, id="no-files"),
+        pytest.param(
+            {"README.txt": "non-workbook contents"},
+            id="no-xlsx-files",
+        ),
+        pytest.param(
+            {
+                "workbook file_1.xlsx": "workbook 1 contents",
+                "workbook file_2.xlsx": "workbook 2 contents",
+            },
+            id="two-xlsx-files",
+        ),
+    ],
+)
+def test_import_release_error_if_xlsx_count_not_one(tmp_path, zip_archive_files):
+    """
+    Test that import_release() raises an error if the extracted archive does not
+    contain exactly one .xlsx file.
+    """
+    zip_path = tmp_path / "BNF Snomed Mapping data 20260519.zip"
+
+    with ZipFile(zip_path, "w") as zip_file:
+        for path_to_file, contents in zip_archive_files.items():
+            zip_file.writestr(path_to_file, contents)
+
+    with pytest.raises(ValueError, match="Expected exactly one .xlsx file"):
+        import_release(zip_path, None, None)

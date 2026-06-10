@@ -78,7 +78,7 @@ _KNOWN_IMPLICIT_MODIFIEDBY = {"M13": "S13M00_5"}
 ALLOWED_RUBRIC_KINDS = (
     "footnote",
     "text",
-    "coding_hint",
+    "coding-hint",
     "definition",
     "introduction",
     "modifierlink",
@@ -192,13 +192,27 @@ def _preferred_description(element: ET.Element) -> str:
     return _get_label_text(preferred[0])
 
 
-def _usage(element: ET.Element) -> tuple[str, list[str]]:
+def _usage(element: ET.Element) -> tuple[str, tuple[str]]:
+    usage = None
+    usage_pairs = None
     if element.get("usage"):
-        related_code_fragments = element.iter("Reference")
-        related_codes = [_normalise_code(el.text) for el in related_code_fragments]
-        return (element.get("usage"), tuple(related_codes))
+        usage = element.get("usage")
     else:
-        return (None, None)
+        # We need to check for usage tags in non-standard placements
+        # within the element.
+        non_reference_usage_fragments = [
+            e for e in element.iter() if e.get("usage") and not e.tag == "Reference"
+        ]
+        if non_reference_usage_fragments:
+            usage_types = set(e.get("usage") for e in non_reference_usage_fragments)
+            # These should be consistent - no codes have both aster and
+            # dagger usage
+            assert len(usage_types) == 1, element.get("code")
+            usage = usage_types.pop()
+    if usage:
+        related_code_fragments = element.iter("Reference")
+        usage_pairs = [_normalise_code(el.text) for el in related_code_fragments]
+    return (usage, usage_pairs)
 
 
 def _rubrics(element: ET.Element) -> dict[str, list[str]]:

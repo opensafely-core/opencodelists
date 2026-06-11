@@ -108,6 +108,7 @@ extend-select = [
   "ISC",  # flake8-implicit-str-concat
   "UP",  # pyupgrade
   "W",  # pycodestyle warning
+  "TID251", # banned imports
 ]
 extend-ignore = [
   "E501",
@@ -122,6 +123,9 @@ lines-after-imports = 2
 "manage.py" = ["INP001"]
 "codelists/views/__init__.py" = ["F401"]
 "opencodelists/views/__init__.py" = ["F401"]
+
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"opencodelists.settings".msg = "Use 'from django.conf import settings' instead."
 
 # Note: any `exclude-newer-package` timestamps should be removed if > 7 days old.
 # See https://github.com/opensafely-core/opencodelists/blob/main/DEVELOPERS.md for details.

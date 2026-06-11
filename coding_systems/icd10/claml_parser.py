@@ -115,6 +115,12 @@ class ModifierDigit:
 # ---------------------------------------------------------------------------
 # XML helpers
 # ---------------------------------------------------------------------------
+def description_with_modifier(record: ICD10Code) -> str:
+    if record.term_modifier:
+        return f"{record.description} ({record.term_modifier})"
+    return record.description
+
+
 def _get_label_text(rubric_element: ET.Element) -> str:
     """Extract concatenated text from the first <Label> inside a <Rubric>.
     Excludes the text of <Reference> elements to avoid appending cross-reference

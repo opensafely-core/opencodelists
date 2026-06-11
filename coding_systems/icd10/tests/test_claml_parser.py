@@ -249,3 +249,26 @@ def test_parse_claml_returns_place_modifier_digits():
         ModifierDigit(digit_code="8", description="Other specified places"),
         ModifierDigit(digit_code="9", description="Unspecified place"),
     ]
+
+
+def test_decription_with_modifier():
+    from coding_systems.icd10.claml_parser import description_with_modifier
+
+    code_without_modifier = ICD10Code(
+        code="E10",
+        parent=None,
+        description="Type 1 diabetes mellitus",
+    )
+    code_with_modifier = ICD10Code(
+        code="E100",
+        parent="E10",
+        description="Type 1 diabetes mellitus",
+        term_modifier="with coma",
+    )
+    assert (
+        description_with_modifier(code_without_modifier) == "Type 1 diabetes mellitus"
+    )
+    assert (
+        description_with_modifier(code_with_modifier)
+        == "Type 1 diabetes mellitus (with coma)"
+    )

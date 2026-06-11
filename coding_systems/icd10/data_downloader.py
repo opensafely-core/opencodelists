@@ -9,6 +9,10 @@ from pathlib import Path
 
 DATA_DIR = Path(__file__).parent / "data"
 
+# The source for the claml files is currently this webpage. NB
+# the "index.html" is required to avoid 404 errors
+SOURCE_URL = "https://icdcdn.who.int/icd10/index.html"
+
 
 def get_release_metadata(year: str) -> dict[str, str]:
     if year == "2019":

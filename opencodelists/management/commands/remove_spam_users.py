@@ -1,13 +1,13 @@
 import csv
 from datetime import datetime
 
+from django.conf import settings
 from django.core.management import BaseCommand
 from django.db import transaction
 from django.db.models import F, Q
 
 from codelists.models import Collaboration, Handle, SignOff
 from opencodelists.models import Membership, User
-from opencodelists.settings import DATABASE_DIR
 
 
 class Command(BaseCommand):
@@ -105,7 +105,7 @@ class Command(BaseCommand):
         userfields = [f.name for f in User._meta.fields if f != "password"]
 
         # dump them to csv just in case
-        dump_path = DATABASE_DIR / "deleted-user-dumps"
+        dump_path = settings.DATABASE_DIR / "deleted-user-dumps"
         dump_path.mkdir(parents=False, exist_ok=True)
         dump_file_path = dump_path / f"deletedusers_{datetime.now().isoformat()}.csv"
         with (dump_file_path).open("w") as f:

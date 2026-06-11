@@ -1,0 +1,19 @@
+{
+  "releases": {
+    "2016": {
+      "url": "https://icdcdn.who.int/icd10/claml/icd102016en.xml.zip",
+      "xml_file_size": 8881053,
+      "xml_filename": "icd102016en.xml",
+      "xml_last_updated": "2021-03-08",
+      "zip_filename": "icd102016en.xml.zip"
+    },
+    "2019": {
+      "url": "https://icdcdn.who.int/icd10/claml/icd102019en.xml.zip",
+      "xml_file_size": 9575324,
+      "xml_filename": "icd102019en.xml",
+      "xml_last_updated": "2023-03-14",
+      "zip_filename": "icd102019en.xml.zip"
+    }
+  },
+  "source": "https://icdcdn.who.int/icd10/index.html"
+}

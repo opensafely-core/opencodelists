@@ -1,0 +1,1483 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE ClaML SYSTEM "ClaML.dtd">
+<ClaML version="2.0.0">
+  <!-- All parts of the hierarchy from II to C40.3 as it goes via various block levels -->
+	<Class code="II" kind="chapter">
+		<SubClass code="C00-C97"/>
+		<SubClass code="D00-D09"/>
+		<SubClass code="D10-D36"/>
+		<SubClass code="D37-D48"/>
+		<Rubric id="D0001786" kind="preferred">
+			<Label xml:lang="en" xml:space="default">Neoplasms</Label>
+		</Rubric>
+		<Rubric id="id-1-2-276-0-76-5-311-1201632490421-229" kind="introduction">
+			<Label xml:lang="en" xml:space="default">
+				<Para class="headingIntro">Notes</Para>
+				<Para class="headingIntro">1.<Term class="tab"/>Primary, ill-defined, secondary and unspecified sites of malignant neoplasm</Para>
+				<Para class="chpt-text-last">Categories C76−C80 include malignant neoplasms for which there is no clear indication of the original site of the cancer or the cancer is stated to be 'disseminated', 'scattered' or 'spread' without mention of the primary site. In both cases the primary site is considered to be unknown.</Para>
+				<Para class="headingIntro">2.<Term class="tab"/>Functional activity</Para>
+				<Para class="chpt-text-last">All neoplasms are classified in this chapter, whether they are functionally active or not. An additional code from Chapter IV may be used, if desired, to identify functional activity associated with any neoplasm. For example, catecholamine-producing malignant phaeochromocytoma of adrenal gland should be coded to C74 with additional code E27.5; basophil adenoma of pituitary gland with Cushing syndrome should be coded to D35.2 with additional code E24.0.</Para>
+				<Para class="headingIntro">3.<Term class="tab"/>Morphology</Para>
+				<Para class="chpt-text-last">There are a number of major morphological (histological) groups of malignant neoplasms: carcinomas including squamous (cell) and adenocarcinomas; sarcomas; other soft tissue tumours including mesotheliomas; lymphomas (Hodgkin and non-Hodgkin); leukaemia; other specified and site-specific types; and unspecified cancers. Cancer is a generic term and may be used for any of the above groups, although it is rarely applied to the malignant neoplasms of lymphatic, haematopoietic and related tissue. 'Carcinoma' is sometimes used incorrectly as a synonym for 'cancer'.</Para>
+				<Para class="chpt-text-last">In Chapter II neoplasms are classified predominantly by site within broad groupings for behaviour. In a few exceptional cases morphology is indicated in the category and subcategory titles.</Para>
+				<Para class="chpt-text-last">For those wishing to identify the histological type of neoplasm, comprehensive separate morphology codes are provided (see section Morphology of neoplasms). These morphology codes are derived from the second edition of International Classification of Diseases for Oncology (ICDO), which is a dual-axis classification providing independent coding systems for topography and morphology. Morphology codes have six digits: the first four digits identify the histological type; the fifth digit is the behaviour code (malignant primary, malignant secondary (metastatic), in situ, benign, uncertain whether malignant or benign); and the sixth digit is a grading code (differentiation) for solid tumours, and is also used as a special code for lymphomas and leukaemias.</Para>
+				<Para class="headingIntro">4.<Term class="tab"/>Use of subcategories in Chapter II</Para>
+				<Para class="chpt-text-last">Attention is drawn to the special use of subcategory .8 in this chapter [see note 5]. Where it has been necessary to provide subcategories for 'other', these have generally been designated as subcategory .7.</Para>
+				<Para class="headingIntro">5.<Term class="tab"/>Malignant neoplasms overlapping site boundaries and the use of subcategory .8 (overlapping lesion)</Para>
+				<Para class="chpt-text-last">Categories C00−C75 classify primary malignant neoplasms according to their point of origin. Many three-character categories are further divided into named parts or subcategories of the organ in question. A neoplasm that overlaps two or more contiguous sites within a three-character category and whose point of origin cannot be determined should be classified to the subcategory .8 ("overlapping lesion"), unless the combination is specifically indexed elsewhere. For example, carcinoma of oesophagus and stomach is specifically indexed to C16.0 (cardia), while carcinoma of the tip and ventral surface of the tongue should be assigned to C02.8. On the other hand, carcinoma of the tip of the tongue extending to involve the ventral surface should be coded to C02.1 as the point of origin, the tip, is known. 'Overlapping' implies that the sites involved are contiguous (next to each other). Numerically consecutive subcategories are frequently anatomically contiguous, but this is not invariably so (e.g. bladder C67.−) and the coder may need to consult anatomical texts to determine the topographical relationships.</Para>
+				<Para class="chpt-text-last">Sometimes a neoplasm overlaps the boundaries of three-character categories within certain systems. To take care of this the following subcategories have been designated:</Para>
+				<Para class="chpt-cont2-l2"> C02.8<Term class="tab"/>Overlapping lesion of tongue</Para>
+				<Para class="chpt-cont2-l2"> C08.8<Term class="tab"/>Overlapping lesion of major salivary glands</Para>
+				<Para class="chpt-cont2-l2"> C14.8<Term class="tab"/>Overlapping lesion of lip, oral cavity and pharynx</Para>
+				<Para class="chpt-cont2-l2"> C21.8<Term class="tab"/>Overlapping lesion of rectum, anus and anal canal</Para>
+				<Para class="chpt-cont2-l2"> C24.8<Term class="tab"/>Overlapping lesion of biliary tract</Para>
+				<Para class="chpt-cont2-l2"> C26.8<Term class="tab"/>Overlapping lesion of digestive system</Para>
+				<Para class="chpt-cont2-l2"> C39.8<Term class="tab"/>Overlapping lesion of respiratory and intrathoracic organs</Para>
+				<Para class="chpt-cont2-l2"> C41.8<Term class="tab"/>Overlapping lesion of bone and articular cartilage</Para>
+				<Para class="chpt-cont2-l2"> C49.8<Term class="tab"/>Overlapping lesion of connective and soft tissue</Para>
+				<Para class="chpt-cont2-l2"> C57.8<Term class="tab"/>Overlapping lesion of female genital organs</Para>
+				<Para class="chpt-cont2-l2"> C63.8<Term class="tab"/>Overlapping lesion of male genital organs</Para>
+				<Para class="chpt-cont2-l2"> C68.8<Term class="tab"/>Overlapping lesion of urinary organs</Para>
+				<Para class="chpt-cont2-l2"> C72.8<Term class="tab"/>Overlapping lesion of central nervous system</Para>
+				<Para class="chpt-text-last">An example of this is a carcinoma of the stomach and small intestine, which should be coded to C26.8 (Overlapping lesion of digestive system).</Para>
+				<Para class="headingIntro">6.<Term class="tab"/>Malignant neoplasms of ectopic tissue</Para>
+				<Para class="chpt-text-last">Malignant neoplasms of ectopic tissue are to be coded to the site where they are found, e.g. ectopic pancreatic malignant neoplasms of ovary are coded to ovary (C56).</Para>
+				<Para class="headingIntro">7.<Term class="tab"/>Use of the Alphabetical Index in coding neoplasms</Para>
+				<Para class="chpt-text-last">In addition to site, morphology and behaviour must also be taken
+					into consideration when coding neoplasms, and reference should always be made first to the
+					Alphabetical Index entry for the morphological description.</Para>
+				<Para class="chpt-text-last">The introductory pages of Volume 3 include general instructions about the correct use of the Alphabetical Index. The specific instructions and examples pertaining to neoplasms should be consulted to ensure correct use of the categories and subcategories in Chapter II.</Para>
+				<Para class="headingIntro">8.<Term class="tab"/>Use of the second edition of International Classification of Diseases for Oncology (ICD-O)</Para>
+				<Para class="chpt-text-last">For certain morphological types, Chapter II provides a rather restricted topographical classification, or none at all. The topography codes of ICD-O use for all neoplasms essentially the same three- and four-character categories that Chapter II uses for malignant neoplasms (C00−C77, C80), thus providing increased specificity of site for other neoplasms (malignant secondary (metastatic), benign, in situ and uncertain or unknown).</Para>
+				<Para class="chpt-text-last">It is therefore recommended that agencies interested in identifying both the site and morphology of tumours, e.g. cancer registries, cancer hospitals, pathology departments and other agencies specializing in cancer, use ICD-O.</Para>
+			</Label>
+		</Rubric>
+	</Class>
+	<Class code="C00-C97" kind="block">
+		<SuperClass code="II"/>
+		<SubClass code="C00-C75"/>
+		<SubClass code="C76-C80"/>
+		<SubClass code="C81-C96"/>
+		<SubClass code="C97-C97"/>
+		<Rubric id="D0001787" kind="preferred">
+			<Label xml:lang="en" xml:space="default">Malignant neoplasms</Label>
+		</Rubric>
+		<Rubric id="id-WHOICD102010_v2011-January-11-1386672860136-1" kind="coding-hint">
+			<Label xml:lang="en" xml:space="default">Use additional code <Reference class="in brackets">U85</Reference>, if desired, to identify resistance, non-responsiveness and refractive properties of the neoplasm to antineoplastic drugs.</Label>
+		</Rubric>
+	</Class>
+	<Class code="C00-C75" kind="block">
+		<SuperClass code="C00-C97"/>
+		<SubClass code="C00-C14"/>
+		<SubClass code="C15-C26"/>
+		<SubClass code="C30-C39"/>
+		<SubClass code="C40-C41"/>
+		<SubClass code="C43-C44"/>
+		<SubClass code="C45-C49"/>
+		<SubClass code="C50-C50"/>
+		<SubClass code="C51-C58"/>
+		<SubClass code="C60-C63"/>
+		<SubClass code="C64-C68"/>
+		<SubClass code="C69-C72"/>
+		<SubClass code="C73-C75"/>
+		<Rubric id="D0001788" kind="preferred">
+			<Label xml:lang="en" xml:space="default">Malignant neoplasms, stated or presumed to be primary, of specified sites, except of lymphoid, haematopoietic and related tissue</Label>
+		</Rubric>
+	</Class>
+	<Class code="C40-C41" kind="block">
+		<SuperClass code="C00-C75"/>
+		<SubClass code="C40"/>
+		<SubClass code="C41"/>
+		<Rubric id="D0001978" kind="preferred">
+			<Label xml:lang="en" xml:space="default">Malignant neoplasms of bone and articular cartilage</Label>
+		</Rubric>
+		<Rubric id="id-to-be-added-later-1210506823253-430" kind="exclusion">
+			<Label xml:lang="en" xml:space="default">bone marrow NOS<Reference class="in brackets">C96.7</Reference></Label>
+		</Rubric>
+		<Rubric id="id-to-be-added-later-1210506823253-431" kind="exclusion">
+			<Label xml:lang="en" xml:space="default">synovia<Reference class="in brackets" code="C49">C49.-</Reference></Label>
+		</Rubric>
+	</Class>
+	<Class code="C40" kind="category">
+		<Meta name="MortBCode" value="069"/>
+		<Meta name="MortL4Code" value="4-016"/>
+		<Meta name="MortL3Code" value="3-018"/>
+		<Meta name="MortL2Code" value="2-044"/>
+		<Meta name="MortL1Code" value="1-046"/>
+		<SuperClass code="C40-C41"/>
+		<SubClass code="C40.0"/>
+		<SubClass code="C40.1"/>
+		<SubClass code="C40.2"/>
+		<SubClass code="C40.3"/>
+		<SubClass code="C40.8"/>
+		<SubClass code="C40.9"/>
+		<Rubric id="D0001979" kind="preferred">
+			<Label xml:lang="en" xml:space="default">Malignant neoplasm of bone and articular cartilage of limbs</Label>
+		</Rubric>
+	</Class>
+  <Class code="C40.3" kind="category">
+		<Meta name="MortBCode" value="069"/>
+		<Meta name="MortL4Code" value="4-016"/>
+		<Meta name="MortL3Code" value="3-018"/>
+		<Meta name="MortL2Code" value="2-044"/>
+		<Meta name="MortL1Code" value="1-046"/>
+		<SuperClass code="C40"/>
+		<Rubric id="id-to-be-added-later-1210506823253-435" kind="preferredLong">
+			<Label xml:lang="en" xml:space="default">Malignant neoplasm: Short bones of lower limb</Label>
+		</Rubric>
+		<Rubric id="D0001983" kind="preferred">
+			<Label xml:lang="en" xml:space="default">Short bones of lower limb</Label>
+		</Rubric>
+	</Class>
+
+  <!-- Typical dagger/asterisk usage -->
+  <Class code="A17.0" kind="category" usage="dagger">
+		<Meta name="MortBCode" value="008"/>
+		<Meta name="MortL4Code" value="4-003"/>
+		<Meta name="MortL3Code" value="3-004"/>
+		<Meta name="MortL2Code" value="2-005"/>
+		<Meta name="MortL1Code" value="1-006"/>
+		<SuperClass code="A17"/>
+		<Rubric id="D0000094" kind="preferred">
+			<Label xml:lang="en" xml:space="default">Tuberculous meningitis<Reference class="in brackets" usage="aster">G01</Reference></Label>
+		</Rubric>
+		<Rubric id="D0001045" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Tuberculosis of meninges (cerebral)(spinal)</Label>
+		</Rubric>
+		<Rubric id="D0001046" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Tuberculous leptomeningitis</Label>
+		</Rubric>
+	</Class>
+
+  <!-- Example of subscripts in descriptions -->
+  <Class code="D51" kind="category">
+		<Meta name="MortBCode" value="098"/>
+		<Meta name="MortL4Code" value="4-017"/>
+		<Meta name="MortL3Code" value="3-021"/>
+		<Meta name="MortL2Code" value="2-045"/>
+		<Meta name="MortL1Code" value="1-049"/>
+		<SuperClass code="D50-D53"/>
+		<SubClass code="D51.0"/>
+		<SubClass code="D51.1"/>
+		<SubClass code="D51.2"/>
+		<SubClass code="D51.3"/>
+		<SubClass code="D51.8"/>
+		<SubClass code="D51.9"/>
+		<Rubric id="D0003160" kind="preferred">
+			<Label xml:lang="en" xml:space="default">Vitamin B<Term class="subscript">12</Term> deficiency anaemia</Label>
+		</Rubric>
+		<Rubric id="id-to-be-added-later-1210506823253-1137" kind="exclusion">
+			<Label xml:lang="en" xml:space="default">Vitamin B<Term class="subscript">12</Term> deficiency<Reference class="in brackets">E53.8</Reference></Label>
+		</Rubric>
+	</Class>
+
+  <!-- Pattern A:Example of a class with a fourth character modifier -->
+  <ModifierClass code=".0" modifier="S04E10_4">
+		<SuperClass code="S04E10_4"/>
+		<Rubric id="id-WHOICD102010_v2011-January-11-1389192004250-0" kind="preferred">
+			<Label xml:lang="en" xml:space="default">With coma</Label>
+		</Rubric>
+		<Rubric id="id-WHOICD102010_v2011-January-11-1389192004250-1" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">Diabetic:</Fragment>
+				<Fragment type="list">coma with or without ketoacidosis</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="id-WHOICD102010_v2011-January-11-1389192004250-2" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">Diabetic:</Fragment>
+				<Fragment type="list">hyperosmolar coma</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="id-WHOICD102010_v2011-January-11-1389192004250-3" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">Diabetic:</Fragment>
+				<Fragment type="list">hypoglycaemic coma</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="id-WHOICD102010_v2011-January-11-1389192004250-4" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Hyperglycaemic coma NOS</Label>
+		</Rubric>
+	</ModifierClass>
+	<ModifierClass code=".1" modifier="S04E10_4">
+		<SuperClass code="S04E10_4"/>
+		<Rubric id="D0003600" kind="preferred">
+			<Label xml:lang="en" xml:space="default">With ketoacidosis</Label>
+		</Rubric>
+		<Rubric id="D0003983" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">Diabetic:</Fragment>
+				<Fragment type="list">acidosis</Fragment>
+				<Fragment type="item">without mention of coma</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="D0003984" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">Diabetic:</Fragment>
+				<Fragment type="list">ketoacidosis</Fragment>
+				<Fragment type="item">without mention of coma</Fragment>
+			</Label>
+		</Rubric>
+	</ModifierClass>
+	<ModifierClass code=".2" modifier="S04E10_4" usage="dagger">
+		<SuperClass code="S04E10_4"/>
+		<Rubric id="D0003601" kind="preferred">
+			<Label xml:lang="en" xml:space="default">With renal complications</Label>
+		</Rubric>
+		<Rubric id="D0003985" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Diabetic nephropathy<Reference class="in brackets" usage="aster">N08.3</Reference></Label>
+		</Rubric>
+		<Rubric id="D0003986" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Intracapillary glomerulonephrosis<Reference class="in brackets" usage="aster">N08.3</Reference></Label>
+		</Rubric>
+		<Rubric id="D0003987" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Kimmelstiel-Wilson syndrome<Reference class="in brackets" usage="aster">N08.3</Reference></Label>
+		</Rubric>
+	</ModifierClass>
+	<ModifierClass code=".3" modifier="S04E10_4" usage="dagger">
+		<SuperClass code="S04E10_4"/>
+		<Rubric id="D0003602" kind="preferred">
+			<Label xml:lang="en" xml:space="default">With ophthalmic complications</Label>
+		</Rubric>
+		<Rubric id="D0003988" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">Diabetic:</Fragment>
+				<Fragment type="list">cataract<Reference class="in brackets" usage="aster">H28.0</Reference></Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="D0003989" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">Diabetic:</Fragment>
+				<Fragment type="list">retinopathy<Reference class="in brackets" usage="aster">H36.0</Reference></Fragment>
+			</Label>
+		</Rubric>
+	</ModifierClass>
+	<ModifierClass code=".4" modifier="S04E10_4" usage="dagger">
+		<SuperClass code="S04E10_4"/>
+		<Rubric id="D0003603" kind="preferred">
+			<Label xml:lang="en" xml:space="default">With neurological complications</Label>
+		</Rubric>
+		<Rubric id="D0003990" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">Diabetic:</Fragment>
+				<Fragment type="list">amyotrophy<Reference class="in brackets" usage="aster">G73.0</Reference></Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="D0003991" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">Diabetic:</Fragment>
+				<Fragment type="list">autonomic neuropathy<Reference class="in brackets" usage="aster">G99.0</Reference></Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="D0003992" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">Diabetic:</Fragment>
+				<Fragment type="list">mononeuropathy<Reference class="in brackets" usage="aster">G59.0</Reference></Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="D0003993" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">Diabetic:</Fragment>
+				<Fragment type="list">polyneuropathy<Reference class="in brackets" usage="aster">G63.2</Reference></Fragment>
+				<Fragment type="list">autonomic<Reference class="in brackets" usage="aster">G99.0</Reference></Fragment>
+			</Label>
+		</Rubric>
+	</ModifierClass>
+	<ModifierClass code=".5" modifier="S04E10_4">
+		<SuperClass code="S04E10_4"/>
+		<Rubric id="D0003604" kind="preferred">
+			<Label xml:lang="en" xml:space="default">With peripheral circulatory complications</Label>
+		</Rubric>
+		<Rubric id="D0003994" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">Diabetic:</Fragment>
+				<Fragment type="list">gangrene</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="D0003995" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">Diabetic:</Fragment>
+				<Fragment type="list" usage="dagger">peripheral angiopathy<Reference class="in brackets" usage="aster">I79.2</Reference></Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="D0003996" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">Diabetic:</Fragment>
+				<Fragment type="list">ulcer</Fragment>
+			</Label>
+		</Rubric>
+	</ModifierClass>
+	<ModifierClass code=".6" modifier="S04E10_4">
+		<SuperClass code="S04E10_4"/>
+		<Rubric id="D0003605" kind="preferred">
+			<Label xml:lang="en" xml:space="default">With other specified complications</Label>
+		</Rubric>
+		<Rubric id="D0003997" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="item" usage="dagger">Diabetic arthropathy<Reference class="in brackets" usage="aster">M14.2</Reference></Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="D1003997" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="item" usage="dagger">Neuropathic diabetic arthropathy<Reference class="in brackets" usage="aster">M14.6</Reference></Fragment>
+			</Label>
+		</Rubric>
+	</ModifierClass>
+	<ModifierClass code=".7" modifier="S04E10_4">
+		<SuperClass code="S04E10_4"/>
+		<Rubric id="D0003606" kind="preferred">
+			<Label xml:lang="en" xml:space="default">With multiple complications</Label>
+		</Rubric>
+	</ModifierClass>
+	<ModifierClass code=".8" modifier="S04E10_4">
+		<SuperClass code="S04E10_4"/>
+		<Rubric id="D0003607" kind="preferred">
+			<Label xml:lang="en" xml:space="default">With unspecified complications</Label>
+		</Rubric>
+	</ModifierClass>
+	<ModifierClass code=".9" modifier="S04E10_4">
+		<SuperClass code="S04E10_4"/>
+		<Rubric id="D0003608" kind="preferred">
+			<Label xml:lang="en" xml:space="default">Without complications</Label>
+		</Rubric>
+	</ModifierClass>
+  <Class code="E10" kind="category">
+		<Meta name="MortBCode" value="104"/>
+		<Meta name="MortL4Code" value="4-044"/>
+		<Meta name="MortL3Code" value="3-025"/>
+		<Meta name="MortL2Code" value="2-046"/>
+		<Meta name="MortL1Code" value="1-052"/>
+		<SuperClass code="E10-E14"/>
+		<ModifiedBy code="S04E10_4"/>
+		<Rubric id="D0003660" kind="preferred">
+			<Label xml:lang="en" xml:space="default">Type 1 diabetes mellitus</Label>
+		</Rubric>
+		<Rubric id="id-to-be-added-later-1210506823253-1263" kind="modifierlink">
+			<Label xml:lang="en" xml:space="default">
+				<Reference code="S04E10_4">[See before E10 for subdivisions]</Reference>
+			</Label>
+		</Rubric>
+		<Rubric id="D0004055" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">diabetes (mellitus):</Fragment>
+				<Fragment type="list">brittle</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="D0004056" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">diabetes (mellitus):</Fragment>
+				<Fragment type="list">juvenile-onset</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="D0004057" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">diabetes (mellitus):</Fragment>
+				<Fragment type="list">ketosis-prone</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="id-to-be-added-later-1210506823253-1264" kind="exclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">diabetes mellitus (in):</Fragment>
+				<Fragment type="list">malnutrition-related<Reference class="in brackets" code="E12">E12.-</Reference></Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="id-to-be-added-later-1210506823253-1265" kind="exclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">diabetes mellitus (in):</Fragment>
+				<Fragment type="list">neonatal<Reference class="in brackets">P70.2</Reference></Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="id-to-be-added-later-1210506823253-1266" kind="exclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">diabetes mellitus (in):</Fragment>
+				<Fragment type="list">pregnancy, childbirth and the puerperium<Reference class="in brackets" code="O24">O24.-</Reference></Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="id-to-be-added-later-1210506823253-1267" kind="exclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">glycosuria:</Fragment>
+				<Fragment type="list">NOS<Reference class="in brackets">R81</Reference></Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="id-to-be-added-later-1210506823253-1268" kind="exclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">glycosuria:</Fragment>
+				<Fragment type="list">renal<Reference class="in brackets">E74.8</Reference></Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="id-to-be-added-later-1210506823253-1269" kind="exclusion">
+			<Label xml:lang="en" xml:space="default">impaired glucose tolerance<Reference class="in brackets">R73.0</Reference></Label>
+		</Rubric>
+		<Rubric id="id-to-be-added-later-1210506823253-1270" kind="exclusion">
+			<Label xml:lang="en" xml:space="default">postsurgical hypoinsulinaemia<Reference class="in brackets">E89.1</Reference></Label>
+		</Rubric>
+	</Class>
+
+  <!-- Pattern B: Example of a class with a fourth character modifier and four-character children -->
+  <ModifierClass code="0" modifier="I70M10_4">
+		<SuperClass code="I70M10_4"/>
+		<Rubric id="id-SRFSFto-be-added-later-1249403949576-4" kind="preferred">
+			<Label xml:lang="en">without gangrene</Label>
+		</Rubric>
+	</ModifierClass>
+	<ModifierClass code="1" modifier="I70M10_4">
+		<SuperClass code="I70M10_4"/>
+		<Rubric id="id-SRFSFto-be-added-later-1249409878470-5" kind="preferred">
+			<Label xml:lang="en">with gangrene</Label>
+		</Rubric>
+	</ModifierClass>
+  <Class code="I70" kind="category">
+		<Meta name="MortBCode" value="157"/>
+		<Meta name="MortL4Code" value="4-044"/>
+		<Meta name="MortL3Code" value="3-030"/>
+		<Meta name="MortL2Code" value="2-056"/>
+		<Meta name="MortL1Code" value="1-070"/>
+		<SuperClass code="I70-I79"/>
+		<SubClass code="I70.0"/>
+		<!-- <SubClass code="I70.1"/>
+		<SubClass code="I70.2"/>
+		<SubClass code="I70.8"/>
+		<SubClass code="I70.9"/> -->
+		<ModifiedBy code="I70M10_4">
+			<Meta name="usage" value="optional"/>
+		</ModifiedBy>
+		<Rubric id="D0007298" kind="preferred">
+			<Label xml:lang="en" xml:space="default">Atherosclerosis</Label>
+		</Rubric>
+		<Rubric id="D0007759" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">arteriolosclerosis</Label>
+		</Rubric>
+		<Rubric id="D0007760" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">arteriosclerosis</Label>
+		</Rubric>
+		<Rubric id="D0007761" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">arteriosclerotic vascular disease</Label>
+		</Rubric>
+		<Rubric id="D0007762" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">atheroma</Label>
+		</Rubric>
+		<Rubric id="D0007763" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">degeneration:</Fragment>
+				<Fragment type="list">arterial</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="D0007764" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">degeneration:</Fragment>
+				<Fragment type="list">arteriovascular</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="D0007765" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">degeneration:</Fragment>
+				<Fragment type="list">vascular</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="D0007766" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">endarteritis deformans or obliterans</Label>
+		</Rubric>
+		<Rubric id="D0007767" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">senile:</Fragment>
+				<Fragment type="list">arteritis</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="D0007768" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">senile:</Fragment>
+				<Fragment type="list">endarteritis</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="id-to-be-added-later-1210506823253-2444" kind="exclusion">
+			<Label xml:lang="en" xml:space="default">cerebral<Reference class="in brackets">I67.2</Reference></Label>
+		</Rubric>
+		<Rubric id="id-to-be-added-later-1210506823253-2445" kind="exclusion">
+			<Label xml:lang="en" xml:space="default">coronary<Reference class="in brackets">I25.1</Reference></Label>
+		</Rubric>
+		<Rubric id="id-to-be-added-later-1210506823253-2446" kind="exclusion">
+			<Label xml:lang="en" xml:space="default">mesenteric<Reference class="in brackets">K55.1</Reference></Label>
+		</Rubric>
+		<Rubric id="id-to-be-added-later-1210506823253-2447" kind="exclusion">
+			<Label xml:lang="en" xml:space="default">pulmonary<Reference class="in brackets">I27.0</Reference></Label>
+		</Rubric>
+	</Class>
+	<Class code="I70.0" kind="category">
+		<Meta name="MortBCode" value="157"/>
+		<Meta name="MortL4Code" value="4-044"/>
+		<Meta name="MortL3Code" value="3-030"/>
+		<Meta name="MortL2Code" value="2-056"/>
+		<Meta name="MortL1Code" value="1-070"/>
+		<SuperClass code="I70"/>
+		<Rubric id="D0007299" kind="preferred">
+			<Label xml:lang="en" xml:space="default">Atherosclerosis of aorta</Label>
+		</Rubric>
+	</Class>
+
+  <!-- Pattern C: 5th character modifiers with no 4-character children -->
+  <ModifierClass code="0" modifier="S13M40_5">
+		<SuperClass code="S13M40_5"/>
+		<Rubric id="D0010214" kind="preferred">
+			<Label xml:lang="en" xml:space="default">Multiple sites in spine</Label>
+		</Rubric>
+	</ModifierClass>
+	<ModifierClass code="1" modifier="S13M40_5">
+		<SuperClass code="S13M40_5"/>
+		<Rubric id="D0010215" kind="preferred">
+			<Label xml:lang="en" xml:space="default">Occipito-atlanto-axial region</Label>
+		</Rubric>
+	</ModifierClass>
+	<ModifierClass code="2" modifier="S13M40_5">
+		<SuperClass code="S13M40_5"/>
+		<Rubric id="D0010216" kind="preferred">
+			<Label xml:lang="en" xml:space="default">Cervical region</Label>
+		</Rubric>
+	</ModifierClass>
+	<ModifierClass code="3" modifier="S13M40_5">
+		<SuperClass code="S13M40_5"/>
+		<Rubric id="D0010217" kind="preferred">
+			<Label xml:lang="en" xml:space="default">Cervicothoracic region</Label>
+		</Rubric>
+	</ModifierClass>
+	<ModifierClass code="4" modifier="S13M40_5">
+		<SuperClass code="S13M40_5"/>
+		<Rubric id="D0010218" kind="preferred">
+			<Label xml:lang="en" xml:space="default">Thoracic region</Label>
+		</Rubric>
+	</ModifierClass>
+	<ModifierClass code="5" modifier="S13M40_5">
+		<SuperClass code="S13M40_5"/>
+		<Rubric id="D0010219" kind="preferred">
+			<Label xml:lang="en" xml:space="default">Thoracolumbar region</Label>
+		</Rubric>
+	</ModifierClass>
+	<ModifierClass code="6" modifier="S13M40_5">
+		<SuperClass code="S13M40_5"/>
+		<Rubric id="D0010220" kind="preferred">
+			<Label xml:lang="en" xml:space="default">Lumbar region</Label>
+		</Rubric>
+	</ModifierClass>
+	<ModifierClass code="7" modifier="S13M40_5">
+		<SuperClass code="S13M40_5"/>
+		<Rubric id="D0010221" kind="preferred">
+			<Label xml:lang="en" xml:space="default">Lumbosacral region</Label>
+		</Rubric>
+	</ModifierClass>
+	<ModifierClass code="8" modifier="S13M40_5">
+		<SuperClass code="S13M40_5"/>
+		<Rubric id="D0010222" kind="preferred">
+			<Label xml:lang="en" xml:space="default">Sacral and sacrococcygeal region</Label>
+		</Rubric>
+	</ModifierClass>
+	<ModifierClass code="9" modifier="S13M40_5">
+		<SuperClass code="S13M40_5"/>
+		<Rubric id="D0010223" kind="preferred">
+			<Label xml:lang="en" xml:space="default">Site unspecified</Label>
+		</Rubric>
+	</ModifierClass>
+  <Class code="M45" kind="category">
+		<Meta name="MortBCode" value="206"/>
+		<Meta name="MortL4Code" value="4-044"/>
+		<Meta name="MortL3Code" value="3-059"/>
+		<Meta name="MortL2Code" value="2-072"/>
+		<Meta name="MortL1Code" value="1-083"/>
+		<SuperClass code="M45-M49"/>
+		<ModifiedBy all="true" code="S13M40_5">
+			<Meta name="usage" value="optional"/>
+		</ModifiedBy>
+		<Rubric id="D0010522" kind="preferred">
+			<Label xml:lang="en" xml:space="default">Ankylosing spondylitis</Label>
+		</Rubric>
+		<Rubric id="id-to-be-added-later-1210506823253-3509" kind="modifierlink">
+			<Label xml:lang="en" xml:space="default">
+				<Reference code="S13M40_5">[See site code before M40]</Reference>
+			</Label>
+		</Rubric>
+		<Rubric id="D0011044" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Rheumatoid arthritis of spine</Label>
+		</Rubric>
+		<Rubric id="id-to-be-added-later-1210506823253-3510" kind="exclusion">
+			<Label xml:lang="en" xml:space="default">arthropathy in Reiter disease<Reference class="in brackets">M02.3</Reference></Label>
+		</Rubric>
+		<Rubric id="id-to-be-added-later-1210506823253-3511" kind="exclusion">
+			<Label xml:lang="en" xml:space="default">Behçet disease<Reference class="in brackets">M35.2</Reference></Label>
+		</Rubric>
+		<Rubric id="id-to-be-added-later-1210506823253-3512" kind="exclusion">
+			<Label xml:lang="en" xml:space="default">juvenile (ankylosing) spondylitis<Reference class="in brackets">M08.1</Reference></Label>
+		</Rubric>
+	</Class>
+
+  <!-- Pattern D: 5th character modifiers with 4-character children -->
+  <ModifierClass code="0" modifier="S13M00_5">
+		<SuperClass code="S13M00_5"/>
+		<Rubric id="D0010195" kind="preferred">
+			<Label xml:lang="en" xml:space="default">Multiple sites</Label>
+		</Rubric>
+	</ModifierClass>
+	<ModifierClass code="1" modifier="S13M00_5">
+		<SuperClass code="S13M00_5"/>
+		<Rubric id="D0010196" kind="preferred">
+			<Label xml:lang="en" xml:space="default">Shoulder region</Label>
+		</Rubric>
+		<Rubric id="D0010877" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">clavicle</Label>
+		</Rubric>
+		<Rubric id="D0010878" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">scapula</Label>
+		</Rubric>
+		<Rubric id="D0010879" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="item">acromioclavicular</Fragment>
+				<Fragment type="item">joints</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="D0010880" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="item">glenohumeral</Fragment>
+				<Fragment type="item">joints</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="D0010881" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="item">sternoclavicular</Fragment>
+				<Fragment type="item">joints</Fragment>
+			</Label>
+		</Rubric>
+	</ModifierClass>
+	<ModifierClass code="2" modifier="S13M00_5">
+		<SuperClass code="S13M00_5"/>
+		<Rubric id="D0010197" kind="preferred">
+			<Label xml:lang="en" xml:space="default">Upper arm</Label>
+		</Rubric>
+		<Rubric id="D0010882" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">humerus</Label>
+		</Rubric>
+		<Rubric id="D0010883" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">elbow joint</Label>
+		</Rubric>
+	</ModifierClass>
+	<ModifierClass code="3" modifier="S13M00_5">
+		<SuperClass code="S13M00_5"/>
+		<Rubric id="D0010198" kind="preferred">
+			<Label xml:lang="en" xml:space="default">Forearm</Label>
+		</Rubric>
+		<Rubric id="D0010884" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">radius</Label>
+		</Rubric>
+		<Rubric id="D0010885" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">ulna</Label>
+		</Rubric>
+		<Rubric id="D0010886" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">wrist joint</Label>
+		</Rubric>
+	</ModifierClass>
+	<ModifierClass code="4" modifier="S13M00_5">
+		<SuperClass code="S13M00_5"/>
+		<Rubric id="D0010199" kind="preferred">
+			<Label xml:lang="en" xml:space="default">Hand</Label>
+		</Rubric>
+		<Rubric id="D0010887" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">carpus</Label>
+		</Rubric>
+		<Rubric id="D0010888" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">fingers</Label>
+		</Rubric>
+		<Rubric id="D0010889" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">metacarpus</Label>
+		</Rubric>
+		<Rubric id="D0010890" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">joints between these bones</Label>
+		</Rubric>
+	</ModifierClass>
+	<ModifierClass code="5" modifier="S13M00_5">
+		<SuperClass code="S13M00_5"/>
+		<Rubric id="D0010200" kind="preferred">
+			<Label xml:lang="en" xml:space="default">Pelvic region and thigh</Label>
+		</Rubric>
+		<Rubric id="D0010891" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">buttock</Label>
+		</Rubric>
+		<Rubric id="D0010892" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">femur</Label>
+		</Rubric>
+		<Rubric id="D0010893" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">pelvis</Label>
+		</Rubric>
+		<Rubric id="D0010894" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">hip (joint)</Label>
+		</Rubric>
+		<Rubric id="D0010895" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">sacroiliac joint</Label>
+		</Rubric>
+	</ModifierClass>
+	<ModifierClass code="6" modifier="S13M00_5">
+		<SuperClass code="S13M00_5"/>
+		<Rubric id="D0010201" kind="preferred">
+			<Label xml:lang="en" xml:space="default">Lower leg</Label>
+		</Rubric>
+		<Rubric id="D0010896" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">fibula</Label>
+		</Rubric>
+		<Rubric id="D0010897" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">knee joint</Label>
+		</Rubric>
+		<Rubric id="D0010898" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">tibia</Label>
+		</Rubric>
+	</ModifierClass>
+	<ModifierClass code="7" modifier="S13M00_5">
+		<SuperClass code="S13M00_5"/>
+		<Rubric id="D0010202" kind="preferred">
+			<Label xml:lang="en" xml:space="default">Ankle and foot</Label>
+		</Rubric>
+		<Rubric id="D0010899" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">metatarsus</Label>
+		</Rubric>
+		<Rubric id="D0010900" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">tarsus</Label>
+		</Rubric>
+		<Rubric id="D0010901" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">toes</Label>
+		</Rubric>
+		<Rubric id="D0010902" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">ankle joint</Label>
+		</Rubric>
+		<Rubric id="D0010903" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">other joints in foot</Label>
+		</Rubric>
+	</ModifierClass>
+	<ModifierClass code="8" modifier="S13M00_5">
+		<SuperClass code="S13M00_5"/>
+		<Rubric id="D0010203" kind="preferred">
+			<Label xml:lang="en" xml:space="default">Other</Label>
+		</Rubric>
+		<Rubric id="D0010904" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">head</Label>
+		</Rubric>
+		<Rubric id="D0010905" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">neck</Label>
+		</Rubric>
+		<Rubric id="D0010906" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">ribs</Label>
+		</Rubric>
+		<Rubric id="D0010907" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">skull</Label>
+		</Rubric>
+		<Rubric id="D0010908" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">trunk</Label>
+		</Rubric>
+		<Rubric id="D0010909" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">vertebral column</Label>
+		</Rubric>
+	</ModifierClass>
+	<ModifierClass code="9" modifier="S13M00_5">
+		<SuperClass code="S13M00_5"/>
+		<Rubric id="D0010204" kind="preferred">
+			<Label xml:lang="en" xml:space="default">Site unspecified</Label>
+		</Rubric>
+	</ModifierClass>
+  <Class code="M00" kind="category">
+		<Meta name="MortBCode" value="203"/>
+		<Meta name="MortL4Code" value="4-044"/>
+		<Meta name="MortL3Code" value="3-059"/>
+		<Meta name="MortL2Code" value="2-072"/>
+		<Meta name="MortL1Code" value="1-083"/>
+		<SuperClass code="M00-M03"/>
+		<SubClass code="M00.0"/>
+		<!-- <SubClass code="M00.1"/>
+		<SubClass code="M00.2"/>
+		<SubClass code="M00.8"/>
+		<SubClass code="M00.9"/> -->
+		<ModifiedBy code="S13M00_5">
+			<Meta name="usage" value="optional"/>
+		</ModifiedBy>
+		<Rubric id="D0010237" kind="preferred">
+			<Label xml:lang="en" xml:space="default">Pyogenic arthritis</Label>
+		</Rubric>
+		<Rubric id="id-to-be-added-later-1210506823253-3337" kind="modifierlink">
+			<Label xml:lang="en" xml:space="default">
+				<Reference code="S13M00_5">[See site code at the beginning of this chapter]</Reference>
+			</Label>
+		</Rubric>
+		<Rubric id="id-WHOICD102010_v2011-January-11-1387794354535-0" kind="exclusion">
+			<Label xml:lang="en" xml:space="default">infection and inflammatory reaction due to internal joint prosthesis<Reference class="in brackets">T84.5</Reference></Label>
+		</Rubric>
+	</Class>
+	<Class code="M00.0" kind="category">
+		<Meta name="MortBCode" value="203"/>
+		<Meta name="MortL4Code" value="4-044"/>
+		<Meta name="MortL3Code" value="3-059"/>
+		<Meta name="MortL2Code" value="2-072"/>
+		<Meta name="MortL1Code" value="1-083"/>
+		<SuperClass code="M00"/>
+		<Rubric id="D0010238" kind="preferred">
+			<Label xml:lang="en" xml:space="default">Staphylococcal arthritis and polyarthritis</Label>
+		</Rubric>
+	</Class>
+
+  <!-- Pattern E 5th char modifier to 4 char base -->
+  <ModifierClass code="0" modifier="S19T142_5">
+		<SuperClass code="S19T142_5"/>
+		<Rubric id="D0015567" kind="preferred">
+			<Label xml:lang="en" xml:space="default">closed</Label>
+		</Rubric>
+	</ModifierClass>
+	<ModifierClass code="1" modifier="S19T142_5">
+		<SuperClass code="S19T142_5"/>
+		<Rubric id="D0015568" kind="preferred">
+			<Label xml:lang="en" xml:space="default">open</Label>
+		</Rubric>
+	</ModifierClass>
+  <Class code="T14.2" kind="category">
+		<Meta name="MortBCode" value="281"/>
+		<Meta name="MortL4Code" value="UNDEF"/>
+		<Meta name="MortL3Code" value="UNDEF"/>
+		<Meta name="MortL2Code" value="UNDEF"/>
+		<Meta name="MortL1Code" value="UNDEF"/>
+		<SuperClass code="T14"/>
+		<ModifiedBy all="true" code="S19T142_5">
+			<Meta name="usage" value="optional"/>
+		</ModifiedBy>
+		<Rubric id="D0016375" kind="preferred">
+			<Label xml:lang="en" xml:space="default">Fracture of unspecified body region</Label>
+		</Rubric>
+		<Rubric id="D0017535" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">Fracture:</Fragment>
+				<Fragment type="list">NOS</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="D0017536" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">Fracture:</Fragment>
+				<Fragment type="list">closed NOS</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="D0017537" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">Fracture:</Fragment>
+				<Fragment type="list">dislocated NOS</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="D0017538" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">Fracture:</Fragment>
+				<Fragment type="list">displaced NOS</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="D0017539" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">Fracture:</Fragment>
+				<Fragment type="list">open NOS</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="id-to-be-added-later-1210506823253-5071" kind="exclusion">
+			<Label xml:lang="en" xml:space="default">multiple fractures NOS<Reference class="in brackets">T02.9</Reference></Label>
+		</Rubric>
+	</Class>
+
+  <!-- Modifier link in rubric but not as a ModifiedBy tag -->
+  <Class code="M13" kind="category">
+		<Meta name="MortBCode" value="200"/>
+		<Meta name="MortL4Code" value="4-044"/>
+		<Meta name="MortL3Code" value="3-059"/>
+		<Meta name="MortL2Code" value="2-072"/>
+		<Meta name="MortL1Code" value="1-083"/>
+		<SuperClass code="M05-M14"/>
+		<SubClass code="M13.0"/>
+		<!-- <SubClass code="M13.1"/>
+		<SubClass code="M13.8"/>
+		<SubClass code="M13.9"/> -->
+		<Rubric id="D0010322" kind="preferred">
+			<Label xml:lang="en" xml:space="default">Other arthritis</Label>
+		</Rubric>
+		<Rubric id="id-to-be-added-later-1210506823253-3380" kind="modifierlink">
+			<Label xml:lang="en" xml:space="default">
+				<Reference code="S13M00_5">[See site code at the beginning of this chapter]</Reference>
+			</Label>
+		</Rubric>
+		<Rubric id="id-to-be-added-later-1210506823253-3381" kind="exclusion">
+			<Label xml:lang="en" xml:space="default">arthrosis<Reference class="in brackets" code="M15">M15-M19</Reference></Label>
+		</Rubric>
+	</Class>
+  <Class code="M13.0" kind="category">
+		<Meta name="MortBCode" value="200"/>
+		<Meta name="MortL4Code" value="4-044"/>
+		<Meta name="MortL3Code" value="3-059"/>
+		<Meta name="MortL2Code" value="2-072"/>
+		<Meta name="MortL1Code" value="1-083"/>
+		<SuperClass code="M13"/>
+		<Rubric id="D0010323" kind="preferred">
+			<Label xml:lang="en" xml:space="default">Polyarthritis, unspecified</Label>
+		</Rubric>
+	</Class>
+
+  <!-- Place of occurrence modifiers -->
+  <ModifierClass code="0" modifier="S20W00_4">
+		<SuperClass code="S20W00_4"/>
+		<Rubric id="D0017991" kind="preferred">
+			<Label xml:lang="en" xml:space="default">Home</Label>
+		</Rubric>
+		<Rubric id="D0018975" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Apartment</Label>
+		</Rubric>
+		<Rubric id="D0018976" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Boarding-house</Label>
+		</Rubric>
+		<Rubric id="D0018977" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Caravan [trailer] park, residential</Label>
+		</Rubric>
+		<Rubric id="D0018978" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Farmhouse</Label>
+		</Rubric>
+		<Rubric id="D0018979" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Home premises</Label>
+		</Rubric>
+		<Rubric id="D0018980" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">House (residential)</Label>
+		</Rubric>
+		<Rubric id="D0018981" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Noninstitutional place of residence</Label>
+		</Rubric>
+		<Rubric id="D0018982" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">Private:</Fragment>
+				<Fragment type="list">driveway to home</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="D0018983" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">Private:</Fragment>
+				<Fragment type="list">garage</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="D0018984" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">Private:</Fragment>
+				<Fragment type="list">garden to home</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="D0018985" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">Private:</Fragment>
+				<Fragment type="list">yard to home</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="D0018986" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Swimming-pool in private house or garden</Label>
+		</Rubric>
+		<Rubric id="id-to-be-added-later-1210506823253-5606" kind="exclusion">
+			<Label xml:lang="en" xml:space="default">abandoned or derelict house8</Label>
+		</Rubric>
+		<Rubric id="id-to-be-added-later-1210506823253-5607" kind="exclusion">
+			<Label xml:lang="en" xml:space="default">home under construction but not yet occupied6</Label>
+		</Rubric>
+		<Rubric id="id-to-be-added-later-1210506823253-5608" kind="exclusion">
+			<Label xml:lang="en" xml:space="default">institutional place of residence1</Label>
+		</Rubric>
+	</ModifierClass>
+	<ModifierClass code="1" modifier="S20W00_4">
+		<SuperClass code="S20W00_4"/>
+		<Rubric id="D0017992" kind="preferred">
+			<Label xml:lang="en" xml:space="default">Residential institution</Label>
+		</Rubric>
+		<Rubric id="D0018987" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Children's home</Label>
+		</Rubric>
+		<Rubric id="D0018988" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Dormitory</Label>
+		</Rubric>
+		<Rubric id="D0018989" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Home for the sick</Label>
+		</Rubric>
+		<Rubric id="D0018990" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Hospice</Label>
+		</Rubric>
+		<Rubric id="D0018991" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Military camp</Label>
+		</Rubric>
+		<Rubric id="D0018992" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Nursing home</Label>
+		</Rubric>
+		<Rubric id="D0018993" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Old people's home</Label>
+		</Rubric>
+		<Rubric id="D0018994" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Orphanage</Label>
+		</Rubric>
+		<Rubric id="D0018995" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Pensioner's home</Label>
+		</Rubric>
+		<Rubric id="D0018996" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Prison</Label>
+		</Rubric>
+		<Rubric id="D0018997" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Reform school</Label>
+		</Rubric>
+	</ModifierClass>
+	<ModifierClass code="2" modifier="S20W00_4">
+		<SuperClass code="S20W00_4"/>
+		<Rubric id="D0017993" kind="preferred">
+			<Label xml:lang="en" xml:space="default">School, other institution and public administrative area</Label>
+		</Rubric>
+		<Rubric id="D0018998" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">Building (including adjacent grounds) used by the general public or by a particular group of the public such as:</Fragment>
+				<Fragment type="list">assembly hall</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="D0018999" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">Building (including adjacent grounds) used by the general public or by a particular group of the public such as:</Fragment>
+				<Fragment type="list">campus</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="D0019000" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">Building (including adjacent grounds) used by the general public or by a particular group of the public such as:</Fragment>
+				<Fragment type="list">church</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="D0019001" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">Building (including adjacent grounds) used by the general public or by a particular group of the public such as:</Fragment>
+				<Fragment type="list">cinema</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="D0019002" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">Building (including adjacent grounds) used by the general public or by a particular group of the public such as:</Fragment>
+				<Fragment type="list">clubhouse</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="D0019003" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">Building (including adjacent grounds) used by the general public or by a particular group of the public such as:</Fragment>
+				<Fragment type="list">college</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="D0019004" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">Building (including adjacent grounds) used by the general public or by a particular group of the public such as:</Fragment>
+				<Fragment type="list">court-house</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="D0019005" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">Building (including adjacent grounds) used by the general public or by a particular group of the public such as:</Fragment>
+				<Fragment type="list">dancehall</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="D0019006" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">Building (including adjacent grounds) used by the general public or by a particular group of the public such as:</Fragment>
+				<Fragment type="list">day nursery</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="D0019007" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">Building (including adjacent grounds) used by the general public or by a particular group of the public such as:</Fragment>
+				<Fragment type="list">gallery</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="D0019008" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">Building (including adjacent grounds) used by the general public or by a particular group of the public such as:</Fragment>
+				<Fragment type="list">hospital</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="D0019009" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">Building (including adjacent grounds) used by the general public or by a particular group of the public such as:</Fragment>
+				<Fragment type="list">institute for higher education</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="D0019010" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">Building (including adjacent grounds) used by the general public or by a particular group of the public such as:</Fragment>
+				<Fragment type="list">kindergarten</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="D0019011" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">Building (including adjacent grounds) used by the general public or by a particular group of the public such as:</Fragment>
+				<Fragment type="list">library</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="D0019012" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">Building (including adjacent grounds) used by the general public or by a particular group of the public such as:</Fragment>
+				<Fragment type="list">movie-house</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="D0019013" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">Building (including adjacent grounds) used by the general public or by a particular group of the public such as:</Fragment>
+				<Fragment type="list">museum</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="D0019014" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">Building (including adjacent grounds) used by the general public or by a particular group of the public such as:</Fragment>
+				<Fragment type="list">music-hall</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="D0019015" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">Building (including adjacent grounds) used by the general public or by a particular group of the public such as:</Fragment>
+				<Fragment type="list">opera-house</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="D0019016" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">Building (including adjacent grounds) used by the general public or by a particular group of the public such as:</Fragment>
+				<Fragment type="list">post office</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="D0019017" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">Building (including adjacent grounds) used by the general public or by a particular group of the public such as:</Fragment>
+				<Fragment type="list">public hall</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="D0019018" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">Building (including adjacent grounds) used by the general public or by a particular group of the public such as:</Fragment>
+				<Fragment type="list">school (private)(public)(state)</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="D0019019" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">Building (including adjacent grounds) used by the general public or by a particular group of the public such as:</Fragment>
+				<Fragment type="list">theatre</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="D0019020" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">Building (including adjacent grounds) used by the general public or by a particular group of the public such as:</Fragment>
+				<Fragment type="list">university</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="D0019021" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">Building (including adjacent grounds) used by the general public or by a particular group of the public such as:</Fragment>
+				<Fragment type="list">youth centre</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="id-to-be-added-later-1210506823253-5609" kind="exclusion">
+			<Label xml:lang="en" xml:space="default">building under construction  6</Label>
+		</Rubric>
+		<Rubric id="id-to-be-added-later-1210506823253-5610" kind="exclusion">
+			<Label xml:lang="en" xml:space="default">residential institution  1</Label>
+		</Rubric>
+		<Rubric id="id-to-be-added-later-1210506823253-5611" kind="exclusion">
+			<Label xml:lang="en" xml:space="default">sports and athletics area  3</Label>
+		</Rubric>
+	</ModifierClass>
+	<ModifierClass code="3" modifier="S20W00_4">
+		<SuperClass code="S20W00_4"/>
+		<Rubric id="D0017994" kind="preferred">
+			<Label xml:lang="en" xml:space="default">Sports and athletics area</Label>
+		</Rubric>
+		<Rubric id="D0019022" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Baseball field</Label>
+		</Rubric>
+		<Rubric id="D0019023" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Basketball-court</Label>
+		</Rubric>
+		<Rubric id="D0019024" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Cricket ground</Label>
+		</Rubric>
+		<Rubric id="D0019025" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Football field</Label>
+		</Rubric>
+		<Rubric id="D0019026" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Golf-course</Label>
+		</Rubric>
+		<Rubric id="D0019027" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Gymnasium</Label>
+		</Rubric>
+		<Rubric id="D0019028" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Hockey field</Label>
+		</Rubric>
+		<Rubric id="D0019029" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Riding-school</Label>
+		</Rubric>
+		<Rubric id="D0019030" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Skating-rink</Label>
+		</Rubric>
+		<Rubric id="D0019031" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Squash-court</Label>
+		</Rubric>
+		<Rubric id="D0019032" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Stadium</Label>
+		</Rubric>
+		<Rubric id="D0019033" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Swimming-pool, public</Label>
+		</Rubric>
+		<Rubric id="D0019034" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Tennis-court</Label>
+		</Rubric>
+		<Rubric id="id-to-be-added-later-1210506823253-5612" kind="exclusion">
+			<Label xml:lang="en" xml:space="default">swimming-pool or tennis-court in private home or garden0</Label>
+		</Rubric>
+	</ModifierClass>
+	<ModifierClass code="4" modifier="S20W00_4">
+		<SuperClass code="S20W00_4"/>
+		<Rubric id="D0017995" kind="preferred">
+			<Label xml:lang="en" xml:space="default">Street and highway</Label>
+		</Rubric>
+		<Rubric id="D0019035" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Freeway</Label>
+		</Rubric>
+		<Rubric id="D0019036" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Motorway</Label>
+		</Rubric>
+		<Rubric id="D0019037" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Pavement</Label>
+		</Rubric>
+		<Rubric id="D0019038" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Road</Label>
+		</Rubric>
+		<Rubric id="D0019039" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Sidewalk</Label>
+		</Rubric>
+	</ModifierClass>
+	<ModifierClass code="5" modifier="S20W00_4">
+		<SuperClass code="S20W00_4"/>
+		<Rubric id="D0017996" kind="preferred">
+			<Label xml:lang="en" xml:space="default">Trade and service area</Label>
+		</Rubric>
+		<Rubric id="D0019040" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Airport</Label>
+		</Rubric>
+		<Rubric id="D0019041" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Bank</Label>
+		</Rubric>
+		<Rubric id="D0019042" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Café</Label>
+		</Rubric>
+		<Rubric id="D0019043" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Casino</Label>
+		</Rubric>
+		<Rubric id="D0019044" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Garage (commercial)</Label>
+		</Rubric>
+		<Rubric id="D0019045" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Gas station</Label>
+		</Rubric>
+		<Rubric id="D0019046" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Hotel</Label>
+		</Rubric>
+		<Rubric id="D0019047" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Market</Label>
+		</Rubric>
+		<Rubric id="D0019048" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Office building</Label>
+		</Rubric>
+		<Rubric id="D0019049" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Petrol station</Label>
+		</Rubric>
+		<Rubric id="D0019050" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Radio or television station</Label>
+		</Rubric>
+		<Rubric id="D0019051" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Restaurant</Label>
+		</Rubric>
+		<Rubric id="D0019052" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Service station</Label>
+		</Rubric>
+		<Rubric id="D0019053" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Shop (commercial)</Label>
+		</Rubric>
+		<Rubric id="D0019054" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Shopping mall</Label>
+		</Rubric>
+		<Rubric id="D0019055" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Station (bus)(railway)</Label>
+		</Rubric>
+		<Rubric id="D0019056" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Store</Label>
+		</Rubric>
+		<Rubric id="D0019057" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Supermarket</Label>
+		</Rubric>
+		<Rubric id="D0019058" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Warehouse</Label>
+		</Rubric>
+		<Rubric id="id-to-be-added-later-1210506823253-5613" kind="exclusion">
+			<Label xml:lang="en" xml:space="default">garage in private home0</Label>
+		</Rubric>
+	</ModifierClass>
+	<ModifierClass code="6" modifier="S20W00_4">
+		<SuperClass code="S20W00_4"/>
+		<Rubric id="D0017997" kind="preferred">
+			<Label xml:lang="en" xml:space="default">Industrial and construction area</Label>
+		</Rubric>
+		<Rubric id="D0019059" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Building [any] under construction</Label>
+		</Rubric>
+		<Rubric id="D0019060" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Dockyard</Label>
+		</Rubric>
+		<Rubric id="D0019061" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Dry dock</Label>
+		</Rubric>
+		<Rubric id="D0019062" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">Factory:</Fragment>
+				<Fragment type="list">building</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="D0019063" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">Factory:</Fragment>
+				<Fragment type="list">premises</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="D0019064" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Gasworks</Label>
+		</Rubric>
+		<Rubric id="D0019065" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Industrial yard</Label>
+		</Rubric>
+		<Rubric id="D0019066" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Mine</Label>
+		</Rubric>
+		<Rubric id="D0019067" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Oil rig and other offshore installations</Label>
+		</Rubric>
+		<Rubric id="D0019068" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Pit (coal)(gravel)(sand)</Label>
+		</Rubric>
+		<Rubric id="D0019069" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Power-station (coal)(nuclear)(oil)</Label>
+		</Rubric>
+		<Rubric id="D0019070" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Shipyard</Label>
+		</Rubric>
+		<Rubric id="D0019071" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Tunnel under construction</Label>
+		</Rubric>
+		<Rubric id="D0019072" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Workshop</Label>
+		</Rubric>
+	</ModifierClass>
+	<ModifierClass code="7" modifier="S20W00_4">
+		<SuperClass code="S20W00_4"/>
+		<Rubric id="D0017998" kind="preferred">
+			<Label xml:lang="en" xml:space="default">Farm</Label>
+		</Rubric>
+		<Rubric id="D0019073" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">Farm:</Fragment>
+				<Fragment type="list">buildings</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="D0019074" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">
+				<Fragment type="list">Farm:</Fragment>
+				<Fragment type="list">land under cultivation</Fragment>
+			</Label>
+		</Rubric>
+		<Rubric id="D0019075" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Ranch</Label>
+		</Rubric>
+		<Rubric id="id-to-be-added-later-1210506823253-5614" kind="exclusion">
+			<Label xml:lang="en" xml:space="default">farmhouse and home premises of farm0</Label>
+		</Rubric>
+	</ModifierClass>
+	<ModifierClass code="8" modifier="S20W00_4">
+		<SuperClass code="S20W00_4"/>
+		<Rubric id="D0017999" kind="preferred">
+			<Label xml:lang="en" xml:space="default">Other specified places</Label>
+		</Rubric>
+		<Rubric id="D0019076" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Beach</Label>
+		</Rubric>
+		<Rubric id="D0019077" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Campsite</Label>
+		</Rubric>
+		<Rubric id="D0019078" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Canal</Label>
+		</Rubric>
+		<Rubric id="D0019079" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Caravan site NOS</Label>
+		</Rubric>
+		<Rubric id="D0019080" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Derelict house</Label>
+		</Rubric>
+		<Rubric id="D0019081" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Desert</Label>
+		</Rubric>
+		<Rubric id="D0019082" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Dock NOS</Label>
+		</Rubric>
+		<Rubric id="D0019083" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Forest</Label>
+		</Rubric>
+		<Rubric id="D0019084" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Harbour</Label>
+		</Rubric>
+		<Rubric id="D0019085" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Hill</Label>
+		</Rubric>
+		<Rubric id="D0019086" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Lake</Label>
+		</Rubric>
+		<Rubric id="D0019087" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Marsh</Label>
+		</Rubric>
+		<Rubric id="D0019088" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Military training ground</Label>
+		</Rubric>
+		<Rubric id="D0019089" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Mountain</Label>
+		</Rubric>
+		<Rubric id="D0019090" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Park (amusement) (public)</Label>
+		</Rubric>
+		<Rubric id="D0019091" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Parking-lot and parking-place</Label>
+		</Rubric>
+		<Rubric id="D0019092" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Pond or pool</Label>
+		</Rubric>
+		<Rubric id="D0019093" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Prairie</Label>
+		</Rubric>
+		<Rubric id="D0019094" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Public place NOS</Label>
+		</Rubric>
+		<Rubric id="D0019095" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Railway line</Label>
+		</Rubric>
+		<Rubric id="D0019096" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">River</Label>
+		</Rubric>
+		<Rubric id="D0019097" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Sea</Label>
+		</Rubric>
+		<Rubric id="D0019098" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Seashore</Label>
+		</Rubric>
+		<Rubric id="D0019099" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Stream</Label>
+		</Rubric>
+		<Rubric id="D0019100" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Swamp</Label>
+		</Rubric>
+		<Rubric id="D0019101" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Water reservoir</Label>
+		</Rubric>
+		<Rubric id="D0019102" kind="inclusion">
+			<Label xml:lang="en" xml:space="default">Zoo</Label>
+		</Rubric>
+	</ModifierClass>
+	<ModifierClass code="9" modifier="S20W00_4">
+		<SuperClass code="S20W00_4"/>
+		<Rubric id="D0018000" kind="preferred">
+			<Label xml:lang="en" xml:space="default">Unspecified place</Label>
+		</Rubric>
+	</ModifierClass>
+</ClaML>

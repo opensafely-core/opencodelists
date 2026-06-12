@@ -22,7 +22,8 @@ def _parse_search_query(query):
 def index(request):
     # For now, we only want to show codelists that come from organisations.
     handles = current_public_handles().filter(organisation_id__isnull=False)
-    handles, q = search_handles(handles, request.GET.get("q"))
+    q = request.GET.get("q")
+    handles = search_handles(handles, q)
     codelists = _all_published_codelists(handles)
     ctx = {
         "codelists_page": Paginator(codelists, 15).get_page(request.GET.get("page")),
@@ -83,7 +84,7 @@ def search_handles(handles, q):
     else:
         handles = handles.order_by("name")
 
-    return handles, q
+    return handles
 
 
 def _all_published_codelists(handles):

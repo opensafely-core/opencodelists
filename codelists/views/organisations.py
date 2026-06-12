@@ -52,7 +52,8 @@ def _get_organisation_handles(
 
     organisation = get_object_or_404(Organisation, slug=organisation_slug)
     handles = current_public_handles().filter(organisation=organisation)
-    handles, query = search_handles(handles, request.GET.get("q"))
+    query = request.GET.get("q")
+    handles = search_handles(handles, query)
     return organisation, handles, query
 
 

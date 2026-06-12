@@ -74,10 +74,14 @@ def version(request, clv):
     # Check whether this codelist was built from an outdated coding system release,
     # so we know whether to show the medication warning banner.
     if clv.coding_system_id in MEDICATION_WARNING_BANNER_CODING_SYSTEMS:
-        coding_system_release_outdated = CodingSystemRelease.objects.filter(
-            coding_system=clv.coding_system_id,
-            valid_from__gt=clv.coding_system_release.valid_from,
-        ).exists()
+        coding_system_release_outdated = (
+            CodingSystemRelease.objects.ready()
+            .filter(
+                coding_system=clv.coding_system_id,
+                valid_from__gt=clv.coding_system_release.valid_from,
+            )
+            .exists()
+        )
     else:
         coding_system_release_outdated = False
 

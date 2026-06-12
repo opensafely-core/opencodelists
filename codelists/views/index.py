@@ -1,13 +1,10 @@
 import re
 
 from django.core.paginator import Paginator
-from django.db.models import Case, IntegerField, Prefetch, Q, Value, When
-from django.shortcuts import get_object_or_404, render
+from django.db.models import Case, IntegerField, Q, Value, When
+from django.shortcuts import render
 
-from opencodelists.list_utils import flatten
-from opencodelists.models import Organisation
-
-from ..models import CodelistVersion, Handle, Status
+from ..models import Handle, Status
 
 
 def _parse_search_query(query):
@@ -22,18 +19,24 @@ def _parse_search_query(query):
     return quoted_phrases, individual_words
 
 
-def index(request, organisation_slug=None, status=Status.PUBLISHED):
-    handles = Handle.objects.filter(is_current=True, codelist__is_private=False)
-
-    if organisation_slug:
-        organisation = get_object_or_404(Organisation, slug=organisation_slug)
-        handles = handles.filter(organisation=organisation)
-    else:
-        organisation = None
-        # For now, we only want to show codelists that come from organisations.
-        handles = handles.filter(organisation_id__isnull=False)
-
+def index(request):
+    # For now, we only want to show codelists that come from organisations.
+    handles = current_public_handles().filter(organisation_id__isnull=False)
     q = request.GET.get("q")
+    handles = search_handles(handles, q)
+    codelists = _all_published_codelists(handles)
+    ctx = {
+        "codelists_page": Paginator(codelists, 15).get_page(request.GET.get("page")),
+        "q": q,
+    }
+    return render(request, "codelists/index.html", ctx)
+
+
+def current_public_handles():
+    return Handle.objects.filter(is_current=True, codelist__is_private=False)
+
+
+def search_handles(handles, q):
     if q:
         # Parse the search query to handle quoted phrases
         quoted_phrases, individual_words = _parse_search_query(q.strip())
@@ -81,31 +84,7 @@ def index(request, organisation_slug=None, status=Status.PUBLISHED):
     else:
         handles = handles.order_by("name")
 
-    page_number = request.GET.get("page")
-    if status == Status.PUBLISHED:
-        codelists = _all_published_codelists(handles)
-        ctx = {
-            "codelists_page": _get_page_obj(codelists, page_number, 15),
-            "organisation": organisation,
-            "q": q,
-        }
-        return render(request, "codelists/index.html", ctx)
-    else:
-        assert status == Status.UNDER_REVIEW
-        versions = _all_under_review_codelist_versions(handles)
-        ctx = {
-            "versions_page": _get_page_obj(versions, page_number),
-            "organisation": organisation,
-            "q": q,
-            "page_obj": _get_page_obj(versions, page_number),
-        }
-        return render(request, "codelists/under_review_index.html", ctx)
-
-
-def _get_page_obj(objects, page_number, paginate_by=30):
-    paginator = Paginator(objects, paginate_by)
-    page_obj = paginator.get_page(page_number)
-    return page_obj
+    return handles
 
 
 def _all_published_codelists(handles):
@@ -116,23 +95,3 @@ def _all_published_codelists(handles):
     )
 
     return [handle.codelist for handle in handles]
-
-
-_under_review_prefetch = Prefetch(
-    "codelist__versions",
-    queryset=CodelistVersion.objects.filter(
-        status=Status.UNDER_REVIEW,
-    ),
-    to_attr="_under_review_versions",
-)
-
-
-def _all_under_review_codelist_versions(handles):
-    handles = (
-        handles.filter(codelist__versions__status=Status.UNDER_REVIEW)
-        .select_related("codelist")
-        .distinct()
-        .prefetch_related(_under_review_prefetch)
-    )
-
-    return flatten(handle.codelist._under_review_versions for handle in handles)

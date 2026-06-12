@@ -3,6 +3,7 @@ from .codelist_clone import codelist_clone
 from .codelist_create import codelist_create
 from .codelist_update import codelist_update
 from .index import index
+from .organisations import organisation_published, organisation_review
 from .version import version
 from .version_create import version_create
 from .version_delete import version_delete

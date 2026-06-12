@@ -1,31 +1,36 @@
 import pytest
 
-from codelists.actions import publish_version
 from codelists.models import Handle, Status
 from codelists.views.index import _parse_search_query
-from opencodelists.list_utils import flatten
 
 
-def test_search_only_returns_codelists_with_published_versions(
-    client, organisation, old_style_codelist, new_style_codelist
+def test_index_only_lists_public_published_organisation_codelists(
+    client,
+    old_style_codelist,
+    new_style_codelist,
+    user_codelist,
+    create_codelist,
 ):
-    # The organisation has two codelists whose name matches "style" ("New-style
-    # codelist" and "Old-style codelist").  However, "Old-style codelist" does not have
-    # any published versions, and so should not appear in search results.
+    private_codelist = create_codelist(name="Private published codelist")
+    private_codelist.is_private = True
+    private_codelist.save()
 
-    # Validate our assumptions about the fixtures.
-    assert old_style_codelist.organisation == organisation
     assert old_style_codelist.versions.filter(status="published").count() == 0
-    assert new_style_codelist.organisation == organisation
     assert new_style_codelist.versions.filter(status="published").count() > 0
+    assert user_codelist.versions.filter(status="published").count() > 0
+    assert private_codelist.versions.filter(status="published").count() > 0
 
-    # Do a search.
-    rsp = client.get(f"/codelist/{organisation.slug}/?q=style")
+    rsp = client.get("/")
 
-    # Assert that only one codelist is returned.
-    assert len(rsp.context["codelists_page"].object_list) == 1
-    codelist = rsp.context["codelists_page"].object_list[0]
-    assert codelist.slug == "new-style-codelist"
+    assert rsp.status_code == 200
+    assert "codelists/index.html" in [template.name for template in rsp.templates]
+    codelists = list(rsp.context["codelists_page"].object_list)
+    assert new_style_codelist in codelists
+    assert old_style_codelist not in codelists
+    assert user_codelist not in codelists
+    assert private_codelist not in codelists
+    assert all(codelist.organisation_id for codelist in codelists)
+    assert all(codelist.has_published_versions() for codelist in codelists)
 
 
 def test_paginate_codelists(client, organisation, create_codelists):
@@ -38,120 +43,38 @@ def test_paginate_codelists(client, organisation, create_codelists):
     ]
     assert len(published_for_organisation) > 30
 
-    rsp = client.get(f"/codelist/{organisation.slug}/")
+    rsp = client.get("/")
     codelist_page_obj = rsp.context["codelists_page"]
     assert len(codelist_page_obj.object_list) == 15
     assert codelist_page_obj.number == 1
 
-    rsp = client.get(f"/codelist/{organisation.slug}/?page=3")
+    rsp = client.get("/?page=3")
     codelist_page_obj = rsp.context["codelists_page"]
     assert len(codelist_page_obj.object_list) == len(published_for_organisation) - 30
 
 
-def test_under_review_index(
-    client,
-    organisation,
-    version_under_review,
-    old_style_codelist,
-    dmd_codelist,
-    null_codelist,
+def test_search_only_returns_codelists_with_published_versions(
+    client, old_style_codelist, new_style_codelist
 ):
-    # The organisation has three codelists (new style, old style, dmd)
-    # All three codelists have under review versions
+    # The fixtures include two codelists whose name matches "style".  However,
+    # "Old-style codelist" does not have any published versions, and so should not
+    # appear in search results.
+    assert old_style_codelist.versions.filter(status="published").count() == 0
+    assert new_style_codelist.versions.filter(status="published").count() > 0
 
-    # Validate our assumptions about the fixtures.
-    assert version_under_review.codelist.organisation == organisation
-    assert version_under_review.status == "under review"
-    under_review_count = version_under_review.codelist.versions.filter(
-        status="under review"
-    ).count()
-    assert under_review_count > 0
+    rsp = client.get("/?q=style")
 
-    assert old_style_codelist.organisation == organisation
-    old_style_under_review_count = old_style_codelist.versions.filter(
-        status="under review"
-    ).count()
-    assert old_style_under_review_count > 0
-
-    assert dmd_codelist.organisation == organisation
-    dmd_under_review_count = dmd_codelist.versions.filter(status="under review").count()
-    assert dmd_under_review_count > 0
-
-    assert null_codelist.organisation == organisation
-    null_under_review_count = null_codelist.versions.filter(
-        status="under review"
-    ).count()
-    assert null_under_review_count > 0
-
-    # Get the under-review index.
-    rsp = client.get(f"/codelist/{organisation.slug}/under-review/")
-    # Assert that only under-review versions are returned
-    versions = rsp.context["versions_page"].object_list
-    assert (
-        len(versions)
-        == under_review_count
-        + old_style_under_review_count
-        + dmd_under_review_count
-        + null_under_review_count
-    )
-    for version in versions:
-        assert version.status == "under review"
+    codelists = list(rsp.context["codelists_page"].object_list)
+    assert codelists == [new_style_codelist]
+    assert rsp.context["q"] == "style"
 
 
-def test_paginate_under_review_versions(client, organisation, create_codelists):
-    # Create enough published codelists to paginate (under-review index page is paginated by 30)
-    create_codelists(40, status=Status.UNDER_REVIEW, owner=organisation)
-    under_review_for_organisation = flatten(
-        [
-            list(handle.codelist.versions.filter(status=Status.UNDER_REVIEW))
-            for handle in Handle.objects.filter(
-                is_current=True, organisation=organisation
-            )
-        ]
-    )
-    assert len(under_review_for_organisation) > 40
+def test_search_with_no_valid_terms_orders_codelists_by_name(client):
+    rsp = client.get("/", {"q": "   "})
 
-    rsp = client.get(f"/codelist/{organisation.slug}/under-review/")
-    codelist_page_obj = rsp.context["versions_page"]
-    assert len(codelist_page_obj.object_list) == 30
-    assert codelist_page_obj.number == 1
-
-    rsp = client.get(f"/codelist/{organisation.slug}/under-review/?page=2")
-    codelist_page_obj = rsp.context["versions_page"]
-    assert len(codelist_page_obj.object_list) == len(under_review_for_organisation) - 30
-
-
-def test_search_only_returns_codelists_with_under_review_versions(
-    client, organisation, version_under_review, old_style_codelist
-):
-    # The organisation has two codelists whose name matches "style" ("New-style
-    # codelist" and "Old-style codelist").  However, only "New-style codelist" has
-    # under review versions, and so only these should appear in search results.
-
-    # Validate our assumptions about the fixtures.
-    assert version_under_review.codelist.organisation == organisation
-    assert version_under_review.status == "under review"
-    under_review_count = version_under_review.codelist.versions.filter(
-        status="under review"
-    ).count()
-    assert under_review_count > 0
-
-    # publish the old-style-codelist
-    old_style_under_review_version = old_style_codelist.versions.filter(
-        status="under review"
-    ).first()
-    publish_version(version=old_style_under_review_version)
-    assert old_style_codelist.organisation == organisation
-    assert old_style_codelist.versions.filter(status="under review").count() == 0
-
-    # Do a search.
-    rsp = client.get(f"/codelist/{organisation.slug}/under-review/?q=style")
-    # Assert that only versions related to one codelist are returned
-    versions = rsp.context["versions_page"].object_list
-    assert len(versions) == under_review_count
-    assert version_under_review.id in [version.id for version in versions]
-    for version in versions:
-        assert version.codelist == version_under_review.codelist
+    codelists = list(rsp.context["codelists_page"].object_list)
+    assert codelists == sorted(codelists, key=lambda codelist: codelist.name)
+    assert rsp.context["q"] == "   "
 
 
 @pytest.mark.parametrize(
@@ -206,7 +129,7 @@ def test_search_ranking(client, organisation, create_codelist):
     codelist3 = create_codelist(name="Diabetes type 2")
     codelist4 = create_codelist(name="Type 2 diabetes")
 
-    rsp = client.get(f"/codelist/{organisation.slug}/?q=type+2+diabetes")
+    rsp = client.get("/?q=type+2+diabetes")
     codelists_from_search = rsp.context["codelists_page"].object_list
 
     assert len(codelists_from_search) == 4

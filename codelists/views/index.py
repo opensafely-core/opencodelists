@@ -21,8 +21,8 @@ def _parse_search_query(query):
 
 def index(request):
     # For now, we only want to show codelists that come from organisations.
-    handles = _current_public_handles().filter(organisation_id__isnull=False)
-    handles, q = _search_handles(handles, request.GET.get("q"))
+    handles = current_public_handles().filter(organisation_id__isnull=False)
+    handles, q = search_handles(handles, request.GET.get("q"))
     codelists = _all_published_codelists(handles)
     ctx = {
         "codelists_page": Paginator(codelists, 15).get_page(request.GET.get("page")),
@@ -31,11 +31,11 @@ def index(request):
     return render(request, "codelists/index.html", ctx)
 
 
-def _current_public_handles():
+def current_public_handles():
     return Handle.objects.filter(is_current=True, codelist__is_private=False)
 
 
-def _search_handles(handles, q):
+def search_handles(handles, q):
     if q:
         # Parse the search query to handle quoted phrases
         quoted_phrases, individual_words = _parse_search_query(q.strip())

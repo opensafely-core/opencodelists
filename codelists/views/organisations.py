@@ -8,8 +8,8 @@ from opencodelists.models import Organisation
 
 from ..models import CodelistVersion, Handle, Status
 from .index import (
-    _current_public_handles,
-    _search_handles,
+    current_public_handles,
+    search_handles,
 )
 
 
@@ -51,8 +51,8 @@ def _get_organisation_handles(
     """Resolve the organisation and apply the shared public/search filters"""
 
     organisation = get_object_or_404(Organisation, slug=organisation_slug)
-    handles = _current_public_handles().filter(organisation=organisation)
-    handles, query = _search_handles(handles, request.GET.get("q"))
+    handles = current_public_handles().filter(organisation=organisation)
+    handles, query = search_handles(handles, request.GET.get("q"))
     return organisation, handles, query
 
 

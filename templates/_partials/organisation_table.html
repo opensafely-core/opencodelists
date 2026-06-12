@@ -42,6 +42,10 @@
             {% endfor %}
           </tbody>
         </table>
+
+        {% if page_obj.has_other_pages %}
+          {% include "_partials/organisation_table_pagination.html" with page_obj=page_obj q=q only %}
+        {% endif %}
       </div>
     </div>
   </div>

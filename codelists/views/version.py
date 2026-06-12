@@ -2,10 +2,15 @@ from django.contrib import messages
 from django.shortcuts import render
 from django.utils.html import format_html
 
+from coding_systems.versioning.models import CodingSystemRelease
+
 from ..models import Status
 from ..presenters import present_search_results
 from ..tree_data import build_tree_data
 from .decorators import load_version
+
+
+MEDICATION_WARNING_BANNER_CODING_SYSTEMS = ["dmd", "bnf"]
 
 
 @load_version
@@ -66,6 +71,20 @@ def version(request, clv):
     except AttributeError:
         latest_published_version_url = None
 
+    # Check whether this codelist was built from an outdated coding system release,
+    # so we know whether to show the medication warning banner.
+    if clv.coding_system_id in MEDICATION_WARNING_BANNER_CODING_SYSTEMS:
+        coding_system_release_outdated = (
+            CodingSystemRelease.objects.ready()
+            .filter(
+                coding_system=clv.coding_system_id,
+                valid_from__gt=clv.coding_system_release.valid_from,
+            )
+            .exists()
+        )
+    else:
+        coding_system_release_outdated = False
+
     ctx = {
         "clv": clv,
         "codelist": clv.codelist,
@@ -80,5 +99,6 @@ def version(request, clv):
         "tree_data": tree_data,
         "latest_published_version_url": latest_published_version_url,
         "count_codes_included": len(rows),
+        "coding_system_release_outdated": coding_system_release_outdated,
     }
     return render(request, "codelists/version.html", ctx)

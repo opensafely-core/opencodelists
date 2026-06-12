@@ -3,10 +3,6 @@ import re
 from bs4 import BeautifulSoup
 from django.urls import reverse
 
-from builder.actions import save as save_for_review
-from codelists.actions import publish_version
-from codelists.models import Status
-
 from .helpers import force_login
 
 
@@ -46,34 +42,66 @@ def test_non_builder_compatible_coding_system(client, dmd_version_asthma_medicat
     assert rsp.status_code == 200
 
 
-def test_medication_banner_only_on_published(client, dmd_version_asthma_medication):
-    # The banner is not visible on an unpublished dm+d codelist version
-    rsp = client.get(dmd_version_asthma_medication.get_absolute_url())
-    assert rsp.status_code == 200
-    assert b"Medication codelists can quickly become outdated" not in rsp.content
+def test_medication_banner_visible_for_outdated_coding_system_release(
+    client,
+    create_coding_system_release,
+    dmd_version_asthma_medication,
+    dmd_version_asthma_medication_published,
+):
+    """Test medication warning banner is shown for Under review and Published codelist versions that use an outdated coding system release."""
 
-    # The banner is visible on a published dm+d codelist version
-    publish_version(version=dmd_version_asthma_medication)
+    # Create a newer dm+d release so the version used to build the codelists under test becomes outdated
+    create_coding_system_release("dmd")
+
+    # dmd_version_asthma_medication = Under Review.
     rsp = client.get(dmd_version_asthma_medication.get_absolute_url())
     assert rsp.status_code == 200
     assert b"Medication codelists can quickly become outdated" in rsp.content
 
+    rsp = client.get(dmd_version_asthma_medication_published.get_absolute_url())
+    assert rsp.status_code == 200
+    assert b"Medication codelists can quickly become outdated" in rsp.content
 
-def test_medication_banner_only_on_medication(
-    client, bnf_version_asthma, latest_published_version
+
+def test_medication_banner_visible_with_dmd_or_bnf_coding_systems_only(
+    client, create_coding_system_release, bnf_version_asthma, latest_published_version
 ):
-    # The banner is not visible on a published SNOMED CT codelist (latest_published_version)
+    """Test medication warning banner is only visible for codelist versions that use a medication coding system"""
+
+    # Create newer snomedct and bnf releases so the versions used to
+    # build the codelists under test become outdated
+    create_coding_system_release("snomedct")
+    create_coding_system_release("bnf")
+
     rsp = client.get(latest_published_version.get_absolute_url())
     assert rsp.status_code == 200
     assert b"Medication codelists can quickly become outdated" not in rsp.content
 
-    # The banner is visible on a published BNF codelist (bnf_version_asthma)
     rsp = client.get(bnf_version_asthma.get_absolute_url())
     assert rsp.status_code == 200
     assert b"Medication codelists can quickly become outdated" in rsp.content
 
 
-def test_medication_banner_for_owner_of_codelist(client, bnf_version_asthma):
+def test_medication_banner_not_visible_for_current_coding_system_release(
+    client, bnf_version_asthma
+):
+    """Test medication warning banner is not shown when a codelist version uses the current coding system release"""
+
+    rsp = client.get(bnf_version_asthma.get_absolute_url())
+    assert rsp.status_code == 200
+    assert b"Medication codelists can quickly become outdated" not in rsp.content
+
+
+def test_medication_banner_for_owner_of_codelist(
+    client,
+    create_coding_system_release,
+    bnf_version_asthma,
+    dmd_version_asthma_medication,
+):
+    # Create newer BNF and dm+d releases so the meds banner is shown.
+    create_coding_system_release("bnf")
+    create_coding_system_release("dmd")
+
     # If you can't create a new version (not the owner or in the org) then you
     # are offered to "create your own" rather than "create a new version"
     rsp = client.get(bnf_version_asthma.get_absolute_url())
@@ -94,12 +122,7 @@ def test_medication_banner_for_owner_of_codelist(client, bnf_version_asthma):
 
     # If you can create a new version (the owner or in the org), and there is
     # not already a draft version, then you are invited to "create a new version"
-    bnf_draft_version = bnf_version_asthma.codelist.versions.filter(
-        status=Status.DRAFT
-    ).first()
-    save_for_review(draft=bnf_draft_version)
-    publish_version(version=bnf_draft_version)
-    rsp = client.get(bnf_version_asthma.get_absolute_url())
+    rsp = client.get(dmd_version_asthma_medication.get_absolute_url())
     assert rsp.status_code == 200
     assert b"create your own" not in rsp.content
     assert b"create a new version" in rsp.content

@@ -1,0 +1,41 @@
+<h2 class="text-2xl/tight font-bold text-slate-900">{{ title }}</h2>
+<p class="mt-2 text-base/snug text-slate-700">{{ description }}</p>
+
+<form
+  action="{{ request_path }}"
+  class="plausible-event-name=Search+button+click mt-6 max-w-2xl"
+  method="get"
+  role="search"
+>
+  <label class="w-fit cursor-pointer font-bold" for="search-codelists">
+    Search for a codelist
+  </label>
+  <div class="flex flex-row items-stretch gap-2">
+    <input
+      aria-label="Search for codelists published by {{ organisation_name }}"
+      class="block w-full rounded-md border border-slate-300 bg-white px-4 py-3 text-base text-slate-900 placeholder:text-slate-600 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 focus:outline-none"
+      id="search-codelists"
+      name="q"
+      placeholder="Enter a codelist name…"
+      type="search"
+      value="{{ search_query|default:'' }}"
+    />
+
+    <button
+      class="flex w-fit cursor-pointer items-center justify-center rounded-md border border-blue-700 bg-blue-700 px-6 text-sm/6 font-semibold whitespace-nowrap text-white shadow-xs transition-colors hover:border-blue-600 hover:bg-blue-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
+      type="submit"
+    >
+      Search
+    </button>
+
+    {% if search_query %}
+      <a
+        class="flex w-fit cursor-pointer items-center justify-center rounded-md border border-blue-700 bg-white px-6 text-sm/6 font-semibold whitespace-nowrap text-blue-700 shadow-xs transition-colors hover:border-blue-600 hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
+        href="{{ request_path }}"
+        role="button"
+      >
+        Clear
+      </a>
+    {% endif %}
+  </div>
+</form>

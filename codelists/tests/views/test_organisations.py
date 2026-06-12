@@ -51,6 +51,16 @@ def test_paginate_published_codelists(client, organisation, create_codelists):
     assert len(page_obj.object_list) == min(50, len(published_for_organisation) - 50)
 
 
+def test_published_pagination_preserves_search_query(
+    client, organisation, create_codelists
+):
+    create_codelists(70, owner=organisation, status=Status.PUBLISHED)
+
+    rsp = client.get(f"/codelist/{organisation.slug}/", {"q": "Codelist"})
+
+    assert 'href="?page=2&q=Codelist"' in rsp.content.decode()
+
+
 def test_published_index_does_not_duplicate_codelists_with_multiple_published_versions(
     client, organisation, null_codelist
 ):

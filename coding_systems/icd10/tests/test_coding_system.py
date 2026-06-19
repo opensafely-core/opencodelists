@@ -32,9 +32,10 @@ def test_lookup_names(icd10_data, coding_system):
 
 
 def test_code_to_term(icd10_data, coding_system):
-    assert coding_system.code_to_term(["M77", "M770", "99999"]) == {
+    assert coding_system.code_to_term(["M77", "M770", "M7700", "99999"]) == {
         "M77": "Other enthesopathies",
         "M770": "Medial epicondylitis",
+        "M7700": "Medial epicondylitis : Multiple sites",
         "99999": "Unknown",
     }
 

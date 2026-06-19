@@ -149,65 +149,30 @@ class CodingSystem(BuilderCompatibleCodingSystem):
         will be the child of a block.
         """
 
-        # Work out mappings only for latest edition, of which there will only be one for now
-        latest_edition_concepts = ConceptEdition.objects.using(
-            self.database_alias
-        ).filter(edition=self.latest_edition)
+        concept_rows = list(
+            ConceptEdition.objects.using(self.database_alias)
+            .order_by("concept_id", "-edition__year", "-edition__version")
+            .values_list("concept_id", "concept__parent_id", "kind")
+        )
 
-        # Start with mappings from chapter code to chapter code.
+        parent_by_code = {code: parent_code for code, parent_code, _ in concept_rows}
+        kind_by_code = {code: kind for code, _, kind in concept_rows}
         code_to_chapter = {
-            chapter.concept.code: chapter.concept.code
-            for chapter in latest_edition_concepts.filter(kind=ConceptKind.CHAPTER)
+            code: code for code, _, kind in concept_rows if kind == ConceptKind.CHAPTER
         }
 
-        # Add mappings from blocks that are children of chapters.
-        for block in latest_edition_concepts.filter(
-            kind=ConceptKind.BLOCK,
-            concept__parent__in=latest_edition_concepts.filter(
-                kind=ConceptKind.CHAPTER
-            ).values_list("concept_id", flat=True),
-        ):
-            code_to_chapter[block.concept.code] = code_to_chapter[
-                block.concept.parent_id
-            ]
+        def chapter_for(code):
+            if code in code_to_chapter:
+                return code_to_chapter[code]
 
-        # Add mappings from blocks that are children of other blocks.
-        for block in latest_edition_concepts.filter(
-            kind=ConceptKind.BLOCK,
-            concept__parent__in=latest_edition_concepts.filter(
-                kind=ConceptKind.BLOCK
-            ).values_list("concept_id", flat=True),
-        ):
-            code_to_chapter[block.concept.code] = code_to_chapter[
-                block.concept.parent_id
-            ]
+            parent_code = parent_by_code.get(code)
+            chapter_code = chapter_for(parent_code)
+            code_to_chapter[code] = chapter_code
+            return chapter_code
 
-        # Add mappings from categories that are children of blocks.
-        for category in latest_edition_concepts.filter(
-            kind=ConceptKind.CATEGORY,
-            concept__parent__in=latest_edition_concepts.filter(
-                kind=ConceptKind.BLOCK
-            ).values_list("concept_id", flat=True),
-        ):
-            code_to_chapter[category.concept.code] = code_to_chapter[
-                category.concept.parent_id
-            ]
-
-        # Add mappings from categories that are children of other categories.
-        for category in latest_edition_concepts.filter(
-            kind=ConceptKind.CATEGORY,
-            concept__parent__in=latest_edition_concepts.filter(
-                kind=ConceptKind.CATEGORY
-            ).values_list("concept_id", flat=True),
-        ):
-            code_to_chapter[category.concept.code] = code_to_chapter[
-                category.concept.parent_id
-            ]
-
-        assert (
-            len(code_to_chapter)
-            == ConceptEdition.objects.using(self.database_alias).count()
-        )
+        for code, kind in kind_by_code.items():
+            if kind in (ConceptKind.BLOCK, ConceptKind.CATEGORY):
+                chapter_for(code)
 
         return code_to_chapter
 

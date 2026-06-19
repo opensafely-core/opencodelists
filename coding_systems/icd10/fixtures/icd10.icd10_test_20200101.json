@@ -25,6 +25,7 @@
   },
   { "model": "icd10.concept", "pk": "M77", "fields": { "parent": "M70-M79" } },
   { "model": "icd10.concept", "pk": "M770", "fields": { "parent": "M77" } },
+  { "model": "icd10.concept", "pk": "M7700", "fields": { "parent": "M770" } },
   { "model": "icd10.concept", "pk": "M771", "fields": { "parent": "M77" } },
   { "model": "icd10.concept", "pk": "M772", "fields": { "parent": "M77" } },
   { "model": "icd10.concept", "pk": "M773", "fields": { "parent": "M77" } },
@@ -241,6 +242,17 @@
       "term": "Diseases of the musculoskeletal system and connective tissue",
       "edition_id": "test",
       "concept_id": "XIII"
+    }
+  },
+  {
+    "model": "icd10.conceptedition",
+    "pk": 22,
+    "fields": {
+      "kind": "category",
+      "term": "Medial epicondylitis",
+      "edition_id": "test",
+      "concept_id": "M7700",
+      "term_modifier": "Multiple sites"
     }
   }
 ]

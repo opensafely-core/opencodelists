@@ -97,12 +97,15 @@ class CodingSystem(BuilderCompatibleCodingSystem):
         lookup = {}
         concepts = (
             ConceptEdition.objects.using(self.database_alias)
-            .filter(edition=self.latest_edition)
             .filter(concept_id__in=codes)
+            .order_by("concept_id", "-edition__year", "-edition__version")
             .values_list("concept_id", "term", "term_modifier")
         )
+
         for concept_id, term, term_modifier in concepts:
-            lookup[concept_id] = f"{term} : {term_modifier}" if term_modifier else term
+            lookup.setdefault(
+                concept_id, f"{term} : {term_modifier}" if term_modifier else term
+            )
 
         return lookup
 

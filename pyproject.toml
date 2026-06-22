@@ -131,7 +131,7 @@ lines-after-imports = 2
 # See https://github.com/opensafely-core/opencodelists/blob/main/DEVELOPERS.md for details.
 [tool.uv]
 required-version = ">=0.9"
-exclude-newer = "2026-06-08T00:00:00Z"
+exclude-newer = "2026-06-15T00:00:00Z"
 exclude-newer-package = {}
 
 [dependency-groups]

@@ -1,91 +1,29 @@
-{% extends 'base.html' %}
+{% extends 'base-tw.html' %}
 
 {% load django_vite %}
 
-{% load text_filters %}
+{% block title_extra %}{{ organisation.name }} codelists{% endblock %}
 
 {% block content %}
+  <header class="mb-8 border-b border-b-slate-300 py-8">
+    <h1 class="max-w-prose text-2xl font-bold tracking-tight wrap-break-word text-slate-900 md:text-4xl">
+      {{ organisation.name }} codelists
+    </h1>
+  </header>
 
-  {% if not organisation %}
-    <h1>OpenCodelists</h1>
+  {% if not page_obj and not q %}
+    <p class="text-lg/snug text-slate-700">{{ organisation.name }} has not published any codelists.</p>
+  {% endif %}
+{% endblock content %}
 
-    <div class="mt-3">
-      <p>Welcome to OpenCodelists, created by <a href="https://opensafely.org">OpenSAFELY</a> for creating and sharing codelists.</p>
-      <p>Anybody can also use this tool to create and share codelists.  To get started, take a look at the <a href="/docs/">documentation</a> or watch the videos.<p>
-        <p>If you would like to publish codelists on behalf of an organisation, please <a href="https://opensafely.org/contact/">get in touch</a>.</p>
-        <p>Below, you'll find all the codelists that have been used in <a href="https://opensafely.org/research/">OpenSAFELY research</a> to date.</p>
+{% block full_width_content %}
+  {% if page_obj or q %}
+    <section class="pb-24">
+      <div class="container">
+        {% include "_partials/organisation_header.html" with organisation_name=organisation.name request_path=request.path search_query=q description="All of the codelists published by "|add:organisation.name title="Published codelists" only %}
       </div>
 
-        <div class="row my-2">
-          <div class="col-md-6">
-            <div class="youtube-embed">
-              <lite-youtube
-                class="plausible-event-name=Video+Click"
-                videoid="ayRtpbcPFLA"
-                params="controls=1&rel=0&enablejsapi=1"
-              ></lite-youtube>
-            </div>
-          </div>
-          <div class="col-md-6">
-            <lite-youtube
-              class="plausible-event-name=Video+Click"
-              videoid="t-A2kWHZ5lA"
-              params="controls=1&rel=0&enablejsapi=1"
-            ></lite-youtube>
-          </div>
-        </div>
-
-        <hr />
+      {% include "_partials/organisation_table.html" with page_obj=page_obj q=q only %}
+    </section>
   {% endif %}
-
-  <h2 class="h3">
-    {% if organisation %}
-      {{ organisation.name }} codelists
-    {% else %}
-      All codelists
-    {% endif %}
-  </h2>
-  <br />
-
-  {% include "codelists/_search_form.html" %}
-
-  <div class="row">
-    <div class="col-12">
-      <dl class="home-codelists">
-        {% for codelist in page_obj %}
-          <dt>
-            <a href="{{ codelist.get_absolute_url }}">{{ codelist.name }}</a>
-            <span class="badge badge-secondary">{{ codelist.coding_system_short_name }}</span>
-          </dt>
-          <dd>
-
-            {% if codelist.description %}
-              <div>
-                {{ codelist.description|truncatechars:500|truncatelines:4|linebreaksbr }}
-              </div>
-            {% endif %}
-
-            {% if not organisation %}
-              <div>Published by <a href="{% url 'codelists:organisation_published' codelist.organisation_id %}">{{ codelist.organisation.name }}</a></div>
-            {% endif %}
-          </dd>
-        {% endfor %}
-      </dl>
-    </div>
-
-    {% include "./_pagination.html" with page_obj=page_obj %}
-
-  </div>
-{% endblock %}
-
-{% block above_footer %}
-  {% if q %}
-    {% include "_feedback_form.html" %}
-  {% endif %}
-{% endblock %}
-
-{% block extra_js %}
-  {% if q %}
-    {% vite_asset "assets/src/scripts/feedback-form.js" %}
-  {% endif %}
-{% endblock %}
+{% endblock full_width_content %}

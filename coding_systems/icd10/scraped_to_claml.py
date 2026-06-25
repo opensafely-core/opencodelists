@@ -1,13 +1,10 @@
-import argparse
-import json
 import re
+import xml.etree.ElementTree as etree
 from collections import defaultdict
 from dataclasses import dataclass, field
 from enum import Enum, EnumMeta, auto
 from itertools import count
 from pathlib import Path
-
-from lxml import etree
 
 
 JSON_PATH = Path("icdscrape/chapters.json")
@@ -38,6 +35,10 @@ def d_id():
 
 def tbal_id():
     return f"id-to-be-added-later-1210506823253-{next(TBAL_ID_COUNT)}"
+
+
+def _sorted_items(_dict):
+    return sorted(_dict.items(), key=lambda item: item[0])
 
 
 class KindEnumMeta(EnumMeta):
@@ -226,7 +227,7 @@ class Rubric(Element):
                         has_dagger_asterisk_in_rubric = True
                         break
             if not has_dagger_asterisk_in_rubric:
-                label_suffix = f" ( {', '.join(related_codes)} )"
+                label_suffix = f" ( {', '.join(sorted(related_codes))} )"
         return Rubric(
             kind=RubricKind.PREFERRED,
             label=values["title"] + label_suffix,
@@ -263,8 +264,8 @@ class ModifierClass(Class):
 
 def append_element_rubrics(elem, values):
     if rubrics := values.get("rubric"):
-        for rubric_type, rubrics in rubrics.items():
-            for rubric in rubrics:
+        for rubric_type, rubrics in _sorted_items(rubrics):
+            for rubric in sorted(rubrics):
                 elem.rubrics.append(Rubric(kind=RubricKind[rubric_type], label=rubric))  # type: ignore
 
 
@@ -281,7 +282,7 @@ def generate_chapter_element(chapter_code, chapter_values):
     chapter_elem = get_base_class_element(
         chapter_code, chapter_values, ClassKind.CHAPTER
     )
-    for block in chapter_values["blocks"].items():
+    for block in _sorted_items(chapter_values["blocks"]):
         chapter_elem.subclasses.append(
             SubClass(code=generate_block_element(*block, super_code=chapter_code))
         )
@@ -295,12 +296,12 @@ def generate_block_element(block_code, block_values, super_code):
         block_code, block_values, ClassKind.BLOCK, super_code
     )
     if sub_blocks := block_values.get("blocks"):
-        for sub_block in sub_blocks.items():
+        for sub_block in _sorted_items(sub_blocks):
             block_elem.subclasses.append(
                 SubClass(generate_block_element(*sub_block, super_code=block_code))
             )
     elif categories := block_values.get("categories"):
-        for category in categories.items():
+        for category in _sorted_items(categories):
             block_elem.subclasses.append(
                 SubClass(generate_category_element(*category, super_code=block_code))
             )
@@ -316,7 +317,7 @@ def generate_category_element(category_code, category_values, super_code):
     if dagger_asterisk := category_values.get("dagger_asterisk"):
         category_element.usage = UsageKind[dagger_asterisk]  # type: ignore
     if categories := category_values.get("categories"):
-        for category in categories.items():
+        for category in _sorted_items(categories):
             category_element.subclasses.append(
                 SubClass(generate_category_element(*category, super_code=category_code))
             )
@@ -348,7 +349,7 @@ def extract_modifiers(_class: Class, values: dict):
         modifier_code += "4" if next(iter(modifiers)).startswith(".") else "5"
 
         modifier_elem = Modifier(modifier_code)
-        for code_modifier, label_modifier in modifiers.items():
+        for code_modifier, label_modifier in _sorted_items(modifiers):
             modifier_elem.subclasses.append(SubClass(code_modifier))
             modifier_class_elem = ModifierClass(
                 code=code_modifier,
@@ -416,11 +417,8 @@ def append_subclasses():
             _class.subclasses.append(SubClass(code=child.code))
 
 
-def main(json_path, claml_path):
-    chapters = json.load(json_path.open())
-    claml = etree.fromstring(
-        CLAML_HEADER, parser=etree.XMLParser(remove_blank_text=True)
-    )
+def convert_chapters_to_claml(chapters, claml_path):
+    claml = etree.fromstring(CLAML_HEADER)
     claml.append(ClassKind.to_element())
     claml.append(UsageKind.to_element())
     claml.append(RubricKind.to_element())
@@ -433,27 +431,5 @@ def main(json_path, claml_path):
     for _class in classes_to_write:
         claml.append(_class.to_element())
     xml = etree.ElementTree(claml)
-    xml.write(claml_path, pretty_print=True, xml_declaration=True, encoding="UTF-8")
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        prog="json_to_claml",
-        description="converts scraped chapters.json to ClaML format",
-    )
-    parser.add_argument(
-        "json_path",
-        nargs="?",
-        default=JSON_PATH,
-        help="Path to input json file",
-        type=Path,
-    )
-    parser.add_argument(
-        "claml_path",
-        nargs="?",
-        default=CLAML_PATH,
-        help="Output path for ClaML file",
-        type=Path,
-    )
-    args = parser.parse_args()
-    main(args.json_path, args.claml_path)
+    etree.indent(xml, space="\t", level=0)
+    xml.write(claml_path, xml_declaration=True, encoding="UTF-8")

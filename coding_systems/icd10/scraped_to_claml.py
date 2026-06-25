@@ -1,13 +1,10 @@
-import argparse
-import json
 import re
+import xml.etree.ElementTree as etree
 from collections import defaultdict
 from dataclasses import dataclass, field
 from enum import Enum, EnumMeta, auto
 from itertools import count
 from pathlib import Path
-
-from lxml import etree
 
 
 JSON_PATH = Path("icdscrape/chapters.json")
@@ -416,11 +413,8 @@ def append_subclasses():
             _class.subclasses.append(SubClass(code=child.code))
 
 
-def main(json_path, claml_path):
-    chapters = json.load(json_path.open())
-    claml = etree.fromstring(
-        CLAML_HEADER, parser=etree.XMLParser(remove_blank_text=True)
-    )
+def convert_chapters_to_claml(chapters, claml_path):
+    claml = etree.fromstring(CLAML_HEADER)
     claml.append(ClassKind.to_element())
     claml.append(UsageKind.to_element())
     claml.append(RubricKind.to_element())
@@ -433,27 +427,5 @@ def main(json_path, claml_path):
     for _class in classes_to_write:
         claml.append(_class.to_element())
     xml = etree.ElementTree(claml)
-    xml.write(claml_path, pretty_print=True, xml_declaration=True, encoding="UTF-8")
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        prog="json_to_claml",
-        description="converts scraped chapters.json to ClaML format",
-    )
-    parser.add_argument(
-        "json_path",
-        nargs="?",
-        default=JSON_PATH,
-        help="Path to input json file",
-        type=Path,
-    )
-    parser.add_argument(
-        "claml_path",
-        nargs="?",
-        default=CLAML_PATH,
-        help="Output path for ClaML file",
-        type=Path,
-    )
-    args = parser.parse_args()
-    main(args.json_path, args.claml_path)
+    etree.indent(xml, space="\t", level=0)
+    xml.write(claml_path, xml_declaration=True, encoding="UTF-8")

@@ -4,6 +4,7 @@ import re
 import traceback
 from collections import defaultdict
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from urllib import parse
 
 import requests as rq
@@ -11,8 +12,6 @@ from bs4 import BeautifulSoup, element
 
 
 BASE_URL = "https://classbrowser.nhs.uk/"
-BASE_PATH = Path("icdscrape")
-
 errors = {}
 
 
@@ -50,7 +49,15 @@ def get_block_urls(menu_json_path):
     )
 
 
-def get_menu_chapters(menu):
+def get_menu_chapters(menu, html_dir):
+    def fetch_html(url, force_download=False):
+        htmls_dir = html_dir / "html_cache"
+        htmls_dir.mkdir(parents=True, exist_ok=True)
+        file_path = htmls_dir / os.path.split(parse.urlparse(url).path)[-1]
+        if force_download or not file_path.exists():
+            download_stream(url, file_path)
+        return file_path
+
     def split_text(text):
         return text.split(": ")
 
@@ -132,15 +139,6 @@ def get_menu_chapters(menu):
                 **parsed_chapter,
             },
         )
-
-
-def fetch_html(url, force_download=False):
-    htmls_dir = BASE_PATH / "html_cache"
-    htmls_dir.mkdir(parents=True, exist_ok=True)
-    file_path = htmls_dir / os.path.split(parse.urlparse(url).path)[-1]
-    if force_download or not file_path.exists():
-        download_stream(url, file_path)
-    return file_path
 
 
 def label_text(elem):
@@ -399,18 +397,6 @@ def get_html_body(html_path):
 
 def scrape():
     menu = fetch_menu_json()
-    chapters = {k: v for k, v in get_menu_chapters(menu)}
-
-    json.dump(
-        chapters, (BASE_PATH / "chapters.json").open("w"), indent=4, ensure_ascii=False
-    )
-    json.dump(
-        errors, (BASE_PATH / "errors.json").open("w"), indent=4, ensure_ascii=False
-    )
-
-    if errors:
-        print("Errors found, check errors.json")
-
-
-if __name__ == "__main__":
-    scrape()
+    with TemporaryDirectory() as temp:
+        chapters = {k: v for k, v in get_menu_chapters(menu, Path(temp))}
+    return chapters

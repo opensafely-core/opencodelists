@@ -12,9 +12,12 @@ from coding_systems.icd10.import_data import import_data
 from coding_systems.icd10.models import (
     Concept,
     ConceptEdition,
+    ConceptRubric,
     ConceptUsage,
     DaggerAsteriskRelation,
     Edition,
+    ModifierRubric,
+    RubricKind,
 )
 from coding_systems.versioning.models import CodingSystemRelease
 
@@ -36,6 +39,7 @@ IMPORT_RELEASES = {
     "alterations": ("Alterations ICD", date(2022, 10, 5)),
     "invalid code": ("Invalid Code ICD", date(2022, 10, 5)),
     "missing parent": ("Missing Parent ICD", date(2022, 10, 6)),
+    "rubrics": ("Rubrics ICD", date(2022, 10, 7)),
 }
 
 
@@ -63,6 +67,8 @@ def code(
     usage_pair_codes=None,
     term_modifier="",
     modifier_position=None,
+    concept_rubrics=None,
+    modifier_rubrics=None,
 ):
     return ICD10Code(
         code=code,
@@ -72,6 +78,8 @@ def code(
         parent=parent,
         term_modifier=term_modifier,
         modifier_position=modifier_position,
+        concept_rubrics=concept_rubrics or {},
+        modifier_rubrics=modifier_rubrics or {},
     )
 
 
@@ -260,6 +268,53 @@ class TestImportData(DynamicDatabaseTestCase):
         } == {
             ("2016", "K250", "K250", "K251", "K251"),
             ("2019", "K250", "K250", "K251", "K251"),
+        }
+
+    @pytest.mark.usefixtures("setup_coding_systems")
+    def test_import_data_creates_rubrics(self):
+        output_2016 = self._parsed_output()
+        output_2016["K25"].concept_rubrics = {
+            RubricKind.PREFERRED: ["Gastric ulcer"],
+            RubricKind.INCLUSION: ["Erosion (acute) of stomach"],
+        }
+        output_2016["K250"].modifier_rubrics = {
+            RubricKind.PREFERRED: ["Acute with haemorrhage"],
+            RubricKind.NOTE: ["Includes bleeding"],
+        }
+
+        self._import_records("rubrics", output_2016, self._parsed_output())
+
+        cs_release = CodingSystemRelease.objects.latest("id")
+        concept_rubrics = ConceptRubric.objects.using(
+            cs_release.database_alias
+        ).select_related("concept_edition")
+        modifier_rubrics = ModifierRubric.objects.using(
+            cs_release.database_alias
+        ).select_related("concept_edition")
+
+        assert {
+            (
+                rubric.concept_edition.edition_id,
+                rubric.concept_edition.concept_id,
+                rubric.kind,
+                rubric.text,
+            )
+            for rubric in concept_rubrics
+        } == {
+            ("2016", "K25", RubricKind.PREFERRED, "Gastric ulcer"),
+            ("2016", "K25", RubricKind.INCLUSION, "Erosion (acute) of stomach"),
+        }
+        assert {
+            (
+                rubric.concept_edition.edition_id,
+                rubric.concept_edition.concept_id,
+                rubric.kind,
+                rubric.text,
+            )
+            for rubric in modifier_rubrics
+        } == {
+            ("2016", "K250", RubricKind.PREFERRED, "Acute with haemorrhage"),
+            ("2016", "K250", RubricKind.NOTE, "Includes bleeding"),
         }
 
     @pytest.mark.usefixtures("setup_coding_systems")

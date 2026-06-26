@@ -613,3 +613,21 @@ def get_2016_2019_description_difference(
     ):
         return known
     return None
+
+
+def clinically_different_codes(codes: list[str]) -> dict[str, dict[str, str]]:
+    """
+    Given a list of codes, return a dict containing the codes
+    that have clinically different descriptions between the 2016 and 2019
+    releases, along with their descriptions in both releases.
+    """
+    differences = {}
+    normalised_codes = set(code.upper() for code in codes)
+    for code in normalised_codes:
+        difference = COMBINED_2016_VS_2019_DIFFERENCES.get(code)
+        if difference and not difference.clinically_equivalent:
+            differences[code] = {
+                "combined_2016": difference.combined_2016,
+                "who_2019": difference.who_2019,
+            }
+    return differences

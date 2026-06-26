@@ -251,7 +251,8 @@ COMBINED_2016_VS_2019_DIFFERENCES = {
         who_2019="Sepsis due to streptococcus, group D and enterococcus",
         clinically_equivalent=True,
     ),
-    # TODO - look the same to me but need to check
+    # Confirmed with clinician that these are equivalent:
+    # https://bennettoxford.slack.com/archives/C03HVM72273/p1782299456089129
     "B170": ReleaseTermDifference(
         combined_2016="Acute delta-(super)infection of hepatitis B carrier",
         who_2019="Acute delta-(super)infection in chronic hepatitis B",
@@ -264,12 +265,12 @@ COMBINED_2016_VS_2019_DIFFERENCES = {
         who_2019="Human T-cell lymphotropic virus associated myelopathy",
         clinically_equivalent=True,
     ),
-    # TODO - the only difference is the "acute" bit. Suspect they're the
-    # same but need to check
+    # Clinician confirmed that these could be different
+    # https://bennettoxford.slack.com/archives/C03HVM72273/p1782299456089129
     "I620": ReleaseTermDifference(
         combined_2016="Subdural haemorrhage (acute)(nontraumatic)",
         who_2019="Nontraumatic subdural haemorrhage",
-        clinically_equivalent=True,
+        clinically_equivalent=False,
     ),
     # Small typographical change only, so clinically equivalent
     "P710": ReleaseTermDifference(
@@ -296,7 +297,8 @@ COMBINED_2016_VS_2019_DIFFERENCES = {
         who_2019="Congenital oesophageal web",
         clinically_equivalent=True,
     ),
-    # TODO - not sure - these might actually be different
+    # Clinician confirmed that these could be different
+    # https://bennettoxford.slack.com/archives/C03HVM72273/p1782299456089129
     "R17": ReleaseTermDifference(
         combined_2016="Unspecified jaundice",
         who_2019="Hyperbilirubinaemia, with or without jaundice, not elsewhere classified",

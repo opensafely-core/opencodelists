@@ -11,9 +11,11 @@ from coding_systems.icd10.models import (
     Concept,
     ConceptEdition,
     ConceptKind,
+    ConceptRubric,
     ConceptUsage,
     DaggerAsteriskRelation,
     Edition,
+    ModifierRubric,
 )
 from coding_systems.icd10.release_builder import load_import_records
 
@@ -160,6 +162,47 @@ def _create_dagger_asterisk_relations(
     batched_bulk_create(DaggerAsteriskRelation, database_alias, iter(relations))
 
 
+def _add_rubrics(database_alias, edition_records, concept_editions_by_key):
+    concept_rubrics_to_create = []
+    modifier_rubrics_to_create = []
+    for edition, records in edition_records:
+        for code, record in records.items():
+            if not record.concept_rubrics and not record.modifier_rubrics:
+                continue
+            key = (edition.id, code)
+            assert key in concept_editions_by_key
+
+            for kind, rubric_list in record.concept_rubrics.items():
+                for rubric in rubric_list:
+                    concept_rubrics_to_create.append(
+                        ConceptRubric(
+                            concept_edition=concept_editions_by_key[key],
+                            text=rubric,
+                            kind=kind,
+                        )
+                    )
+            for kind, rubric_list in record.modifier_rubrics.items():
+                for rubric in rubric_list:
+                    modifier_rubrics_to_create.append(
+                        ModifierRubric(
+                            concept_edition=concept_editions_by_key[key],
+                            text=rubric,
+                            kind=kind,
+                        )
+                    )
+
+    batched_bulk_create(
+        ConceptRubric,
+        database_alias,
+        iter(concept_rubrics_to_create),
+    )
+    batched_bulk_create(
+        ModifierRubric,
+        database_alias,
+        iter(modifier_rubrics_to_create),
+    )
+
+
 def import_data(
     release_dir, release_name, valid_from, import_ref=None, check_compatibility=True
 ):
@@ -212,4 +255,5 @@ def import_data(
                 database_alias, edition_records, concept_editions_by_key
             )
 
-            # TODO Finally we add the ConceptRubrics and the ModifierRubrics
+            # Finally we add the ConceptRubrics and the ModifierRubrics
+            _add_rubrics(database_alias, edition_records, concept_editions_by_key)

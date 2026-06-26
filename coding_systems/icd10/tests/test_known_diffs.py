@@ -2,6 +2,7 @@ import pytest
 
 from coding_systems.icd10.claml_parser import ICD10Code, ModifierDigit
 from coding_systems.icd10.known_diffs import (
+    RubricChange,
     TermDifference,
     clinically_different_codes,
     expand_who_2016_place_of_occurrence,
@@ -19,6 +20,80 @@ from coding_systems.icd10.known_diffs import (
 def test_term_difference_rejects_unknown_source_choice():
     with pytest.raises(ValueError, match="use must be 'claml' or 'scraped'"):
         TermDifference(claml="A", scraped="B", use="neither")
+
+
+def test_rubric_change_defaults_to_who_rubrics():
+    change = RubricChange(
+        who={"inclusion": ["A"]},
+    )
+
+    assert change.resolved_use == {"inclusion": ["A"]}
+
+
+def test_rubric_change_derives_use_from_edits_without_mutating_who():
+    who = {
+        "inclusion": ["A", "B"],
+        "exclusion": ["old value", "remove me"],
+    }
+    change = RubricChange(
+        who=who,
+        replace={"exclusion": {"old": "new"}},
+        remove={"exclusion": ["remove me"]},
+        add={"note": ["C"]},
+    )
+
+    assert change.resolved_use == {
+        "inclusion": ["A", "B"],
+        "exclusion": ["new value"],
+        "note": ["C"],
+    }
+    assert who == {
+        "inclusion": ["A", "B"],
+        "exclusion": ["old value", "remove me"],
+    }
+
+
+def test_rubric_change_adds():
+    change = RubricChange(
+        who={"inclusion": ["A"]},
+        add={"inclusion": ["B"], "exclusion": ["C"]},
+    )
+
+    assert change.resolved_use == {"inclusion": ["A", "B"], "exclusion": ["C"]}
+
+
+def test_rubric_change_removes():
+    change = RubricChange(
+        who={"inclusion": ["A", "B"], "exclusion": ["C"]},
+        remove={"inclusion": ["B"], "exclusion": ["C"]},
+    )
+
+    assert change.resolved_use == {"inclusion": ["A"]}
+
+
+def test_rubric_change_replaces_substrings_in_each_rubric_value():
+    change = RubricChange(
+        who={
+            "inclusion": [
+                "Angiostrongyliasis due to: Angiostrongylus costaricensis (B83.2)"
+            ],
+            "exclusion": [
+                "Angiostrongyliasis due to: Angiostrongylus costaricensis (B83.2)",
+                "Angiostrongyliasis due to: Parastrongylus costaricensis (B83.2)",
+            ],
+        },
+        replace={"exclusion": {"costaricensis": "cantonensis"}},
+    )
+
+    assert change.resolved_use == {
+        "inclusion": [
+            "Angiostrongyliasis due to: Angiostrongylus costaricensis (B83.2)"
+        ],
+        "exclusion": [
+            "Angiostrongyliasis due to: Angiostrongylus cantonensis (B83.2)",
+            "Angiostrongyliasis due to: Parastrongylus cantonensis (B83.2)",
+        ],
+    }
 
 
 def test_2016_claml_vs_scraped_known_difference_helpers():

@@ -7,9 +7,13 @@ from coding_systems.icd10.known_diffs import (
     is_2016_claml_only,
     is_2016_description_difference,
     is_2016_scraped_only,
+    moved_codes,
     should_include_2016_claml_only,
     should_include_2016_scraped_only,
     should_use_scraped_for_2016,
+)
+from coding_systems.icd10.known_diffs.combined2016_vs_who2019_term_differences import (
+    clinically_different_codes,
 )
 from coding_systems.icd10.known_diffs.difference_classes import (
     TermDifference,
@@ -137,3 +141,44 @@ def test_expand_who_2016_place_of_occurrence_fails_when_expected_override_missin
 
     with pytest.raises(AssertionError, match="expected codes missing"):
         expand_who_2016_place_of_occurrence(records, modifiers)
+
+
+def test_clinically_different_codes():
+    differences = clinically_different_codes(["w260", "W260", "A081", "ZZZZ"])
+
+    # Should deduplicate w260/W260 and only return the clinically different
+    # code W260, not A081 which is clinically equivalent, or ZZZZ which is
+    # not a known difference.
+    assert differences == {
+        "W260": {
+            "combined_2016": "Contact with other sharp object(s) (Home)",
+            "who_2019": "Contact with knife, sword or dagger",
+        }
+    }
+
+
+def test_moved_codes():
+    possible_codes = moved_codes(
+        ["U09", "U099", "U11", "U11", "K583", "K588", "K589", "ZZZZ"]
+    )
+
+    assert possible_codes == [
+        {
+            "title": "Irritable bowel syndrome",
+            "nhs2016": ["K58", "K580", "K589"],
+            "who2019": ["K58", "K581", "K582", "K583", "K588"],
+            "comment": "The codes for this were K580 and K589 in 2016, but K581, K582, K583 and K588 in 2019. You likely want all these codes in your codelist. However if you are specifically looking for diarrhoea, or constipation, rather than IBS, then you may only want some but not all of these codes.",
+        },
+        {
+            "title": "Post COVID-19 condition",
+            "nhs2016": ["U074"],
+            "who2019": ["U09", "U099"],
+            "comment": "This is U074 in 2016, but U09/U099 in 2019.",
+        },
+        {
+            "title": "Need for immunization against COVID-19",
+            "nhs2016": ["U076"],
+            "who2019": ["U11", "U119"],
+            "comment": "This is U076 in 2016, but U11/U119 in 2019.",
+        },
+    ]

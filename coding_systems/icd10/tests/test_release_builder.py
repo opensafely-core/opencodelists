@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 
 from coding_systems.icd10.claml_parser import ICD10Code, ModifierDigit
+from coding_systems.icd10.known_diffs import RubricChange
 from coding_systems.icd10.release_builder import (
     apply_nhs_2016_alterations,
     build_2016_2019_diff_report,
@@ -170,6 +171,120 @@ def test_combine_2016_claml_and_scraped_records_uses_known_term_choice(monkeypat
     )
 
     assert combined["J10"] is scraped_records["J10"]
+
+
+def test_combine_2016_claml_and_scraped_records_applies_derived_rubric_change(
+    monkeypatch,
+):
+    claml_records = {
+        "A00": ICD10Code(
+            code="A00",
+            parent=None,
+            description="Cholera",
+            concept_rubrics={
+                "inclusion": ["Keep"],
+                "exclusion": ["Remove"],
+            },
+        ),
+    }
+    scraped_records = {
+        "A00": ICD10Code(
+            code="A00",
+            parent=None,
+            description="Cholera",
+            concept_rubrics={
+                "inclusion": ["Keep"],
+                "exclusion": ["Remove"],
+            },
+        ),
+    }
+
+    def fake_parse_claml(path):
+        if path == "/tmp/icd10-2016.xml":
+            return claml_records, []
+        return scraped_records, []
+
+    monkeypatch.setattr(
+        "coding_systems.icd10.release_builder.download_release",
+        lambda release_dir, year: f"/tmp/icd10-{year}.xml",
+    )
+    monkeypatch.setattr(
+        "coding_systems.icd10.release_builder.parse_claml",
+        fake_parse_claml,
+    )
+    monkeypatch.setattr(
+        "coding_systems.icd10.release_builder.apply_nhs_2016_alterations",
+        lambda records, place_modifiers: records,
+    )
+    monkeypatch.setattr(
+        "coding_systems.icd10.release_builder.check_diff_2016_claml_with_scraped",
+        lambda claml, scraped: None,
+    )
+    monkeypatch.setattr(
+        "coding_systems.icd10.release_builder.KNOWN_2016_RUBRIC_CHANGES",
+        {
+            "A00": RubricChange(
+                who={
+                    "inclusion": ["Keep"],
+                    "exclusion": ["Remove"],
+                },
+                remove={"exclusion": ["Remove"]},
+            )
+        },
+    )
+
+    combined = combine_2016_claml_and_scraped_records(
+        "/tmp/icd10-cache", Path("/tmp/scraped.xml")
+    )
+
+    assert combined["A00"].concept_rubrics == {"inclusion": ["Keep"]}
+
+
+def test_combine_2016_claml_and_scraped_records_rejects_unexpected_rubric(
+    monkeypatch,
+):
+    claml_records = {
+        "A00": ICD10Code(
+            code="A00",
+            parent=None,
+            description="Cholera",
+            concept_rubrics={"inclusion": ["Unexpected"]},
+        ),
+    }
+    scraped_records = {
+        "A00": ICD10Code(code="A00", parent=None, description="Cholera"),
+    }
+
+    def fake_parse_claml(path):
+        if path == "/tmp/icd10-2016.xml":
+            return claml_records, []
+        return scraped_records, []
+
+    monkeypatch.setattr(
+        "coding_systems.icd10.release_builder.download_release",
+        lambda release_dir, year: f"/tmp/icd10-{year}.xml",
+    )
+    monkeypatch.setattr(
+        "coding_systems.icd10.release_builder.parse_claml",
+        fake_parse_claml,
+    )
+    monkeypatch.setattr(
+        "coding_systems.icd10.release_builder.apply_nhs_2016_alterations",
+        lambda records, place_modifiers: records,
+    )
+    monkeypatch.setattr(
+        "coding_systems.icd10.release_builder.check_diff_2016_claml_with_scraped",
+        lambda claml, scraped: None,
+    )
+    monkeypatch.setattr(
+        "coding_systems.icd10.release_builder.KNOWN_2016_RUBRIC_CHANGES",
+        {"A00": RubricChange(who={"inclusion": ["Expected"]})},
+    )
+
+    with pytest.raises(ValueError, match="Unexpected rubric for A00"):
+        combine_2016_claml_and_scraped_records(
+            "/tmp/icd10-cache", Path("/tmp/scraped.xml")
+        )
 
 
 def test_combine_2016_claml_and_scraped_records_includes_and_excludes_known_only_codes(

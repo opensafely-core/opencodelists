@@ -21,11 +21,11 @@
       value="{{ search_query|default:'' }}"
     />
 
-    {% if sort %}
-      <input name="sort" type="hidden" value="{{ sort }}">
+    {% if sort_by %}
+      <input name="sort" type="hidden" value="{{ sort_by }}">
     {% endif %}
-    {% if direction %}
-      <input name="direction" type="hidden" value="{{ direction }}">
+    {% if sort_direction %}
+      <input name="direction" type="hidden" value="{{ sort_direction }}">
     {% endif %}
 
     <button

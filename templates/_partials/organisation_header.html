@@ -21,6 +21,13 @@
       value="{{ search_query|default:'' }}"
     />
 
+    {% if sort %}
+      <input name="sort" type="hidden" value="{{ sort }}">
+    {% endif %}
+    {% if direction %}
+      <input name="direction" type="hidden" value="{{ direction }}">
+    {% endif %}
+
     <button
       class="flex w-fit cursor-pointer items-center justify-center rounded-md border border-blue-700 bg-blue-700 px-6 text-sm/6 font-semibold whitespace-nowrap text-white shadow-xs transition-colors hover:border-blue-600 hover:bg-blue-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700"
       type="submit"

@@ -20,7 +20,7 @@
   {% if page_obj or q %}
     <section class="pb-24">
       <div class="container">
-        {% include "_partials/organisation_header.html" with organisation_name=organisation.name request_path=request.path search_query=q description="All of the under review codelists by "|add:organisation.name title="Under review codelists" only %}
+        {% include "_partials/organisation_header.html" with organisation_name=organisation.name request_path=request.path search_query=q description="All of the under review codelists by "|add:organisation.name title="Under review codelists" sort=sort direction=direction only %}
       </div>
 
       {% include "_partials/organisation_table.html" with page_obj=page_obj q=q under_review_codelists=True only %}

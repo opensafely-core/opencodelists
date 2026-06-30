@@ -23,7 +23,7 @@
         {% include "_partials/organisation_header.html" with organisation_name=organisation.name request_path=request.path search_query=q description="All of the under review codelists by "|add:organisation.name title="Under review codelists" sort=sort direction=direction only %}
       </div>
 
-      {% include "_partials/organisation_table.html" with direction=direction page_obj=page_obj pagination=pagination q=q sort=sort under_review_codelists=True only %}
+      {% include "_partials/organisation_table.html" with page_obj=page_obj pagination=pagination q=q sort_options=sort_options under_review_codelists=True only %}
     </section>
   {% endif %}
 {% endblock full_width_content %}

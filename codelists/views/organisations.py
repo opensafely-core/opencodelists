@@ -15,32 +15,52 @@ from .index import (
 
 PAGE_SIZE = 50
 
+SORT_DIRECTION_ASC = "asc"
+SORT_DIRECTION_DESC = "desc"
+SORT_DIRECTIONS = {SORT_DIRECTION_ASC, SORT_DIRECTION_DESC}
+
+SORT_BY_CREATED_AT = "created_at"
+SORT_BY_NAME = "name"
+SORT_BY_UPDATED_AT = "updated_at"
+SORT_FOR_PUBLISHED = {SORT_BY_NAME, SORT_BY_UPDATED_AT}
+SORT_FOR_UNDER_REVIEW = {SORT_BY_NAME, SORT_BY_CREATED_AT}
+
 
 def organisation_published(
     request: HttpRequest, organisation_slug: str
 ) -> HttpResponse:
     organisation, handles, q = _get_organisation_handles(request, organisation_slug)
+    sort, direction = _get_sort(request, Status.PUBLISHED)
     published_handles = _handles_with_status(
         handles, Status.PUBLISHED
     ).prefetch_related(_current_handle_prefetch("codelist__handles"))
-    codelists = [handle.codelist for handle in published_handles]
+    codelists = _sort_published_codelists(
+        [handle.codelist for handle in published_handles], sort, direction
+    )
 
     ctx = {
         "page_obj": Paginator(codelists, PAGE_SIZE).get_page(request.GET.get("page")),
         "organisation": organisation,
         "q": q,
+        "sort": sort,
+        "direction": direction,
     }
     return render(request, "codelists/organisation_published.html", ctx)
 
 
 def organisation_review(request: HttpRequest, organisation_slug: str) -> HttpResponse:
     organisation, handles, q = _get_organisation_handles(request, organisation_slug)
-    versions = _under_review_versions(handles)
+    sort, direction = _get_sort(request, Status.UNDER_REVIEW)
+    versions = _sort_under_review_versions(
+        _under_review_versions(handles), sort, direction
+    )
 
     ctx = {
         "page_obj": Paginator(versions, PAGE_SIZE).get_page(request.GET.get("page")),
         "organisation": organisation,
         "q": q,
+        "sort": sort,
+        "direction": direction,
     }
     return render(request, "codelists/organisation_review.html", ctx)
 
@@ -97,4 +117,48 @@ def _current_handle_prefetch(lookup: str) -> Prefetch:
     return Prefetch(
         lookup,
         queryset=Handle.objects.filter(is_current=True).select_related("organisation"),
+    )
+
+
+def _get_sort(request: HttpRequest, status: Status) -> tuple[str, str]:
+    direction = request.GET.get("direction", SORT_DIRECTION_ASC)
+    if direction not in SORT_DIRECTIONS:
+        direction = SORT_DIRECTION_ASC
+
+    sort_options_by_status = {
+        Status.PUBLISHED: SORT_FOR_PUBLISHED,
+        Status.UNDER_REVIEW: SORT_FOR_UNDER_REVIEW,
+    }
+    sort_options = sort_options_by_status.get(status, {SORT_BY_NAME})
+
+    sort = request.GET.get("sort", SORT_BY_NAME)
+    if sort not in sort_options:
+        sort = SORT_BY_NAME
+
+    return sort, direction
+
+
+def _sort_published_codelists(codelists, sort: str, direction: str):
+    sort_key_funcs = {
+        SORT_BY_NAME: lambda codelist: codelist.name.casefold(),
+        SORT_BY_UPDATED_AT: lambda codelist: codelist.updated_at,
+    }
+
+    return sorted(
+        codelists,
+        key=sort_key_funcs[sort],
+        reverse=direction == SORT_DIRECTION_DESC,
+    )
+
+
+def _sort_under_review_versions(versions, sort: str, direction: str):
+    sort_key_funcs = {
+        SORT_BY_NAME: lambda version: version.codelist.name.casefold(),
+        SORT_BY_CREATED_AT: lambda version: version.created_at,
+    }
+
+    return sorted(
+        versions,
+        key=sort_key_funcs[sort],
+        reverse=direction == SORT_DIRECTION_DESC,
     )

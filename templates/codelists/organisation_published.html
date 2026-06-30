@@ -23,7 +23,7 @@
         {% include "_partials/organisation_header.html" with organisation_name=organisation.name request_path=request.path search_query=q description="All of the codelists published by "|add:organisation.name title="Published codelists" sort=sort direction=direction only %}
       </div>
 
-      {% include "_partials/organisation_table.html" with page_obj=page_obj q=q only %}
+      {% include "_partials/organisation_table.html" with direction=direction page_obj=page_obj q=q sort=sort only %}
     </section>
   {% endif %}
 {% endblock full_width_content %}

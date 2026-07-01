@@ -7,6 +7,8 @@ import zipfile
 from datetime import date
 from pathlib import Path
 
+import structlog
+
 from coding_systems.icd10.data_downloader import (
     SOURCE_URL,
     download_zip,
@@ -17,6 +19,9 @@ from coding_systems.icd10.data_downloader import (
 YEARS = ["2016", "2019"]
 DEFAULT_RELEASE_DIR = Path(__file__).parent / "data"
 DEFAULT_RECORD_PATH = DEFAULT_RELEASE_DIR / "claml_metadata.json"
+
+
+logger = structlog.get_logger()
 
 
 def xml_file_info(zip_path: Path) -> zipfile.ZipInfo:
@@ -77,13 +82,10 @@ def check_claml_zip_metadata(
         existing_record = json.loads(record_path.read_text())
 
         if existing_record == record:
-            print(
-                "\n✅ There are no changes to the timestamp, or size, of the "
-                "ClaML files when compared to the existing record.\n"
-            )
+            logger.info("No changes detected in ClaML file metadata.")
             return
         else:
-            print(
+            logger.warning(
                 "\n⚠️  CHANGE DETECTED  ⚠️\n\n"
                 "Something has changed in the online xml files when "
                 "compared to the existing record. See the diff in:\n\n"

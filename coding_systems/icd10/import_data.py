@@ -1,151 +1,259 @@
-"""Import ICD-10 data from
-https://apps.who.int/classifications/apps/icd/ClassificationDownload/DLArea/Download.aspx"""
+import re
 
-from collections import defaultdict
-from pathlib import Path
-from tempfile import TemporaryDirectory
-from zipfile import ZipFile
+from django.db import transaction
 
-import structlog
-from lxml import etree
+from coding_systems.base.import_data_utils import (
+    CodingSystemImporter,
+    batched_bulk_create,
+)
+from coding_systems.icd10.claml_parser import ICD10Code
+from coding_systems.icd10.models import (
+    Concept,
+    ConceptEdition,
+    ConceptKind,
+    ConceptRubric,
+    ConceptUsage,
+    DaggerAsteriskRelation,
+    Edition,
+    ModifierRubric,
+)
+from coding_systems.icd10.release_builder import load_import_records
 
-from coding_systems.base.import_data_utils import CodingSystemImporter
-from coding_systems.icd10.models import Concept
+
+def _kind_for_code(code):
+    """Determine the kind of an ICD-10 code based on its format"""
+    # BLOCK if like A07-A09
+    if re.match(r"^[A-Z]\d{2}-[A-Z]\d{2}$", code):
+        return ConceptKind.BLOCK
+    # CHAPTER is Roman numeral
+    if re.match(r"^[IVX]+$", code):
+        return ConceptKind.CHAPTER
+    # CATEGORY is A00, A000, A0000, or A00X0
+    if re.match(r"^[A-Z]\d{2}([X\d]\d?)?$", code):
+        return ConceptKind.CATEGORY
+    raise ValueError(f"Unrecognised ICD-10 code format: {code}")
 
 
-logger = structlog.get_logger()
+def _merge_code_parent_relationships(
+    output_2016: dict[str, ICD10Code], output_2019: dict[str, ICD10Code]
+) -> dict[str, str]:
+    """Merge the child/parent relationships from the 2016 and 2019 editions, checking for any conflicts."""
+    outputs = [output_2016, output_2019]
+    merged = {}
+    all_codes = set(output_2016) | set(output_2019)
+
+    for code in all_codes:
+        parents = {output[code].parent for output in outputs if code in output}
+        if len(parents) != 1:
+            raise ValueError(
+                f"Conflicting parent for ICD-10 code {code}: {sorted(parents)}"
+            )
+        merged[code] = parents.pop()
+
+    return merged
+
+
+def _create_concepts(database_alias, codes):
+    batched_bulk_create(
+        Concept,
+        database_alias,
+        (Concept(code=code) for code in codes),
+    )
+    return {
+        concept.code: concept for concept in Concept.objects.using(database_alias).all()
+    }
+
+
+def _set_concept_parents(
+    database_alias,
+    concepts_by_code: dict[str, Concept],
+    child_parent_map: dict[str, str],
+):
+    concepts_to_update = []
+
+    for child, parent in child_parent_map.items():
+        if parent is None:
+            continue
+        if parent not in concepts_by_code:
+            raise ValueError(
+                f"Parent {parent} for ICD-10 code {child} was not imported"
+            )
+
+        concepts_by_code[child].parent_id = parent
+        concepts_to_update.append(concepts_by_code[child])
+
+    Concept.objects.using(database_alias).bulk_update(concepts_to_update, ["parent"])
+
+
+def _create_concept_editions(
+    database_alias,
+    concepts_by_code: dict[str, Concept],
+    edition_records: list[tuple[Edition, dict[str, ICD10Code]]],
+):
+    concept_editions = (
+        ConceptEdition(
+            concept=concepts_by_code[code],
+            edition=edition,
+            kind=_kind_for_code(code),
+            usage=record.usage or ConceptUsage.NORMAL,
+            term=record.term,
+            term_modifier=record.term_modifier,
+            modifier_position=record.modifier_position,
+        )
+        for edition, records in edition_records
+        for code, record in records.items()
+    )
+    batched_bulk_create(ConceptEdition, database_alias, concept_editions)
+
+    return {
+        (concept_edition.edition_id, concept_edition.concept.code): concept_edition
+        for concept_edition in ConceptEdition.objects.using(
+            database_alias
+        ).select_related("concept")
+    }
+
+
+def _relation_codes(code, related_code, usage):
+    if usage == ConceptUsage.DAGGER:
+        return code, related_code
+    return related_code, code
+
+
+def _create_dagger_asterisk_relations(
+    database_alias, edition_records, concept_editions_by_key
+):
+    relations = []
+    seen_relations = set()
+
+    for edition, records in edition_records:
+        for code, record in records.items():
+            if (
+                record.usage
+                not in {
+                    ConceptUsage.DAGGER,
+                    ConceptUsage.ASTERISK,
+                    "aster",  # TODO change the model so ConceptUsage.ASTERISK is actually "aster" and not "asterisk", and then remove this hack
+                }
+            ):
+                continue
+
+            for related_code in record.usage_pair_codes or ():
+                dagger_code, asterisk_code = _relation_codes(
+                    code, related_code, record.usage
+                )
+                relation_key = (edition.id, dagger_code, asterisk_code)
+                if relation_key in seen_relations:
+                    continue
+
+                seen_relations.add(relation_key)
+                relations.append(
+                    DaggerAsteriskRelation(
+                        dagger_code=dagger_code,
+                        dagger_concept=concept_editions_by_key.get(
+                            (edition.id, dagger_code)
+                        ),
+                        asterisk_code=asterisk_code,
+                        asterisk_concept=concept_editions_by_key.get(
+                            (edition.id, asterisk_code)
+                        ),
+                    )
+                )
+
+    batched_bulk_create(DaggerAsteriskRelation, database_alias, iter(relations))
+
+
+def _add_rubrics(database_alias, edition_records, concept_editions_by_key):
+    concept_rubrics_to_create = []
+    modifier_rubrics_to_create = []
+    for edition, records in edition_records:
+        for code, record in records.items():
+            if not record.concept_rubrics and not record.modifier_rubrics:
+                continue
+            key = (edition.id, code)
+            assert key in concept_editions_by_key
+
+            for kind, rubric_list in record.concept_rubrics.items():
+                for rubric in rubric_list:
+                    concept_rubrics_to_create.append(
+                        ConceptRubric(
+                            concept_edition=concept_editions_by_key[key],
+                            text=rubric,
+                            kind=kind,
+                        )
+                    )
+            for kind, rubric_list in record.modifier_rubrics.items():
+                for rubric in rubric_list:
+                    modifier_rubrics_to_create.append(
+                        ModifierRubric(
+                            concept_edition=concept_editions_by_key[key],
+                            text=rubric,
+                            kind=kind,
+                        )
+                    )
+
+    batched_bulk_create(
+        ConceptRubric,
+        database_alias,
+        iter(concept_rubrics_to_create),
+    )
+    batched_bulk_create(
+        ModifierRubric,
+        database_alias,
+        iter(modifier_rubrics_to_create),
+    )
 
 
 def import_data(
-    release_zipfile, release_name, valid_from, import_ref=None, check_compatibility=True
+    release_dir, release_name, valid_from, import_ref=None, check_compatibility=True
 ):
-    with TemporaryDirectory() as tempdir:
-        release_zip = ZipFile(release_zipfile)
-        logger.info("Extracting", release_zip=release_zip.filename)
-
-        release_zip.extractall(path=tempdir)
-        paths = list(Path(tempdir).glob("*.xml"))
-        assert len(paths) == 1, (
-            f"Expected 1 and only one .xml file (found {len(paths)})"
-        )
-        release_path = paths[0]
-
-        with open(release_path) as f:
-            doc = etree.parse(f)
+    output_2016, output_2019 = load_import_records(release_dir)
 
     with CodingSystemImporter(
         "icd10", release_name, valid_from, import_ref, check_compatibility
     ) as database_alias:
-        # ensure we start with an empty database
-        assert not Concept.objects.using(database_alias).exists()
-        Concept.objects.using(database_alias).bulk_create(
-            Concept(**record) for record in load_concepts(doc)
-        )
+        with transaction.atomic(using=database_alias):
+            # First we create the two editions
+            edition_2016 = Edition.objects.using(database_alias).create(
+                id="2016",
+                version=20160101,
+                year=2016,
+                source_description=(
+                    "Combined 2016 ICD-10 edition, loaded from WHO ClaML and "
+                    "scraped NHS Class Browser ClaML."
+                ),
+            )
+            edition_2019 = Edition.objects.using(database_alias).create(
+                id="2019",
+                version=20190101,
+                year=2019,
+                source_description=(
+                    "WHO release of 2019 edition ICD-10, loaded from ClaML format from icd website."
+                ),
+            )
 
+            # Create the Concept records from the merged 2016 and 2019 codes
+            all_codes = set(output_2016) | set(output_2019)
+            concepts_by_code = _create_concepts(database_alias, all_codes)
 
-def load_concepts(doc):
-    """Yield dicts with `code`, `kind`, `term` and `parent_id` attributes of all
-    concepts.
+            # Update the Concept records with the FK parent relation
+            child_parent_map = _merge_code_parent_relationships(
+                output_2016, output_2019
+            )
+            _set_concept_parents(database_alias, concepts_by_code, child_parent_map)
 
-    Concepts are defined in `Class` elements, which have `code` and `kind` attributes.
-    They have one or more `Rubric` elements as children, and we choose one of them for
-    the term.  Additionally, non-chapter `Class` elements have a single `SuperClass`
-    child, which contains the `parent_id`.
+            # We have the Editions and Concepts, so now add the ConceptEdition records
+            edition_records = [
+                (edition_2016, output_2016),
+                (edition_2019, output_2019),
+            ]
+            concept_editions_by_key = _create_concept_editions(
+                database_alias, concepts_by_code, edition_records
+            )
 
-    Several `Class` elements also have a `ModifiedBy` child, which references a number
-    of `ModifierClass` elements.  For instance, we have:
+            # Next we can create the DaggerAsteriskRelation records, which require the ConceptEdition records to already exist
+            _create_dagger_asterisk_relations(
+                database_alias, edition_records, concept_editions_by_key
+            )
 
-    <ClaML version="2.0.0">
-        <Class code="E13" kind="category">
-            <SuperClass code="E10-E14"/>
-            <ModifiedBy code="S04E10_4"/>
-            <Rubric kind="preferred">
-                <Label>Other specified diabetes mellitus</Label>
-            </Rubric>
-        </Class>
-        ...
-        <ModifierClass code=".0" modifier="S04E10_4">
-            <SuperClass code="S04E10_4"/>
-            <Rubric kind="preferred">
-                    <Label>With coma</Label>
-            </Rubric>
-        </ModifierClass>
-        <ModifierClass code=".1" modifier="S04E10_4">
-            <SuperClass code="S04E10_4"/>
-            <Rubric kind="preferred">
-                <Label>With ketoacidosis</Label>
-            </Rubric>
-        </ModifierClass>
-        ...
-    </ClaML>
-
-    This means that category E13 has descendants E13.0 and E13.1, which we label as
-    "Other specified diabetes mellitus : With coma" and "Other specified diabetes
-    mellitus : With ketoacidosis".
-
-    Note that in order to match the format the ICD-10 codes are recorded in SUS and
-    elsewhere, we strip the `.` from codes.  So eg `E13.0` is recorded as `E130`.  We
-    don't think that this ever introduces ambiguity!
-    """
-
-    root = doc.getroot()
-
-    modifiers = defaultdict(list)
-
-    def get_label(el):
-        label = e.find("Rubric[@kind='preferredLong']/Label")
-        if label is None:
-            label = e.find("Rubric[@kind='preferred']/Label")
-        return label
-
-    for e in root.findall("ModifierClass"):
-        modifier = e.get("modifier")
-        code = e.get("code")
-        if code[0] != ".":
-            continue
-
-        label = get_label(e)
-        term = " ".join(label.itertext())
-
-        modifiers[modifier].append((code[1:], term))
-
-    for e in root.findall("Class"):
-        code = e.get("code")
-        kind = e.get("kind")
-
-        if kind == "category":
-            if len(code) == 5:
-                assert code[3] == "."
-                code = code.replace(".", "")
-
-        label = get_label(e)
-        term = " ".join(label.itertext())
-
-        superclass = e.find("SuperClass")
-        if superclass is not None:
-            parent_id = superclass.get("code")
-        else:
-            parent_id = None
-
-        yield {
-            "code": code,
-            "kind": kind,
-            "term": term,
-            "parent_id": parent_id,
-        }
-
-        for modified_by in e.findall("ModifiedBy"):
-            modifier_code = modified_by.get("code")
-            modifier = modifiers[modifier_code]
-            if not modifier:
-                continue
-
-            assert kind == "category"
-
-            for modifier_code, modifier_term in modifier:
-                yield {
-                    "code": code + modifier_code,
-                    "kind": kind,
-                    "term": term + " : " + modifier_term,
-                    "parent_id": code,
-                }
+            # Finally we add the ConceptRubrics and the ModifierRubrics
+            _add_rubrics(database_alias, edition_records, concept_editions_by_key)

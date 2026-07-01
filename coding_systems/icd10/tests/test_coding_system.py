@@ -32,10 +32,41 @@ def test_lookup_names(icd10_data, coding_system):
 
 
 def test_code_to_term(icd10_data, coding_system):
-    assert coding_system.code_to_term(["M77", "M770", "99999"]) == {
+    assert coding_system.code_to_term(["M77", "M770", "M7700", "99999"]) == {
         "M77": "Other enthesopathies",
         "M770": "Medial epicondylitis",
+        "M7700": "Medial epicondylitis : Multiple sites",
         "99999": "Unknown",
+    }
+
+
+def test_lookup_names_uses_latest_matching_term(monkeypatch, coding_system):
+    class FakeQuerySet:
+        def filter(self, *args, **kwargs):
+            return self
+
+        def order_by(self, *args, **kwargs):
+            return self
+
+        def values_list(self, *args, **kwargs):
+            return [
+                ("B59", "Newer term", None),
+                ("B59", "Older term", None),
+                ("M77", "Other enthesopathies", None),
+            ]
+
+    class FakeManager:
+        def using(self, alias):
+            return FakeQuerySet()
+
+    monkeypatch.setattr(
+        "coding_systems.icd10.coding_system.ConceptEdition.objects",
+        FakeManager(),
+    )
+
+    assert coding_system.lookup_names(["B59", "M77"]) == {
+        "B59": "Newer term",
+        "M77": "Other enthesopathies",
     }
 
 

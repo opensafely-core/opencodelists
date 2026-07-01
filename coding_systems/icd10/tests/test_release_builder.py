@@ -1,6 +1,7 @@
-from pathlib import Path
+import zipfile
 
 import pytest
+import structlog
 
 from coding_systems.icd10.claml_parser import ICD10Code, ModifierDigit
 from coding_systems.icd10.release_builder import (
@@ -12,6 +13,26 @@ from coding_systems.icd10.release_builder import (
     combine_2016_claml_and_scraped_records,
     load_import_records,
 )
+
+
+def flatten_logs(captured_logs):
+    return "".join([log["event"] for log in captured_logs if "event" in log])
+
+
+@pytest.fixture(autouse=True)
+def dummy_zip(tmp_path):
+    zip_path = tmp_path / "icd10_combined.zip"
+    with zipfile.ZipFile(zip_path, "w") as zf:
+        zf.writestr("icd102016en.xml", "dummy 2016 content")
+        zf.writestr("icd102019en.xml", "dummy 2019 content")
+        zf.writestr("icd10nhs2016en.xml", "dummy NHS 2016 content")
+
+    file_metadata = {
+        "WHO_2019": {"xml_filename": "icd102019en.xml"},
+        "WHO_2016": {"xml_filename": "icd102016en.xml"},
+        "NHS_2016": {"xml_filename": "icd10nhs2016en.xml"},
+    }
+    return zip_path, file_metadata
 
 
 def test_apply_nhs_2016_alterations_adds_place_codes(monkeypatch):
@@ -84,37 +105,43 @@ def test_build_2016_claml_scraped_diff_report_classifies_known_and_unknown_diffs
     assert report.has_unexpected_differences is True
 
 
-def test_check_2016_claml_scraped_differences_prints_claml_only_output(capsys):
+def test_check_2016_claml_scraped_differences_prints_claml_only_output():
     claml_records = {
         "A00": ICD10Code(code="A00", parent=None, description="Cholera"),
     }
     scraped_records = {}
 
-    with pytest.raises(ValueError, match="Unexpected differences found"):
+    with (
+        pytest.raises(ValueError, match="Unexpected differences found"),
+        structlog.testing.capture_logs() as captured_logs,
+    ):
         check_diff_2016_claml_with_scraped(claml_records, scraped_records)
 
-    output = capsys.readouterr().out
+    output = flatten_logs(captured_logs)
     assert "CLAML-only codes" in output
     assert '"A00": CodeDifference(include_in_release=True/False),' in output
     assert "UNEXPECTED DIFFS FOUND" in output
 
 
-def test_check_2016_claml_scraped_differences_prints_scraped_only_output(capsys):
+def test_check_2016_claml_scraped_differences_prints_scraped_only_output():
     claml_records = {}
     scraped_records = {
         "A00": ICD10Code(code="A00", parent=None, description="Cholera"),
     }
 
-    with pytest.raises(ValueError, match="Unexpected differences found"):
+    with (
+        pytest.raises(ValueError, match="Unexpected differences found"),
+        structlog.testing.capture_logs() as captured_logs,
+    ):
         check_diff_2016_claml_with_scraped(claml_records, scraped_records)
 
-    output = capsys.readouterr().out
+    output = flatten_logs(captured_logs)
     assert "Scraped-only codes" in output
     assert '"A00": CodeDifference(include_in_release=True/False),' in output
     assert "UNEXPECTED DIFFS FOUND" in output
 
 
-def test_check_2016_claml_scraped_differences_prints_description_differences(capsys):
+def test_check_2016_claml_scraped_differences_prints_description_differences():
     claml_records = {
         "A00": ICD10Code(code="A00", parent=None, description="Cholera"),
     }
@@ -122,10 +149,13 @@ def test_check_2016_claml_scraped_differences_prints_description_differences(cap
         "A00": ICD10Code(code="A00", parent=None, description="Cholera changed"),
     }
 
-    with pytest.raises(ValueError, match="Unexpected differences found"):
+    with (
+        pytest.raises(ValueError, match="Unexpected differences found"),
+        structlog.testing.capture_logs() as captured_logs,
+    ):
         check_diff_2016_claml_with_scraped(claml_records, scraped_records)
 
-    output = capsys.readouterr().out
+    output = flatten_logs(captured_logs)
     assert "Description (term) differences" in output
     assert '"A00": TermDifference(' in output
     assert "UNEXPECTED DIFFS FOUND" in output
@@ -147,27 +177,12 @@ def test_combine_2016_claml_and_scraped_records_uses_known_term_choice(monkeypat
         ),
     }
 
-    def fake_parse_claml(path):
-        if path == "/tmp/icd10-2016.xml":
-            return claml_records, []
-        return scraped_records, []
-
-    monkeypatch.setattr(
-        "coding_systems.icd10.release_builder.download_release",
-        lambda release_dir, year: f"/tmp/icd10-{year}.xml",
-    )
-    monkeypatch.setattr(
-        "coding_systems.icd10.release_builder.parse_claml",
-        fake_parse_claml,
-    )
     monkeypatch.setattr(
         "coding_systems.icd10.release_builder.apply_nhs_2016_alterations",
         lambda records, place_modifiers: records,
     )
 
-    combined = combine_2016_claml_and_scraped_records(
-        "/tmp/icd10-cache", Path("/tmp/scraped.xml")
-    )
+    combined = combine_2016_claml_and_scraped_records(claml_records, scraped_records)
 
     assert combined["J10"] is scraped_records["J10"]
 
@@ -186,18 +201,6 @@ def test_combine_2016_claml_and_scraped_records_includes_and_excludes_known_only
         "S2": ICD10Code(code="S2", parent=None, description="Drop scraped only"),
     }
 
-    def fake_parse_claml(path):
-        if path == "/tmp/icd10-2016.xml":
-            return claml_records, []
-        return scraped_records, []
-
-    monkeypatch.setattr(
-        "coding_systems.icd10.release_builder.download_release",
-        lambda release_dir, year: f"/tmp/icd10-{year}.xml",
-    )
-    monkeypatch.setattr(
-        "coding_systems.icd10.release_builder.parse_claml", fake_parse_claml
-    )
     monkeypatch.setattr(
         "coding_systems.icd10.release_builder.apply_nhs_2016_alterations",
         lambda records, place_modifiers: records,
@@ -215,9 +218,7 @@ def test_combine_2016_claml_and_scraped_records_includes_and_excludes_known_only
         lambda code: code == "S1",
     )
 
-    combined = combine_2016_claml_and_scraped_records(
-        "/tmp/icd10-cache", Path("/tmp/scraped.xml")
-    )
+    combined = combine_2016_claml_and_scraped_records(claml_records, scraped_records)
 
     assert set(combined) == {"A00", "C1", "S1"}
     assert combined["A00"] == scraped_records["A00"]
@@ -225,9 +226,7 @@ def test_combine_2016_claml_and_scraped_records_includes_and_excludes_known_only
     assert combined["S1"] == scraped_records["S1"]
 
 
-def test_check_2016_claml_scraped_differences_passes_when_differences_are_known(
-    capsys,
-):
+def test_check_2016_claml_scraped_differences_passes_when_differences_are_known():
     claml_records = {
         "J10": ICD10Code(
             code="J10",
@@ -242,10 +241,13 @@ def test_check_2016_claml_scraped_differences_passes_when_differences_are_known(
             description="Influenza due to identified seasonal influenza virus",
         ),
     }
+    with structlog.testing.capture_logs() as captured_logs:
+        differences = check_diff_2016_claml_with_scraped(claml_records, scraped_records)
 
-    assert check_diff_2016_claml_with_scraped(claml_records, scraped_records) is None
+    assert differences is None
+    output = flatten_logs(captured_logs)
 
-    assert "ALL OK" in capsys.readouterr().out
+    assert "ALL OK" in output
 
 
 def test_check_2016_2019_differences_fails_on_unknown_term_change():
@@ -260,7 +262,7 @@ def test_check_2016_2019_differences_fails_on_unknown_term_change():
         check_diff_2016_with_2019(combined_2016_records, who_2019_records)
 
 
-def test_check_2016_2019_differences_prints_actionable_output(capsys):
+def test_check_2016_2019_differences_prints_actionable_output():
     combined_2016_records = {
         "A00": ICD10Code(code="A00", parent=None, description="Cholera"),
     }
@@ -268,10 +270,13 @@ def test_check_2016_2019_differences_prints_actionable_output(capsys):
         "A00": ICD10Code(code="A00", parent=None, description="Different cholera"),
     }
 
-    with pytest.raises(ValueError, match="Unexpected differences found"):
+    with (
+        pytest.raises(ValueError, match="Unexpected differences found"),
+        structlog.testing.capture_logs() as captured_logs,
+    ):
         check_diff_2016_with_2019(combined_2016_records, who_2019_records)
 
-    output = capsys.readouterr().out
+    output = flatten_logs(captured_logs)
     assert "Compared combined 2016 ICD-10 records with WHO 2019 ClaML" in output
     assert "Description (term) differences" in output
     assert '"A00": ReleaseTermDifference(' in output
@@ -324,9 +329,7 @@ def test_build_2016_2019_diff_report_classifies_known_and_unknown_diffs():
     assert report.has_unexpected_differences is True
 
 
-def test_check_2016_2019_differences_counts_known_equivalent_and_different_changes(
-    capsys,
-):
+def test_check_2016_2019_differences_counts_known_equivalent_and_different_changes():
     combined_2016_records = {
         "A081": ICD10Code(
             code="A081",
@@ -352,65 +355,58 @@ def test_check_2016_2019_differences_counts_known_equivalent_and_different_chang
             description="Contact with knife, sword or dagger",
         ),
     }
+    with structlog.testing.capture_logs() as captured_logs:
+        differences = check_diff_2016_with_2019(combined_2016_records, who_2019_records)
 
-    assert check_diff_2016_with_2019(combined_2016_records, who_2019_records) is None
+    assert differences is None
 
-    output = capsys.readouterr().out
+    output = flatten_logs(captured_logs)
     assert "Clinically equivalent:  1" in output
     assert "Clinically different:   1" in output
     assert "ALL OK" in output
 
 
-def test_load_import_records_builds_2016_and_2019_outputs(monkeypatch):
+def test_load_import_records_builds_2016_and_2019_outputs(monkeypatch, dummy_zip):
     parsed_records = {
         "A00": ICD10Code(code="A00", parent=None, description="Cholera"),
     }
 
-    def fake_download_release(release_dir, year):
-        return f"/tmp/icd10-{year}.xml"
-
     def fake_parse_claml(xml_path):
         return parsed_records, []
 
-    monkeypatch.setattr(
-        "coding_systems.icd10.release_builder.download_release",
-        fake_download_release,
-    )
     monkeypatch.setattr(
         "coding_systems.icd10.release_builder.parse_claml",
         fake_parse_claml,
     )
     monkeypatch.setattr(
         "coding_systems.icd10.release_builder.combine_2016_claml_and_scraped_records",
-        lambda release_dir: parsed_records,
+        lambda who_2016_records, scraped_2016_records: parsed_records,
     )
     monkeypatch.setattr(
         "coding_systems.icd10.release_builder.check_diff_2016_with_2019",
         lambda output_2016, output_2019: None,
     )
-
-    output_2016, output_2019 = load_import_records("/tmp/icd10-cache")
+    zip_path, file_metadata = dummy_zip
+    output_2016, output_2019 = load_import_records(zip_path, file_metadata)
 
     assert output_2016 == parsed_records
     assert output_2019 == parsed_records
 
 
-def test_load_import_records_raises_when_release_diff_check_fails(monkeypatch):
+def test_load_import_records_raises_when_release_diff_check_fails(
+    monkeypatch, dummy_zip
+):
     parsed_records = {
         "A00": ICD10Code(code="A00", parent=None, description="Cholera"),
     }
 
-    monkeypatch.setattr(
-        "coding_systems.icd10.release_builder.download_release",
-        lambda release_dir, year: f"/tmp/icd10-{year}.xml",
-    )
     monkeypatch.setattr(
         "coding_systems.icd10.release_builder.parse_claml",
         lambda xml_path: (parsed_records, []),
     )
     monkeypatch.setattr(
         "coding_systems.icd10.release_builder.combine_2016_claml_and_scraped_records",
-        lambda release_dir: parsed_records,
+        lambda who_2016_records, scraped_2016_records: parsed_records,
     )
     monkeypatch.setattr(
         "coding_systems.icd10.release_builder.check_diff_2016_with_2019",
@@ -418,4 +414,5 @@ def test_load_import_records_raises_when_release_diff_check_fails(monkeypatch):
     )
 
     with pytest.raises(ValueError, match="bad diff"):
-        load_import_records("/tmp/icd10-cache")
+        zip_path, file_metadata = dummy_zip
+        load_import_records(zip_path, file_metadata)

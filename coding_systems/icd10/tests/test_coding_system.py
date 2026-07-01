@@ -41,3 +41,51 @@ def test_code_to_term(icd10_data, coding_system):
 
 def test_matching_codes(icd10_data, coding_system):
     assert coding_system.matching_codes(["M77", "M770", "99999"]) == {"M77", "M770"}
+
+
+def test_search_by_term(icd10_data, coding_system):
+    assert coding_system.search_by_term("rickett") == {
+        "A77",
+        "A770",
+        "A771",
+        "A772",
+        "A773",
+    }
+
+
+def test_search_by_code_exact(icd10_data, coding_system):
+    assert coding_system.search_by_code("A77") == {"A77"}
+
+
+def test_search_by_code_wildcard(icd10_data, coding_system):
+    assert coding_system.search_by_code("A77*") == {
+        "A77",
+        "A770",
+        "A771",
+        "A772",
+        "A773",
+        "A778",
+        "A779",
+    }
+
+
+def test_ancestor_relationships(icd10_data, coding_system):
+    assert coding_system.ancestor_relationships({"A770"}) == [
+        ("A77", "A770"),
+        ("A75-A79", "A77"),
+        ("I", "A75-A79"),
+        (None, "I"),
+    ]
+
+
+def test_descendant_relationships(icd10_data, coding_system):
+    assert coding_system.descendant_relationships({"I"}) == [
+        ("I", "A75-A79"),
+        ("A75-A79", "A77"),
+        ("A77", "A770"),
+        ("A77", "A771"),
+        ("A77", "A772"),
+        ("A77", "A773"),
+        ("A77", "A778"),
+        ("A77", "A779"),
+    ]

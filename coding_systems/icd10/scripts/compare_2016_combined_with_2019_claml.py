@@ -9,14 +9,19 @@ Usage:
     python -m coding_systems.icd10.scripts.compare_2016_combined_with_2019_claml
 """
 
+import structlog
+
 from coding_systems.icd10.release_builder import load_import_records
+
+
+logger = structlog.get_logger()
 
 
 def main() -> None:
     try:
         load_import_records()
     except ValueError as e:
-        print(str(e))
+        logger.error(str(e))
         raise SystemExit(1)
 
 

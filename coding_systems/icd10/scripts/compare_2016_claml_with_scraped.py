@@ -8,14 +8,19 @@ Usage:
     python -m coding_systems.icd10.scripts.compare_2016_claml_with_scraped
 """
 
+import structlog
+
 from coding_systems.icd10.release_builder import combine_2016_claml_and_scraped_records
+
+
+logger = structlog.get_logger()
 
 
 def main() -> None:
     try:
         combine_2016_claml_and_scraped_records()
     except ValueError as e:
-        print(str(e))
+        logger.error(str(e))
         raise SystemExit(1)
 
 

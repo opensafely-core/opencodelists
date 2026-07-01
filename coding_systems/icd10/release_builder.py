@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from pathlib import Path
 
+import structlog
+
 from coding_systems.icd10.claml_parser import (
     ICD10Code,
     ModifierDigit,
@@ -22,6 +24,9 @@ from coding_systems.icd10.known_diffs import (
 ICD10_ROOT = Path(__file__).parent
 DATA_DIR = ICD10_ROOT / "data"
 SCRAPED_2016_CLAML = DATA_DIR / "scraped_classbrowser_2016.xml"
+
+
+logger = structlog.get_logger()
 
 
 @dataclass(frozen=True, slots=True)
@@ -148,7 +153,7 @@ def build_2016_claml_scraped_diff_report(
 
 def print_2016_claml_scraped_diff_report(report: Claml2016ScrapedDiffReport) -> None:
     """Print the 2016 CLAML-vs-scraped diff summary and remediation snippets."""
-    print(
+    logger.info(
         "\n\nCompared WHO 2016 ClaML with scraped NHS Class Browser 2016 ClaML\n\n"
         f"CLAML records:   {report.claml_record_count}\n"
         f"Scraped records: {report.scraped_record_count}\n\n"
@@ -159,11 +164,11 @@ def print_2016_claml_scraped_diff_report(report: Claml2016ScrapedDiffReport) -> 
     )
 
     if not report.has_unexpected_differences:
-        print("\n✅ ALL OK: every difference is expected\n")
+        logger.info("\n✅ ALL OK: every difference is expected\n")
         return
 
     if report.unexpected_claml_only_codes:
-        print(
+        logger.error(
             "\nCLAML-only codes\n----------------\n"
             "There are codes in the CLAML, but not in the scraped. This could be:\n"
             " - A code that was added to the CLAML but not the scraped\n"
@@ -176,12 +181,14 @@ def print_2016_claml_scraped_diff_report(report: Claml2016ScrapedDiffReport) -> 
             "       ..."
         )
         for code in report.unexpected_claml_only_codes:
-            print(f'       "{code}": CodeDifference(include_in_release=True/False),')
-        print("    }")
-        print("    ...")
-        print("  )\n")
+            logger.error(
+                f'       "{code}": CodeDifference(include_in_release=True/False),'
+            )
+        logger.error("    }")
+        logger.error("    ...")
+        logger.error("  )\n")
     if report.unexpected_scraped_only_codes:
-        print(
+        logger.error(
             "\nScraped-only codes\n------------------\n"
             "There are codes in the scraped, but not in the CLAML. This could be:\n"
             " - A code that was added to the scraped but not the CLAML\n"
@@ -195,12 +202,14 @@ def print_2016_claml_scraped_diff_report(report: Claml2016ScrapedDiffReport) -> 
             "      ..."
         )
         for code in report.unexpected_scraped_only_codes:
-            print(f'       "{code}": CodeDifference(include_in_release=True/False),')
-        print("    }")
-        print("    ...")
-        print("  )\n")
+            logger.error(
+                f'       "{code}": CodeDifference(include_in_release=True/False),'
+            )
+        logger.error("    }")
+        logger.error("    ...")
+        logger.error("  )\n")
     if report.unexpected_term_differences:
-        print(
+        logger.error(
             "\nDescription (term) differences\n------------------------------\n"
             "There are codes whose descriptions (terms) differ between the CLAML and scraped.\n\n"
             "Review each code below. In most cases, we should take the scraped description\n"
@@ -212,14 +221,14 @@ def print_2016_claml_scraped_diff_report(report: Claml2016ScrapedDiffReport) -> 
             "      ..."
         )
         for code, claml_term, scraped_term in report.unexpected_term_differences:
-            print(f'      "{code}": TermDifference(')
-            print(f'        claml="{claml_term}",')
-            print(f'        scraped="{scraped_term}",')
-            print('        use="claml|scraped",')
-            print("      ),")
-        print("    }")
-        print("  )\n")
-    print(
+            logger.error(f'      "{code}": TermDifference(')
+            logger.error(f'        claml="{claml_term}",')
+            logger.error(f'        scraped="{scraped_term}",')
+            logger.error('        use="claml|scraped",')
+            logger.error("      ),")
+        logger.error("    }")
+        logger.error("  )\n")
+    logger.error(
         "❌❌❌ UNEXPECTED DIFFS FOUND: see above for details ❌❌❌\n",
     )
 
@@ -376,7 +385,7 @@ def build_2016_2019_diff_report(
 
 def print_2016_2019_diff_report(report: Combined2016Claml2019ReleaseDiffReport) -> None:
     """Print the combined-2016-vs-WHO-2019 diff summary and remediation snippets."""
-    print(
+    logger.info(
         "\n\nCompared combined 2016 ICD-10 records with WHO 2019 ClaML\n\n"
         f"Combined 2016 records: {report.combined_2016_record_count}\n"
         f"WHO 2019 records:     {report.who_2019_record_count}\n\n"
@@ -389,10 +398,10 @@ def print_2016_2019_diff_report(report: Combined2016Claml2019ReleaseDiffReport) 
     )
 
     if not report.has_unexpected_differences:
-        print("\n✅ ALL OK: every difference is expected\n")
+        logger.info("\n✅ ALL OK: every difference is expected\n")
         return
 
-    print(
+    logger.error(
         "\nDescription (term) differences\n------------------------------\n"
         "There are codes whose descriptions differ between combined 2016 and WHO 2019.\n"
         "Review whether each difference is clinically equivalent or clinically different,\n"
@@ -405,14 +414,14 @@ def print_2016_2019_diff_report(report: Combined2016Claml2019ReleaseDiffReport) 
         combined_2016_term,
         who_2019_term,
     ) in report.unexpected_description_differences:
-        print(f'    "{code}": ReleaseTermDifference(')
-        print(f'      combined_2016="{combined_2016_term}",')
-        print(f'      who_2019="{who_2019_term}",')
-        print("      clinically_equivalent=True/False,")
-        print("    ),")
-    print("  }\n")
+        logger.error(f'    "{code}": ReleaseTermDifference(')
+        logger.error(f'      combined_2016="{combined_2016_term}",')
+        logger.error(f'      who_2019="{who_2019_term}",')
+        logger.error("      clinically_equivalent=True/False,")
+        logger.error("    ),")
+    logger.error("  }\n")
 
-    print(
+    logger.error(
         "❌❌❌ UNEXPECTED DIFFS FOUND: see above for details ❌❌❌\n",
     )
 

@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 from pathlib import Path
+from tempfile import TemporaryDirectory
+from zipfile import ZipFile
 
 import structlog
 
@@ -8,7 +10,7 @@ from coding_systems.icd10.claml_parser import (
     ModifierDigit,
     parse_claml,
 )
-from coding_systems.icd10.data_downloader import download_release
+from coding_systems.icd10.data_downloader import Year
 from coding_systems.icd10.known_diffs import (
     expand_who_2016_place_of_occurrence,
     get_2016_2019_description_difference,
@@ -24,7 +26,6 @@ from coding_systems.icd10.known_diffs import (
 ICD10_ROOT = Path(__file__).parent
 DATA_DIR = ICD10_ROOT / "data"
 SCRAPED_2016_CLAML = DATA_DIR / "scraped_classbrowser_2016.xml"
-
 
 logger = structlog.get_logger()
 
@@ -253,23 +254,6 @@ def check_diff_2016_claml_with_scraped(
     )
 
 
-def load_who_2016_records(
-    release_dir: str | Path = DATA_DIR,
-) -> dict[str, ICD10Code]:
-    """Download, parse, and apply NHS alterations to the WHO 2016 ClaML release."""
-    xml_path_2016 = download_release(release_dir, "2016")
-    codes_2016, place_modifiers = parse_claml(xml_path_2016)
-    return apply_nhs_2016_alterations(codes_2016, place_modifiers)
-
-
-def load_scraped_2016_records(
-    scraped_2016_claml: Path = SCRAPED_2016_CLAML,
-) -> dict[str, ICD10Code]:
-    """Parse the scraped NHS Class Browser 2016 ClaML records."""
-    scraped_2016_records, _ = parse_claml(scraped_2016_claml)
-    return scraped_2016_records
-
-
 def _merge_2016_claml_and_scraped_records(
     claml_2016_records: dict[str, ICD10Code],
     scraped_2016_records: dict[str, ICD10Code],
@@ -311,19 +295,15 @@ def _merge_2016_claml_and_scraped_records(
 
 
 def combine_2016_claml_and_scraped_records(
-    release_dir: str | Path = DATA_DIR, scraped_2016_claml: Path = SCRAPED_2016_CLAML
+    who_2016_records, scraped_2016_records
 ) -> dict[str, ICD10Code]:
     """
     Build the combined 2016 ICD-10 records from WHO ClaML and scraped NHS data.
 
     Raises ValueError if the two sources contain unexpected differences.
     """
-    claml_2016_records = load_who_2016_records(release_dir)
-    scraped_2016_records = load_scraped_2016_records(scraped_2016_claml)
-    check_diff_2016_claml_with_scraped(claml_2016_records, scraped_2016_records)
-    return _merge_2016_claml_and_scraped_records(
-        claml_2016_records, scraped_2016_records
-    )
+    check_diff_2016_claml_with_scraped(who_2016_records, scraped_2016_records)
+    return _merge_2016_claml_and_scraped_records(who_2016_records, scraped_2016_records)
 
 
 def build_2016_2019_diff_report(
@@ -448,7 +428,7 @@ def check_diff_2016_with_2019(
 
 
 def load_import_records(
-    release_dir: str | Path = DATA_DIR,
+    release_zipfile, file_metadata
 ) -> tuple[dict[str, ICD10Code], dict[str, ICD10Code]]:
     """
     Build the parsed ICD-10 record sets used by the importer.
@@ -456,10 +436,23 @@ def load_import_records(
     Returns the combined 2016 records and WHO 2019 records. Raises ValueError
     if any release source differences are not recorded in known_diffs.py.
     """
-    xml_path_2019 = download_release(release_dir, "2019")
-    output_2019, _ = parse_claml(xml_path_2019)
+    with TemporaryDirectory() as tempdir:
+        release_zip = ZipFile(release_zipfile)
+        logger.info("Extracting", release_zip=release_zip.filename)
+        release_zip.extractall(path=tempdir)
 
-    output_2016 = combine_2016_claml_and_scraped_records(release_dir)
-    check_diff_2016_with_2019(output_2016, output_2019)
+        release_dir = Path(tempdir)
+        xml_path_2016 = release_dir / file_metadata[Year.WHO_2016.name]["xml_filename"]
+        xml_path_2019 = release_dir / file_metadata[Year.WHO_2019.name]["xml_filename"]
+        xml_path_nhs = release_dir / file_metadata[Year.NHS_2016.name]["xml_filename"]
 
-    return output_2016, output_2019
+        output_who_2016, _ = parse_claml(xml_path_2016)
+        output_who_2019, _ = parse_claml(xml_path_2019)
+        output_nhs_2016, _ = parse_claml(xml_path_nhs)
+
+    output_combined_2016 = combine_2016_claml_and_scraped_records(
+        output_who_2016, output_nhs_2016
+    )
+    check_diff_2016_with_2019(output_combined_2016, output_who_2019)
+
+    return output_combined_2016, output_who_2019

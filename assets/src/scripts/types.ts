@@ -3,6 +3,17 @@ import type { SearchesProps } from "./components/Cards/Searches";
 export type AncestorCode = string;
 export type AncestorCodes = AncestorCode[];
 export type Code = string;
+export type ICD10TermDifference = {
+  combined_2016: string;
+  who_2019: string;
+};
+export type ICD10TermDifferences = { [code: string]: ICD10TermDifference };
+export type ICD10MovedCode = {
+  title: string;
+  comment?: string;
+  nhs2016: string[];
+  who2019: string[];
+};
 export type IsExpanded = boolean;
 export type Path = string;
 export type Pipe = "└" | "├" | " " | "│";
@@ -19,6 +30,8 @@ export interface PageData {
   codeToStatus: { [key: string]: Status };
   codeToTerm: { [key: string]: string };
   draftURL: string;
+  icd10TermDifferences: ICD10TermDifferences;
+  icd10MovedCodes: ICD10MovedCode[];
   isEditable: boolean;
   isEmptyCodelist: boolean;
   metadata: {

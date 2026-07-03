@@ -30,6 +30,8 @@
   {{ versions|json_script:"versions" }}
   {{ metadata|json_script:"metadata" }}
   {{ is_empty_codelist|json_script:"is-empty-codelist" }}
+  {{ icd10_term_differences|json_script:"icd10-term-differences" }}
+  {{ icd10_moved_codes|json_script:"icd10-moved-codes" }}
 
   {% if debug %}
     <script type="module" nonce="{{ request.csp_nonce }}">

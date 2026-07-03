@@ -10,6 +10,10 @@ from codelists.tests.views.assertions import (
     assert_post_unauthenticated,
     assert_post_unauthorised,
 )
+from coding_systems.icd10.known_diffs import (
+    COMBINED_2016_VS_2019_DIFFERENCES,
+    ReleaseTermDifference,
+)
 from opencodelists.tests.assertions import assert_difference
 
 
@@ -164,6 +168,60 @@ def test_new_search_for_code(client, draft):
     assert rsp.redirect_chain[-1][0] == draft.get_builder_search_url(
         last_search_id, "code:128133004"
     )
+
+
+def test_new_search_flags_clinically_inequivalent_icd10_codes(
+    client, icd10_data, monkeypatch, organisation, organisation_user
+):
+    monkeypatch.setitem(
+        COMBINED_2016_VS_2019_DIFFERENCES,
+        "M770",
+        ReleaseTermDifference(
+            combined_2016="Old term",
+            who_2019="New term",
+            clinically_equivalent=False,
+        ),
+    )
+    codelist = create_codelist_from_scratch(
+        owner=organisation,
+        author=organisation_user,
+        name="ICD10 draft",
+        coding_system_id="icd10",
+        coding_system_database_alias="icd10_test_20200101",
+    )
+    draft = codelist.versions.get()
+    client.force_login(organisation_user)
+
+    rsp = client.post(
+        draft.get_builder_new_search_url(),
+        {"search": "M770", "search-type": "code"},
+        follow=True,
+    )
+
+    assert rsp.status_code == 200
+    assert rsp.context["icd10_term_differences"] == {
+        "M770": {"combined_2016": "Old term", "who_2019": "New term"}
+    }
+
+
+def test_builder_known_difference_flags_are_icd10_only(
+    client, draft_with_complete_searches, monkeypatch
+):
+    monkeypatch.setitem(
+        COMBINED_2016_VS_2019_DIFFERENCES,
+        "202855006",
+        ReleaseTermDifference(
+            combined_2016="Old term",
+            who_2019="New term",
+            clinically_equivalent=False,
+        ),
+    )
+    client.force_login(draft_with_complete_searches.author)
+
+    rsp = client.get(draft_with_complete_searches.get_builder_draft_url())
+
+    assert rsp.status_code == 200
+    assert rsp.context["icd10_term_differences"] == []
 
 
 def test_new_search_no_results(client, draft):

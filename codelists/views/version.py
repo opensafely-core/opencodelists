@@ -85,6 +85,17 @@ def version(request, clv):
     else:
         coding_system_release_outdated = False
 
+    icd10_term_differences = (
+        clv.coding_system.lookup_clinically_different_codes(clv.codes)
+        if hasattr(clv.coding_system, "lookup_clinically_different_codes")
+        else []
+    )
+    icd10_moved_codes = (
+        clv.coding_system.lookup_moved_codes(clv.codes)
+        if hasattr(clv.coding_system, "lookup_moved_codes")
+        else []
+    )
+
     ctx = {
         "clv": clv,
         "codelist": clv.codelist,
@@ -100,5 +111,7 @@ def version(request, clv):
         "latest_published_version_url": latest_published_version_url,
         "count_codes_included": len(rows),
         "coding_system_release_outdated": coding_system_release_outdated,
+        "icd10_term_differences": icd10_term_differences,
+        "icd10_moved_codes": icd10_moved_codes,
     }
     return render(request, "codelists/version.html", ctx)

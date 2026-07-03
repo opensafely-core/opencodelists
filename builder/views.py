@@ -257,6 +257,17 @@ def _draft(request, draft, search_id):
         ],
     }
 
+    icd10_term_differences = (
+        coding_system.lookup_clinically_different_codes(codeset.all_codes())
+        if hasattr(coding_system, "lookup_clinically_different_codes")
+        else []
+    )
+    icd10_moved_codes = (
+        coding_system.lookup_moved_codes(codeset.all_codes())
+        if hasattr(coding_system, "lookup_moved_codes")
+        else []
+    )
+
     ctx = {
         "user": draft.author,
         "draft": draft,
@@ -281,6 +292,8 @@ def _draft(request, draft, search_id):
         "versions": versions,
         "metadata": metadata,
         "is_empty_codelist": is_empty_codelist,
+        "icd10_term_differences": icd10_term_differences,
+        "icd10_moved_codes": icd10_moved_codes,
     }
 
     return render(request, "builder/draft.html", ctx)

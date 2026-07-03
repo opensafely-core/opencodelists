@@ -4,6 +4,7 @@ from functools import lru_cache
 from opencodelists.db_utils import query
 
 from ..base.coding_system_base import BuilderCompatibleCodingSystem
+from .known_diffs import clinically_different_codes, moved_codes
 from .models import Concept, ConceptEdition, ConceptKind, Edition
 
 
@@ -193,3 +194,9 @@ class CodingSystem(BuilderCompatibleCodingSystem):
             .filter(code__in=codes)
             .values_list("code", flat=True)
         )
+
+    def lookup_clinically_different_codes(self, codes):
+        return clinically_different_codes(codes)
+
+    def lookup_moved_codes(self, codes):
+        return moved_codes(codes)

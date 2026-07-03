@@ -381,6 +381,8 @@
   {% vite_asset "assets/src/scripts/feedback-form.js" %}
 
   {{ tree_data|json_script:"tree_data" }}
+  {{ icd10_term_differences|json_script:"icd10-term-differences" }}
+  {{ icd10_moved_codes|json_script:"icd10-moved-codes" }}
 
   {% if debug %}
     <script type="module" nonce="{{ request.csp_nonce }}">

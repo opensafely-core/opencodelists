@@ -7,6 +7,7 @@ from coding_systems.base.import_data_utils import (
     batched_bulk_create,
 )
 from coding_systems.icd10.claml_parser import ICD10Code
+from coding_systems.icd10.data_downloader import Downloader
 from coding_systems.icd10.models import (
     Concept,
     ConceptEdition,
@@ -206,8 +207,26 @@ def _add_rubrics(database_alias, edition_records, concept_editions_by_key):
 def import_data(
     release_dir, release_name, valid_from, import_ref=None, check_compatibility=True
 ):
-    output_2016, output_2019 = load_import_records(release_dir)
+    downloader = Downloader(release_dir)
+    release_zipfile_path, metadata = downloader.download_latest_release()
+    import_release(
+        release_zipfile_path,
+        import_ref,
+        check_compatibility,
+        release_name=release_name,
+        valid_from=valid_from,
+        **metadata,
+    )
 
+
+def import_release(
+    release_zipfile, import_ref=None, check_compatibility=True, **kwargs
+):
+    release_name = kwargs.get("release_name")
+    valid_from = kwargs.get("valid_from")
+    file_metadata = kwargs.get("file_metadata")
+    import_ref = import_ref or release_zipfile.name
+    output_2016, output_2019 = load_import_records(release_zipfile, file_metadata)
     with CodingSystemImporter(
         "icd10", release_name, valid_from, import_ref, check_compatibility
     ) as database_alias:

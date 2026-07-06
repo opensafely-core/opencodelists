@@ -43,7 +43,7 @@ class Command(BaseCommand):
         self.stdout.write(
             f'STARTING IMPORT: RELEASE NAME "{release_name}"; VALID FROM "{valid_from}"'
         )
-        import_fn(release_zipfile_path, release_name, valid_from)
+        import_fn(release_zipfile_path, **metadata)
 
         self.stdout.write(
             f"Imported {coding_system_id} release {release_name}, valid from {valid_from}\n"

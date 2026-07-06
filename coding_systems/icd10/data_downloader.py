@@ -64,7 +64,17 @@ class Downloader:
 
         if year != Year.NHS_2016 and (force_download or not zip_path.exists()):
             urllib.request.urlretrieve(url, zip_path)
-        elif year == Year.NHS_2016 and (force_download or not zip_path.exists()):
+        elif year == Year.NHS_2016:
+            # download file if there aren't any previously-scraped or if forced
+            # can't use zip_path as filename contains a timestamp``
+            previous_scraped_files = list(release_dir.glob("icd10_nhs_scraped_*.zip"))
+            last_scraped_zip = (
+                sorted(previous_scraped_files, key=lambda f: f.stem, reverse=True)[0]
+                if previous_scraped_files
+                else None
+            )
+            if not force_download and last_scraped_zip and last_scraped_zip.exists():
+                return last_scraped_zip
             # Scrape the NHS ICD-10 Class Browser and convert to ClaML
             chapters = scrape()
             xml_path = release_dir / metadata["xml_filename"]
@@ -102,14 +112,14 @@ class Downloader:
         xml_path = self.extract_xml_from_zip(zip_path, year, force_download)
         return xml_path
 
-    def download_latest_release(self):
+    def download_latest_release(self, force_download=True):
         """Downloads the latest ICD-10 ClaML files from WHO and scrapes the NHS ICD-10 Class Browser."""
         xml_paths = []
         print("Downloading WHO ICD-10 ClaMLs")
-        xml_paths.append(self.download_release(Year.WHO_2016))
-        xml_paths.append(self.download_release(Year.WHO_2019))
+        xml_paths.append(self.download_release(Year.WHO_2016, force_download))
+        xml_paths.append(self.download_release(Year.WHO_2019, force_download))
         print("Scraping NHS ICD-10 Browser and converting to ClaML")
-        xml_paths.append(self.download_release(Year.NHS_2016))
+        xml_paths.append(self.download_release(Year.NHS_2016, force_download))
 
         combined_zip_path = (
             Path(self.release_dir) / f"icd10_combined_{self.timestamp}.zip"

@@ -40,6 +40,7 @@ def import_release(
     valid_from,
     import_ref=None,
     check_compatibility=True,
+    **kwargs,
 ):
     import_ref = import_ref or release_zipfile_path.name
 

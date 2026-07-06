@@ -9,7 +9,7 @@ class Command(BaseCommand):
         parser.add_argument(
             "coding_system_id",
             help="Coding system or mappings to import",
-            choices=["dmd", "snomedct", "mappings.bnfdmd"],
+            choices=["dmd", "snomedct", "mappings.bnfdmd", "icd10"],
         )
         parser.add_argument(
             "release_dir", help="Path to local release directory to download raw data"

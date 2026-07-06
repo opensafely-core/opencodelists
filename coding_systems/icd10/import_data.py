@@ -220,11 +220,14 @@ def import_data(
 
 
 def import_release(
-    release_zipfile, import_ref=None, check_compatibility=True, **kwargs
+    release_zipfile,
+    import_ref=None,
+    check_compatibility=True,
+    release_name=None,
+    valid_from=None,
+    file_metadata=None,
+    **kwargs,
 ):
-    release_name = kwargs.get("release_name")
-    valid_from = kwargs.get("valid_from")
-    file_metadata = kwargs.get("file_metadata")
     import_ref = import_ref or release_zipfile.name
     output_2016, output_2019 = load_import_records(release_zipfile, file_metadata)
     with CodingSystemImporter(

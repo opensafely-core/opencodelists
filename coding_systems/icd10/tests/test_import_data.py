@@ -8,7 +8,7 @@ from django.utils.text import slugify
 from coding_systems.base.tests.dynamic_db_classes import DynamicDatabaseTestCase
 from coding_systems.conftest import mock_migrate_coding_system
 from coding_systems.icd10.claml_parser import ICD10Code
-from coding_systems.icd10.import_data import import_data
+from coding_systems.icd10.import_data import import_release
 from coding_systems.icd10.models import (
     Concept,
     ConceptEdition,
@@ -43,7 +43,7 @@ IMPORT_RELEASES = {
 }
 
 
-def import_release(name):
+def import_release_metadata(name):
     release_name, valid_from = IMPORT_RELEASES[name]
     return {
         "release_name": release_name,
@@ -53,7 +53,7 @@ def import_release(name):
 
 
 def import_database_alias(name):
-    release = import_release(name)
+    release = import_release_metadata(name)
     return slugify(
         f"icd10_{release['release_name']}_{release['valid_from'].strftime('%Y%m%d')}"
     )
@@ -138,7 +138,7 @@ class TestImportData(DynamicDatabaseTestCase):
                 mock_migrate_coding_system,
             ),
         ):
-            import_data(ICD10_CACHE_DIR, **import_release(release))
+            import_release(ICD10_CACHE_DIR, **import_release_metadata(release))
 
         return load_import_records
 
@@ -150,7 +150,7 @@ class TestImportData(DynamicDatabaseTestCase):
 
         load_import_records = self._import_records(release_to_import)
 
-        load_import_records.assert_called_once_with(ICD10_CACHE_DIR)
+        load_import_records.assert_called_once_with(ICD10_CACHE_DIR, None)
         assert CodingSystemRelease.objects.count() == cs_release_count + 1
         cs_release = CodingSystemRelease.objects.latest("id")
         assert cs_release.coding_system == "icd10"

@@ -22,7 +22,9 @@ class Downloader:
     def __init__(self, release_dir):
         self.who_url = "https://icdcdn.who.int/icd10/"
         self.release_dir = release_dir
-        self.timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+        timestamp = datetime.now()
+        self.valid_from = timestamp.date()
+        self.timestamp = timestamp.strftime("%Y%m%d%H%M%S")
 
     def source_url(self):
         # The source for the claml files is currently this webpage. NB

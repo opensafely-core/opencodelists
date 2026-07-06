@@ -9,7 +9,7 @@ class Command(BaseCommand):
         parser.add_argument(
             "coding_system_id",
             help="Coding system or mappings to import",
-            choices=["dmd", "snomedct", "mappings.bnfdmd"],
+            choices=["dmd", "snomedct", "mappings.bnfdmd", "icd10"],
         )
         parser.add_argument(
             "release_dir", help="Path to local release directory to download raw data"
@@ -43,7 +43,7 @@ class Command(BaseCommand):
         self.stdout.write(
             f'STARTING IMPORT: RELEASE NAME "{release_name}"; VALID FROM "{valid_from}"'
         )
-        import_fn(release_zipfile_path, release_name, valid_from)
+        import_fn(release_zipfile_path, **metadata)
 
         self.stdout.write(
             f"Imported {coding_system_id} release {release_name}, valid from {valid_from}\n"

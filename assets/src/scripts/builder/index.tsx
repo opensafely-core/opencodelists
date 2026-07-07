@@ -34,6 +34,8 @@ if (container) {
         codeToTerm={codeToTerm}
         draftURL={readValueFromPage("draft-url")}
         hierarchy={hierarchy}
+        icd10TermDifferences={readValueFromPage("icd10-term-differences")}
+        icd10MovedCodes={readValueFromPage("icd10-moved-codes")}
         isEditable={readValueFromPage("is-editable")}
         isEmptyCodelist={readValueFromPage("is-empty-codelist")}
         metadata={readValueFromPage("metadata")}

@@ -72,7 +72,7 @@ it("renders version_from_scratch without error", () => {
   renderCodelistBuilder(versionFromScratchData);
 });
 
-it("renders ICD-10 warning banners for included affected codes", () => {
+it("renders ICD-10 warning banners and row indicators for included affected codes", () => {
   const data = {
     ...versionWithSomeSearchesData,
     icd10TermDifferences: {
@@ -104,6 +104,18 @@ it("renders ICD-10 warning banners for included affected codes", () => {
   expect(
     screen.getByText("This ICD-10 codelist may be incomplete"),
   ).toBeVisible();
+
+  const termDifferenceRow = document.querySelector("[data-code='128133004']");
+  expect(
+    termDifferenceRow.querySelector(".builder__warning-indicator"),
+  ).toHaveAccessibleName("ICD-10 warning: conflicting definitions need review");
+
+  const movedCodeRow = document.querySelector("[data-code='35185008']");
+  expect(
+    movedCodeRow.querySelector(".builder__warning-indicator"),
+  ).toHaveAccessibleName(
+    "ICD-10 warning: this concept may be missing equivalent codes",
+  );
 });
 
 it("updates ICD-10 warnings when affected codes are excluded", async () => {
@@ -128,12 +140,19 @@ it("updates ICD-10 warnings when affected codes are excluded", async () => {
   renderCodelistBuilder(data, hierarchy, visiblePaths);
 
   expect(screen.getByRole("alert")).toBeVisible();
+  const movedCodeRow = document.querySelector("[data-code='35185008']");
+  expect(
+    movedCodeRow.querySelector(".builder__warning-indicator"),
+  ).toBeInTheDocument();
 
   await userEvent.click(
     document.querySelector("[data-code='35185008'] button[data-symbol='-']"),
   );
 
   expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  expect(
+    movedCodeRow.querySelector(".builder__warning-indicator"),
+  ).not.toBeInTheDocument();
 });
 
 it("does the right thing when clicking around", async () => {

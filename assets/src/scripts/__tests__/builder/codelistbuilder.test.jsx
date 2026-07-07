@@ -40,6 +40,8 @@ const renderCodelistBuilder = (data, hierarchy, visiblePaths) => {
       codeToTerm={data.code_to_term}
       draftURL={data.draft_url}
       hierarchy={hierarchy}
+      icd10TermDifferences={data.icd10TermDifferences}
+      icd10MovedCodes={data.icd10MovedCodes}
       isEditable={data.is_editable}
       isEmptyCodelist={data.is_empty_codelist}
       metadata={data.metadata}
@@ -68,6 +70,70 @@ it("renders version_with_complete_searches without error", () => {
 
 it("renders version_from_scratch without error", () => {
   renderCodelistBuilder(versionFromScratchData);
+});
+
+it("renders ICD-10 warning banners for included affected codes", () => {
+  const data = {
+    ...versionWithSomeSearchesData,
+    icd10TermDifferences: {
+      128133004: {
+        combined_2016: "Old term",
+        who_2019: "New term",
+      },
+    },
+    icd10MovedCodes: [
+      {
+        title: "Moved concept",
+        nhs2016: ["35185008"],
+        who2019: ["TESTMISSING"],
+        comment: "",
+      },
+    ],
+  };
+  const hierarchy = new Hierarchy(data.parent_map, data.child_map);
+  const visiblePaths = hierarchy.initiallyVisiblePaths(
+    data.tree_tables.flatMap(([_, ancestorCodes]) => ancestorCodes),
+    data.code_to_status,
+    100,
+  );
+
+  renderCodelistBuilder(data, hierarchy, visiblePaths);
+
+  expect(screen.getAllByRole("alert")).toHaveLength(2);
+  expect(screen.getByText("Conflicting definitions detected")).toBeVisible();
+  expect(
+    screen.getByText("This ICD-10 codelist may be incomplete"),
+  ).toBeVisible();
+});
+
+it("updates ICD-10 warnings when affected codes are excluded", async () => {
+  const data = {
+    ...versionWithSomeSearchesData,
+    icd10MovedCodes: [
+      {
+        title: "Moved concept",
+        nhs2016: ["35185008"],
+        who2019: ["TESTMISSING"],
+        comment: "",
+      },
+    ],
+  };
+  const hierarchy = new Hierarchy(data.parent_map, data.child_map);
+  const visiblePaths = hierarchy.initiallyVisiblePaths(
+    data.tree_tables.flatMap(([_, ancestorCodes]) => ancestorCodes),
+    data.code_to_status,
+    100,
+  );
+
+  renderCodelistBuilder(data, hierarchy, visiblePaths);
+
+  expect(screen.getByRole("alert")).toBeVisible();
+
+  await userEvent.click(
+    document.querySelector("[data-code='35185008'] button[data-symbol='-']"),
+  );
+
+  expect(screen.queryByRole("alert")).not.toBeInTheDocument();
 });
 
 it("does the right thing when clicking around", async () => {

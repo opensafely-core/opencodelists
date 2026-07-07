@@ -336,6 +336,7 @@
       {% if coding_system_release_outdated %}
         {% include "./_medication_warning_banner.html" %}
       {% endif %}
+      <div id="codelist-warnings"></div>
       <ul id="tab-list" class="nav nav-tabs" role="tablist">
         {% include "./_tab_nav.html" with label="About" tabname="about" active=True %}
 
@@ -381,6 +382,7 @@
   {% vite_asset "assets/src/scripts/feedback-form.js" %}
 
   {{ tree_data|json_script:"tree_data" }}
+  {{ included_codes|json_script:"included-codes" }}
   {{ icd10_term_differences|json_script:"icd10-term-differences" }}
   {{ icd10_moved_codes|json_script:"icd10-moved-codes" }}
 
@@ -393,5 +395,6 @@
       window.__vite_plugin_react_preamble_installed__ = true
     </script>
   {% endif %}
+  {% vite_asset "assets/src/scripts/codelist-warnings.tsx" %}
   {% vite_asset "assets/src/scripts/tree/index.tsx" %}
 {% endblock %}

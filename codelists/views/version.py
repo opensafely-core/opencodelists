@@ -111,6 +111,7 @@ def version(request, clv):
         "latest_published_version_url": latest_published_version_url,
         "count_codes_included": len(rows),
         "coding_system_release_outdated": coding_system_release_outdated,
+        "included_codes": clv.codes,
         "icd10_term_differences": icd10_term_differences,
         "icd10_moved_codes": icd10_moved_codes,
     }

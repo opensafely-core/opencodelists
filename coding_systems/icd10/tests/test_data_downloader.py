@@ -6,6 +6,10 @@ from coding_systems.icd10.data_downloader import (
     Downloader,
     Year,
 )
+from coding_systems.versioning.models import CodingSystemRelease
+
+
+EMPTY_FILES_COMBINED_DIGEST = "ac9c542684f271e7215c00369bbb793e"
 
 
 def test_get_release_metadata_rejects_unsupported_year(tmp_path):
@@ -157,11 +161,11 @@ def test_download_latest_release(monkeypatch, tmp_path):
         fake_download_release,
     )
     combined_zip_path, metadata = downloader.download_latest_release()
-    assert combined_zip_path == tmp_path / f"icd10_combined_{downloader.timestamp}.zip"
+    assert combined_zip_path == tmp_path / f"combined_{downloader.timestamp}.zip"
     assert metadata == {
-        "release_name": f"icd10_combined_{downloader.timestamp}",
-        "filename": f"icd10_combined_{downloader.timestamp}.zip",
-        "valid_from": downloader.timestamp,
+        "release_name": f"combined_{downloader.timestamp}_{EMPTY_FILES_COMBINED_DIGEST}",
+        "filename": f"combined_{downloader.timestamp}.zip",
+        "valid_from": downloader.valid_from,
         "file_metadata": {
             "WHO_2016": downloader.get_release_metadata(Year.WHO_2016),
             "WHO_2019": downloader.get_release_metadata(Year.WHO_2019),
@@ -175,3 +179,73 @@ def test_download_latest_release(monkeypatch, tmp_path):
                 downloader.get_release_metadata(Year.WHO_2019)["xml_filename"],
                 downloader.get_release_metadata(Year.NHS_2016)["xml_filename"],
             }
+
+
+def test_get_latest_release_with_existing_identical(monkeypatch, tmp_path):
+    downloader = Downloader(tmp_path)
+
+    def fake_download_release(self, year, force_download=False):
+        xml_filename = downloader.get_release_metadata(year)["xml_filename"]
+        xml_path = tmp_path / xml_filename
+        xml_path.touch()
+        return xml_path
+
+    monkeypatch.setattr(
+        "coding_systems.icd10.data_downloader.Downloader.download_release",
+        fake_download_release,
+    )
+
+    _, metadata = downloader.download_latest_release()
+
+    CodingSystemRelease.objects.create(
+        coding_system="icd10",
+        release_name=metadata["release_name"],
+        valid_from=metadata["valid_from"],
+        import_ref="test",
+        database_alias=f"icd10_{metadata['release_name']}_{metadata['valid_from'].strftime('%Y%m%d')}",
+        state="importing",
+    )
+
+    with pytest.raises(ValueError, match="Latest release already exists"):
+        downloader.download_latest_release()
+
+
+def test_get_latest_release_with_existing_different(monkeypatch, tmp_path):
+    downloader = Downloader(tmp_path)
+
+    def fake_download_release(self, year, force_download=False):
+        xml_filename = downloader.get_release_metadata(year)["xml_filename"]
+        xml_path = tmp_path / xml_filename
+        xml_path.touch()
+        return xml_path
+
+    monkeypatch.setattr(
+        "coding_systems.icd10.data_downloader.Downloader.download_release",
+        fake_download_release,
+    )
+
+    _, metadata = downloader.download_latest_release()
+
+    CodingSystemRelease.objects.create(
+        coding_system="icd10",
+        release_name=metadata["release_name"],
+        valid_from=metadata["valid_from"],
+        import_ref="test",
+        database_alias=f"icd10_{metadata['release_name']}_{metadata['valid_from'].strftime('%Y%m%d')}",
+        state="importing",
+    )
+
+    def fake_download_release_new(self, year, force_download=False):
+        xml_filename = downloader.get_release_metadata(year)["xml_filename"]
+        xml_path = tmp_path / xml_filename
+        xml_path.write_text("new content")
+        return xml_path
+
+    monkeypatch.setattr(
+        "coding_systems.icd10.data_downloader.Downloader.download_release",
+        fake_download_release_new,
+    )
+
+    _, metadata = downloader.download_latest_release()
+
+    assert not metadata["release_name"].endswith(EMPTY_FILES_COMBINED_DIGEST)

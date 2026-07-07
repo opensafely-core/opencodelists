@@ -1,5 +1,6 @@
 import React from "react";
 import type Hierarchy from "../../_hierarchy";
+import type { ICD10WarningIndicatorMap } from "../../icd10-warning-indicators";
 import type { PageData, UpdateStatus } from "../../types";
 import Container from "../Codelist/Container";
 import EmptySearch from "../Codelist/EmptySearch";
@@ -10,6 +11,7 @@ interface CodelistTabProps {
   codeToStatus: PageData["codeToStatus"];
   codeToTerm: PageData["codeToTerm"];
   hierarchy: Hierarchy;
+  icd10WarningIndicators: ICD10WarningIndicatorMap;
   isEditable: PageData["isEditable"];
   resultsHeading: PageData["resultsHeading"];
   treeTables: PageData["treeTables"];
@@ -22,6 +24,7 @@ export default function CodelistTab({
   codeToStatus,
   codeToTerm,
   hierarchy,
+  icd10WarningIndicators,
   isEditable,
   resultsHeading,
   treeTables,
@@ -38,6 +41,7 @@ export default function CodelistTab({
           codeToStatus={codeToStatus}
           codeToTerm={codeToTerm}
           hierarchy={hierarchy}
+          icd10WarningIndicators={icd10WarningIndicators}
           isEditable={isEditable}
           treeTables={treeTables}
           updateStatus={updateStatus}

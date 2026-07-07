@@ -247,6 +247,7 @@ export default class CodelistBuilder extends React.Component<
                     codeToStatus={this.state.codeToStatus}
                     codeToTerm={codeToTerm}
                     hierarchy={hierarchy}
+                    icd10WarningIndicators={warningIndicators}
                     isEditable={isEditable}
                     resultsHeading={resultsHeading}
                     treeTables={treeTables}

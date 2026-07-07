@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from "react";
 import type Hierarchy from "../../_hierarchy";
+import type { ICD10WarningIndicatorMap } from "../../icd10-warning-indicators";
 import type { PageData, Path, UpdateStatus } from "../../types";
 import Section from "./Section";
 
@@ -8,6 +9,7 @@ interface ContainerProps {
   codeToStatus: PageData["codeToStatus"];
   codeToTerm: PageData["codeToTerm"];
   hierarchy: Hierarchy;
+  icd10WarningIndicators: ICD10WarningIndicatorMap;
   isEditable: PageData["isEditable"];
   treeTables: PageData["treeTables"];
   updateStatus: UpdateStatus;
@@ -19,6 +21,7 @@ export default function Container({
   codeToStatus,
   codeToTerm,
   hierarchy,
+  icd10WarningIndicators,
   isEditable,
   treeTables,
   updateStatus,
@@ -48,6 +51,7 @@ export default function Container({
           codeToTerm={codeToTerm}
           heading={heading}
           hierarchy={hierarchy}
+          icd10WarningIndicators={icd10WarningIndicators}
           isEditable={isEditable}
           toggleVisibility={handleToggleVisibility}
           updateStatus={updateStatus}

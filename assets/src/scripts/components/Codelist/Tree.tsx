@@ -1,6 +1,7 @@
 import React from "react";
 import type Hierarchy from "../../_hierarchy";
 import { readValueFromPage } from "../../_utils";
+import type { ICD10WarningIndicatorMap } from "../../icd10-warning-indicators";
 import type {
   AncestorCode,
   PageData,
@@ -15,6 +16,7 @@ interface TreeProps {
   codeToStatus: PageData["codeToStatus"];
   codeToTerm: PageData["codeToTerm"];
   hierarchy: Hierarchy;
+  icd10WarningIndicators: ICD10WarningIndicatorMap;
   isEditable: PageData["isEditable"];
   toggleVisibility: ToggleVisibility;
   updateStatus: UpdateStatus;
@@ -27,6 +29,7 @@ export default function Tree({
   codeToStatus,
   codeToTerm,
   hierarchy,
+  icd10WarningIndicators,
   isEditable,
   toggleVisibility,
   updateStatus,
@@ -43,6 +46,7 @@ export default function Tree({
         codeToTerm={codeToTerm}
         hasDescendants={row.hasDescendants}
         hierarchy={hierarchy}
+        icd10WarningIndicator={icd10WarningIndicators[row.code.toUpperCase()]}
         isEditable={isEditable}
         isExpanded={row.isExpanded}
         key={row.path}

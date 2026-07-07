@@ -2,6 +2,7 @@
 Download and extract the WHO and scrape the NHS ICD-10 ClaML ZIP with local caching.
 """
 
+import hashlib
 import urllib.request
 import zipfile
 from datetime import datetime
@@ -10,6 +11,7 @@ from pathlib import Path
 
 from coding_systems.icd10.scrape import scrape
 from coding_systems.icd10.scraped_to_claml import convert_chapters_to_claml
+from coding_systems.versioning.models import CodingSystemRelease
 
 
 class Year(Enum):
@@ -123,16 +125,28 @@ class Downloader:
         print("Scraping NHS ICD-10 Browser and converting to ClaML")
         xml_paths.append(self.download_release(Year.NHS_2016, force_download))
 
-        combined_zip_path = (
-            Path(self.release_dir) / f"icd10_combined_{self.timestamp}.zip"
-        )
+        combined_digest = hashlib.md5(
+            "".join(
+                [
+                    hashlib.md5(xml_path.read_bytes()).hexdigest()
+                    for xml_path in xml_paths
+                ]
+            ).encode()
+        ).hexdigest()[:8]
+
+        if CodingSystemRelease.objects.filter(
+            release_name__endswith=combined_digest
+        ).exists():
+            raise ValueError("Latest release already exists")
+
+        combined_zip_path = Path(self.release_dir) / f"combined_{self.timestamp}.zip"
         with zipfile.ZipFile(combined_zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
             for xml_path in xml_paths:
                 zf.write(xml_path, arcname=xml_path.name)
 
         return combined_zip_path, {
-            "release_name": f"icd10_combined_{self.timestamp}",
-            "valid_from": self.timestamp,
+            "release_name": f"combined_{self.timestamp}_{combined_digest}",
+            "valid_from": self.valid_from,
             "filename": combined_zip_path.name,
             "file_metadata": {y.name: self.get_release_metadata(y) for y in Year},
         }

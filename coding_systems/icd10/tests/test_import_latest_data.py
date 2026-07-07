@@ -1,3 +1,4 @@
+import hashlib
 from datetime import datetime
 from pathlib import Path
 from unittest.mock import patch
@@ -9,10 +10,11 @@ from django.core.management import call_command
 def test_calls_import_release_function_with_release_metadata(
     mock_import_release, tmpdir, monkeypatch
 ):
+    digest = hashlib.md5(b"test release").hexdigest()
     timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
     metadata = {
-        "release_name": f"icd10_combined_{timestamp}",
-        "filename": f"icd10_combined_{timestamp}.zip",
+        "release_name": f"combined_{timestamp}_{digest}",
+        "filename": f"combined_{timestamp}.zip",
         "valid_from": timestamp,
         "file_metadata": {
             "WHO_2016": {
@@ -35,7 +37,7 @@ def test_calls_import_release_function_with_release_metadata(
 
     def download_latest_release(self, force_download=False):
         return (
-            Path(tmpdir) / f"icd10_combined_{timestamp}.zip",
+            Path(tmpdir) / f"combined_{timestamp}.zip",
             metadata,
         )
 
@@ -51,6 +53,6 @@ def test_calls_import_release_function_with_release_metadata(
     )
     mock_import_release.assert_called_once()
     mock_import_release.assert_called_with(
-        Path(tmpdir) / f"icd10_combined_{timestamp}.zip",
+        Path(tmpdir) / f"combined_{timestamp}.zip",
         **metadata,
     )

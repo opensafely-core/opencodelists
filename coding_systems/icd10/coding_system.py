@@ -4,7 +4,14 @@ from functools import lru_cache
 from opencodelists.db_utils import query
 
 from ..base.coding_system_base import BuilderCompatibleCodingSystem
-from .models import Concept, ConceptEdition, ConceptKind, Edition
+from .models import (
+    Concept,
+    ConceptEdition,
+    ConceptKind,
+    ConceptRubric,
+    Edition,
+    ModifierRubric,
+)
 
 
 class CodingSystem(BuilderCompatibleCodingSystem):
@@ -113,6 +120,177 @@ class CodingSystem(BuilderCompatibleCodingSystem):
         lookup = self.lookup_names(codes)
         unknown = set(codes) - set(lookup)
         return {**lookup, **{code: "Unknown" for code in unknown}}
+
+    def lookup_additional_rubrics(self, codes):
+        codes = list(codes)
+        if not codes:
+            return {"rubrics": {}}
+
+        def empty_rubrics():
+            return {"concept_rubrics": {}, "modifier_rubrics": {}}
+
+        def code_rubrics_for(collection, code):
+            return collection.setdefault(code, empty_rubrics())
+
+        def add_concept_rubric(collection, code, kind, text):
+            code_rubrics = code_rubrics_for(collection, code)
+            code_rubrics["concept_rubrics"].setdefault(kind, []).append(text)
+
+        def add_modifier_rubric(collection, code, term_modifier, kind, text):
+            code_rubrics = code_rubrics_for(collection, code)
+            modifier_key = term_modifier or "Modifier"
+            modifier_rubrics = code_rubrics["modifier_rubrics"].setdefault(
+                modifier_key, {}
+            )
+            modifier_rubrics.setdefault(kind, []).append(text)
+
+        ancestor_codes_by_code = self._ancestor_codes_by_code(codes)
+        ancestor_codes = {
+            ancestor_code
+            for ancestors in ancestor_codes_by_code.values()
+            for ancestor_code in ancestors
+        }
+
+        concept_rubrics = (
+            ConceptRubric.objects.using(self.database_alias)
+            .filter(
+                concept_edition__concept_id__in=codes,
+                concept_edition__edition_id=self.latest_edition.id,
+            )
+            .values_list("concept_edition__concept_id", "kind", "text")
+        )
+        ancestor_concept_rubrics = (
+            ConceptRubric.objects.using(self.database_alias)
+            .filter(
+                concept_edition__concept_id__in=ancestor_codes,
+                concept_edition__edition_id=self.latest_edition.id,
+            )
+            .values_list("concept_edition__concept_id", "kind", "text")
+        )
+        ancestor_modifier_rubrics = (
+            ModifierRubric.objects.using(self.database_alias)
+            .filter(
+                concept_edition__concept_id__in=ancestor_codes,
+                concept_edition__edition_id=self.latest_edition.id,
+            )
+            .values_list(
+                "concept_edition__concept_id",
+                "concept_edition__term_modifier",
+                "kind",
+                "text",
+            )
+        )
+        ancestor_terms = self.lookup_names(ancestor_codes)
+
+        # Modifier codes should show their own modifier rubrics plus the
+        # concept rubrics from the parent code they modify.
+        modifier_parent_codes = dict(
+            ConceptEdition.objects.using(self.database_alias)
+            .filter(
+                concept_id__in=codes,
+                edition_id=self.latest_edition.id,
+                term_modifier__isnull=False,
+            )
+            .values_list("concept_id", "concept__parent_id")
+        )
+        modifier_concept_rubrics = (
+            ConceptRubric.objects.using(self.database_alias)
+            .filter(
+                concept_edition__concept_id__in=modifier_parent_codes.values(),
+                concept_edition__edition_id=self.latest_edition.id,
+            )
+            .values_list("concept_edition__concept_id", "kind", "text")
+        )
+
+        modifier_rubrics = (
+            ModifierRubric.objects.using(self.database_alias)
+            .filter(
+                concept_edition__concept_id__in=codes,
+                concept_edition__edition_id=self.latest_edition.id,
+            )
+            .values_list(
+                "concept_edition__concept_id",
+                "concept_edition__term_modifier",
+                "kind",
+                "text",
+            )
+        )
+
+        rubrics = {}
+        for code, kind, text in concept_rubrics:
+            add_concept_rubric(rubrics, code, kind, text)
+
+        parent_concept_rubrics = defaultdict(list)
+        for parent_code, kind, text in modifier_concept_rubrics:
+            parent_concept_rubrics[parent_code].append((kind, text))
+
+        for code, parent_code in modifier_parent_codes.items():
+            for kind, text in parent_concept_rubrics[parent_code]:
+                add_concept_rubric(rubrics, code, kind, text)
+
+        for code, term_modifier, kind, text in modifier_rubrics:
+            add_modifier_rubric(rubrics, code, term_modifier, kind, text)
+
+        ancestor_rubrics_by_code = {}
+        for ancestor_code, kind, text in ancestor_concept_rubrics:
+            add_concept_rubric(ancestor_rubrics_by_code, ancestor_code, kind, text)
+
+        for ancestor_code, term_modifier, kind, text in ancestor_modifier_rubrics:
+            add_modifier_rubric(
+                ancestor_rubrics_by_code, ancestor_code, term_modifier, kind, text
+            )
+
+        for code, ancestor_codes in ancestor_codes_by_code.items():
+            for ancestor_code in ancestor_codes:
+                if modifier_parent_codes.get(code) == ancestor_code:
+                    continue
+                ancestor_rubrics = ancestor_rubrics_by_code.get(ancestor_code)
+                if not ancestor_rubrics:
+                    continue
+                code_rubrics = code_rubrics_for(rubrics, code)
+                code_rubrics.setdefault("ancestor_rubrics", []).append(
+                    {
+                        "code": ancestor_code,
+                        "term": ancestor_terms.get(ancestor_code, "Unknown"),
+                        **ancestor_rubrics,
+                    }
+                )
+
+        return {
+            "rubrics": rubrics,
+        }
+
+    def _ancestor_codes_by_code(self, codes):
+        if not codes:
+            return {}
+
+        concept_table = Concept._meta.db_table
+        placeholders = ", ".join(["%s"] * len(codes))
+        sql = f"""
+        WITH RECURSIVE ancestors(code, ancestor_code, depth) AS (
+            SELECT code, parent_id, 1
+            FROM {concept_table}
+            WHERE code IN ({placeholders}) AND parent_id IS NOT NULL
+
+            UNION
+
+            SELECT a.code, c.parent_id, a.depth + 1
+            FROM ancestors a
+            INNER JOIN {concept_table} c
+                ON c.code = a.ancestor_code
+            WHERE c.parent_id IS NOT NULL
+        )
+
+        SELECT code, ancestor_code
+        FROM ancestors
+        WHERE ancestor_code IS NOT NULL
+        ORDER BY code, depth
+        """
+
+        ancestor_codes_by_code = defaultdict(list)
+        for code, ancestor_code in query(sql, codes, database=self.database_alias):
+            ancestor_codes_by_code[code].append(ancestor_code)
+        return ancestor_codes_by_code
 
     def codes_by_type(self, codes, hierarchy):
         """Return mapping from chapter name to codes in that chapter."""

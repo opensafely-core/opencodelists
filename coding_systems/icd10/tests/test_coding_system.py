@@ -1,6 +1,7 @@
 import pytest
 
 from coding_systems.icd10.coding_system import CodingSystem
+from coding_systems.icd10.models import ConceptRubric, ModifierRubric, RubricKind
 
 
 @pytest.fixture
@@ -120,3 +121,123 @@ def test_descendant_relationships(icd10_data, coding_system):
         ("A77", "A778"),
         ("A77", "A779"),
     ]
+
+
+def test_lookup_additional_rubrics_for_concept_code(icd10_data, coding_system):
+    ConceptRubric.objects.using(coding_system.database_alias).create(
+        concept_edition_id=13,
+        kind=RubricKind.INCLUSION,
+        text="Golfer's elbow",
+    )
+
+    assert coding_system.lookup_additional_rubrics(["M770"]) == {
+        "rubrics": {
+            "M770": {
+                "concept_rubrics": {RubricKind.INCLUSION: ["Golfer's elbow"]},
+                "modifier_rubrics": {},
+            }
+        }
+    }
+
+
+def test_lookup_additional_rubrics_with_no_codes(coding_system):
+    assert coding_system.lookup_additional_rubrics([]) == {"rubrics": {}}
+
+
+def test_ancestor_codes_by_code_with_no_codes(coding_system):
+    assert coding_system._ancestor_codes_by_code([]) == {}
+
+
+def test_lookup_additional_rubrics_includes_ancestor_rubrics(icd10_data, coding_system):
+    ConceptRubric.objects.using(coding_system.database_alias).create(
+        concept_edition_id=12,
+        kind=RubricKind.EXCLUSION,
+        text="Not elsewhere classified",
+    )
+    ConceptRubric.objects.using(coding_system.database_alias).create(
+        concept_edition_id=11,
+        kind=RubricKind.INCLUSION,
+        text="Shoulder lesions",
+    )
+
+    assert coding_system.lookup_additional_rubrics(["M770"]) == {
+        "rubrics": {
+            "M770": {
+                "concept_rubrics": {},
+                "modifier_rubrics": {},
+                "ancestor_rubrics": [
+                    {
+                        "code": "M77",
+                        "term": "Other enthesopathies",
+                        "concept_rubrics": {
+                            RubricKind.EXCLUSION: ["Not elsewhere classified"]
+                        },
+                        "modifier_rubrics": {},
+                    },
+                    {
+                        "code": "M70-M79",
+                        "term": "Other soft tissue disorders",
+                        "concept_rubrics": {RubricKind.INCLUSION: ["Shoulder lesions"]},
+                        "modifier_rubrics": {},
+                    },
+                ],
+            }
+        }
+    }
+
+
+def test_lookup_additional_rubrics_includes_ancestor_modifier_rubrics(
+    icd10_data, coding_system
+):
+    ModifierRubric.objects.using(coding_system.database_alias).create(
+        concept_edition_id=12,
+        kind=RubricKind.INCLUSION,
+        text="Parent modifier inclusion",
+    )
+
+    assert coding_system.lookup_additional_rubrics(["M770"]) == {
+        "rubrics": {
+            "M770": {
+                "concept_rubrics": {},
+                "modifier_rubrics": {},
+                "ancestor_rubrics": [
+                    {
+                        "code": "M77",
+                        "term": "Other enthesopathies",
+                        "concept_rubrics": {},
+                        "modifier_rubrics": {
+                            "Modifier": {
+                                RubricKind.INCLUSION: ["Parent modifier inclusion"]
+                            }
+                        },
+                    }
+                ],
+            }
+        }
+    }
+
+
+def test_lookup_additional_rubrics_for_modifier_code_includes_parent_concept_rubrics(
+    icd10_data, coding_system
+):
+    ConceptRubric.objects.using(coding_system.database_alias).create(
+        concept_edition_id=13,
+        kind=RubricKind.INCLUSION,
+        text="Golfer's elbow",
+    )
+    ModifierRubric.objects.using(coding_system.database_alias).create(
+        concept_edition_id=22,
+        kind=RubricKind.NOTE,
+        text="Includes multiple sites",
+    )
+
+    assert coding_system.lookup_additional_rubrics(["M7700"]) == {
+        "rubrics": {
+            "M7700": {
+                "concept_rubrics": {RubricKind.INCLUSION: ["Golfer's elbow"]},
+                "modifier_rubrics": {
+                    "Multiple sites": {RubricKind.NOTE: ["Includes multiple sites"]}
+                },
+            }
+        }
+    }

@@ -70,3 +70,23 @@ just use the first 3.
   margin-block-end: 1rem;
   row-gap: 1rem;
 }
+
+.builder__additional-info-card {
+  margin-bottom: 1rem;
+  padding: 0.875rem 1rem;
+  border: 1px solid #d4ecf4;
+  border-left: 0.25rem solid var(--info);
+  border-radius: 0.25rem;
+  background: #f6fbfd;
+}
+
+.builder__additional-info-card > :last-child {
+  margin-bottom: 0;
+}
+
+.builder__additional-info-card--concept {
+  border-color: #ced4da;
+  border-left-color: var(--dark);
+  background: #fff;
+}
+

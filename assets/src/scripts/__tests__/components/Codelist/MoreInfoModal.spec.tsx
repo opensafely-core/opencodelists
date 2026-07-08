@@ -1,9 +1,10 @@
 import "@testing-library/jest-dom";
-import { act, render, screen, within } from "@testing-library/react";
+import { act, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React from "react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import Hierarchy from "../../../_hierarchy";
+import { getCookie, readValueFromPage } from "../../../_utils";
 import MoreInfoModal from "../../../components/Codelist/MoreInfoModal";
 import type { Status } from "../../../types";
 import * as versionWithCompleteSearchesData from "../../fixtures/version_with_complete_searches.json";
@@ -11,10 +12,13 @@ import * as versionWithCompleteSearchesData from "../../fixtures/version_with_co
 // Mock dependencies
 vi.mock("../../../_utils", () => ({
   getCookie: vi.fn(() => "test-csrf-token"),
-  readValueFromPage: () => ({ coding_system_id: "snomedct" }),
+  readValueFromPage: vi.fn(() => ({ coding_system_id: "snomedct" })),
 }));
 
 beforeEach(() => {
+  vi.mocked(readValueFromPage).mockReturnValue({
+    coding_system_id: "snomedct",
+  });
   vi.stubGlobal(
     "fetch",
     vi.fn(() =>
@@ -135,4 +139,408 @@ it("show 'No synonyms' if the only synonym matches the primary term", async () =
   render(<MoreInfoModal {...props} />);
   await user.click(screen.getByRole("button", { name: /more info/i }));
   expect(await screen.findByText(/no synonyms/i)).toBeVisible();
+});
+
+it.each([
+  ["-", { target: "-" }, "Excluded"],
+  ["?", { target: "?" }, "Unresolved"],
+  [
+    "(+)",
+    { includedAncestor: "+", excludedAncestor: "?", target: "(+)" },
+    'Included because you included its ancestor: "Included ancestor [includedAncestor]"',
+  ],
+  [
+    "(-)",
+    { includedAncestor: "?", excludedAncestor: "-", target: "(-)" },
+    'Excluded because you excluded its ancestor: "Excluded ancestor [excludedAncestor]"',
+  ],
+  [
+    "!",
+    { includedAncestor: "+", excludedAncestor: "-", target: "!" },
+    'In conflict!  Included by "Included ancestor [includedAncestor]", and excluded by "Excluded ancestor [excludedAncestor]"',
+  ],
+] as const)("shows status text for %s status", async (status, codeToStatus, expectedText) => {
+  const user = userEvent.setup();
+  const hierarchy = new Hierarchy(
+    {
+      target: ["includedAncestor", "excludedAncestor"],
+    },
+    {
+      includedAncestor: ["target"],
+      excludedAncestor: ["target"],
+    },
+  );
+
+  render(
+    <MoreInfoModal
+      allCodes={["includedAncestor", "excludedAncestor", "target"]}
+      code="target"
+      codeToStatus={codeToStatus}
+      codeToTerm={{
+        includedAncestor: "Included ancestor",
+        excludedAncestor: "Excluded ancestor",
+        target: "Target term",
+      }}
+      hierarchy={hierarchy}
+      status={status}
+      term="Target term"
+    />,
+  );
+  await user.click(screen.getByRole("button", { name: /more info/i }));
+
+  expect(
+    await screen.findByText(
+      (_, element) => element?.textContent === expectedText,
+    ),
+  ).toBeVisible();
+});
+
+it("shows ICD-10 rubric information from ancestor codes", async () => {
+  vi.mocked(readValueFromPage).mockReturnValue({ coding_system_id: "icd10" });
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(() =>
+      Promise.resolve({
+        json: () =>
+          Promise.resolve({
+            rubrics: {
+              "123": {
+                concept_rubrics: {
+                  inclusion: ["Current-code inclusion"],
+                },
+                modifier_rubrics: {},
+                ancestor_rubrics: [
+                  {
+                    code: "12",
+                    term: "Parent code",
+                    concept_rubrics: {
+                      exclusion: ["Parent-code exclusion"],
+                    },
+                    modifier_rubrics: {},
+                  },
+                ],
+              },
+            },
+          }),
+      }),
+    ),
+  );
+
+  const user = userEvent.setup();
+  render(<MoreInfoModal {...props} />);
+  await user.click(screen.getByRole("button", { name: /more info/i }));
+
+  expect(
+    await screen.findByRole("heading", {
+      name: /from higher up the icd-10 tree/i,
+    }),
+  ).toBeVisible();
+  expect(screen.getByText("Current-code inclusion")).toBeVisible();
+  expect(screen.getByText("Parent code (12)")).toBeVisible();
+  expect(screen.getByText("Parent-code exclusion")).toBeVisible();
+  expect(screen.queryByRole("heading", { name: /synonyms/i })).toBeNull();
+});
+
+it("shows ICD-10 modifier rubric information", async () => {
+  vi.mocked(readValueFromPage).mockReturnValue({ coding_system_id: "icd10" });
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(() =>
+      Promise.resolve({
+        json: () =>
+          Promise.resolve({
+            rubrics: {
+              "123": {
+                concept_rubrics: {},
+                modifier_rubrics: {
+                  "Multiple sites": {
+                    note: ["Includes multiple sites"],
+                  },
+                },
+                ancestor_rubrics: [],
+              },
+            },
+          }),
+      }),
+    ),
+  );
+
+  const user = userEvent.setup();
+  render(<MoreInfoModal {...props} />);
+  await user.click(screen.getByRole("button", { name: /more info/i }));
+
+  expect(
+    await screen.findByRole("heading", { name: 'Modifier: "Multiple sites"' }),
+  ).toBeVisible();
+  expect(screen.getByText("Includes multiple sites")).toBeVisible();
+});
+
+it("handles ICD-10 rubrics with omitted optional fields", async () => {
+  vi.mocked(readValueFromPage).mockReturnValue({ coding_system_id: "icd10" });
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(() =>
+      Promise.resolve({
+        json: () =>
+          Promise.resolve({
+            rubrics: {
+              "123": {
+                concept_rubrics: {
+                  inclusion: ["Rubric without optional fields"],
+                },
+              },
+            },
+          }),
+      }),
+    ),
+  );
+
+  const user = userEvent.setup();
+  render(<MoreInfoModal {...props} />);
+  await user.click(screen.getByRole("button", { name: /more info/i }));
+
+  expect(
+    await screen.findByText("Rubric without optional fields"),
+  ).toBeVisible();
+});
+
+it("formats, filters, and orders ICD-10 rubric kinds", async () => {
+  vi.mocked(readValueFromPage).mockReturnValue({ coding_system_id: "icd10" });
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(() =>
+      Promise.resolve({
+        json: () =>
+          Promise.resolve({
+            rubrics: {
+              "123": {
+                concept_rubrics: {
+                  z_kind: ["Generic rubric"],
+                  modifierlink: ["Hidden modifier link"],
+                  "coding-hint": ["Use additional code"],
+                  inclusion: ["Preferred rubric"],
+                  alpha_kind: ["Alpha rubric"],
+                },
+                modifier_rubrics: {},
+                ancestor_rubrics: [],
+              },
+            },
+          }),
+      }),
+    ),
+  );
+
+  const user = userEvent.setup();
+  render(<MoreInfoModal {...props} />);
+  await user.click(screen.getByRole("button", { name: /more info/i }));
+
+  const includesHeading = await screen.findByRole("heading", {
+    name: "Includes:",
+  });
+  const alphaHeading = screen.getByRole("heading", { name: "alpha-kind" });
+  const zHeading = screen.getByRole("heading", { name: "z-kind" });
+
+  expect(screen.getByText("Preferred rubric")).toBeVisible();
+  expect(screen.getByText("Coding hint:")).toBeVisible();
+  expect(screen.getByText("Use additional code")).toBeVisible();
+  expect(screen.getByText("Generic rubric")).toBeVisible();
+  expect(screen.queryByText("Hidden modifier link")).toBeNull();
+  expect(
+    includesHeading.compareDocumentPosition(alphaHeading) &
+      Node.DOCUMENT_POSITION_FOLLOWING,
+  ).toBeTruthy();
+  expect(
+    alphaHeading.compareDocumentPosition(zHeading) &
+      Node.DOCUMENT_POSITION_FOLLOWING,
+  ).toBeTruthy();
+});
+
+it("shows ICD-10 chapter ancestors with chapter label", async () => {
+  vi.mocked(readValueFromPage).mockReturnValue({ coding_system_id: "icd10" });
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(() =>
+      Promise.resolve({
+        json: () =>
+          Promise.resolve({
+            rubrics: {
+              "123": {
+                concept_rubrics: {},
+                modifier_rubrics: {},
+                ancestor_rubrics: [
+                  {
+                    code: "XIII",
+                    term: "Diseases of the musculoskeletal system",
+                    concept_rubrics: {
+                      inclusion: ["Chapter inclusion"],
+                    },
+                    modifier_rubrics: {},
+                  },
+                ],
+              },
+            },
+          }),
+      }),
+    ),
+  );
+
+  const user = userEvent.setup();
+  render(<MoreInfoModal {...props} />);
+  await user.click(screen.getByRole("button", { name: /more info/i }));
+
+  expect(
+    await screen.findByRole("heading", {
+      name: /Diseases of the musculoskeletal system.*Chapter XIII/i,
+    }),
+  ).toBeVisible();
+});
+
+it("does not show the ICD-10 rubric section when no rubrics are returned", async () => {
+  vi.mocked(readValueFromPage).mockReturnValue({ coding_system_id: "icd10" });
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(() =>
+      Promise.resolve({
+        json: () =>
+          Promise.resolve({
+            rubrics: {
+              "123": {
+                concept_rubrics: {},
+                modifier_rubrics: {},
+                ancestor_rubrics: [],
+              },
+            },
+          }),
+      }),
+    ),
+  );
+
+  const user = userEvent.setup();
+  render(<MoreInfoModal {...props} />);
+  await user.click(screen.getByRole("button", { name: /more info/i }));
+
+  expect(await screen.findByText("Included")).toBeVisible();
+  expect(screen.queryByText("WHO ICD-10 Additional Info")).toBeNull();
+});
+
+it("does not show the ICD-10 rubric section when rubric fields are omitted", async () => {
+  vi.mocked(readValueFromPage).mockReturnValue({ coding_system_id: "icd10" });
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(() =>
+      Promise.resolve({
+        json: () =>
+          Promise.resolve({
+            rubrics: {
+              "123": {},
+            },
+          }),
+      }),
+    ),
+  );
+
+  const user = userEvent.setup();
+  render(<MoreInfoModal {...props} />);
+  await user.click(screen.getByRole("button", { name: /more info/i }));
+
+  expect(await screen.findByText("Included")).toBeVisible();
+  expect(screen.queryByText("WHO ICD-10 Additional Info")).toBeNull();
+});
+
+it("shows ICD-10 ancestor rubrics when the current code has no own rubrics", async () => {
+  vi.mocked(readValueFromPage).mockReturnValue({ coding_system_id: "icd10" });
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(() =>
+      Promise.resolve({
+        json: () =>
+          Promise.resolve({
+            rubrics: {
+              "123": {
+                concept_rubrics: {},
+                ancestor_rubrics: [
+                  {
+                    code: "12",
+                    term: "Parent code",
+                    concept_rubrics: {
+                      inclusion: ["Ancestor-only inclusion"],
+                    },
+                    modifier_rubrics: {},
+                  },
+                ],
+              },
+            },
+          }),
+      }),
+    ),
+  );
+
+  const user = userEvent.setup();
+  render(<MoreInfoModal {...props} />);
+  await user.click(screen.getByRole("button", { name: /more info/i }));
+
+  expect(await screen.findByText("Ancestor-only inclusion")).toBeVisible();
+  expect(screen.queryByRole("heading", { name: /for this code/i })).toBeNull();
+});
+
+it("closes the modal", async () => {
+  const user = userEvent.setup();
+  render(<MoreInfoModal {...props} />);
+  await user.click(screen.getByRole("button", { name: /more info/i }));
+
+  expect(await screen.findByRole("dialog")).toBeVisible();
+  await user.click(screen.getByRole("button", { name: /close/i }));
+
+  await waitFor(() => {
+    expect(screen.queryByRole("dialog")).toBeNull();
+  });
+});
+
+it("does not refetch loaded more-info data when reopened", async () => {
+  const fetch = vi.fn((_: string, __: RequestInit) =>
+    Promise.resolve({
+      json: () =>
+        Promise.resolve({
+          synonyms: { "123": ["Alpha"] },
+          references: { "123": [] },
+        }),
+    }),
+  );
+  vi.stubGlobal("fetch", fetch);
+
+  const user = userEvent.setup();
+  render(<MoreInfoModal {...props} />);
+  await user.click(screen.getByRole("button", { name: /more info/i }));
+  expect(await screen.findByText("Alpha")).toBeVisible();
+  await user.click(screen.getByRole("button", { name: /close/i }));
+  await waitFor(() => {
+    expect(screen.queryByRole("dialog")).toBeNull();
+  });
+
+  await user.click(screen.getByRole("button", { name: /more info/i }));
+
+  expect(await screen.findByText("Alpha")).toBeVisible();
+  expect(fetch).toHaveBeenCalledTimes(1);
+});
+
+it("fetches more-info data without a CSRF header when there is no cookie", async () => {
+  vi.mocked(getCookie).mockReturnValue(undefined);
+  const fetch = vi.fn((_: string, __: RequestInit) =>
+    Promise.resolve({
+      json: () =>
+        Promise.resolve({
+          synonyms: { "123": [] },
+          references: { "123": [] },
+        }),
+    }),
+  );
+  vi.stubGlobal("fetch", fetch);
+
+  const user = userEvent.setup();
+  render(<MoreInfoModal {...props} />);
+  await user.click(screen.getByRole("button", { name: /more info/i }));
+
+  expect(await screen.findByText(/no synonyms/i)).toBeVisible();
+  const headers = fetch.mock.calls[0][1].headers as Headers;
+  expect(headers.has("X-CSRFToken")).toBe(false);
 });

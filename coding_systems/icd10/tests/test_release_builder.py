@@ -374,9 +374,16 @@ def test_load_import_records_builds_2016_and_2019_outputs(monkeypatch, dummy_zip
     def fake_parse_claml(xml_path):
         return parsed_records, []
 
+    def fake_apply_nhs_2016_alterations(records, place_modifiers):
+        return records
+
     monkeypatch.setattr(
         "coding_systems.icd10.release_builder.parse_claml",
         fake_parse_claml,
+    )
+    monkeypatch.setattr(
+        "coding_systems.icd10.release_builder.apply_nhs_2016_alterations",
+        fake_apply_nhs_2016_alterations,
     )
     monkeypatch.setattr(
         "coding_systems.icd10.release_builder.combine_2016_claml_and_scraped_records",
@@ -400,9 +407,16 @@ def test_load_import_records_raises_when_release_diff_check_fails(
         "A00": ICD10Code(code="A00", parent=None, description="Cholera"),
     }
 
+    def fake_apply_nhs_2016_alterations(records, place_modifiers):
+        return records
+
     monkeypatch.setattr(
         "coding_systems.icd10.release_builder.parse_claml",
         lambda xml_path: (parsed_records, []),
+    )
+    monkeypatch.setattr(
+        "coding_systems.icd10.release_builder.apply_nhs_2016_alterations",
+        fake_apply_nhs_2016_alterations,
     )
     monkeypatch.setattr(
         "coding_systems.icd10.release_builder.combine_2016_claml_and_scraped_records",
@@ -416,3 +430,68 @@ def test_load_import_records_raises_when_release_diff_check_fails(
     with pytest.raises(ValueError, match="bad diff"):
         zip_path, file_metadata = dummy_zip
         load_import_records(zip_path, file_metadata)
+
+
+def test_load_import_records_applies_nhs_alterations_before_combining(
+    monkeypatch, dummy_zip
+):
+    who_2016 = {
+        "W00": ICD10Code(code="W00", parent=None, description="Fall on same level"),
+    }
+    who_2019 = {
+        "A00": ICD10Code(code="A00", parent=None, description="Cholera"),
+    }
+    nhs_2016 = {
+        "B00": ICD10Code(code="B00", parent=None, description="NHS record"),
+    }
+    place_modifiers = [ModifierDigit(digit_code="0", description="Home")]
+
+    def fake_parse_claml(xml_path):
+        if xml_path.name == "icd102016en.xml":
+            return who_2016, place_modifiers
+        if xml_path.name == "icd102019en.xml":
+            return who_2019, []
+        if xml_path.name == "icd10nhs2016en.xml":
+            return nhs_2016, []
+        raise AssertionError(xml_path)
+
+    combined = {
+        "W000": ICD10Code(
+            code="W000",
+            parent="W00",
+            description="Fall on same level",
+            term_modifier="Home",
+            modifier_position=4,
+        )
+    }
+    seen = {}
+
+    def fake_combine(who_2016_records, scraped_2016_records):
+        seen["who_2016_records"] = who_2016_records
+        seen["scraped_2016_records"] = scraped_2016_records
+        return combined
+
+    monkeypatch.setattr(
+        "coding_systems.icd10.release_builder.parse_claml", fake_parse_claml
+    )
+    monkeypatch.setattr(
+        "coding_systems.icd10.release_builder.combine_2016_claml_and_scraped_records",
+        fake_combine,
+    )
+    monkeypatch.setattr(
+        "coding_systems.icd10.release_builder.check_diff_2016_with_2019",
+        lambda output_2016, output_2019: None,
+    )
+    monkeypatch.setattr(
+        "coding_systems.icd10.known_diffs.WHO_2016_EXPECTED_OVERRIDES",
+        frozenset(),
+    )
+
+    zip_path, file_metadata = dummy_zip
+    output_2016, output_2019 = load_import_records(zip_path, file_metadata)
+
+    assert "W000" in seen["who_2016_records"]
+    assert seen["who_2016_records"]["W000"].term_modifier == "Home"
+    assert seen["scraped_2016_records"] is nhs_2016
+    assert output_2016 is combined
+    assert output_2019 is who_2019

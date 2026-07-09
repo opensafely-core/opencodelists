@@ -446,7 +446,11 @@ def load_import_records(
         xml_path_2019 = release_dir / file_metadata[Year.WHO_2019.name]["xml_filename"]
         xml_path_nhs = release_dir / file_metadata[Year.NHS_2016.name]["xml_filename"]
 
-        output_who_2016, _ = parse_claml(xml_path_2016)
+        # We apply known NHS alterations to the base WHO 2016 ClaML records
+        # before comparing with the scraped NHS 2016 records.
+        codes_2016, place_modifiers = parse_claml(xml_path_2016)
+        output_who_2016 = apply_nhs_2016_alterations(codes_2016, place_modifiers)
+
         output_who_2019, _ = parse_claml(xml_path_2019)
         output_nhs_2016, _ = parse_claml(xml_path_nhs)
 

@@ -37,6 +37,24 @@ def tbal_id():
     return f"id-to-be-added-later-1210506823253-{next(TBAL_ID_COUNT)}"
 
 
+def _sorted_items(_dict):
+    return sorted(_dict.items(), key=lambda item: item[0])
+
+
+def _reset_generation_state():
+    global D_ID_COUNT
+    global TBAL_ID_COUNT
+    global SECTIONAL_MODIFIER_ID_COUNT
+    global classes_to_write
+    global modifiers_to_apply
+
+    D_ID_COUNT = count(1)
+    TBAL_ID_COUNT = count()
+    SECTIONAL_MODIFIER_ID_COUNT = count(1)
+    classes_to_write = []
+    modifiers_to_apply = defaultdict(list)
+
+
 class KindEnumMeta(EnumMeta):
     def __getitem__(self, name):
         return super().__getitem__(name.upper().replace("-", "_"))
@@ -223,7 +241,7 @@ class Rubric(Element):
                         has_dagger_asterisk_in_rubric = True
                         break
             if not has_dagger_asterisk_in_rubric:
-                label_suffix = f" ( {', '.join(related_codes)} )"
+                label_suffix = f" ( {', '.join(sorted(related_codes))} )"
         return Rubric(
             kind=RubricKind.PREFERRED,
             label=values["title"] + label_suffix,
@@ -260,7 +278,7 @@ class ModifierClass(Class):
 
 def append_element_rubrics(elem, values):
     if rubrics := values.get("rubric"):
-        for rubric_type, rubrics in rubrics.items():
+        for rubric_type, rubrics in _sorted_items(rubrics):
             for rubric in rubrics:
                 elem.rubrics.append(Rubric(kind=RubricKind[rubric_type], label=rubric))  # type: ignore
 
@@ -278,7 +296,7 @@ def generate_chapter_element(chapter_code, chapter_values):
     chapter_elem = get_base_class_element(
         chapter_code, chapter_values, ClassKind.CHAPTER
     )
-    for block in chapter_values["blocks"].items():
+    for block in _sorted_items(chapter_values["blocks"]):
         chapter_elem.subclasses.append(
             SubClass(code=generate_block_element(*block, super_code=chapter_code))
         )
@@ -292,12 +310,12 @@ def generate_block_element(block_code, block_values, super_code):
         block_code, block_values, ClassKind.BLOCK, super_code
     )
     if sub_blocks := block_values.get("blocks"):
-        for sub_block in sub_blocks.items():
+        for sub_block in _sorted_items(sub_blocks):
             block_elem.subclasses.append(
                 SubClass(generate_block_element(*sub_block, super_code=block_code))
             )
     elif categories := block_values.get("categories"):
-        for category in categories.items():
+        for category in _sorted_items(categories):
             block_elem.subclasses.append(
                 SubClass(generate_category_element(*category, super_code=block_code))
             )
@@ -313,7 +331,7 @@ def generate_category_element(category_code, category_values, super_code):
     if dagger_asterisk := category_values.get("dagger_asterisk"):
         category_element.usage = UsageKind[dagger_asterisk]  # type: ignore
     if categories := category_values.get("categories"):
-        for category in categories.items():
+        for category in _sorted_items(categories):
             category_element.subclasses.append(
                 SubClass(generate_category_element(*category, super_code=category_code))
             )
@@ -345,7 +363,7 @@ def extract_modifiers(_class: Class, values: dict):
         modifier_code += "4" if next(iter(modifiers)).startswith(".") else "5"
 
         modifier_elem = Modifier(modifier_code)
-        for code_modifier, label_modifier in modifiers.items():
+        for code_modifier, label_modifier in _sorted_items(modifiers):
             modifier_elem.subclasses.append(SubClass(code_modifier))
             modifier_class_elem = ModifierClass(
                 code=code_modifier,
@@ -414,6 +432,8 @@ def append_subclasses():
 
 
 def convert_chapters_to_claml(chapters, claml_path):
+    _reset_generation_state()
+
     claml = etree.fromstring(CLAML_HEADER)
     claml.append(ClassKind.to_element())
     claml.append(UsageKind.to_element())

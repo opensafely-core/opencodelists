@@ -49,6 +49,17 @@ class Downloader:
         else:
             raise ValueError(f"Unsupported year: {year}")
 
+    def get_latest_release_metadata(self):
+        latest_release = (
+            CodingSystemRelease.objects.filter(coding_system="icd10")
+            .order_by("-valid_from")
+            .first()
+        )
+        return {
+            "release": latest_release.release_name,
+            "valid_from": latest_release.valid_from,
+        }
+
     def download_zip(
         self,
         year: Year,

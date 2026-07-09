@@ -13,6 +13,13 @@ def move_concept_fields_to_conceptedition(apps, schema_editor):
             # an edition for the previous release, or migrate the concepts.
             continue
 
+        if not hasattr(concepts.first(), "kind"):
+            # If "kind" doesn't exist on Concept, then this is the migration trying to run
+            # on an existing combined edition release, so we don't need to create migrate
+            # the data - and in fact it will error because of the missing "kind" field.
+            # So we just skip this migration.
+            continue
+
         previous_2019_edition, created = Edition.objects.using(csr.database_alias).get_or_create(
             id="2019-covid-no-mods",
             version="20190101",

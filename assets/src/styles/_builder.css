@@ -71,6 +71,18 @@ just use the first 3.
   row-gap: 1rem;
 }
 
+.builder__more-info-modal__link {
+  color: #fff;
+  text-decoration: underline;
+  text-decoration-color: #fff;
+}
+
+.builder__more-info-modal__link:hover,
+.builder__more-info-modal__link:focus {
+  color: var(--primary); /* or your normal link color */
+  text-decoration-color: currentColor;
+}
+
 .builder__additional-info-card {
   margin-bottom: 1rem;
   padding: 0.875rem 1rem;
@@ -89,4 +101,3 @@ just use the first 3.
   border-left-color: var(--dark);
   background: #fff;
 }
-

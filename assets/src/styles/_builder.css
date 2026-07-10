@@ -70,3 +70,15 @@ just use the first 3.
   margin-block-end: 1rem;
   row-gap: 1rem;
 }
+
+.builder__more-info-modal__link {
+  color: #fff;
+  text-decoration: underline;
+  text-decoration-color: #fff;
+}
+
+.builder__more-info-modal__link:hover,
+.builder__more-info-modal__link:focus {
+  color: var(--primary); /* or your normal link color */
+  text-decoration-color: currentColor;
+}

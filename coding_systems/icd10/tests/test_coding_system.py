@@ -181,18 +181,16 @@ def test_lookup_additional_rubrics_for_concept_code(icd10_data, coding_system):
         text="Golfer's elbow",
     )
 
-    assert coding_system.lookup_additional_rubrics(["M770"]) == {
-        "rubrics": {
-            "M770": {
-                "concept_rubrics": {RubricKind.INCLUSION: ["Golfer's elbow"]},
-                "modifier_rubrics": {},
-            }
+    assert coding_system.lookup_additional_rubrics(["M770"])["rubrics"] == {
+        "M770": {
+            "concept_rubrics": {RubricKind.INCLUSION: ["Golfer's elbow"]},
+            "modifier_rubrics": {},
         }
     }
 
 
 def test_lookup_additional_rubrics_with_no_codes(coding_system):
-    assert coding_system.lookup_additional_rubrics([]) == {"rubrics": {}}
+    assert coding_system.lookup_additional_rubrics([])["rubrics"] == {}
 
 
 def test_ancestor_codes_by_code_with_no_codes(coding_system):
@@ -211,28 +209,26 @@ def test_lookup_additional_rubrics_includes_ancestor_rubrics(icd10_data, coding_
         text="Shoulder lesions",
     )
 
-    assert coding_system.lookup_additional_rubrics(["M770"]) == {
-        "rubrics": {
-            "M770": {
-                "concept_rubrics": {},
-                "modifier_rubrics": {},
-                "ancestor_rubrics": [
-                    {
-                        "code": "M77",
-                        "term": "Other enthesopathies",
-                        "concept_rubrics": {
-                            RubricKind.EXCLUSION: ["Not elsewhere classified"]
-                        },
-                        "modifier_rubrics": {},
+    assert coding_system.lookup_additional_rubrics(["M770"])["rubrics"] == {
+        "M770": {
+            "concept_rubrics": {},
+            "modifier_rubrics": {},
+            "ancestor_rubrics": [
+                {
+                    "code": "M77",
+                    "term": "Other enthesopathies",
+                    "concept_rubrics": {
+                        RubricKind.EXCLUSION: ["Not elsewhere classified"]
                     },
-                    {
-                        "code": "M70-M79",
-                        "term": "Other soft tissue disorders",
-                        "concept_rubrics": {RubricKind.INCLUSION: ["Shoulder lesions"]},
-                        "modifier_rubrics": {},
-                    },
-                ],
-            }
+                    "modifier_rubrics": {},
+                },
+                {
+                    "code": "M70-M79",
+                    "term": "Other soft tissue disorders",
+                    "concept_rubrics": {RubricKind.INCLUSION: ["Shoulder lesions"]},
+                    "modifier_rubrics": {},
+                },
+            ],
         }
     }
 
@@ -246,24 +242,22 @@ def test_lookup_additional_rubrics_includes_ancestor_modifier_rubrics(
         text="Parent modifier inclusion",
     )
 
-    assert coding_system.lookup_additional_rubrics(["M770"]) == {
-        "rubrics": {
-            "M770": {
-                "concept_rubrics": {},
-                "modifier_rubrics": {},
-                "ancestor_rubrics": [
-                    {
-                        "code": "M77",
-                        "term": "Other enthesopathies",
-                        "concept_rubrics": {},
-                        "modifier_rubrics": {
-                            "Modifier": {
-                                RubricKind.INCLUSION: ["Parent modifier inclusion"]
-                            }
-                        },
-                    }
-                ],
-            }
+    assert coding_system.lookup_additional_rubrics(["M770"])["rubrics"] == {
+        "M770": {
+            "concept_rubrics": {},
+            "modifier_rubrics": {},
+            "ancestor_rubrics": [
+                {
+                    "code": "M77",
+                    "term": "Other enthesopathies",
+                    "concept_rubrics": {},
+                    "modifier_rubrics": {
+                        "Modifier": {
+                            RubricKind.INCLUSION: ["Parent modifier inclusion"]
+                        }
+                    },
+                }
+            ],
         }
     }
 
@@ -282,13 +276,28 @@ def test_lookup_additional_rubrics_for_modifier_code_includes_parent_concept_rub
         text="Includes multiple sites",
     )
 
-    assert coding_system.lookup_additional_rubrics(["M7700"]) == {
-        "rubrics": {
-            "M7700": {
-                "concept_rubrics": {RubricKind.INCLUSION: ["Golfer's elbow"]},
-                "modifier_rubrics": {
-                    "Multiple sites": {RubricKind.NOTE: ["Includes multiple sites"]}
-                },
-            }
+    assert coding_system.lookup_additional_rubrics(["M7700"])["rubrics"] == {
+        "M7700": {
+            "concept_rubrics": {RubricKind.INCLUSION: ["Golfer's elbow"]},
+            "modifier_rubrics": {
+                "Multiple sites": {RubricKind.NOTE: ["Includes multiple sites"]}
+            },
         }
     }
+
+
+def test_term_differences(icd10_data, coding_system):
+
+    x590 = coding_system.lookup_additional_rubrics(["X590"])
+    xxxx = coding_system.lookup_additional_rubrics(["XXXX"])
+    blank = coding_system.lookup_additional_rubrics([])
+
+    assert "term_differences" in x590
+    assert "X590" in x590["term_differences"]
+    assert not x590["term_differences"]["X590"]["equivalent"]
+
+    assert "term_differences" in xxxx
+    assert xxxx["term_differences"] == {}
+
+    assert "term_differences" in blank
+    assert blank["term_differences"] == {}

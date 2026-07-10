@@ -50,33 +50,76 @@ def test_code_to_term(icd10_data, coding_system):
     }
 
 
-def test_lookup_names_uses_latest_matching_term(monkeypatch, coding_system):
-    class FakeQuerySet:
-        def filter(self, *args, **kwargs):
-            return self
+def test_lookup_names_prefers_2016_term(icd10_data, coding_system):
+    edition_2016 = Edition.objects.using(coding_system.database_alias).create(
+        id="2016",
+        version=20160101,
+        year=2016,
+        source_description="test 2016",
+    )
+    edition_2019 = Edition.objects.using(coding_system.database_alias).create(
+        id="2019",
+        version=20190101,
+        year=2019,
+        source_description="test 2019",
+    )
+    concept = Concept.objects.using(coding_system.database_alias).create(code="B59")
 
-        def order_by(self, *args, **kwargs):
-            return self
-
-        def values_list(self, *args, **kwargs):
-            return [
-                ("B59", "Newer term", None),
-                ("B59", "Older term", None),
-                ("M77", "Other enthesopathies", None),
-            ]
-
-    class FakeManager:
-        def using(self, alias):
-            return FakeQuerySet()
-
-    monkeypatch.setattr(
-        "coding_systems.icd10.coding_system.ConceptEdition.objects",
-        FakeManager(),
+    ConceptEdition.objects.using(coding_system.database_alias).create(
+        concept=concept,
+        edition=edition_2019,
+        kind=ConceptKind.CATEGORY,
+        usage=ConceptUsage.NORMAL,
+        term="Newer 2019 term",
+    )
+    ConceptEdition.objects.using(coding_system.database_alias).create(
+        concept=concept,
+        edition=edition_2016,
+        kind=ConceptKind.CATEGORY,
+        usage=ConceptUsage.NORMAL,
+        term="Preferred 2016 term",
     )
 
     assert coding_system.lookup_names(["B59", "M77"]) == {
-        "B59": "Newer term",
+        "B59": "Preferred 2016 term",
         "M77": "Other enthesopathies",
+    }
+
+
+def test_lookup_names_uses_latest_term_when_2016_term_does_not_exist(
+    icd10_data, coding_system
+):
+    edition_2019 = Edition.objects.using(coding_system.database_alias).create(
+        id="2019",
+        version=20190101,
+        year=2019,
+        source_description="test 2019",
+    )
+    edition_2020 = Edition.objects.using(coding_system.database_alias).create(
+        id="2020",
+        version=20200101,
+        year=2020,
+        source_description="test 2020",
+    )
+    concept = Concept.objects.using(coding_system.database_alias).create(code="B59")
+
+    ConceptEdition.objects.using(coding_system.database_alias).create(
+        concept=concept,
+        edition=edition_2019,
+        kind=ConceptKind.CATEGORY,
+        usage=ConceptUsage.NORMAL,
+        term="Older 2019 term",
+    )
+    ConceptEdition.objects.using(coding_system.database_alias).create(
+        concept=concept,
+        edition=edition_2020,
+        kind=ConceptKind.CATEGORY,
+        usage=ConceptUsage.NORMAL,
+        term="Latest 2020 term",
+    )
+
+    assert coding_system.lookup_names(["B59"]) == {
+        "B59": "Latest 2020 term",
     }
 
 

@@ -9,7 +9,7 @@ from coding_systems.icd10.data_downloader import (
 from coding_systems.versioning.models import CodingSystemRelease
 
 
-EMPTY_FILES_COMBINED_DIGEST = "ac9c542684f271e7215c00369bbb793e"
+EMPTY_FILES_COMBINED_DIGEST = "ac9c5426"
 
 
 def test_get_release_metadata_rejects_unsupported_year(tmp_path):

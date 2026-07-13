@@ -143,7 +143,7 @@ class Downloader:
                     for xml_path in xml_paths
                 ]
             ).encode()
-        ).hexdigest()
+        ).hexdigest()[:8]
 
         if CodingSystemRelease.objects.filter(
             release_name__endswith=combined_digest

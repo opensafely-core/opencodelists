@@ -7,6 +7,7 @@ import EmptySearch from "../Codelist/EmptySearch";
 interface CodelistTabProps {
   allCodes: PageData["allCodes"];
   ancestorCodes?: string[];
+  codeToDaggerAsteriskUsage: PageData["codeToDaggerAsteriskUsage"];
   codeToStatus: PageData["codeToStatus"];
   codeToTerm: PageData["codeToTerm"];
   hierarchy: Hierarchy;
@@ -19,6 +20,7 @@ interface CodelistTabProps {
 
 export default function CodelistTab({
   allCodes,
+  codeToDaggerAsteriskUsage,
   codeToStatus,
   codeToTerm,
   hierarchy,
@@ -35,6 +37,7 @@ export default function CodelistTab({
       {treeTables.length > 0 ? (
         <Container
           allCodes={allCodes}
+          codeToDaggerAsteriskUsage={codeToDaggerAsteriskUsage}
           codeToStatus={codeToStatus}
           codeToTerm={codeToTerm}
           hierarchy={hierarchy}

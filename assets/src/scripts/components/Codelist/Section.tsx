@@ -11,6 +11,7 @@ import Tree from "./Tree";
 interface SectionProps {
   allCodes: PageData["allCodes"];
   ancestorCodes: AncestorCodes;
+  codeToDaggerAsteriskUsage: PageData["codeToDaggerAsteriskUsage"];
   codeToStatus: PageData["codeToStatus"];
   codeToTerm: PageData["codeToTerm"];
   heading: string;
@@ -24,6 +25,7 @@ interface SectionProps {
 export default function Section({
   allCodes,
   ancestorCodes,
+  codeToDaggerAsteriskUsage,
   codeToStatus,
   codeToTerm,
   heading,
@@ -41,6 +43,7 @@ export default function Section({
           <Tree
             allCodes={allCodes}
             ancestorCode={ancestorCode}
+            codeToDaggerAsteriskUsage={codeToDaggerAsteriskUsage}
             codeToStatus={codeToStatus}
             codeToTerm={codeToTerm}
             hierarchy={hierarchy}

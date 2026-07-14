@@ -182,6 +182,7 @@ export default class CodelistBuilder extends React.Component<
   render() {
     const {
       allCodes,
+      codeToDaggerAsteriskUsage,
       codeToTerm,
       draftURL,
       hierarchy,
@@ -225,6 +226,7 @@ export default class CodelistBuilder extends React.Component<
                 <Tab eventKey="codelist" title="Codelist">
                   <CodelistTab
                     allCodes={allCodes}
+                    codeToDaggerAsteriskUsage={codeToDaggerAsteriskUsage}
                     codeToStatus={this.state.codeToStatus}
                     codeToTerm={codeToTerm}
                     hierarchy={hierarchy}

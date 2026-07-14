@@ -83,6 +83,57 @@ just use the first 3.
   text-decoration-color: currentColor;
 }
 
+.builder__dagger-asterisk-link {
+  appearance: none;
+  cursor: pointer;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+
+  width: 1.15rem;
+  height: 1.15rem;
+  padding: 0;
+  margin: 0 0 0 0.25rem;
+
+  border: 1px solid #e3c15f;
+  border-radius: 0.35rem;
+  background: #fff8df;
+  color: #745500;
+
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 800;
+  line-height: 1;
+
+  user-select: none;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.1s ease;
+}
+
+.builder__dagger-asterisk-link > span {
+  position: relative;
+  top: -0.04rem; /* optical centering */
+}
+
+.builder__dagger-asterisk-link:hover {
+  background: #fff3c2;
+  border-color: #d4b248;
+}
+
+.builder__dagger-asterisk-link:active {
+  transform: translateY(1px);
+}
+
+.builder__dagger-asterisk-link:focus-visible {
+  outline: 2px solid #4d90fe;
+  outline-offset: 2px;
+}
+
 .builder__additional-info-card {
   margin-bottom: 1rem;
   padding: 0.875rem 1rem;
@@ -100,4 +151,31 @@ just use the first 3.
   border-color: #ced4da;
   border-left-color: var(--dark);
   background: #fff;
+}
+
+.builder__additional-info-card--usage {
+  border-color: #e3c15f;
+  border-left-color: #d4b248;
+  background: #fff8df;
+}
+
+.builder__dagger-asterisk-info__marker {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 1px solid #b8dce8;
+  border-radius: 50%;
+  background: #fff;
+  color: #0f6674;
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.builder__additional-info-card--usage .builder__dagger-asterisk-info__marker {
+  border-color: #e3c15f;
+  color: #745500;
 }

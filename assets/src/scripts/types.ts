@@ -3,6 +3,11 @@ import type { SearchesProps } from "./components/Cards/Searches";
 export type AncestorCode = string;
 export type AncestorCodes = AncestorCode[];
 export type Code = string;
+export type DaggerAsteriskUsage = "dagger" | "asterisk";
+export type DaggerAsteriskInfo = {
+  usage: DaggerAsteriskUsage;
+  url?: string;
+};
 export type IsExpanded = boolean;
 export type Path = string;
 export type Pipe = "└" | "├" | " " | "│";
@@ -16,6 +21,7 @@ type VisiblePaths = Set<string>;
 
 export interface PageData {
   allCodes: AllCodes;
+  codeToDaggerAsteriskUsage: { [key: string]: DaggerAsteriskInfo };
   codeToStatus: { [key: string]: Status };
   codeToTerm: { [key: string]: string };
   draftURL: string;

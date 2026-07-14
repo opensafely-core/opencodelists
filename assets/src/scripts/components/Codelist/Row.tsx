@@ -19,6 +19,7 @@ import StatusToggle from "./StatusToggle";
 interface RowProps {
   allCodes: PageData["allCodes"];
   code: Code;
+  daggerAsteriskUsage?: PageData["codeToDaggerAsteriskUsage"][string];
   codeToStatus: PageData["codeToStatus"];
   codeToTerm: PageData["codeToTerm"];
   hasDescendants: boolean;
@@ -38,6 +39,7 @@ export default function Row({
   code,
   codeToStatus,
   codeToTerm,
+  daggerAsteriskUsage,
   hasDescendants,
   hierarchy,
   isEditable,
@@ -107,6 +109,7 @@ export default function Row({
           code={code}
           codeToStatus={codeToStatus}
           codeToTerm={codeToTerm}
+          daggerAsteriskUsage={daggerAsteriskUsage}
           hierarchy={hierarchy}
           status={status}
           term={term}

@@ -32,6 +32,9 @@ if (container) {
         allCodes={readValueFromPage("all-codes")}
         codeToStatus={codeToStatus}
         codeToTerm={codeToTerm}
+        codeToDaggerAsteriskUsage={readValueFromPage(
+          "code-to-dagger-asterisk-usage",
+        )}
         draftURL={readValueFromPage("draft-url")}
         hierarchy={hierarchy}
         isEditable={readValueFromPage("is-editable")}

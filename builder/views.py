@@ -273,6 +273,9 @@ def _draft(request, draft, search_id):
         "child_map": {c: list(pp) for c, pp in hierarchy.child_map.items()},
         "code_to_term": code_to_term,
         "code_to_status": codeset.code_to_status,
+        "code_to_dagger_asterisk_usage": coding_system.lookup_dagger_asterisk_usages(
+            codeset.all_codes()
+        ),
         "is_editable": request.user == draft.author,
         "draft_url": draft_url,
         "update_url": update_url,

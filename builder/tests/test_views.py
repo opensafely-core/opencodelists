@@ -32,6 +32,8 @@ def test_draft_with_complete_searches(client, draft_with_complete_searches):
 
     assert rsp.status_code == 200
     assert b"New-style Codelist" in rsp.content
+    assert rsp.context["code_to_dagger_asterisk_usage"] == {}
+    assert b'id="code-to-dagger-asterisk-usage"' in rsp.content
 
 
 def test_version_from_scratch(client, version_from_scratch):

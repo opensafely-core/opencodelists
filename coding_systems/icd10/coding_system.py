@@ -10,6 +10,7 @@ from .models import (
     ConceptEdition,
     ConceptKind,
     ConceptRubric,
+    ConceptUsage,
     Edition,
     ModifierRubric,
 )
@@ -208,6 +209,37 @@ class CodingSystem(BuilderCompatibleCodingSystem):
         return {
             "rubrics": rubrics,
             "term_differences": edition_description_differences,
+        }
+
+    def lookup_dagger_asterisk_usages(self, codes):
+        if not codes:
+            return {}
+
+        def who_2019_browser_url(code):
+            # We return the WHO 2019 URL rather than the NHS 2016 one because:
+            # - the NHS 2016 version made no changes to the underlying WHO 2016 edition
+            # - there are a couple of dagger/asterisk relationships that appear in 2019 but not in 2016, so the 2019 version is more complete
+            return f"https://icd.who.int/browse10/2019/en#/{f'{code[:3]}.{code[3:]}' if len(code) > 3 else code}"
+
+        concept_usages = (
+            ConceptEdition.objects.using(self.database_alias)
+            .filter(
+                edition_id=self.latest_edition.id,
+                concept_id__in=codes,
+                usage__in=[
+                    ConceptUsage.DAGGER,
+                    ConceptUsage.ASTERISK,
+                ],
+            )
+            .values_list("concept_id", "usage")
+        )
+
+        return {
+            concept_code: {
+                "usage": "asterisk" if usage == ConceptUsage.ASTERISK else "dagger",
+                "url": who_2019_browser_url(concept_code),
+            }
+            for concept_code, usage in concept_usages
         }
 
     def codes_by_type(self, codes, hierarchy):

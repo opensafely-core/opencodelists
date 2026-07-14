@@ -1,7 +1,13 @@
 import pytest
 
 from coding_systems.icd10.coding_system import CodingSystem
-from coding_systems.icd10.models import ConceptRubric, ModifierRubric, RubricKind
+from coding_systems.icd10.models import (
+    ConceptEdition,
+    ConceptRubric,
+    ConceptUsage,
+    ModifierRubric,
+    RubricKind,
+)
 
 
 @pytest.fixture
@@ -181,3 +187,36 @@ def test_term_differences(icd10_data, coding_system):
 
     assert "term_differences" in blank
     assert blank["term_differences"] == {}
+
+
+def test_lookup_dagger_asterisk_usages_with_no_codes(coding_system):
+    assert coding_system.lookup_dagger_asterisk_usages([]) == {}
+
+
+def test_lookup_dagger_asterisk_usages(icd10_data, coding_system):
+    ConceptEdition.objects.using(coding_system.database_alias).filter(id=12).update(
+        usage=ConceptUsage.DAGGER
+    )
+    ConceptEdition.objects.using(coding_system.database_alias).filter(id=13).update(
+        usage=ConceptUsage.DAGGER
+    )
+    ConceptEdition.objects.using(coding_system.database_alias).filter(id=14).update(
+        usage=ConceptUsage.ASTERISK
+    )
+
+    assert coding_system.lookup_dagger_asterisk_usages(
+        ["M77", "M770", "M771", "M772"]
+    ) == {
+        "M77": {
+            "usage": "dagger",
+            "url": "https://icd.who.int/browse10/2019/en#/M77",
+        },
+        "M770": {
+            "usage": "dagger",
+            "url": "https://icd.who.int/browse10/2019/en#/M77.0",
+        },
+        "M771": {
+            "usage": "asterisk",
+            "url": "https://icd.who.int/browse10/2019/en#/M77.1",
+        },
+    }

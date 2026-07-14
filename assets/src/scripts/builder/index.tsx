@@ -32,6 +32,9 @@ if (container) {
         allCodes={readValueFromPage("all-codes")}
         codeToStatus={codeToStatus}
         codeToTerm={codeToTerm}
+        codeToDaggerAsteriskInfo={readValueFromPage(
+          "code-to-dagger-asterisk-info",
+        )}
         draftURL={readValueFromPage("draft-url")}
         hierarchy={hierarchy}
         icd10TermDifferences={readValueFromPage("icd10-term-differences")}

@@ -13,6 +13,7 @@ import Row from "./Row";
 interface TreeProps {
   allCodes: PageData["allCodes"];
   ancestorCode: AncestorCode;
+  codeToDaggerAsteriskInfo: PageData["codeToDaggerAsteriskInfo"];
   codeToStatus: PageData["codeToStatus"];
   codeToTerm: PageData["codeToTerm"];
   hierarchy: Hierarchy;
@@ -26,6 +27,7 @@ interface TreeProps {
 export default function Tree({
   allCodes,
   ancestorCode,
+  codeToDaggerAsteriskInfo,
   codeToStatus,
   codeToTerm,
   hierarchy,
@@ -42,6 +44,7 @@ export default function Tree({
       <Row
         allCodes={allCodes}
         code={row.code}
+        daggerAsteriskInfo={codeToDaggerAsteriskInfo[row.code]}
         codeToStatus={codeToStatus}
         codeToTerm={codeToTerm}
         hasDescendants={row.hasDescendants}

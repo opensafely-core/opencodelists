@@ -14,6 +14,11 @@ export type ICD10MovedCode = {
   nhs2016: string[];
   who2019: string[];
 };
+export type DaggerAsteriskUsage = "dagger" | "asterisk";
+export type DaggerAsteriskInfo = {
+  usage: DaggerAsteriskUsage;
+  url?: string;
+};
 export type IsExpanded = boolean;
 export type Path = string;
 export type Pipe = "└" | "├" | " " | "│";
@@ -27,6 +32,7 @@ type VisiblePaths = Set<string>;
 
 export interface PageData {
   allCodes: AllCodes;
+  codeToDaggerAsteriskInfo: { [key: string]: DaggerAsteriskInfo };
   codeToStatus: { [key: string]: Status };
   codeToTerm: { [key: string]: string };
   draftURL: string;

@@ -2,7 +2,14 @@ import React, { useEffect, useState } from "react";
 import { Button, Modal } from "react-bootstrap";
 import type Hierarchy from "../../_hierarchy";
 import { getCookie, readValueFromPage } from "../../_utils";
-import type { Code, PageData, Status, Term } from "../../types";
+import type {
+  Code,
+  DaggerAsteriskInfo,
+  DaggerAsteriskUsage,
+  PageData,
+  Status,
+  Term,
+} from "../../types";
 
 interface CreateModalTextProps {
   allCodes: PageData["allCodes"];
@@ -341,9 +348,21 @@ interface MoreInfoModalProps {
   code: Code;
   codeToStatus: PageData["codeToStatus"];
   codeToTerm: PageData["codeToTerm"];
+  daggerAsteriskInfo?: DaggerAsteriskInfo;
   hierarchy: Hierarchy;
   status: Status;
   term: Term;
+}
+
+const daggerAsteriskGuidanceUrl =
+  "https://icd.who.int/browse10/Content/statichtml/ICD10Volume2_en_2019.pdf#page=29";
+
+function usageLabel(usage: DaggerAsteriskUsage) {
+  return usage === "dagger" ? "Dagger" : "Asterisk";
+}
+
+function usageGlyph(usage: DaggerAsteriskUsage) {
+  return usage === "dagger" ? "†" : "*";
 }
 
 function MoreInfoModal({
@@ -351,6 +370,7 @@ function MoreInfoModal({
   code,
   codeToStatus,
   codeToTerm,
+  daggerAsteriskInfo,
   hierarchy,
   status,
   term,
@@ -430,6 +450,17 @@ function MoreInfoModal({
 
   return (
     <>
+      {daggerAsteriskInfo && (
+        <button
+          className="builder__dagger-asterisk-link"
+          onClick={handleShow}
+          type="button"
+          aria-label={`Show ICD-10 ${daggerAsteriskInfo.usage} information for ${code}`}
+          title={`ICD-10 ${daggerAsteriskInfo.usage} code`}
+        >
+          <span>{usageGlyph(daggerAsteriskInfo.usage)}</span>
+        </button>
+      )}
       <Button
         className="builder__more-info-btn plausible-event-name=More+info+click"
         onClick={handleShow}
@@ -479,7 +510,7 @@ function MoreInfoModal({
               termDifferences={termDifferences}
             />
           )}
-          {hasRubrics(rubrics) && (
+          {(hasRubrics(rubrics) || daggerAsteriskInfo) && (
             <section className="border border-info rounded overflow-hidden mb-4">
               {/* WHO header */}
               <div className="bg-info text-white px-4 py-3">
@@ -496,6 +527,42 @@ function MoreInfoModal({
               <div className="bg-white pt-3 px-4">
                 {rubrics && hasRubrics(rubrics) && (
                   <RubricBlock rubrics={rubrics} term={term} />
+                )}
+                {daggerAsteriskInfo && (
+                  <section className="builder__additional-info-card builder__additional-info-card--usage">
+                    <h3 className="h6 font-weight-bold mb-3 d-flex align-items-center">
+                      Usage: {usageLabel(daggerAsteriskInfo.usage)}
+                      <span className="builder__dagger-asterisk-info__marker ml-2">
+                        {usageGlyph(daggerAsteriskInfo.usage)}
+                      </span>
+                    </h3>
+                    <p>
+                      Dagger codes identify the underlying condition; asterisk
+                      codes identify the manifestation.
+                    </p>
+                    <p className="mb-0 small">
+                      {daggerAsteriskInfo.url && (
+                        <>
+                          <a
+                            href={daggerAsteriskInfo.url}
+                            rel="noreferrer"
+                            target="_blank"
+                          >
+                            View {code} in the WHO ICD-10 browser
+                          </a>
+                          {" · "}
+                        </>
+                      )}
+                      <a
+                        href={daggerAsteriskGuidanceUrl}
+                        rel="noreferrer"
+                        target="_blank"
+                      >
+                        Read the full dagger/asterisk guidance (section 3.1.3 -
+                        p20)
+                      </a>
+                    </p>
+                  </section>
                 )}
               </div>
             </section>

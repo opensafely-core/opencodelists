@@ -277,6 +277,102 @@ it("shows clinically different ICD-10 description differences in a red box", asy
   expect(screen.getByText("WHO description")).toBeVisible();
 });
 
+it("shows ICD-10 dagger information in the WHO additional info box", async () => {
+  vi.mocked(readValueFromPage).mockReturnValue({ coding_system_id: "icd10" });
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(() =>
+      Promise.resolve({
+        json: () =>
+          Promise.resolve({
+            rubrics: {
+              "123": {
+                concept_rubrics: {},
+                modifier_rubrics: {},
+              },
+            },
+          }),
+      }),
+    ),
+  );
+
+  const user = userEvent.setup();
+  render(
+    <MoreInfoModal
+      {...props}
+      daggerAsteriskInfo={{
+        usage: "dagger",
+        url: "https://icd.who.int/browse10/2019/en#/A12.3",
+      }}
+    />,
+  );
+
+  await user.click(
+    screen.getByRole("button", {
+      name: /show icd-10 dagger information for 123/i,
+    }),
+  );
+
+  expect(await screen.findByText("WHO ICD-10 Additional Info")).toBeVisible();
+  expect(screen.getByRole("heading", { name: /usage: dagger/i })).toBeVisible();
+  expect(
+    screen.getByText(
+      "Dagger codes identify the underlying condition; asterisk codes identify the manifestation.",
+    ),
+  ).toBeVisible();
+  expect(
+    screen.getByRole("link", {
+      name: /view 123 in the who icd-10 browser/i,
+    }),
+  ).toHaveAttribute("href", "https://icd.who.int/browse10/2019/en#/A12.3");
+  expect(
+    screen.getByRole("link", {
+      name: /read the full dagger\/asterisk guidance \(section 3.1.3 - p20\)/i,
+    }),
+  ).toBeVisible();
+});
+
+it("shows ICD-10 asterisk information without a code-specific browser link", async () => {
+  vi.mocked(readValueFromPage).mockReturnValue({ coding_system_id: "icd10" });
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(() =>
+      Promise.resolve({
+        json: () => Promise.resolve({}),
+      }),
+    ),
+  );
+
+  const user = userEvent.setup();
+  render(
+    <MoreInfoModal
+      {...props}
+      daggerAsteriskInfo={{
+        usage: "asterisk",
+      }}
+    />,
+  );
+
+  const usageButton = screen.getByRole("button", {
+    name: /show icd-10 asterisk information for 123/i,
+  });
+  expect(usageButton).toHaveTextContent("*");
+
+  await user.click(usageButton);
+
+  expect(
+    await screen.findByRole("heading", {
+      name: /usage: asterisk/i,
+    }),
+  ).toBeVisible();
+  expect(screen.queryByRole("link", { name: /view 123/i })).toBeNull();
+  expect(
+    screen.getByRole("link", {
+      name: /read the full dagger\/asterisk guidance \(section 3.1.3 - p20\)/i,
+    }),
+  ).toBeVisible();
+});
+
 it("shows ICD-10 modifier rubric information", async () => {
   vi.mocked(readValueFromPage).mockReturnValue({ coding_system_id: "icd10" });
   vi.stubGlobal(
@@ -310,7 +406,7 @@ it("shows ICD-10 modifier rubric information", async () => {
   expect(screen.getByText("Includes multiple sites")).toBeVisible();
 });
 
-it("uses consistent cards", async () => {
+it("uses consistent cards and renders usage after concept and modifier rubrics", async () => {
   vi.mocked(readValueFromPage).mockReturnValue({ coding_system_id: "icd10" });
   vi.stubGlobal(
     "fetch",
@@ -337,7 +433,7 @@ it("uses consistent cards", async () => {
   );
 
   const user = userEvent.setup();
-  render(<MoreInfoModal {...props} />);
+  render(<MoreInfoModal {...props} daggerAsteriskInfo={{ usage: "dagger" }} />);
   await user.click(screen.getByRole("button", { name: /more info/i }));
 
   const conceptCard = (
@@ -346,18 +442,30 @@ it("uses consistent cards", async () => {
   const modifierCard = screen
     .getByRole("heading", { name: "Modifier: Multiple sites" })
     .closest("section") as HTMLElement;
+  const usageCard = screen
+    .getByRole("heading", { name: /usage: dagger/i })
+    .closest("section") as HTMLElement;
   const codingHint = screen.getByText("Coding hint:");
 
-  for (const card of [conceptCard, modifierCard]) {
+  for (const card of [conceptCard, modifierCard, usageCard]) {
     expect(card).toHaveClass("builder__additional-info-card");
   }
   expect(conceptCard).toHaveClass("builder__additional-info-card--concept");
+  expect(modifierCard).not.toHaveClass(
+    "builder__additional-info-card--concept",
+    "builder__additional-info-card--usage",
+  );
+  expect(usageCard).toHaveClass("builder__additional-info-card--usage");
   expect(
     conceptCard.compareDocumentPosition(codingHint) &
       Node.DOCUMENT_POSITION_FOLLOWING,
   ).toBeTruthy();
   expect(
     codingHint.compareDocumentPosition(modifierCard) &
+      Node.DOCUMENT_POSITION_FOLLOWING,
+  ).toBeTruthy();
+  expect(
+    modifierCard.compareDocumentPosition(usageCard) &
       Node.DOCUMENT_POSITION_FOLLOWING,
   ).toBeTruthy();
 });

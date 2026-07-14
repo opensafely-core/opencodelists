@@ -36,6 +36,7 @@ const renderCodelistBuilder = (data, hierarchy, visiblePaths) => {
   render(
     <CodelistBuilder
       allCodes={data.all_codes}
+      codeToDaggerAsteriskInfo={data.code_to_dagger_asterisk_info ?? {}}
       codeToStatus={data.code_to_status}
       codeToTerm={data.code_to_term}
       draftURL={data.draft_url}

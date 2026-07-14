@@ -2,6 +2,7 @@ import React from "react";
 import type Hierarchy from "../../_hierarchy";
 import type {
   Code,
+  DaggerAsteriskInfo,
   IsExpanded,
   PageData,
   Path,
@@ -19,6 +20,7 @@ import StatusToggle from "./StatusToggle";
 interface RowProps {
   allCodes: PageData["allCodes"];
   code: Code;
+  daggerAsteriskInfo?: DaggerAsteriskInfo;
   codeToStatus: PageData["codeToStatus"];
   codeToTerm: PageData["codeToTerm"];
   hasDescendants: boolean;
@@ -38,6 +40,7 @@ export default function Row({
   code,
   codeToStatus,
   codeToTerm,
+  daggerAsteriskInfo,
   hasDescendants,
   hierarchy,
   isEditable,
@@ -107,6 +110,7 @@ export default function Row({
           code={code}
           codeToStatus={codeToStatus}
           codeToTerm={codeToTerm}
+          daggerAsteriskInfo={daggerAsteriskInfo}
           hierarchy={hierarchy}
           status={status}
           term={term}

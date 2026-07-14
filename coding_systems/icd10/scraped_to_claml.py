@@ -279,7 +279,7 @@ class ModifierClass(Class):
 def append_element_rubrics(elem, values):
     if rubrics := values.get("rubric"):
         for rubric_type, rubrics in _sorted_items(rubrics):
-            for rubric in rubrics:
+            for rubric in sorted(rubrics):
                 elem.rubrics.append(Rubric(kind=RubricKind[rubric_type], label=rubric))  # type: ignore
 
 

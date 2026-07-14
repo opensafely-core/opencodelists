@@ -41,20 +41,6 @@ def _sorted_items(_dict):
     return sorted(_dict.items(), key=lambda item: item[0])
 
 
-def _reset_generation_state():
-    global D_ID_COUNT
-    global TBAL_ID_COUNT
-    global SECTIONAL_MODIFIER_ID_COUNT
-    global classes_to_write
-    global modifiers_to_apply
-
-    D_ID_COUNT = count(1)
-    TBAL_ID_COUNT = count()
-    SECTIONAL_MODIFIER_ID_COUNT = count(1)
-    classes_to_write = []
-    modifiers_to_apply = defaultdict(list)
-
-
 class KindEnumMeta(EnumMeta):
     def __getitem__(self, name):
         return super().__getitem__(name.upper().replace("-", "_"))
@@ -432,8 +418,6 @@ def append_subclasses():
 
 
 def convert_chapters_to_claml(chapters, claml_path):
-    _reset_generation_state()
-
     claml = etree.fromstring(CLAML_HEADER)
     claml.append(ClassKind.to_element())
     claml.append(UsageKind.to_element())

@@ -12,6 +12,7 @@ from .models import (
     ConceptEdition,
     ConceptKind,
     ConceptRubric,
+    ConceptUsage,
     Edition,
     ModifierRubric,
     RubricKind,
@@ -230,6 +231,40 @@ class CodingSystem(BuilderCompatibleCodingSystem):
         return {
             "rubrics": rubrics,
             "term_differences": edition_description_differences,
+        }
+
+    def _icd10_browser_code(self, code):
+        if len(code) > 3:
+            return f"{code[:3]}.{code[3:]}"
+        return code
+
+    def _icd10_browser_url(self, code):
+        return f"https://icd.who.int/browse10/2019/en#/{self._icd10_browser_code(code)}"
+
+    def lookup_dagger_asterisk_usages(self, codes):
+        if not codes:
+            return {}
+
+        concept_usages = (
+            ConceptEdition.objects.using(self.database_alias)
+            .filter(
+                edition_id=self.latest_edition.id,
+                concept_id__in=codes,
+                usage__in=[
+                    ConceptUsage.DAGGER,
+                    ConceptUsage.ASTERISK,
+                    "aster",
+                ],
+            )
+            .values_list("concept_id", "usage")
+        )
+
+        return {
+            concept_code: {
+                "usage": (ConceptUsage.ASTERISK if usage == "aster" else usage),
+                "url": self._icd10_browser_url(concept_code),
+            }
+            for concept_code, usage in concept_usages
         }
 
     def codes_by_type(self, codes, hierarchy):

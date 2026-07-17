@@ -198,6 +198,85 @@ it.each([
   ).toBeVisible();
 });
 
+it("shows clinically equivalent ICD-10 description differences in a green box", async () => {
+  vi.mocked(readValueFromPage).mockReturnValue({ coding_system_id: "icd10" });
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(() =>
+      Promise.resolve({
+        json: () =>
+          Promise.resolve({
+            term_differences: {
+              "123": {
+                combined_2016: "NHS description",
+                who_2019: "WHO description",
+                equivalent: true,
+              },
+            },
+          }),
+      }),
+    ),
+  );
+
+  const user = userEvent.setup();
+  render(<MoreInfoModal {...props} />);
+  await user.click(screen.getByRole("button", { name: /more info/i }));
+
+  const descriptionSection = (
+    await screen.findByText("ICD-10 Edition Descriptions")
+  ).closest("section");
+  expect(descriptionSection).toHaveClass("border-success");
+
+  expect(
+    screen.getByText("The description of 123 differs", { exact: false }),
+  ).toBeVisible();
+  expect(
+    screen.getByText("We consider these terms clinically equivalent", {
+      exact: false,
+    }),
+  ).toBeVisible();
+  expect(screen.getByText("NHS description")).toBeVisible();
+  expect(screen.getByText("WHO description")).toBeVisible();
+});
+
+it("shows clinically different ICD-10 description differences in a red box", async () => {
+  vi.mocked(readValueFromPage).mockReturnValue({ coding_system_id: "icd10" });
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(() =>
+      Promise.resolve({
+        json: () =>
+          Promise.resolve({
+            term_differences: {
+              "123": {
+                combined_2016: "NHS description",
+                who_2019: "WHO description",
+                equivalent: false,
+              },
+            },
+          }),
+      }),
+    ),
+  );
+
+  const user = userEvent.setup();
+  render(<MoreInfoModal {...props} />);
+  await user.click(screen.getByRole("button", { name: /more info/i }));
+
+  const descriptionSection = (
+    await screen.findByText("ICD-10 Edition Descriptions")
+  ).closest("section");
+  expect(descriptionSection).toHaveClass("border-danger");
+  expect(
+    screen.getByText("The description of 123 differs", { exact: false }),
+  ).toBeVisible();
+  expect(
+    screen.getByText("We consider these terms different", { exact: false }),
+  ).toBeVisible();
+  expect(screen.getByText("NHS description")).toBeVisible();
+  expect(screen.getByText("WHO description")).toBeVisible();
+});
+
 it("shows ICD-10 modifier rubric information", async () => {
   vi.mocked(readValueFromPage).mockReturnValue({ coding_system_id: "icd10" });
   vi.stubGlobal(

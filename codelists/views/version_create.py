@@ -19,6 +19,9 @@ def version_create(request, version):
         coding_system_database_alias = most_recent_database_alias(
             version.coding_system.id
         )
+    if not version.codelist.is_new_style():
+        version = actions.convert_codelist_to_new_style(codelist=version.codelist)
+
     draft = actions.export_to_builder(
         version=version,
         author=request.user,

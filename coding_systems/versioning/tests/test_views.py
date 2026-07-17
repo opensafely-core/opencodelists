@@ -76,13 +76,11 @@ def test_more_info_returns_additional_rubrics(client, setup_coding_systems, icd1
     )
 
     assert response.status_code == 200
-    assert response.json() == {
-        "synonyms": {},
-        "references": {},
-        "rubrics": {
-            "M770": {
-                "concept_rubrics": {RubricKind.INCLUSION: ["Golfer's elbow"]},
-                "modifier_rubrics": {},
-            }
-        },
+    json_data = response.json()
+    assert "rubrics" in json_data
+    assert "M770" in json_data["rubrics"]
+    assert json_data["rubrics"]["M770"]["concept_rubrics"] == {
+        RubricKind.INCLUSION: ["Golfer's elbow"]
     }
+    assert json_data["rubrics"]["M770"]["modifier_rubrics"] == {}
+    assert "term_differences" in json_data

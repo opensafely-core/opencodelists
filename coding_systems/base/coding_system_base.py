@@ -1,4 +1,7 @@
+import csv
+import operator
 from abc import ABC
+from io import StringIO
 
 from django.utils.functional import cached_property
 
@@ -107,6 +110,52 @@ class BaseCodingSystem(ABC):
 
     def code_to_term(self, codes):  # pragma: no cover
         raise NotImplementedError
+
+    def validate_csv_data_codes(self, codes):
+        # Fully implemented codings systems have a `lookup_names` method that is used to
+        # validate the codes in the CSV upload.  However, we also support uploads for some
+        # coding systems that we don't maintain data for (e.g. OPCS4, ReadV2).  Skip code
+        # validation for these systems, and just allow upload of the CSV data as it is.
+        if not self.has_database:
+            return
+        unknown_codes = set(codes) - set(self.lookup_names(codes))
+        unknown_codes_and_ixs = sorted(
+            [(codes.index(code), code) for code in unknown_codes],
+            key=operator.itemgetter(0),
+        )
+
+        if unknown_codes_and_ixs:
+            line = unknown_codes_and_ixs[0][0] + 1
+            code = unknown_codes_and_ixs[0][1]
+            if len(unknown_codes_and_ixs) == 1:
+                msg = f"CSV file contains 1 unknown code ({code}) on line {line}"
+            else:
+                num = len(unknown_codes_and_ixs)
+                suffix = "" if num == 1 else "s"
+                msg = f"CSV file contains {num} unknown code{suffix} -- the first ({code}) is on line {line}"
+            msg += f" ({self.short_name} release {self.release_name}, valid from {self.release.valid_from})"
+            raise ValueError(msg)
+
+    def codes_from_csv_file(self, csv_file, csv_has_header):
+        data = csv_file.read().decode("utf-8-sig")
+        return self.codes_from_csv(data, csv_has_header)
+
+    def codes_from_csv(self, csv_data, csv_has_header, lookup_code_column=False):
+        if lookup_code_column:
+            assert csv_has_header, (
+                "Can only lookup code column in header if header provided"
+            )
+        csv_reader = csv.reader(StringIO(csv_data))
+        code_column_ix = 0
+        if csv_has_header:
+            header = next(csv_reader, None)
+            if lookup_code_column:
+                for i, header_value in enumerate(header):
+                    if header_value in self.csv_headers["code"]:
+                        code_column_ix = i
+                        break
+
+        return [row[code_column_ix] for row in csv_reader if row]
 
 
 class DummyCodingSystem(BaseCodingSystem):

@@ -5,7 +5,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 from django import forms
 
-from opencodelists.forms import form_field_from_model, validate_csv_data_codes
+from opencodelists.forms import form_field_from_model
 from opencodelists.models import Organisation, User
 
 from .coding_systems import CODING_SYSTEMS
@@ -140,7 +140,10 @@ class CSVValidationMixin:
                 ]
             )
 
-        validate_csv_data_codes(coding_system, codes)
+        try:
+            coding_system.validate_csv_data_codes(codes)
+        except ValueError as e:
+            raise forms.ValidationError(str(e))
         return data
 
 

@@ -15,6 +15,9 @@ def test_calls_import_release_function(mock_import_release, tmpdir, mock_data_do
     mock_import_release.assert_called_once()
     mock_import_release.assert_called_with(
         Path(tmpdir) / "BNF Snomed Mapping data 20240101.zip",
-        "20240101",
-        datetime.datetime(2024, 1, 1, 0, 0),
+        release="20240101",
+        valid_from=datetime.datetime(2024, 1, 1, 0, 0),
+        url="https://www.nhsbsa.nhs.uk/sites/default/files/2024-01/BNF%20Snomed%20Mapping%20data%2020240101.zip",
+        filename="BNF Snomed Mapping data 20240101.zip",
+        release_name="20240101",
     )

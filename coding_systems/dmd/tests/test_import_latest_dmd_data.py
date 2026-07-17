@@ -8,7 +8,7 @@ from django.core.management import call_command
 from coding_systems.versioning.models import CodingSystemRelease, ReleaseState
 
 
-@patch("coding_systems.dmd.import_data.import_release")
+@patch("coding_systems.dmd.import_data.import_release", autospec=True)
 def test_calls_import_release_function_with_extracted_release_metadata(
     mock_import_release, tmpdir, mock_data_download
 ):
@@ -20,8 +20,11 @@ def test_calls_import_release_function_with_extracted_release_metadata(
     mock_import_release.assert_called_once()
     mock_import_release.assert_called_with(
         Path(tmpdir) / "nhsbsa_dmd_1.0.0_20221001000001.zip",
-        "2022 1.0.0",
-        date(2022, 10, 1),
+        release_name="2022 1.0.0",
+        valid_from=date(2022, 10, 1),
+        url="https://download/nhsbsa_dmd_1.0.0_20221001000001.zip",
+        filename="nhsbsa_dmd_1.0.0_20221001000001.zip",
+        release="1.0.0",
     )
 
 

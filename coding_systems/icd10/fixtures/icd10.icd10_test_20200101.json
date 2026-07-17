@@ -1,191 +1,258 @@
 [
   {
-    "model": "icd10.concept",
-    "pk": "A75-A79",
+    "model": "icd10.edition",
+    "pk": "test",
     "fields": {
-      "kind": "block",
-      "term": "Rickettsioses",
-      "parent": "I"
+      "version": 1,
+      "year": 1900,
+      "source_description": "test fixture"
     }
   },
-  {
-    "model": "icd10.concept",
-    "pk": "A77",
-    "fields": {
-      "kind": "category",
-      "term": "Spotted fever [tick-borne rickettsioses]",
-      "parent": "A75-A79"
-    }
-  },
-  {
-    "model": "icd10.concept",
-    "pk": "A770",
-    "fields": {
-      "kind": "category",
-      "term": "Spotted fever due to Rickettsia rickettsii",
-      "parent": "A77"
-    }
-  },
-  {
-    "model": "icd10.concept",
-    "pk": "A771",
-    "fields": {
-      "kind": "category",
-      "term": "Spotted fever due to Rickettsia conorii",
-      "parent": "A77"
-    }
-  },
-  {
-    "model": "icd10.concept",
-    "pk": "A772",
-    "fields": {
-      "kind": "category",
-      "term": "Spotted fever due to Rickettsia sibirica",
-      "parent": "A77"
-    }
-  },
-  {
-    "model": "icd10.concept",
-    "pk": "A773",
-    "fields": {
-      "kind": "category",
-      "term": "Spotted fever due to Rickettsia australis",
-      "parent": "A77"
-    }
-  },
-  {
-    "model": "icd10.concept",
-    "pk": "A778",
-    "fields": {
-      "kind": "category",
-      "term": "Other spotted fevers",
-      "parent": "A77"
-    }
-  },
-  {
-    "model": "icd10.concept",
-    "pk": "A779",
-    "fields": {
-      "kind": "category",
-      "term": "Spotted fever, unspecified",
-      "parent": "A77"
-    }
-  },
-  {
-    "model": "icd10.concept",
-    "pk": "I",
-    "fields": {
-      "kind": "chapter",
-      "term": "Certain infectious and parasitic diseases",
-      "parent": null
-    }
-  },
-  {
-    "model": "icd10.concept",
-    "pk": "M60-M79",
-    "fields": {
-      "kind": "block",
-      "term": "Soft tissue disorders",
-      "parent": "XIII"
-    }
-  },
+  { "model": "icd10.concept", "pk": "A75-A79", "fields": { "parent": "I" } },
+  { "model": "icd10.concept", "pk": "A77", "fields": { "parent": "A75-A79" } },
+  { "model": "icd10.concept", "pk": "A770", "fields": { "parent": "A77" } },
+  { "model": "icd10.concept", "pk": "A771", "fields": { "parent": "A77" } },
+  { "model": "icd10.concept", "pk": "A772", "fields": { "parent": "A77" } },
+  { "model": "icd10.concept", "pk": "A773", "fields": { "parent": "A77" } },
+  { "model": "icd10.concept", "pk": "A778", "fields": { "parent": "A77" } },
+  { "model": "icd10.concept", "pk": "A779", "fields": { "parent": "A77" } },
+  { "model": "icd10.concept", "pk": "I", "fields": { "parent": null } },
+  { "model": "icd10.concept", "pk": "M60-M79", "fields": { "parent": "XIII" } },
   {
     "model": "icd10.concept",
     "pk": "M70-M79",
+    "fields": { "parent": "M60-M79" }
+  },
+  { "model": "icd10.concept", "pk": "M77", "fields": { "parent": "M70-M79" } },
+  { "model": "icd10.concept", "pk": "M770", "fields": { "parent": "M77" } },
+  { "model": "icd10.concept", "pk": "M7700", "fields": { "parent": "M770" } },
+  { "model": "icd10.concept", "pk": "M771", "fields": { "parent": "M77" } },
+  { "model": "icd10.concept", "pk": "M772", "fields": { "parent": "M77" } },
+  { "model": "icd10.concept", "pk": "M773", "fields": { "parent": "M77" } },
+  { "model": "icd10.concept", "pk": "M774", "fields": { "parent": "M77" } },
+  { "model": "icd10.concept", "pk": "M775", "fields": { "parent": "M77" } },
+  { "model": "icd10.concept", "pk": "M778", "fields": { "parent": "M77" } },
+  { "model": "icd10.concept", "pk": "M779", "fields": { "parent": "M77" } },
+  { "model": "icd10.concept", "pk": "XIII", "fields": { "parent": null } },
+  {
+    "model": "icd10.conceptedition",
+    "pk": 1,
+    "fields": {
+      "kind": "block",
+      "term": "Rickettsioses",
+      "edition_id": "test",
+      "concept_id": "A75-A79"
+    }
+  },
+  {
+    "model": "icd10.conceptedition",
+    "pk": 2,
+    "fields": {
+      "kind": "category",
+      "term": "Spotted fever [tick-borne rickettsioses]",
+      "edition_id": "test",
+      "concept_id": "A77"
+    }
+  },
+  {
+    "model": "icd10.conceptedition",
+    "pk": 3,
+    "fields": {
+      "kind": "category",
+      "term": "Spotted fever due to Rickettsia rickettsii",
+      "edition_id": "test",
+      "concept_id": "A770"
+    }
+  },
+  {
+    "model": "icd10.conceptedition",
+    "pk": 4,
+    "fields": {
+      "kind": "category",
+      "term": "Spotted fever due to Rickettsia conorii",
+      "edition_id": "test",
+      "concept_id": "A771"
+    }
+  },
+  {
+    "model": "icd10.conceptedition",
+    "pk": 5,
+    "fields": {
+      "kind": "category",
+      "term": "Spotted fever due to Rickettsia sibirica",
+      "edition_id": "test",
+      "concept_id": "A772"
+    }
+  },
+  {
+    "model": "icd10.conceptedition",
+    "pk": 6,
+    "fields": {
+      "kind": "category",
+      "term": "Spotted fever due to Rickettsia australis",
+      "edition_id": "test",
+      "concept_id": "A773"
+    }
+  },
+  {
+    "model": "icd10.conceptedition",
+    "pk": 7,
+    "fields": {
+      "kind": "category",
+      "term": "Other spotted fevers",
+      "edition_id": "test",
+      "concept_id": "A778"
+    }
+  },
+  {
+    "model": "icd10.conceptedition",
+    "pk": 8,
+    "fields": {
+      "kind": "category",
+      "term": "Spotted fever, unspecified",
+      "edition_id": "test",
+      "concept_id": "A779"
+    }
+  },
+  {
+    "model": "icd10.conceptedition",
+    "pk": 9,
+    "fields": {
+      "kind": "chapter",
+      "term": "Certain infectious and parasitic diseases",
+      "edition_id": "test",
+      "concept_id": "I"
+    }
+  },
+  {
+    "model": "icd10.conceptedition",
+    "pk": 10,
+    "fields": {
+      "kind": "block",
+      "term": "Soft tissue disorders",
+      "edition_id": "test",
+      "concept_id": "M60-M79"
+    }
+  },
+  {
+    "model": "icd10.conceptedition",
+    "pk": 11,
     "fields": {
       "kind": "block",
       "term": "Other soft tissue disorders",
-      "parent": "M60-M79"
+      "edition_id": "test",
+      "concept_id": "M70-M79"
     }
   },
   {
-    "model": "icd10.concept",
-    "pk": "M77",
+    "model": "icd10.conceptedition",
+    "pk": 12,
     "fields": {
       "kind": "category",
       "term": "Other enthesopathies",
-      "parent": "M70-M79"
+      "edition_id": "test",
+      "concept_id": "M77"
     }
   },
   {
-    "model": "icd10.concept",
-    "pk": "M770",
+    "model": "icd10.conceptedition",
+    "pk": 13,
     "fields": {
       "kind": "category",
       "term": "Medial epicondylitis",
-      "parent": "M77"
+      "edition_id": "test",
+      "concept_id": "M770"
     }
   },
   {
-    "model": "icd10.concept",
-    "pk": "M771",
+    "model": "icd10.conceptedition",
+    "pk": 14,
     "fields": {
       "kind": "category",
       "term": "Lateral epicondylitis",
-      "parent": "M77"
+      "edition_id": "test",
+      "concept_id": "M771"
     }
   },
   {
-    "model": "icd10.concept",
-    "pk": "M772",
+    "model": "icd10.conceptedition",
+    "pk": 15,
     "fields": {
       "kind": "category",
       "term": "Periarthritis of wrist",
-      "parent": "M77"
+      "edition_id": "test",
+      "concept_id": "M772"
     }
   },
   {
-    "model": "icd10.concept",
-    "pk": "M773",
+    "model": "icd10.conceptedition",
+    "pk": 16,
     "fields": {
       "kind": "category",
       "term": "Calcaneal spur",
-      "parent": "M77"
+      "edition_id": "test",
+      "concept_id": "M773"
     }
   },
   {
-    "model": "icd10.concept",
-    "pk": "M774",
+    "model": "icd10.conceptedition",
+    "pk": 17,
     "fields": {
       "kind": "category",
       "term": "Metatarsalgia",
-      "parent": "M77"
+      "edition_id": "test",
+      "concept_id": "M774"
     }
   },
   {
-    "model": "icd10.concept",
-    "pk": "M775",
+    "model": "icd10.conceptedition",
+    "pk": 18,
     "fields": {
       "kind": "category",
       "term": "Other enthesopathy of foot",
-      "parent": "M77"
+      "edition_id": "test",
+      "concept_id": "M775"
     }
   },
   {
-    "model": "icd10.concept",
-    "pk": "M778",
+    "model": "icd10.conceptedition",
+    "pk": 19,
     "fields": {
       "kind": "category",
       "term": "Other enthesopathies, not elsewhere classified",
-      "parent": "M77"
+      "edition_id": "test",
+      "concept_id": "M778"
     }
   },
   {
-    "model": "icd10.concept",
-    "pk": "M779",
+    "model": "icd10.conceptedition",
+    "pk": 20,
     "fields": {
       "kind": "category",
       "term": "Enthesopathy, unspecified",
-      "parent": "M77"
+      "edition_id": "test",
+      "concept_id": "M779"
     }
   },
   {
-    "model": "icd10.concept",
-    "pk": "XIII",
+    "model": "icd10.conceptedition",
+    "pk": 21,
     "fields": {
       "kind": "chapter",
       "term": "Diseases of the musculoskeletal system and connective tissue",
-      "parent": null
+      "edition_id": "test",
+      "concept_id": "XIII"
+    }
+  },
+  {
+    "model": "icd10.conceptedition",
+    "pk": 22,
+    "fields": {
+      "kind": "category",
+      "term": "Medial epicondylitis",
+      "edition_id": "test",
+      "concept_id": "M7700",
+      "term_modifier": "Multiple sites"
     }
   }
 ]

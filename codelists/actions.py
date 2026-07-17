@@ -596,7 +596,7 @@ def delete_version(*, version):
 
 
 @transaction.atomic
-def convert_codelist_to_new_style(*, codelist):
+def convert_codelist_to_new_style(*, codelist, status=Status.UNDER_REVIEW):
     """Convert codelist to new style.
     Create a new version with the same codes as the latest version.
     """
@@ -608,7 +608,7 @@ def convert_codelist_to_new_style(*, codelist):
     return _create_version_with_codes(
         codelist=codelist,
         codes=set(prev_clv.codes),
-        status=Status.UNDER_REVIEW,
+        status=status,
         coding_system_release=prev_clv.coding_system_release,
     )
 

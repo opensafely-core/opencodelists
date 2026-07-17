@@ -1,6 +1,15 @@
 import pytest
 
 from coding_systems.icd10.coding_system import CodingSystem
+from coding_systems.icd10.models import (
+    Concept,
+    ConceptEdition,
+    ConceptKind,
+    ConceptRubric,
+    ConceptUsage,
+    Edition,
+    RubricKind,
+)
 
 
 @pytest.fixture
@@ -82,6 +91,48 @@ def test_search_by_term(icd10_data, coding_system):
         "A772",
         "A773",
     }
+
+
+def test_search_by_term_includes_inclusion_rubric_match(coding_system):
+    # Real-world pattern: 2016 has Causalgia as a term on G564,
+    # while 2019 has Causalgia as an inclusion rubric on G906.
+    edition_2016 = Edition.objects.using(coding_system.database_alias).create(
+        id="20160101",
+        version=20160101,
+        year=2016,
+        source_description="test 2016",
+    )
+    edition_2019 = Edition.objects.using(coding_system.database_alias).create(
+        id="20190101",
+        version=20190101,
+        year=2019,
+        source_description="test 2019",
+    )
+
+    g564 = Concept.objects.using(coding_system.database_alias).create(code="G564")
+    g906 = Concept.objects.using(coding_system.database_alias).create(code="G906")
+
+    ConceptEdition.objects.using(coding_system.database_alias).create(
+        concept=g564,
+        edition=edition_2016,
+        kind=ConceptKind.CATEGORY,
+        usage=ConceptUsage.NORMAL,
+        term="Causalgia",
+    )
+    g906_2019 = ConceptEdition.objects.using(coding_system.database_alias).create(
+        concept=g906,
+        edition=edition_2019,
+        kind=ConceptKind.CATEGORY,
+        usage=ConceptUsage.NORMAL,
+        term="Complex regional pain syndrome type II",
+    )
+    ConceptRubric.objects.using(coding_system.database_alias).create(
+        concept_edition=g906_2019,
+        kind=RubricKind.INCLUSION,
+        text="Causalgia",
+    )
+
+    assert coding_system.search_by_term("Causalgia") == {"G564", "G906"}
 
 
 def test_search_by_code_exact(icd10_data, coding_system):

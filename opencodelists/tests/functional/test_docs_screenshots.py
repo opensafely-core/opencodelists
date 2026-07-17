@@ -3,6 +3,8 @@ import pytest
 from codelists import actions
 from codelists.coding_systems import most_recent_database_alias
 from codelists.models import Status
+from coding_systems.icd10 import known_diffs as icd10_known_diffs
+from coding_systems.icd10.known_diffs import ReleaseTermDifference
 
 from .test_build_codelist import (
     ConceptSelection,
@@ -19,6 +21,77 @@ from .utils import screenshot_element_with_padding
 
 
 pytestmark = pytest.mark.functional
+
+
+@pytest.mark.django_db(
+    databases=[
+        "default",
+        "bnf_test_20200101",
+        "dmd_test_20200101",
+        "icd10_test_20200101",
+        "snomedct_test_20200101",
+    ],
+    transaction=True,
+)
+def test_generate_icd10_warning_screenshots(
+    page,
+    live_server,
+    icd10_data,
+    monkeypatch,
+    user,
+):
+    """Generate documentation screenshots from the real ICD-10 warnings UI."""
+    monkeypatch.setitem(
+        icd10_known_diffs.COMBINED_2016_VS_2019_DIFFERENCES,
+        "X590",
+        ReleaseTermDifference(
+            combined_2016="Exposure to unspecified factor : Home",
+            who_2019="Exposure to unspecified factor causing fracture",
+            clinically_equivalent=False,
+        ),
+    )
+    monkeypatch.setattr(
+        icd10_known_diffs,
+        "MOVED_CODE_SETS",
+        (
+            {
+                "title": "Example condition",
+                "nhs2016": ["B59"],
+                "who2019": ["B485"],
+                "comment": "This is B59 in 2016, but B485 in 2019.",
+            },
+        ),
+    )
+    codelist = actions.create_codelist_with_codes(
+        owner=user,
+        name="ICD-10 edition differences",
+        coding_system_id="icd10",
+        coding_system_database_alias="icd10_test_20200101",
+        codes=["X590", "B59"],
+        status=Status.PUBLISHED,
+    )
+
+    version = codelist.latest_published_version()
+    page.set_viewport_size({"width": 1280, "height": 1600})
+    page.goto(live_server.url + version.get_absolute_url())
+
+    screenshots = [
+        (
+            "Conflicting definitions detected",
+            "icd10-conflicting-definitions-warning.png",
+        ),
+        (
+            "This ICD-10 codelist may be incomplete",
+            "icd10-incomplete-codelist-warning.png",
+        ),
+    ]
+    for heading, filename in screenshots:
+        banner = page.locator(".warning-banner").filter(
+            has=page.get_by_role("heading", name=heading, exact=True)
+        )
+        banner.locator("summary").click()
+        screenshot_element_with_padding(page, banner, filename)
+        banner.locator("summary").click()
 
 
 @pytest.mark.django_db(

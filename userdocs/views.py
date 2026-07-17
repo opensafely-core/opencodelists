@@ -23,6 +23,7 @@ doc_sections = [
     "viewing-your-codelists",
     "cloning-a-codelist",
     "diffing-codelists",
+    "icd10-editions",
     "converting-pseudo-bnf-codelists-to-dmd",
     "using-a-codelist-in-opensafely-research",
     "reporting-bugs-requesting-features-and-asking-for-help",

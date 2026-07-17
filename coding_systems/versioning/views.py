@@ -77,7 +77,8 @@ def more_info(request, coding_system):
     cs = CODING_SYSTEMS[coding_system].get_by_release_or_most_recent()
     synonyms = {"synonyms": cs.lookup_synonyms(codes)}
     references = {"references": cs.lookup_references(codes)}
-    return JsonResponse(synonyms | references)
+    additional_rubrics = cs.lookup_additional_rubrics(codes)
+    return JsonResponse(synonyms | references | additional_rubrics)
 
 
 @csrf_exempt

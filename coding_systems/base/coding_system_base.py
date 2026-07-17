@@ -140,12 +140,22 @@ class BaseCodingSystem(ABC):
         data = csv_file.read().decode("utf-8-sig")
         return self.codes_from_csv(data, csv_has_header)
 
-    def codes_from_csv(self, csv_data, csv_has_header):
+    def codes_from_csv(self, csv_data, csv_has_header, lookup_code_column=False):
+        if lookup_code_column:
+            assert csv_has_header, (
+                "Can only lookup code column in header if header provided"
+            )
         csv_reader = csv.reader(StringIO(csv_data))
+        code_column_ix = 0
         if csv_has_header:
-            next(csv_reader, None)
+            header = next(csv_reader, None)
+            if lookup_code_column:
+                for i, header_value in enumerate(header):
+                    if header_value in self.csv_headers["code"]:
+                        code_column_ix = i
+                        break
 
-        return [row[0] for row in csv_reader if row]
+        return [row[code_column_ix] for row in csv_reader if row]
 
 
 class DummyCodingSystem(BaseCodingSystem):

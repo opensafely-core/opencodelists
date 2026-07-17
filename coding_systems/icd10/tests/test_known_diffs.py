@@ -5,6 +5,7 @@ from coding_systems.icd10.known_diffs import (
     RubricChange,
     TermDifference,
     clinically_different_codes,
+    different_codes,
     expand_who_2016_place_of_occurrence,
     get_2016_2019_description_difference,
     is_2016_claml_only,
@@ -253,3 +254,21 @@ def test_moved_codes():
             "comment": "This is U076 in 2016, but U11/U119 in 2019.",
         },
     ]
+
+
+def test_different_codes():
+    codes = ["P710", "P710", "P711", "ZZZZ", "X590"]
+    differences = different_codes(codes)
+
+    assert differences == {
+        "P710": {
+            "combined_2016": "Cow's milk hypocalcaemia in newborn",
+            "who_2019": "Cow milk hypocalcaemia in newborn",
+            "equivalent": True,
+        },
+        "X590": {
+            "combined_2016": "Exposure to unspecified factor (Home)",
+            "who_2019": "Exposure to unspecified factor causing fracture",
+            "equivalent": False,
+        },
+    }

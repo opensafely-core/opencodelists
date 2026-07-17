@@ -11,7 +11,9 @@ from .models import (
     Concept,
     ConceptEdition,
     ConceptKind,
+    ConceptRubric,
     Edition,
+    ModifierRubric,
     RubricKind,
 )
 
@@ -123,6 +125,110 @@ class CodingSystem(BuilderCompatibleCodingSystem):
         lookup = self.lookup_names(codes)
         unknown = set(codes) - set(lookup)
         return {**lookup, **{code: "Unknown" for code in unknown}}
+
+    def _lookup_rubrics(self, codes):
+        codes = list(codes)
+        if not codes:
+            return {}
+
+        # First we get the rubrics for the concept code itself
+        direct_concept_rubrics = (
+            ConceptRubric.objects.using(self.database_alias)
+            .filter(
+                concept_edition__concept_id__in=codes,
+                concept_edition__edition_id=self.latest_edition.id,
+            )
+            .values_list("concept_edition__concept_id", "kind", "text")
+        )
+
+        # Then we get the concept rubrics for any modifier codes. These are the
+        # rubrics for the parent code that the modifier code modifies.
+        inherited_concept_rubrics = (
+            ConceptRubric.objects.using(self.database_alias)
+            .filter(
+                # The rubric belongs to the requested modifier code's parent.
+                concept_edition__edition_id=self.latest_edition.id,
+                concept_edition__concept__children__code__in=codes,
+                concept_edition__concept__children__concept_editions__edition_id=(
+                    self.latest_edition.id
+                ),
+                concept_edition__concept__children__concept_editions__term_modifier__isnull=(
+                    False
+                ),
+            )
+            .values_list(
+                "concept_edition__concept__children__code",
+                "kind",
+                "text",
+            )
+        )
+
+        # Now we get the modifier rubrics for any modifier codes
+        modifier_rubrics = (
+            ModifierRubric.objects.using(self.database_alias)
+            .filter(
+                concept_edition__concept_id__in=codes,
+                concept_edition__edition_id=self.latest_edition.id,
+            )
+            .values_list(
+                "concept_edition__concept_id",
+                "concept_edition__term_modifier",
+                "kind",
+                "text",
+            )
+        )
+
+        # Construct a rubrics object that looks like this:
+        # {
+        #   "code_1": {
+        #     "concept_rubrics": {
+        #       "rubric_kind_1": ["text", "text", ...],
+        #       "rubric_kind_2": ["text", "text", ...],
+        #     },
+        #     "modifier_rubrics": {
+        #       "modifier_term_1": {
+        #         "rubric_kind_1": ["text", "text", ...],
+        #       },
+        #     },
+        #   },
+        #  "code_2": {
+        #    ...
+        #  },
+        # },
+        rubrics = {}
+
+        concept_rubrics = direct_concept_rubrics.union(inherited_concept_rubrics)
+        for code, kind, text in concept_rubrics:
+            if code not in rubrics:
+                rubrics[code] = {
+                    "concept_rubrics": {},
+                    "modifier_rubrics": {},
+                }
+
+            rubrics_by_kind = rubrics[code]["concept_rubrics"]
+            if kind not in rubrics_by_kind:
+                rubrics_by_kind[kind] = []
+            rubrics_by_kind[kind].append(text)
+
+        for code, term_modifier, kind, text in modifier_rubrics:
+            if code not in rubrics:
+                rubrics[code] = {
+                    "concept_rubrics": {},
+                    "modifier_rubrics": {},
+                }
+
+            if term_modifier not in rubrics[code]["modifier_rubrics"]:
+                rubrics[code]["modifier_rubrics"][term_modifier] = {}
+
+            rubrics_by_kind = rubrics[code]["modifier_rubrics"][term_modifier]
+            if kind not in rubrics_by_kind:
+                rubrics_by_kind[kind] = []
+            rubrics_by_kind[kind].append(text)
+
+        return rubrics
+
+    def lookup_more_info(self, codes):
+        return {"rubrics": self._lookup_rubrics(codes)}
 
     def codes_by_type(self, codes, hierarchy):
         """Return mapping from chapter name to codes in that chapter."""

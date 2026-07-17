@@ -1,10 +1,18 @@
 from collections import defaultdict
 from functools import lru_cache
 
+from django.db.models import Q
+
 from opencodelists.db_utils import query
 
 from ..base.coding_system_base import BuilderCompatibleCodingSystem
-from .models import Concept, ConceptEdition, ConceptKind, Edition
+from .models import (
+    Concept,
+    ConceptEdition,
+    ConceptKind,
+    Edition,
+    RubricKind,
+)
 
 
 class CodingSystem(BuilderCompatibleCodingSystem):
@@ -29,7 +37,11 @@ class CodingSystem(BuilderCompatibleCodingSystem):
         return set(
             ConceptEdition.objects.using(self.database_alias)
             .filter(kind=ConceptKind.CATEGORY)
-            .filter(term__contains=term)
+            .filter(
+                Q(term__contains=term)
+                | Q(rubrics__kind=RubricKind.INCLUSION, rubrics__text__contains=term)
+            )
+            .distinct()
             .values_list("concept__code", flat=True)
         )
 

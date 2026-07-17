@@ -107,20 +107,17 @@ class CodingSystem(BuilderCompatibleCodingSystem):
         return query(sql, codes, database=self.database_alias)
 
     def lookup_names(self, codes):
-        lookup = {}
         concepts = (
             ConceptEdition.objects.using(self.database_alias)
             .filter(concept_id__in=codes)
-            .order_by("concept_id", "-edition__year", "-edition__version")
+            .prioritise_by_edition()
             .values_list("concept_id", "term", "term_modifier")
         )
 
-        for concept_id, term, term_modifier in concepts:
-            lookup.setdefault(
-                concept_id, f"{term} : {term_modifier}" if term_modifier else term
-            )
-
-        return lookup
+        return {
+            concept_id: f"{term} : {term_modifier}" if term_modifier else term
+            for concept_id, term, term_modifier in concepts
+        }
 
     def code_to_term(self, codes):
         lookup = self.lookup_names(codes)

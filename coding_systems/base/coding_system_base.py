@@ -1,5 +1,7 @@
+import csv
 import operator
 from abc import ABC
+from io import StringIO
 
 from django.utils.functional import cached_property
 
@@ -133,6 +135,17 @@ class BaseCodingSystem(ABC):
                 msg = f"CSV file contains {num} unknown code{suffix} -- the first ({code}) is on line {line}"
             msg += f" ({self.short_name} release {self.release_name}, valid from {self.release.valid_from})"
             raise ValueError(msg)
+
+    def codes_from_csv_file(self, csv_file, csv_has_header):
+        data = csv_file.read().decode("utf-8-sig")
+        return self.codes_from_csv(data, csv_has_header)
+
+    def codes_from_csv(self, csv_data, csv_has_header):
+        csv_reader = csv.reader(StringIO(csv_data))
+        if csv_has_header:
+            next(csv_reader, None)
+
+        return [row[0] for row in csv_reader if row]
 
 
 class DummyCodingSystem(BaseCodingSystem):

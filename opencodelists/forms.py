@@ -1,6 +1,3 @@
-import csv
-from io import StringIO
-
 from django import forms
 from django.contrib.auth import password_validation
 from django.core.validators import RegexValidator
@@ -117,26 +114,20 @@ class CodelistCreateForm(forms.Form):
 
         csv_has_header = self.cleaned_data["csv_has_header"]
 
-        try:
-            data = f.read().decode("utf-8-sig")
-        except UnicodeDecodeError as exception:
-            raise forms.ValidationError(
-                "File could not be read. Please ensure the file contains CSV "
-                "data (not Excel, for example). It should be a text file encoded "
-                f"in the UTF-8 format. Error details: {exception}."
-            )
-
         # Eventually coding system version may be a selectable field, but for now it
         # just defaults to using the most recent one.
         coding_system = CODING_SYSTEMS[
             self.cleaned_data["coding_system_id"]
         ].get_by_release_or_most_recent()
 
-        csv_reader = csv.reader(StringIO(data))
-        if csv_has_header:
-            next(csv_reader, None)
-
-        codes = [row[0] for row in csv_reader if row]
+        try:
+            codes = coding_system.codes_from_csv_file(f, csv_has_header)
+        except UnicodeDecodeError as exception:
+            raise forms.ValidationError(
+                "File could not be read. Please ensure the file contains CSV "
+                "data (not Excel, for example). It should be a text file encoded "
+                f"in the UTF-8 format. Error details: {exception}."
+            )
 
         try:
             coding_system.validate_csv_data_codes(codes)

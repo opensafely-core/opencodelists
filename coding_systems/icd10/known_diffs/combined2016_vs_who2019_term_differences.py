@@ -631,3 +631,24 @@ def clinically_different_codes(codes: list[str]) -> dict[str, dict[str, str]]:
                 "who_2019": difference.who_2019,
             }
     return differences
+
+
+def codes_with_different_descriptions(
+    codes: list[str],
+) -> dict[str, dict[str, str | bool]]:
+    """
+    Given a list of codes, return a dict containing the codes
+    that have different descriptions between the 2016 and 2019
+    releases, along with their descriptions in both releases.
+    """
+    differences = {}
+    normalised_codes = set(code.upper() for code in codes)
+    for code in normalised_codes:
+        difference = COMBINED_2016_VS_2019_DIFFERENCES.get(code)
+        if difference:
+            differences[code] = {
+                "combined_2016": difference.combined_2016,
+                "who_2019": difference.who_2019,
+                "equivalent": difference.clinically_equivalent,
+            }
+    return differences

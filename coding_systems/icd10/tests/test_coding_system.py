@@ -211,12 +211,10 @@ def test_lookup_additional_rubrics_for_concept_code(icd10_data, coding_system):
         text="Golfer's elbow",
     )
 
-    assert coding_system.lookup_more_info(["M770"]) == {
-        "rubrics": {
-            "M770": {
-                "concept_rubrics": {RubricKind.INCLUSION: ["Golfer's elbow"]},
-                "modifier_rubrics": {},
-            }
+    assert coding_system.lookup_more_info(["M770"])["rubrics"] == {
+        "M770": {
+            "concept_rubrics": {RubricKind.INCLUSION: ["Golfer's elbow"]},
+            "modifier_rubrics": {},
         }
     }
 
@@ -255,7 +253,7 @@ def test_lookup_additional_rubrics_for_concept_prioritises_2016(
         text="Curler's elbow",
     )
 
-    assert coding_system.lookup_additional_rubrics(["M770"])["rubrics"] == {
+    assert coding_system.lookup_more_info(["M770"])["rubrics"] == {
         "M770": {
             "concept_rubrics": {
                 RubricKind.INCLUSION: ["Disc Golfer's elbow", "Golfer's elbow"],
@@ -266,7 +264,7 @@ def test_lookup_additional_rubrics_for_concept_prioritises_2016(
 
 
 def test_lookup_additional_rubrics_with_no_codes(coding_system):
-    assert coding_system.lookup_more_info([]) == {"rubrics": {}}
+    assert coding_system.lookup_more_info([])["rubrics"] == {}
 
 
 def test_lookup_additional_rubrics_for_modifier_code_includes_parent_concept_rubrics(
@@ -283,14 +281,12 @@ def test_lookup_additional_rubrics_for_modifier_code_includes_parent_concept_rub
         text="Includes multiple sites",
     )
 
-    assert coding_system.lookup_more_info(["M7700"]) == {
-        "rubrics": {
-            "M7700": {
-                "concept_rubrics": {RubricKind.INCLUSION: ["Golfer's elbow"]},
-                "modifier_rubrics": {
-                    "Multiple sites": {RubricKind.NOTE: ["Includes multiple sites"]}
-                },
-            }
+    assert coding_system.lookup_more_info(["M7700"])["rubrics"] == {
+        "M7700": {
+            "concept_rubrics": {RubricKind.INCLUSION: ["Golfer's elbow"]},
+            "modifier_rubrics": {
+                "Multiple sites": {RubricKind.NOTE: ["Includes multiple sites"]}
+            },
         }
     }
 
@@ -348,11 +344,26 @@ def test_lookup_additional_rubrics_for_modifier_code_from_preferred_edition(icd1
 
     coding_system = CodingSystem(database_alias="icd10_test_20200101")
 
-    assert coding_system.lookup_additional_rubrics(["W450"]) == {
-        "rubrics": {
-            "W450": {
-                "concept_rubrics": {RubricKind.INCLUSION: ["nail"]},
-                "modifier_rubrics": {},
-            }
+    assert coding_system.lookup_more_info(["W450"])["rubrics"] == {
+        "W450": {
+            "concept_rubrics": {RubricKind.INCLUSION: ["nail"]},
+            "modifier_rubrics": {},
         }
     }
+
+
+def test_term_differences(icd10_data, coding_system):
+
+    x590 = coding_system.lookup_more_info(["X590"])
+    xxxx = coding_system.lookup_more_info(["XXXX"])
+    blank = coding_system.lookup_more_info([])
+
+    assert "term_differences" in x590
+    assert "X590" in x590["term_differences"]
+    assert not x590["term_differences"]["X590"]["equivalent"]
+
+    assert "term_differences" in xxxx
+    assert xxxx["term_differences"] == {}
+
+    assert "term_differences" in blank
+    assert blank["term_differences"] == {}

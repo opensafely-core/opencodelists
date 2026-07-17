@@ -1,7 +1,7 @@
 from collections import defaultdict
 from functools import lru_cache
 
-from django.db.models import Q
+from django.db.models import Case, IntegerField, Q, Value, When
 
 from opencodelists.db_utils import query
 
@@ -110,7 +110,22 @@ class CodingSystem(BuilderCompatibleCodingSystem):
         concepts = (
             ConceptEdition.objects.using(self.database_alias)
             .filter(concept_id__in=codes)
-            .order_by("concept_id", "-edition__year", "-edition__version")
+            .annotate(
+                # The 2016 definition is the one used in the admissions data. As
+                # this is the most frequently used data source of ICD-10 codes we
+                # default to that, rather than the latest edition
+                preferred_edition=Case(
+                    When(edition_id="2016", then=Value(0)),
+                    default=Value(1),
+                    output_field=IntegerField(),
+                )
+            )
+            .order_by(
+                "concept_id",
+                "preferred_edition",
+                "-edition__year",
+                "-edition__version",
+            )
             .values_list("concept_id", "term", "term_modifier")
         )
 

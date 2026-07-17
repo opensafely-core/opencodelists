@@ -6,7 +6,11 @@ from django.db.models import Q
 from opencodelists.db_utils import query
 
 from ..base.coding_system_base import BuilderCompatibleCodingSystem
-from .known_diffs import clinically_different_codes, moved_codes
+from .known_diffs import (
+    clinically_different_codes,
+    codes_with_different_descriptions,
+    moved_codes,
+)
 from .models import (
     Concept,
     ConceptEdition,
@@ -224,8 +228,14 @@ class CodingSystem(BuilderCompatibleCodingSystem):
 
         return rubrics
 
+    def _lookup_term_differences(self, codes):
+        return codes_with_different_descriptions(codes)
+
     def lookup_more_info(self, codes):
-        return {"rubrics": self._lookup_rubrics(codes)}
+        return {
+            "rubrics": self._lookup_rubrics(codes),
+            "term_differences": self._lookup_term_differences(codes),
+        }
 
     def codes_by_type(self, codes, hierarchy):
         """Return mapping from chapter name to codes in that chapter."""

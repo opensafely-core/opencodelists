@@ -3,6 +3,7 @@ import pytest
 from coding_systems.icd10.claml_parser import ICD10Code, ModifierDigit
 from coding_systems.icd10.known_diffs import (
     clinically_different_codes,
+    codes_with_different_descriptions,
     expand_who_2016_place_of_occurrence,
     get_2016_2019_description_difference,
     is_2016_claml_only,
@@ -256,6 +257,24 @@ def test_moved_codes():
             "comment": "This is U076 in 2016, but U11/U119 in 2019.",
         },
     ]
+
+
+def test_codes_with_different_descriptions():
+    codes = ["P710", "P710", "P711", "ZZZZ", "X590"]
+    differences = codes_with_different_descriptions(codes)
+
+    assert differences == {
+        "P710": {
+            "combined_2016": "Cow's milk hypocalcaemia in newborn",
+            "who_2019": "Cow milk hypocalcaemia in newborn",
+            "equivalent": True,
+        },
+        "X590": {
+            "combined_2016": "Exposure to unspecified factor (Home)",
+            "who_2019": "Exposure to unspecified factor causing fracture",
+            "equivalent": False,
+        },
+    }
 
 
 def test_rubric_differences():

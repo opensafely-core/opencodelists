@@ -1,3 +1,4 @@
+import operator
 from abc import ABC
 
 from django.utils.functional import cached_property
@@ -107,6 +108,31 @@ class BaseCodingSystem(ABC):
 
     def code_to_term(self, codes):  # pragma: no cover
         raise NotImplementedError
+
+    def validate_csv_data_codes(self, codes):
+        # Fully implemented codings systems have a `lookup_names` method that is used to
+        # validate the codes in the CSV upload.  However, we also support uploads for some
+        # coding systems that we don't maintain data for (e.g. OPCS4, ReadV2).  Skip code
+        # validation for these systems, and just allow upload of the CSV data as it is.
+        if not self.has_database:
+            return
+        unknown_codes = set(codes) - set(self.lookup_names(codes))
+        unknown_codes_and_ixs = sorted(
+            [(codes.index(code), code) for code in unknown_codes],
+            key=operator.itemgetter(0),
+        )
+
+        if unknown_codes_and_ixs:
+            line = unknown_codes_and_ixs[0][0] + 1
+            code = unknown_codes_and_ixs[0][1]
+            if len(unknown_codes_and_ixs) == 1:
+                msg = f"CSV file contains 1 unknown code ({code}) on line {line}"
+            else:
+                num = len(unknown_codes_and_ixs)
+                suffix = "" if num == 1 else "s"
+                msg = f"CSV file contains {num} unknown code{suffix} -- the first ({code}) is on line {line}"
+            msg += f" ({self.short_name} release {self.release_name}, valid from {self.release.valid_from})"
+            raise ValueError(msg)
 
 
 class DummyCodingSystem(BaseCodingSystem):

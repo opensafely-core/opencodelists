@@ -20,6 +20,12 @@ interface CodeRubrics {
   modifier_rubrics?: Record<string, RubricValues>;
 }
 
+interface TermDifferences {
+  combined_2016: string;
+  who_2019: string;
+  equivalent?: boolean | null;
+}
+
 const rubricDisplayNames: Record<string, string> = {
   exclusion: "Excludes:",
   inclusion: "Includes:",
@@ -194,6 +200,92 @@ function RubricBlock({ rubrics, term }: { rubrics: CodeRubrics; term: Term }) {
   );
 }
 
+function TermDifferenceSection({
+  code,
+  termDifferences,
+}: {
+  code: Code;
+  termDifferences: TermDifferences;
+}) {
+  const descriptionMessage = termDifferences.equivalent
+    ? "We consider these terms clinically equivalent, so this code can be used irrespective of the ICD-10 edition used in the data."
+    : "We consider these terms different. Check which dataset you are querying before deciding whether to use this code.";
+  const variant = termDifferences.equivalent ? "success" : "danger";
+
+  return (
+    <section
+      className={`border border-${variant} rounded overflow-hidden mb-4`}
+    >
+      <div className={`bg-${variant} text-white px-4 py-3`}>
+        <div className="font-weight-bold">ICD-10 Edition Descriptions</div>
+        <small className="opacity-75">
+          The description of {code} differs between the{" "}
+          <a
+            href="https://classbrowser.nhs.uk/#/book/ICD-10-5TH-Edition"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-weight-bold builder__more-info-modal__link"
+          >
+            NHS 2016 ICD-10 edition
+          </a>{" "}
+          used in{" "}
+          <a
+            href="https://docs.opensafely.org/ehrql/reference/schemas/tpp/#apcs"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-weight-bold builder__more-info-modal__link"
+          >
+            APCS admissions data
+          </a>{" "}
+          and the{" "}
+          <a
+            href="https://icd.who.int/browse10/2019/en"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-weight-bold builder__more-info-modal__link"
+          >
+            WHO 2019 edition
+          </a>{" "}
+          used in{" "}
+          <a
+            href="https://docs.opensafely.org/ehrql/reference/schemas/tpp/#ons_deaths"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-weight-bold builder__more-info-modal__link"
+          >
+            ONS death data
+          </a>
+          . {descriptionMessage}
+        </small>
+      </div>
+
+      <div className="bg-white p-4">
+        <table className="table table-sm mb-0">
+          <thead>
+            <tr>
+              <th>Edition</th>
+              <th>Used in</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className="font-weight-bold">NHS 2016</td>
+              <td className="text-nowrap">APCS (hospital admissions)</td>
+              <td>{termDifferences.combined_2016}</td>
+            </tr>
+            <tr>
+              <td className="font-weight-bold text-nowrap">WHO 2019</td>
+              <td>ONS deaths</td>
+              <td>{termDifferences.who_2019}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}
+
 function createModalText({
   allCodes,
   code,
@@ -271,6 +363,8 @@ function MoreInfoModal({
     null,
   );
   const [rubrics, setRubrics] = useState<CodeRubrics | null>(null);
+  const [termDifferences, setTermDifferences] =
+    useState<TermDifferences | null>(null);
   const [synonyms, setSynonyms] = useState<string[] | null>(null);
   const [modalText, setModalText] = useState("");
   const [loading, setLoading] = useState(false);
@@ -307,11 +401,13 @@ function MoreInfoModal({
           );
           setReferences(data.references?.[code] || []);
           setRubrics(data.rubrics?.[code] || emptyRubrics());
+          setTermDifferences(data.term_differences?.[code] || null);
         })
         .catch(() => {
           setSynonyms([]);
           setReferences([]);
           setRubrics(emptyRubrics());
+          setTermDifferences(null);
         })
         .finally(() => setLoading(false));
     }
@@ -350,7 +446,13 @@ function MoreInfoModal({
       >
         <Modal.Header closeButton>
           <Modal.Title>
-            {term} ({code})
+            {codingSystemId === "icd10" && termDifferences ? (
+              code
+            ) : (
+              <>
+                {term} ({code})
+              </>
+            )}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -370,6 +472,12 @@ function MoreInfoModal({
                 </ul>
               )}
             </>
+          )}
+          {codingSystemId === "icd10" && termDifferences && (
+            <TermDifferenceSection
+              code={code}
+              termDifferences={termDifferences}
+            />
           )}
           {hasRubrics(rubrics) && (
             <section className="border border-info rounded overflow-hidden mb-4">

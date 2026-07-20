@@ -1,5 +1,6 @@
 import pytest
 from django.contrib.admin import AdminSite
+from django.test import Client
 from django.urls import reverse
 from rest_framework.authtoken.models import TokenProxy
 
@@ -8,7 +9,9 @@ from ..models import Membership, Organisation, User
 
 
 @pytest.fixture
-def token_admin_client(client, organisation_admin):
+def token_admin_client(client: Client, organisation_admin: User) -> Client:
+    """Return a test client authenticated with Django Admin access"""
+
     organisation_admin.is_admin = True
     organisation_admin.save(update_fields=["is_admin"])
     client.force_login(organisation_admin)

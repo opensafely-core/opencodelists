@@ -845,13 +845,13 @@ def is_2016_description_difference(
     )
 
 
-def should_include_2016_claml_only(code: str):
+def should_include_2016_claml_only(code: str) -> bool:
     """For a ClAML-only code, check if it should be included in the release."""
     known = CLAML_VS_SCRAPED_DIFFERENCES.claml_only.get(code)
     return known is not None and known.include_in_release
 
 
-def should_include_2016_scraped_only(code: str):
+def should_include_2016_scraped_only(code: str) -> bool:
     """For a scraped-only code, check if it should be included in the release."""
     known = CLAML_VS_SCRAPED_DIFFERENCES.scraped_only.get(code)
     return known is not None and known.include_in_release
@@ -964,7 +964,7 @@ MOVED_CODE_SETS = (
 )
 
 
-def moved_codes(codes):
+def moved_codes(codes: list[str]) -> list[dict]:
     """
     Given a list of codes, return a list of moved code sets that contain any of the
     codes. Each moved code set contains the title, the codes in both releases, and a

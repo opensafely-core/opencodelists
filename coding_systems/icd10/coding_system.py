@@ -1,10 +1,18 @@
 from collections import defaultdict
 from functools import lru_cache
 
+from django.db.models import Case, IntegerField, Q, Value, When
+
 from opencodelists.db_utils import query
 
 from ..base.coding_system_base import BuilderCompatibleCodingSystem
-from .models import Concept, ConceptEdition, ConceptKind, Edition
+from .models import (
+    Concept,
+    ConceptEdition,
+    ConceptKind,
+    Edition,
+    RubricKind,
+)
 
 
 class CodingSystem(BuilderCompatibleCodingSystem):
@@ -29,7 +37,11 @@ class CodingSystem(BuilderCompatibleCodingSystem):
         return set(
             ConceptEdition.objects.using(self.database_alias)
             .filter(kind=ConceptKind.CATEGORY)
-            .filter(term__contains=term)
+            .filter(
+                Q(term__contains=term)
+                | Q(rubrics__kind=RubricKind.INCLUSION, rubrics__text__contains=term)
+            )
+            .distinct()
             .values_list("concept__code", flat=True)
         )
 
@@ -98,7 +110,22 @@ class CodingSystem(BuilderCompatibleCodingSystem):
         concepts = (
             ConceptEdition.objects.using(self.database_alias)
             .filter(concept_id__in=codes)
-            .order_by("concept_id", "-edition__year", "-edition__version")
+            .annotate(
+                # The 2016 definition is the one used in the admissions data. As
+                # this is the most frequently used data source of ICD-10 codes we
+                # default to that, rather than the latest edition
+                preferred_edition=Case(
+                    When(edition_id="2016", then=Value(0)),
+                    default=Value(1),
+                    output_field=IntegerField(),
+                )
+            )
+            .order_by(
+                "concept_id",
+                "preferred_edition",
+                "-edition__year",
+                "-edition__version",
+            )
             .values_list("concept_id", "term", "term_modifier")
         )
 

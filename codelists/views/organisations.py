@@ -1,3 +1,5 @@
+from urllib.parse import urlencode
+
 from django.core.paginator import Paginator
 from django.db.models import Exists, OuterRef, Prefetch
 from django.db.models.query import QuerySet
@@ -38,8 +40,11 @@ def organisation_published(
         [handle.codelist for handle in published_handles], sort, direction
     )
 
+    page_obj = Paginator(codelists, PAGE_SIZE).get_page(request.GET.get("page"))
+
     ctx = {
-        "page_obj": Paginator(codelists, PAGE_SIZE).get_page(request.GET.get("page")),
+        "page_obj": page_obj,
+        "pagination": _pagination_context(page_obj, q, (sort, direction)),
         "organisation": organisation,
         "q": q,
         "sort": sort,
@@ -55,8 +60,11 @@ def organisation_review(request: HttpRequest, organisation_slug: str) -> HttpRes
         _under_review_versions(handles), sort, direction
     )
 
+    page_obj = Paginator(versions, PAGE_SIZE).get_page(request.GET.get("page"))
+
     ctx = {
-        "page_obj": Paginator(versions, PAGE_SIZE).get_page(request.GET.get("page")),
+        "page_obj": page_obj,
+        "pagination": _pagination_context(page_obj, q, (sort, direction)),
         "organisation": organisation,
         "q": q,
         "sort": sort,
@@ -162,3 +170,34 @@ def _sort_under_review_versions(versions, sort: str, direction: str):
         key=sort_key_funcs[sort],
         reverse=direction == SORT_DIRECTION_DESC,
     )
+
+
+def _pagination_context(page_obj, q: str | None, sort_state: tuple[str, str]):
+    paginator = page_obj.paginator
+    sort, direction = sort_state
+
+    def url_for(page_number: int) -> str:
+        params = {
+            "page": page_number,
+            "q": q or "",
+            "sort": sort,
+            "direction": direction,
+        }
+        return f"?{urlencode(params)}"
+
+    return {
+        "previous_url": (
+            url_for(page_obj.previous_page_number())
+            if page_obj.has_previous()
+            else None
+        ),
+        "next_url": url_for(page_obj.next_page_number())
+        if page_obj.has_next()
+        else None,
+        "first_url": url_for(1),
+        "last_url": url_for(paginator.num_pages),
+        "page_links": [
+            {"number": page_number, "url": url_for(page_number)}
+            for page_number in paginator.page_range
+        ],
+    }

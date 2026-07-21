@@ -29,6 +29,26 @@
   white-space: nowrap;
 }
 
+.builder__warning-indicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+
+  width: 1rem;
+  height: 1rem;
+  margin-left: 0.35rem;
+
+  border-radius: 999px;
+  background: #dc3545;
+  color: #fff;
+
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: 0 2px 6px rgba(220, 53, 69, 0.2);
+}
+
 .builder__row:not(:hover) .builder__more-info-btn {
   background: transparent;
   border: none;

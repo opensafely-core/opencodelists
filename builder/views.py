@@ -15,6 +15,7 @@ from codelists.actions import update_codelist
 from codelists.forms import CodelistUpdateForm
 from codelists.models import Search
 from codelists.search import do_search
+from coding_systems.icd10.known_diffs import clinically_different_codes, moved_codes
 from opencodelists.templatetags.markdown_filter import render_markdown
 
 from . import actions
@@ -281,6 +282,12 @@ def _draft(request, draft, search_id):
         "versions": versions,
         "metadata": metadata,
         "is_empty_codelist": is_empty_codelist,
+        "icd10_term_differences": clinically_different_codes(codeset.all_codes())
+        if draft.coding_system_id == "icd10"
+        else [],
+        "icd10_moved_codes": moved_codes(codeset.all_codes())
+        if draft.coding_system_id == "icd10"
+        else [],
     }
 
     return render(request, "builder/draft.html", ctx)

@@ -5,7 +5,9 @@ import { Tab, Tabs } from "react-bootstrap";
 import type { SelectCallback } from "react-bootstrap/esm/helpers";
 import type Hierarchy from "../_hierarchy";
 import { getCookie } from "../_utils";
+import { icd10WarningIndicators } from "../icd10-warning-indicators";
 import type { Code, METADATA, PageData, Status } from "../types";
+import CodelistWarnings from "./Codelist/CodelistWarnings";
 import EmptyState from "./EmptyState";
 import CodelistTab from "./Layout/CodelistTab";
 import Header from "./Layout/Header";
@@ -185,6 +187,8 @@ export default class CodelistBuilder extends React.Component<
       codeToTerm,
       draftURL,
       hierarchy,
+      icd10TermDifferences = {},
+      icd10MovedCodes = [],
       isEditable,
       isEmptyCodelist,
       metadata,
@@ -193,7 +197,16 @@ export default class CodelistBuilder extends React.Component<
       treeTables,
       visiblePaths,
     } = this.props;
-
+    const includedCodes = new Set(
+      Object.entries(this.state.codeToStatus)
+        .filter(([, status]) => status === "+" || status === "(+)")
+        .map(([code]) => code.toUpperCase()),
+    );
+    const warningIndicators = icd10WarningIndicators({
+      includedCodes,
+      termDifferences: icd10TermDifferences,
+      movedCodes: icd10MovedCodes,
+    });
     return (
       <QueryClientProvider client={queryClient}>
         <Header
@@ -217,6 +230,12 @@ export default class CodelistBuilder extends React.Component<
             </div>
           ) : (
             <div className="col-md-9">
+              <CodelistWarnings
+                icd10TermDifferences={icd10TermDifferences}
+                icd10MovedCodes={icd10MovedCodes}
+                includedCodes={includedCodes}
+              />
+
               <Tabs
                 activeKey={this.state.activeTab}
                 onSelect={this.handleTabSelect}
@@ -228,6 +247,7 @@ export default class CodelistBuilder extends React.Component<
                     codeToStatus={this.state.codeToStatus}
                     codeToTerm={codeToTerm}
                     hierarchy={hierarchy}
+                    icd10WarningIndicators={warningIndicators}
                     isEditable={isEditable}
                     resultsHeading={resultsHeading}
                     treeTables={treeTables}

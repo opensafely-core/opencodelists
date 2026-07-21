@@ -3,6 +3,13 @@ import re
 from bs4 import BeautifulSoup
 from django.urls import reverse
 
+from codelists.actions import create_codelist_with_codes
+from codelists.models import Status
+from coding_systems.icd10.known_diffs import (
+    COMBINED_2016_VS_2019_DIFFERENCES,
+    ReleaseTermDifference,
+)
+
 from .helpers import force_login
 
 
@@ -130,6 +137,100 @@ def test_medication_banner_for_owner_of_codelist(
         b"there is already a draft version for this codelist which could be published"
         not in rsp.content
     )
+
+
+def test_icd10_known_differences_data(client, icd10_data, monkeypatch, organisation):
+    monkeypatch.setitem(
+        COMBINED_2016_VS_2019_DIFFERENCES,
+        "M770",
+        ReleaseTermDifference(
+            combined_2016="Old term",
+            who_2019="New term",
+            clinically_equivalent=False,
+        ),
+    )
+    monkeypatch.setitem(
+        COMBINED_2016_VS_2019_DIFFERENCES,
+        "M771",
+        ReleaseTermDifference(
+            combined_2016="Other old term",
+            who_2019="Other new term",
+            clinically_equivalent=False,
+        ),
+    )
+    codelist = create_codelist_with_codes(
+        owner=organisation,
+        name="ICD10 known differences",
+        coding_system_id="icd10",
+        codes=["M770", "M771"],
+        coding_system_database_alias="icd10_test_20200101",
+        status=Status.PUBLISHED,
+    )
+
+    rsp = client.get(codelist.latest_published_version().get_absolute_url())
+
+    assert rsp.status_code == 200
+    assert rsp.context["icd10_term_differences"] == {
+        "M770": {
+            "combined_2016": "Old term",
+            "who_2019": "New term",
+        },
+        "M771": {
+            "combined_2016": "Other old term",
+            "who_2019": "Other new term",
+        },
+    }
+
+
+def test_icd10_known_differences_banner_is_icd10_only(
+    client, latest_published_version, monkeypatch
+):
+    monkeypatch.setitem(
+        COMBINED_2016_VS_2019_DIFFERENCES,
+        "202855006",
+        ReleaseTermDifference(
+            combined_2016="Old term",
+            who_2019="New term",
+            clinically_equivalent=False,
+        ),
+    )
+
+    rsp = client.get(latest_published_version.get_absolute_url())
+
+    assert rsp.status_code == 200
+    assert rsp.context["icd10_term_differences"] == []
+
+
+def test_icd10_moved_code_sets_data(client, icd10_data, monkeypatch, organisation):
+    monkeypatch.setattr(
+        "coding_systems.icd10.known_diffs.MOVED_CODE_SETS",
+        (
+            {
+                "title": "Test moved concept",
+                "nhs2016": ["M770"],
+                "who2019": ["M771"],
+                "comment": "",
+            },
+        ),
+    )
+    codelist = create_codelist_with_codes(
+        owner=organisation,
+        name="ICD10 moved codes",
+        coding_system_id="icd10",
+        codes=["M770"],
+        coding_system_database_alias="icd10_test_20200101",
+        status=Status.PUBLISHED,
+    )
+
+    rsp = client.get(codelist.latest_published_version().get_absolute_url())
+
+    assert rsp.status_code == 200
+    assert {
+        "comment": "",
+        "title": "Test moved concept",
+        "nhs2016": ["M770"],
+        "who2019": ["M771"],
+    } in rsp.context["icd10_moved_codes"]
 
 
 def test_organisation_hyperlink_in_version_detail(client, organisation_codelist):

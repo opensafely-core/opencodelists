@@ -1,4 +1,5 @@
 from django.contrib import admin
+from rest_framework.authtoken.admin import TokenAdmin
 
 from .models import Membership, Organisation, User
 
@@ -32,3 +33,8 @@ class OrganisationAdmin(admin.ModelAdmin):
     @admin.display(description="No. of Users")
     def member_count(self, obj):
         return obj.users.count()
+
+
+TokenAdmin.list_display = ["user", "created"]
+TokenAdmin.fields = ["user", "created"]
+TokenAdmin.readonly_fields = ["created"]

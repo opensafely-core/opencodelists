@@ -983,26 +983,26 @@ def moved_codes(codes: list[str]) -> list[dict]:
 class RubricChange:
     """
     Represents a change to the rubrics of a code between releases. This can
-    include additions, removals, and replacements of rubric text. The `who`
-    field represents the original rubrics from the WHO release, while the
+    include additions, removals, and replacements of rubric text. The `who_2016`
+    field represents the original rubrics from the 2016 WHO release, while the
     `remove`, `add`, and `replace` fields represent the changes to be applied.
     """
 
-    who: dict[str, list[str]] = field(default_factory=dict)
+    who_2016: dict[str, list[str]] = field(default_factory=dict)
     remove: dict[str, list[str]] = field(default_factory=dict)
     add: dict[str, list[str]] = field(default_factory=dict)
     replace: dict[str, dict[str, str]] = field(default_factory=dict)
     comment: str = ""
 
     @property
-    def resolved_use(self) -> dict[str, list[str]]:
+    def resolved_rubrics(self) -> dict[str, list[str]]:
         """
         Resolve the rubric changes by applying removals, additions, and replacements
         to the original WHO rubrics. Returns a dictionary of rubric types to their
         final list of values after applying the changes.
         """
         rubrics = {
-            rubric_type: list(values) for rubric_type, values in self.who.items()
+            rubric_type: list(values) for rubric_type, values in self.who_2016.items()
         }
 
         for rubric_type, replacements in self.replace.items():
@@ -1028,7 +1028,7 @@ class RubricChange:
 KNOWN_2016_RUBRIC_CHANGES = {
     # Things where the NHS has corrected something - and it appears in the pdf of ICD-10_Classification_Content_Changes_2026_.pdf
     "B81": RubricChange(
-        who={
+        who_2016={
             "exclusion": [
                 "Angiostrongyliasis due to: Angiostrongylus costaricensis (B83.2)",
                 "Angiostrongyliasis due to: Parastrongylus costaricensis (B83.2)",
@@ -1038,7 +1038,7 @@ KNOWN_2016_RUBRIC_CHANGES = {
         comment="Typo in WHO. B81 is about _costaricensis_, so _cantonensis_ not _costaricensis_ should be excluded. Correction mentioned on p10 of ICD-10_Classification_Content_Changes_2026_.pdf",
     ),
     "X54": RubricChange(
-        who={
+        who_2016={
             "inclusion": [
                 "lack of water as the cause of: dehydration",
                 "lack of water as the cause of: inanition",
@@ -1053,7 +1053,7 @@ KNOWN_2016_RUBRIC_CHANGES = {
         comment="Typo in WHO. Link should be to R63.6 and not R63.3. Correction mentioned on p12 of ICD-10_Classification_Content_Changes_2026_.pdf",
     ),
     "K296": RubricChange(
-        who={
+        who_2016={
             "inclusion": [
                 "Giant hypertrophic gastritis",
                 "Granulomatous gastritis",
@@ -1073,7 +1073,7 @@ KNOWN_2016_RUBRIC_CHANGES = {
         comment="NHS removes the two exclusion rubrics associated with this code. Correction mentioned on p12 of ICD-10_Classification_Content_Changes_2026_.pdf",
     ),
     "N281": RubricChange(
-        who={
+        who_2016={
             "inclusion": ["Cyst (acquired)(multiple)(solitary) of kidney"],
             "exclusion": ["cystic kidney disease (congenital) (Q61.-)"],
         },
@@ -1082,7 +1082,7 @@ KNOWN_2016_RUBRIC_CHANGES = {
     ),
     # Things where the NHS has corrected a typo
     "F432": RubricChange(
-        who={
+        who_2016={
             "definition": [
                 "States of subjective distress and emotional disturbance, usually interfering with social functioning and performance, arising in the period of adaptation to a significant life change or a stressful life event. The stressor may have affected the integrity of an individual's social network (bereavement, separation experiences) or the wider system of social supports and values (migration, refugee status), or represented a major developmental transition or crisis (going to school, becoming a parent, failure to attain a cherished personal goal, retirement). Individual predisposition or vulnerability plays an important role in the risk of occurrence and the shaping of the manifestations of adjustment disorders, but it is nevertheless assumed that the condition would not have arisen without the stressor. The manifestations vary and include depressed mood, anxiety or worry (or mixture of these), a feeling of inability to cope, plan ahead, or continue in the present situation, as well as some degree of disability in 9the performance of daily routine. Conduct disorders may be an associated feature, particularly in adolescents. The predominant feature may be a brief or prolonged depressive reaction, or a disturbance of other emotions and conduct."
             ],
@@ -1093,7 +1093,7 @@ KNOWN_2016_RUBRIC_CHANGES = {
         comment="'9the' in WHO becomes 'the' in NHS",
     ),
     "S00": RubricChange(
-        who={
+        who_2016={
             "exclusion": [
                 "cerebral contusion (diffuse) (S06.2)",
                 "focal cerebral contusion (diffuse) (S06.3)",
@@ -1103,17 +1103,17 @@ KNOWN_2016_RUBRIC_CHANGES = {
         comment="The NHS classification browser lists '• focal (S06.3)' underneath cerebral contusion (diffuse). Therefore this is a formatting difference. We use the WHO rubric as-is.",
     ),
     "M544": RubricChange(
-        who={"exclusion": ["that due to intervertebral disc disorder (M51.1)"]},
+        who_2016={"exclusion": ["that due to intervertebral disc disorder (M51.1)"]},
         replace={"exclusion": {"that due to": "due to"}},
         comment="NHS removes the non-idiomatic 'that'",
     ),
     "M248": RubricChange(
-        who={"exclusion": ["that involving iliotibial band syndrome (M76.3)"]},
+        who_2016={"exclusion": ["that involving iliotibial band syndrome (M76.3)"]},
         replace={"exclusion": {"that involving": "involving"}},
         comment="NHS removes the non-idiomatic 'that'",
     ),
     "Z21": RubricChange(
-        who={
+        who_2016={
             "inclusion": ["HIV positive NOS"],
             "exclusion": [
                 "contact with or exposure to human immunodeficiency virus [HIV] (Z20.6)",
@@ -1126,7 +1126,7 @@ KNOWN_2016_RUBRIC_CHANGES = {
         comment="'lhuman' in WHO becomes 'human' in NHS",
     ),
     "O432": RubricChange(
-        who={
+        who_2016={
             "coding-hint": [
                 "Use additional code, if desired, to identify any: postpartum haemmorrhage, third stage (O72.0)",
                 "Use additional code, if desired, to identify any: retained placenta without hemorrhage (O73.0)",
@@ -1141,7 +1141,7 @@ KNOWN_2016_RUBRIC_CHANGES = {
         comment="'haemmorrhage' in WHO becomes 'haemorrhage' in NHS - but NB hemorrhage stays and is not replaced with haemorrhage",
     ),
     "V98": RubricChange(
-        who={
+        who_2016={
             "inclusion": [
                 "accident to, on or involving: cable-car, not on rails",
                 "accident to, on or involving: ice-yacht",
@@ -1156,7 +1156,7 @@ KNOWN_2016_RUBRIC_CHANGES = {
         comment="WHO browser omits the final 3 'cable-car, not on rails' - but the claml includes it, so can use the WHO value as-is",
     ),
     "O96": RubricChange(
-        who={
+        who_2016={
             "note": [
                 "This category is to be used to indicate death from any obstetric cause (conditions in categories O00-O75O85-O92, andO98-O99 occurring more than 42 days but less than one year after delivery."
             ],
@@ -1176,7 +1176,7 @@ KNOWN_2016_RUBRIC_CHANGES = {
         comment="NHS better formatting of the note - adds commas, spaces and the missing closing parenthesis",
     ),
     "X36": RubricChange(
-        who={
+        who_2016={
             "inclusion": ["mudslide of cataclysmic nature"],
             "exclusion": [
                 "earthquake (X34.-)",
@@ -1187,7 +1187,7 @@ KNOWN_2016_RUBRIC_CHANGES = {
         comment="X34 has no children in the NHS browser so code link is X34 rather than X34.-",
     ),
     "X39": RubricChange(
-        who={
+        who_2016={
             "inclusion": ["natural radiation NOS", "tidal wave NOS"],
             "exclusion": ["exposure NOS (X59.9)", "tsunami (X34.1)"],
         },
@@ -1195,14 +1195,14 @@ KNOWN_2016_RUBRIC_CHANGES = {
         comment="X34 and X59 have no children in the NHS browser so code link is X34 and X59 rather than X34.1 and X59.9",
     ),
     "W26": RubricChange(
-        who={},
+        who_2016={},
         add={
             "exclusion": ["sharp object(s) embedded in skin ( W45 )"],
         },
         comment="NHS adds an exclusion that presumably WHO removed when they added child codes for this",
     ),
     "W45": RubricChange(
-        who={
+        who_2016={
             "inclusion": ["edge of stiff paper", "nail", "splinter", "tin-can lid"],
             "exclusion": [
                 "contact with: hand tools (nonpowered)(powered) (W27-W29)",
@@ -1219,7 +1219,7 @@ KNOWN_2016_RUBRIC_CHANGES = {
         comment="WHO has the extra examples of stiff paper and tin-can lid. But this is likely a mistake because those two items fall as examples under W26 which seems a better place for them",
     ),
     "R296": RubricChange(
-        who={
+        who_2016={
             "inclusion": [
                 "Tendency to fall because of old age or other unclear health problems"
             ],
@@ -1237,7 +1237,7 @@ KNOWN_2016_RUBRIC_CHANGES = {
     ),
     # Formatting differences
     "K750": RubricChange(
-        who={
+        who_2016={
             "inclusion": [
                 "Hepatic abscess: NOS",
                 "Hepatic abscess: cholangitic",
@@ -1254,7 +1254,7 @@ KNOWN_2016_RUBRIC_CHANGES = {
         comment="NHS browser formats '(A06.4), (K77.0)' as '( A06.4 , , K77.* )'. WHO looks better so we'll use that as-is",
     ),
     "I05": RubricChange(
-        who={
+        who_2016={
             "inclusion": [
                 "conditions classifiable to (I05.0) and (I05.2-I05.9), whether specified as rheumatic or not"
             ],
@@ -1264,7 +1264,7 @@ KNOWN_2016_RUBRIC_CHANGES = {
     ),
     # Morphology/behaviour code differences
     "D18": RubricChange(
-        who={
+        who_2016={
             "inclusion": ["morphology codes M912-M917 with behaviour code /0"],
             "exclusion": ["blue or pigmented naevus (D22.-)"],
         },
@@ -1274,21 +1274,21 @@ KNOWN_2016_RUBRIC_CHANGES = {
         comment="Morphology behaviour codes are not core ICD-10 and are not used in the NHS browser.",
     ),
     "D17": RubricChange(
-        who={"inclusion": ["morphology codes M885-M888 with behaviour code /0"]},
+        who_2016={"inclusion": ["morphology codes M885-M888 with behaviour code /0"]},
         remove={
             "inclusion": ["morphology codes M885-M888 with behaviour code /0"],
         },
         comment="Morphology behaviour codes are not core ICD-10 and are not used in the NHS browser.",
     ),
     "D19": RubricChange(
-        who={"inclusion": ["morphology code M905 with behaviour code /0"]},
+        who_2016={"inclusion": ["morphology code M905 with behaviour code /0"]},
         remove={
             "inclusion": ["morphology code M905 with behaviour code /0"],
         },
         comment="Morphology behaviour codes are not core ICD-10 and are not used in the NHS browser.",
     ),
     "D22": RubricChange(
-        who={
+        who_2016={
             "inclusion": [
                 "morphology codes M872-M879 with behaviour code /0",
                 "naevus: NOS",
@@ -1303,7 +1303,7 @@ KNOWN_2016_RUBRIC_CHANGES = {
         comment="Morphology behaviour codes are not core ICD-10 and are not used in the NHS browser.",
     ),
     "D25": RubricChange(
-        who={
+        who_2016={
             "inclusion": [
                 "benign neoplasms of uterus with morphology code M889 and behaviour code /0",
                 "fibromyoma of uterus",
@@ -1317,21 +1317,21 @@ KNOWN_2016_RUBRIC_CHANGES = {
         comment="Morphology behaviour codes are not core ICD-10 and are not used in the NHS browser.",
     ),
     "C45": RubricChange(
-        who={"inclusion": ["morphology code M905 with behaviour code /3"]},
+        who_2016={"inclusion": ["morphology code M905 with behaviour code /3"]},
         remove={
             "inclusion": ["morphology code M905 with behaviour code /3"],
         },
         comment="Morphology behaviour codes are not core ICD-10 and are not used in the NHS browser.",
     ),
     "C46": RubricChange(
-        who={"inclusion": ["morphology code M9140 with behaviour code /3"]},
+        who_2016={"inclusion": ["morphology code M9140 with behaviour code /3"]},
         remove={
             "inclusion": ["morphology code M9140 with behaviour code /3"],
         },
         comment="Morphology behaviour codes are not core ICD-10 and are not used in the NHS browser.",
     ),
     "C43": RubricChange(
-        who={
+        who_2016={
             "inclusion": ["morphology codes M872-M879 with behaviour code /3"],
             "exclusion": [
                 "malignant melanoma of skin of genital organs (C51-C52) (C60.-) (C63.-)"
@@ -1343,14 +1343,14 @@ KNOWN_2016_RUBRIC_CHANGES = {
         comment="Morphology behaviour codes are not core ICD-10 and are not used in the NHS browser.",
     ),
     "D03": RubricChange(
-        who={"inclusion": ["morphology codes M872-M879 with behaviour code /2"]},
+        who_2016={"inclusion": ["morphology codes M872-M879 with behaviour code /2"]},
         remove={
             "inclusion": ["morphology codes M872-M879 with behaviour code /2"],
         },
         comment="Morphology behaviour codes are not core ICD-10 and are not used in the NHS browser.",
     ),
     "H200": RubricChange(
-        who={
+        who_2016={
             "inclusion": [
                 "Anterior uveitis acute, recurrent or subacute",
                 "Cyclitis acute, recurrent or subacute",
@@ -1363,7 +1363,7 @@ KNOWN_2016_RUBRIC_CHANGES = {
         comment="NHS adds 'of cornea' to the end of the line - seems a minimal difference",
     ),
     "J44": RubricChange(
-        who={
+        who_2016={
             "inclusion": [
                 "chronic: bronchitis: asthmatic (obstructive)",
                 "chronic: bronchitis: emphysematous",
@@ -1388,7 +1388,7 @@ KNOWN_2016_RUBRIC_CHANGES = {
         comment="WHO browser omits some exclusions, but they're in the claml which matches the NHS browser, so we'll use the WHO value as-is",
     ),
     "O97": RubricChange(
-        who={
+        who_2016={
             "note": [
                 "This category is to be used to indicate death from any obstetric cause (conditions in categories O00-O75O85-O92, andO98-O99 occurring more than 42 days but less than one year after delivery. The ‘sequelae’ include conditions specified as such or as late effects, or those present one year or more after delivery."
             ],
@@ -1410,7 +1410,7 @@ KNOWN_2016_RUBRIC_CHANGES = {
     ),
     # U codes
     "U072": RubricChange(
-        who={},
+        who_2016={},
         add={
             "coding-hint": [
                 "Use this code when COVID-19 is diagnosed clinically or epidemiologically but laboratory testing is inconclusive or not available. Use additional code, if desired, to identify pneumonia or other manifestations"
@@ -1425,7 +1425,7 @@ KNOWN_2016_RUBRIC_CHANGES = {
         comment="U072 has no rubrics in WHO so we use the NHS rubrics as-is",
     ),
     "U073": RubricChange(
-        who={},
+        who_2016={},
         add={
             "note": [
                 "This optional code is used to record an earlier episode of COVID-19, confirmed or probable, that influences the person’s health status, and the person no longer suffers from COVID-19. This code should not be used for primary mortality tabulation"
@@ -1434,7 +1434,7 @@ KNOWN_2016_RUBRIC_CHANGES = {
         comment="U073 has no rubrics in WHO so we use the NHS rubrics as-is",
     ),
     "U075": RubricChange(
-        who={},
+        who_2016={},
         add={
             "inclusion": [
                 "Cytokine storm: Temporally associated with COVID-19",
@@ -1447,7 +1447,7 @@ KNOWN_2016_RUBRIC_CHANGES = {
         comment="U075 has no rubrics in WHO so we use the NHS rubrics as-is",
     ),
     "U076": RubricChange(
-        who={},
+        who_2016={},
         add={
             "note": [
                 "This code should not be used for international comparison or for primary mortality coding. This optional code is intended to be used when a person who may or may not be sick encounters health services for the specific purpose of receiving a COVID-19 vaccine."
@@ -1458,7 +1458,7 @@ KNOWN_2016_RUBRIC_CHANGES = {
         comment="U076 has no rubrics in WHO so we use the NHS rubrics as-is",
     ),
     "U077": RubricChange(
-        who={},
+        who_2016={},
         add={
             "note": [
                 "This code is to be used as an external cause code (i.e. as a subcategory under Y59 Other and unspecified vaccines and biological substances). In addition to this, a code from another chapter of the classification should be used indicating the nature of the adverse effect"

@@ -258,17 +258,17 @@ def check_diff_2016_claml_with_scraped(
 def _check_rubrics(code: str, record: ICD10Code) -> None:
     if code in KNOWN_2016_RUBRIC_CHANGES:
         change = KNOWN_2016_RUBRIC_CHANGES[code]
-        if record.concept_rubrics != change.who:
+        if record.concept_rubrics != change.who_2016:
             raise ValueError(
                 f"Unexpected rubric for {code}: {record.concept_rubrics!r} "
-                f"(expected {change.who!r})"
+                f"(expected {change.who_2016!r})"
             )
 
 
 def _change_rubrics(code: str, record: ICD10Code) -> ICD10Code:
     if code in KNOWN_2016_RUBRIC_CHANGES:
         change = KNOWN_2016_RUBRIC_CHANGES[code]
-        record.concept_rubrics = change.resolved_use
+        record.concept_rubrics = change.resolved_rubrics
     return record
 
 

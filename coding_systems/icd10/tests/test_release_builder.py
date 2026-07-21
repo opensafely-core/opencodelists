@@ -222,7 +222,7 @@ def test_combine_2016_claml_and_scraped_records_applies_derived_rubric_change(
         "coding_systems.icd10.release_builder.KNOWN_2016_RUBRIC_CHANGES",
         {
             "A00": RubricChange(
-                who={
+                who_2016={
                     "inclusion": ["Keep"],
                     "exclusion": ["Remove"],
                 },
@@ -257,7 +257,7 @@ def test_combine_2016_claml_and_scraped_records_rejects_unexpected_rubric(
     )
     monkeypatch.setattr(
         "coding_systems.icd10.release_builder.KNOWN_2016_RUBRIC_CHANGES",
-        {"A00": RubricChange(who={"inclusion": ["Expected"]})},
+        {"A00": RubricChange(who_2016={"inclusion": ["Expected"]})},
     )
 
     with pytest.raises(ValueError, match="Unexpected rubric for A00"):

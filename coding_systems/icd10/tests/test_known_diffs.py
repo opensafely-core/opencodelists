@@ -24,30 +24,30 @@ def test_term_difference_rejects_unknown_source_choice():
 
 def test_rubric_change_defaults_to_who_rubrics():
     change = RubricChange(
-        who={"inclusion": ["A"]},
+        who_2016={"inclusion": ["A"]},
     )
 
-    assert change.resolved_use == {"inclusion": ["A"]}
+    assert change.resolved_rubrics == {"inclusion": ["A"]}
 
 
 def test_rubric_change_derives_use_from_edits_without_mutating_who():
-    who = {
+    who_2016 = {
         "inclusion": ["A", "B"],
         "exclusion": ["old value", "remove me"],
     }
     change = RubricChange(
-        who=who,
+        who_2016=who_2016,
         replace={"exclusion": {"old": "new"}},
         remove={"exclusion": ["remove me"]},
         add={"note": ["C"]},
     )
 
-    assert change.resolved_use == {
+    assert change.resolved_rubrics == {
         "inclusion": ["A", "B"],
         "exclusion": ["new value"],
         "note": ["C"],
     }
-    assert who == {
+    assert who_2016 == {
         "inclusion": ["A", "B"],
         "exclusion": ["old value", "remove me"],
     }
@@ -55,25 +55,25 @@ def test_rubric_change_derives_use_from_edits_without_mutating_who():
 
 def test_rubric_change_adds():
     change = RubricChange(
-        who={"inclusion": ["A"]},
+        who_2016={"inclusion": ["A"]},
         add={"inclusion": ["B"], "exclusion": ["C"]},
     )
 
-    assert change.resolved_use == {"inclusion": ["A", "B"], "exclusion": ["C"]}
+    assert change.resolved_rubrics == {"inclusion": ["A", "B"], "exclusion": ["C"]}
 
 
 def test_rubric_change_removes():
     change = RubricChange(
-        who={"inclusion": ["A", "B"], "exclusion": ["C"]},
+        who_2016={"inclusion": ["A", "B"], "exclusion": ["C"]},
         remove={"inclusion": ["B"], "exclusion": ["C"]},
     )
 
-    assert change.resolved_use == {"inclusion": ["A"]}
+    assert change.resolved_rubrics == {"inclusion": ["A"]}
 
 
 def test_rubric_change_replaces_substrings_in_each_rubric_value():
     change = RubricChange(
-        who={
+        who_2016={
             "inclusion": [
                 "Angiostrongyliasis due to: Angiostrongylus costaricensis (B83.2)"
             ],
@@ -85,7 +85,7 @@ def test_rubric_change_replaces_substrings_in_each_rubric_value():
         replace={"exclusion": {"costaricensis": "cantonensis"}},
     )
 
-    assert change.resolved_use == {
+    assert change.resolved_rubrics == {
         "inclusion": [
             "Angiostrongyliasis due to: Angiostrongylus costaricensis (B83.2)"
         ],

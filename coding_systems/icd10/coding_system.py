@@ -4,7 +4,15 @@ from functools import lru_cache
 from opencodelists.db_utils import query
 
 from ..base.coding_system_base import BuilderCompatibleCodingSystem
-from .models import Concept, ConceptEdition, ConceptKind, Edition
+from .known_diffs import different_codes
+from .models import (
+    Concept,
+    ConceptEdition,
+    ConceptKind,
+    ConceptRubric,
+    Edition,
+    ModifierRubric,
+)
 
 
 class CodingSystem(BuilderCompatibleCodingSystem):
@@ -113,6 +121,94 @@ class CodingSystem(BuilderCompatibleCodingSystem):
         lookup = self.lookup_names(codes)
         unknown = set(codes) - set(lookup)
         return {**lookup, **{code: "Unknown" for code in unknown}}
+
+    def lookup_additional_rubrics(self, codes):
+        codes = list(codes)
+        if not codes:
+            return {"rubrics": {}, "term_differences": {}}
+
+        def empty_rubrics():
+            return {"concept_rubrics": {}, "modifier_rubrics": {}}
+
+        def code_rubrics_for(collection, code):
+            return collection.setdefault(code, empty_rubrics())
+
+        def add_concept_rubric(collection, code, kind, text):
+            code_rubrics = code_rubrics_for(collection, code)
+            code_rubrics["concept_rubrics"].setdefault(kind, []).append(text)
+
+        def add_modifier_rubric(collection, code, term_modifier, kind, text):
+            code_rubrics = code_rubrics_for(collection, code)
+            modifier_key = term_modifier or "Modifier"
+            modifier_rubrics = code_rubrics["modifier_rubrics"].setdefault(
+                modifier_key, {}
+            )
+            modifier_rubrics.setdefault(kind, []).append(text)
+
+        concept_rubrics = (
+            ConceptRubric.objects.using(self.database_alias)
+            .filter(
+                concept_edition__concept_id__in=codes,
+                concept_edition__edition_id=self.latest_edition.id,
+            )
+            .values_list("concept_edition__concept_id", "kind", "text")
+        )
+
+        # Modifier codes should show their own modifier rubrics plus the
+        # concept rubrics from the parent code they modify.
+        modifier_parent_codes = dict(
+            ConceptEdition.objects.using(self.database_alias)
+            .filter(
+                concept_id__in=codes,
+                edition_id=self.latest_edition.id,
+                term_modifier__isnull=False,
+            )
+            .values_list("concept_id", "concept__parent_id")
+        )
+        modifier_concept_rubrics = (
+            ConceptRubric.objects.using(self.database_alias)
+            .filter(
+                concept_edition__concept_id__in=modifier_parent_codes.values(),
+                concept_edition__edition_id=self.latest_edition.id,
+            )
+            .values_list("concept_edition__concept_id", "kind", "text")
+        )
+
+        modifier_rubrics = (
+            ModifierRubric.objects.using(self.database_alias)
+            .filter(
+                concept_edition__concept_id__in=codes,
+                concept_edition__edition_id=self.latest_edition.id,
+            )
+            .values_list(
+                "concept_edition__concept_id",
+                "concept_edition__term_modifier",
+                "kind",
+                "text",
+            )
+        )
+
+        rubrics = {}
+        for code, kind, text in concept_rubrics:
+            add_concept_rubric(rubrics, code, kind, text)
+
+        parent_concept_rubrics = defaultdict(list)
+        for parent_code, kind, text in modifier_concept_rubrics:
+            parent_concept_rubrics[parent_code].append((kind, text))
+
+        for code, parent_code in modifier_parent_codes.items():
+            for kind, text in parent_concept_rubrics[parent_code]:
+                add_concept_rubric(rubrics, code, kind, text)
+
+        for code, term_modifier, kind, text in modifier_rubrics:
+            add_modifier_rubric(rubrics, code, term_modifier, kind, text)
+
+        edition_description_differences = different_codes(codes)
+
+        return {
+            "rubrics": rubrics,
+            "term_differences": edition_description_differences,
+        }
 
     def codes_by_type(self, codes, hierarchy):
         """Return mapping from chapter name to codes in that chapter."""

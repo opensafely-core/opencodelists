@@ -1,5 +1,7 @@
 from django.urls import reverse
 
+from coding_systems.icd10.models import ConceptRubric, RubricKind
+
 
 def test_latest_releases(client, setup_coding_systems):
     response = client.get(reverse("versioning:latest_releases"))
@@ -58,3 +60,27 @@ def test_latest_releases_json_with_pcd_refset(
     }
     assert data["pcd_refsets"]["release"] == pcd_refset_version.release
     assert data["nhs_drug_refsets"]["release"] == nhs_drug_refset_version.release
+
+
+def test_more_info_returns_additional_rubrics(client, setup_coding_systems, icd10_data):
+    ConceptRubric.objects.using("icd10_test_20200101").create(
+        concept_edition_id=13,
+        kind=RubricKind.INCLUSION,
+        text="Golfer's elbow",
+    )
+
+    response = client.post(
+        "/coding-systems/more-info/icd10",
+        {"codes": ["M770"]},
+        content_type="application/json",
+    )
+
+    assert response.status_code == 200
+    json_data = response.json()
+    assert "rubrics" in json_data
+    assert "M770" in json_data["rubrics"]
+    assert json_data["rubrics"]["M770"]["concept_rubrics"] == {
+        RubricKind.INCLUSION: ["Golfer's elbow"]
+    }
+    assert json_data["rubrics"]["M770"]["modifier_rubrics"] == {}
+    assert "term_differences" in json_data

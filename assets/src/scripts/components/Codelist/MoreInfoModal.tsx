@@ -13,6 +13,279 @@ interface CreateModalTextProps {
   status: Status;
 }
 
+type RubricValues = Record<string, string[]>;
+
+interface CodeRubrics {
+  concept_rubrics?: RubricValues;
+  modifier_rubrics?: Record<string, RubricValues>;
+}
+
+interface TermDifferences {
+  combined_2016: string;
+  who_2019: string;
+  equivalent?: boolean | null;
+}
+
+const rubricDisplayNames: Record<string, string> = {
+  exclusion: "Excludes:",
+  inclusion: "Includes:",
+  "coding-hint": "Coding hint:",
+};
+
+const rubricOrder = [
+  "definition",
+  "text",
+  "note",
+  "inclusion",
+  "exclusion",
+  "coding-hint",
+];
+const italicRubricKinds = ["footnote", "text", "note", "definition"];
+const inlineHeaderRubricKinds = ["coding-hint"];
+const groupedConceptRubricKinds = ["inclusion", "exclusion"];
+
+function emptyRubrics(): CodeRubrics {
+  return {
+    concept_rubrics: {},
+    modifier_rubrics: {},
+  };
+}
+
+function formatRubricKind(kind: string) {
+  return rubricDisplayNames[kind] || kind.replaceAll("_", "-");
+}
+
+function sortAndFilterRubricEntries(rubrics: RubricValues) {
+  return Object.entries(rubrics)
+    .filter(([kind]) => kind !== "modifierlink")
+    .sort(([left], [right]) => {
+      const leftIndex = rubricOrder.indexOf(left);
+      const rightIndex = rubricOrder.indexOf(right);
+
+      if (leftIndex !== -1 || rightIndex !== -1) {
+        return (
+          (leftIndex === -1 ? rubricOrder.length : leftIndex) -
+          (rightIndex === -1 ? rubricOrder.length : rightIndex)
+        );
+      }
+
+      return left.localeCompare(right);
+    });
+}
+
+function hasRubricValues(rubricValues?: RubricValues) {
+  return Object.values(rubricValues || {}).some((values) => values.length > 0);
+}
+
+function hasRubrics(rubrics: CodeRubrics | null) {
+  if (!rubrics) {
+    return false;
+  }
+
+  return (
+    hasRubricValues(rubrics.concept_rubrics) ||
+    Object.values(rubrics.modifier_rubrics || {}).some(hasRubricValues)
+  );
+}
+
+function rubricMultipleWithHeader(kind: string, values: string[]) {
+  return (
+    <>
+      <h3 className="h6 font-weight-bold">{formatRubricKind(kind)}</h3>
+      <ul>
+        {values.map((value, idx) => (
+          // biome-ignore lint/suspicious/noArrayIndexKey: item won't be re-rendered based on key
+          <li key={idx}>{value}</li>
+        ))}
+      </ul>
+    </>
+  );
+}
+
+function rubricWithHeaderInline(kind: string, values: string[]) {
+  return (
+    <p>
+      <span className="h6 font-weight-bold">{formatRubricKind(kind)} </span>
+      {values.join(" ")}
+    </p>
+  );
+}
+
+function rubricItalicWithoutHeader(value: string) {
+  return <p className="font-italic">{value}</p>;
+}
+
+function rubricFormat(kind: string, values: string[]) {
+  if (italicRubricKinds.includes(kind)) {
+    return rubricItalicWithoutHeader(values.join(" "));
+  } else if (inlineHeaderRubricKinds.includes(kind)) {
+    return rubricWithHeaderInline(kind, values);
+  } else {
+    return rubricMultipleWithHeader(kind, values);
+  }
+}
+
+function RubricList({ rubrics }: { rubrics: RubricValues }) {
+  return sortAndFilterRubricEntries(rubrics).map(([kind, values]) => (
+    <React.Fragment key={kind}>{rubricFormat(kind, values)}</React.Fragment>
+  ));
+}
+
+function mainTerm(term: Term) {
+  return term.split(" : ", 1)[0];
+}
+
+function ConceptRubrics({
+  rubrics,
+  term,
+}: {
+  rubrics: RubricValues;
+  term: Term;
+}) {
+  const boxedRubrics: RubricValues = {};
+  const rubricsBeforeGroup: RubricValues = {};
+  const rubricsAfterGroup: RubricValues = {};
+  const firstGroupedRubricIndex = rubricOrder.indexOf(
+    groupedConceptRubricKinds[0],
+  );
+
+  for (const [kind, values] of Object.entries(rubrics)) {
+    const rubricIndex = rubricOrder.indexOf(kind);
+    let collection = rubricsAfterGroup;
+
+    if (kind !== "modifierlink" && !italicRubricKinds.includes(kind)) {
+      collection = boxedRubrics;
+    } else if (rubricIndex !== -1 && rubricIndex < firstGroupedRubricIndex) {
+      collection = rubricsBeforeGroup;
+    }
+
+    collection[kind] = values;
+  }
+
+  return (
+    <>
+      <RubricList rubrics={rubricsBeforeGroup} />
+      {hasRubricValues(boxedRubrics) && (
+        <section className="builder__additional-info-card builder__additional-info-card--concept">
+          <h3 className="h6 font-weight-bold mb-3">
+            Concept: {mainTerm(term)}
+          </h3>
+          <RubricList rubrics={boxedRubrics} />
+        </section>
+      )}
+      <RubricList rubrics={rubricsAfterGroup} />
+    </>
+  );
+}
+
+function RubricBlock({ rubrics, term }: { rubrics: CodeRubrics; term: Term }) {
+  return (
+    <>
+      {rubrics.concept_rubrics && (
+        <ConceptRubrics rubrics={rubrics.concept_rubrics} term={term} />
+      )}
+
+      {Object.entries(rubrics.modifier_rubrics || {}).map(
+        ([termModifier, modifierRubrics]) => (
+          <section key={termModifier} className="builder__additional-info-card">
+            <h3 className="h6 font-weight-bold mb-3">
+              Modifier: {termModifier}
+            </h3>
+
+            <RubricList rubrics={modifierRubrics} />
+          </section>
+        ),
+      )}
+    </>
+  );
+}
+
+function TermDifferenceSection({
+  code,
+  termDifferences,
+}: {
+  code: Code;
+  termDifferences: TermDifferences;
+}) {
+  const descriptionMessage = termDifferences.equivalent
+    ? "We consider these terms clinically equivalent, so this code can be used irrespective of the ICD-10 edition used in the data."
+    : "We consider these terms different. Check which dataset you are querying before deciding whether to use this code.";
+  const variant = termDifferences.equivalent ? "success" : "danger";
+
+  return (
+    <section
+      className={`border border-${variant} rounded overflow-hidden mb-4`}
+    >
+      <div className={`bg-${variant} text-white px-4 py-3`}>
+        <div className="font-weight-bold">ICD-10 Edition Descriptions</div>
+        <small className="opacity-75">
+          The description of {code} differs between the{" "}
+          <a
+            href="https://classbrowser.nhs.uk/#/book/ICD-10-5TH-Edition"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-weight-bold builder__more-info-modal__link"
+          >
+            NHS 2016 ICD-10 edition
+          </a>{" "}
+          used in{" "}
+          <a
+            href="https://docs.opensafely.org/ehrql/reference/schemas/tpp/#apcs"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-weight-bold builder__more-info-modal__link"
+          >
+            APCS admissions data
+          </a>{" "}
+          and the{" "}
+          <a
+            href="https://icd.who.int/browse10/2019/en"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-weight-bold builder__more-info-modal__link"
+          >
+            WHO 2019 edition
+          </a>{" "}
+          used in{" "}
+          <a
+            href="https://docs.opensafely.org/ehrql/reference/schemas/tpp/#ons_deaths"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-weight-bold builder__more-info-modal__link"
+          >
+            ONS death data
+          </a>
+          . {descriptionMessage}
+        </small>
+      </div>
+
+      <div className="bg-white p-4">
+        <table className="table table-sm mb-0">
+          <thead>
+            <tr>
+              <th>Edition</th>
+              <th>Used in</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className="font-weight-bold">NHS 2016</td>
+              <td className="text-nowrap">APCS (hospital admissions)</td>
+              <td>{termDifferences.combined_2016}</td>
+            </tr>
+            <tr>
+              <td className="font-weight-bold text-nowrap">WHO 2019</td>
+              <td>ONS deaths</td>
+              <td>{termDifferences.who_2019}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}
+
 function createModalText({
   allCodes,
   code,
@@ -83,16 +356,22 @@ function MoreInfoModal({
   term,
 }: MoreInfoModalProps) {
   const codingSystemId = readValueFromPage("metadata")?.coding_system_id;
+  const showSynonymsAndReferences = codingSystemId !== "icd10";
 
   const [showMoreInfoModal, setShowMoreInfoModal] = useState(false);
-  const [references, setReferences] = useState<string[] | null>(null);
+  const [references, setReferences] = useState<Array<[string, string]> | null>(
+    null,
+  );
+  const [rubrics, setRubrics] = useState<CodeRubrics | null>(null);
+  const [termDifferences, setTermDifferences] =
+    useState<TermDifferences | null>(null);
   const [synonyms, setSynonyms] = useState<string[] | null>(null);
   const [modalText, setModalText] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleShow = () => {
     setShowMoreInfoModal(true);
-    if (synonyms === null || references === null) {
+    if (synonyms === null || references === null || rubrics === null) {
       setLoading(true);
       const requestHeaders = new Headers();
       requestHeaders.append("Accept", "application/json");
@@ -121,10 +400,14 @@ function MoreInfoModal({
             ) || [],
           );
           setReferences(data.references?.[code] || []);
+          setRubrics(data.rubrics?.[code] || emptyRubrics());
+          setTermDifferences(data.term_differences?.[code] || null);
         })
         .catch(() => {
           setSynonyms([]);
           setReferences([]);
+          setRubrics(emptyRubrics());
+          setTermDifferences(null);
         })
         .finally(() => setLoading(false));
     }
@@ -163,39 +446,80 @@ function MoreInfoModal({
       >
         <Modal.Header closeButton>
           <Modal.Title>
-            {term} ({code})
+            {codingSystemId === "icd10" && termDifferences ? (
+              code
+            ) : (
+              <>
+                {term} ({code})
+              </>
+            )}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <h2 className="h6 font-weight-bold">Synonyms</h2>
-          {loading ? (
-            <p>Loading synonyms...</p>
-          ) : (
-            <ul>
-              {!synonyms || synonyms?.length === 0 ? (
-                <li>No synonyms</li>
+          {showSynonymsAndReferences && (
+            <>
+              <h2 className="h6 font-weight-bold">Synonyms</h2>
+              {loading ? (
+                <p>Loading synonyms...</p>
               ) : (
-                // biome-ignore lint/suspicious/noArrayIndexKey: item won't be re-rendered based on key
-                synonyms.map((synonym, idx) => <li key={idx}>{synonym}</li>)
+                <ul>
+                  {!synonyms || synonyms?.length === 0 ? (
+                    <li>No synonyms</li>
+                  ) : (
+                    // biome-ignore lint/suspicious/noArrayIndexKey: item won't be re-rendered based on key
+                    synonyms.map((synonym, idx) => <li key={idx}>{synonym}</li>)
+                  )}
+                </ul>
               )}
-            </ul>
+            </>
           )}
-          <h2 className="h6 font-weight-bold">References</h2>
-          {loading ? (
-            <p>Loading references...</p>
-          ) : (
-            <ul>
-              {!references?.length ? (
-                <li>No references</li>
+          {codingSystemId === "icd10" && termDifferences && (
+            <TermDifferenceSection
+              code={code}
+              termDifferences={termDifferences}
+            />
+          )}
+          {hasRubrics(rubrics) && (
+            <section className="border border-info rounded overflow-hidden mb-4">
+              {/* WHO header */}
+              <div className="bg-info text-white px-4 py-3">
+                <div className="font-weight-bold">
+                  WHO ICD-10 Additional Info
+                </div>
+                <small className="opacity-75">
+                  This information is primarily targeted at clinical coders, but
+                  may be useful and so included for completeness.
+                </small>
+              </div>
+
+              {/* WHO body */}
+              <div className="bg-white pt-3 px-4">
+                {rubrics && hasRubrics(rubrics) && (
+                  <RubricBlock rubrics={rubrics} term={term} />
+                )}
+              </div>
+            </section>
+          )}
+          {showSynonymsAndReferences && (
+            <>
+              <h2 className="h6 font-weight-bold">References</h2>
+              {loading ? (
+                <p>Loading references...</p>
               ) : (
-                references.map((reference, idx) => (
-                  // biome-ignore lint/suspicious/noArrayIndexKey: item won't be re-rendered based on key
-                  <li key={idx}>
-                    <a href={reference[1]}>{reference[0]}</a>
-                  </li>
-                ))
+                <ul>
+                  {!references?.length ? (
+                    <li>No references</li>
+                  ) : (
+                    references.map((reference, idx) => (
+                      // biome-ignore lint/suspicious/noArrayIndexKey: item won't be re-rendered based on key
+                      <li key={idx}>
+                        <a href={reference[1]}>{reference[0]}</a>
+                      </li>
+                    ))
+                  )}
+                </ul>
               )}
-            </ul>
+            </>
           )}
           <h2 className="h6 font-weight-bold">Status</h2>
           <p>{modalText}</p>

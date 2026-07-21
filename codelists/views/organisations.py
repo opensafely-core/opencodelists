@@ -49,6 +49,7 @@ def organisation_published(
         "q": q,
         "sort": sort,
         "direction": direction,
+        "sort_options": _sort_options_context(q, sort, direction, SORT_FOR_PUBLISHED),
     }
     return render(request, "codelists/organisation_published.html", ctx)
 
@@ -69,6 +70,9 @@ def organisation_review(request: HttpRequest, organisation_slug: str) -> HttpRes
         "q": q,
         "sort": sort,
         "direction": direction,
+        "sort_options": _sort_options_context(
+            q, sort, direction, SORT_FOR_UNDER_REVIEW
+        ),
     }
     return render(request, "codelists/organisation_review.html", ctx)
 
@@ -200,4 +204,39 @@ def _pagination_context(page_obj, q: str | None, sort_state: tuple[str, str]):
             {"number": page_number, "url": url_for(page_number)}
             for page_number in paginator.page_range
         ],
+    }
+
+
+def _sort_options_context(
+    q: str | None, current_sort: str, current_direction: str, sort_options: set[str]
+) -> dict[str, dict[str, str]]:
+    return {
+        sort: _sort_context(q, current_sort, current_direction, sort)
+        for sort in sort_options
+    }
+
+
+def _sort_context(
+    q: str | None, current_sort: str, current_direction: str, sort: str
+) -> dict[str, str]:
+    direction = SORT_DIRECTION_ASC
+    if current_sort == sort and current_direction == SORT_DIRECTION_ASC:
+        direction = SORT_DIRECTION_DESC
+
+    aria = "none"
+    icon = "none"
+    if current_sort == sort:
+        icon = current_direction
+        aria = "ascending" if current_direction == SORT_DIRECTION_ASC else "descending"
+
+    params = {
+        "q": q or "",
+        "sort": sort,
+        "direction": direction,
+    }
+
+    return {
+        "aria": aria,
+        "icon": icon,
+        "url": f"?{urlencode(params)}",
     }

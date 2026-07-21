@@ -1002,7 +1002,10 @@ class RubricChange:
         final list of values after applying the changes.
         """
         rubrics = {
-            rubric_type: list(values) for rubric_type, values in self.who_2016.items()
+            # Using list() to create a shallow copy of the list to avoid mutating
+            # the original WHO rubrics
+            rubric_type: list(values)
+            for rubric_type, values in self.who_2016.items()
         }
 
         for rubric_type, replacements in self.replace.items():

@@ -9,6 +9,7 @@ env:
     SSH_AUTH_SOCK: /tmp/agent.sock
 
 on:
+  workflow_dispatch:
   push:
     branches: [main]
 

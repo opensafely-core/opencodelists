@@ -17,12 +17,8 @@ OpenCodelists therefore provides a single ICD-10 dictionary containing codes
 from both editions. This means that in most cases, a single codelist can be
 used against any dataset. Where there are differences, OpenCodelists provides
 warnings and guidance.
-<!-- alerting users to the small number of differences that need review. The NHS 2016
-description is displayed by default because ICD-10 codelists are most often
-used with admissions data. Where descriptions differ, select **More info** for
-the code to see both editions. -->
 
-### How have you combined them?
+### What are the differences between the two editions?
 
 Most codes are identical in both editions. The differences that need further
 attention are:
@@ -43,6 +39,8 @@ from both editions in a codelist, irrespective of which edition is used in the
 dataset being queried. A codelist with both `B59` and `B48.5` will match events
 in ONS deaths with `B48.5` and events in admissions data with `B59`.
 
+This is of particular note for codelists involving COVID-19. The codes for "virus identified" and "virus not identified" are the same in both editions (`U07.1` and `U07.2`), but there are 5 other codes covering, history of COVID-19. long COVID, need for vaccination etc which are `U07.3-U07.7` in the NHS 2016 edition, but `U08-U12` in the WHO 2019 edition.
+
 #### Changed definitions
 
 There are two categories of changed definition:
@@ -61,6 +59,9 @@ but that same code in admissions data is defined in the 2016 edition as
 A codelist for fractures would want to include that code for ONS deaths, but
 exclude it for admissions data.
 
+
+### How have you resolved the definition differences?
+
 Where the same code has a different definition we:
 
 - store both definitions in the OpenCodelists dictionary,
@@ -74,8 +75,7 @@ Where the same code has a different definition we:
 
 We provide warnings when:
 
-- a codelist includes a code that has moved between editions, and does not also
- contain the code for the other edition, or
+- a codelist contains a code from one edition, but not the corresponding code from the other edition e.g. it contains the NHS 2016 code but not the equivalent WHO 2019 code
 - a codelist includes a code that has conflicting definitions in the two
  editions.
 
@@ -102,8 +102,8 @@ codelist specifically about diarrhoea or constipation may need only part of the
 group.
 
 If there is a valid reason to not include all codes for a concept, then the
-warning will remain. It is therefore important to update the codelist methodology
-to explain the reason for the decision for future reference.
+warning will remain. It is therefore important to update the methodology section
+of the codelist's metadata to explain the reason for the decision for future reference.
 
 ### If a code has conflicting definitions
 
@@ -122,21 +122,21 @@ on which of the following situations applies:
  decision in the codelist methodology for future reference.
 * **Only the NHS 2016 definition is relevant:**
   * If the codelist is intended for **admissions data only**, then include the code
-   in the codelist. Please clearly state in the methodology that the codelist
+   in the codelist. Please clearly state in the methodology section of the metadata that the codelist
    is intended for admissions data only, and that it should not be used for deaths data.
   * If the codelist is intended for **ONS deaths data only**, then exclude the code
-   from the codelist. Please clearly state in the methodology that the codelist
+   from the codelist. Please clearly state in the methodology section of the metadata that the codelist
    is intended for deaths data only, and that it should not be used for admissions data.
   * If the codelist is intended for **both admissions and deaths data** then you
-   will need to create separate codelists for each dataset. Please clearly state
-   in the methodology of each which dataset it is intended for, and that it should not be used for the other dataset.
+    will need to create separate codelists for each dataset. Please clearly state
+    in the methodology section of the metadata of each codelist which dataset it is intended for, and that it should not be used for the other dataset.
 * **Only the WHO 2019 definition is relevant:**
   * If the codelist is intended for **ONS deaths data only**, then include the code
-   in the codelist. Please clearly state in the methodology that the codelist
+   in the codelist. Please clearly state in the methodology section of the metadata that the codelist
    is intended for deaths data only, and that it should not be used for admissions data.
   * If the codelist is intended for **admissions data only**, then exclude the code
-   from the codelist. Please clearly state in the methodology that the codelist
+   from the codelist. Please clearly state in the methodology section of the metadata that the codelist
    is intended for admissions data only, and that it should not be used for deaths data.
   * If the codelist is intended for **both admissions and deaths data** then you
    will need to create separate codelists for each dataset. Please clearly state
-   in the methodology of each which dataset it is intended for, and that it should not be used for the other dataset.
+   in the methodology section of the metadata of each codelist which dataset it is intended for, and that it should not be used for the other dataset.

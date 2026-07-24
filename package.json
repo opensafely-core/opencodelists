@@ -24,8 +24,8 @@
     "@vitest/coverage-v8": "^4.1.10",
     "jsdom": "^29.1.1",
     "nock": "^14.0.16",
-    "typescript": "^6.0.3",
-    "vite": "^8.1.3",
+    "typescript": "^7.0.2",
+    "vite": "^8.1.5",
     "vite-plugin-live-reload": "^3.1.0",
     "vitest": "^4.0.1"
   },

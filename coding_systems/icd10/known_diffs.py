@@ -944,7 +944,7 @@ MOVED_CODE_SETS = (
         "title": "Irritable bowel syndrome",
         "nhs2016": ["K58", "K580", "K589"],
         "who2019": ["K58", "K581", "K582", "K583", "K588"],
-        "comment": "The codes for this were K580 and K589 in 2016, but K581, K582, K583 and K588 in 2019. You likely want all these codes in your codelist. However if you are specifically looking for diarrhoea, or constipation, rather than IBS, then you may only want some but not all of these codes.",
+        "comment": "The codes for this were K580 and K589 in 2016, but K581, K582, K583 and K588 in 2019. In most cases you will want all these codes in your codelist. However if you are specifically looking for diarrhoea, or constipation, rather than IBS, then you may only want some but not all of these codes.",
     },
     {
         "title": "Zika virus disease",

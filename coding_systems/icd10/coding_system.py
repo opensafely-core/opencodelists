@@ -128,25 +128,8 @@ class CodingSystem(BuilderCompatibleCodingSystem):
         if not codes:
             return {"rubrics": {}, "term_differences": {}}
 
-        def empty_rubrics():
-            return {"concept_rubrics": {}, "modifier_rubrics": {}}
-
-        def code_rubrics_for(collection, code):
-            return collection.setdefault(code, empty_rubrics())
-
-        def add_concept_rubric(collection, code, kind, text):
-            code_rubrics = code_rubrics_for(collection, code)
-            code_rubrics["concept_rubrics"].setdefault(kind, []).append(text)
-
-        def add_modifier_rubric(collection, code, term_modifier, kind, text):
-            code_rubrics = code_rubrics_for(collection, code)
-            modifier_key = term_modifier or "Modifier"
-            modifier_rubrics = code_rubrics["modifier_rubrics"].setdefault(
-                modifier_key, {}
-            )
-            modifier_rubrics.setdefault(kind, []).append(text)
-
-        concept_rubrics = (
+        # First we get the rubrics for the concept code itself
+        direct_concept_rubrics = (
             ConceptRubric.objects.using(self.database_alias)
             .filter(
                 concept_edition__concept_id__in=codes,
@@ -155,26 +138,29 @@ class CodingSystem(BuilderCompatibleCodingSystem):
             .values_list("concept_edition__concept_id", "kind", "text")
         )
 
-        # Modifier codes should show their own modifier rubrics plus the
-        # concept rubrics from the parent code they modify.
-        modifier_parent_codes = dict(
-            ConceptEdition.objects.using(self.database_alias)
-            .filter(
-                concept_id__in=codes,
-                edition_id=self.latest_edition.id,
-                term_modifier__isnull=False,
-            )
-            .values_list("concept_id", "concept__parent_id")
-        )
-        modifier_concept_rubrics = (
+        # Then we get the concept rubrics for any modifier codes. These are the
+        # rubrics for the parent code that the modifier code modifies.
+        inherited_concept_rubrics = (
             ConceptRubric.objects.using(self.database_alias)
             .filter(
-                concept_edition__concept_id__in=modifier_parent_codes.values(),
+                # The rubric belongs to the requested modifier code's parent.
                 concept_edition__edition_id=self.latest_edition.id,
+                concept_edition__concept__children__code__in=codes,
+                concept_edition__concept__children__concept_editions__edition_id=(
+                    self.latest_edition.id
+                ),
+                concept_edition__concept__children__concept_editions__term_modifier__isnull=(
+                    False
+                ),
             )
-            .values_list("concept_edition__concept_id", "kind", "text")
+            .values_list(
+                "concept_edition__concept__children__code",
+                "kind",
+                "text",
+            )
         )
 
+        # Now we get the modifier rubrics for any modifier codes
         modifier_rubrics = (
             ModifierRubric.objects.using(self.database_alias)
             .filter(
@@ -189,20 +175,52 @@ class CodingSystem(BuilderCompatibleCodingSystem):
             )
         )
 
+        # Construct a rubrics object that looks like this:
+        # {
+        #   "code_1": {
+        #     "concept_rubrics": {
+        #       "rubric_kind_1": ["text", "text", ...],
+        #       "rubric_kind_2": ["text", "text", ...],
+        #     },
+        #     "modifier_rubrics": {
+        #       "modifier_term_1": {
+        #         "rubric_kind_1": ["text", "text", ...],
+        #       },
+        #     },
+        #   },
+        #  "code_2": {
+        #    ...
+        #  },
+        # },
         rubrics = {}
+
+        concept_rubrics = direct_concept_rubrics.union(inherited_concept_rubrics)
         for code, kind, text in concept_rubrics:
-            add_concept_rubric(rubrics, code, kind, text)
+            if code not in rubrics:
+                rubrics[code] = {
+                    "concept_rubrics": {},
+                    "modifier_rubrics": {},
+                }
 
-        parent_concept_rubrics = defaultdict(list)
-        for parent_code, kind, text in modifier_concept_rubrics:
-            parent_concept_rubrics[parent_code].append((kind, text))
-
-        for code, parent_code in modifier_parent_codes.items():
-            for kind, text in parent_concept_rubrics[parent_code]:
-                add_concept_rubric(rubrics, code, kind, text)
+            rubrics_by_kind = rubrics[code]["concept_rubrics"]
+            if kind not in rubrics_by_kind:
+                rubrics_by_kind[kind] = []
+            rubrics_by_kind[kind].append(text)
 
         for code, term_modifier, kind, text in modifier_rubrics:
-            add_modifier_rubric(rubrics, code, term_modifier, kind, text)
+            if code not in rubrics:
+                rubrics[code] = {
+                    "concept_rubrics": {},
+                    "modifier_rubrics": {},
+                }
+
+            if term_modifier not in rubrics[code]["modifier_rubrics"]:
+                rubrics[code]["modifier_rubrics"][term_modifier] = {}
+
+            rubrics_by_kind = rubrics[code]["modifier_rubrics"][term_modifier]
+            if kind not in rubrics_by_kind:
+                rubrics_by_kind[kind] = []
+            rubrics_by_kind[kind].append(text)
 
         edition_description_differences = codes_with_different_descriptions(codes)
 

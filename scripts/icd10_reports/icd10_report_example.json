@@ -1,0 +1,74 @@
+{
+  "source_database": "latest-db.sqlite3",
+  "captured_on": "2026-07-23",
+  "codelists": [
+    {
+      "name": "Cardiovascular Secondary Care",
+      "slug": "cardiovascular-secondary-care",
+      "user_id": null,
+      "organisation_id": "opensafely",
+      "version_id": 535,
+      "version_tag": null,
+      "codes": ["I620"],
+      "description_changes": {
+        "I620": {
+          "combined_2016": "Subdural haemorrhage (acute)(nontraumatic)",
+          "who_2019": "Nontraumatic subdural haemorrhage"
+        }
+      },
+      "moved_code_sets": []
+    },
+    {
+      "name": "fractures",
+      "slug": "fractures",
+      "user_id": null,
+      "organisation_id": "opensafely",
+      "version_id": 7416,
+      "version_tag": null,
+      "codes": ["X590"],
+      "description_changes": {
+        "X590": {
+          "combined_2016": "Exposure to unspecified factor (Home)",
+          "who_2019": "Exposure to unspecified factor causing fracture"
+        }
+      },
+      "moved_code_sets": []
+    },
+    {
+      "name": "Influenza Exclusion (Secondary Care) - Maximal Sensitivity",
+      "slug": "influenza-exclusion-secondary-care-maximal-sensitivity",
+      "user_id": null,
+      "organisation_id": "opensafely",
+      "version_id": 18310,
+      "version_tag": null,
+      "codes": ["U10", "U109"],
+      "description_changes": {},
+      "moved_code_sets": [
+        {
+          "title": "Multisystem inflammatory syndrome associated with COVID-19",
+          "nhs2016": ["U075"],
+          "who2019": ["U10", "U109"],
+          "comment": "This is U075 in 2016, but U10/U109 in 2019."
+        }
+      ]
+    },
+    {
+      "name": "RSV Exclusion (Secondary Care) - Maximal Sensitivity",
+      "slug": "rsv-exclusion-secondary-care-maximal-sensitivity",
+      "user_id": null,
+      "organisation_id": "opensafely",
+      "version_id": 18302,
+      "version_tag": null,
+      "codes": ["U10", "U109"],
+      "description_changes": {},
+      "moved_code_sets": [
+        {
+          "title": "Multisystem inflammatory syndrome associated with COVID-19",
+          "nhs2016": ["U075"],
+          "who2019": ["U10", "U109"],
+          "comment": "This is U075 in 2016, but U10/U109 in 2019."
+        }
+      ]
+    }
+  ]
+}

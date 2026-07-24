@@ -5,7 +5,7 @@ from coding_systems.icd10.known_diffs import (
     RubricChange,
     TermDifference,
     clinically_different_codes,
-    different_codes,
+    codes_with_different_descriptions,
     expand_who_2016_place_of_occurrence,
     get_2016_2019_description_difference,
     is_2016_claml_only,
@@ -256,9 +256,9 @@ def test_moved_codes():
     ]
 
 
-def test_different_codes():
+def test_codes_with_different_descriptions():
     codes = ["P710", "P710", "P711", "ZZZZ", "X590"]
-    differences = different_codes(codes)
+    differences = codes_with_different_descriptions(codes)
 
     assert differences == {
         "P710": {

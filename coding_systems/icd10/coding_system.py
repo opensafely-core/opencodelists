@@ -6,7 +6,7 @@ from django.db.models import Q
 from opencodelists.db_utils import query
 
 from ..base.coding_system_base import BuilderCompatibleCodingSystem
-from .known_diffs import different_codes
+from .known_diffs import codes_with_different_descriptions
 from .models import (
     Concept,
     ConceptEdition,
@@ -208,7 +208,7 @@ class CodingSystem(BuilderCompatibleCodingSystem):
         for code, term_modifier, kind, text in modifier_rubrics:
             add_modifier_rubric(rubrics, code, term_modifier, kind, text)
 
-        edition_description_differences = different_codes(codes)
+        edition_description_differences = codes_with_different_descriptions(codes)
 
         return {
             "rubrics": rubrics,

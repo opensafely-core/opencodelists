@@ -153,3 +153,136 @@ a:focus {
 .pointer-events-none {
   pointer-events: none;
 }
+
+.warning-banner {
+  border: 1px solid #f1b0b7;
+  border-left: 6px solid #dc3545;
+  border-radius: 0.5rem;
+  background: linear-gradient(180deg, #fff8f8 0%, #ffffff 100%);
+  box-shadow: 0 8px 24px rgba(220, 53, 69, 0.08);
+  padding: 1.25rem;
+}
+
+.warning-banner__header {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.warning-banner__icon {
+  flex: 0 0 auto;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: #dc3545;
+  color: #fff;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.25);
+}
+
+.warning-banner__title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #842029;
+  margin: 0 0 0.1rem;
+}
+
+.warning-banner__lead {
+  color: #5c1b22;
+  line-height: 1.5;
+}
+
+.warning-banner__details {
+  margin-top: 1rem;
+  border-top: 1px solid #f2d6da;
+  padding-top: 0.5rem;
+}
+
+.warning-banner__details > summary {
+  cursor: pointer;
+  list-style: none;
+  font-weight: 600;
+  color: #842029;
+  padding: 0.25rem 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.warning-banner__details > summary::-webkit-details-marker {
+  display: none;
+}
+
+.warning-banner__details > summary::before {
+  content: ">";
+  transition: transform 0.15s ease;
+  display: inline-block;
+}
+
+.warning-banner__details[open] > summary::before {
+  transform: rotate(90deg);
+}
+
+.warning-banner__expanded {
+  margin-top: 1rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.warning-section {
+  padding: 1rem;
+  border: 1px solid #f2d6da;
+  border-radius: 0.5rem;
+  background: #fff;
+}
+
+.warning-section__title {
+  margin: 0 0 0.75rem 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #842029;
+}
+
+.warning-table {
+  margin-bottom: 0;
+}
+
+.warning-table thead th {
+  background: #fdf2f4;
+  color: #842029;
+  font-weight: 700;
+  border-bottom: 1px solid #f2d6da;
+}
+
+.warning-table td,
+.warning-table th {
+  vertical-align: top;
+}
+
+.warning-table tbody tr + tr td {
+  border-top: 1px solid #f4e1e4;
+}
+
+.warning-code-token {
+  background: #fdf2f4;
+  border-radius: 0.25rem;
+  color: #842029;
+  display: inline-block;
+  font-weight: 700;
+  padding: 0.05rem 0.25rem;
+  white-space: nowrap;
+}
+
+.warning-code-token--missing {
+  background: #fdecec;
+  color: #9a1f1f;
+}
+
+@media (max-width: 768px) {
+  .warning-banner__header {
+    gap: 0.75rem;
+  }
+}

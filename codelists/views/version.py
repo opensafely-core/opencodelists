@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.shortcuts import render
 from django.utils.html import format_html
 
+from coding_systems.icd10.known_diffs import clinically_different_codes, moved_codes
 from coding_systems.versioning.models import CodingSystemRelease
 
 from ..models import Status
@@ -100,5 +101,12 @@ def version(request, clv):
         "latest_published_version_url": latest_published_version_url,
         "count_codes_included": len(rows),
         "coding_system_release_outdated": coding_system_release_outdated,
+        "included_codes": clv.codes,
+        "icd10_term_differences": clinically_different_codes(clv.codes)
+        if clv.coding_system_id == "icd10"
+        else [],
+        "icd10_moved_codes": moved_codes(clv.codes)
+        if clv.coding_system_id == "icd10"
+        else [],
     }
     return render(request, "codelists/version.html", ctx)

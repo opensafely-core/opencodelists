@@ -902,7 +902,9 @@ def clinically_different_codes(codes: list[str]) -> dict[str, dict[str, str]]:
     return differences
 
 
-def different_codes(codes: list[str]) -> dict[str, dict[str, str | bool]]:
+def codes_with_different_descriptions(
+    codes: list[str],
+) -> dict[str, dict[str, str | bool]]:
     """
     Given a list of codes, return a dict containing the codes
     that have different descriptions between the 2016 and 2019

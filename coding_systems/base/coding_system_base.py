@@ -108,6 +108,9 @@ class BaseCodingSystem(ABC):
     def lookup_additional_rubrics(self, codes):  # pragma: no cover
         return {}
 
+    def lookup_dagger_asterisk_usages(self, codes):  # pragma: no cover
+        return {}
+
     def code_to_term(self, codes):  # pragma: no cover
         raise NotImplementedError
 

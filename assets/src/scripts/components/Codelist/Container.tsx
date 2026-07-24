@@ -5,6 +5,7 @@ import Section from "./Section";
 
 interface ContainerProps {
   allCodes: PageData["allCodes"];
+  codeToDaggerAsteriskInfo: PageData["codeToDaggerAsteriskInfo"];
   codeToStatus: PageData["codeToStatus"];
   codeToTerm: PageData["codeToTerm"];
   hierarchy: Hierarchy;
@@ -16,6 +17,7 @@ interface ContainerProps {
 
 export default function Container({
   allCodes,
+  codeToDaggerAsteriskInfo,
   codeToStatus,
   codeToTerm,
   hierarchy,
@@ -44,6 +46,7 @@ export default function Container({
           key={heading}
           allCodes={allCodes}
           ancestorCodes={ancestorCodes}
+          codeToDaggerAsteriskInfo={codeToDaggerAsteriskInfo}
           codeToStatus={codeToStatus}
           codeToTerm={codeToTerm}
           heading={heading}

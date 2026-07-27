@@ -104,7 +104,7 @@ Please refer to [this ADR](docs/adr/0004-business-logic-layer.md) for more infor
 
 Production data is stored on dokku3 at `/storage/` within the container layer
 file system. This maps to `/var/lib/dokku/data/storage/opencodelists` in the
-host operating system's file system. See also [deployment notes](DEPLOY.md)).
+host operating system's file system. See also the [deployment notes](DEPLOY.md).
 
 `/storage/db.sqlite3` is the core Django database.
 
@@ -112,43 +112,89 @@ host operating system's file system. See also [deployment notes](DEPLOY.md)).
 read-only. Refer to their README files for information on the source data and
 creation process.
 
-The core database is fully backed up daily on the local file system. Coding
-system databases are not backed up locally but can be recreated from source.
-Weekly backups of the droplets allow a restore of the file system.
+The core database is fully backed up daily to block storage. Coding system databases are not backed up but can be recreated from source. Weekly backups of the droplets allow a restore of the file system.
 
-The core database backups are located at `/storage/backup/db`. They are created
-by `deploy/bin/backup.sh` scheduled via `cron` as configured in `app.json`.
-Backups are taken via the `sqlite3` `.backup` command . These are effectively
-copies of the database file. They are compressed to save space.
+Core database backups are created by `deploy/bin/backup.sh`, scheduled via `cron` as configured in `app.json`. The script creates the backups under `/storage/backup/db`, compresses them, and then moves them to `/block_storage/backup/db`. On the host, this block-storage directory is `/mnt/volume_opencodelists_backups/opencodelists/backup/db`.
 
-To restore from a backup, use the command-line tool to create a fresh temporary
-backup of the current state of the database (in case anything gones wrong),
-then restore from the decompressed backup file. On the production server:
+### Restore the production database
+
+Before restoring a backup, create a temporary backup of the current database in case anything goes wrong. On the production server:
 
 ```sh
 dokku enter opencodelists
 sqlite3 /storage/db.sqlite3 ".backup /storage/backup/previous-db.sqlite3"
 
-zstd -d /storage/backup/db/{PATH_TO_BACKUP_ZST} -o /storage/backup/restore-db.sqlite3
+BACKUP_FILENAME="your-backup.sqlite3.zst"
+zstd -d "/block_storage/backup/db/$BACKUP_FILENAME" -o /storage/backup/restore-db.sqlite3
 sqlite3 /storage/db.sqlite3 ".restore /storage/backup/restore-db.sqlite3"
 ```
 
-When all is confirmed working with the restore, you can delete
-`previous-db.sqlite3` and `restore-db.sqlite3`.
+When all is confirmed working with the restore, you can delete `/storage/backup/previous-db.sqlite3` and `/storage/backup/restore-db.sqlite3`.
 
-The latest backup is available via symlink at
-`/storage/backup/db/latest-db.sqlite3.zst`.
-This backup is a verbatim copy of the live data,
-and so contains user personal data and API keys.
+The latest backup is available via a symlink at `/block_storage/backup/db/latest-db.sqlite3.zst`. It is a verbatim copy of the live data and contains personal data and API keys.
 
-For development purposes,you should use the sanitised copy at
-`/storage/backup/db/sanitised-latest-db.sqlite3.zst`.  You can use `scp`, `zstd
--d` and `sqlite3 ".restore"` to bring your local database into the same state as
-the production database.  You may also wish to retrieve some or all of the
-coding systems databases, otherwise you will not be able to view codelists that
-require them or build codelists.  Refer to the team manual [OpenCodelists
-playbook](https://bennett.wiki/tech-group/playbooks/opencodelists/) for how to
-do those tasks on our infrastructure.
+### Download sanitised production data for local development
+
+Use the sanitised backup at `/block_storage/backup/db/sanitised-latest-db.sqlite3.zst` for local development. If you do not have access to production backups, use the [lightweight local development setup](#build-a-lightweight-local-development-setup) instead.
+
+Only use the raw production backup when the sanitised backup is unsuitable for a specific task. Before copying raw data, follow the [personal data copying policy](https://bennett.wiki/tech-group/policies/personal-data-copying-policy/#personal-data-copying-policy) and agree the plan with your line manager or Tech SLT. If the decision is to proceed, record it in the [personal data copying decision log](https://docs.google.com/spreadsheets/d/1C1z3WV-WSL-H1keZZCVPm6hR_5ajjgRT5zGO5cLv2Aw/edit?gid=0#gid=0) before downloading the backup. Only download, restore, or retain raw data as agreed; delete it as soon as it is no longer required and update the decision log.
+
+Restoring the sanitised backup overwrites your local database. Back it up first if you may need it again:
+
+```sh
+# Go to the root directory of your OpenCodelists repo, then:
+sqlite3 db.sqlite3 ".backup db-local-backup.sqlite3"
+```
+
+Download, decompress, and restore the sanitised backup:
+
+```sh
+# Go to the root directory of your OpenCodelists repo, then:
+USERNAME="your_github_username"
+scp "$USERNAME@dokku3.ebmdatalab.net:/mnt/volume_opencodelists_backups/opencodelists/backup/db/sanitised-latest-db.sqlite3.zst" .
+zstd -d sanitised-latest-db.sqlite3.zst
+sqlite3 db.sqlite3 ".restore sanitised-latest-db.sqlite3"
+```
+
+If you have configured the Dokku servers in your SSH config, use the configured alias for `dokku3`.
+
+You can then create a local admin user:
+
+```sh
+PASSWORD="your_password"
+just manage create_user "$USERNAME" -p "$PASSWORD" --admin
+```
+
+If something goes wrong, you can restore your previous local database:
+
+```sh
+sqlite3 db.sqlite3 ".restore db-local-backup.sqlite3"
+```
+
+### Download coding system databases
+
+Each coding system version is a separate SQLite database. OpenCodelists runs without these databases, but they are required to create or view codelists; viewing a codelist requires the version it was created against.
+
+The full set is tens of gigabytes, mostly SNOMED CT and BNF. If storage or bandwidth is limited, use `rsync` to fetch only the versions you need. The builder needs only one version of each coding system.
+
+For the simplest ongoing setup, use `rsync` to keep the complete directory outside the repository. This separates code from data and preserves the databases if you replace your local repository. By default, `opencodelists/settings.py` looks in the repository root; the `DATABASE_DIR` environment variable overrides this.
+
+```sh
+USERNAME="your_github_username"
+
+mkdir -p "$HOME/opencodelists-dbs/coding_systems"
+rsync -avz "$USERNAME@dokku3.ebmdatalab.net:/var/lib/dokku/data/storage/opencodelists/coding_systems/" "$HOME/opencodelists-dbs/coding_systems/"
+```
+
+The first transfer may take a long time and use substantial bandwidth, so consider running it during a quiet period. If interrupted, rerun the command to resume the transfer; rerun it later to fetch new or updated databases.
+
+Add the absolute database directory to `.env` in the repository root, based on `dotenv-sample`:
+
+```dotenv
+DATABASE_DIR=/home/YOUR_USERNAME/opencodelists-dbs
+```
+
+Restart the app with `just run`.
 
 ## Dependency management
 We use [Dependabot](https://github.com/opensafely-core/opencodelists/blob/main/.github/dependabot.yml) and an [automated update workflow](https://github.com/opensafely-core/opencodelists/blob/main/.github/workflows/update-python-dependencies.yml) to keep our dependencies up to date.

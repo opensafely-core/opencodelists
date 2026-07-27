@@ -221,6 +221,50 @@ def test_lookup_additional_rubrics_for_concept_code(icd10_data, coding_system):
     }
 
 
+def test_lookup_additional_rubrics_for_concept_prioritises_2016(
+    icd10_data, coding_system
+):
+    ConceptRubric.objects.using(coding_system.database_alias).create(
+        concept_edition_id=13,
+        kind=RubricKind.INCLUSION,
+        text="Golfer's elbow",
+    )
+    ConceptRubric.objects.using(coding_system.database_alias).create(
+        concept_edition_id=13,
+        kind=RubricKind.INCLUSION,
+        text="Disc Golfer's elbow",
+    )
+
+    edition = Edition.objects.using(coding_system.database_alias).create(
+        id="zzz", version=999, year=2000, source_description="a later edition"
+    )
+
+    concept_edition = ConceptEdition.objects.using(coding_system.database_alias).create(
+        concept_id="M770", edition=edition, term="Medial Epicondylitis"
+    )
+
+    ConceptRubric.objects.using(coding_system.database_alias).create(
+        concept_edition=concept_edition,
+        kind=RubricKind.INCLUSION,
+        text="Golfers elbow",
+    )
+
+    ConceptRubric.objects.using(coding_system.database_alias).create(
+        concept_edition=concept_edition,
+        kind=RubricKind.EXCLUSION,
+        text="Curler's elbow",
+    )
+
+    assert coding_system.lookup_additional_rubrics(["M770"])["rubrics"] == {
+        "M770": {
+            "concept_rubrics": {
+                RubricKind.INCLUSION: ["Disc Golfer's elbow", "Golfer's elbow"],
+            },
+            "modifier_rubrics": {},
+        }
+    }
+
+
 def test_lookup_additional_rubrics_with_no_codes(coding_system):
     assert coding_system.lookup_more_info([]) == {"rubrics": {}}
 
@@ -246,6 +290,69 @@ def test_lookup_additional_rubrics_for_modifier_code_includes_parent_concept_rub
                 "modifier_rubrics": {
                     "Multiple sites": {RubricKind.NOTE: ["Includes multiple sites"]}
                 },
+            }
+        }
+    }
+
+
+def test_lookup_additional_rubrics_for_modifier_code_from_preferred_edition(icd10_data):
+    edition_2016 = Edition.objects.using("icd10_test_20200101").create(
+        id="2016",
+        version=20160101,
+        year=2016,
+        source_description="test 2016",
+    )
+    edition_2019 = Edition.objects.using("icd10_test_20200101").create(
+        id="2019",
+        version=20190101,
+        year=2019,
+        source_description="test 2019",
+    )
+    parent = Concept.objects.using("icd10_test_20200101").create(code="W45")
+    modifier = Concept.objects.using("icd10_test_20200101").create(
+        code="W450", parent=parent
+    )
+    parent_2016 = ConceptEdition.objects.using("icd10_test_20200101").create(
+        concept=parent,
+        edition=edition_2016,
+        kind=ConceptKind.CATEGORY,
+        usage=ConceptUsage.NORMAL,
+        term="Foreign body or object entering through skin",
+    )
+    parent_2019 = ConceptEdition.objects.using("icd10_test_20200101").create(
+        concept=parent,
+        edition=edition_2019,
+        kind=ConceptKind.CATEGORY,
+        usage=ConceptUsage.NORMAL,
+        term="Foreign body or object entering through skin",
+    )
+    ConceptEdition.objects.using("icd10_test_20200101").create(
+        concept=modifier,
+        edition=edition_2016,
+        kind=ConceptKind.CATEGORY,
+        usage=ConceptUsage.NORMAL,
+        term="Foreign body or object entering through skin",
+        term_modifier="Home",
+        modifier_position=4,
+    )
+    ConceptRubric.objects.using("icd10_test_20200101").create(
+        concept_edition=parent_2016,
+        kind=RubricKind.INCLUSION,
+        text="nail",
+    )
+    ConceptRubric.objects.using("icd10_test_20200101").create(
+        concept_edition=parent_2019,
+        kind=RubricKind.INCLUSION,
+        text="2019 rubric must not take priority",
+    )
+
+    coding_system = CodingSystem(database_alias="icd10_test_20200101")
+
+    assert coding_system.lookup_additional_rubrics(["W450"]) == {
+        "rubrics": {
+            "W450": {
+                "concept_rubrics": {RubricKind.INCLUSION: ["nail"]},
+                "modifier_rubrics": {},
             }
         }
     }

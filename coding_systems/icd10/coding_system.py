@@ -136,8 +136,8 @@ class CodingSystem(BuilderCompatibleCodingSystem):
             ConceptRubric.objects.using(self.database_alias)
             .filter(
                 concept_edition__concept_id__in=codes,
-                concept_edition__edition_id=self.latest_edition.id,
             )
+            .prioritise_by_edition()
             .values_list("concept_edition__concept_id", "kind", "text")
         )
 
@@ -147,15 +147,12 @@ class CodingSystem(BuilderCompatibleCodingSystem):
             ConceptRubric.objects.using(self.database_alias)
             .filter(
                 # The rubric belongs to the requested modifier code's parent.
-                concept_edition__edition_id=self.latest_edition.id,
                 concept_edition__concept__children__code__in=codes,
-                concept_edition__concept__children__concept_editions__edition_id=(
-                    self.latest_edition.id
-                ),
                 concept_edition__concept__children__concept_editions__term_modifier__isnull=(
                     False
                 ),
             )
+            .prioritise_by_edition()
             .values_list(
                 "concept_edition__concept__children__code",
                 "kind",

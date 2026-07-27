@@ -137,8 +137,8 @@ class CodingSystem(BuilderCompatibleCodingSystem):
             ConceptRubric.objects.using(self.database_alias)
             .filter(
                 concept_edition__concept_id__in=codes,
-                concept_edition__edition_id=self.latest_edition.id,
             )
+            .prioritise_by_edition()
             .values_list("concept_edition__concept_id", "kind", "text")
         )
 

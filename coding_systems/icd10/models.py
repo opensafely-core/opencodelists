@@ -1,6 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import Window
+from django.db.models import F, Window
 from django.db.models.functions import RowNumber
 from django.db.models.manager import BaseManager
 from django.db.models.query import QuerySet
@@ -106,12 +106,28 @@ class ConceptEdition(models.Model):
         ]
 
 
+class ConceptRubricQuerySet(QuerySet):
+    def prioritise_by_edition(self):
+        return self.annotate(
+            edition_priority=Window(
+                expression=RowNumber(),
+                partition_by=[F("concept_edition__concept_id"), F("kind")],
+                order_by="concept_edition__edition_id",
+            )
+        ).filter(edition_priority=1)
+
+
+class ConceptRubricManager(BaseManager.from_queryset(ConceptRubricQuerySet)):
+    pass
+
+
 class ConceptRubric(models.Model):
     kind = get_char_choices_field(RubricKind)
     text = models.TextField()
     concept_edition = models.ForeignKey(
         ConceptEdition, on_delete=models.CASCADE, related_name="rubrics"
     )
+    objects = ConceptRubricManager()
 
 
 class ModifierRubric(models.Model):

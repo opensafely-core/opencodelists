@@ -219,6 +219,46 @@ def test_lookup_additional_rubrics_for_concept_code(icd10_data, coding_system):
     }
 
 
+def test_lookup_additional_rubrics_for_concept_prioritises_2016(
+    icd10_data, coding_system
+):
+    ConceptRubric.objects.using(coding_system.database_alias).create(
+        concept_edition_id=13,
+        kind=RubricKind.INCLUSION,
+        text="Golfer's elbow",
+    )
+
+    edition = Edition.objects.using(coding_system.database_alias).create(
+        id="zzz", version=999, year=2000, source_description="a later edition"
+    )
+
+    concept_edition = ConceptEdition.objects.using(coding_system.database_alias).create(
+        concept_id="M770", edition=edition, term="Medial Epicondylitis"
+    )
+
+    ConceptRubric.objects.using(coding_system.database_alias).create(
+        concept_edition=concept_edition,
+        kind=RubricKind.INCLUSION,
+        text="Golfers elbow",
+    )
+
+    ConceptRubric.objects.using(coding_system.database_alias).create(
+        concept_edition=concept_edition,
+        kind=RubricKind.EXCLUSION,
+        text="Curler's elbow",
+    )
+
+    assert coding_system.lookup_additional_rubrics(["M770"])["rubrics"] == {
+        "M770": {
+            "concept_rubrics": {
+                RubricKind.INCLUSION: ["Golfer's elbow"],
+                RubricKind.EXCLUSION: ["Curler's elbow"],
+            },
+            "modifier_rubrics": {},
+        }
+    }
+
+
 def test_lookup_additional_rubrics_with_no_codes(coding_system):
     assert coding_system.lookup_additional_rubrics([])["rubrics"] == {}
 

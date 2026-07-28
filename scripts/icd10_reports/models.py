@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from urllib.parse import quote
 
 from opencodelists.hash_utils import hash as hash_id
@@ -23,6 +23,7 @@ class AffectedCodelist:
     codes: frozenset[str]
     description_changes: dict[str, dict[str, str]]
     moved_code_sets: list[dict[str, object]]
+    missing_modifier_codes: dict[str, frozenset[str]] = field(default_factory=dict)
 
     def path(self) -> str:
         if self.user_id:

@@ -19,6 +19,10 @@ def load_example_codelists() -> list[AffectedCodelist]:
             codes=frozenset(item["codes"]),
             description_changes=item["description_changes"],
             moved_code_sets=item["moved_code_sets"],
+            missing_modifier_codes={
+                code: frozenset(descendants)
+                for code, descendants in item.get("missing_modifier_codes", {}).items()
+            },
         )
         for item in fixture["codelists"]
     ]

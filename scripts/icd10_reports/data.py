@@ -11,6 +11,43 @@ from .models import AffectedCodelist, ReportOwner
 INCLUDED_STATUSES = ("+", "(+)")
 
 
+def load_modifier_descendants(
+    connection: sqlite3.Connection,
+    old_codes: set[str],
+) -> dict[str, frozenset[str]]:
+    """Load codes with modifier children that are not in the old release."""
+    rows = connection.execute(
+        """
+        SELECT DISTINCT concept.parent_id, concept.code
+        FROM icd10_concept AS concept
+        JOIN icd10_conceptedition AS edition
+          ON edition.concept_id = concept.code
+        WHERE concept.parent_id IS NOT NULL
+          AND edition.modifier_position IS NOT NULL
+        ORDER BY concept.parent_id, concept.code
+        """
+    )
+    descendants: dict[str, set[str]] = defaultdict(set)
+    for parent_code, child_code in rows:
+        descendants[parent_code].add(child_code)
+    modifier_descendants = {
+        parent_code: frozenset(child_codes)
+        for parent_code, child_codes in descendants.items()
+    }
+
+    return {
+        parent_code: child_codes
+        for parent_code, child_codes in modifier_descendants.items()
+        if child_codes.isdisjoint(old_codes)
+    }
+
+
+def load_codes(connection: sqlite3.Connection) -> frozenset[str]:
+    """Load every code from an ICD-10 release database."""
+    rows = connection.execute("SELECT code FROM icd10_concept")
+    return frozenset(row[0] for row in rows)
+
+
 def codes_from_csv(csv_data: str) -> set[str]:
     """Extract codes from old-style codelists with CSV data stored in the database."""
     rows = list(csv.reader(StringIO(csv_data)))
@@ -45,8 +82,20 @@ def incomplete_moved_code_sets(codes: set[str]) -> list[dict[str, object]]:
     return incomplete
 
 
+def missing_modifier_code_sets(
+    codes: set[str], modifier_descendants: dict[str, frozenset[str]]
+) -> dict[str, frozenset[str]]:
+    """Return included parents for which no immediate modifier child is included."""
+    return {
+        parent_code: child_codes
+        for parent_code, child_codes in modifier_descendants.items()
+        if parent_code in codes and codes.isdisjoint(child_codes)
+    }
+
+
 def find_affected_codelists(
     connection: sqlite3.Connection,
+    modifier_descendants: dict[str, frozenset[str]],
 ) -> list[AffectedCodelist]:
     connection.row_factory = sqlite3.Row
     rows = connection.execute(
@@ -102,7 +151,8 @@ def find_affected_codelists(
         )
         description_changes = clinically_different_codes(list(codes))
         moved_code_sets = incomplete_moved_code_sets(codes)
-        if description_changes or moved_code_sets:
+        missing_modifier_codes = missing_modifier_code_sets(codes, modifier_descendants)
+        if description_changes or moved_code_sets or missing_modifier_codes:
             affected.append(
                 AffectedCodelist(
                     name=row["name"],
@@ -111,9 +161,10 @@ def find_affected_codelists(
                     organisation_id=row["organisation_id"],
                     version_id=row["version_id"],
                     version_tag=row["version_tag"],
-                    codes=frozenset(code.upper() for code in codes),
+                    codes=frozenset(codes),
                     description_changes=description_changes,
                     moved_code_sets=moved_code_sets,
+                    missing_modifier_codes=missing_modifier_codes,
                 )
             )
     return affected

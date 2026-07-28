@@ -160,6 +160,40 @@ def render_report(codelists: list[AffectedCodelist]) -> str:
                 )
             lines.append("")
 
+    missing_modifier_codelists = [c for c in codelists if c.missing_modifier_codes]
+    if missing_modifier_codelists:
+        lines.extend(
+            [
+                "## Action recommended: modifier codes may be missing",
+                "",
+                "The following codelist(s) contain an ICD-10 code but none of its "
+                "immediate modifier children. These modifier codes were not supported "
+                "in the previous OpenCodelists ICD-10 database, but are now available "
+                "for selection. If you don't include these missing codes then your "
+                "codelist may miss some events. Please create new versions for each "
+                "of these codelists - you will be prompted to include or exclude "
+                "the missing modifier codes when you review the codelist.",
+                "",
+            ]
+        )
+        for codelist in sorted(
+            missing_modifier_codelists,
+            key=lambda item: (item.name.lower(), item.slug.lower()),
+        ):
+            url = f"{BASE_URL}{codelist.path()}"
+            lines.extend([f"### [{escape_markdown(codelist.name)}]({url})", ""])
+            for parent_code, child_codes in sorted(
+                codelist.missing_modifier_codes.items()
+            ):
+                descendants = ", ".join(code_span(code) for code in sorted(child_codes))
+                lines.extend(
+                    [
+                        f"- Parent code found: {code_span(parent_code)}",
+                        f"  - Modifier children potentially missing: {descendants}",
+                    ]
+                )
+            lines.append("")
+
     return "\n".join(lines).rstrip() + "\n"
 
 
@@ -171,6 +205,7 @@ def render_summary(
         str, tuple[dict[str, str | bool], list[AffectedCodelist]]
     ] = {}
     moved_issues: dict[str, tuple[dict[str, object], list[AffectedCodelist]]] = {}
+    modifier_issues: dict[str, tuple[frozenset[str], list[AffectedCodelist]]] = {}
 
     for codelist in affected:
         for code, change in codelist.description_changes.items():
@@ -178,6 +213,10 @@ def render_summary(
         for moved in codelist.moved_code_sets:
             title = str(moved["title"])
             moved_issues.setdefault(title, (moved, []))[1].append(codelist)
+        for parent_code, child_codes in codelist.missing_modifier_codes.items():
+            modifier_issues.setdefault(parent_code, (child_codes, []))[1].append(
+                codelist
+            )
 
     users = sorted(
         (owner for owner in reports if owner.kind == "user"),
@@ -197,6 +236,7 @@ def render_summary(
         f"- Affected codelists: **{len(affected)}**",
         f"- Changed-description issues: **{len(description_issues)}**",
         f"- Moved-code issues: **{len(moved_issues)}**",
+        f"- Missing-modifier issues: **{len(modifier_issues)}**",
         "",
         "### Affected users",
         "",
@@ -243,6 +283,23 @@ def render_summary(
                 "",
                 f"- NHS 2016 codes: {nhs_codes}",
                 f"- WHO 2019 codes: {who_codes}",
+                f"- Affected codelists: **{len(codelists)}**",
+                "",
+                *_summary_codelist_lines(codelists),
+                "",
+            ]
+        )
+
+    lines.extend(["## Codes with missing modifier children", ""])
+    if not modifier_issues:
+        lines.extend(["No affected codelists.", ""])
+    for parent_code, (child_codes, codelists) in sorted(modifier_issues.items()):
+        descendants = ", ".join(code_span(code) for code in sorted(child_codes))
+        lines.extend(
+            [
+                f"### {code_span(parent_code)}",
+                "",
+                f"- Modifier children: {descendants}",
                 f"- Affected codelists: **{len(codelists)}**",
                 "",
                 *_summary_codelist_lines(codelists),

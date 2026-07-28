@@ -1,7 +1,4 @@
 import csv
-from pathlib import Path
-from tempfile import TemporaryDirectory
-from zipfile import ZipFile
 
 import structlog
 
@@ -12,29 +9,28 @@ from coding_systems.bnf.models import TYPES, Concept
 logger = structlog.get_logger()
 
 
-def import_data(
-    release_zipfile, release_name, valid_from, import_ref=None, check_compatibility=True
-):
-    with TemporaryDirectory() as tempdir:
-        release_zip = ZipFile(release_zipfile)
-        logger.info("Extracting", release_zip=release_zip.filename)
-        release_zip.extractall(path=tempdir)
-        paths = list(Path(tempdir).glob("*.csv"))
-        assert len(paths) == 1, (
-            f"Expected 1 and only one .csv file (found {len(paths)})"
-        )
-        path = paths[0]
+# Normalise ODP header names (for example, BNF_CHAPTER_CODE) so they match the
+# BNF field names used by the importer.
+def normalise(name: str) -> str:
+    return name.upper().replace(" ", "_")
 
-        records = {type: set() for type in TYPES}
-        with open(path) as f:
-            for r in csv.DictReader(f):
-                parent_code = None
-                for type in TYPES:
-                    name = r[f"BNF {type}"]
-                    code = r[f"BNF {type} Code"]
-                    if "DUMMY" not in name:
-                        records[type].add((code, name, parent_code))
-                        parent_code = code
+
+def import_data(
+    release_csv, release_name, valid_from, import_ref=None, check_compatibility=True
+):
+    if not release_csv.lower().endswith(".csv"):
+        raise ValueError(f"Expected one .csv file, got '{release_csv}'.")
+    records = {type: set() for type in TYPES}
+    with open(release_csv, newline="") as f:
+        csv_reader = csv.DictReader(f)
+        for r in csv_reader:
+            parent_code = None
+            for type in TYPES:
+                name = r[normalise(f"BNF {type}")]
+                code = r[normalise(f"BNF {type} Code")]
+                if "DUMMY" not in name:
+                    records[type].add((code, name, parent_code))
+                    parent_code = code
 
     with CodingSystemImporter(
         "bnf", release_name, valid_from, import_ref, check_compatibility

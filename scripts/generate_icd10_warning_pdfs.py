@@ -2,7 +2,8 @@
 
 Run with:
 
-    python scripts/report_icd10_codelist_issues.py db.sqlite3
+    python scripts/generate_icd10_warning_pdfs.py \
+        db.sqlite3 icd10.sqlite3 old-icd10.sqlite3
 """
 
 import argparse
@@ -15,7 +16,12 @@ from pathlib import Path
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from scripts.icd10_reports.data import find_affected_codelists, reports_by_owner
+from scripts.icd10_reports.data import (
+    find_affected_codelists,
+    load_codes,
+    load_modifier_descendants,
+    reports_by_owner,
+)
 from scripts.icd10_reports.output import write_outputs
 
 
@@ -24,13 +30,39 @@ def main() -> None:
     parser.add_argument(
         "database", type=Path, help="OpenCodelists core SQLite database"
     )
+    parser.add_argument(
+        "icd10_database",
+        type=Path,
+        help="Current imported ICD-10 release SQLite database",
+    )
+    parser.add_argument(
+        "old_icd10_database",
+        type=Path,
+        help="Previous ICD-10 release SQLite database",
+    )
     args = parser.parse_args()
 
     try:
         with sqlite3.connect(
+            f"file:{args.old_icd10_database.resolve()}?mode=ro", uri=True
+        ) as old_icd10_connection:
+            old_codes = load_codes(old_icd10_connection)
+
+            # double check we're loading the correct DB
+            assert len(old_codes) == 12593
+        with sqlite3.connect(
+            f"file:{args.icd10_database.resolve()}?mode=ro", uri=True
+        ) as icd10_connection:
+            modifier_descendants = load_modifier_descendants(
+                icd10_connection, old_codes
+            )
+
+            # double check we're loading the correct DB
+            assert len(modifier_descendants) == 753
+        with sqlite3.connect(
             f"file:{args.database.resolve()}?mode=ro", uri=True
         ) as connection:
-            affected = find_affected_codelists(connection)
+            affected = find_affected_codelists(connection, modifier_descendants)
             reports = reports_by_owner(connection, affected)
         write_outputs(reports, affected)
     except RuntimeError as error:

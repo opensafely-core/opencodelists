@@ -69,6 +69,24 @@
           "comment": "This is U075 in 2016, but U10/U109 in 2019."
         }
       ]
+    },
+    {
+      "name": "Cardiovascular Secondary Care",
+      "slug": "cardiovascular-secondary-care",
+      "user_id": null,
+      "organisation_id": "opensafely",
+      "version_id": 535,
+      "version_tag": null,
+      "codes": ["I700", "I701", "I702", "I708", "I709"],
+      "description_changes": {},
+      "moved_code_sets": [],
+      "missing_modifier_codes": {
+        "I700": ["I7000", "I7001"],
+        "I701": ["I7010", "I7011"],
+        "I702": ["I7020", "I7021"],
+        "I708": ["I7080", "I7081"],
+        "I709": ["I7090", "I7091"]
+      }
     }
   ]
 }

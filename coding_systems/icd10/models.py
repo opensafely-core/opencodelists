@@ -1,7 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import F, Window
-from django.db.models.functions import RowNumber
+from django.db.models import Window
+from django.db.models.functions import DenseRank, RowNumber
 from django.db.models.manager import BaseManager
 from django.db.models.query import QuerySet
 
@@ -108,10 +108,17 @@ class ConceptEdition(models.Model):
 
 class ConceptRubricQuerySet(QuerySet):
     def prioritise_by_edition(self):
+        # Give each ConceptRubric a rank based on the edition from which it came,
+        # and only select those with rank==1.
+        # This relies on the current state of the edition with id "2016"
+        # being the preferred source of rubrics over the one with id "2019"
+        # As we use dense_rank, all rubrics (there may be multiple of the same
+        # type, e.g. a bulleted list of inclusions) from the same edition will
+        # get the same ranking.
         return self.annotate(
             edition_priority=Window(
-                expression=RowNumber(),
-                partition_by=[F("concept_edition__concept_id"), F("kind")],
+                expression=DenseRank(),
+                partition_by="concept_edition__concept_id",
                 order_by="concept_edition__edition_id",
             )
         ).filter(edition_priority=1)

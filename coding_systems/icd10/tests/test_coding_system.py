@@ -227,6 +227,11 @@ def test_lookup_additional_rubrics_for_concept_prioritises_2016(
         kind=RubricKind.INCLUSION,
         text="Golfer's elbow",
     )
+    ConceptRubric.objects.using(coding_system.database_alias).create(
+        concept_edition_id=13,
+        kind=RubricKind.INCLUSION,
+        text="Disc Golfer's elbow",
+    )
 
     edition = Edition.objects.using(coding_system.database_alias).create(
         id="zzz", version=999, year=2000, source_description="a later edition"
@@ -251,8 +256,7 @@ def test_lookup_additional_rubrics_for_concept_prioritises_2016(
     assert coding_system.lookup_additional_rubrics(["M770"])["rubrics"] == {
         "M770": {
             "concept_rubrics": {
-                RubricKind.INCLUSION: ["Golfer's elbow"],
-                RubricKind.EXCLUSION: ["Curler's elbow"],
+                RubricKind.INCLUSION: ["Disc Golfer's elbow", "Golfer's elbow"],
             },
             "modifier_rubrics": {},
         }

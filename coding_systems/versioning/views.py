@@ -75,9 +75,7 @@ def more_info(request, coding_system):
         return JsonResponse({"error": "Badly formatted JSON request"})
 
     cs = CODING_SYSTEMS[coding_system].get_by_release_or_most_recent()
-    synonyms = {"synonyms": cs.lookup_synonyms(codes)}
-    references = {"references": cs.lookup_references(codes)}
-    return JsonResponse(synonyms | references)
+    return JsonResponse(cs.lookup_more_info(codes))
 
 
 @csrf_exempt

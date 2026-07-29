@@ -218,8 +218,25 @@ def test_search_by_code(dmd_data, coding_system, code, expected_response):
     assert coding_system.search_by_code(code) == expected_response
 
 
-def test_lookup_synonyms(dmd_data, coding_system):
-    assert coding_system.lookup_synonyms(["3293111000001105", "22503111000001109"]) == {
+def test_lookup_more_info(dmd_data, coding_system):
+    more_info = coding_system.lookup_more_info(
+        ["3293111000001105", "22503111000001109"]
+    )
+    assert more_info["synonyms"] == {
         "3293111000001105": ["Aerolin 100micrograms/dose Autohaler"],
         "22503111000001109": ["AirSalb 100micrograms/dose inhaler CFC free"],
+    }
+    assert more_info["references"] == {
+        "3293111000001105": [
+            (
+                "OpenPrescribing dm+d browser",
+                "https://openprescribing.net/dmd/amp/3293111000001105/",
+            )
+        ],
+        "22503111000001109": [
+            (
+                "OpenPrescribing dm+d browser",
+                "https://openprescribing.net/dmd/amp/22503111000001109/",
+            )
+        ],
     }

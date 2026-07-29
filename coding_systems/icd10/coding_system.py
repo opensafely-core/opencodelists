@@ -127,10 +127,10 @@ class CodingSystem(BuilderCompatibleCodingSystem):
         unknown = set(codes) - set(lookup)
         return {**lookup, **{code: "Unknown" for code in unknown}}
 
-    def lookup_additional_rubrics(self, codes):
+    def _lookup_rubrics(self, codes):
         codes = list(codes)
         if not codes:
-            return {"rubrics": {}, "term_differences": {}}
+            return {}
 
         # First we get the rubrics for the concept code itself
         direct_concept_rubrics = (
@@ -226,11 +226,15 @@ class CodingSystem(BuilderCompatibleCodingSystem):
                 rubrics_by_kind[kind] = []
             rubrics_by_kind[kind].append(text)
 
-        edition_description_differences = codes_with_different_descriptions(codes)
+        return rubrics
 
+    def _lookup_term_differences(self, codes):
+        return codes_with_different_descriptions(codes)
+
+    def lookup_more_info(self, codes):
         return {
-            "rubrics": rubrics,
-            "term_differences": edition_description_differences,
+            "rubrics": self._lookup_rubrics(codes),
+            "term_differences": self._lookup_term_differences(codes),
         }
 
     def lookup_dagger_asterisk_usages(self, codes):

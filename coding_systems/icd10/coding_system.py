@@ -1,10 +1,18 @@
 from collections import defaultdict
 from functools import lru_cache
 
+from django.db.models import Q
+
 from opencodelists.db_utils import query
 
 from ..base.coding_system_base import BuilderCompatibleCodingSystem
-from .models import Concept, ConceptEdition, ConceptKind, Edition
+from .models import (
+    Concept,
+    ConceptEdition,
+    ConceptKind,
+    Edition,
+    RubricKind,
+)
 
 
 class CodingSystem(BuilderCompatibleCodingSystem):
@@ -29,7 +37,11 @@ class CodingSystem(BuilderCompatibleCodingSystem):
         return set(
             ConceptEdition.objects.using(self.database_alias)
             .filter(kind=ConceptKind.CATEGORY)
-            .filter(term__contains=term)
+            .filter(
+                Q(term__contains=term)
+                | Q(rubrics__kind=RubricKind.INCLUSION, rubrics__text__contains=term)
+            )
+            .distinct()
             .values_list("concept__code", flat=True)
         )
 
@@ -94,20 +106,17 @@ class CodingSystem(BuilderCompatibleCodingSystem):
         return query(sql, codes, database=self.database_alias)
 
     def lookup_names(self, codes):
-        lookup = {}
         concepts = (
             ConceptEdition.objects.using(self.database_alias)
             .filter(concept_id__in=codes)
-            .order_by("concept_id", "-edition__year", "-edition__version")
+            .prioritise_by_edition()
             .values_list("concept_id", "term", "term_modifier")
         )
 
-        for concept_id, term, term_modifier in concepts:
-            lookup.setdefault(
-                concept_id, f"{term} : {term_modifier}" if term_modifier else term
-            )
-
-        return lookup
+        return {
+            concept_id: f"{term} : {term_modifier}" if term_modifier else term
+            for concept_id, term, term_modifier in concepts
+        }
 
     def code_to_term(self, codes):
         lookup = self.lookup_names(codes)

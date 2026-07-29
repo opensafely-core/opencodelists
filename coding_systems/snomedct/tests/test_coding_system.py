@@ -26,10 +26,12 @@ def test_lookup_names(snomedct_data, coding_system):
     }
 
 
-def test_lookup_synonyms(snomedct_data, coding_system):
-    assert coding_system.lookup_synonyms(["705115006", "239964003", "99999"]) == {
-        "239964003": ["Soft tissue lesion of elbow region"],
-        "705115006": ["Technology Preview module"],
+def test_lookup_more_info(snomedct_data, coding_system):
+    assert coding_system.lookup_more_info(["705115006", "239964003", "99999"]) == {
+        "synonyms": {
+            "239964003": ["Soft tissue lesion of elbow region"],
+            "705115006": ["Technology Preview module"],
+        }
     }
 
 

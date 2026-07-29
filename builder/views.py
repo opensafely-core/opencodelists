@@ -258,6 +258,15 @@ def _draft(request, draft, search_id):
         ],
     }
 
+    # Dagger asterisk info will only ever appear for icd10. So instead of a
+    # generic interface for all coding systems, we just check if the coding system
+    # has the method and call it if it does.
+    dagger_asterisk_info = (
+        coding_system.lookup_dagger_asterisk_usages(codeset.all_codes())
+        if hasattr(coding_system, "lookup_dagger_asterisk_usages")
+        else {}
+    )
+
     ctx = {
         "user": draft.author,
         "draft": draft,
@@ -274,9 +283,7 @@ def _draft(request, draft, search_id):
         "child_map": {c: list(pp) for c, pp in hierarchy.child_map.items()},
         "code_to_term": code_to_term,
         "code_to_status": codeset.code_to_status,
-        "code_to_dagger_asterisk_info": coding_system.lookup_dagger_asterisk_usages(
-            codeset.all_codes()
-        ),
+        "code_to_dagger_asterisk_info": dagger_asterisk_info,
         "is_editable": request.user == draft.author,
         "draft_url": draft_url,
         "update_url": update_url,

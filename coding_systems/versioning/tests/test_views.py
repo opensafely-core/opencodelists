@@ -12,6 +12,10 @@ def test_latest_releases(client, setup_coding_systems):
         release.id for release in response.context["latest_releases"]
     }
     assert latest_releases_ids == {"icd10", "snomedct", "ctv3", "dmd", "bnf"}
+    latest_release_names = [
+        release.name for release in response.context["latest_releases"]
+    ]
+    assert latest_release_names == sorted(latest_release_names, key=str.casefold)
     assert set(CODING_SYSTEMS) - latest_releases_ids == {
         "null",
         "opcs4",

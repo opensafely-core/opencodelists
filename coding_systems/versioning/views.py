@@ -16,11 +16,14 @@ def latest_releases(request):
     """List latest releases for each coding system"""
 
     # Get regular coding system releases
-    coding_system_releases = [
-        cs.get_by_release_or_most_recent()
-        for cs in CODING_SYSTEMS.values()
-        if cs.has_database
-    ]
+    coding_system_releases = sorted(
+        [
+            cs.get_by_release_or_most_recent()
+            for cs in CODING_SYSTEMS.values()
+            if cs.has_database
+        ],
+        key=lambda coding_system_release: coding_system_release.name.casefold(),
+    )
 
     # Get the latest PCD refset version and the latest NHS drug refset version
     latest_pcd = PCDRefsetVersion.get_latest()

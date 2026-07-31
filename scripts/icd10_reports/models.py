@@ -25,12 +25,20 @@ class AffectedCodelist:
     moved_code_sets: list[dict[str, object]]
     missing_modifier_codes: dict[str, frozenset[str]] = field(default_factory=dict)
 
-    def path(self) -> str:
+    def version_paths(self) -> list[str]:
+        """Return URL paths for every public identifier for this version."""
         if self.user_id:
             codelist_path = f"/codelist/user/{quote(self.user_id)}/{quote(self.slug)}/"
         else:
             codelist_path = (
                 f"/codelist/{quote(self.organisation_id or '')}/{quote(self.slug)}/"
             )
-        tag_or_hash = self.version_tag or hash_id(self.version_id, "CodelistVersion")
-        return f"{codelist_path}{quote(tag_or_hash)}/"
+        identifiers = [hash_id(self.version_id, "CodelistVersion")]
+        if self.version_tag:
+            identifiers.append(self.version_tag)
+        return [f"{codelist_path}{quote(identifier)}/" for identifier in identifiers]
+
+    def path(self) -> str:
+        """Return the preferred URL path for links shown to users."""
+        paths = self.version_paths()
+        return paths[-1] if self.version_tag else paths[0]

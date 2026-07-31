@@ -93,6 +93,70 @@ def missing_modifier_code_sets(
     }
 
 
+def issues_by_code(
+    codes: set[str] | frozenset[str],
+    modifier_descendants: dict[str, frozenset[str]],
+) -> dict[str, list[dict[str, object]]]:
+    """Return every warning definition indexed by a code that can trigger it."""
+    issues: dict[str, list[dict[str, object]]] = {}
+    all_codes = codes  #| {code for code in modifier_descendants}
+    for code in sorted(all_codes):
+        code_issues: list[dict[str, object]] = []
+
+        description_change = clinically_different_codes([code]).get(code)
+        if description_change:
+            code_issues.append(
+                {
+                    "type": "description_change",
+                    "code": code,
+                    **description_change,
+                }
+            )
+
+        moved_code_sets = moved_codes([code])
+
+        if moved_code_sets:
+            if code_issues:
+                # I don't think there are any codes with multiple issues, so crash out if found.
+                assert False, (
+                    f"Code {code} has multiple issues: {code_issues} and moved code set {moved_code_sets}"
+                )
+            # We only passed a single code to moved_codes so should only get one back
+            assert len(moved_code_sets) == 1, (
+                f"Expected at most one moved code set for {code}"
+            )
+            moved_code_set = moved_code_sets[0]
+            code_issues.append(
+                {
+                    "type": "moved_codes",
+                    "title": moved_code_set["title"],
+                    "comment": moved_code_set["comment"],
+                    "nhs2016": sorted(moved_code_set["nhs2016"]),
+                    "who2019": sorted(moved_code_set["who2019"]),
+                }
+            )
+
+        modifier_codes = modifier_descendants.get(code)
+        if modifier_codes:
+            if code_issues:
+                # I don't think there are any codes with multiple issues, so crash out if found.
+                assert False, (
+                    f"Code {code} has multiple issues: {code_issues} and missing modifier codes {modifier_codes}"
+                )
+            code_issues.append(
+                {
+                    "type": "missing_modifier_codes",
+                    "code": code,
+                    "modifier_codes": sorted(modifier_codes),
+                }
+            )
+
+        if code_issues:
+            issues[code] = code_issues
+
+    return issues
+
+
 def find_affected_codelists(
     connection: sqlite3.Connection,
     modifier_descendants: dict[str, frozenset[str]],
@@ -106,7 +170,6 @@ def find_affected_codelists(
             GROUP BY codelist_id
         )
         SELECT
-            c.id,
             h.name,
             h.slug,
             h.user_id,

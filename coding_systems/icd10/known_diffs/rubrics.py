@@ -446,3 +446,7 @@ KNOWN_2016_RUBRIC_DIFFERENCES = {
         comment="U077 has no rubrics in WHO so we use the NHS rubrics as-is",
     ),
 }
+
+
+def rubric_differences(code: str) -> RubricDifference | None:
+    return KNOWN_2016_RUBRIC_DIFFERENCES.get(code)

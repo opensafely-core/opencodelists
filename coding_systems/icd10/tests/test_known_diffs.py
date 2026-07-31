@@ -2,8 +2,6 @@ import pytest
 
 from coding_systems.icd10.claml_parser import ICD10Code, ModifierDigit
 from coding_systems.icd10.known_diffs import (
-    RubricDifference,
-    TermDifference,
     clinically_different_codes,
     codes_with_different_descriptions,
     expand_who_2016_place_of_occurrence,
@@ -12,9 +10,14 @@ from coding_systems.icd10.known_diffs import (
     is_2016_description_difference,
     is_2016_scraped_only,
     moved_codes,
+    rubric_differences,
     should_include_2016_claml_only,
     should_include_2016_scraped_only,
     should_use_scraped_for_2016,
+)
+from coding_systems.icd10.known_diffs.differences import (
+    RubricDifference,
+    TermDifference,
 )
 
 
@@ -272,3 +275,24 @@ def test_codes_with_different_descriptions():
             "equivalent": False,
         },
     }
+
+
+def test_rubric_differences():
+    differences = rubric_differences("B81")
+
+    assert differences == RubricDifference(
+        who_2016={
+            "exclusion": [
+                "Angiostrongyliasis due to: Angiostrongylus costaricensis (B83.2)",
+                "Angiostrongyliasis due to: Parastrongylus costaricensis (B83.2)",
+            ]
+        },
+        replace={"exclusion": {"costaricensis": "cantonensis"}},
+        comment="Typo in WHO. B81 is about _costaricensis_, so _cantonensis_ not _costaricensis_ should be excluded. Correction mentioned on p10 of ICD-10_Classification_Content_Changes_2026_.pdf",
+    )
+
+
+def test_rubric_differences_not_found():
+    differences = rubric_differences("Z99")
+
+    assert differences is None

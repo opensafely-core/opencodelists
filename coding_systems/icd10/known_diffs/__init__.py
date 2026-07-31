@@ -14,12 +14,10 @@ from .claml_vs_scraped import (
     should_use_scraped_for_2016,
 )
 from .combined_2016_vs_2019 import (
-    COMBINED_2016_VS_2019_DIFFERENCES,
     clinically_different_codes,
     codes_with_different_descriptions,
     get_2016_2019_description_difference,
 )
-from .differences import ReleaseTermDifference, RubricDifference, TermDifference
 from .moved import moved_codes
-from .rubrics import KNOWN_2016_RUBRIC_DIFFERENCES
+from .rubrics import rubric_differences
 from .who_2016_overrides import expand_who_2016_place_of_occurrence

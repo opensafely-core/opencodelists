@@ -3,16 +3,13 @@ from django.core.validators import MinLengthValidator
 from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
 
+from builder import views
 from codelists.actions import create_codelist_from_scratch
 from codelists.coding_systems import most_recent_database_alias
 from codelists.models import Codelist, Search
 from codelists.tests.views.assertions import (
     assert_post_unauthenticated,
     assert_post_unauthorised,
-)
-from coding_systems.icd10.known_diffs import (
-    COMBINED_2016_VS_2019_DIFFERENCES,
-    ReleaseTermDifference,
 )
 from opencodelists.tests.assertions import assert_difference
 
@@ -175,14 +172,10 @@ def test_new_search_for_code(client, draft):
 def test_new_search_flags_clinically_inequivalent_icd10_codes(
     client, icd10_data, monkeypatch, organisation, organisation_user
 ):
-    monkeypatch.setitem(
-        COMBINED_2016_VS_2019_DIFFERENCES,
-        "M770",
-        ReleaseTermDifference(
-            combined_2016="Old term",
-            who_2019="New term",
-            clinically_equivalent=False,
-        ),
+    monkeypatch.setattr(
+        views,
+        "clinically_different_codes",
+        lambda codes: {"M770": {"combined_2016": "Old term", "who_2019": "New term"}},
     )
     codelist = create_codelist_from_scratch(
         owner=organisation,
@@ -209,14 +202,15 @@ def test_new_search_flags_clinically_inequivalent_icd10_codes(
 def test_builder_known_difference_flags_are_icd10_only(
     client, draft_with_complete_searches, monkeypatch
 ):
-    monkeypatch.setitem(
-        COMBINED_2016_VS_2019_DIFFERENCES,
-        "202855006",
-        ReleaseTermDifference(
-            combined_2016="Old term",
-            who_2019="New term",
-            clinically_equivalent=False,
-        ),
+    monkeypatch.setattr(
+        views,
+        "clinically_different_codes",
+        lambda codes: {
+            "202855006": {
+                "combined_2016": "Old term",
+                "who_2019": "New term",
+            }
+        },
     )
     client.force_login(draft_with_complete_searches.author)
 

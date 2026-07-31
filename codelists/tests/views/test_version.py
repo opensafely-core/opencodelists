@@ -1,16 +1,17 @@
 import re
+from importlib import import_module
 
 from bs4 import BeautifulSoup
 from django.urls import reverse
 
 from codelists.actions import create_codelist_with_codes
 from codelists.models import Status
-from coding_systems.icd10.known_diffs import (
-    COMBINED_2016_VS_2019_DIFFERENCES,
-    ReleaseTermDifference,
-)
 
 from .helpers import force_login
+
+
+# resolve views/__init__.py redirection to actual module so we can monkeypatch it reliably
+version_view = import_module("codelists.views.version")
 
 
 def test_get_old_style_version(client, old_style_version):
@@ -139,24 +140,20 @@ def test_medication_banner_for_owner_of_codelist(
     )
 
 
-def test_icd10_known_differences_data(client, icd10_data, monkeypatch, organisation):
-    monkeypatch.setitem(
-        COMBINED_2016_VS_2019_DIFFERENCES,
-        "M770",
-        ReleaseTermDifference(
-            combined_2016="Old term",
-            who_2019="New term",
-            clinically_equivalent=False,
-        ),
-    )
-    monkeypatch.setitem(
-        COMBINED_2016_VS_2019_DIFFERENCES,
-        "M771",
-        ReleaseTermDifference(
-            combined_2016="Other old term",
-            who_2019="Other new term",
-            clinically_equivalent=False,
-        ),
+def test_icd10_known_differences_data(client, monkeypatch, icd10_data, organisation):
+    monkeypatch.setattr(
+        version_view,
+        "clinically_different_codes",
+        lambda codes: {
+            "M770": {
+                "combined_2016": "Old term",
+                "who_2019": "New term",
+            },
+            "M771": {
+                "combined_2016": "Other old term",
+                "who_2019": "Other new term",
+            },
+        },
     )
     codelist = create_codelist_with_codes(
         owner=organisation,
@@ -185,14 +182,15 @@ def test_icd10_known_differences_data(client, icd10_data, monkeypatch, organisat
 def test_icd10_known_differences_banner_is_icd10_only(
     client, latest_published_version, monkeypatch
 ):
-    monkeypatch.setitem(
-        COMBINED_2016_VS_2019_DIFFERENCES,
-        "202855006",
-        ReleaseTermDifference(
-            combined_2016="Old term",
-            who_2019="New term",
-            clinically_equivalent=False,
-        ),
+    monkeypatch.setattr(
+        version_view,
+        "clinically_different_codes",
+        lambda codes: {
+            "202855006": {
+                "combined_2016": "Old term",
+                "who_2019": "New term",
+            }
+        },
     )
 
     rsp = client.get(latest_published_version.get_absolute_url())
@@ -203,15 +201,16 @@ def test_icd10_known_differences_banner_is_icd10_only(
 
 def test_icd10_moved_code_sets_data(client, icd10_data, monkeypatch, organisation):
     monkeypatch.setattr(
-        "coding_systems.icd10.known_diffs.moved.MOVED_CODE_SETS",
-        (
+        version_view,
+        "moved_codes",
+        lambda codes: [
             {
                 "title": "Test moved concept",
                 "nhs2016": ["M770"],
                 "who2019": ["M771"],
                 "comment": "",
-            },
-        ),
+            }
+        ],
     )
     codelist = create_codelist_with_codes(
         owner=organisation,

@@ -18,6 +18,7 @@ if __package__ in (None, ""):
 
 from scripts.icd10_reports.data import (
     find_affected_codelists,
+    issues_by_code,
     load_codes,
     load_modifier_descendants,
     reports_by_owner,
@@ -53,6 +54,7 @@ def main() -> None:
         with sqlite3.connect(
             f"file:{args.icd10_database.resolve()}?mode=ro", uri=True
         ) as icd10_connection:
+            current_codes = load_codes(icd10_connection)
             modifier_descendants = load_modifier_descendants(
                 icd10_connection, old_codes
             )
@@ -64,7 +66,8 @@ def main() -> None:
         ) as connection:
             affected = find_affected_codelists(connection, modifier_descendants)
             reports = reports_by_owner(connection, affected)
-        write_outputs(reports, affected)
+        code_issues = issues_by_code(old_codes | current_codes, modifier_descendants)
+        write_outputs(reports, affected, code_issues)
     except RuntimeError as error:
         parser.error(str(error))
 
@@ -73,7 +76,7 @@ def main() -> None:
     print(f"Found {len(affected)} affected codelists.")
     print(
         f"Wrote {user_count} user PDFs, {organisation_count} organisation PDFs, "
-        f"recipients.csv, summary.md, and example.pdf."
+        f"recipients.csv, summary.md, issues.json, and example.pdf."
     )
 
 

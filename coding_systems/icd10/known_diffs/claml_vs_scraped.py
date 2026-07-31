@@ -1,4 +1,4 @@
-from .differences import CodeDifference, KnownDifferences, TermDifference
+from .difference_classes import CodeDifference, KnownDifferences, TermDifference
 
 
 # Known differences between the 2016 WHO ICD10 claml and the scraped ICD10

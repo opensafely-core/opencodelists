@@ -1,4 +1,4 @@
-from .differences import ReleaseTermDifference
+from .difference_classes import ReleaseTermDifference
 
 
 # Known differences between the combined 2016 data (base WHO claml + scraped data)

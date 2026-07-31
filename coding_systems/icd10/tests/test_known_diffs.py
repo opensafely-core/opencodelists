@@ -15,7 +15,7 @@ from coding_systems.icd10.known_diffs import (
     should_include_2016_scraped_only,
     should_use_scraped_for_2016,
 )
-from coding_systems.icd10.known_diffs.differences import (
+from coding_systems.icd10.known_diffs.difference_classes import (
     RubricDifference,
     TermDifference,
 )

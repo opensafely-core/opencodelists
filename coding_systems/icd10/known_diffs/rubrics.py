@@ -1,4 +1,4 @@
-from .differences import RubricDifference
+from .difference_classes import RubricDifference
 
 
 KNOWN_2016_RUBRIC_DIFFERENCES = {

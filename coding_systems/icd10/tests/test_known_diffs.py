@@ -2,8 +2,6 @@ import pytest
 
 from coding_systems.icd10.claml_parser import ICD10Code, ModifierDigit
 from coding_systems.icd10.known_diffs import (
-    RubricChange,
-    TermDifference,
     clinically_different_codes,
     codes_with_different_descriptions,
     expand_who_2016_place_of_occurrence,
@@ -12,9 +10,14 @@ from coding_systems.icd10.known_diffs import (
     is_2016_description_difference,
     is_2016_scraped_only,
     moved_codes,
+    rubric_differences,
     should_include_2016_claml_only,
     should_include_2016_scraped_only,
     should_use_scraped_for_2016,
+)
+from coding_systems.icd10.known_diffs.difference_classes import (
+    RubricDifference,
+    TermDifference,
 )
 
 
@@ -23,20 +26,20 @@ def test_term_difference_rejects_unknown_source_choice():
         TermDifference(claml="A", scraped="B", use="neither")
 
 
-def test_rubric_change_defaults_to_who_rubrics():
-    change = RubricChange(
+def test_rubric_difference_defaults_to_who_rubrics():
+    change = RubricDifference(
         who_2016={"inclusion": ["A"]},
     )
 
     assert change.resolved_rubrics == {"inclusion": ["A"]}
 
 
-def test_rubric_change_derives_use_from_edits_without_mutating_who():
+def test_rubric_difference_derives_use_from_edits_without_mutating_who():
     who_2016 = {
         "inclusion": ["A", "B"],
         "exclusion": ["old value", "remove me"],
     }
-    change = RubricChange(
+    change = RubricDifference(
         who_2016=who_2016,
         replace={"exclusion": {"old": "new"}},
         remove={"exclusion": ["remove me"]},
@@ -54,8 +57,8 @@ def test_rubric_change_derives_use_from_edits_without_mutating_who():
     }
 
 
-def test_rubric_change_adds():
-    change = RubricChange(
+def test_rubric_difference_adds():
+    change = RubricDifference(
         who_2016={"inclusion": ["A"]},
         add={"inclusion": ["B"], "exclusion": ["C"]},
     )
@@ -63,8 +66,8 @@ def test_rubric_change_adds():
     assert change.resolved_rubrics == {"inclusion": ["A", "B"], "exclusion": ["C"]}
 
 
-def test_rubric_change_removes():
-    change = RubricChange(
+def test_rubric_difference_removes():
+    change = RubricDifference(
         who_2016={"inclusion": ["A", "B"], "exclusion": ["C"]},
         remove={"inclusion": ["B"], "exclusion": ["C"]},
     )
@@ -72,8 +75,8 @@ def test_rubric_change_removes():
     assert change.resolved_rubrics == {"inclusion": ["A"]}
 
 
-def test_rubric_change_replaces_substrings_in_each_rubric_value():
-    change = RubricChange(
+def test_rubric_difference_replaces_substrings_in_each_rubric_value():
+    change = RubricDifference(
         who_2016={
             "inclusion": [
                 "Angiostrongyliasis due to: Angiostrongylus costaricensis (B83.2)"
@@ -171,7 +174,7 @@ def test_expand_who_2016_place_of_occurrence_applies_range_and_exceptions(
     }
     modifiers = [ModifierDigit(digit_code="0", description="Home")]
     monkeypatch.setattr(
-        "coding_systems.icd10.known_diffs.WHO_2016_EXPECTED_OVERRIDES",
+        "coding_systems.icd10.known_diffs.who_2016_overrides.WHO_2016_EXPECTED_OVERRIDES",
         frozenset({"W260", "X340", "X590"}),
     )
 
@@ -193,7 +196,7 @@ def test_expand_who_2016_place_of_occurrence_fails_on_unexpected_overlap(
     }
     modifiers = [ModifierDigit(digit_code="0", description="Home")]
     monkeypatch.setattr(
-        "coding_systems.icd10.known_diffs.WHO_2016_EXPECTED_OVERRIDES",
+        "coding_systems.icd10.known_diffs.who_2016_overrides.WHO_2016_EXPECTED_OVERRIDES",
         frozenset(),
     )
 
@@ -207,7 +210,7 @@ def test_expand_who_2016_place_of_occurrence_fails_when_expected_override_missin
     records = {"W00": ICD10Code(code="W00", parent=None, description="Fall")}
     modifiers = [ModifierDigit(digit_code="0", description="Home")]
     monkeypatch.setattr(
-        "coding_systems.icd10.known_diffs.WHO_2016_EXPECTED_OVERRIDES",
+        "coding_systems.icd10.known_diffs.who_2016_overrides.WHO_2016_EXPECTED_OVERRIDES",
         frozenset({"X590"}),
     )
 
@@ -272,3 +275,24 @@ def test_codes_with_different_descriptions():
             "equivalent": False,
         },
     }
+
+
+def test_rubric_differences():
+    differences = rubric_differences("B81")
+
+    assert differences == RubricDifference(
+        who_2016={
+            "exclusion": [
+                "Angiostrongyliasis due to: Angiostrongylus costaricensis (B83.2)",
+                "Angiostrongyliasis due to: Parastrongylus costaricensis (B83.2)",
+            ]
+        },
+        replace={"exclusion": {"costaricensis": "cantonensis"}},
+        comment="Typo in WHO. B81 is about _costaricensis_, so _cantonensis_ not _costaricensis_ should be excluded. Correction mentioned on p10 of ICD-10_Classification_Content_Changes_2026_.pdf",
+    )
+
+
+def test_rubric_differences_not_found():
+    differences = rubric_differences("Z99")
+
+    assert differences is None

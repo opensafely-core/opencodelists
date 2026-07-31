@@ -203,7 +203,7 @@ def test_icd10_known_differences_banner_is_icd10_only(
 
 def test_icd10_moved_code_sets_data(client, icd10_data, monkeypatch, organisation):
     monkeypatch.setattr(
-        "coding_systems.icd10.known_diffs.known_diffs.MOVED_CODE_SETS",
+        "coding_systems.icd10.known_diffs.moved.MOVED_CODE_SETS",
         (
             {
                 "title": "Test moved concept",

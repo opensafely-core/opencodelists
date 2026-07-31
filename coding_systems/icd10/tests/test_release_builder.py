@@ -50,7 +50,7 @@ def test_apply_nhs_2016_alterations_adds_place_codes(monkeypatch):
     place_modifiers = [ModifierDigit(digit_code="0", description="Home")]
 
     monkeypatch.setattr(
-        "coding_systems.icd10.known_diffs.known_diffs.WHO_2016_EXPECTED_OVERRIDES",
+        "coding_systems.icd10.known_diffs.who_2016_overrides.WHO_2016_EXPECTED_OVERRIDES",
         frozenset({"W260"}),
     )
     altered = apply_nhs_2016_alterations(records, place_modifiers)
@@ -560,7 +560,7 @@ def test_load_import_records_applies_nhs_alterations_before_combining(
         lambda output_2016, output_2019: None,
     )
     monkeypatch.setattr(
-        "coding_systems.icd10.known_diffs.known_diffs.WHO_2016_EXPECTED_OVERRIDES",
+        "coding_systems.icd10.known_diffs.who_2016_overrides.WHO_2016_EXPECTED_OVERRIDES",
         frozenset(),
     )
 

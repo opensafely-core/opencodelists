@@ -171,7 +171,7 @@ def test_expand_who_2016_place_of_occurrence_applies_range_and_exceptions(
     }
     modifiers = [ModifierDigit(digit_code="0", description="Home")]
     monkeypatch.setattr(
-        "coding_systems.icd10.known_diffs.WHO_2016_EXPECTED_OVERRIDES",
+        "coding_systems.icd10.known_diffs.known_diffs.WHO_2016_EXPECTED_OVERRIDES",
         frozenset({"W260", "X340", "X590"}),
     )
 
@@ -193,7 +193,7 @@ def test_expand_who_2016_place_of_occurrence_fails_on_unexpected_overlap(
     }
     modifiers = [ModifierDigit(digit_code="0", description="Home")]
     monkeypatch.setattr(
-        "coding_systems.icd10.known_diffs.WHO_2016_EXPECTED_OVERRIDES",
+        "coding_systems.icd10.known_diffs.known_diffs.WHO_2016_EXPECTED_OVERRIDES",
         frozenset(),
     )
 
@@ -207,7 +207,7 @@ def test_expand_who_2016_place_of_occurrence_fails_when_expected_override_missin
     records = {"W00": ICD10Code(code="W00", parent=None, description="Fall")}
     modifiers = [ModifierDigit(digit_code="0", description="Home")]
     monkeypatch.setattr(
-        "coding_systems.icd10.known_diffs.WHO_2016_EXPECTED_OVERRIDES",
+        "coding_systems.icd10.known_diffs.known_diffs.WHO_2016_EXPECTED_OVERRIDES",
         frozenset({"X590"}),
     )
 

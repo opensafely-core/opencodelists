@@ -12,7 +12,7 @@ from coding_systems.icd10.claml_parser import (
 )
 from coding_systems.icd10.data_downloader import Year
 from coding_systems.icd10.known_diffs import (
-    KNOWN_2016_RUBRIC_CHANGES,
+    KNOWN_2016_RUBRIC_DIFFERENCES,
     expand_who_2016_place_of_occurrence,
     get_2016_2019_description_difference,
     is_2016_claml_only,
@@ -256,8 +256,8 @@ def check_diff_2016_claml_with_scraped(
 
 
 def _check_rubrics(code: str, record: ICD10Code) -> None:
-    if code in KNOWN_2016_RUBRIC_CHANGES:
-        change = KNOWN_2016_RUBRIC_CHANGES[code]
+    if code in KNOWN_2016_RUBRIC_DIFFERENCES:
+        change = KNOWN_2016_RUBRIC_DIFFERENCES[code]
         if record.concept_rubrics != change.who_2016:
             raise ValueError(
                 f"Unexpected rubric for {code}: {record.concept_rubrics!r} "
@@ -266,8 +266,8 @@ def _check_rubrics(code: str, record: ICD10Code) -> None:
 
 
 def _change_rubrics(code: str, record: ICD10Code) -> ICD10Code:
-    if code in KNOWN_2016_RUBRIC_CHANGES:
-        change = KNOWN_2016_RUBRIC_CHANGES[code]
+    if code in KNOWN_2016_RUBRIC_DIFFERENCES:
+        change = KNOWN_2016_RUBRIC_DIFFERENCES[code]
         record.concept_rubrics = change.resolved_rubrics
     return record
 

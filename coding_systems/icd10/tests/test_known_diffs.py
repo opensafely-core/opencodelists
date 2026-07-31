@@ -2,7 +2,7 @@ import pytest
 
 from coding_systems.icd10.claml_parser import ICD10Code, ModifierDigit
 from coding_systems.icd10.known_diffs import (
-    RubricChange,
+    RubricDifference,
     TermDifference,
     clinically_different_codes,
     codes_with_different_descriptions,
@@ -23,20 +23,20 @@ def test_term_difference_rejects_unknown_source_choice():
         TermDifference(claml="A", scraped="B", use="neither")
 
 
-def test_rubric_change_defaults_to_who_rubrics():
-    change = RubricChange(
+def test_rubric_difference_defaults_to_who_rubrics():
+    change = RubricDifference(
         who_2016={"inclusion": ["A"]},
     )
 
     assert change.resolved_rubrics == {"inclusion": ["A"]}
 
 
-def test_rubric_change_derives_use_from_edits_without_mutating_who():
+def test_rubric_difference_derives_use_from_edits_without_mutating_who():
     who_2016 = {
         "inclusion": ["A", "B"],
         "exclusion": ["old value", "remove me"],
     }
-    change = RubricChange(
+    change = RubricDifference(
         who_2016=who_2016,
         replace={"exclusion": {"old": "new"}},
         remove={"exclusion": ["remove me"]},
@@ -54,8 +54,8 @@ def test_rubric_change_derives_use_from_edits_without_mutating_who():
     }
 
 
-def test_rubric_change_adds():
-    change = RubricChange(
+def test_rubric_difference_adds():
+    change = RubricDifference(
         who_2016={"inclusion": ["A"]},
         add={"inclusion": ["B"], "exclusion": ["C"]},
     )
@@ -63,8 +63,8 @@ def test_rubric_change_adds():
     assert change.resolved_rubrics == {"inclusion": ["A", "B"], "exclusion": ["C"]}
 
 
-def test_rubric_change_removes():
-    change = RubricChange(
+def test_rubric_difference_removes():
+    change = RubricDifference(
         who_2016={"inclusion": ["A", "B"], "exclusion": ["C"]},
         remove={"inclusion": ["B"], "exclusion": ["C"]},
     )
@@ -72,8 +72,8 @@ def test_rubric_change_removes():
     assert change.resolved_rubrics == {"inclusion": ["A"]}
 
 
-def test_rubric_change_replaces_substrings_in_each_rubric_value():
-    change = RubricChange(
+def test_rubric_difference_replaces_substrings_in_each_rubric_value():
+    change = RubricDifference(
         who_2016={
             "inclusion": [
                 "Angiostrongyliasis due to: Angiostrongylus costaricensis (B83.2)"

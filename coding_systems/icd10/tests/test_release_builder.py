@@ -4,7 +4,7 @@ import pytest
 import structlog
 
 from coding_systems.icd10.claml_parser import ICD10Code, ModifierDigit
-from coding_systems.icd10.known_diffs import RubricChange
+from coding_systems.icd10.known_diffs import RubricDifference
 from coding_systems.icd10.release_builder import (
     apply_nhs_2016_alterations,
     build_2016_2019_diff_report,
@@ -188,7 +188,7 @@ def test_combine_2016_claml_and_scraped_records_uses_known_term_choice(monkeypat
     assert combined["J10"] is scraped_records["J10"]
 
 
-def test_combine_2016_claml_and_scraped_records_applies_derived_rubric_change(
+def test_combine_2016_claml_and_scraped_records_applies_derived_rubric_difference(
     monkeypatch,
 ):
     claml_records = {
@@ -219,9 +219,9 @@ def test_combine_2016_claml_and_scraped_records_applies_derived_rubric_change(
         lambda claml, scraped: None,
     )
     monkeypatch.setattr(
-        "coding_systems.icd10.release_builder.KNOWN_2016_RUBRIC_CHANGES",
+        "coding_systems.icd10.release_builder.KNOWN_2016_RUBRIC_DIFFERENCES",
         {
-            "A00": RubricChange(
+            "A00": RubricDifference(
                 who_2016={
                     "inclusion": ["Keep"],
                     "exclusion": ["Remove"],
@@ -256,8 +256,8 @@ def test_combine_2016_claml_and_scraped_records_rejects_unexpected_rubric(
         lambda claml, scraped: None,
     )
     monkeypatch.setattr(
-        "coding_systems.icd10.release_builder.KNOWN_2016_RUBRIC_CHANGES",
-        {"A00": RubricChange(who_2016={"inclusion": ["Expected"]})},
+        "coding_systems.icd10.release_builder.KNOWN_2016_RUBRIC_DIFFERENCES",
+        {"A00": RubricDifference(who_2016={"inclusion": ["Expected"]})},
     )
 
     with pytest.raises(ValueError, match="Unexpected rubric for A00"):

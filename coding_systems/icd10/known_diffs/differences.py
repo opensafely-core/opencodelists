@@ -32,7 +32,7 @@ class ReleaseTermDifference:
 
 
 @dataclass
-class RubricChange:
+class RubricDifference:
     """
     Represents a change to the rubrics of a code between releases. This can
     include additions, removals, and replacements of rubric text. The `who_2016`

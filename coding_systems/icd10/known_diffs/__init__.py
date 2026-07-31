@@ -19,7 +19,7 @@ from .combined_2016_vs_2019 import (
     codes_with_different_descriptions,
     get_2016_2019_description_difference,
 )
-from .differences import ReleaseTermDifference, RubricChange, TermDifference
+from .differences import ReleaseTermDifference, RubricDifference, TermDifference
 from .moved import moved_codes
-from .rubrics import KNOWN_2016_RUBRIC_CHANGES
+from .rubrics import KNOWN_2016_RUBRIC_DIFFERENCES
 from .who_2016_overrides import expand_who_2016_place_of_occurrence

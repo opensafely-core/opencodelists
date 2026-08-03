@@ -12,6 +12,10 @@ export default function Header({
   isEditable: PageData["isEditable"];
   metadata: PageData["metadata"];
 }) {
+  const { coding_system_release: release } = metadata;
+  const showReleaseDate =
+    metadata.coding_system_id !== "bnf" && Boolean(release.valid_from);
+
   return (
     <div className="border-bottom mb-3 pb-3">
       <div className="d-flex flex-row justify-content-between gap-2 mb-2">
@@ -33,10 +37,8 @@ export default function Header({
         <div className="list-group-item py-1 px-2">
           <dt>Coding system release</dt>
           <dd className="mb-0">
-            {metadata.coding_system_release.release_name}{" "}
-            {metadata.coding_system_release.valid_from ? (
-              <>({metadata.coding_system_release.valid_from})</>
-            ) : null}
+            {release.release_name}
+            {showReleaseDate && ` (${release.valid_from})`}
           </dd>
         </div>
 

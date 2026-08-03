@@ -1,30 +1,41 @@
-<footer class="bg-slate-900 mt-auto">
-  <div class="container py-20">
-    <nav class="flex flex-col gap-y-4 md:flex-row md:flex-wrap md:gap-x-8 text-base/snug" aria-label="Footer">
-      <a href="{% url 'versioning:latest_releases' %}" class="text-slate-200 underline decoration-slate-600 underline-offset-4 font-semibold transition-colors hover:text-white hover:decoration-white">
-        Coding System Releases
-      </a>
-      <a href="{% url 'contact' %}" class="text-slate-200 underline decoration-slate-600 underline-offset-4 font-semibold transition-colors hover:text-white hover:decoration-white">
-        Contact
-      </a>
-      <a href="{% url 'docs:index' %}" class="text-slate-200 underline decoration-slate-600 underline-offset-4 font-semibold transition-colors hover:text-white hover:decoration-white">
-        Documentation
-      </a>
-      <a href="https://www.opensafely.org/" class="text-slate-200 underline decoration-slate-600 underline-offset-4 font-semibold transition-colors hover:text-white hover:decoration-white">
-        OpenSAFELY
-      </a>
-      <a href="https://www.phc.ox.ac.uk/about/privacy-policy" class="text-slate-200 underline decoration-slate-600 underline-offset-4 font-semibold transition-colors hover:text-white hover:decoration-white">
-        Privacy Notice
-      </a>
-      <a href="https://www.bennett.ox.ac.uk/" class="text-slate-200 underline decoration-slate-600 underline-offset-4 font-semibold transition-colors hover:text-white hover:decoration-white">
-        Bennett Institute for Applied Data Science
-      </a>
-      <a href="https://www.ox.ac.uk/" class="text-slate-200 underline decoration-slate-600 underline-offset-4 font-semibold transition-colors hover:text-white hover:decoration-white">
-        University of Oxford
-      </a>
-    </nav>
-    <div class="mt-10 text-sm/6 text-slate-300 space-y-6 max-w-[80ch]">
-      <p>© University of Oxford for the Bennett Institute for Applied Data Science {% now "Y" %}. This work may be copied freely for non-commercial research and study. If you wish to do any of the other acts restricted by the copyright you should apply in writing to <a class="text-slate-200 underline decoration-slate-600 underline-offset-4 font-semibold transition-colors hover:text-white hover:decoration-white" href="mailto:team@opensafely.org">team@opensafely.org</a>.</p>
+<footer class="mt-auto border-t-4 border-t-blue-950 bg-blue-50 py-8 text-slate-950">
+  <div class="container flex flex-col">
+    <h2 class="pb-2 text-lg font-bold tracking-tight text-blue-950">OpenCodelists</h2>
+    <ul class="flex flex-row flex-wrap gap-x-8 gap-y-4">
+      <li>
+        <a class="link" href="/">Home</a>
+      </li>
+      <li>
+        <a class="link" href="{% url 'versioning:latest_releases' %}">Coding System Releases </a>
+      </li>
+      <li>
+        <a class="link" href="{% url 'contact' %}">Contact</a>
+      </li>
+      <li>
+        <a class="link" href="{% url 'docs:index' %}">Documentation</a>
+      </li>
+    </ul>
+    <h2 class="mt-10 pb-2 text-lg font-bold tracking-tight text-blue-950">More</h2>
+    <ul class="flex flex-row flex-wrap gap-x-8 gap-y-4">
+      <li>
+        <a class="link" href="https://www.opensafely.org/">OpenSAFELY</a>
+      </li>
+      <li>
+        <a class="link" href="https://www.bennett.ox.ac.uk/">Bennett Institute for Applied Data Science</a>
+      </li>
+      <li>
+        <a class="link" href="https://www.ox.ac.uk/">University of Oxford</a>
+      </li>
+      <li>
+        <a class="link" href="https://www.opensafely.org/privacy/">Privacy Policy</a>
+      </li>
+    </ul>
+    <div class="prose prose-sm mt-10 max-w-3xl text-slate-600">
+      <h2 class="sr-only">Copyright statement</h2>
+      <p>
+        © University of Oxford for the Bennett Institute for Applied Data Science {% now 'Y' %}. This work may be copied freely for non-commercial research and study. If you wish to do any of the other acts restricted by the copyright you should apply in writing to
+        <a class="link" href="mailto:team@opensafely.org">team@opensafely.org</a>.
+      </p>
       <p>SNOMED Clinical Terms® content © International Health Terminology Standards Development Organisation.</p>
       <p>ICD-10 codes, terms and text © World Health Organization, Third Edition. 2007.</p>
     </div>

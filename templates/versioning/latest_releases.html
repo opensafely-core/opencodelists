@@ -1,36 +1,88 @@
-{% extends 'base.html' %}
+{% extends 'base-tw.html' %}
 
 {% load crispy_forms_tags %}
 
-{% block title_extra %}: Coding System Releases{% endblock %}
+{% block title_extra %}
+  Coding System Releases
+{% endblock %}
 
 {% block content %}
-  <h1> Coding System Releases</h1>
+  <header class="grid gap-y-4 mb-8 border-b border-b-slate-300 py-8">
+    <h1 class="max-w-prose text-2xl font-bold tracking-tight wrap-break-word text-slate-900 md:text-4xl">Coding System Releases</h1>
+    <p>Latest code system release information</p>
+  </header>
 
-  {% for coding_system_release in latest_releases %}
-    <h4>{{ coding_system_release.name }}</h4>
-    <ul>
-      <li>Latest release: {{ coding_system_release.release_name }}</li>
-      <li>Valid from: {{ coding_system_release.release.valid_from }}</li>
-      <li>Imported on: {{ coding_system_release.release.import_timestamp }}</li>
-    </ul>
-  {% endfor %}
-  {% if pcd_refset_version %}
-    <h4>NHS Primary Care Domain Refsets</h4>
-    <ul>
-      <li>Release: {{ pcd_refset_version.release }}</li>
-      <li>Tag: {{ pcd_refset_version.tag }}</li>
-      <li>Release Date: {{ pcd_refset_version.release_date }}</li>
-      <li>Imported: {{ pcd_refset_version.import_timestamp }}</li>
-    </ul>
-  {% endif %}
-  {% if nhs_drug_refset_version %}
-    <h4>NHS Drug Refsets</h4>
-    <ul>
-      <li>Release: {{ nhs_drug_refset_version.release }}</li>
-      <li>Tag: {{ nhs_drug_refset_version.tag }}</li>
-      <li>Release Date: {{ nhs_drug_refset_version.release_date }}</li>
-      <li>Imported: {{ nhs_drug_refset_version.import_timestamp }}</li>
-    </ul>
-  {% endif %}
+  <ul class="grid lg:grid-cols-2 2xl:grid-cols-3 gap-6 items-start mb-24">
+    {% for coding_system_release in latest_releases %}
+      <li class="overflow-hidden rounded-lg bg-white shadow-sm">
+        <div class="px-4 py-5 sm:px-6">
+          <h2 class="font-bold text-xl/tight">{{ coding_system_release.name }}</h2>
+        </div>
+        <dl class="border-t border-slate-200 grid gap-y-0.5">
+          <div class="px-4 py-4 sm:px-6 even:bg-slate-50 text-slate-800">
+            <dt class="text-lg font-semibold text-slate-950">Latest release</dt>
+            <dd>{{ coding_system_release.release_name }}</dd>
+          </div>
+          <div class="px-4 py-4 sm:px-6 even:bg-slate-50 text-slate-800">
+            <dt class="text-lg font-semibold text-slate-950">Valid from</dt>
+            <dd><time datetime="{{ coding_system_release.release.valid_from|date:'c' }}">{{ coding_system_release.release.valid_from|date:'d M Y' }}</time></dd>
+          </div>
+          <div class="px-4 py-4 sm:px-6 even:bg-slate-50 text-slate-800">
+            <dt class="text-lg font-semibold text-slate-950">Imported on</dt>
+            <dd><time datetime="{{ coding_system_release.release.import_timestamp|date:'c' }}">{{ coding_system_release.release.import_timestamp|date:'d M Y' }} at {{ coding_system_release.release.import_timestamp|date:'H:i T' }}</time></dd>
+          </div>
+        </dl>
+      </li>
+    {% endfor %}
+    {% if nhs_drug_refset_version %}
+      <li class="overflow-hidden rounded-lg bg-white shadow-sm">
+        <div class="px-4 py-5 sm:px-6">
+          <h2 class="font-bold text-xl/tight">NHS Drug Refsets</h2>
+        </div>
+        <dl class="border-t border-slate-200">
+          <div class="px-4 py-4 sm:px-6 even:bg-slate-50 text-slate-800">
+            <dt class="text-lg font-semibold text-slate-950">Release</dt>
+            <dd>{{ nhs_drug_refset_version.release }}</dd>
+          </div>
+          <div class="px-4 py-4 sm:px-6 even:bg-slate-50 text-slate-800">
+            <dt class="text-lg font-semibold text-slate-950">Tag</dt>
+            <dd>{{ nhs_drug_refset_version.tag }}</dd>
+          </div>
+          <div class="px-4 py-4 sm:px-6 even:bg-slate-50 text-slate-800">
+            <dt class="text-lg font-semibold text-slate-950">Release date</dt>
+            <dd><time datetime="{{ nhs_drug_refset_version.release_date|date:'c' }}">{{ nhs_drug_refset_version.release_date|date:'d M Y' }}</time></dd>
+          </div>
+          <div class="px-4 py-4 sm:px-6 even:bg-slate-50 text-slate-800">
+            <dt class="text-lg font-semibold text-slate-950">Imported on</dt>
+            <dd><time datetime="{{ nhs_drug_refset_version.import_timestamp|date:'c' }}">{{ nhs_drug_refset_version.import_timestamp|date:'d M Y' }} at {{ nhs_drug_refset_version.import_timestamp|date:'H:i T' }}</time></dd>
+          </div>
+        </dl>
+      </li>
+    {% endif %}
+    {% if pcd_refset_version %}
+      <li class="overflow-hidden rounded-lg bg-white shadow-sm">
+        <div class="px-4 py-5 sm:px-6">
+          <h2 class="font-bold text-xl/tight">NHS Primary Care Domain Refsets</h2>
+        </div>
+        <dl class="border-t border-slate-200">
+          <div class="px-4 py-4 sm:px-6 even:bg-slate-50 text-slate-800">
+            <dt class="text-lg font-semibold text-slate-950">Release</dt>
+            <dd>{{ pcd_refset_version.release }}</dd>
+          </div>
+          <div class="px-4 py-4 sm:px-6 even:bg-slate-50 text-slate-800">
+            <dt class="text-lg font-semibold text-slate-950">Tag</dt>
+            <dd>{{ pcd_refset_version.tag }}</dd>
+          </div>
+          <div class="px-4 py-4 sm:px-6 even:bg-slate-50 text-slate-800">
+            <dt class="text-lg font-semibold text-slate-950">Release date</dt>
+            <dd><time datetime="{{ pcd_refset_version.release_date|date:'c' }}">{{ pcd_refset_version.release_date|date:'d M Y' }}</time></dd>
+          </div>
+          <div class="px-4 py-4 sm:px-6 even:bg-slate-50 text-slate-800">
+            <dt class="text-lg font-semibold text-slate-950">Imported</dt>
+            <dd><time datetime="{{ pcd_refset_version.import_timestamp|date:'c' }}">{{ pcd_refset_version.import_timestamp|date:'d M Y' }} at {{ pcd_refset_version.import_timestamp|date:'H:i T' }}</time></dd>
+          </div>
+        </dl>
+      </li>
+    {% endif %}
+  </ul>
 {% endblock %}

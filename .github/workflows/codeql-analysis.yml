@@ -9,9 +9,7 @@ on:
     - cron: "13 13 * * 3"
 
 permissions:
-  actions: read
   contents: read
-  security-events: write
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -21,6 +19,10 @@ jobs:
   analyze:
     name: Analyze
     runs-on: ubuntu-latest
+
+    permissions:
+      actions: read
+      security-events: write
 
     strategy:
       fail-fast: false

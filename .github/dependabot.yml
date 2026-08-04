@@ -15,7 +15,6 @@ updates:
         dependency-type: "production"
       development-dependencies:
         dependency-type: "development"
-    open-pull-requests-limit: 20
 
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -26,4 +25,13 @@ updates:
       timezone: "Europe/London"
     cooldown:
       default-days: 7
-    open-pull-requests-limit: 20
+
+  - package-ecosystem: "pre-commit"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "08:00"
+      timezone: "Europe/London"
+    cooldown:
+      default-days: 7

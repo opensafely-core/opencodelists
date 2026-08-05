@@ -8,7 +8,7 @@ from .models import AffectedCodelist, ReportOwner
 from .rendering import BASE_URL, render_report, render_summary, write_pdf
 
 
-CSV_FIELDS = ("email", "pdf_filename")
+CSV_FIELDS = ("type", "codelist", "email", "org", "pdf_filename")
 
 
 def write_outputs(
@@ -31,13 +31,18 @@ def write_outputs(
             output_dir / pdf_relative,
         )
 
-        if owner.kind == "user":
-            csv_rows.append(
-                {
-                    "email": owner.email or "",
-                    "pdf_filename": pdf_relative.as_posix(),
-                }
-            )
+        csv_rows.extend(
+            {
+                "type": "Organisation" if owner.kind == "organisation" else "User",
+                "codelist": f"{BASE_URL}{codelist.path()}",
+                "email": owner.email or "",
+                "org": (
+                    owner.organisation or "" if owner.kind == "user" else owner.name
+                ),
+                "pdf_filename": pdf_relative.name,
+            }
+            for codelist in codelists
+        )
 
     csv_path = output_dir / "recipients.csv"
     with csv_path.open("w", encoding="utf-8", newline="") as file:

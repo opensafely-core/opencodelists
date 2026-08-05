@@ -236,6 +236,7 @@ def find_affected_codelists(
 def reports_by_owner(
     connection: sqlite3.Connection,
     affected: list[AffectedCodelist],
+    organisation_priority: tuple[str, ...] = (),
 ) -> dict[ReportOwner, list[AffectedCodelist]]:
     """Group actionable codelists by their direct user or organisation owner."""
     connection.row_factory = sqlite3.Row
@@ -249,18 +250,52 @@ def reports_by_owner(
         placeholders = ",".join("?" for _ in user_ids)
         rows = connection.execute(
             f"""
-            SELECT username, name, email
-            FROM opencodelists_user
-            WHERE username IN ({placeholders})
+            SELECT
+                u.username,
+                u.name,
+                u.email,
+                o.slug AS organisation_slug,
+                o.name AS organisation_name
+            FROM opencodelists_user AS u
+            LEFT JOIN opencodelists_membership AS m ON m.user_id = u.username
+            LEFT JOIN opencodelists_organisation AS o
+              ON o.slug = m.organisation_id
+            WHERE u.username IN ({placeholders})
+            ORDER BY u.username, o.slug
             """,  # noqa: S608 - placeholders are generated, not user supplied
             tuple(sorted(user_ids)),
         )
+        users: dict[str, sqlite3.Row] = {}
+        organisations_by_user: dict[str, list[tuple[str, str]]] = defaultdict(list)
         for row in rows:
+            users[row["username"]] = row
+            if row["organisation_slug"]:
+                organisations_by_user[row["username"]].append(
+                    (row["organisation_slug"], row["organisation_name"])
+                )
+
+        priority = {
+            organisation_slug: index
+            for index, organisation_slug in enumerate(organisation_priority)
+        }
+        for username, row in users.items():
+            organisations = organisations_by_user[username]
+            preferred_organisation = min(
+                organisations,
+                key=lambda organisation: (
+                    priority.get(organisation[0], len(priority)),
+                    organisation[0].lower(),
+                ),
+                default=None,
+            )
             owner = ReportOwner(
                 kind="user",
-                identifier=row["username"],
+                identifier=username,
                 name=row["name"],
                 email=row["email"],
+                organisation=(
+                    preferred_organisation[1] if preferred_organisation else None
+                ),
             )
             owners[(owner.kind, owner.identifier)] = owner
 

@@ -26,6 +26,33 @@ from scripts.icd10_reports.data import (
 from scripts.icd10_reports.output import write_outputs
 
 
+# the first organisation in this list that a user belongs to is selected.
+ORGANISATION_PRIORITY = (
+    "opensafely",
+    "bristol",
+    "phc",
+    "OxHPRU",
+    "multiply-qmul",
+    "nhs-devon",
+    "ons",
+    "nhs-drug-refsets",
+    "nhsbsa",
+    "nhsd",
+    "nhsd-primary-care-domain-refsets",
+    "openprescribing",
+    "pharmacy-first-project",
+    "pincer",
+    "primis-covid19-vacc-uptake",
+    "qcovid",
+    "recovery",
+    "reducehf",
+    "ukhsa",
+    "ukrr",
+    "ihme",
+    "ihme-snomed",
+)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -65,7 +92,11 @@ def main() -> None:
             f"file:{args.database.resolve()}?mode=ro", uri=True
         ) as connection:
             affected = find_affected_codelists(connection, modifier_descendants)
-            reports = reports_by_owner(connection, affected)
+            reports = reports_by_owner(
+                connection,
+                affected,
+                organisation_priority=ORGANISATION_PRIORITY,
+            )
         code_issues = issues_by_code(old_codes | current_codes, modifier_descendants)
         write_outputs(reports, affected, code_issues)
     except RuntimeError as error:

@@ -10,6 +10,7 @@ class ReportOwner:
     identifier: str
     name: str
     email: str | None = None
+    organisation: str | None = None
 
 
 @dataclass(frozen=True)

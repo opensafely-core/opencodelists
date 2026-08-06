@@ -86,7 +86,7 @@ def apply_nhs_2016_alterations(
     """
     There are known alterations to the WHO 2016 release applied by the NHS. Currently
     this is just the treatment of place of occurrence modifiers for 3 ICD10 codes. See
-    the comments in the known_diffs.py file for details.
+    the comments in the known_diffs/who2016_vs_nhs2016_code_overrides.py file for details.
     """
     altered_records = dict(records)
 
@@ -105,7 +105,7 @@ def build_2016_claml_scraped_diff_report(
     Compare WHO 2016 ClaML records with scraped NHS 2016 records.
 
     Returns a report object. Differences are marked unexpected
-    unless they are recorded in known_diffs.py.
+    unless they are recorded in the known_diffs module.
     """
     claml_codes = set(claml_records)
     scraped_codes = set(scraped_records)
@@ -169,66 +169,59 @@ def print_2016_claml_scraped_diff_report(report: Claml2016ScrapedDiffReport) -> 
         return
 
     if report.unexpected_claml_only_codes:
-        logger.error(
-            "\nCLAML-only codes\n----------------\n"
-            "There are codes in the CLAML, but not in the scraped. This could be:\n"
+        error_msg = (
+            "\nWHO 2016 CLAML-only codes\n----------------\n"
+            "There are codes in the WHO 2016 CLAML, but not in the scraped NHS 2016 records. This could be:\n"
             " - A code that was added to the CLAML but not the scraped\n"
             " - A code has been removed from the scraped but not the CLAML\n\n"
             "Once you've decided whether you want to include or exclude each one below,\n"
-            "add the following to the known_diff.py file, selecting True or False\n"
+            "add the following to the known_diffs/who2016_vs_nhs2016_codes_only_in_nhs.py file, selecting True or False\n"
             "depending on your decision:\n\n"
-            "  CLAML_VS_SCRAPED_DIFFERENCES = KnownDifferences(\n"
-            "    claml_only={\n"
-            "       ..."
+            "  WHO_2016_ONLY_CODES: dict[str, CodeDifference] = {\n"
+            "     ..."
         )
         for code in report.unexpected_claml_only_codes:
-            logger.error(
-                f'       "{code}": CodeDifference(include_in_release=True/False),'
+            error_msg += (
+                f'\n     "{code}": CodeDifference(include_in_release=True/False),'
             )
-        logger.error("    }")
-        logger.error("    ...")
-        logger.error("  )\n")
+        error_msg += "\n  }\n"
+        logger.error(error_msg)
     if report.unexpected_scraped_only_codes:
-        logger.error(
-            "\nScraped-only codes\n------------------\n"
-            "There are codes in the scraped, but not in the CLAML. This could be:\n"
+        error_msg = (
+            "\nNHS 2016 Scraped-only codes\n------------------\n"
+            "There are codes in the NHS 2016 scraped records, but not in the WHO 2016 CLAML. This could be:\n"
             " - A code that was added to the scraped but not the CLAML\n"
             " - A code has been removed from the CLAML but not the scraped\n\n"
             "Once you've decided whether you want to include or exclude each one below,\n"
-            "add the following to the known_diff.py file, selecting True or False\n"
+            "add the following to the known_diffs/who2016_vs_nhs2016_codes_only_in_nhs.py file, selecting True or False\n"
             "depending on your decision:\n\n"
-            "  CLAML_VS_SCRAPED_DIFFERENCES = KnownDifferences(\n"
-            "    ...\n"
-            "    scraped_only={\n"
-            "      ..."
+            "  NHS_2016_ONLY_CODES: dict[str, CodeDifference] = {\n"
+            "    ..."
         )
         for code in report.unexpected_scraped_only_codes:
-            logger.error(
-                f'       "{code}": CodeDifference(include_in_release=True/False),'
+            error_msg += (
+                f'\n     "{code}": CodeDifference(include_in_release=True/False),'
             )
-        logger.error("    }")
-        logger.error("    ...")
-        logger.error("  )\n")
+        error_msg += "\n  }\n"
+        logger.error(error_msg)
     if report.unexpected_term_differences:
-        logger.error(
+        error_msg = (
             "\nDescription (term) differences\n------------------------------\n"
             "There are codes whose descriptions (terms) differ between the CLAML and scraped.\n\n"
             "Review each code below. In most cases, we should take the scraped description\n"
             "as that is what the backend data is coded with. Once you've decided which\n"
-            "description to use, add it to the known_diff.py file as follows:\n\n"
-            "  CLAML_VS_SCRAPED_DIFFERENCES = KnownDifferences(\n"
+            "description to use, add it to the known_diffs/who2016_vs_nhs2016_term_differences.py file as follows:\n\n"
+            "  WHO_2016_NHS_2016_TERM_DIFFERENCES: dict[str, TermDifference] = {\n"
             "    ...\n"
-            "    term_differences={\n"
-            "      ..."
         )
         for code, claml_term, scraped_term in report.unexpected_term_differences:
-            logger.error(f'      "{code}": TermDifference(')
-            logger.error(f'        claml="{claml_term}",')
-            logger.error(f'        scraped="{scraped_term}",')
-            logger.error('        use="claml|scraped",')
-            logger.error("      ),")
-        logger.error("    }")
-        logger.error("  )\n")
+            error_msg += f'    "{code}": TermDifference(\n'
+            error_msg += f'      claml="{claml_term}",\n'
+            error_msg += f'      scraped="{scraped_term}",\n'
+            error_msg += '      use="claml|scraped",\n'
+            error_msg += "    ),\n"
+        error_msg += "  }\n"
+        logger.error(error_msg)
     logger.error(
         "❌❌❌ UNEXPECTED DIFFS FOUND: see above for details ❌❌❌\n",
     )
@@ -241,7 +234,7 @@ def check_diff_2016_claml_with_scraped(
     Print and enforce the known-difference check for 2016 source records.
 
     Raises ValueError if WHO 2016 ClaML and scraped NHS 2016 records contain
-    differences that are not recorded in known_diffs.py.
+    differences that are not recorded in the known_diffs module.
     """
     report = build_2016_claml_scraped_diff_report(claml_records, scraped_records)
     print_2016_claml_scraped_diff_report(report)
@@ -250,7 +243,7 @@ def check_diff_2016_claml_with_scraped(
 
     raise ValueError(
         "Unexpected differences found between 2016 CLAML and scraped records.\n"
-        "See output for details and update coding_systems/icd10/known_diffs.py to resolve."
+        "See output for details and update coding_systems/icd10/known_diffs module to resolve."
     )
 
 
@@ -314,7 +307,7 @@ def build_2016_2019_diff_report(
     Compare combined 2016 records with WHO 2019 records.
 
     Returns a report object. Description differences are classified
-    from known_diffs.py.
+    from known_diffs module.
     """
     combined_2016_codes = set(combined_2016_records)
     who_2019_codes = set(who_2019_records)
@@ -385,7 +378,7 @@ def print_2016_2019_diff_report(report: Combined2016Claml2019ReleaseDiffReport) 
         "\nDescription (term) differences\n------------------------------\n"
         "There are codes whose descriptions differ between combined 2016 and WHO 2019.\n"
         "Review whether each difference is clinically equivalent or clinically different,\n"
-        "then add it to known_diffs.py as follows:\n\n"
+        "then add it to known_diffs/combined2016_vs_who2019_term_differences.py as follows:\n\n"
         "  COMBINED_2016_VS_2019_DIFFERENCES = {\n"
         "    ..."
     )
@@ -414,7 +407,7 @@ def check_diff_2016_with_2019(
     Print and enforce the known-difference check for 2016 and 2019 records.
 
     Raises ValueError if combined 2016 records and WHO 2019 records contain
-    term differences that are not recorded in known_diffs.py.
+    term differences that are not recorded in known_diffs/combined2016_vs_who2019_term_differences.py.
     """
     report = build_2016_2019_diff_report(combined_2016_records, who_2019_records)
     print_2016_2019_diff_report(report)
@@ -423,7 +416,7 @@ def check_diff_2016_with_2019(
 
     raise ValueError(
         "Unexpected differences found between combined 2016 and WHO 2019 releases.\n"
-        "See output for details and update coding_systems/icd10/known_diffs.py to resolve."
+        "See output for details and update coding_systems/icd10/known_diffs/combined2016_vs_who2019_term_differences.py to resolve."
     )
 
 
@@ -434,7 +427,7 @@ def load_import_records(
     Build the parsed ICD-10 record sets used by the importer.
 
     Returns the combined 2016 records and WHO 2019 records. Raises ValueError
-    if any release source differences are not recorded in known_diffs.py.
+    if any release source differences are not recorded in the known_diffs module.
     """
     with TemporaryDirectory() as tempdir:
         release_zip = ZipFile(release_zipfile)

@@ -27,7 +27,7 @@
       "project": "all"
     },
     "rules": {
-      "recommended": true,
+      "preset": "recommended",
       "a11y": "on",
       "correctness": {
         "useImportExtensions": "off",

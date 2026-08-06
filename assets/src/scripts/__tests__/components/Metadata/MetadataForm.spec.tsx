@@ -3,6 +3,7 @@ import "@testing-library/jest-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+// biome-ignore lint/correctness/noUnresolvedImports: nock publishes its types at the package root, while Biome cannot resolve its package main
 import nock from "nock";
 import React, { type ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";

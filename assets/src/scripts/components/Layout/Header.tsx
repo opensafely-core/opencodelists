@@ -25,7 +25,7 @@ export default function Header({
             Draft
           </span>
         </h1>
-        {isEditable && <ManagementForm counts={counts} />}
+        {!!isEditable && <ManagementForm counts={counts} />}
       </div>
 
       <dl className="list-group list-group-horizontal small">

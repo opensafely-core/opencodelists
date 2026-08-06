@@ -142,13 +142,13 @@ export default function MetadataForm({
                 rows={rows}
               ></textarea>
               <small className="form-text text-muted">
-                {data?.help_text && (
+                {data?.help_text ? (
                   <div
                     className="mt-3"
                     // biome-ignore lint/security/noDangerouslySetInnerHtml: help text is set by us and so safe
                     dangerouslySetInnerHTML={{ __html: data.help_text }}
                   ></div>
-                )}
+                ) : null}
                 <p>Keyboard shortcuts: Save (CTRL-ENTER) / Cancel (ESC)</p>
               </small>
             </div>

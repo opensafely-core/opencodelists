@@ -28,7 +28,7 @@ export default function Sidebar({
           searches={searches}
         />
       )}
-      {isEditable && <SearchForm />}
+      {!!isEditable && <SearchForm />}
       {!isEmptyCodelist && <Versions />}
       <Tools />
     </div>

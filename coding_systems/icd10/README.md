@@ -37,9 +37,9 @@ This command does all of the following automatically:
 
 Expected differences and inclusion/exclusion decisions are defined in:
 
-- `coding_systems/icd10/known_diffs.py`
+- `coding_systems/icd10/known_diffs/`
 
-If import fails with unexpected differences, update this file with the new expected diff decisions, then rerun the import.
+If import fails with unexpected differences, update this module with the new expected diff decisions, then rerun the import.
 
 ## Release metadata behavior
 

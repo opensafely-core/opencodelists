@@ -2,7 +2,7 @@
 Compare a merged ICD-10 2016 record set with WHO ICD-10 2019 ClaML.
 
 The merged 2016 set is built from WHO 2016 ClaML and scraped NHS Class Browser
-2016 ClaML using the decisions recorded in known_diffs.py.
+2016 ClaML using the decisions recorded in the known_diffs module.
 
 Usage:
 

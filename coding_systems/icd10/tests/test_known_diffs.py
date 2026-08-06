@@ -2,7 +2,6 @@ import pytest
 
 from coding_systems.icd10.claml_parser import ICD10Code, ModifierDigit
 from coding_systems.icd10.known_diffs import (
-    TermDifference,
     expand_who_2016_place_of_occurrence,
     get_2016_2019_description_difference,
     is_2016_claml_only,
@@ -11,6 +10,9 @@ from coding_systems.icd10.known_diffs import (
     should_include_2016_claml_only,
     should_include_2016_scraped_only,
     should_use_scraped_for_2016,
+)
+from coding_systems.icd10.known_diffs.difference_classes import (
+    TermDifference,
 )
 
 
@@ -93,7 +95,7 @@ def test_expand_who_2016_place_of_occurrence_applies_range_and_exceptions(
     }
     modifiers = [ModifierDigit(digit_code="0", description="Home")]
     monkeypatch.setattr(
-        "coding_systems.icd10.known_diffs.WHO_2016_EXPECTED_OVERRIDES",
+        "coding_systems.icd10.known_diffs.who2016_vs_nhs2016_code_overrides.WHO_2016_EXPECTED_OVERRIDES",
         frozenset({"W260", "X340", "X590"}),
     )
 
@@ -115,7 +117,7 @@ def test_expand_who_2016_place_of_occurrence_fails_on_unexpected_overlap(
     }
     modifiers = [ModifierDigit(digit_code="0", description="Home")]
     monkeypatch.setattr(
-        "coding_systems.icd10.known_diffs.WHO_2016_EXPECTED_OVERRIDES",
+        "coding_systems.icd10.known_diffs.who2016_vs_nhs2016_code_overrides.WHO_2016_EXPECTED_OVERRIDES",
         frozenset(),
     )
 
@@ -129,7 +131,7 @@ def test_expand_who_2016_place_of_occurrence_fails_when_expected_override_missin
     records = {"W00": ICD10Code(code="W00", parent=None, description="Fall")}
     modifiers = [ModifierDigit(digit_code="0", description="Home")]
     monkeypatch.setattr(
-        "coding_systems.icd10.known_diffs.WHO_2016_EXPECTED_OVERRIDES",
+        "coding_systems.icd10.known_diffs.who2016_vs_nhs2016_code_overrides.WHO_2016_EXPECTED_OVERRIDES",
         frozenset({"X590"}),
     )
 

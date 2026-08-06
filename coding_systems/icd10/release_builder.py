@@ -17,6 +17,7 @@ from coding_systems.icd10.known_diffs import (
     is_2016_claml_only,
     is_2016_description_difference,
     is_2016_scraped_only,
+    rubric_differences,
     should_include_2016_claml_only,
     should_include_2016_scraped_only,
     should_use_scraped_for_2016,
@@ -247,6 +248,21 @@ def check_diff_2016_claml_with_scraped(
     )
 
 
+def _check_rubrics(code: str, record: ICD10Code) -> None:
+    if change := rubric_differences(code):
+        if record.concept_rubrics != change.who_2016:
+            raise ValueError(
+                f"Unexpected rubric for {code}: {record.concept_rubrics!r} "
+                f"(expected {change.who_2016!r})"
+            )
+
+
+def _change_rubrics(code: str, record: ICD10Code) -> ICD10Code:
+    if change := rubric_differences(code):
+        record.concept_rubrics = change.resolved_rubrics
+    return record
+
+
 def _merge_2016_claml_and_scraped_records(
     claml_2016_records: dict[str, ICD10Code],
     scraped_2016_records: dict[str, ICD10Code],
@@ -261,6 +277,12 @@ def _merge_2016_claml_and_scraped_records(
     for code in sorted(set(claml_2016_records) | set(scraped_2016_records)):
         claml_record = claml_2016_records.get(code)
         scraped_record = scraped_2016_records.get(code)
+
+        _check_rubrics(code, claml_record)
+        claml_record = _change_rubrics(code, claml_record) if claml_record else None
+        scraped_record = (
+            _change_rubrics(code, scraped_record) if scraped_record else None
+        )
 
         if claml_record is None:
             if should_include_2016_scraped_only(code):

@@ -113,6 +113,47 @@ extend-select = [
 extend-ignore = [
   "E501",
   "E731",
+  # Below rules were added by Ruff v0.16.
+  # We can fix these gradually and remove these where we think sensible.
+  "B009",
+  "B015",
+  "B017",
+  "B018",
+  "B019",
+  "B020",
+  "BLE001",
+  "C401",
+  "C408",
+  "C414",
+  "C419",
+  "DTZ001",
+  "DTZ002",
+  "DTZ005",
+  "DTZ007",
+  "DTZ011",
+  "FLY002",
+  "FURB122",
+  "FURB167",
+  "FURB192",
+  "ISC004",
+  "PIE808",
+  "PLR0402",
+  "PLR1704",
+  "PLW1508",
+  "PLW1510",
+  "RUF010",
+  "RUF012",
+  "RUF015",
+  "RUF017",
+  "RUF100",
+  "SIM101",
+  "SIM102",
+  "SIM115",
+  "SIM117",
+  "SIM118",
+  "SIM201",
+  "TRY002",
+  "TRY201",
 ]
 
 [tool.ruff.lint.isort]
@@ -131,7 +172,7 @@ lines-after-imports = 2
 # See https://github.com/opensafely-core/opencodelists/blob/main/DEVELOPERS.md for details.
 [tool.uv]
 required-version = ">=0.9"
-exclude-newer = "2026-07-20T00:00:00Z"
+exclude-newer = "2026-07-27T00:00:00Z"
 exclude-newer-package = {}
 
 [dependency-groups]

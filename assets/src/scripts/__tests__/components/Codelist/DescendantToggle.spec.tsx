@@ -7,6 +7,7 @@ import DescendantToggle from "../../../components/Codelist/DescendantToggle";
 
 it("Show a minus symbol if expanded", async () => {
   render(
+    // biome-ignore lint/performance/noJsxPropsBind: no-op test callback
     <DescendantToggle isExpanded path="/" toggleVisibility={() => null} />,
   );
   expect(screen.queryByText("⊟")).toBeVisible;
@@ -18,6 +19,7 @@ it("Show a plus symbol if not expanded", async () => {
     <DescendantToggle
       isExpanded={false}
       path="/"
+      // biome-ignore lint/performance/noJsxPropsBind: no-op test callback
       toggleVisibility={() => null}
     />,
   );

@@ -149,6 +149,7 @@ function MoreInfoModal({
     <>
       <Button
         className="builder__more-info-btn plausible-event-name=More+info+click"
+        // biome-ignore lint/performance/noJsxPropsBind: callback performs request setup for the current code
         onClick={handleShow}
         variant="outline-dark"
       >
@@ -157,6 +158,7 @@ function MoreInfoModal({
 
       <Modal
         centered
+        // biome-ignore lint/performance/noJsxPropsBind: inline state reset callback
         onHide={() => setShowMoreInfoModal(false)}
         size="lg"
         show={showMoreInfoModal}

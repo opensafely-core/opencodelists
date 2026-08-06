@@ -25,6 +25,7 @@ export default function StatusToggle({
     <button
       className={`py-0 text-monospace btn btn-sm btn-${buttonStyle}`}
       data-symbol={symbol}
+      // biome-ignore lint/performance/noJsxPropsBind: callback requires the current code and symbol
       onClick={updateStatus?.bind(null, code, symbol)}
       type="button"
     >

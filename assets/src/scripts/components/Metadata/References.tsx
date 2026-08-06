@@ -55,6 +55,7 @@ export default function References() {
         {isEditable ? (
           <button
             className="btn btn-primary btn-sm"
+            // biome-ignore lint/performance/noJsxPropsBind: inline state update for this button
             onClick={() => setShowAddReference(true)}
             type="button"
           >
@@ -83,6 +84,7 @@ export default function References() {
         </ul>
       ) : null}
       <ReferenceFormModal
+        // biome-ignore lint/performance/noJsxPropsBind: inline state reset callback
         onReset={() => setShowAddReference(false)}
         onSubmit={handleSubmit}
         show={showAddReference}

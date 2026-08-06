@@ -88,6 +88,7 @@ export default function MetadataForm({
         {isEditable ? (
           <button
             className={`btn btn-primary btn-sm plausible-event-name=Edit+metadata+${id}`}
+            // biome-ignore lint/performance/noJsxPropsBind: inline state update for this button
             onClick={() => setIsEditing(true)}
             type="button"
           >
@@ -114,13 +115,18 @@ export default function MetadataForm({
       <Modal
         animation={false}
         show={isEditing}
+        // biome-ignore lint/performance/noJsxPropsBind: inline state reset callback
         onHide={() => setIsEditing(false)}
         backdrop="static"
         size="lg"
         aria-labelledby="metadata-edit-modal"
         centered
       >
-        <form onReset={() => setIsEditing(false)} onSubmit={handleSubmit}>
+        <form
+          // biome-ignore lint/performance/noJsxPropsBind: inline state reset callback
+          onReset={() => setIsEditing(false)}
+          onSubmit={handleSubmit}
+        >
           <Modal.Header closeButton>
             <Modal.Title id="metadata-edit-modal">Edit {name}</Modal.Title>
           </Modal.Header>

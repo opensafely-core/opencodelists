@@ -3,6 +3,7 @@ import zipfile
 import pytest
 import structlog
 
+from coding_systems.icd10 import release_builder as release_builder
 from coding_systems.icd10.claml_parser import ICD10Code, ModifierDigit
 from coding_systems.icd10.release_builder import (
     apply_nhs_2016_alterations,
@@ -49,7 +50,7 @@ def test_apply_nhs_2016_alterations_adds_place_codes(monkeypatch):
     place_modifiers = [ModifierDigit(digit_code="0", description="Home")]
 
     monkeypatch.setattr(
-        "coding_systems.icd10.known_diffs.WHO_2016_EXPECTED_OVERRIDES",
+        "coding_systems.icd10.known_diffs.who2016_vs_nhs2016_code_overrides.WHO_2016_EXPECTED_OVERRIDES",
         frozenset({"W260"}),
     )
     altered = apply_nhs_2016_alterations(records, place_modifiers)
@@ -178,7 +179,8 @@ def test_combine_2016_claml_and_scraped_records_uses_known_term_choice(monkeypat
     }
 
     monkeypatch.setattr(
-        "coding_systems.icd10.release_builder.apply_nhs_2016_alterations",
+        release_builder,
+        "apply_nhs_2016_alterations",
         lambda records, place_modifiers: records,
     )
 
@@ -202,19 +204,23 @@ def test_combine_2016_claml_and_scraped_records_includes_and_excludes_known_only
     }
 
     monkeypatch.setattr(
-        "coding_systems.icd10.release_builder.apply_nhs_2016_alterations",
+        release_builder,
+        "apply_nhs_2016_alterations",
         lambda records, place_modifiers: records,
     )
     monkeypatch.setattr(
-        "coding_systems.icd10.release_builder.check_diff_2016_claml_with_scraped",
+        release_builder,
+        "check_diff_2016_claml_with_scraped",
         lambda claml, scraped: None,
     )
     monkeypatch.setattr(
-        "coding_systems.icd10.release_builder.should_include_2016_claml_only",
+        release_builder,
+        "should_include_2016_claml_only",
         lambda code: code == "C1",
     )
     monkeypatch.setattr(
-        "coding_systems.icd10.release_builder.should_include_2016_scraped_only",
+        release_builder,
+        "should_include_2016_scraped_only",
         lambda code: code == "S1",
     )
 
@@ -378,19 +384,23 @@ def test_load_import_records_builds_2016_and_2019_outputs(monkeypatch, dummy_zip
         return records
 
     monkeypatch.setattr(
-        "coding_systems.icd10.release_builder.parse_claml",
+        release_builder,
+        "parse_claml",
         fake_parse_claml,
     )
     monkeypatch.setattr(
-        "coding_systems.icd10.release_builder.apply_nhs_2016_alterations",
+        release_builder,
+        "apply_nhs_2016_alterations",
         fake_apply_nhs_2016_alterations,
     )
     monkeypatch.setattr(
-        "coding_systems.icd10.release_builder.combine_2016_claml_and_scraped_records",
+        release_builder,
+        "combine_2016_claml_and_scraped_records",
         lambda who_2016_records, scraped_2016_records: parsed_records,
     )
     monkeypatch.setattr(
-        "coding_systems.icd10.release_builder.check_diff_2016_with_2019",
+        release_builder,
+        "check_diff_2016_with_2019",
         lambda output_2016, output_2019: None,
     )
     zip_path, file_metadata = dummy_zip
@@ -411,19 +421,23 @@ def test_load_import_records_raises_when_release_diff_check_fails(
         return records
 
     monkeypatch.setattr(
-        "coding_systems.icd10.release_builder.parse_claml",
+        release_builder,
+        "parse_claml",
         lambda xml_path: (parsed_records, []),
     )
     monkeypatch.setattr(
-        "coding_systems.icd10.release_builder.apply_nhs_2016_alterations",
+        release_builder,
+        "apply_nhs_2016_alterations",
         fake_apply_nhs_2016_alterations,
     )
     monkeypatch.setattr(
-        "coding_systems.icd10.release_builder.combine_2016_claml_and_scraped_records",
+        release_builder,
+        "combine_2016_claml_and_scraped_records",
         lambda who_2016_records, scraped_2016_records: parsed_records,
     )
     monkeypatch.setattr(
-        "coding_systems.icd10.release_builder.check_diff_2016_with_2019",
+        release_builder,
+        "check_diff_2016_with_2019",
         lambda output_2016, output_2019: (_ for _ in ()).throw(ValueError("bad diff")),
     )
 
@@ -471,19 +485,19 @@ def test_load_import_records_applies_nhs_alterations_before_combining(
         seen["scraped_2016_records"] = scraped_2016_records
         return combined
 
+    monkeypatch.setattr(release_builder, "parse_claml", fake_parse_claml)
     monkeypatch.setattr(
-        "coding_systems.icd10.release_builder.parse_claml", fake_parse_claml
-    )
-    monkeypatch.setattr(
-        "coding_systems.icd10.release_builder.combine_2016_claml_and_scraped_records",
+        release_builder,
+        "combine_2016_claml_and_scraped_records",
         fake_combine,
     )
     monkeypatch.setattr(
-        "coding_systems.icd10.release_builder.check_diff_2016_with_2019",
+        release_builder,
+        "check_diff_2016_with_2019",
         lambda output_2016, output_2019: None,
     )
     monkeypatch.setattr(
-        "coding_systems.icd10.known_diffs.WHO_2016_EXPECTED_OVERRIDES",
+        "coding_systems.icd10.known_diffs.who2016_vs_nhs2016_code_overrides.WHO_2016_EXPECTED_OVERRIDES",
         frozenset(),
     )
 

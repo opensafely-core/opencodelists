@@ -37,6 +37,38 @@ it("renders warnings for included affected codes", () => {
   expect(screen.getAllByText("B485").at(-1)).toHaveClass(
     "warning-code-token--missing",
   );
+  const conflictingDefinitionsDocsLink = screen.getByRole("link", {
+    name: /guidance on codes with conflicting definitions/i,
+  });
+  expect(conflictingDefinitionsDocsLink).toHaveAttribute(
+    "href",
+    "/docs/#if-a-code-has-conflicting-definitions",
+  );
+  expect(conflictingDefinitionsDocsLink).toHaveAttribute("target", "_blank");
+  expect(conflictingDefinitionsDocsLink).toHaveAttribute(
+    "rel",
+    "noopener noreferrer",
+  );
+
+  const movedCodesDocsLink = screen.getByRole("link", {
+    name: /guidance on concepts that moved to a different code/i,
+  });
+  expect(movedCodesDocsLink).toHaveAttribute(
+    "href",
+    "/docs/#if-a-concept-moved-to-a-different-code",
+  );
+  expect(movedCodesDocsLink).toHaveAttribute("target", "_blank");
+  expect(movedCodesDocsLink).toHaveAttribute("rel", "noopener noreferrer");
+
+  const combinedEditionsDocsLinks = screen.getAllByRole("link", {
+    name: /learn why opencodelists combines the two icd-10 editions/i,
+  });
+  expect(combinedEditionsDocsLinks).toHaveLength(2);
+  for (const link of combinedEditionsDocsLinks) {
+    expect(link).toHaveAttribute("href", "/docs/#icd10-editions");
+    expect(link).toHaveAttribute("target", "_blank");
+    expect(link).toHaveAttribute("rel", "noopener noreferrer");
+  }
 });
 
 it("renders plural text for multiple affected terms and moved codes", () => {

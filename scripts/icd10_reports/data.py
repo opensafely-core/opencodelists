@@ -168,6 +168,11 @@ def find_affected_codelists(
             SELECT codelist_id, MAX(id) AS version_id
             FROM codelists_codelistversion
             GROUP BY codelist_id
+        ),
+        first_versions AS (
+            SELECT codelist_id, MIN(id) AS version_id
+            FROM codelists_codelistversion
+            GROUP BY codelist_id
         )
         SELECT
             h.name,
@@ -176,12 +181,18 @@ def find_affected_codelists(
             h.organisation_id,
             v.id AS version_id,
             v.tag AS version_tag,
-            v.csv_data
+            v.csv_data,
+            creator.email AS creator_email
         FROM codelists_codelist AS c
         JOIN codelists_handle AS h
           ON h.codelist_id = c.id AND h.is_current = 1
         JOIN latest_versions AS latest ON latest.codelist_id = c.id
         JOIN codelists_codelistversion AS v ON v.id = latest.version_id
+        JOIN first_versions AS first ON first.codelist_id = c.id
+        JOIN codelists_codelistversion AS first_version
+          ON first_version.id = first.version_id
+        LEFT JOIN opencodelists_user AS creator
+          ON creator.username = first_version.author_id
         WHERE c.coding_system_id = 'icd10'
         ORDER BY h.organisation_id, h.user_id, h.slug
         """
@@ -227,6 +238,7 @@ def find_affected_codelists(
                     codes=frozenset(codes),
                     description_changes=description_changes,
                     moved_code_sets=moved_code_sets,
+                    creator_email=row["creator_email"],
                     missing_modifier_codes=missing_modifier_codes,
                 )
             )
@@ -236,7 +248,6 @@ def find_affected_codelists(
 def reports_by_owner(
     connection: sqlite3.Connection,
     affected: list[AffectedCodelist],
-    organisation_priority: tuple[str, ...] = (),
 ) -> dict[ReportOwner, list[AffectedCodelist]]:
     """Group actionable codelists by their direct user or organisation owner."""
     connection.row_factory = sqlite3.Row
@@ -253,49 +264,19 @@ def reports_by_owner(
             SELECT
                 u.username,
                 u.name,
-                u.email,
-                o.slug AS organisation_slug,
-                o.name AS organisation_name
+                u.email
             FROM opencodelists_user AS u
-            LEFT JOIN opencodelists_membership AS m ON m.user_id = u.username
-            LEFT JOIN opencodelists_organisation AS o
-              ON o.slug = m.organisation_id
             WHERE u.username IN ({placeholders})
-            ORDER BY u.username, o.slug
+            ORDER BY u.username
             """,  # noqa: S608 - placeholders are generated, not user supplied
             tuple(sorted(user_ids)),
         )
-        users: dict[str, sqlite3.Row] = {}
-        organisations_by_user: dict[str, list[tuple[str, str]]] = defaultdict(list)
         for row in rows:
-            users[row["username"]] = row
-            if row["organisation_slug"]:
-                organisations_by_user[row["username"]].append(
-                    (row["organisation_slug"], row["organisation_name"])
-                )
-
-        priority = {
-            organisation_slug: index
-            for index, organisation_slug in enumerate(organisation_priority)
-        }
-        for username, row in users.items():
-            organisations = organisations_by_user[username]
-            preferred_organisation = min(
-                organisations,
-                key=lambda organisation: (
-                    priority.get(organisation[0], len(priority)),
-                    organisation[0].lower(),
-                ),
-                default=None,
-            )
             owner = ReportOwner(
                 kind="user",
-                identifier=username,
+                identifier=row["username"],
                 name=row["name"],
                 email=row["email"],
-                organisation=(
-                    preferred_organisation[1] if preferred_organisation else None
-                ),
             )
             owners[(owner.kind, owner.identifier)] = owner
 

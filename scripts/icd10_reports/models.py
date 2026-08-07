@@ -10,7 +10,6 @@ class ReportOwner:
     identifier: str
     name: str
     email: str | None = None
-    organisation: str | None = None
 
 
 @dataclass(frozen=True)
@@ -24,6 +23,7 @@ class AffectedCodelist:
     codes: frozenset[str]
     description_changes: dict[str, dict[str, str]]
     moved_code_sets: list[dict[str, object]]
+    creator_email: str | None = None
     missing_modifier_codes: dict[str, frozenset[str]] = field(default_factory=dict)
 
     def version_paths(self) -> list[str]:

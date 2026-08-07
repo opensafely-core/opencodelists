@@ -33,6 +33,8 @@
   { "model": "icd10.concept", "pk": "M775", "fields": { "parent": "M77" } },
   { "model": "icd10.concept", "pk": "M778", "fields": { "parent": "M77" } },
   { "model": "icd10.concept", "pk": "M779", "fields": { "parent": "M77" } },
+  { "model": "icd10.concept", "pk": "B59", "fields": { "parent": "M77" } },
+  { "model": "icd10.concept", "pk": "X590", "fields": { "parent": "M77" } },
   { "model": "icd10.concept", "pk": "XIII", "fields": { "parent": null } },
   {
     "model": "icd10.conceptedition",
@@ -253,6 +255,26 @@
       "edition_id": "test",
       "concept_id": "M7700",
       "term_modifier": "Multiple sites"
+    }
+  },
+  {
+    "model": "icd10.conceptedition",
+    "pk": 23,
+    "fields": {
+      "kind": "category",
+      "term": "Pneumocystosis",
+      "edition_id": "test",
+      "concept_id": "B59"
+    }
+  },
+  {
+    "model": "icd10.conceptedition",
+    "pk": 24,
+    "fields": {
+      "kind": "category",
+      "term": "Exposure to unspecified factor causing fracture",
+      "edition_id": "test",
+      "concept_id": "X590"
     }
   }
 ]

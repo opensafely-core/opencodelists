@@ -63,7 +63,7 @@ def test_lookup_names_prefers_2016_term(icd10_data, coding_system):
         year=2019,
         source_description="test 2019",
     )
-    concept = Concept.objects.using(coding_system.database_alias).create(code="B59")
+    concept = Concept.objects.using(coding_system.database_alias).create(code="B58")
 
     ConceptEdition.objects.using(coding_system.database_alias).create(
         concept=concept,
@@ -80,8 +80,8 @@ def test_lookup_names_prefers_2016_term(icd10_data, coding_system):
         term="Preferred 2016 term",
     )
 
-    assert coding_system.lookup_names(["B59", "M77"]) == {
-        "B59": "Preferred 2016 term",
+    assert coding_system.lookup_names(["B58", "M77"]) == {
+        "B58": "Preferred 2016 term",
         "M77": "Other enthesopathies",
     }
 
@@ -95,7 +95,7 @@ def test_lookup_names_uses_latest_term_when_2016_term_does_not_exist(
         year=2019,
         source_description="test 2019",
     )
-    concept = Concept.objects.using(coding_system.database_alias).create(code="B59")
+    concept = Concept.objects.using(coding_system.database_alias).create(code="B58")
 
     ConceptEdition.objects.using(coding_system.database_alias).create(
         concept=concept,
@@ -105,8 +105,8 @@ def test_lookup_names_uses_latest_term_when_2016_term_does_not_exist(
         term="2019 term",
     )
 
-    assert coding_system.lookup_names(["B59"]) == {
-        "B59": "2019 term",
+    assert coding_system.lookup_names(["B58"]) == {
+        "B58": "2019 term",
     }
 
 

@@ -35,10 +35,12 @@ def write_outputs(
             {
                 "type": "Organisation" if owner.kind == "organisation" else "User",
                 "codelist": f"{BASE_URL}{codelist.path()}",
-                "email": owner.email or "",
-                "org": (
-                    owner.organisation or "" if owner.kind == "user" else owner.name
+                "email": (
+                    codelist.creator_email or ""
+                    if owner.kind == "organisation"
+                    else owner.email or ""
                 ),
+                "org": "" if owner.kind == "user" else owner.name,
                 "pdf_filename": pdf_relative.name,
             }
             for codelist in codelists

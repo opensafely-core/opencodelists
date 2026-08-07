@@ -237,6 +237,12 @@ it("shows clinically equivalent ICD-10 description differences in a green box", 
   ).toBeVisible();
   expect(screen.getByText("NHS description")).toBeVisible();
   expect(screen.getByText("WHO description")).toBeVisible();
+  const docsLink = screen.getByRole("link", {
+    name: /learn more about icd-10 edition differences/i,
+  });
+  expect(docsLink).toHaveAttribute("href", "/docs/#changed-definitions");
+  expect(docsLink).toHaveAttribute("target", "_blank");
+  expect(docsLink).toHaveAttribute("rel", "noopener noreferrer");
 });
 
 it("shows clinically different ICD-10 description differences in a red box", async () => {
@@ -275,6 +281,15 @@ it("shows clinically different ICD-10 description differences in a red box", asy
   ).toBeVisible();
   expect(screen.getByText("NHS description")).toBeVisible();
   expect(screen.getByText("WHO description")).toBeVisible();
+  const docsLink = screen.getByRole("link", {
+    name: /guidance on codes with conflicting definitions/i,
+  });
+  expect(docsLink).toHaveAttribute(
+    "href",
+    "/docs/#if-a-code-has-conflicting-definitions",
+  );
+  expect(docsLink).toHaveAttribute("target", "_blank");
+  expect(docsLink).toHaveAttribute("rel", "noopener noreferrer");
 });
 
 it("shows ICD-10 dagger information in the WHO additional info box", async () => {

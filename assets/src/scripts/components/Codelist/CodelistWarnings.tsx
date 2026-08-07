@@ -17,6 +17,11 @@ interface CodelistWarningsProps {
   includedCodes: Set<string>;
 }
 
+const conflictingDefinitionsDocsUrl =
+  "/docs/#if-a-code-has-conflicting-definitions";
+const movedCodesDocsUrl = "/docs/#if-a-concept-moved-to-a-different-code";
+const combinedEditionsDocsUrl = "/docs/#icd10-editions";
+
 const movedCodeKey = (codes: string[]) => codes.join("-");
 
 function MovedCodeList({
@@ -86,9 +91,19 @@ function TermDifferencesWarning({
               </li>
               <li>ONS deaths uses the 2019 edition.</li>
             </ul>
-            <p className="mb-0">
+            <p>
               Most ICD-10 codes have the same meaning in both editions. However,
               a small number have different meanings between editions.
+            </p>
+            <p className="mb-0">
+              <a
+                href={combinedEditionsDocsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Learn why OpenCodelists combines the two ICD-10 editions (opens in a new tab)"
+              >
+                Learn why OpenCodelists combines the two ICD-10 editions.
+              </a>
             </p>
           </section>
 
@@ -132,13 +147,23 @@ function TermDifferencesWarning({
               doesn't match the condition you intended to include, you should
               create a new version of this codelist that excludes the code.
             </p>
-            <p className="mb-0">
+            <p>
               <strong>
                 If you're using this codelist with multiple datasets
               </strong>{" "}
               that use different ICD-10 editions, you need to review the
               definitions for each edition. If the code has different meanings,
               you may need separate codelists for each dataset.
+            </p>
+            <p className="mb-0">
+              <a
+                href={conflictingDefinitionsDocsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Read the full guidance on codes with conflicting definitions (opens in a new tab)"
+              >
+                Read the full guidance on codes with conflicting definitions.
+              </a>
             </p>
           </section>
         </div>
@@ -194,10 +219,20 @@ function MovedCodesWarning({
             <li>HES/APCS uses an NHS-modified version of the 2016 edition.</li>
             <li>ONS deaths uses the 2019 edition.</li>
           </ul>
-          <p className="mb-0">
+          <p>
             Some concepts have different codes in each edition. Including only
             one code may cause records to be missed in datasets that use the
             other edition.
+          </p>
+          <p className="mb-0">
+            <a
+              href={combinedEditionsDocsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Learn why OpenCodelists combines the two ICD-10 editions (opens in a new tab)"
+            >
+              Learn why OpenCodelists combines the two ICD-10 editions.
+            </a>
           </p>
         </section>
 
@@ -258,9 +293,20 @@ function MovedCodesWarning({
               carefully as there may be situations where you only need some of
               the codes.
             </p>
-            <p className="mb-0">
+            <p>
               If you choose to use this codelist without the missing codes,
               please ensure you have considered the implications.
+            </p>
+            <p className="mb-0">
+              <a
+                href={movedCodesDocsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Read the full guidance on concepts that moved to a different code (opens in a new tab)"
+              >
+                Read the full guidance on concepts that moved to a different
+                code.
+              </a>
             </p>
           </section>
         </div>

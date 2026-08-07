@@ -217,6 +217,15 @@ function TermDifferenceSection({
   const descriptionMessage = termDifferences.equivalent
     ? "We consider these terms clinically equivalent, so this code can be used irrespective of the ICD-10 edition used in the data."
     : "We consider these terms different. Check which dataset you are querying before deciding whether to use this code.";
+  const docsLink = termDifferences.equivalent
+    ? {
+        href: "/docs/#changed-definitions",
+        text: "Learn more about ICD-10 edition differences.",
+      }
+    : {
+        href: "/docs/#if-a-code-has-conflicting-definitions",
+        text: "Read guidance on codes with conflicting definitions.",
+      };
   const variant = termDifferences.equivalent ? "success" : "danger";
 
   return (
@@ -262,7 +271,16 @@ function TermDifferenceSection({
           >
             ONS death data
           </a>
-          . {descriptionMessage}
+          . {descriptionMessage}{" "}
+          <a
+            href={docsLink.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`${docsLink.text} (opens in a new tab)`}
+            className="font-weight-bold builder__more-info-modal__link"
+          >
+            {docsLink.text}
+          </a>
         </small>
       </div>
 

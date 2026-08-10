@@ -1,4 +1,5 @@
 import csv
+from pathlib import Path
 
 import structlog
 
@@ -18,10 +19,11 @@ def normalise(name: str) -> str:
 def import_data(
     release_csv, release_name, valid_from, import_ref=None, check_compatibility=True
 ):
-    if not release_csv.lower().endswith(".csv"):
-        raise ValueError(f"Expected file path str ending '.csv', got '{release_csv}'.")
+    release_path = Path(release_csv)
+    if release_path.suffix.lower() != ".csv":
+        raise ValueError(f"Expected file path str ending '.csv', got '{release_path}'.")
     records = {type: set() for type in TYPES}
-    with open(release_csv, newline="") as f:
+    with release_path.open(mode="r", newline="") as f:
         csv_reader = csv.DictReader(f)
         for r in csv_reader:
             parent_code = None

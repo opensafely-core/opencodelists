@@ -19,7 +19,7 @@ def import_data(
     release_csv, release_name, valid_from, import_ref=None, check_compatibility=True
 ):
     if not release_csv.lower().endswith(".csv"):
-        raise ValueError(f"Expected one .csv file, got '{release_csv}'.")
+        raise ValueError(f"Expected file path str ending '.csv', got '{release_csv}'.")
     records = {type: set() for type in TYPES}
     with open(release_csv, newline="") as f:
         csv_reader = csv.DictReader(f)

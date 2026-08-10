@@ -137,7 +137,8 @@ def test_import_data_no_csv_files(tmp_path):
     other_file.touch()
 
     with pytest.raises(
-        ValueError, match=re.escape(f"Expected one .csv file, got '{other_file}'")
+        ValueError,
+        match=re.escape(f"Expected file path str ending '.csv', got '{other_file}'"),
     ):
         import_data(str(other_file), release_name="v1", valid_from=date(2022, 10, 1))
 

@@ -22,9 +22,9 @@ def import_data(
         for row in csv_reader:
             parent_code = None
             for concept_type in TYPES:
-                conecpt_type_column_header = concept_type.upper().replace(" ", "_")
-                name = row[f"BNF_{conecpt_type_column_header}"]
-                code = row[f"BNF_{conecpt_type_column_header}_CODE"]
+                concept_type_column_header = concept_type.upper().replace(" ", "_")
+                name = row[f"BNF_{concept_type_column_header}"]
+                code = row[f"BNF_{concept_type_column_header}_CODE"]
 
                 records[concept_type].add((code, name, parent_code))
                 parent_code = code

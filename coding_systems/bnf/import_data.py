@@ -10,37 +10,36 @@ from coding_systems.bnf.models import TYPES, Concept
 logger = structlog.get_logger()
 
 
-# Normalise ODP header names (for example, BNF_CHAPTER_CODE) so they match the
-# BNF field names used by the importer.
-def normalise(name: str) -> str:
-    return name.upper().replace(" ", "_")
-
-
 def import_data(
     release_csv, release_name, valid_from, import_ref=None, check_compatibility=True
 ):
     release_path = Path(release_csv)
     if release_path.suffix.lower() != ".csv":
         raise ValueError(f"Expected file path str ending '.csv', got '{release_path}'.")
-    records = {type: set() for type in TYPES}
+    records = {concept_type: set() for concept_type in TYPES}
     with release_path.open(mode="r", newline="") as f:
         csv_reader = csv.DictReader(f)
         for r in csv_reader:
             parent_code = None
-            for type in TYPES:
-                name = r[normalise(f"BNF {type}")]
-                code = r[normalise(f"BNF {type} Code")]
+            for concept_type in TYPES:
+                conecpt_type_column_header = concept_type.upper().replace(" ", "_")
+                name = r[f"BNF_{conecpt_type_column_header}"]
+                code = r[f"BNF_{conecpt_type_column_header}_CODE"]
                 if "DUMMY" not in name:
-                    records[type].add((code, name, parent_code))
+                    records[concept_type].add((code, name, parent_code))
                     parent_code = code
 
     with CodingSystemImporter(
         "bnf", release_name, valid_from, import_ref, check_compatibility
     ) as database_alias:
-        for type in TYPES:
-            logger.info("Loading BNF type", type=type)
-            for code, name, parent_code in sorted(records[type]):
+        for concept_type in TYPES:
+            logger.info("Loading BNF type", type=concept_type)
+            for code, name, parent_code in sorted(records[concept_type]):
                 Concept.objects.using(database_alias).get_or_create(
                     code=code,
-                    defaults={"name": name, "type": type, "parent_id": parent_code},
+                    defaults={
+                        "name": name,
+                        "type": concept_type,
+                        "parent_id": parent_code,
+                    },
                 )

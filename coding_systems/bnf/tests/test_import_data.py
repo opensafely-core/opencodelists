@@ -46,7 +46,6 @@ def mock_bnf_data_csv_path(tmp_path):
     1. Header row using the NHSBSA ODP column name format.
     2. 7 new concepts.
     3. 3 new concepts and 4 concepts shared with row 2.
-    4. 3 new concepts and 4 DUMMY concepts that should be ignored by the importer.
 
     Returns the path to the directory containing the CSV.
     """
@@ -101,23 +100,6 @@ def mock_bnf_data_csv_path(tmp_path):
             "0101010A0AA",
             "Alexitol sodium 360mg tablets",
             "0101010A0AAAAAA",
-        ],
-        [
-            "2025-09",
-            "Dressings",
-            "20",
-            "Absorbent Cottons",
-            "2001",
-            "DUMMY PARAGRAPH 200100",
-            "200100",
-            "DUMMY SUB-PARAGRAPH 2001000",
-            "2001000",
-            "DUMMY CHEMICAL SUBSTANCE 200100001",
-            "200100001",
-            "DUMMY PRODUCT 20010000101",
-            "20010000101",
-            "Absorbent cotton BP 1988",
-            "20010000101",
         ],
     ]
     csv_dir = tmp_path / "data"
@@ -192,7 +174,7 @@ class TestImportData(BNFDynamicDatabaseTestCaseWithTmpPath):
         assert cs_release.database_alias in settings.DATABASES
 
         # Verify imported concepts.
-        assert Concept.objects.using("bnf_release-1-a_20221001").count() == 13
+        assert Concept.objects.using("bnf_release-1-a_20221001").count() == 10
 
 
 class TestImportDataExisting(BNFDynamicDatabaseTestCaseWithTmpPath):
@@ -230,7 +212,7 @@ class TestImportDataExisting(BNFDynamicDatabaseTestCaseWithTmpPath):
         assert cs_release.import_timestamp > initial_timestamp
 
         # Verify imported concepts.
-        assert Concept.objects.using("bnf_v1-1_20221001").count() == 13
+        assert Concept.objects.using("bnf_v1-1_20221001").count() == 10
 
         # Backup file (created from the existing db file during setup) has been removed.
         assert not self.expected_db_path.with_suffix(".bu").exists()

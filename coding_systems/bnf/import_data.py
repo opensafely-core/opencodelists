@@ -25,9 +25,9 @@ def import_data(
                 conecpt_type_column_header = concept_type.upper().replace(" ", "_")
                 name = row[f"BNF_{conecpt_type_column_header}"]
                 code = row[f"BNF_{conecpt_type_column_header}_CODE"]
-                if "DUMMY" not in name:
-                    records[concept_type].add((code, name, parent_code))
-                    parent_code = code
+
+                records[concept_type].add((code, name, parent_code))
+                parent_code = code
 
     with CodingSystemImporter(
         "bnf", release_name, valid_from, import_ref, check_compatibility

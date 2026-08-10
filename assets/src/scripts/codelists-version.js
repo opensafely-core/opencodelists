@@ -1,21 +1,17 @@
 /* v8 ignore start */
 // jQuery
-import jQuery from "jquery";
+import jQuery from "jquery/dist/jquery.slim";
 
 // define & and jQuery on the global window object
 Object.assign(window, { $: jQuery, jQuery });
 
 // Datatable
-// biome-ignore lint/correctness/noUndeclaredDependencies: legacy datatable plugin
-import "datatables.net/js/jquery.dataTables.mjs";
+import DataTable from "datatables.net";
 import "datatables.net-bs4/js/dataTables.bootstrap4.mjs";
 import "datatables.net-bs4/css/dataTables.bootstrap4.css";
 
-$(() => {
-  $("#js-codelist-table").DataTable({
-    paging: false,
-  });
-});
+DataTable.type("num", "className", "dt-body-left");
+new DataTable("#js-codelist-table", { paging: false });
 /* v8 ignore end */
 
 const tabList = document.getElementById("tab-list");

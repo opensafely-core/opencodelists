@@ -19,12 +19,12 @@ def import_data(
     records = {concept_type: set() for concept_type in TYPES}
     with release_path.open(mode="r", newline="") as f:
         csv_reader = csv.DictReader(f)
-        for r in csv_reader:
+        for row in csv_reader:
             parent_code = None
             for concept_type in TYPES:
                 conecpt_type_column_header = concept_type.upper().replace(" ", "_")
-                name = r[f"BNF_{conecpt_type_column_header}"]
-                code = r[f"BNF_{conecpt_type_column_header}_CODE"]
+                name = row[f"BNF_{conecpt_type_column_header}"]
+                code = row[f"BNF_{conecpt_type_column_header}_CODE"]
                 if "DUMMY" not in name:
                     records[concept_type].add((code, name, parent_code))
                     parent_code = code

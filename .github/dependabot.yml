@@ -25,6 +25,10 @@ updates:
       timezone: "Europe/London"
     cooldown:
       default-days: 7
+    groups:
+      codeql-action:
+        patterns:
+          - "github/codeql-action/**"
 
   - package-ecosystem: "pre-commit"
     directory: "/"

@@ -127,7 +127,10 @@
             </dt>
             <dd class="mb-0">
               {% with release=clv.compatible_releases.last %}
-                {{ release.release_name }} ({{ release.valid_from|date:'Y-m-d'}})
+                {{ release.release_name }}
+                {% if clv.coding_system_id != "bnf" %}
+                  ({{ release.valid_from|date:'Y-m-d' }})
+                {% endif %}
               {% endwith %}
             </dd>
           </div>

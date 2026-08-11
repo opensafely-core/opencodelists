@@ -92,6 +92,19 @@ def test_medication_banner_not_visible_for_current_coding_system_release(
     assert b"Medication codelists can quickly become outdated" not in rsp.content
 
 
+def test_bnf_compatible_release_does_not_show_valid_from_date(
+    client, create_coding_system_release, bnf_version_asthma
+):
+    compatible_release = create_coding_system_release("bnf")
+    bnf_version_asthma.compatible_releases.add(compatible_release)
+
+    rsp = client.get(bnf_version_asthma.get_absolute_url())
+    soup = BeautifulSoup(rsp.content, "html.parser")
+    label = soup.find("dt", string=re.compile("Latest compatible release"))
+
+    assert label.find_next_sibling("dd").get_text(strip=True) == "test_bnf"
+
+
 def test_medication_banner_for_owner_of_codelist(
     client,
     create_coding_system_release,

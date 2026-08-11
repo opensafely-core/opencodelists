@@ -136,4 +136,27 @@ describe("Header component", () => {
       screen.queryByText(metadata.coding_system_release.valid_from),
     ).not.toBeInTheDocument();
   });
+
+  it("does not append valid_from for BNF coding system releases", () => {
+    const bnfReleaseName = "86 (2024-09-02)";
+    const bnfMetadata = {
+      ...metadata,
+      coding_system_id: "bnf",
+      coding_system_release: {
+        release_name: bnfReleaseName,
+        valid_from: "2024-09-02",
+      },
+    };
+
+    render(
+      <Header isEditable={isEditable} counts={counts} metadata={bnfMetadata} />,
+    );
+
+    const release = screen.getByText(
+      "Coding system release",
+    ).nextElementSibling;
+    expect(release).toHaveTextContent(bnfReleaseName);
+    expect(release).toHaveTextContent("2024-09-02");
+    expect(release?.textContent).toBe(bnfReleaseName);
+  });
 });

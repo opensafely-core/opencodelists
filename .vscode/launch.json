@@ -9,6 +9,8 @@
       "django": true,
       "autoStartBrowser": true,
       "program": "${workspaceFolder}/manage.py",
+      "cwd": "${workspaceFolder}",
+      "envFile": "${workspaceFolder}/.env",
       "justMyCode": true
     },
     {

@@ -114,6 +114,20 @@ def load_ehrql_codelists(
     return project_to_codelists, project_to_inline
 
 
+def load_cohort_extractor_codelists(
+    cohort_extractor_codelists_path: str = "tmp/cohort_extractor_codelists.json",
+) -> dict[str, list[str]]:
+    with open(cohort_extractor_codelists_path) as f:
+        cohort_extractor_codelists = json.load(f)
+    return {
+        project: [
+            f"https://www.opencodelists.org/codelist/{codelist}/"
+            for codelist in codelists
+        ]
+        for project, codelists in cohort_extractor_codelists.items()
+    }
+
+
 def load_issues(issues_path="tmp/issues.json"):
     with open(issues_path) as f:
         issues = json.load(f)
@@ -135,7 +149,37 @@ def load_issues(issues_path="tmp/issues.json"):
     ]
 
 
-def match_used_codelists(
+def match_cohort_extractor_codelists(
+    codelist_issues: list[CodelistWithIssues],
+    cohort_extractor_codelists: dict[str, list[str]],
+) -> dict[str, list[CodelistWithIssues]]:
+    codelist_issues_dict = {codelist.url: codelist for codelist in codelist_issues}
+    affected_codelists_by_project = defaultdict(list)
+    for project, codelists in cohort_extractor_codelists.items():
+        for codelist in codelists:
+            if codelist in codelist_issues_dict:
+                codelist_with_issues = codelist_issues_dict[codelist]
+                if not all(
+                    [
+                        issue.type == ICD10IssueType.MISSING_MODIFIER_CODE
+                        for issue in codelist_with_issues.issues
+                    ]
+                ):
+                    affected_codelists_by_project[project].append(
+                        CodelistWithIssues(
+                            url=codelist_with_issues.url,
+                            issues=[
+                                issue
+                                for issue in codelist_with_issues.issues
+                                if issue.type != ICD10IssueType.MISSING_MODIFIER_CODE
+                            ],
+                        )
+                    )
+
+    return affected_codelists_by_project
+
+
+def match_ehrql_codelists(
     codelist_issues: list[CodelistWithIssues], ehrql_codelists: dict[str, list[str]]
 ) -> dict[str, list[CodelistWithIssues]]:
     codelist_issues_dict = {codelist.url: codelist for codelist in codelist_issues}
@@ -150,7 +194,7 @@ def match_used_codelists(
     return affected_codelists_by_project
 
 
-def match_used_inline(
+def match_ehrql_inline(
     code_issues: list[CodeWithIssues], ehrql_inline: dict[str, list[inline_code]]
 ) -> dict[str, list[CodeWithIssues]]:
     affected_inline_codes_by_project = defaultdict(list)
@@ -167,18 +211,19 @@ def match_used_inline(
     return affected_inline_codes_by_project
 
 
-def report_codelist_issues(
-    affected_codelists_by_project: dict[str, list[CodelistWithIssues]],
+def report_ehrql_codelist_issues(
+    affected_codelists_by_ehrql_project: dict[str, list[CodelistWithIssues]],
 ):
     print(
-        "Total projects with codelists with issues:", len(affected_codelists_by_project)
+        "Total ehrQL projects with codelists with issues:",
+        len(affected_codelists_by_ehrql_project),
     )
     print("Affected codelists by project:")
-    for project, codelists in affected_codelists_by_project.items():
+    for project, codelists in affected_codelists_by_ehrql_project.items():
         print(f"{project}: {len(codelists)} codelists affected")
     print("Issue types encountered:")
     issue_counter = Counter()
-    for codelists in affected_codelists_by_project.values():
+    for codelists in affected_codelists_by_ehrql_project.values():
         for codelist in codelists:
             for issue in codelist.issues:
                 issue_counter.update([issue.type])
@@ -186,11 +231,11 @@ def report_codelist_issues(
     print("\n")
 
 
-def report_inline_code_issues(
+def report_ehrql_inline_code_issues(
     affected_inline_codes_by_project: dict[str, list[CodeWithIssues]],
 ):
     print(
-        "Total projects with inline codes with issues:",
+        "Total ehrQL projects with inline codes with issues:",
         len(affected_inline_codes_by_project),
     )
     print("Affected inline codes by project:")
@@ -206,7 +251,27 @@ def report_inline_code_issues(
     print("\n")
 
 
-def write_affected_csv(
+def report_cohort_extractor_codelist_issues(
+    affected_codelists_by_cohort_extractor_project: dict[str, list[CodelistWithIssues]],
+):
+    print(
+        "Total cohort extractor projects with codelists with issues:",
+        len(affected_codelists_by_cohort_extractor_project),
+    )
+    print("Affected codelists by project:")
+    for project, codelists in affected_codelists_by_cohort_extractor_project.items():
+        print(f"{project}: {len(codelists)} codelists affected")
+    print("Issue types encountered:")
+    issue_counter = Counter()
+    for codelists in affected_codelists_by_cohort_extractor_project.values():
+        for codelist in codelists:
+            for issue in codelist.issues:
+                issue_counter.update([issue.type])
+    print(issue_counter)
+    print("\n")
+
+
+def write_affected_ehrql_csv(
     affected_codelists_by_project: dict[str, list[CodelistWithIssues]],
     affected_inline_codes_by_project: dict[str, list[CodeWithIssues]],
 ):
@@ -221,7 +286,7 @@ def write_affected_csv(
         "inline_codes",
         "inline_issues",
     ]
-    with open("tmp/affected_projects.csv", "w", newline="") as f:
+    with open("tmp/affected_ehrql_projects.csv", "w", newline="") as f:
         writer = csv.DictWriter(
             f,
             fieldnames=headers,
@@ -264,17 +329,59 @@ def write_affected_csv(
                 )
 
 
+def write_affected_cohort_extractor_csv(
+    affected_codelists_by_project: dict[str, list[CodelistWithIssues]],
+):
+    headers = ["project", "codelist", "codelist_issues"]
+    with open("tmp/affected_cohort_extractor_projects.csv", "w", newline="") as f:
+        writer = csv.DictWriter(
+            f,
+            fieldnames=headers,
+            quotechar='"',
+            quoting=csv.QUOTE_ALL,
+        )
+        writer.writeheader()
+        for project, codelists in affected_codelists_by_project.items():
+            for codelist in codelists:
+                writer.writerow(
+                    {
+                        "project": project,
+                        "codelist": codelist.url,
+                        "codelist_issues": ",".join(
+                            {str(issue.type) for issue in codelist.issues}
+                        ),
+                    }
+                )
+
+
 def main():
     codelist_issues, code_issues = load_issues()
     ehrql_codelists, ehrql_inline = load_ehrql_codelists()
-    affected_codelists_by_project = match_used_codelists(
+    cohort_extractor_codelists = load_cohort_extractor_codelists()
+
+    affected_codelists_by_ehrql_project = match_ehrql_codelists(
         codelist_issues, ehrql_codelists
     )
-    affected_inline_codes_by_project = match_used_inline(code_issues, ehrql_inline)
-    report_codelist_issues(affected_codelists_by_project)
-    report_inline_code_issues(affected_inline_codes_by_project)
+    affected_inline_codes_by_ehrql_project = match_ehrql_inline(
+        code_issues, ehrql_inline
+    )
 
-    write_affected_csv(affected_codelists_by_project, affected_inline_codes_by_project)
+    affected_codelists_by_cohort_extractor_project = match_cohort_extractor_codelists(
+        codelist_issues, cohort_extractor_codelists
+    )
+
+    report_ehrql_codelist_issues(affected_codelists_by_ehrql_project)
+    report_ehrql_inline_code_issues(affected_inline_codes_by_ehrql_project)
+
+    report_cohort_extractor_codelist_issues(
+        affected_codelists_by_cohort_extractor_project
+    )
+
+    write_affected_ehrql_csv(
+        affected_codelists_by_ehrql_project, affected_inline_codes_by_ehrql_project
+    )
+
+    write_affected_cohort_extractor_csv(affected_codelists_by_cohort_extractor_project)
 
 
 if __name__ == "__main__":

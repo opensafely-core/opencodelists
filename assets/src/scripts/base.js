@@ -14,7 +14,7 @@ Object.assign(window, { $: jQuery, jQuery });
 // Bootstrap
 import "@popperjs/core";
 
-import "bootstrap";
+import "bootstrap/dist/js/bootstrap.js";
 import "bootstrap/dist/css/bootstrap.css";
 
 // Lite YouTube Embed

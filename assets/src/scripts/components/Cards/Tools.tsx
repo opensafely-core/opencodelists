@@ -33,9 +33,9 @@ export default function Tools() {
             >
               {tool.name}
             </a>
-            {tool?.description && (
+            {tool?.description ? (
               <p className="small mb-0">{tool.description}</p>
-            )}
+            ) : null}
           </li>
         ))}
       </ul>

@@ -65,10 +65,11 @@ export default function Reference({
         >
           {reference.text}
         </a>
-        {isEditable && (
+        {!!isEditable && (
           <div className="ml-auto btn-group-sm">
             <button
               className={`btn ${isEditing ? "btn-primary" : "btn-outline-primary"}`}
+              // biome-ignore lint/performance/noJsxPropsBind: inline state update for this button
               onClick={() => setIsEditing(true)}
               type="button"
             >
@@ -86,6 +87,7 @@ export default function Reference({
       </div>
       <ReferenceFormModal
         defaultValue={reference}
+        // biome-ignore lint/performance/noJsxPropsBind: inline state reset callback
         onReset={() => setIsEditing(false)}
         onSubmit={handleSubmit}
         show={isEditing}

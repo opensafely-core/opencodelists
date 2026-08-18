@@ -77,6 +77,7 @@ export default function ManagementForm({ counts }: ManagementFormProps) {
         </button>
         <button
           className="btn btn-outline-danger ml-2"
+          // biome-ignore lint/performance/noJsxPropsBind: inline state update for this button
           onClick={() => setShowDiscardModal(true)}
           type="button"
         >
@@ -114,6 +115,7 @@ export default function ManagementForm({ counts }: ManagementFormProps) {
           </form>
           <button
             className="btn btn-outline-secondary"
+            // biome-ignore lint/performance/noJsxPropsBind: inline state update for this button
             onClick={() => setShowDiscardModal(false)}
             type="button"
           >

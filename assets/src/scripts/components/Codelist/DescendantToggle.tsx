@@ -15,6 +15,7 @@ export default function DescendantToggle({
   return (
     <button
       className="p-0 bg-transparent border-0 text-monospace d-inline-block ml-1 mr-2"
+      // biome-ignore lint/performance/noJsxPropsBind: callback requires the current path
       onClick={toggleVisibility.bind(null, path)}
       type="button"
     >

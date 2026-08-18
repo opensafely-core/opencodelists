@@ -1,4 +1,4 @@
-import React, { StrictMode } from "react";
+import React from "react";
 import { createRoot } from "react-dom/client";
 import Hierarchy from "../_hierarchy";
 import { readValueFromPage } from "../_utils";
@@ -27,7 +27,7 @@ const container = document.getElementById("codelist-builder-container");
 if (container) {
   const root = createRoot(container);
   root.render(
-    <StrictMode>
+    <React.StrictMode>
       <CodelistBuilder
         allCodes={readValueFromPage("all-codes")}
         codeToStatus={codeToStatus}
@@ -44,6 +44,6 @@ if (container) {
         updateURL={readValueFromPage("update-url")}
         visiblePaths={visiblePaths}
       />
-    </StrictMode>,
+    </React.StrictMode>,
   );
 }

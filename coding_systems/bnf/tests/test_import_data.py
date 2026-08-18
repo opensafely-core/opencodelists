@@ -2,7 +2,6 @@ import csv
 import re
 from datetime import date
 from unittest.mock import patch
-from zipfile import ZipFile
 
 import pytest
 from django.conf import settings
@@ -40,25 +39,36 @@ def mock_migrate_coding_system_with_error(*args, **kwargs):
 
 
 @pytest.fixture
-def mock_bnf_import_data_path(tmp_path):
-    MOCK_BNF_IMPORT_DATA = [
+def mock_bnf_data_csv_path(tmp_path):
+    """Create a temporary directory containing a mock CSV that includes BNF data in the format available from the NHSBSA ODP API.
+
+    The CSV contains 4 rows and includes 13 concepts:
+    1. Header row using the NHSBSA ODP column name format.
+    2. 7 new concepts.
+    3. 3 new concepts and 4 concepts shared with row 2.
+
+    Returns the path to the directory containing the CSV.
+    """
+    mock_bnf_import_data = [
         [
-            "BNF Chapter",
-            "BNF Chapter Code",
-            "BNF Section",
-            "BNF Section Code",
-            "BNF Paragraph",
-            "BNF Paragraph Code",
-            "BNF Subparagraph",
-            "BNF Subparagraph Code",
-            "BNF Chemical Substance",
-            "BNF Chemical Substance Code",
-            "BNF Product",
-            "BNF Product Code",
-            "BNF Presentation",
-            "BNF Presentation Code",
+            "MONTH_YEAR",
+            "BNF_CHAPTER",
+            "BNF_CHAPTER_CODE",
+            "BNF_SECTION",
+            "BNF_SECTION_CODE",
+            "BNF_PARAGRAPH",
+            "BNF_PARAGRAPH_CODE",
+            "BNF_SUBPARAGRAPH",
+            "BNF_SUBPARAGRAPH_CODE",
+            "BNF_CHEMICAL_SUBSTANCE",
+            "BNF_CHEMICAL_SUBSTANCE_CODE",
+            "BNF_PRODUCT",
+            "BNF_PRODUCT_CODE",
+            "BNF_PRESENTATION",
+            "BNF_PRESENTATION_CODE",
         ],
         [
+            "2025-09",
             "Gastro-Intestinal System",
             "01",
             "Dyspepsia and gastro-oesophageal reflux disease",
@@ -75,6 +85,7 @@ def mock_bnf_import_data_path(tmp_path):
             "010101000BBAJA0",
         ],
         [
+            "2025-09",
             "Gastro-Intestinal System",
             "01",
             "Dyspepsia and gastro-oesophageal reflux disease",
@@ -90,75 +101,28 @@ def mock_bnf_import_data_path(tmp_path):
             "Alexitol sodium 360mg tablets",
             "0101010A0AAAAAA",
         ],
-        [
-            "Dressings",
-            "20",
-            "Absorbent Cottons",
-            "2001",
-            "DUMMY PARAGRAPH 200100",
-            "200100",
-            "DUMMY SUB-PARAGRAPH 2001000",
-            "2001000",
-            "DUMMY CHEMICAL SUBSTANCE 200100001",
-            "200100001",
-            "DUMMY PRODUCT 20010000101",
-            "20010000101",
-            "Absorbent cotton BP 1988",
-            "20010000101",
-        ],
     ]
-    # write some mock CSV data to be imported
-    # This consists of 4 rows, 13 concepts to be imported:
-    # 1) headers
-    # 2) 7 new concepts
-    # 3) 3 new concepts, 4 concepts shared with (2)
-    # 4) 3 new concepts, 4 DUMMY concepts that are not imported
     csv_dir = tmp_path / "data"
-    csv_dir.mkdir(parents=True)
-    with open(csv_dir / "data.csv", "w") as csv_file:
+    csv_dir.mkdir()
+    with open(
+        csv_dir / "data.csv",
+        "w",
+        newline="",
+    ) as csv_file:
         writer = csv.writer(csv_file)
-        writer.writerows(MOCK_BNF_IMPORT_DATA)
-    zip_path = tmp_path / "archive.zip"
-    with ZipFile(tmp_path / "archive.zip", mode="w") as archive:
-        archive.write(csv_dir / "data.csv", arcname="data.csv")
-    yield str(zip_path)
+        writer.writerows(mock_bnf_import_data)
+    return str(csv_dir / "data.csv")
 
 
 def test_import_data_no_csv_files(tmp_path):
     other_file = tmp_path / "test.txt"
     other_file.touch()
-    with ZipFile(tmp_path / "test.zip", "w") as zip_file:
-        zip_file.write(other_file, arcname=other_file.name)
 
     with pytest.raises(
-        AssertionError, match=re.escape("Expected 1 and only one .csv file (found 0)")
+        ValueError,
+        match=re.escape(f"Expected file path str ending '.csv', got '{other_file}'"),
     ):
-        import_data(
-            str(tmp_path / "test.zip"), release_name="v1", valid_from=date(2022, 10, 1)
-        )
-
-
-def test_import_data_too_many_csv_files(tmp_path):
-    # 2 csv files in the resource dir
-    subdir = tmp_path / "subdir"
-    subdir.mkdir(parents=True)
-    for filename in ["test.csv", "test1.csv"]:
-        (tmp_path / subdir / filename).touch()
-    # csvs in subdirs are ignored
-    (subdir / tmp_path / "testsubdir").mkdir(parents=True)
-    (subdir / tmp_path / "testsubdir" / "test1.csv").touch()
-    with ZipFile(tmp_path / "archive.zip", mode="w") as archive:
-        for file_path in subdir.iterdir():
-            archive.write(file_path, arcname=file_path.name)
-
-    with pytest.raises(
-        AssertionError, match=re.escape("Expected 1 and only one .csv file (found 2)")
-    ):
-        import_data(
-            str(tmp_path / "archive.zip"),
-            release_name="v1",
-            valid_from=date(2022, 10, 1),
-        )
+        import_data(str(other_file), release_name="v1", valid_from=date(2022, 10, 1))
 
 
 class BNFDynamicDatabaseTestCaseWithTmpPath(DynamicDatabaseTestCaseWithTmpPath):
@@ -172,8 +136,8 @@ class BNFDynamicDatabaseTestCaseWithTmpPath(DynamicDatabaseTestCaseWithTmpPath):
     # Set this fixture as `autouse`:
     # all the tests currently using this class use this import data fixture.
     @pytest.fixture(autouse=True)
-    def _set_import_data_from_fixture(self, mock_bnf_import_data_path):
-        self.import_data_path = mock_bnf_import_data_path
+    def _set_import_data_from_fixture(self, mock_bnf_data_csv_path):
+        self.import_data_path = mock_bnf_data_csv_path
 
 
 class TestImportData(BNFDynamicDatabaseTestCaseWithTmpPath):
@@ -210,7 +174,7 @@ class TestImportData(BNFDynamicDatabaseTestCaseWithTmpPath):
         assert cs_release.database_alias in settings.DATABASES
 
         # Verify imported concepts.
-        assert Concept.objects.using("bnf_release-1-a_20221001").count() == 13
+        assert Concept.objects.using("bnf_release-1-a_20221001").count() == 10
 
 
 class TestImportDataExisting(BNFDynamicDatabaseTestCaseWithTmpPath):
@@ -248,13 +212,13 @@ class TestImportDataExisting(BNFDynamicDatabaseTestCaseWithTmpPath):
         assert cs_release.import_timestamp > initial_timestamp
 
         # Verify imported concepts.
-        assert Concept.objects.using("bnf_v1-1_20221001").count() == 13
+        assert Concept.objects.using("bnf_v1-1_20221001").count() == 10
 
         # Backup file (created from the existing db file during setup) has been removed.
         assert not self.expected_db_path.with_suffix(".bu").exists()
 
 
-def test_import_error(coding_systems_tmp_path, mock_bnf_import_data_path):
+def test_import_error(coding_systems_tmp_path, mock_bnf_data_csv_path):
     cs_release_count = CodingSystemRelease.objects.count()
 
     # raise an exception after the migrate command; i.e after the setup that
@@ -262,7 +226,7 @@ def test_import_error(coding_systems_tmp_path, mock_bnf_import_data_path):
     with patch("coding_systems.bnf.import_data.csv.DictReader", side_effect=Exception):
         with pytest.raises(Exception):
             import_data(
-                mock_bnf_import_data_path,
+                mock_bnf_data_csv_path,
                 release_name="release 2",
                 valid_from=date(2022, 10, 1),
                 import_ref="Ref",
@@ -276,7 +240,7 @@ def test_import_error(coding_systems_tmp_path, mock_bnf_import_data_path):
     ).exists()
 
 
-def test_import_setup_error(coding_systems_tmp_path, mock_bnf_import_data_path):
+def test_import_setup_error(coding_systems_tmp_path, mock_bnf_data_csv_path):
     cs_release_count = CodingSystemRelease.objects.count()
 
     # raise an exception during the setup that creates the CodingSystemRelease and the new db file
@@ -286,7 +250,7 @@ def test_import_setup_error(coding_systems_tmp_path, mock_bnf_import_data_path):
     ):
         with pytest.raises(Exception, match="expected exception"):
             import_data(
-                mock_bnf_import_data_path,
+                mock_bnf_data_csv_path,
                 release_name="release 3",
                 valid_from=date(2022, 10, 1),
                 import_ref="Ref",
@@ -305,7 +269,7 @@ def test_import_setup_error(coding_systems_tmp_path, mock_bnf_import_data_path):
 
 
 def test_import_setup_error_existing_release(
-    coding_systems_tmp_path, mock_bnf_import_data_path
+    coding_systems_tmp_path, mock_bnf_data_csv_path
 ):
     # set up an existing CodingSystemRelease and db file
     cs_release = CodingSystemRelease.objects.create(
@@ -330,7 +294,7 @@ def test_import_setup_error_existing_release(
     ):
         with pytest.raises(Exception, match="expected exception"):
             import_data(
-                mock_bnf_import_data_path,
+                mock_bnf_data_csv_path,
                 release_name="v_error_setup",
                 valid_from=date(2022, 10, 1),
                 import_ref="Ref",

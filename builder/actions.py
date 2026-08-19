@@ -44,7 +44,7 @@ def get_codes_to_keep(codeset_version, potential_codes):
     1. Explicitly included in the codelist
     2. Descendants of included codes
     """
-    # Get all explicitly included codes on the codelist
+    # Get all explicitly and implicitly included codes on the codelist
     all_included_codes = codeset_version.codeset.codes()
 
     # Build a list of codes_to_keep from this search, consisting of any included codes or their descendants
@@ -158,8 +158,22 @@ def update_code_statuses(*, draft, updates):
     new_codeset = draft.codeset.update(updates)
 
     status_to_new_code = defaultdict(list)
+    previous_codes = draft.codeset.all_codes()
     for code, status in new_codeset.code_to_status.items():
         status_to_new_code[status].append(code)
+        # check for re-inclusion of previously-deleted orphan codes
+        if code not in previous_codes and status == "+":
+            codes_to_reinclude = (
+                {code} | draft.hierarchy.descendants(code)
+            ) - previous_codes
+            CodeObj.objects.bulk_create(
+                CodeObj(
+                    version=draft,
+                    code=code_to_reinclude,
+                    status=status if code_to_reinclude == code else "(+)",
+                )
+                for code_to_reinclude in codes_to_reinclude
+            )
 
     for status, codes in status_to_new_code.items():
         draft.code_objs.filter(code__in=codes).update(status=status)

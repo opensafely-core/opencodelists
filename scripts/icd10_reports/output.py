@@ -40,7 +40,7 @@ def write_outputs(
                     if owner.kind == "organisation"
                     else owner.email or ""
                 ),
-                "org": "" if owner.kind == "user" else owner.name,
+                "org": owner.name,
                 "pdf_filename": pdf_relative.name,
             }
             for codelist in codelists

@@ -19,6 +19,9 @@ def import_data(
     records = {concept_type: set() for concept_type in TYPES}
     with release_path.open(mode="r", newline="") as f:
         csv_reader = csv.DictReader(f)
+        csv_reader.fieldnames = [
+            header.upper().replace(" ", "_") for header in csv_reader.fieldnames
+        ]
         for row in csv_reader:
             parent_code = None
             for concept_type in TYPES:

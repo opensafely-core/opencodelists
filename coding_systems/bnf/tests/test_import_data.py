@@ -39,19 +39,92 @@ def mock_migrate_coding_system_with_error(*args, **kwargs):
 
 
 @pytest.fixture
-def mock_bnf_data_csv_path(tmp_path):
+def mock_isp_bnf_data_csv_path(tmp_path):
+    """Create a temporary directory containing a mock CSV that includes BNF data in the format previously available from the NHSBSA Information Services Portal (ISP).
+
+    The CSV contains 3 rows and includes 10 concepts:
+    1. Header row using the NHSBSA ISP column name format.
+    2. 7 new concepts.
+    3. 3 new concepts and 4 concepts shared with row 2.
+
+    Returns the path to the CSV file.
+    """
+    mock_isp_bnf_import_data = [
+        [
+            "BNF Chapter",
+            "BNF Chapter Code",
+            "BNF Section",
+            "BNF Section Code",
+            "BNF Paragraph",
+            "BNF Paragraph Code",
+            "BNF Subparagraph",
+            "BNF Subparagraph Code",
+            "BNF Chemical Substance",
+            "BNF Chemical Substance Code",
+            "BNF Product",
+            "BNF Product Code",
+            "BNF Presentation",
+            "BNF Presentation Code",
+        ],
+        [
+            "Gastro-Intestinal System",
+            "01",
+            "Dyspepsia and gastro-oesophageal reflux disease",
+            "0101",
+            "Antacids and simeticone",
+            "010101",
+            "Antacids and simeticone",
+            "0101010",
+            "Other antacid and simeticone preparations",
+            "010101000",
+            "Proprietary compound preparation BNF 0101010",
+            "010101000BB",
+            "Indigestion mixture",
+            "010101000BBAJA0",
+        ],
+        [
+            "Gastro-Intestinal System",
+            "01",
+            "Dyspepsia and gastro-oesophageal reflux disease",
+            "0101",
+            "Antacids and simeticone",
+            "010101",
+            "Antacids and simeticone",
+            "0101010",
+            "Alexitol sodium",
+            "0101010A0",
+            "Alexitol sodium",
+            "0101010A0AA",
+            "Alexitol sodium 360mg tablets",
+            "0101010A0AAAAAA",
+        ],
+    ]
+    csv_dir = tmp_path / "data"
+    csv_dir.mkdir()
+    with open(
+        csv_dir / "data.csv",
+        "w",
+        newline="",
+    ) as csv_file:
+        writer = csv.writer(csv_file)
+        writer.writerows(mock_isp_bnf_import_data)
+    return str(csv_dir / "data.csv")
+
+
+@pytest.fixture
+def mock_odp_bnf_release_data_csv_path(tmp_path):
     """Create a temporary directory containing a mock CSV that includes BNF data in the format available from the NHSBSA ODP API.
 
-    The CSV contains 4 rows and includes 13 concepts:
+    The CSV contains 3 rows and includes 10 concepts:
     1. Header row using the NHSBSA ODP column name format.
     2. 7 new concepts.
     3. 3 new concepts and 4 concepts shared with row 2.
 
-    Returns the path to the directory containing the CSV.
+    Returns the path to the CSV file.
     """
-    mock_bnf_import_data = [
+    mock_odp_bnf_import_data = [
         [
-            "MONTH_YEAR",
+            "YEAR_MONTH",
             "BNF_CHAPTER",
             "BNF_CHAPTER_CODE",
             "BNF_SECTION",
@@ -110,7 +183,7 @@ def mock_bnf_data_csv_path(tmp_path):
         newline="",
     ) as csv_file:
         writer = csv.writer(csv_file)
-        writer.writerows(mock_bnf_import_data)
+        writer.writerows(mock_odp_bnf_import_data)
     return str(csv_dir / "data.csv")
 
 
@@ -136,25 +209,31 @@ class BNFDynamicDatabaseTestCaseWithTmpPath(DynamicDatabaseTestCaseWithTmpPath):
     # Set this fixture as `autouse`:
     # all the tests currently using this class use this import data fixture.
     @pytest.fixture(autouse=True)
-    def _set_import_data_from_fixture(self, mock_bnf_data_csv_path):
-        self.import_data_path = mock_bnf_data_csv_path
+    def _set_import_data_from_fixture(self, mock_odp_bnf_release_data_csv_path):
+        self.import_data_path = mock_odp_bnf_release_data_csv_path
 
 
-class TestImportData(BNFDynamicDatabaseTestCaseWithTmpPath):
+# Use DynamicDatabaseTestCaseWithTmpPath instead of BNFDynamicDatabaseTestCaseWithTmpPath so that we can test with the mock isp-format BNF data fixture
+class TestImportISPData(DynamicDatabaseTestCaseWithTmpPath):
+    """Test importing BNF coding system data using CSV files with the old ISP column header format and dynamic database creation."""
+
     db_aliases = [
-        "bnf_release-1-a_20221001",
+        "bnf_isp-release-1-a_20221001",
     ]
     coding_system_subpath_name = "bnf"
 
+    @pytest.fixture(autouse=True)
+    def _set_import_data_from_fixture(self, mock_isp_bnf_data_csv_path):
+        self.import_data_path = mock_isp_bnf_data_csv_path
+
     @pytest.mark.usefixtures("setup_coding_systems")
-    def test_import_data(self):
-        """Test importing BNF coding system data with dynamic database creation."""
+    def test_import_isp_format_data(self):
         cs_release_count = CodingSystemRelease.objects.count()
 
         # Execute import.
         import_data(
             self.import_data_path,
-            release_name="release 1 A",
+            release_name="isp release 1 A",
             valid_from=date(2022, 10, 1),
             import_ref="Ref",
         )
@@ -165,7 +244,7 @@ class TestImportData(BNFDynamicDatabaseTestCaseWithTmpPath):
 
         # Verify release details.
         assert cs_release.coding_system == "bnf"
-        assert cs_release.release_name == "release 1 A"
+        assert cs_release.release_name == "isp release 1 A"
         assert cs_release.valid_from == date(2022, 10, 1)
         assert cs_release.import_ref == "Ref"
 
@@ -174,7 +253,45 @@ class TestImportData(BNFDynamicDatabaseTestCaseWithTmpPath):
         assert cs_release.database_alias in settings.DATABASES
 
         # Verify imported concepts.
-        assert Concept.objects.using("bnf_release-1-a_20221001").count() == 10
+        assert Concept.objects.using("bnf_isp-release-1-a_20221001").count() == 10
+
+
+class TestImportODPData(BNFDynamicDatabaseTestCaseWithTmpPath):
+    """Test importing BNF coding system data using the mock ODP-header-format CSV file and dynamic database creation."""
+
+    db_aliases = [
+        "bnf_odp-release-1-a_20221001",
+    ]
+    coding_system_subpath_name = "bnf"
+
+    @pytest.mark.usefixtures("setup_coding_systems")
+    def test_import_odp_format_data(self):
+        cs_release_count = CodingSystemRelease.objects.count()
+
+        # Execute import.
+        import_data(
+            self.import_data_path,
+            release_name="odp release 1 A",
+            valid_from=date(2022, 10, 1),
+            import_ref="Ref",
+        )
+
+        # Verify CodingSystemRelease creation.
+        assert CodingSystemRelease.objects.count() == cs_release_count + 1
+        cs_release = CodingSystemRelease.objects.latest("id")
+
+        # Verify release details.
+        assert cs_release.coding_system == "bnf"
+        assert cs_release.release_name == "odp release 1 A"
+        assert cs_release.valid_from == date(2022, 10, 1)
+        assert cs_release.import_ref == "Ref"
+
+        # Verify database file creation and configuration.
+        assert self.expected_db_path.exists()
+        assert cs_release.database_alias in settings.DATABASES
+
+        # Verify imported concepts.
+        assert Concept.objects.using("bnf_odp-release-1-a_20221001").count() == 10
 
 
 class TestImportDataExisting(BNFDynamicDatabaseTestCaseWithTmpPath):
@@ -218,7 +335,7 @@ class TestImportDataExisting(BNFDynamicDatabaseTestCaseWithTmpPath):
         assert not self.expected_db_path.with_suffix(".bu").exists()
 
 
-def test_import_error(coding_systems_tmp_path, mock_bnf_data_csv_path):
+def test_import_error(coding_systems_tmp_path, mock_odp_bnf_release_data_csv_path):
     cs_release_count = CodingSystemRelease.objects.count()
 
     # raise an exception after the migrate command; i.e after the setup that
@@ -226,7 +343,7 @@ def test_import_error(coding_systems_tmp_path, mock_bnf_data_csv_path):
     with patch("coding_systems.bnf.import_data.csv.DictReader", side_effect=Exception):
         with pytest.raises(Exception):
             import_data(
-                mock_bnf_data_csv_path,
+                mock_odp_bnf_release_data_csv_path,
                 release_name="release 2",
                 valid_from=date(2022, 10, 1),
                 import_ref="Ref",
@@ -240,7 +357,9 @@ def test_import_error(coding_systems_tmp_path, mock_bnf_data_csv_path):
     ).exists()
 
 
-def test_import_setup_error(coding_systems_tmp_path, mock_bnf_data_csv_path):
+def test_import_setup_error(
+    coding_systems_tmp_path, mock_odp_bnf_release_data_csv_path
+):
     cs_release_count = CodingSystemRelease.objects.count()
 
     # raise an exception during the setup that creates the CodingSystemRelease and the new db file
@@ -250,7 +369,7 @@ def test_import_setup_error(coding_systems_tmp_path, mock_bnf_data_csv_path):
     ):
         with pytest.raises(Exception, match="expected exception"):
             import_data(
-                mock_bnf_data_csv_path,
+                mock_odp_bnf_release_data_csv_path,
                 release_name="release 3",
                 valid_from=date(2022, 10, 1),
                 import_ref="Ref",
@@ -269,7 +388,7 @@ def test_import_setup_error(coding_systems_tmp_path, mock_bnf_data_csv_path):
 
 
 def test_import_setup_error_existing_release(
-    coding_systems_tmp_path, mock_bnf_data_csv_path
+    coding_systems_tmp_path, mock_odp_bnf_release_data_csv_path
 ):
     # set up an existing CodingSystemRelease and db file
     cs_release = CodingSystemRelease.objects.create(
@@ -294,7 +413,7 @@ def test_import_setup_error_existing_release(
     ):
         with pytest.raises(Exception, match="expected exception"):
             import_data(
-                mock_bnf_data_csv_path,
+                mock_odp_bnf_release_data_csv_path,
                 release_name="v_error_setup",
                 valid_from=date(2022, 10, 1),
                 import_ref="Ref",

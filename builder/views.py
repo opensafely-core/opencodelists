@@ -64,6 +64,11 @@ def _handle_post(request, draft):
         )
         return redirect(draft)
     elif action == "save-draft":
+        # Note: the "Save draft" button does not save a draft
+        # codelist, we only redirect the user back to the draft codelist.
+        # We do this to avoid users wondering how to save their work.
+        # Updates to draft codelists are saved to the backend when a
+        # user changes the status of a code in the builder, via update_code_statuses().
         messages.add_message(request, messages.INFO, "Your changes have been saved")
         return redirect(draft.codelist)
     elif action == "discard":

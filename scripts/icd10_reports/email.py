@@ -23,6 +23,10 @@ If so we need to think about templating in the various bits.
 Not intractable by any means.
 """
 
+GUIDANCE_PDF_PATH = Path(
+    "scripts/icd10_reports/Guidance on updating Codelists after ICD-10 update.pdf"
+)
+
 
 def send_email(
     to: str,
@@ -88,7 +92,7 @@ def send_emails(
             resp = send_email(
                 to=recipient["email"],
                 subject=SUBJECT.format(recipient["codelist"]),
-                attachments=[pdfs_dir / recipient["pdf_filename"]],
+                attachments=[pdfs_dir / recipient["pdf_filename"], GUIDANCE_PDF_PATH],
             )
             if resp:
                 yield (recipient["email"], recipient["codelist"], resp)

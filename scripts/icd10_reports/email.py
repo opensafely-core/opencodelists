@@ -4,7 +4,11 @@ from collections.abc import Generator
 from pathlib import Path
 
 import requests
+from bs4 import BeautifulSoup
 from django.conf import settings
+from markdown2 import markdown
+
+from opencodelists.models import User
 
 
 """Taken from codelist rot notifier https://github.com/opensafely/dmd-codelist-report/blob/main/notifier/send_email.py"""
@@ -16,16 +20,12 @@ SEED_EMAILS = [
     "jon.massey@phc.ox.ac.uk",
 ]
 
-SUBJECT = "Your codelist {} requires attention"
-BODY = """
-Some plaintext here. Do we want to do an HTML email as well?
-If so we need to think about templating in the various bits.
-Not intractable by any means.
-"""
+SUBJECT = "Action recommended: review your ICD-10 codelists on OpenCodelists"
 
 GUIDANCE_PDF_PATH = Path(
     "scripts/icd10_reports/Guidance on updating Codelists after ICD-10 update.pdf"
 )
+EMAIL_BODY_MD_PATH = Path("scripts/icd10_reports/email_body.md")
 
 
 def send_email(
@@ -89,10 +89,18 @@ def send_emails(
     recipients = list(csv.DictReader(path_to_recipients_csv.read_text()))
     for recipient in recipients:
         try:
+            email = recipient["email"]
+            user = User.objects.get(email=email)
+            html = markdown(
+                EMAIL_BODY_MD_PATH.read_text().replace(r"{{Name}}", user.name)
+            )
+
             resp = send_email(
-                to=recipient["email"],
+                to=email,
                 subject=SUBJECT.format(recipient["codelist"]),
                 attachments=[pdfs_dir / recipient["pdf_filename"], GUIDANCE_PDF_PATH],
+                html=html,
+                text=BeautifulSoup(html).get_text(),
             )
             if resp:
                 yield (recipient["email"], recipient["codelist"], resp)

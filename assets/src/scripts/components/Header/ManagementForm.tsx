@@ -68,6 +68,8 @@ export default function ManagementForm({ counts }: ManagementFormProps) {
           </OverlayTrigger>
         )}
         <button
+          // "Save draft" does not save a draft codelist; this POST just
+          // redirects back to the draft codelist (see builder/views.py).
           className="btn btn-outline-primary ml-2"
           name="action"
           type="submit"

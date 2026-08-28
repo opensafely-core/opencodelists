@@ -81,13 +81,8 @@ def check_status():
 def send_emails(
     path_to_recipients_csv: Path = Path("scripts/icd10_reports/reports/recipients.csv"),
     pdfs_dir: Path = Path("scripts/icd10_reports/reports/users"),
-    bypass_name_lookup: bool = False,
     only_seeds: bool = True,
 ) -> Generator[tuple[str, tuple[int, str] | str]]:
-    if bypass_name_lookup:
-        assert only_seeds, (
-            "Name lookup bypass mode only available when sending to seed emails"
-        )
     recipients = {
         (r["email"], r["name"], r["pdf_filename"])
         for r in csv.DictReader(path_to_recipients_csv.read_text())

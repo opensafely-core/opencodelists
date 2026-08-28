@@ -8,8 +8,6 @@ from bs4 import BeautifulSoup
 from django.conf import settings
 from markdown2 import markdown
 
-from opencodelists.models import User
-
 
 """Taken from codelist rot notifier https://github.com/opensafely/dmd-codelist-report/blob/main/notifier/send_email.py"""
 
@@ -81,8 +79,8 @@ def check_status():
 
 
 def send_emails(
-    path_to_recipients_csv: Path,
-    pdfs_dir: Path,
+    path_to_recipients_csv: Path = Path("scripts/icd10_reports/reports/recipients.csv"),
+    pdfs_dir: Path = Path("scripts/icd10_reports/reports/users"),
     bypass_name_lookup: bool = False,
     only_seeds: bool = True,
 ) -> Generator[tuple[str, str, tuple[int, str] | str]]:
@@ -92,15 +90,13 @@ def send_emails(
         )
     recipients = list(csv.DictReader(path_to_recipients_csv.read_text()))
     for recipient in recipients:
+        if recipient["type"] == "Organisation":
+            continue
         try:
             email = recipient["email"]
             if only_seeds and email.lower() not in SEED_EMAILS:
                 continue
-            name = (
-                "Name lookup bypassed"
-                if bypass_name_lookup
-                else User.objects.get(email=email).name
-            )
+            name = recipient["org"]
             html = markdown(EMAIL_BODY_MD_PATH.read_text().replace(r"{{Name}}", name))
 
             resp = send_email(

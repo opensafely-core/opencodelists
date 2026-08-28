@@ -34,7 +34,6 @@ def send_email(
     text: str | None = None,
     html: str | None = None,
     attachments: list[Path] | None = None,
-    only_seeds: bool = True,
 ) -> tuple[int, str] | None:
     data = {
         "from": FROM_ADDRESS,
@@ -44,8 +43,6 @@ def send_email(
         "html": html,
         "h:Reply-To": REPLY_TO,
     }
-    if only_seeds and to.lower() not in SEED_EMAILS:
-        return
     attempts = 0
     while True:
         files = (
@@ -84,16 +81,27 @@ def check_status():
 
 
 def send_emails(
-    path_to_recipients_csv: Path, pdfs_dir: Path
+    path_to_recipients_csv: Path,
+    pdfs_dir: Path,
+    bypass_name_lookup: bool = False,
+    only_seeds: bool = True,
 ) -> Generator[tuple[str, str, tuple[int, str] | str]]:
+    if bypass_name_lookup:
+        assert only_seeds, (
+            "Name lookup bypass mode only available when sending to seed emails"
+        )
     recipients = list(csv.DictReader(path_to_recipients_csv.read_text()))
     for recipient in recipients:
         try:
             email = recipient["email"]
-            user = User.objects.get(email=email)
-            html = markdown(
-                EMAIL_BODY_MD_PATH.read_text().replace(r"{{Name}}", user.name)
+            if only_seeds and email.lower() not in SEED_EMAILS:
+                continue
+            name = (
+                "Name lookup bypassed"
+                if bypass_name_lookup
+                else User.objects.get(email=email).name
             )
+            html = markdown(EMAIL_BODY_MD_PATH.read_text().replace(r"{{Name}}", name))
 
             resp = send_email(
                 to=email,

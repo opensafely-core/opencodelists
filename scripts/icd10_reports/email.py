@@ -83,30 +83,30 @@ def send_emails(
     pdfs_dir: Path = Path("scripts/icd10_reports/reports/users"),
     bypass_name_lookup: bool = False,
     only_seeds: bool = True,
-) -> Generator[tuple[str, str, tuple[int, str] | str]]:
+) -> Generator[tuple[str, tuple[int, str] | str]]:
     if bypass_name_lookup:
         assert only_seeds, (
             "Name lookup bypass mode only available when sending to seed emails"
         )
-    recipients = list(csv.DictReader(path_to_recipients_csv.read_text()))
-    for recipient in recipients:
-        if recipient["type"] == "Organisation":
-            continue
+    recipients = {
+        (r["email"], r["name"], r["pdf_filename"])
+        for r in csv.DictReader(path_to_recipients_csv.read_text())
+        if r["type"] == "User"
+    }
+    for email, name, pdf_filename in recipients:
         try:
-            email = recipient["email"]
             if only_seeds and email.lower() not in SEED_EMAILS:
                 continue
-            name = recipient["org"]
             html = markdown(EMAIL_BODY_MD_PATH.read_text().replace(r"{{Name}}", name))
 
             resp = send_email(
                 to=email,
-                subject=SUBJECT.format(recipient["codelist"]),
-                attachments=[pdfs_dir / recipient["pdf_filename"], GUIDANCE_PDF_PATH],
+                subject=SUBJECT,
+                attachments=[pdfs_dir / pdf_filename, GUIDANCE_PDF_PATH],
                 html=html,
                 text=BeautifulSoup(html).get_text(),
             )
             if resp:
-                yield (recipient["email"], recipient["codelist"], resp)
+                yield (email, resp)
         except Exception as e:
-            yield (recipient["email"], recipient["codelist"], str(e))
+            yield (email, str(e))

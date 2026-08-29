@@ -19,6 +19,11 @@ users_patterns = [
         views.user_create_codelist,
         name="user-create-codelist",
     ),
+    path(
+        "<slug:username>/csv-descendants-preview/",
+        views.csv_descendants_preview,
+        name="csv-descendants-preview",
+    ),
 ]
 
 organisations_patterns = [

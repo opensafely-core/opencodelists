@@ -26,11 +26,11 @@
   </div>
 
   {% if help_text %}
-    <div class="prose prose-sm mt-4 text-slate-700">
+    <div id="id_{{ field.html_name }}_helptext" class="prose prose-sm mt-4 text-slate-700">
       {{ help_text }}
     </div>
   {% elif field.help_text %}
-    <div class="prose prose-sm mt-4 text-slate-700">
+    <div id="id_{{ field.html_name }}_helptext" class="prose prose-sm mt-4 text-slate-700">
       {{ field.help_text }}
     </div>
   {% endif %}

@@ -32,6 +32,28 @@ def test_post_success(client, version):
     assert response.url == draft.get_builder_draft_url()
 
 
+def test_post_success_old_style_codelists(client, old_style_version):
+    force_login(old_style_version, client)
+
+    assert (
+        old_style_version.codelist.versions.filter(status=Status.DRAFT).exists()
+        is False
+    )
+
+    old_style_version_count = old_style_version.codelist.versions.count()
+
+    response = client.post(
+        old_style_version.get_create_url(),
+        {"coding_system_database_alias": most_recent_database_alias("snomedct")},
+    )
+    draft = old_style_version.codelist.versions.get(status=Status.DRAFT)
+
+    assert draft.csv_data is None
+    assert draft.codelist.versions.count() == old_style_version_count + 1
+    assert response.status_code == 302
+    assert response.url == draft.get_builder_draft_url()
+
+
 def test_post_success_no_coding_system_database_alias(client, version):
     force_login(version, client)
 

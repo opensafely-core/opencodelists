@@ -10,7 +10,6 @@ from django.utils import timezone
 from tqdm import tqdm
 
 from codelists.coding_systems import CODING_SYSTEMS
-from codelists.hierarchy import Hierarchy
 from codelists.models import CodelistVersion, Status
 from codelists.search import do_search
 from coding_systems.versioning.models import (
@@ -347,7 +346,7 @@ def _check_version_by_hierarchy(coding_system, version):
     # will have a cached hierarchy, built with the original coding system release.
     # We compare this to a hierarchy built from the same codes, but with the new release.
 
-    return version.hierarchy == Hierarchy.from_codes(coding_system, version.codes)
+    return version.hierarchy == version.calculate_hierarchy(coding_system=coding_system)
 
 
 def _check_version_by_search(coding_system, version):

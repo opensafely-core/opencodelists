@@ -1,0 +1,12 @@
+{
+    "comment": "Ad-hoc load of codelist as old-style",
+    "force_old_style": true,
+    "organisation": "user/pchavez",
+    "coding_systems": {
+        "snomedct": {
+            "id": "snomedct",
+            "release": "snomedct_4000_20250416"
+        }
+    },
+    "delimiter":"\t"
+}

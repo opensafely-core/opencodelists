@@ -18,6 +18,10 @@ from both editions. This means that in most cases, a single codelist can be
 used against any dataset. Where there are differences, OpenCodelists provides
 warnings and guidance.
 
+### When did this happen?
+
+Originally, OpenCodelists only supported the WHO 2019 edition. The switch to the combined ICD-10 coding system was made in September 2026.
+
 ### What are the differences between the two editions?
 
 Most codes are identical in both editions. The differences that need further
@@ -55,7 +59,7 @@ However, the latter can lead to a codelist including events incorrectly. For
 example, the code `X59.0` will match fractures in ONS deaths because the 2019 edition defines it as
 ["Exposure to unspecified factor _**causing fracture**_"](https://icd.who.int/browse10/2019/en#/X59.0)
 but that same code in admissions data is defined in the 2016 edition as
-["Exposure to unspecified factor (occurrence at home)"](https://classbrowser.nhs.uk/#/book/ICD-10-5TH-Edition/vol1/block-x50-x59.htm+X59.0).
+["Exposure to unspecified factor (occurrence at home)"](https://classbrowser.nhs.uk/#/book/ICD-10-5TH-Edition/vol1/block-x58-x59.htm+X59.0).
 A codelist for fractures would want to include that code for ONS deaths, but
 exclude it for admissions data.
 
@@ -91,7 +95,7 @@ The warning looks like this:
 The warning lists the codes used for the concept in each edition and highlights
 the codes missing from the codelist.
 
-For a codelist intended to work across admissions and deaths data, the safest
+For a codelist intended to work across admissions and ONS deaths data, the safest
 approach is normally to include all the listed codes. Codes identified as moved
 are not reused for unrelated conditions in the other edition.
 
@@ -123,20 +127,20 @@ on which of the following situations applies:
 * **Only the NHS 2016 definition is relevant:**
   * If the codelist is intended for **admissions data only**, then include the code
    in the codelist. Please clearly state in the methodology section of the metadata that the codelist
-   is intended for admissions data only, and that it should not be used for deaths data.
+   is intended for admissions data only, and that it should not be used for ONS deaths data.
   * If the codelist is intended for **ONS deaths data only**, then exclude the code
    from the codelist. Please clearly state in the methodology section of the metadata that the codelist
-   is intended for deaths data only, and that it should not be used for admissions data.
-  * If the codelist is intended for **both admissions and deaths data** then you
+   is intended for ONS deaths data only, and that it should not be used for admissions data.
+  * If the codelist is intended for **both admissions and ONS deaths data** then you
     will need to create separate codelists for each dataset. Please clearly state
     in the methodology section of the metadata of each codelist which dataset it is intended for, and that it should not be used for the other dataset.
 * **Only the WHO 2019 definition is relevant:**
   * If the codelist is intended for **ONS deaths data only**, then include the code
    in the codelist. Please clearly state in the methodology section of the metadata that the codelist
-   is intended for deaths data only, and that it should not be used for admissions data.
+   is intended for ONS deaths data only, and that it should not be used for admissions data.
   * If the codelist is intended for **admissions data only**, then exclude the code
    from the codelist. Please clearly state in the methodology section of the metadata that the codelist
-   is intended for admissions data only, and that it should not be used for deaths data.
-  * If the codelist is intended for **both admissions and deaths data** then you
+   is intended for admissions data only, and that it should not be used for ONS deaths data.
+  * If the codelist is intended for **both admissions and ONS deaths data** then you
    will need to create separate codelists for each dataset. Please clearly state
    in the methodology section of the metadata of each codelist which dataset it is intended for, and that it should not be used for the other dataset.

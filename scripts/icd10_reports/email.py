@@ -44,10 +44,15 @@ def send_email(
     attempts = 0
     while True:
         files = (
-            [("attachment", a.read_bytes()) for a in attachments] if attachments else []
+            [("attachment", (a.name, a.read_bytes())) for a in attachments]
+            if attachments
+            else []
         )
         response = requests.post(
-            settings.ANYMAIL["MAILGUN_API_URL"] + "messages",
+            settings.ANYMAIL["MAILGUN_API_URL"]
+            + "/"
+            + settings.ANYMAIL["MAILGUN_SENDER_DOMAIN"]
+            + "/messages",
             auth=("api", settings.ANYMAIL["MAILGUN_API_KEY"]),
             files=files,
             data=data,
@@ -84,8 +89,8 @@ def send_emails(
     only_seeds: bool = True,
 ) -> Generator[tuple[str, tuple[int, str] | str]]:
     recipients = {
-        (r["email"], r["name"], r["pdf_filename"])
-        for r in csv.DictReader(path_to_recipients_csv.read_text())
+        (r["email"], r["org"], r["pdf_filename"])
+        for r in csv.DictReader(path_to_recipients_csv.open())
         if r["type"] == "User"
     }
     for email, name, pdf_filename in recipients:
@@ -99,7 +104,7 @@ def send_emails(
                 subject=SUBJECT,
                 attachments=[pdfs_dir / pdf_filename, GUIDANCE_PDF_PATH],
                 html=html,
-                text=BeautifulSoup(html).get_text(),
+                text=BeautifulSoup(html, features="lxml").get_text(),
             )
             if resp:
                 yield (email, resp)

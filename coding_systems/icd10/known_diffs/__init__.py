@@ -21,16 +21,16 @@ from .who2016_vs_nhs2016_term_differences import (
 
 
 __all__ = [
-    "moved_codes",
     "clinically_different_codes",
     "codes_with_different_descriptions",
-    "get_2016_2019_description_difference",
     "expand_who_2016_place_of_occurrence",
-    "is_2016_scraped_only",
-    "should_include_2016_scraped_only",
+    "get_2016_2019_description_difference",
     "is_2016_claml_only",
-    "should_include_2016_claml_only",
-    "rubric_differences",
     "is_2016_description_difference",
+    "is_2016_scraped_only",
+    "moved_codes",
+    "rubric_differences",
+    "should_include_2016_claml_only",
+    "should_include_2016_scraped_only",
     "should_use_scraped_for_2016",
 ]

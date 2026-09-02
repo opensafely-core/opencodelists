@@ -3,7 +3,7 @@ import zipfile
 import pytest
 import structlog
 
-from coding_systems.icd10 import release_builder as release_builder
+from coding_systems.icd10 import release_builder
 from coding_systems.icd10.claml_parser import ICD10Code, ModifierDigit
 from coding_systems.icd10.known_diffs.difference_classes import RubricDifference
 from coding_systems.icd10.release_builder import (

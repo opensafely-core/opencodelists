@@ -162,41 +162,44 @@ it.each([
     { includedAncestor: "+", excludedAncestor: "-", target: "!" },
     'In conflict!  Included by "Included ancestor [includedAncestor]", and excluded by "Excluded ancestor [excludedAncestor]"',
   ],
-] as const)("shows status text for %s status", async (status, codeToStatus, expectedText) => {
-  const user = userEvent.setup();
-  const hierarchy = new Hierarchy(
-    {
-      target: ["includedAncestor", "excludedAncestor"],
-    },
-    {
-      includedAncestor: ["target"],
-      excludedAncestor: ["target"],
-    },
-  );
+] as const)(
+  "shows status text for %s status",
+  async (status, codeToStatus, expectedText) => {
+    const user = userEvent.setup();
+    const hierarchy = new Hierarchy(
+      {
+        target: ["includedAncestor", "excludedAncestor"],
+      },
+      {
+        includedAncestor: ["target"],
+        excludedAncestor: ["target"],
+      },
+    );
 
-  render(
-    <MoreInfoModal
-      allCodes={["includedAncestor", "excludedAncestor", "target"]}
-      code="target"
-      codeToStatus={codeToStatus}
-      codeToTerm={{
-        includedAncestor: "Included ancestor",
-        excludedAncestor: "Excluded ancestor",
-        target: "Target term",
-      }}
-      hierarchy={hierarchy}
-      status={status}
-      term="Target term"
-    />,
-  );
-  await user.click(screen.getByRole("button", { name: /more info/i }));
+    render(
+      <MoreInfoModal
+        allCodes={["includedAncestor", "excludedAncestor", "target"]}
+        code="target"
+        codeToStatus={codeToStatus}
+        codeToTerm={{
+          includedAncestor: "Included ancestor",
+          excludedAncestor: "Excluded ancestor",
+          target: "Target term",
+        }}
+        hierarchy={hierarchy}
+        status={status}
+        term="Target term"
+      />,
+    );
+    await user.click(screen.getByRole("button", { name: /more info/i }));
 
-  expect(
-    await screen.findByText(
-      (_, element) => element?.textContent === expectedText,
-    ),
-  ).toBeVisible();
-});
+    expect(
+      await screen.findByText(
+        (_, element) => element?.textContent === expectedText,
+      ),
+    ).toBeVisible();
+  },
+);
 
 it("shows clinically equivalent ICD-10 description differences in a green box", async () => {
   vi.mocked(readValueFromPage).mockReturnValue({ coding_system_id: "icd10" });

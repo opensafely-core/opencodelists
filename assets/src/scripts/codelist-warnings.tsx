@@ -1,4 +1,4 @@
-import React, { StrictMode } from "react";
+import React from "react";
 import { createRoot } from "react-dom/client";
 import { readValueFromPage } from "./_utils";
 import CodelistWarnings from "./components/Codelist/CodelistWarnings";
@@ -11,12 +11,12 @@ if (container) {
   const includedCodes = readValueFromPage("included-codes");
 
   createRoot(container).render(
-    <StrictMode>
+    <React.StrictMode>
       <CodelistWarnings
         icd10TermDifferences={icd10TermDifferences}
         icd10MovedCodes={icd10MovedCodes}
         includedCodes={new Set(includedCodes)}
       />
-    </StrictMode>,
+    </React.StrictMode>,
   );
 }

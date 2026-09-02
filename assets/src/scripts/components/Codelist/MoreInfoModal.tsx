@@ -188,9 +188,9 @@ function ConceptRubrics({
 function RubricBlock({ rubrics, term }: { rubrics: CodeRubrics; term: Term }) {
   return (
     <>
-      {rubrics.concept_rubrics && (
+      {rubrics.concept_rubrics ? (
         <ConceptRubrics rubrics={rubrics.concept_rubrics} term={term} />
-      )}
+      ) : null}
 
       {Object.entries(rubrics.modifier_rubrics || {}).map(
         ([termModifier, modifierRubrics]) => (
@@ -468,9 +468,10 @@ function MoreInfoModal({
 
   return (
     <>
-      {daggerAsteriskInfo && (
+      {daggerAsteriskInfo ? (
         <button
           className="builder__dagger-asterisk-link"
+          // biome-ignore lint/performance/noJsxPropsBind: callback performs request setup for the current code
           onClick={handleShow}
           type="button"
           aria-label={`Show ICD-10 ${daggerAsteriskInfo.usage} information for ${code}`}
@@ -478,7 +479,7 @@ function MoreInfoModal({
         >
           <span>{usageGlyph(daggerAsteriskInfo.usage)}</span>
         </button>
-      )}
+      ) : null}
       <Button
         className="builder__more-info-btn plausible-event-name=More+info+click"
         // biome-ignore lint/performance/noJsxPropsBind: callback performs request setup for the current code
@@ -548,7 +549,7 @@ function MoreInfoModal({
                 {rubrics && hasRubrics(rubrics) && (
                   <RubricBlock rubrics={rubrics} term={term} />
                 )}
-                {daggerAsteriskInfo && (
+                {daggerAsteriskInfo ? (
                   <section className="builder__additional-info-card builder__additional-info-card--usage">
                     <h3 className="h6 font-weight-bold mb-3 d-flex align-items-center">
                       Usage: {usageLabel(daggerAsteriskInfo.usage)}
@@ -561,7 +562,7 @@ function MoreInfoModal({
                       codes identify the manifestation.
                     </p>
                     <p className="mb-0 small">
-                      {daggerAsteriskInfo.url && (
+                      {daggerAsteriskInfo.url ? (
                         <>
                           <a
                             href={daggerAsteriskInfo.url}
@@ -572,7 +573,7 @@ function MoreInfoModal({
                           </a>
                           {" · "}
                         </>
-                      )}
+                      ) : null}
                       <a
                         href={daggerAsteriskGuidanceUrl}
                         rel="noreferrer"
@@ -583,7 +584,7 @@ function MoreInfoModal({
                       </a>
                     </p>
                   </section>
-                )}
+                ) : null}
               </div>
             </section>
           )}

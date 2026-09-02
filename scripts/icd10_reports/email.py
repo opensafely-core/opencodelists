@@ -22,6 +22,10 @@ GUIDANCE_PDF_PATH = Path(
 EMAIL_BODY_MD_PATH = Path("scripts/icd10_reports/email_body.md")
 
 
+def _mailgun_url(path: str) -> str:
+    return f"{settings.ANYMAIL['MAILGUN_API_URL']}/{settings.ANYMAIL['MAILGUN_SENDER_DOMAIN']}/{path}"
+
+
 def send_email(
     to: str,
     subject: str,
@@ -45,10 +49,7 @@ def send_email(
             else []
         )
         response = requests.post(
-            settings.ANYMAIL["MAILGUN_API_URL"]
-            + "/"
-            + settings.ANYMAIL["MAILGUN_SENDER_DOMAIN"]
-            + "/messages",
+            _mailgun_url("messages"),
             auth=("api", settings.ANYMAIL["MAILGUN_API_KEY"]),
             files=files,
             data=data,
@@ -72,7 +73,7 @@ def send_email(
 
 def check_status():
     rq = requests.get(
-        settings.ANYMAIL["MAILGUN_API_URL"] + "events",
+        _mailgun_url("events"),
         auth=("api", settings.ANYMAIL["MAILGUN_API_KEY"]),
         params={"limit": 5},
     )
@@ -83,9 +84,10 @@ def send_emails(
     path_to_recipients_csv: Path = Path("scripts/icd10_reports/reports/recipients.csv"),
     pdfs_dir: Path = Path("scripts/icd10_reports/reports/users"),
     only_seeds: bool = True,
+    dry_run: bool = True,
 ) -> Generator[tuple[str, tuple[int, str] | str]]:
     seed_emails = os.environ.get("SEED_EMAILS", "").split(",")
-    if only_seeds and not seed_emails:
+    if only_seeds and not any(seed_emails):
         raise ValueError(
             "SEED_EMAILS environment variable must be set when only_seeds is True"
         )
@@ -95,9 +97,14 @@ def send_emails(
         if r["type"] == "User"
     }
     for email, name, pdf_filename in recipients:
+        if only_seeds and email.lower() not in seed_emails:
+            continue
+        if dry_run:
+            print(
+                f"Would send email to {name} at {email} with attachment {pdf_filename}"
+            )
+            continue
         try:
-            if only_seeds and email.lower() not in seed_emails:
-                continue
             html = markdown(EMAIL_BODY_MD_PATH.read_text().replace(r"{{Name}}", name))
 
             resp = send_email(

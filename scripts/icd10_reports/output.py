@@ -15,9 +15,9 @@ def write_outputs(
     reports: dict[ReportOwner, list[AffectedCodelist]],
     affected: list[AffectedCodelist],
     code_issues: dict[str, list[dict[str, object]]],
+    output_dir: Path = Path(__file__).parent / "reports",
 ) -> None:
     """Write the complete manual report bundle."""
-    output_dir = Path(__file__).parent / "reports"
     _prepare_output_dir(output_dir)
     csv_rows = []
 

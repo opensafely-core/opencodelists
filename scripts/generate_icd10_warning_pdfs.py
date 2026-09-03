@@ -27,6 +27,9 @@ from scripts.icd10_reports.email import send_emails
 from scripts.icd10_reports.output import write_outputs
 
 
+DEFAULT_REPORTS_DIR = Path(__file__).parent / "icd10_reports" / "reports"
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -69,6 +72,12 @@ def main() -> None:
         "--all-recipients",
         action="store_true",
         help="Send emails to all recipients, not just those in the SEED_EMAILS environment variable",
+    )
+    parser.add_argument(
+        "--reports-dir",
+        type=Path,
+        default=DEFAULT_REPORTS_DIR,
+        help="Directory used to write or read generated reports",
     )
     args = parser.parse_args()
 
@@ -117,7 +126,7 @@ def main() -> None:
             code_issues = issues_by_code(
                 old_codes | current_codes, modifier_descendants
             )
-            write_outputs(reports, affected, code_issues)
+            write_outputs(reports, affected, code_issues, args.reports_dir)
         except RuntimeError as error:
             parser.error(str(error))
 
@@ -130,6 +139,8 @@ def main() -> None:
         )
     if args.send_emails:
         results = send_emails(
+            path_to_recipients_csv=args.reports_dir / "recipients.csv",
+            pdfs_dir=args.reports_dir / "users",
             only_seeds=not args.all_recipients,
             dry_run=not args.no_dry_run,
         )

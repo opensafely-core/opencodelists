@@ -1,0 +1,42 @@
+[
+  { "codes": ["B485"], "description": "Pneumocystosis", "actual_codes": ["B59"] },
+  { "codes": ["G906"], "description": "Causalgia", "actual_codes": ["G564"] },
+  {
+    "codes": ["K581", "K582", "K583", "K588"],
+    "description": "Irritable bowel syndrome",
+    "actual_codes": ["K580", "K589"],
+    "related_codes": ["K58"],
+    "actual_codes_by_code": {
+      "K581": ["K580"],
+      "K582": ["K589"],
+      "K583": ["K589"],
+      "K588": ["K589"]
+    }
+  },
+  {
+    "codes": ["A925"],
+    "description": "Personal history of COVID-19",
+    "actual_codes": ["U06", "U069"]
+  },
+  {
+    "codes": ["U08", "U089"],
+    "description": "Personal history of COVID-19",
+    "actual_codes": ["U073"]
+  },
+  { "codes": ["U09", "U099"], "description": "Post COVID-19 condition", "actual_codes": ["U074"] },
+  {
+    "codes": ["U10", "U109"],
+    "description": "Multisystem inflammatory syndrome associated with COVID-19",
+    "actual_codes": ["U075"]
+  },
+  {
+    "codes": ["U11", "U119"],
+    "description": "Need for immunization against COVID-19",
+    "actual_codes": ["U076"]
+  },
+  {
+    "codes": ["U12", "U129"],
+    "description": "COVID-19 vaccines causing adverse effects in therapeutic use",
+    "actual_codes": ["U077"]
+  }
+]

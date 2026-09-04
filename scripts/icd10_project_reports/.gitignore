@@ -1,0 +1,4 @@
+data/*
+!data/changed_code_definitions.json
+!data/swapped_codes.json
+reports/

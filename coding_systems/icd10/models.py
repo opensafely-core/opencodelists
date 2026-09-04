@@ -1,5 +1,9 @@
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import Window
+from django.db.models.functions import DenseRank, RowNumber
+from django.db.models.manager import BaseManager
+from django.db.models.query import QuerySet
 
 
 def get_char_choices_field(choices):
@@ -54,6 +58,27 @@ class Concept(models.Model):
     editions = models.ManyToManyField(Edition, through="ConceptEdition")
 
 
+class ConceptEditionQuerySet(QuerySet):
+    def prioritise_by_edition(self):
+        # Give each ConceptEdition a row number based on the edition from which it came,
+        # and only select those with row number==1.
+        # This relies on the current state of the edition with id "2016"
+        # being the preferred source of ConceptEdition-level data (e.g. terms)
+        # over the one with id "2019"
+
+        return self.annotate(
+            edition_priority=Window(
+                expression=RowNumber(),
+                partition_by="concept_id",
+                order_by="edition_id",
+            )
+        ).filter(edition_priority=1)
+
+
+class ConceptEditionManager(BaseManager.from_queryset(ConceptEditionQuerySet)):
+    pass
+
+
 class ConceptEdition(models.Model):
     concept = models.ForeignKey(
         Concept, on_delete=models.CASCADE, related_name="concept_editions"
@@ -67,6 +92,8 @@ class ConceptEdition(models.Model):
     term_modifier = models.CharField(max_length=255, blank=True, null=True)
     modifier_position = models.IntegerField(blank=True, null=True)
 
+    objects = ConceptEditionManager()
+
     class Meta:
         constraints = [
             models.UniqueConstraint(
@@ -79,12 +106,35 @@ class ConceptEdition(models.Model):
         ]
 
 
+class ConceptRubricQuerySet(QuerySet):
+    def prioritise_by_edition(self):
+        # Give each ConceptRubric a rank based on the edition from which it came,
+        # and only select those with rank==1.
+        # This relies on the current state of the edition with id "2016"
+        # being the preferred source of rubrics over the one with id "2019"
+        # As we use dense_rank, all rubrics (there may be multiple of the same
+        # type, e.g. a bulleted list of inclusions) from the same edition will
+        # get the same ranking.
+        return self.annotate(
+            edition_priority=Window(
+                expression=DenseRank(),
+                partition_by="concept_edition__concept_id",
+                order_by="concept_edition__edition_id",
+            )
+        ).filter(edition_priority=1)
+
+
+class ConceptRubricManager(BaseManager.from_queryset(ConceptRubricQuerySet)):
+    pass
+
+
 class ConceptRubric(models.Model):
     kind = get_char_choices_field(RubricKind)
     text = models.TextField()
     concept_edition = models.ForeignKey(
         ConceptEdition, on_delete=models.CASCADE, related_name="rubrics"
     )
+    objects = ConceptRubricManager()
 
 
 class ModifierRubric(models.Model):

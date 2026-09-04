@@ -1,7 +1,9 @@
 import React from "react";
 import type Hierarchy from "../../_hierarchy";
+import type { ICD10WarningIndicator } from "../../icd10-warning-indicators";
 import type {
   Code,
+  DaggerAsteriskInfo,
   IsExpanded,
   PageData,
   Path,
@@ -19,10 +21,12 @@ import StatusToggle from "./StatusToggle";
 interface RowProps {
   allCodes: PageData["allCodes"];
   code: Code;
+  daggerAsteriskInfo?: DaggerAsteriskInfo;
   codeToStatus: PageData["codeToStatus"];
   codeToTerm: PageData["codeToTerm"];
   hasDescendants: boolean;
   hierarchy: Hierarchy;
+  icd10WarningIndicator?: ICD10WarningIndicator;
   isEditable: PageData["isEditable"];
   isExpanded: IsExpanded;
   path: Path;
@@ -38,8 +42,10 @@ export default function Row({
   code,
   codeToStatus,
   codeToTerm,
+  daggerAsteriskInfo,
   hasDescendants,
   hierarchy,
+  icd10WarningIndicator,
   isEditable,
   isExpanded,
   path,
@@ -99,19 +105,30 @@ export default function Row({
         ) : null}
         <span className={statusTermColor[status]}>{term} </span>
         <code className={statusCodeColor[status]}>{code}</code>
-      </div>
+        {icd10WarningIndicator ? (
+          <span
+            aria-label={icd10WarningIndicator.label}
+            className="builder__warning-indicator"
+            role="img"
+            title={icd10WarningIndicator.label}
+          >
+            !
+          </span>
+        ) : null}
 
-      {isEditable ? (
-        <MoreInfoModal
-          allCodes={allCodes}
-          code={code}
-          codeToStatus={codeToStatus}
-          codeToTerm={codeToTerm}
-          hierarchy={hierarchy}
-          status={status}
-          term={term}
-        />
-      ) : null}
+        {isEditable ? (
+          <MoreInfoModal
+            allCodes={allCodes}
+            code={code}
+            codeToStatus={codeToStatus}
+            codeToTerm={codeToTerm}
+            daggerAsteriskInfo={daggerAsteriskInfo}
+            hierarchy={hierarchy}
+            status={status}
+            term={term}
+          />
+        ) : null}
+      </div>
     </div>
   );
 }

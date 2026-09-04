@@ -1,0 +1,275 @@
+[
+  {
+    "code": "I620",
+    "definitions": {
+      "2016": "Subdural haemorrhage (acute)(nontraumatic)",
+      "2019": "Nontraumatic subdural haemorrhage"
+    }
+  },
+  {
+    "code": "R17",
+    "definitions": {
+      "2016": "Unspecified jaundice",
+      "2019": "Hyperbilirubinaemia, with or without jaundice, not elsewhere classified"
+    }
+  },
+  {
+    "code": "W260",
+    "definitions": {
+      "2016": "Contact with other sharp object(s) (Home)",
+      "2019": "Contact with knife, sword or dagger"
+    }
+  },
+  {
+    "code": "W268",
+    "definitions": {
+      "2016": "Contact with other sharp object(s) (Other specified places)",
+      "2019": "Contact with other sharp object(s), not elsewhere classified"
+    }
+  },
+  {
+    "code": "W269",
+    "definitions": {
+      "2016": "Contact with other sharp object(s) (Unspecified place)",
+      "2019": "Contact with unspecified sharp object(s)"
+    }
+  },
+  {
+    "code": "X340",
+    "definitions": {
+      "2016": "Victim of earthquake (Home)",
+      "2019": "Victim of cataclysmic earth movements caused by earthquake"
+    }
+  },
+  {
+    "code": "X341",
+    "definitions": {
+      "2016": "Victim of earthquake (Residential institution)",
+      "2019": "Victim of tsunami"
+    }
+  },
+  {
+    "code": "X348",
+    "definitions": {
+      "2016": "Victim of earthquake (Other specified places)",
+      "2019": "Victim of other specified effects of earthquake"
+    }
+  },
+  {
+    "code": "X349",
+    "definitions": {
+      "2016": "Victim of earthquake (Unspecified place)",
+      "2019": "Victim of unspecified effect of earthquake"
+    }
+  },
+  {
+    "code": "X590",
+    "definitions": {
+      "2016": "Exposure to unspecified factor (Home)",
+      "2019": "Exposure to unspecified factor causing fracture"
+    }
+  },
+  {
+    "code": "X599",
+    "definitions": {
+      "2016": "Exposure to unspecified factor (Unspecified place)",
+      "2019": "Exposure to unspecified factor causing other and unspecified injury"
+    }
+  },
+  {
+    "code": "X470",
+    "definitions": {
+      "2016": "Accidental poisoning by and exposure to other gases and vapours (Home)",
+      "2019": "Accidental poisoning by and exposure to carbon monoxide from combustion engine exhaust"
+    }
+  },
+  {
+    "code": "X471",
+    "definitions": {
+      "2016": "Accidental poisoning by and exposure to other gases and vapours (Residential institution)",
+      "2019": "Accidental poisoning by and exposure to carbon monoxide from utility gas"
+    }
+  },
+  {
+    "code": "X472",
+    "definitions": {
+      "2016": "Accidental poisoning by and exposure to other gases and vapours (School, other institution and public administrative area)",
+      "2019": "Accidental poisoning by and exposure to carbon monoxide from other domestic fuels"
+    }
+  },
+  {
+    "code": "X473",
+    "definitions": {
+      "2016": "Accidental poisoning by and exposure to other gases and vapours (Sports and athletics area)",
+      "2019": "Accidental poisoning by and exposure to carbon monoxide from other sources"
+    }
+  },
+  {
+    "code": "X474",
+    "definitions": {
+      "2016": "Accidental poisoning by and exposure to other gases and vapours (Street and highway)",
+      "2019": "Accidental poisoning by and exposure to carbon monoxide from unspecified sources"
+    }
+  },
+  {
+    "code": "X478",
+    "definitions": {
+      "2016": "Accidental poisoning by and exposure to other gases and vapours (Other specified places)",
+      "2019": "Accidental poisoning by and exposure to other specified gases and vapours"
+    }
+  },
+  {
+    "code": "X479",
+    "definitions": {
+      "2016": "Accidental poisoning by and exposure to other gases and vapours (Unspecified place)",
+      "2019": "Accidental poisoning by and exposure to unspecified gases and vapours"
+    }
+  },
+  {
+    "code": "X670",
+    "definitions": {
+      "2016": "Intentional self-poisoning by and exposure to other gases and vapours (Home)",
+      "2019": "Intentional self-poisoning by and exposure to carbon monoxide from combustion engine exhaust"
+    }
+  },
+  {
+    "code": "X671",
+    "definitions": {
+      "2016": "Intentional self-poisoning by and exposure to other gases and vapours (Residential institution)",
+      "2019": "Intentional self-poisoning by and exposure to carbon monoxide from utility gas"
+    }
+  },
+  {
+    "code": "X672",
+    "definitions": {
+      "2016": "Intentional self-poisoning by and exposure to other gases and vapours (School, other institution and public administrative area)",
+      "2019": "Intentional self-poisoning by and exposure to carbon monoxide from other domestic fuels"
+    }
+  },
+  {
+    "code": "X673",
+    "definitions": {
+      "2016": "Intentional self-poisoning by and exposure to other gases and vapours (Sports and athletics area)",
+      "2019": "Intentional self-poisoning by and exposure to carbon monoxide from other sources"
+    }
+  },
+  {
+    "code": "X674",
+    "definitions": {
+      "2016": "Intentional self-poisoning by and exposure to other gases and vapours (Street and highway)",
+      "2019": "Intentional self-poisoning by and exposure to carbon monoxide from unspecified sources"
+    }
+  },
+  {
+    "code": "X678",
+    "definitions": {
+      "2016": "Intentional self-poisoning by and exposure to other gases and vapours (Other specified places)",
+      "2019": "Intentional self-poisoning by and exposure to other specified gases and vapours"
+    }
+  },
+  {
+    "code": "X679",
+    "definitions": {
+      "2016": "Intentional self-poisoning by and exposure to other gases and vapours (Unspecified place)",
+      "2019": "Intentional self-poisoning by and exposure to unspecified gases and vapours"
+    }
+  },
+  {
+    "code": "X880",
+    "definitions": {
+      "2016": "Assault by gases and vapours (Home)",
+      "2019": "Assault by carbon monoxide from combustion engine exhaust"
+    }
+  },
+  {
+    "code": "X881",
+    "definitions": {
+      "2016": "Assault by gases and vapours (Residential institution)",
+      "2019": "Assault by carbon monoxide from utility gas"
+    }
+  },
+  {
+    "code": "X882",
+    "definitions": {
+      "2016": "Assault by gases and vapours (School, other institution and public administrative area)",
+      "2019": "Assault by carbon monoxide from other domestic fuels"
+    }
+  },
+  {
+    "code": "X883",
+    "definitions": {
+      "2016": "Assault by gases and vapours (Sports and athletics area)",
+      "2019": "Assault by carbon monoxide from other sources"
+    }
+  },
+  {
+    "code": "X884",
+    "definitions": {
+      "2016": "Assault by gases and vapours (Street and highway)",
+      "2019": "Assault by carbon monoxide from unspecified sources"
+    }
+  },
+  {
+    "code": "X888",
+    "definitions": {
+      "2016": "Assault by gases and vapours (Other specified places)",
+      "2019": "Assault by other specified gases and vapours"
+    }
+  },
+  {
+    "code": "X889",
+    "definitions": {
+      "2016": "Assault by gases and vapours (Unspecified place)",
+      "2019": "Assault by unspecified gases and vapours"
+    }
+  },
+  {
+    "code": "Y170",
+    "definitions": {
+      "2016": "Poisoning by and exposure to other gases and vapours, undetermined intent (Home)",
+      "2019": "Poisoning by and exposure to carbon monoxide from combustion engine exhaust, undetermined intent"
+    }
+  },
+  {
+    "code": "Y171",
+    "definitions": {
+      "2016": "Poisoning by and exposure to other gases and vapours, undetermined intent (Residential institution)",
+      "2019": "Poisoning by and exposure to carbon monoxide from utility gas, undetermined intent"
+    }
+  },
+  {
+    "code": "Y172",
+    "definitions": {
+      "2016": "Poisoning by and exposure to other gases and vapours, undetermined intent (School, other institution and public administrative area)",
+      "2019": "Poisoning by and exposure to carbon monoxide from other domestic fuels, undetermined intent"
+    }
+  },
+  {
+    "code": "Y173",
+    "definitions": {
+      "2016": "Poisoning by and exposure to other gases and vapours, undetermined intent (Sports and athletics area)",
+      "2019": "Poisoning by and exposure to carbon monoxide from other sources, undetermined intent"
+    }
+  },
+  {
+    "code": "Y174",
+    "definitions": {
+      "2016": "Poisoning by and exposure to other gases and vapours, undetermined intent (Street and highway)",
+      "2019": "Poisoning by and exposure to carbon monoxide from unspecified sources, undetermined intent"
+    }
+  },
+  {
+    "code": "Y178",
+    "definitions": {
+      "2016": "Poisoning by and exposure to other gases and vapours, undetermined intent (Other specified places)",
+      "2019": "Poisoning by and exposure to other specified gases and vapours, undetermined intent"
+    }
+  },
+  {
+    "code": "Y179",
+    "definitions": {
+      "2016": "Poisoning by and exposure to other gases and vapours, undetermined intent (Unspecified place)",
+      "2019": "Poisoning by and exposure to unspecified gases and vapours, undetermined intent"
+    }
+  }
+]

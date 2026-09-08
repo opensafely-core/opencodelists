@@ -527,6 +527,18 @@ def test_convert_codelist_to_new_style(old_style_codelist, old_style_version):
     converted_version = old_style_codelist.versions.order_by("id").last()
     assert converted_version.csv_data is None
     assert old_style_version.codes == converted_version.codes
+    assert converted_version.status == Status.UNDER_REVIEW
+
+
+def test_convert_codelist_to_new_style_with_status(old_style_codelist):
+
+    actions.convert_codelist_to_new_style(
+        codelist=old_style_codelist, status=Status.DRAFT
+    )
+
+    converted_version = old_style_codelist.versions.order_by("id").last()
+
+    assert converted_version.status == Status.DRAFT
 
 
 def test_export_to_builder(organisation_user, new_style_version):

@@ -28,7 +28,7 @@
         <form method="POST" action="{{ clv.get_create_url }}" class="version__buttons">
           {% csrf_token %}
 
-          {% if codelist.is_new_style %}
+          {% if codelist.is_new_style or is_converted_from_bnf %}
             {% if can_create_new_version %}
               <input type="hidden" name="coding_system_database_alias" value="" />
               <button
@@ -49,7 +49,8 @@
                 Create new version
               </button>
             {% endif %}
-          {% else %}
+          {% endif %}
+          {% if not codelist.is_new_style %}
             <a
               class="btn btn-outline-primary"
               href="{{ codelist.get_version_upload_url }}"

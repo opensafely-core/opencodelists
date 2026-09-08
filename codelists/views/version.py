@@ -85,6 +85,13 @@ def version(request, clv):
     else:
         coding_system_release_outdated = False
 
+    is_converted_from_bnf = (
+        clv.codelist.coding_system_id == "dmd"
+        and clv.codelist.slug.endswith("-dmd")
+        and clv.codelist.methodology is not None
+        and "[pseudo-BNF system codelist]" in clv.codelist.methodology
+    )
+
     ctx = {
         "clv": clv,
         "codelist": clv.codelist,
@@ -100,5 +107,6 @@ def version(request, clv):
         "latest_published_version_url": latest_published_version_url,
         "count_codes_included": len(rows),
         "coding_system_release_outdated": coding_system_release_outdated,
+        "is_converted_from_bnf": is_converted_from_bnf,
     }
     return render(request, "codelists/version.html", ctx)

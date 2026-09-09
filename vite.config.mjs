@@ -15,6 +15,7 @@ export default defineConfig(({ mode }) => ({
         codelist: "assets/src/scripts/codelist.js",
         tree: "assets/src/scripts/tree/index.tsx",
         "codelists-version": "assets/src/scripts/codelists-version.js",
+        "codelist-warnings": "assets/src/scripts/codelist-warnings.tsx",
         tw: "assets/src/scripts/tw.js",
         "feedback-form": "assets/src/scripts/feedback-form.js",
         "codelists-filter": "assets/src/scripts/codelists-filter.ts",

@@ -99,6 +99,7 @@ class Command(BaseCommand):
                     "child_map",
                     "code_to_term",
                     "code_to_status",
+                    "code_to_dagger_asterisk_info",
                     "is_editable",
                     "update_url",
                     "search_url",
@@ -120,6 +121,9 @@ class Command(BaseCommand):
             }
             data["code_to_term"] = dict(sorted(data["code_to_term"].items()))
             data["code_to_status"] = dict(sorted(data["code_to_status"].items()))
+            data["code_to_dagger_asterisk_info"] = dict(
+                sorted(data["code_to_dagger_asterisk_info"].items())
+            )
 
             js_fixtures_path = Path(
                 settings.BASE_DIR, "assets", "src", "scripts", "__tests__", "fixtures"

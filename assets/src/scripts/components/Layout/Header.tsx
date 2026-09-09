@@ -38,7 +38,7 @@ export default function Header({
           <dt>Coding system release</dt>
           <dd className="mb-0">
             {release.release_name}
-            {showReleaseDate && ` (${release.valid_from})`}
+            {showReleaseDate ? ` (${release.valid_from})` : null}
           </dd>
         </div>
 

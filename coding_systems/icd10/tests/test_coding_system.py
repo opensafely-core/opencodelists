@@ -1,6 +1,16 @@
 import pytest
 
 from coding_systems.icd10.coding_system import CodingSystem
+from coding_systems.icd10.models import (
+    Concept,
+    ConceptEdition,
+    ConceptKind,
+    ConceptRubric,
+    ConceptUsage,
+    Edition,
+    ModifierRubric,
+    RubricKind,
+)
 
 
 @pytest.fixture
@@ -40,33 +50,63 @@ def test_code_to_term(icd10_data, coding_system):
     }
 
 
-def test_lookup_names_uses_latest_matching_term(monkeypatch, coding_system):
-    class FakeQuerySet:
-        def filter(self, *args, **kwargs):
-            return self
+def test_lookup_names_prefers_2016_term(icd10_data, coding_system):
+    edition_2016 = Edition.objects.using(coding_system.database_alias).create(
+        id="2016",
+        version=20160101,
+        year=2016,
+        source_description="test 2016",
+    )
+    edition_2019 = Edition.objects.using(coding_system.database_alias).create(
+        id="2019",
+        version=20190101,
+        year=2019,
+        source_description="test 2019",
+    )
+    concept = Concept.objects.using(coding_system.database_alias).create(code="B58")
 
-        def order_by(self, *args, **kwargs):
-            return self
-
-        def values_list(self, *args, **kwargs):
-            return [
-                ("B59", "Newer term", None),
-                ("B59", "Older term", None),
-                ("M77", "Other enthesopathies", None),
-            ]
-
-    class FakeManager:
-        def using(self, alias):
-            return FakeQuerySet()
-
-    monkeypatch.setattr(
-        "coding_systems.icd10.coding_system.ConceptEdition.objects",
-        FakeManager(),
+    ConceptEdition.objects.using(coding_system.database_alias).create(
+        concept=concept,
+        edition=edition_2019,
+        kind=ConceptKind.CATEGORY,
+        usage=ConceptUsage.NORMAL,
+        term="Newer 2019 term",
+    )
+    ConceptEdition.objects.using(coding_system.database_alias).create(
+        concept=concept,
+        edition=edition_2016,
+        kind=ConceptKind.CATEGORY,
+        usage=ConceptUsage.NORMAL,
+        term="Preferred 2016 term",
     )
 
-    assert coding_system.lookup_names(["B59", "M77"]) == {
-        "B59": "Newer term",
+    assert coding_system.lookup_names(["B58", "M77"]) == {
+        "B58": "Preferred 2016 term",
         "M77": "Other enthesopathies",
+    }
+
+
+def test_lookup_names_uses_latest_term_when_2016_term_does_not_exist(
+    icd10_data, coding_system
+):
+    edition_2019 = Edition.objects.using(coding_system.database_alias).create(
+        id="2019",
+        version=20190101,
+        year=2019,
+        source_description="test 2019",
+    )
+    concept = Concept.objects.using(coding_system.database_alias).create(code="B58")
+
+    ConceptEdition.objects.using(coding_system.database_alias).create(
+        concept=concept,
+        edition=edition_2019,
+        kind=ConceptKind.CATEGORY,
+        usage=ConceptUsage.NORMAL,
+        term="2019 term",
+    )
+
+    assert coding_system.lookup_names(["B58"]) == {
+        "B58": "2019 term",
     }
 
 
@@ -82,6 +122,48 @@ def test_search_by_term(icd10_data, coding_system):
         "A772",
         "A773",
     }
+
+
+def test_search_by_term_includes_inclusion_rubric_match(coding_system):
+    # Real-world pattern: 2016 has Causalgia as a term on G564,
+    # while 2019 has Causalgia as an inclusion rubric on G906.
+    edition_2016 = Edition.objects.using(coding_system.database_alias).create(
+        id="20160101",
+        version=20160101,
+        year=2016,
+        source_description="test 2016",
+    )
+    edition_2019 = Edition.objects.using(coding_system.database_alias).create(
+        id="20190101",
+        version=20190101,
+        year=2019,
+        source_description="test 2019",
+    )
+
+    g564 = Concept.objects.using(coding_system.database_alias).create(code="G564")
+    g906 = Concept.objects.using(coding_system.database_alias).create(code="G906")
+
+    ConceptEdition.objects.using(coding_system.database_alias).create(
+        concept=g564,
+        edition=edition_2016,
+        kind=ConceptKind.CATEGORY,
+        usage=ConceptUsage.NORMAL,
+        term="Causalgia",
+    )
+    g906_2019 = ConceptEdition.objects.using(coding_system.database_alias).create(
+        concept=g906,
+        edition=edition_2019,
+        kind=ConceptKind.CATEGORY,
+        usage=ConceptUsage.NORMAL,
+        term="Complex regional pain syndrome type II",
+    )
+    ConceptRubric.objects.using(coding_system.database_alias).create(
+        concept_edition=g906_2019,
+        kind=RubricKind.INCLUSION,
+        text="Causalgia",
+    )
+
+    assert coding_system.search_by_term("Causalgia") == {"G564", "G906"}
 
 
 def test_search_by_code_exact(icd10_data, coding_system):
@@ -120,3 +202,201 @@ def test_descendant_relationships(icd10_data, coding_system):
         ("A77", "A778"),
         ("A77", "A779"),
     ]
+
+
+def test_lookup_additional_rubrics_for_concept_code(icd10_data, coding_system):
+    ConceptRubric.objects.using(coding_system.database_alias).create(
+        concept_edition_id=13,
+        kind=RubricKind.INCLUSION,
+        text="Golfer's elbow",
+    )
+
+    assert coding_system.lookup_more_info(["M770"])["rubrics"] == {
+        "M770": {
+            "concept_rubrics": {RubricKind.INCLUSION: ["Golfer's elbow"]},
+            "modifier_rubrics": {},
+        }
+    }
+
+
+def test_lookup_additional_rubrics_for_concept_prioritises_2016(
+    icd10_data, coding_system
+):
+    ConceptRubric.objects.using(coding_system.database_alias).create(
+        concept_edition_id=13,
+        kind=RubricKind.INCLUSION,
+        text="Golfer's elbow",
+    )
+    ConceptRubric.objects.using(coding_system.database_alias).create(
+        concept_edition_id=13,
+        kind=RubricKind.INCLUSION,
+        text="Disc Golfer's elbow",
+    )
+
+    edition = Edition.objects.using(coding_system.database_alias).create(
+        id="zzz", version=999, year=2000, source_description="a later edition"
+    )
+
+    concept_edition = ConceptEdition.objects.using(coding_system.database_alias).create(
+        concept_id="M770", edition=edition, term="Medial Epicondylitis"
+    )
+
+    ConceptRubric.objects.using(coding_system.database_alias).create(
+        concept_edition=concept_edition,
+        kind=RubricKind.INCLUSION,
+        text="Golfers elbow",
+    )
+
+    ConceptRubric.objects.using(coding_system.database_alias).create(
+        concept_edition=concept_edition,
+        kind=RubricKind.EXCLUSION,
+        text="Curler's elbow",
+    )
+
+    assert coding_system.lookup_more_info(["M770"])["rubrics"] == {
+        "M770": {
+            "concept_rubrics": {
+                RubricKind.INCLUSION: ["Disc Golfer's elbow", "Golfer's elbow"],
+            },
+            "modifier_rubrics": {},
+        }
+    }
+
+
+def test_lookup_additional_rubrics_with_no_codes(coding_system):
+    assert coding_system.lookup_more_info([])["rubrics"] == {}
+
+
+def test_lookup_additional_rubrics_for_modifier_code_includes_parent_concept_rubrics(
+    icd10_data, coding_system
+):
+    ConceptRubric.objects.using(coding_system.database_alias).create(
+        concept_edition_id=13,
+        kind=RubricKind.INCLUSION,
+        text="Golfer's elbow",
+    )
+    ModifierRubric.objects.using(coding_system.database_alias).create(
+        concept_edition_id=22,
+        kind=RubricKind.NOTE,
+        text="Includes multiple sites",
+    )
+
+    assert coding_system.lookup_more_info(["M7700"])["rubrics"] == {
+        "M7700": {
+            "concept_rubrics": {RubricKind.INCLUSION: ["Golfer's elbow"]},
+            "modifier_rubrics": {
+                "Multiple sites": {RubricKind.NOTE: ["Includes multiple sites"]}
+            },
+        }
+    }
+
+
+def test_lookup_additional_rubrics_for_modifier_code_from_preferred_edition(icd10_data):
+    edition_2016 = Edition.objects.using("icd10_test_20200101").create(
+        id="2016",
+        version=20160101,
+        year=2016,
+        source_description="test 2016",
+    )
+    edition_2019 = Edition.objects.using("icd10_test_20200101").create(
+        id="2019",
+        version=20190101,
+        year=2019,
+        source_description="test 2019",
+    )
+    parent = Concept.objects.using("icd10_test_20200101").create(code="W45")
+    modifier = Concept.objects.using("icd10_test_20200101").create(
+        code="W450", parent=parent
+    )
+    parent_2016 = ConceptEdition.objects.using("icd10_test_20200101").create(
+        concept=parent,
+        edition=edition_2016,
+        kind=ConceptKind.CATEGORY,
+        usage=ConceptUsage.NORMAL,
+        term="Foreign body or object entering through skin",
+    )
+    parent_2019 = ConceptEdition.objects.using("icd10_test_20200101").create(
+        concept=parent,
+        edition=edition_2019,
+        kind=ConceptKind.CATEGORY,
+        usage=ConceptUsage.NORMAL,
+        term="Foreign body or object entering through skin",
+    )
+    ConceptEdition.objects.using("icd10_test_20200101").create(
+        concept=modifier,
+        edition=edition_2016,
+        kind=ConceptKind.CATEGORY,
+        usage=ConceptUsage.NORMAL,
+        term="Foreign body or object entering through skin",
+        term_modifier="Home",
+        modifier_position=4,
+    )
+    ConceptRubric.objects.using("icd10_test_20200101").create(
+        concept_edition=parent_2016,
+        kind=RubricKind.INCLUSION,
+        text="nail",
+    )
+    ConceptRubric.objects.using("icd10_test_20200101").create(
+        concept_edition=parent_2019,
+        kind=RubricKind.INCLUSION,
+        text="2019 rubric must not take priority",
+    )
+
+    coding_system = CodingSystem(database_alias="icd10_test_20200101")
+
+    assert coding_system.lookup_more_info(["W450"])["rubrics"] == {
+        "W450": {
+            "concept_rubrics": {RubricKind.INCLUSION: ["nail"]},
+            "modifier_rubrics": {},
+        }
+    }
+
+
+def test_term_differences(icd10_data, coding_system):
+
+    x590 = coding_system.lookup_more_info(["X590"])
+    xxxx = coding_system.lookup_more_info(["XXXX"])
+    blank = coding_system.lookup_more_info([])
+
+    assert "term_differences" in x590
+    assert "X590" in x590["term_differences"]
+    assert not x590["term_differences"]["X590"]["equivalent"]
+
+    assert "term_differences" in xxxx
+    assert xxxx["term_differences"] == {}
+
+    assert "term_differences" in blank
+    assert blank["term_differences"] == {}
+
+
+def test_lookup_dagger_asterisk_usages_with_no_codes(coding_system):
+    assert coding_system.lookup_dagger_asterisk_usages([]) == {}
+
+
+def test_lookup_dagger_asterisk_usages(icd10_data, coding_system):
+    ConceptEdition.objects.using(coding_system.database_alias).filter(id=12).update(
+        usage=ConceptUsage.DAGGER
+    )
+    ConceptEdition.objects.using(coding_system.database_alias).filter(id=13).update(
+        usage=ConceptUsage.DAGGER
+    )
+    ConceptEdition.objects.using(coding_system.database_alias).filter(id=14).update(
+        usage=ConceptUsage.ASTERISK
+    )
+
+    assert coding_system.lookup_dagger_asterisk_usages(
+        ["M77", "M770", "M771", "M772"]
+    ) == {
+        "M77": {
+            "usage": "dagger",
+            "url": "https://icd.who.int/browse10/2019/en#/M77",
+        },
+        "M770": {
+            "usage": "dagger",
+            "url": "https://icd.who.int/browse10/2019/en#/M77.0",
+        },
+        "M771": {
+            "usage": "asterisk",
+            "url": "https://icd.who.int/browse10/2019/en#/M77.1",
+        },
+    }

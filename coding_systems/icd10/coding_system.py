@@ -1,10 +1,26 @@
 from collections import defaultdict
 from functools import lru_cache
 
+from django.db.models import Q
+
 from opencodelists.db_utils import query
 
 from ..base.coding_system_base import BuilderCompatibleCodingSystem
-from .models import Concept, ConceptEdition, ConceptKind, Edition
+from .known_diffs import (
+    clinically_different_codes,
+    codes_with_different_descriptions,
+    moved_codes,
+)
+from .models import (
+    Concept,
+    ConceptEdition,
+    ConceptKind,
+    ConceptRubric,
+    ConceptUsage,
+    Edition,
+    ModifierRubric,
+    RubricKind,
+)
 
 
 class CodingSystem(BuilderCompatibleCodingSystem):
@@ -29,7 +45,11 @@ class CodingSystem(BuilderCompatibleCodingSystem):
         return set(
             ConceptEdition.objects.using(self.database_alias)
             .filter(kind=ConceptKind.CATEGORY)
-            .filter(term__contains=term)
+            .filter(
+                Q(term__contains=term)
+                | Q(rubrics__kind=RubricKind.INCLUSION, rubrics__text__contains=term)
+            )
+            .distinct()
             .values_list("concept__code", flat=True)
         )
 
@@ -94,25 +114,160 @@ class CodingSystem(BuilderCompatibleCodingSystem):
         return query(sql, codes, database=self.database_alias)
 
     def lookup_names(self, codes):
-        lookup = {}
         concepts = (
             ConceptEdition.objects.using(self.database_alias)
             .filter(concept_id__in=codes)
-            .order_by("concept_id", "-edition__year", "-edition__version")
+            .prioritise_by_edition()
             .values_list("concept_id", "term", "term_modifier")
         )
 
-        for concept_id, term, term_modifier in concepts:
-            lookup.setdefault(
-                concept_id, f"{term} : {term_modifier}" if term_modifier else term
-            )
-
-        return lookup
+        return {
+            concept_id: f"{term} : {term_modifier}" if term_modifier else term
+            for concept_id, term, term_modifier in concepts
+        }
 
     def code_to_term(self, codes):
         lookup = self.lookup_names(codes)
         unknown = set(codes) - set(lookup)
         return {**lookup, **{code: "Unknown" for code in unknown}}
+
+    def _lookup_rubrics(self, codes):
+        codes = list(codes)
+        if not codes:
+            return {}
+
+        # First we get the rubrics for the concept code itself
+        direct_concept_rubrics = (
+            ConceptRubric.objects.using(self.database_alias)
+            .filter(
+                concept_edition__concept_id__in=codes,
+            )
+            .prioritise_by_edition()
+            .values_list("concept_edition__concept_id", "kind", "text")
+        )
+
+        # Then we get the concept rubrics for any modifier codes. These are the
+        # rubrics for the parent code that the modifier code modifies.
+        inherited_concept_rubrics = (
+            ConceptRubric.objects.using(self.database_alias)
+            .filter(
+                # The rubric belongs to the requested modifier code's parent.
+                concept_edition__concept__children__code__in=codes,
+                concept_edition__concept__children__concept_editions__term_modifier__isnull=(
+                    False
+                ),
+            )
+            .prioritise_by_edition()
+            .values_list(
+                "concept_edition__concept__children__code",
+                "kind",
+                "text",
+            )
+        )
+
+        # Now we get the modifier rubrics for any modifier codes
+        modifier_rubrics = (
+            ModifierRubric.objects.using(self.database_alias)
+            .filter(
+                concept_edition__concept_id__in=codes,
+                concept_edition__edition_id=self.latest_edition.id,
+            )
+            .values_list(
+                "concept_edition__concept_id",
+                "concept_edition__term_modifier",
+                "kind",
+                "text",
+            )
+        )
+
+        # Construct a rubrics object that looks like this:
+        # {
+        #   "code_1": {
+        #     "concept_rubrics": {
+        #       "rubric_kind_1": ["text", "text", ...],
+        #       "rubric_kind_2": ["text", "text", ...],
+        #     },
+        #     "modifier_rubrics": {
+        #       "modifier_term_1": {
+        #         "rubric_kind_1": ["text", "text", ...],
+        #       },
+        #     },
+        #   },
+        #  "code_2": {
+        #    ...
+        #  },
+        # },
+        rubrics = {}
+
+        concept_rubrics = direct_concept_rubrics.union(inherited_concept_rubrics)
+        for code, kind, text in concept_rubrics:
+            if code not in rubrics:
+                rubrics[code] = {
+                    "concept_rubrics": {},
+                    "modifier_rubrics": {},
+                }
+
+            rubrics_by_kind = rubrics[code]["concept_rubrics"]
+            if kind not in rubrics_by_kind:
+                rubrics_by_kind[kind] = []
+            rubrics_by_kind[kind].append(text)
+
+        for code, term_modifier, kind, text in modifier_rubrics:
+            if code not in rubrics:
+                rubrics[code] = {
+                    "concept_rubrics": {},
+                    "modifier_rubrics": {},
+                }
+
+            if term_modifier not in rubrics[code]["modifier_rubrics"]:
+                rubrics[code]["modifier_rubrics"][term_modifier] = {}
+
+            rubrics_by_kind = rubrics[code]["modifier_rubrics"][term_modifier]
+            if kind not in rubrics_by_kind:
+                rubrics_by_kind[kind] = []
+            rubrics_by_kind[kind].append(text)
+
+        return rubrics
+
+    def _lookup_term_differences(self, codes):
+        return codes_with_different_descriptions(codes)
+
+    def lookup_more_info(self, codes):
+        return {
+            "rubrics": self._lookup_rubrics(codes),
+            "term_differences": self._lookup_term_differences(codes),
+        }
+
+    def lookup_dagger_asterisk_usages(self, codes):
+        if not codes:
+            return {}
+
+        def who_2019_browser_url(code):
+            # We return the WHO 2019 URL rather than the NHS 2016 one because:
+            # - the NHS 2016 version made no changes to the underlying WHO 2016 edition
+            # - there are a couple of dagger/asterisk relationships that appear in 2019 but not in 2016, so the 2019 version is more complete
+            return f"https://icd.who.int/browse10/2019/en#/{f'{code[:3]}.{code[3:]}' if len(code) > 3 else code}"
+
+        concept_usages = (
+            ConceptEdition.objects.using(self.database_alias)
+            .filter(
+                edition_id=self.latest_edition.id,
+                concept_id__in=codes,
+                usage__in=[
+                    ConceptUsage.DAGGER,
+                    ConceptUsage.ASTERISK,
+                ],
+            )
+            .values_list("concept_id", "usage")
+        )
+
+        return {
+            concept_code: {
+                "usage": "asterisk" if usage == ConceptUsage.ASTERISK else "dagger",
+                "url": who_2019_browser_url(concept_code),
+            }
+            for concept_code, usage in concept_usages
+        }
 
     def codes_by_type(self, codes, hierarchy):
         """Return mapping from chapter name to codes in that chapter."""
@@ -193,3 +348,9 @@ class CodingSystem(BuilderCompatibleCodingSystem):
             .filter(code__in=codes)
             .values_list("code", flat=True)
         )
+
+    def lookup_clinically_different_codes(self, codes):
+        return clinically_different_codes(codes)
+
+    def lookup_moved_codes(self, codes):
+        return moved_codes(codes)

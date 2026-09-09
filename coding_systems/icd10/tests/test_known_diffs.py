@@ -2,21 +2,102 @@ import pytest
 
 from coding_systems.icd10.claml_parser import ICD10Code, ModifierDigit
 from coding_systems.icd10.known_diffs import (
-    TermDifference,
+    clinically_different_codes,
+    codes_with_different_descriptions,
     expand_who_2016_place_of_occurrence,
     get_2016_2019_description_difference,
     is_2016_claml_only,
     is_2016_description_difference,
     is_2016_scraped_only,
+    moved_codes,
+    rubric_differences,
     should_include_2016_claml_only,
     should_include_2016_scraped_only,
     should_use_scraped_for_2016,
+)
+from coding_systems.icd10.known_diffs.difference_classes import (
+    RubricDifference,
+    TermDifference,
 )
 
 
 def test_term_difference_rejects_unknown_source_choice():
     with pytest.raises(ValueError, match="use must be 'claml' or 'scraped'"):
         TermDifference(claml="A", scraped="B", use="neither")
+
+
+def test_rubric_difference_defaults_to_who_rubrics():
+    change = RubricDifference(
+        who_2016={"inclusion": ["A"]},
+    )
+
+    assert change.resolved_rubrics == {"inclusion": ["A"]}
+
+
+def test_rubric_difference_derives_use_from_edits_without_mutating_who():
+    who_2016 = {
+        "inclusion": ["A", "B"],
+        "exclusion": ["old value", "remove me"],
+    }
+    change = RubricDifference(
+        who_2016=who_2016,
+        replace={"exclusion": {"old": "new"}},
+        remove={"exclusion": ["remove me"]},
+        add={"note": ["C"]},
+    )
+
+    assert change.resolved_rubrics == {
+        "inclusion": ["A", "B"],
+        "exclusion": ["new value"],
+        "note": ["C"],
+    }
+    assert who_2016 == {
+        "inclusion": ["A", "B"],
+        "exclusion": ["old value", "remove me"],
+    }
+
+
+def test_rubric_difference_adds():
+    change = RubricDifference(
+        who_2016={"inclusion": ["A"]},
+        add={"inclusion": ["B"], "exclusion": ["C"]},
+    )
+
+    assert change.resolved_rubrics == {"inclusion": ["A", "B"], "exclusion": ["C"]}
+
+
+def test_rubric_difference_removes():
+    change = RubricDifference(
+        who_2016={"inclusion": ["A", "B"], "exclusion": ["C"]},
+        remove={"inclusion": ["B"], "exclusion": ["C"]},
+    )
+
+    assert change.resolved_rubrics == {"inclusion": ["A"]}
+
+
+def test_rubric_difference_replaces_substrings_in_each_rubric_value():
+    change = RubricDifference(
+        who_2016={
+            "inclusion": [
+                "Angiostrongyliasis due to: Angiostrongylus costaricensis (B83.2)"
+            ],
+            "exclusion": [
+                "Angiostrongyliasis due to: Angiostrongylus costaricensis (B83.2)",
+                "Angiostrongyliasis due to: Parastrongylus costaricensis (B83.2)",
+            ],
+        },
+        replace={"exclusion": {"costaricensis": "cantonensis"}},
+    )
+
+    assert change.resolved_rubrics == {
+        "inclusion": [
+            "Angiostrongyliasis due to: Angiostrongylus costaricensis (B83.2)"
+        ],
+        "exclusion": [
+            "Angiostrongyliasis due to: Angiostrongylus cantonensis (B83.2)",
+            "Angiostrongyliasis due to: Parastrongylus cantonensis (B83.2)",
+        ],
+    }
 
 
 def test_2016_claml_vs_scraped_known_difference_helpers():
@@ -93,7 +174,7 @@ def test_expand_who_2016_place_of_occurrence_applies_range_and_exceptions(
     }
     modifiers = [ModifierDigit(digit_code="0", description="Home")]
     monkeypatch.setattr(
-        "coding_systems.icd10.known_diffs.WHO_2016_EXPECTED_OVERRIDES",
+        "coding_systems.icd10.known_diffs.who2016_vs_nhs2016_code_overrides.WHO_2016_EXPECTED_OVERRIDES",
         frozenset({"W260", "X340", "X590"}),
     )
 
@@ -115,7 +196,7 @@ def test_expand_who_2016_place_of_occurrence_fails_on_unexpected_overlap(
     }
     modifiers = [ModifierDigit(digit_code="0", description="Home")]
     monkeypatch.setattr(
-        "coding_systems.icd10.known_diffs.WHO_2016_EXPECTED_OVERRIDES",
+        "coding_systems.icd10.known_diffs.who2016_vs_nhs2016_code_overrides.WHO_2016_EXPECTED_OVERRIDES",
         frozenset(),
     )
 
@@ -129,9 +210,89 @@ def test_expand_who_2016_place_of_occurrence_fails_when_expected_override_missin
     records = {"W00": ICD10Code(code="W00", parent=None, description="Fall")}
     modifiers = [ModifierDigit(digit_code="0", description="Home")]
     monkeypatch.setattr(
-        "coding_systems.icd10.known_diffs.WHO_2016_EXPECTED_OVERRIDES",
+        "coding_systems.icd10.known_diffs.who2016_vs_nhs2016_code_overrides.WHO_2016_EXPECTED_OVERRIDES",
         frozenset({"X590"}),
     )
 
     with pytest.raises(AssertionError, match="expected codes missing"):
         expand_who_2016_place_of_occurrence(records, modifiers)
+
+
+def test_clinically_different_codes():
+    differences = clinically_different_codes(["w260", "W260", "A081", "ZZZZ"])
+
+    # Should deduplicate w260/W260 and only return the clinically different
+    # code W260, not A081 which is clinically equivalent, or ZZZZ which is
+    # not a known difference.
+    assert differences == {
+        "W260": {
+            "combined_2016": "Contact with other sharp object(s) (Home)",
+            "who_2019": "Contact with knife, sword or dagger",
+        }
+    }
+
+
+def test_moved_codes():
+    possible_codes = moved_codes(
+        ["U09", "U099", "U11", "U11", "K583", "K588", "K589", "ZZZZ"]
+    )
+
+    assert possible_codes == [
+        {
+            "title": "Irritable bowel syndrome",
+            "nhs2016": ["K58", "K580", "K589"],
+            "who2019": ["K58", "K581", "K582", "K583", "K588"],
+            "comment": "The codes for this were K580 and K589 in 2016, but K581, K582, K583 and K588 in 2019. You likely want all these codes in your codelist. However if you are specifically looking for diarrhoea, or constipation, rather than IBS, then you may only want some but not all of these codes.",
+        },
+        {
+            "title": "Post COVID-19 condition",
+            "nhs2016": ["U074"],
+            "who2019": ["U09", "U099"],
+            "comment": "This is U074 in 2016, but U09/U099 in 2019.",
+        },
+        {
+            "title": "Need for immunization against COVID-19",
+            "nhs2016": ["U076"],
+            "who2019": ["U11", "U119"],
+            "comment": "This is U076 in 2016, but U11/U119 in 2019.",
+        },
+    ]
+
+
+def test_codes_with_different_descriptions():
+    codes = ["P710", "P710", "P711", "ZZZZ", "X590"]
+    differences = codes_with_different_descriptions(codes)
+
+    assert differences == {
+        "P710": {
+            "combined_2016": "Cow's milk hypocalcaemia in newborn",
+            "who_2019": "Cow milk hypocalcaemia in newborn",
+            "equivalent": True,
+        },
+        "X590": {
+            "combined_2016": "Exposure to unspecified factor (Home)",
+            "who_2019": "Exposure to unspecified factor causing fracture",
+            "equivalent": False,
+        },
+    }
+
+
+def test_rubric_differences():
+    differences = rubric_differences("B81")
+
+    assert differences == RubricDifference(
+        who_2016={
+            "exclusion": [
+                "Angiostrongyliasis due to: Angiostrongylus costaricensis (B83.2)",
+                "Angiostrongyliasis due to: Parastrongylus costaricensis (B83.2)",
+            ]
+        },
+        replace={"exclusion": {"costaricensis": "cantonensis"}},
+        comment="Typo in WHO. B81 is about _costaricensis_, so _cantonensis_ not _costaricensis_ should be excluded. Correction mentioned on p10 of ICD-10_Classification_Content_Changes_2026_.pdf",
+    )
+
+
+def test_rubric_differences_not_found():
+    differences = rubric_differences("Z99")
+
+    assert differences is None

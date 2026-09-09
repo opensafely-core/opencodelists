@@ -262,6 +262,22 @@ def _draft(request, draft, search_id):
         ],
     }
 
+    icd10_term_differences = (
+        coding_system.lookup_clinically_different_codes(codeset.all_codes())
+        if hasattr(coding_system, "lookup_clinically_different_codes")
+        else []
+    )
+    icd10_moved_codes = (
+        coding_system.lookup_moved_codes(codeset.all_codes())
+        if hasattr(coding_system, "lookup_moved_codes")
+        else []
+    )
+    dagger_asterisk_info = (
+        coding_system.lookup_dagger_asterisk_usages(codeset.all_codes())
+        if hasattr(coding_system, "lookup_dagger_asterisk_usages")
+        else {}
+    )
+
     ctx = {
         "user": draft.author,
         "draft": draft,
@@ -278,6 +294,7 @@ def _draft(request, draft, search_id):
         "child_map": {c: list(pp) for c, pp in hierarchy.child_map.items()},
         "code_to_term": code_to_term,
         "code_to_status": codeset.code_to_status,
+        "code_to_dagger_asterisk_info": dagger_asterisk_info,
         "is_editable": request.user == draft.author,
         "draft_url": draft_url,
         "update_url": update_url,
@@ -286,6 +303,8 @@ def _draft(request, draft, search_id):
         "versions": versions,
         "metadata": metadata,
         "is_empty_codelist": is_empty_codelist,
+        "icd10_term_differences": icd10_term_differences,
+        "icd10_moved_codes": icd10_moved_codes,
     }
 
     return render(request, "builder/draft.html", ctx)

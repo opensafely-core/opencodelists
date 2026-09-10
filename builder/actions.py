@@ -44,16 +44,18 @@ def get_codes_to_keep(codeset_version, potential_codes):
     1. Explicitly included in the codelist
     2. Descendants of included codes
     """
-    # Get all explicitly and implicitly included codes on the codelist
-    all_included_codes = codeset_version.codeset.codes()
+    # Get all explicitly and implicitly included and excluded codes on the codelist
+    all_included_or_excluded_codes = codeset_version.codeset.codes(
+        statuses=["+", "-", "(+)", "(-)"]
+    )
 
     # Build a list of codes_to_keep from this search, consisting of any included codes or their descendants
     hierarchy = codeset_version.hierarchy
     codes_to_keep = []
     for code_obj in potential_codes:
         ancestors = hierarchy.ancestors(code_obj.code)
-        ancestors_in_included = ancestors & all_included_codes
-        if ancestors_in_included or code_obj.code in all_included_codes:
+        ancestors_in_included = ancestors & all_included_or_excluded_codes
+        if ancestors_in_included or code_obj.code in all_included_or_excluded_codes:
             codes_to_keep.append(code_obj.code)
     return codes_to_keep
 

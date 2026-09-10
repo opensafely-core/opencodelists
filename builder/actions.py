@@ -5,6 +5,7 @@ from django.db import transaction
 from django.db.models import Count
 from django.utils.text import slugify
 
+from codelists.hierarchy import Hierarchy
 from codelists.models import CodeObj, SearchResult, Status
 from coding_systems.base.import_data_utils import check_and_update_compatibile_versions
 from coding_systems.versioning.models import CodingSystemRelease
@@ -43,6 +44,8 @@ def get_codes_to_keep(codeset_version, potential_codes):
     Returns codes that are:
     1. Explicitly included in the codelist
     2. Descendants of included codes
+    3. Explicitly excluded codes in the codelist
+    4. Descendants of excluded codes
     """
     # Get all explicitly and implicitly included and excluded codes on the codelist
     all_included_or_excluded_codes = codeset_version.codeset.codes(
@@ -161,21 +164,45 @@ def update_code_statuses(*, draft, updates):
 
     status_to_new_code = defaultdict(list)
     previous_codes = draft.codeset.all_codes()
+
+    # We might have previously deleted the code that is now being requested to be
+    # included because it was an orphaned code. This usually happens when we're
+    # dealing with an uploaded codelist.
+    # The root of this problem is that the hierarchy in the frontend gets out of sync
+    # with the backend when orphans are deleted.
+    # This is arguably desirable behaviour, but we have to work around it here.
+    codes_to_be_reincluded = set(new_codeset.all_codes()) - set(previous_codes)
+    if codes_to_be_reincluded:
+        new_hierarchy = Hierarchy.from_codes(
+            draft.coding_system, previous_codes | codes_to_be_reincluded
+        )
+    codes_to_be_reincluded_with_status = set()
+
+    # Work out the status for each code we're going to update,
+    # including any codes that are being re-included.
     for code, status in new_codeset.code_to_status.items():
         status_to_new_code[status].append(code)
-        # check for re-inclusion of previously-deleted orphan codes
-        if code not in previous_codes and status == "+":
-            codes_to_reinclude = (
-                {code} | draft.hierarchy.descendants(code)
+        if code in codes_to_be_reincluded:
+            code_and_descendants = (
+                {code} | new_hierarchy.descendants(code)
             ) - previous_codes
-            CodeObj.objects.bulk_create(
-                CodeObj(
-                    version=draft,
-                    code=code_to_reinclude,
-                    status=status if code_to_reinclude == code else "(+)",
-                )
-                for code_to_reinclude in codes_to_reinclude
+            codes_to_be_reincluded_with_status.update(
+                {
+                    (code_to_reinclude, status if code_to_reinclude == code else "(+)")
+                    for code_to_reinclude in code_and_descendants
+                }
             )
+
+    # If we've got any codes to re-include,
+    # bulk insert them with the status we've derived above.
+    CodeObj.objects.bulk_create(
+        CodeObj(
+            version=draft,
+            code=code_to_reinclude,
+            status=status,
+        )
+        for code_to_reinclude, status in codes_to_be_reincluded_with_status
+    )
 
     for status, codes in status_to_new_code.items():
         draft.code_objs.filter(code__in=codes).update(status=status)

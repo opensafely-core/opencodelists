@@ -72,21 +72,15 @@ class CodelistCreateForm(forms.Form):
     owner = forms.ChoiceField()
     name = form_field_from_model(Handle, "name", label="Codelist name")
     coding_system_id = forms.ChoiceField(choices=[], label="Coding system")
-    csv_has_header = forms.TypedChoiceField(
-        choices=(
-            ("True", "Yes"),
-            ("False", "No"),
-        ),
-        coerce=lambda x: x == "True",
-        empty_value=None,
-        widget=forms.RadioSelect,
-        label="Does the CSV have a header row?",
+    exclude_child_codes = forms.BooleanField(
+        widget=forms.CheckboxInput,
+        label="Exclude all missing child codes",
         required=False,
     )
     csv_data = forms.FileField(
         label="CSV data",
         required=False,
-        help_text="The CSV's first column must contain valid codes in the chosen coding system.",
+        help_text="Upload a CSV file with your codes. We'll auto-detect the structure and coding system.",
     )
 
     def __init__(self, *args, **kwargs):
@@ -112,11 +106,13 @@ class CodelistCreateForm(forms.Form):
             del self.fields["owner"]
 
     def clean_csv_data(self):
+        from opencodelists.views.user_create_codelist import (
+            _detect_code_column_header_and_system,
+        )
+
         f = self.cleaned_data["csv_data"]
         if not f:
             return
-
-        csv_has_header = self.cleaned_data["csv_has_header"]
 
         try:
             data = f.read().decode("utf-8-sig")
@@ -133,11 +129,22 @@ class CodelistCreateForm(forms.Form):
             self.cleaned_data["coding_system_id"]
         ].get_by_release_or_most_recent()
 
-        csv_reader = csv.reader(StringIO(data))
-        if csv_has_header:
-            next(csv_reader, None)
+        # Parse CSV and auto-detect header row
+        all_rows = list(csv.reader(StringIO(data)))
+        if not all_rows:
+            raise forms.ValidationError("CSV file is empty")
 
-        codes = [row[0] for row in csv_reader if row]
+        # Detect header row to skip it when extracting codes
+        first_data_row_idx, code_col_idx, _ = _detect_code_column_header_and_system(
+            all_rows
+        )
+
+        # Extract codes from detected code column, starting from first data row
+        codes = [
+            row[code_col_idx]
+            for row in all_rows[first_data_row_idx:]
+            if code_col_idx < len(row) and row[code_col_idx].strip()
+        ]
 
         validate_csv_data_codes(coding_system, codes)
         return codes

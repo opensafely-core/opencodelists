@@ -402,7 +402,7 @@ def test_update_code_statuses(draft_with_complete_searches):
     }
 
 
-def test_orphaned_code_behaviour(draft_with_some_searches):
+def test_orphaned_code_behaviour_with_searches(draft_with_some_searches):
     draft = draft_with_some_searches
 
     # Double check that codes and statuses are as expected
@@ -442,19 +442,71 @@ def test_orphaned_code_behaviour(draft_with_some_searches):
             "156659008": "+",  # (Epicondylitis &/or ...  kept because included
             "439656005": "+",  # Arthritis of elbow         kept because included
             "202855006": "(+)",  # Lateral epicondylitis    kept because descendant of included
+            "3723001": "-",  # Arthritis kept because explicitly excluded
         }
     )
 
-    # Exclude orphaned code - it should disappear
-    actions.update_code_statuses(draft=draft, updates=[("156659008", "-")])
+    # Unresolve orphaned code - it should disappear
+    actions.update_code_statuses(draft=draft, updates=[("156659008", "?")])
     assert (
         dict(draft.code_objs.values_list("code", "status"))
         == {
             # Orphans
             "439656005": "+",  # Arthritis of elbow         kept because included
             "202855006": "(+)",  # Lateral epicondylitis    kept because descendant of included
+            "3723001": "-",  # Arthritis kept because explicitly excluded
         }
     )
+
+    # Re-include previously orphaned code - it should appear with its descendants
+    actions.update_code_statuses(draft=draft, updates=[("35185008", "+")])
+    assert (
+        dict(draft.code_objs.values_list("code", "status"))
+        == {
+            # Orphans
+            "439656005": "+",  # Arthritis of elbow         kept because included
+            "202855006": "(+)",  # Lateral epicondylitis    kept because descendant of included
+            "35185008": "+",  # Enthesopathy of elbow region    kept because included
+            "73583000": "(+)",  # Epicondylitis                   kept because descendant of included
+            "3723001": "-",  # Arthritis kept because explicitly excluded
+        }
+    )
+
+
+def test_orphaned_code_behaviour_without_searches(draft_with_no_searches):
+    draft = draft_with_no_searches
+
+    assert dict(draft.code_objs.values_list("code", "status")) == {
+        "128133004": "+",
+        "429554009": "(+)",
+        "73583000": "(+)",
+        "35185008": "(+)",
+        "239964003": "(+)",
+        "439656005": "-",
+        "202855006": "(-)",
+        "156659008": "+",
+    }
+
+    actions.update_code_statuses(draft=draft, updates=[("128133004", "?")])
+
+    # newly-unresolved codes are removed as orphans
+    assert dict(draft.code_objs.values_list("code", "status")) == {
+        "156659008": "+",
+        "439656005": "-",
+        "202855006": "(-)",
+    }
+
+    actions.update_code_statuses(draft=draft, updates=[("128133004", "+")])
+    assert dict(draft.code_objs.values_list("code", "status")) == {
+        "128133004": "+",
+        "429554009": "(+)",
+        "73583000": "(+)",
+        "35185008": "(+)",
+        "239964003": "(+)",
+        "439656005": "-",
+        "202855006": "(-)",
+        "156659008": "+",
+    }
 
 
 def test_save(draft_with_no_searches):
@@ -527,71 +579,3 @@ def test_cannot_save_with_incomplete_code_status(
 
     draft.refresh_from_db()
     assert draft.is_draft
-
-
-def test_re_inclusion_of_previously_deleted_orphan(draft_with_some_searches):
-    draft = draft_with_some_searches
-
-    # Double check that codes and statuses are as expected
-    assert dict(draft.code_objs.values_list("code", "status")) == {
-        # Part of arthritis search
-        "439656005": "+",  # Arthritis of elbow
-        "202855006": "(+)",  # Lateral epicondylitis
-        "3723001": "-",  # Arthritis
-        # Orphans
-        "128133004": "+",  # Disorder of elbow
-        "429554009": "(+)",  # Arthropathy of elbow
-        "35185008": "(+)",  # Enthesopathy of elbow region
-        "73583000": "(+)",  # Epicondylitis
-        "239964003": "(+)",  # Soft tissue lesion of elbow region
-        "156659008": "+",  # (Epicondylitis &/or ...
-    }
-
-    # Deselect orphaned disorder of elbow
-    actions.update_code_statuses(draft=draft, updates=[("128133004", "?")])
-    assert dict(draft.code_objs.values_list("code", "status")) == {
-        # Part of arthritis search
-        "439656005": "+",  # Arthritis of elbow
-        "202855006": "(+)",  # Lateral epicondylitis
-        "3723001": "-",  # Arthritis
-        # Orphans
-        "156659008": "+",  # (Epicondylitis &/or ...
-    }
-
-    # Delete arthritis search
-    actions.delete_search(
-        search=draft.searches.get(term="arthritis"),
-    )
-    assert (
-        dict(draft.code_objs.values_list("code", "status"))
-        == {
-            # Orphans
-            "156659008": "+",  # (Epicondylitis &/or ...  kept because included
-            "439656005": "+",  # Arthritis of elbow         kept because included
-            "202855006": "(+)",  # Lateral epicondylitis    kept because descendant of included
-        }
-    )
-
-    # Exclude orphaned code - it should disappear
-    actions.update_code_statuses(draft=draft, updates=[("156659008", "-")])
-    assert (
-        dict(draft.code_objs.values_list("code", "status"))
-        == {
-            # Orphans
-            "439656005": "+",  # Arthritis of elbow         kept because included
-            "202855006": "(+)",  # Lateral epicondylitis    kept because descendant of included
-        }
-    )
-
-    # Re-include previously orphaned code - it should appear with its descendants
-    actions.update_code_statuses(draft=draft, updates=[("35185008", "+")])
-    assert (
-        dict(draft.code_objs.values_list("code", "status"))
-        == {
-            # Orphans
-            "439656005": "+",  # Arthritis of elbow         kept because included
-            "202855006": "(+)",  # Lateral epicondylitis    kept because descendant of included
-            "35185008": "+",  # Enthesopathy of elbow region    kept because included
-            "73583000": "(+)",  # Epicondylitis                   kept because descendant of included
-        }
-    )

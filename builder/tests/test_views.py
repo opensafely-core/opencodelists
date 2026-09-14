@@ -3,9 +3,11 @@ from django.core.validators import MinLengthValidator
 from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
 
+from builder import actions
 from codelists.actions import create_codelist_from_scratch
 from codelists.coding_systems import most_recent_database_alias
 from codelists.models import Codelist, Search
+from codelists.search import do_search
 from codelists.tests.views.assertions import (
     assert_post_unauthenticated,
     assert_post_unauthorised,
@@ -124,6 +126,47 @@ def test_update(client, draft):
     draft.refresh_from_db()
     assert rsp.status_code == 200
     assert draft.code_objs.get(code=239964003).status == "-"
+
+
+def test_deselecting_and_reselecting_code_without_searches_preserves_codelist(
+    client,
+    user_codelist_from_scratch,
+):
+    # 1. Create a codelist version with no searches and a single included root code
+    draft = user_codelist_from_scratch.versions.first()
+    search_codes = do_search(draft.coding_system, code="128133004")["all_codes"]
+    search = actions.create_search(
+        draft=draft,
+        code="128133004",
+        codes=search_codes,
+    )
+    actions.update_code_statuses(draft=draft, updates=[("128133004", "+")])
+    expected_code_to_status = dict(draft.code_objs.values_list("code", "status"))
+    assert "(+)" in expected_code_to_status.values()
+    actions.delete_search(search=search)
+    assert not draft.searches.exists()
+
+    # 2. Deselect the root code - this should remove all codes from the codelist
+    client.force_login(draft.author)
+    rsp = client.post(
+        draft.get_builder_update_url(),
+        {"updates": [("128133004", "?")]},
+        "application/json",
+    )
+    assert rsp.status_code == 200
+    assert not draft.code_objs.exists()
+
+    # 3. Re-include the root code - this should re-add the root code and all
+    # its descendants to the codelist
+    rsp = client.post(
+        draft.get_builder_update_url(),
+        {"updates": [("128133004", "+")]},
+        "application/json",
+    )
+    assert rsp.status_code == 200
+    assert (
+        dict(draft.code_objs.values_list("code", "status")) == expected_code_to_status
+    )
 
 
 def test_new_search_unauthorised(client, draft):

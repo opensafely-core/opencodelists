@@ -63,6 +63,8 @@ but that same code in admissions data is defined in the 2016 edition as
 A codelist for fractures would want to include that code for ONS deaths, but
 exclude it for admissions data.
 
+Changed definitions were reviewed by a clinician to confirm whether they were clinically significant. The results of that review are available in the [OpenCodelists GitHub repository](https://github.com/opensafely-core/opencodelists/blob/8e946e589d75f5abaaa9e72a25d9de28f2331915/coding_systems/icd10/known_diffs/combined2016_vs_who2019_term_differences.py)
+
 
 ### How have you resolved the definition differences?
 

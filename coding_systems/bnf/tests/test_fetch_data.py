@@ -2,6 +2,7 @@ import pytest
 from requests.exceptions import HTTPError, Timeout
 
 from coding_systems.bnf.fetch_data import (
+    BNFReleaseInfo,
     get_current_year_bnf_releases_info,
     get_latest_bnf_release_info,
 )
@@ -46,9 +47,9 @@ def test_get_latest_bnf_release_info(mocked_odp_response):
 
     latest_bnf_release_info = get_latest_bnf_release_info(mocked_odp_response)
 
-    assert latest_bnf_release_info == {
-        "name": "BNF_CODE_CURRENT_202608_VERSION_90",
-        "date": "202608",
-        "version": "90",
-        "url": "https://example.com/download/bnf_code_current_202608_version_90.csv",
-    }
+    assert latest_bnf_release_info == BNFReleaseInfo(
+        name="BNF_CODE_CURRENT_202608_VERSION_90",
+        date="202608",
+        version="90",
+        url="https://example.com/download/bnf_code_current_202608_version_90.csv",
+    )

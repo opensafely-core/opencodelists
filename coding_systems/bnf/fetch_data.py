@@ -1,7 +1,14 @@
 import re
+from collections import namedtuple
 
 import requests
 from requests.exceptions import RequestException
+
+
+BNFReleaseInfo = namedtuple(
+    "BNFReleaseInfo",
+    ["name", "date", "version", "url"],
+)
 
 
 # Find the latest BNF coding-system release published by ODP.
@@ -25,28 +32,27 @@ def get_latest_bnf_release_info(response):
     """
     Get metadata for the latest BNF coding system release.
 
-    Returns a dict containing the name, date, version, and CSV download url for the latest available BNF coding system release.
+    Returns a BNFReleaseInfo containing the name, date, version, and CSV download URL for the latest available BNF coding system release.
     """
 
-    bnf_latest_release_data = response.json()["result"]["resources"][-1]
+    latest_bnf_release_info = response.json()["result"]["resources"][-1]
 
     # As of March 2025, release names are formatted as follows: 'BNF_CODE_CURRENT_202608_VERSION_90'
-    release_name = bnf_latest_release_data["name"]
+    name = latest_bnf_release_info["name"]
+
+    url = latest_bnf_release_info["url"]
 
     # BNF CSV files are named e.g. bnf_code_current_202503_version_88.csv.
-    # Get the date and the version of the latest BNF release, so we can
+    # Get the date and the version of the latest release, so we can
     # check these against CSV filenames we already have later
-    match = re.match(r"^BNF_CODE_CURRENT_(\d{6})_VERSION_(\d+)(_FINAL)?$", release_name)
+    match = re.match(r"^BNF_CODE_CURRENT_(\d{6})_VERSION_(\d+)(_FINAL)?$", name)
 
-    release_date = match.group(1)
-    release_version = match.group(2)
-    release_url = bnf_latest_release_data["url"]
+    date = match.group(1)
+    version = match.group(2)
 
-    latest_bnf_release_info = {
-        "name": release_name,
-        "date": release_date,
-        "version": release_version,
-        "url": release_url,
-    }
-
-    return latest_bnf_release_info
+    return BNFReleaseInfo(
+        date=date,
+        name=name,
+        url=url,
+        version=version,
+    )

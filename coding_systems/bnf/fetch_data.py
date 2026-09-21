@@ -5,19 +5,28 @@ from requests.exceptions import RequestException
 
 
 # Find the latest BNF coding-system release published by ODP.
-def get_latest_bnf_release_metadata_from_odp_api():
+def get_current_year_bnf_releases_info():
     """
-    Get the metadata for the latest available BNF coding system release from the NHSBSA ODP API.
+    Get metadata for all BNF coding system releases published in the current calendar year (Jan to Dec) from the NHSBSA ODP API.
 
-    Returns a dict containing the name, date, version, and CSV download url for the latest available BNF coding system release.
+    Returns the HTTP response from the NHSBSA ODP API.
     """
     url = "https://opendata.nhsbsa.net/api/3/action/package_show?id=bnf-code-information-current-year"
     try:
         response = requests.get(url, timeout=10)
         response.raise_for_status()
+        return response
     except RequestException as e:
         e.add_note("Failed to fetch the latest BNF release information from ODP")
         raise
+
+
+def get_latest_bnf_release_info(response):
+    """
+    Get metadata for the latest BNF coding system release.
+
+    Returns a dict containing the name, date, version, and CSV download url for the latest available BNF coding system release.
+    """
 
     bnf_latest_release_data = response.json()["result"]["resources"][-1]
 

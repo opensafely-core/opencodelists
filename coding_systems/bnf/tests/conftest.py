@@ -57,3 +57,15 @@ def mock_bnf_data_dir(tmp_path):
         (csv_dir / file).touch()
 
     return tmp_path
+
+
+@pytest.fixture
+def mock_empty_bnf_data_dir(tmp_path):
+    """Fixture to create a temporary directory with a 'bnf' subdirectory containing no files.
+
+    Returns the temporary directory Path object.
+    """
+    csv_dir = tmp_path / "bnf"
+    csv_dir.mkdir()
+
+    return tmp_path

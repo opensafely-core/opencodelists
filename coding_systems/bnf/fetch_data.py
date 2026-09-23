@@ -76,7 +76,9 @@ def get_latest_bnf_release_csv_info(directory: Path):
     existing_files = bnf_data_dir.glob("*.csv")
 
     latest_csv_path = max(
-        existing_files, key=lambda file: get_bnf_release_date_and_version(file.name)
+        existing_files,
+        default=None,
+        key=lambda file: get_bnf_release_date_and_version(file.name),
     )
 
     return latest_csv_path

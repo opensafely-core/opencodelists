@@ -92,7 +92,13 @@ def test_get_bnf_release_date_and_version(bnf_release_name):
     assert version == 90
 
 
-def test_get_latest_bnf_release_csv_info(mock_bnf_data_dir):
+def test_get_latest_bnf_release_csv_info_existing_files(mock_bnf_data_dir):
     latest_csv_path = get_latest_bnf_release_csv_info(mock_bnf_data_dir)
 
     assert latest_csv_path.name == "bnf_code_current_202608_version_90.csv"
+
+
+def test_get_latest_bnf_release_csv_info_no_files(mock_empty_bnf_data_dir):
+    latest_csv_path = get_latest_bnf_release_csv_info(mock_empty_bnf_data_dir)
+
+    assert latest_csv_path is None

@@ -72,7 +72,9 @@ devenv: _env && install-precommit
     # the lockfile. The project is re-locked before syncing, so any
     # changes to pyproject.toml are reflected in the environment
     # (https://docs.astral.sh/uv/concepts/projects/sync/#locking-and-syncing).
-    # Do not remove extraneous packages (--inexact)
+    # Do not remove extraneous packages (--inexact). This allows developers to
+    # have their choice of local developer experience packages installed in the
+    # environment by installing them once manually, without this recipe removing them.
     # (https://docs.astral.sh/uv/reference/cli/#uv-sync--inexact)
     uv sync --inexact
 

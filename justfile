@@ -86,11 +86,8 @@ install-precommit:
     test -f $BASE_DIR/.git/hooks/pre-commit || $BIN/pre-commit install
 
 
-# Upgrade a single package to the latest version per pyproject.toml
+# upgrade a single package + its dependencies
 upgrade-package package: && devenv
-    #!/usr/bin/env bash
-    set -euo pipefail
-
     uv lock --upgrade-package {{ package }}
 
 

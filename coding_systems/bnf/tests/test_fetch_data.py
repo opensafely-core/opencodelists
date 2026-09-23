@@ -3,7 +3,9 @@ from requests.exceptions import HTTPError, Timeout
 
 from coding_systems.bnf.fetch_data import (
     BNFReleaseInfo,
+    get_bnf_release_date_and_version,
     get_current_year_bnf_releases_info,
+    get_latest_bnf_release_csv_info,
     get_latest_bnf_release_info,
 )
 
@@ -50,6 +52,47 @@ def test_get_latest_bnf_release_info(mocked_odp_response):
     assert latest_bnf_release_info == BNFReleaseInfo(
         name="BNF_CODE_CURRENT_202608_VERSION_90",
         date="202608",
-        version="90",
+        version=90,
         url="https://example.com/download/bnf_code_current_202608_version_90.csv",
     )
+
+
+@pytest.mark.parametrize(
+    "bnf_release_name",
+    [
+        pytest.param(
+            "BNF_CODE_CURRENT_202608_VERSION_90",
+            id="name_uppercase",
+        ),
+        pytest.param(
+            "bnf_code_current_202608_version_90",
+            id="name_lower",
+        ),
+        pytest.param(
+            "BNF_CODE_CURRENT_202608_VERSION_90_FINAL",
+            id="name_upper_final",
+        ),
+        pytest.param(
+            "bnf_code_current_202608_version_90.csv",
+            id="filename_lower",
+        ),
+        pytest.param(
+            "BNF_CODE_CURRENT_202608_VERSION_90.csv",
+            id="filename_upper",
+        ),
+        pytest.param(
+            "bnf_code_current_202608_version_90_final.csv",
+            id="filename_lower_final",
+        ),
+    ],
+)
+def test_get_bnf_release_date_and_version(bnf_release_name):
+    date, version = get_bnf_release_date_and_version(bnf_release_name)
+    assert date == "202608"
+    assert version == 90
+
+
+def test_get_latest_bnf_release_csv_info(mock_bnf_data_dir):
+    latest_csv_path = get_latest_bnf_release_csv_info(mock_bnf_data_dir)
+
+    assert latest_csv_path.name == "bnf_code_current_202608_version_90.csv"

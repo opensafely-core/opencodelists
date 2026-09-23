@@ -1,5 +1,6 @@
 import re
 from collections import namedtuple
+from pathlib import Path
 
 import requests
 from requests.exceptions import RequestException
@@ -9,6 +10,23 @@ BNFReleaseInfo = namedtuple(
     "BNFReleaseInfo",
     ["name", "date", "version", "url"],
 )
+
+
+def get_bnf_release_date_and_version(name):
+    """Given a BNF release filename or name, extract the release date and version."""
+
+    # BNF CSV files are named e.g. bnf_code_current_202503_version_88.csv.
+    # BNF releases are named e.g. 'BNF_CODE_CURRENT_202608_VERSION_90'.
+    match = re.match(
+        r"^BNF_CODE_CURRENT_(\d{6})_VERSION_(\d+)(_FINAL)?(?:\.csv)?$",
+        name,
+        re.IGNORECASE,
+    )
+
+    date = match.group(1)
+    version = int(match.group(2))
+
+    return date, version
 
 
 # Find the latest BNF coding-system release published by ODP.
@@ -42,13 +60,7 @@ def get_latest_bnf_release_info(response):
 
     url = latest_bnf_release_info["url"]
 
-    # BNF CSV files are named e.g. bnf_code_current_202503_version_88.csv.
-    # Get the date and the version of the latest release, so we can
-    # check these against CSV filenames we already have later
-    match = re.match(r"^BNF_CODE_CURRENT_(\d{6})_VERSION_(\d+)(_FINAL)?$", name)
-
-    date = match.group(1)
-    version = match.group(2)
+    date, version = get_bnf_release_date_and_version(name)
 
     return BNFReleaseInfo(
         date=date,
@@ -56,3 +68,15 @@ def get_latest_bnf_release_info(response):
         url=url,
         version=version,
     )
+
+
+def get_latest_bnf_release_csv_info(directory: Path):
+    """Given a directory containing BNF coding system release CSVs, return the path to the latest release."""
+    bnf_data_dir = directory / "bnf"
+    existing_files = bnf_data_dir.glob("*.csv")
+
+    latest_csv_path = max(
+        existing_files, key=lambda file: get_bnf_release_date_and_version(file.name)
+    )
+
+    return latest_csv_path

@@ -170,6 +170,7 @@ lines-after-imports = 2
 
 [tool.uv]
 required-version = ">=0.9"
+# This requirement comes from our #tech Dependency Updates policy.
 exclude-newer = "7 days"
 exclude-newer-package = {}
 

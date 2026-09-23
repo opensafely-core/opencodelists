@@ -29,11 +29,11 @@ colorama==0.4.6 ; sys_platform == 'win32'
     # via
     #   pytest
     #   tqdm
-coverage==7.15.4
+coverage==7.16.1
     # via pytest-cov
 crispy-bootstrap4==2026.2
     # via opencodelists
-cryptography==50.0.0
+cryptography==50.0.1
     # via paramiko
 distlib==0.4.3
     # via virtualenv
@@ -54,7 +54,7 @@ django==5.2.17
     #   djangorestframework
     #   opencodelists
     #   slippers
-django-anymail==15.1
+django-anymail==15.2
     # via opencodelists
 django-cors-headers==4.9.0
     # via opencodelists
@@ -62,7 +62,7 @@ django-crispy-forms==2.7
     # via
     #   crispy-bootstrap4
     #   opencodelists
-django-debug-toolbar==7.1.1
+django-debug-toolbar==8.0.0
 django-extensions==4.1
     # via opencodelists
 django-ipware==7.0.1
@@ -71,35 +71,35 @@ django-structlog==10.1.0
     # via opencodelists
 django-taggit==6.1.0
     # via opencodelists
-django-vite==3.1.0
+django-vite==3.2.0
     # via opencodelists
-djangorestframework==3.18.0
+djangorestframework==3.18.1
     # via opencodelists
 djhtml==3.0.11
 et-xmlfile==2.0.0
     # via openpyxl
-faker==40.36.0
+faker==40.39.0
     # via opencodelists
-filelock==3.32.3
+filelock==3.32.7
     # via
     #   python-discovery
     #   virtualenv
 furl==2.1.4
     # via opencodelists
-googleapis-common-protos==1.75.1
+googleapis-common-protos==1.75.3
     # via
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
-greenlet==3.5.5
+greenlet==3.5.6
     # via playwright
-grpcio==1.83.0
+grpcio==1.84.0
     # via opentelemetry-exporter-otlp-proto-grpc
-gunicorn==26.0.0
+gunicorn==26.2.0
     # via opencodelists
-hypothesis==6.165.10
+hypothesis==6.168.0
 identify==2.6.19
     # via pre-commit
-idna==3.18
+idna==3.19
     # via
     #   django-anymail
     #   requests
@@ -107,15 +107,15 @@ iniconfig==2.3.0
     # via pytest
 invoke==3.0.3
     # via paramiko
-lxml==6.1.1
+lxml==6.1.3
     # via opencodelists
 markdown2==2.5.5
     # via opencodelists
-nh3==0.3.6
+nh3==0.3.7
     # via opencodelists
 nodeenv==1.10.0
     # via pre-commit
-numpy==2.5.2
+numpy==2.5.3
     # via pandas
 openpyxl==3.1.5
     # via opencodelists
@@ -170,21 +170,20 @@ orderedmultidict==1.0.2
     # via furl
 packaging==26.3
     # via
-    #   gunicorn
     #   opentelemetry-instrumentation
     #   pytest
 pandas==3.0.5
 paramiko==5.0.0
-platformdirs==4.11.3
+platformdirs==4.11.9
     # via virtualenv
-playwright==1.62.0
+playwright==1.63.0
     # via pytest-playwright
 pluggy==1.6.0
     # via
     #   pytest
     #   pytest-cov
 pre-commit==4.6.2
-protobuf==7.35.1
+protobuf==7.36.1
     # via
     #   googleapis-common-protos
     #   opentelemetry-proto
@@ -192,7 +191,7 @@ pycparser==3.0 ; implementation_name != 'PyPy' and platform_python_implementatio
     # via cffi
 pyee==13.0.1
     # via playwright
-pygments==2.20.0
+pygments==2.21.0
     # via pytest
 pynacl==1.6.2
     # via paramiko
@@ -209,7 +208,7 @@ pytest-django==4.14.0
 pytest-playwright==0.9.0
 python-dateutil==2.9.0.post0
     # via pandas
-python-discovery==1.5.2
+python-discovery==1.6.0
     # via virtualenv
 python-ipware==3.0.0
     # via django-ipware
@@ -227,9 +226,9 @@ requests==2.34.2
     #   opentelemetry-exporter-otlp-proto-http
     #   pytest-base-url
     #   responses
-responses==0.26.2
-ruff==0.16.3
-sentry-sdk==2.68.0
+responses==0.26.3
+ruff==0.16.7
+sentry-sdk==2.69.2
     # via opencodelists
 six==1.17.0
     # via
@@ -254,7 +253,7 @@ structlog==26.1.0
     #   opencodelists
 text-unidecode==1.3
     # via python-slugify
-tqdm==4.70.0
+tqdm==4.70.1
     # via opencodelists
 typeguard==2.13.3
     # via slippers
@@ -269,20 +268,20 @@ typing-extensions==4.16.0
     #   opentelemetry-semantic-conventions
     #   pyee
     #   slippers
-tzdata==2026.3 ; sys_platform == 'emscripten' or sys_platform == 'win32'
+tzdata==2026.4 ; sys_platform == 'emscripten' or sys_platform == 'win32'
     # via
     #   django
     #   faker
     #   pandas
-urllib3==2.7.0
+urllib3==2.8.0
     # via
     #   django-anymail
     #   requests
     #   responses
     #   sentry-sdk
-virtualenv==21.7.4
+virtualenv==21.7.10
     # via pre-commit
 whitenoise==6.12.0
     # via opencodelists
-wrapt==2.3.0
+wrapt==2.4.1
     # via opentelemetry-instrumentation

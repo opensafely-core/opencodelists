@@ -168,11 +168,9 @@ lines-after-imports = 2
 [tool.ruff.lint.flake8-tidy-imports.banned-api]
 "opencodelists.settings".msg = "Use 'from django.conf import settings' instead."
 
-# Note: any `exclude-newer-package` timestamps should be removed if > 7 days old.
-# See https://github.com/opensafely-core/opencodelists/blob/main/DEVELOPERS.md for details.
 [tool.uv]
 required-version = ">=0.9"
-exclude-newer = "2026-09-07T00:00:00Z"
+exclude-newer = "7 days"
 exclude-newer-package = {}
 
 [dependency-groups]

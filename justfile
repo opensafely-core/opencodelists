@@ -87,19 +87,26 @@ install-precommit:
     BASE_DIR=$(git rev-parse --show-toplevel)
     test -f $BASE_DIR/.git/hooks/pre-commit || $BIN/pre-commit install
 
+# update readable uv requirements format file
+uvmirror file="requirements.uvmirror":
+    rm -f {{ file }}
+    uv export --format requirements-txt --frozen --no-hashes --all-groups --all-extras > {{ file }}
 
+# Both upgrade recipes upgrade dependencies specified in pyproject.toml to the
+# latest version available, while respecting the cooldown in its exclude-newer,
+# and update both the lockfile and environment.
+# Development and transitive packages are included. Packages in the
+# environment that are not present in the lockfile are not removed.
 # upgrade a single package + its dependencies
 upgrade-package package: && devenv
     uv lock --upgrade-package {{ package }}
 
-
-# Upgrade all dev and prod dependencies to the latest version per
-# pyproject.toml, then update the local venv.
-# This is the default input command to update-dependencies action
-# https://github.com/bennettoxford/update-dependencies-action
-update-dependencies: && devenv
+# upgrade all dependencies
+upgrade-all: && devenv
     uv lock --upgrade
 
+# upgrade lockfile, environment, and uvmirror
+update-dependencies: upgrade-all && uvmirror
 
 # validate uv.lock
 check-lockfile:

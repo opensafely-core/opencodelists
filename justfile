@@ -1,4 +1,5 @@
 set dotenv-load := true
+set positional-arguments := true
 
 # set docker environment to one with mounted database dir if DATABASE_DIR env var is set
 docker_env := if env("DATABASE_DIR", "unset") == "unset" { "dev" } else { "dev-mount-db-dir" }
@@ -58,7 +59,7 @@ check-lockfile:
     uv lock --check
 
 # Run the python tests, excluding the functional tests. Run coverage.
-test-py *ARGS:
+test-py *args:
     uv run manage.py collectstatic --no-input && \
     uv run python -m pytest \
     --cov=builder \
@@ -68,19 +69,19 @@ test-py *ARGS:
     --cov=opencodelists \
     --cov-report html \
     --cov-report term-missing:skip-covered \
-    -m "not functional" {{ ARGS }}
+    -m "not functional" "$@"
 
 # Run the python tests, excluding the functional tests. Don't run coverage.
-test-py-nocov *ARGS:
+test-py-nocov *args:
     uv run manage.py collectstatic --no-input && \
     uv run -m pytest \
-    -m "not functional" {{ ARGS }}
+    -m "not functional" "$@"
 
 # Run the Python functional tests, using Playwright.
-test-functional *ARGS:
+test-functional *args:
     uv run manage.py collectstatic --no-input && \
     uv run -m pytest \
-    -m "functional" {{ ARGS }}
+    -m "functional" "$@"
 
 # Run all the tests
 test: assets-test test-py test-functional
@@ -106,8 +107,8 @@ run:
     uv run manage.py runserver localhost:7000
 
 # Run a Django management command
-manage command *args:
-    uv run manage.py {{command}} {{args}}
+manage *args:
+    uv run manage.py "$@"
 
 # Generate migrations and apply unapplied ones
 migrations:
@@ -129,7 +130,7 @@ assets-install *args:
     # but we negate with || to avoid error exit code
     test package-lock.json -nt node_modules/.written || exit 0
 
-    npm ci --include=dev {{ args }}
+    npm ci --include=dev "$@"
     touch node_modules/.written
 
 # Build the Node.js assets
@@ -266,8 +267,8 @@ docker-check-migrations *args="":
 
 # Run script to update the NHS PCD refsets following a new release
 update-pcd-refsets *args:
-    uv run manage.py runscript update_nhs_refsets --script-args='{{ args }}'
+    uv run manage.py runscript update_nhs_refsets --script-args="$@"
 
 # Run script to update the NHS drug refsets following a new release
 update-drug-refsets *args:
-    uv run manage.py runscript update_nhs_refsets --script-args='--drugs {{ args }}'
+    uv run manage.py runscript update_nhs_refsets --script-args="--drugs $@"

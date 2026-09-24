@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 from requests.exceptions import HTTPError, Timeout
 
@@ -7,6 +9,7 @@ from coding_systems.bnf.fetch_data import (
     get_current_year_bnf_releases_info,
     get_latest_bnf_release_csv_info,
     get_latest_bnf_release_info,
+    release_csv_outdated,
 )
 
 
@@ -102,3 +105,44 @@ def test_get_latest_bnf_release_csv_info_no_files(mock_empty_bnf_data_dir):
     latest_csv_path = get_latest_bnf_release_csv_info(mock_empty_bnf_data_dir)
 
     assert latest_csv_path is None
+
+
+def test_release_csv_outdated_with_current_csv():
+
+    latest_bnf_release_info = BNFReleaseInfo(
+        date="202608",
+        name="BNF_CODE_CURRENT_202608_VERSION_90",
+        url="https://opendata.nhsbsa.net/dataset/29d25de3-02cd-4755-9dee-cdc37e37b5f3/resource/5d9f75a8-415c-45d6-a671-ec64db437468/download/bnf_code_current_202608_version_90.csv",
+        version=90,
+    )
+
+    latest_bnf_release_csv_path = Path("bnf_code_current_202608_version_90.csv")
+
+    assert not release_csv_outdated(
+        latest_bnf_release_info, latest_bnf_release_csv_path
+    )
+
+
+@pytest.mark.parametrize(
+    "csv_path",
+    [
+        pytest.param(
+            Path("bnf_code_current_202607_version_90.csv"),
+            id="older_date",
+        ),
+        pytest.param(
+            Path("bnf_code_current_202608_version_88.csv"),
+            id="older_version",
+        ),
+    ],
+)
+def test_release_csv_outdated_with_outdated_csv(csv_path):
+
+    latest_bnf_release_info = BNFReleaseInfo(
+        date="202608",
+        name="BNF_CODE_CURRENT_202608_VERSION_90",
+        url="https://opendata.nhsbsa.net/dataset/29d25de3-02cd-4755-9dee-cdc37e37b5f3/resource/5d9f75a8-415c-45d6-a671-ec64db437468/download/bnf_code_current_202608_version_90.csv",
+        version=90,
+    )
+
+    assert release_csv_outdated(latest_bnf_release_info, csv_path)

@@ -82,3 +82,15 @@ def get_latest_bnf_release_csv_info(directory: Path):
     )
 
     return latest_csv_path
+
+
+def release_csv_outdated(latest_bnf_release_info, latest_bnf_release_csv_path):
+    """Return whether the latest local BNF release CSV is outdated versus the latest release available from the ODP API."""
+    csv_date, csv_version = get_bnf_release_date_and_version(
+        latest_bnf_release_csv_path.name
+    )
+
+    return not (
+        csv_date == latest_bnf_release_info.date
+        and csv_version == latest_bnf_release_info.version
+    )

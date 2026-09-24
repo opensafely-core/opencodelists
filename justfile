@@ -120,7 +120,7 @@ assets-clean:
     rm -rf staticfiles
 
 # Install the Node.js dependencies
-assets-install *args="":
+assets-install *args:
     #!/usr/bin/env bash
     set -euo pipefail
 
@@ -265,9 +265,9 @@ docker-check-migrations *args="":
     {{ just_executable() }} docker/check-migrations {{ docker_env }} {{ args }}
 
 # Run script to update the NHS PCD refsets following a new release
-update-pcd-refsets *args="":
+update-pcd-refsets *args:
     uv run manage.py runscript update_nhs_refsets --script-args='{{ args }}'
 
 # Run script to update the NHS drug refsets following a new release
-update-drug-refsets *args="":
+update-drug-refsets *args:
     uv run manage.py runscript update_nhs_refsets --script-args='--drugs {{ args }}'

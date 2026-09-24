@@ -21,25 +21,15 @@ clean:
 @_env:
     test -f .env || cp dotenv-sample .env
 
-# Ensure all project dependencies are installed and up-to-date with the
-# lockfile. The project is re-locked before syncing, so any changes to
-# pyproject.toml are reflected in the environment
-# (https://docs.astral.sh/uv/concepts/projects/sync/#locking-and-syncing).  Do
-# not remove extraneous packages (--inexact). This allows developers to have
-# their choice of local developer experience packages installed in the
-# environment by installing them once manually, without this recipe removing
-# them.  (https://docs.astral.sh/uv/reference/cli/#uv-sync--inexact)
+# devenv and prodenv lock and sync so the environment is up-to-date with the
+# lockfile. prodenv removes extra packages from the environment to be more
+# like production. devenv keeps them (--inexact), so that developers can
+# install their choice of tooling.
+
 # Ensure dev dependencies installed and up to date
 @devenv: _env && install-precommit
     uv sync --inexact
 
-# Ensure all project dependencies are installed and up-to-date with
-# the lockfile. The project is re-locked before syncing, so any
-# changes to pyproject.toml are reflected in the environment
-# (https://docs.astral.sh/uv/concepts/projects/sync/#locking-and-syncing).
-# Disable the dev dependency group (--no-dev) and remove any
-# extraneous packages (default uv sync behaviour)
-# (https://docs.astral.sh/uv/reference/cli/#uv-sync)
 # Ensure prod dependencies installed and up to date
 @prodenv:
     uv sync --no-dev

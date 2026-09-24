@@ -4,7 +4,6 @@ export VIRTUAL_ENV  := `echo ${VIRTUAL_ENV:-.venv}`
 
 export BIN := VIRTUAL_ENV + "/bin"
 
-# Load .env files by default
 set dotenv-load := true
 
 # set docker environment to one with mounted database dir if DATABASE_DIR env var is set
@@ -39,9 +38,6 @@ _env:
 
     test -f .env || cp dotenv-sample .env
 
-# && dependencies are run after the recipe has run. Needs just>=0.9.9. This is
-# a killer feature over Makefiles.
-#
 # Ensure dev dependencies installed and up to date
 devenv: _env && install-precommit
     #!/usr/bin/env bash
@@ -90,7 +86,6 @@ update-dependencies: upgrade-all && uvmirror
 check-lockfile:
     uv lock --check
 
-# *ARGS is variadic, 0 or more. This allows us to do `just test -k match`, for example.
 # Run the python tests, excluding the functional tests. Run coverage.
 test-py *ARGS: devenv
     $BIN/python manage.py collectstatic --no-input && \

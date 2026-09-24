@@ -1,9 +1,3 @@
-# just has no idiom for setting a default value for an environment variable
-# so we shell out, as we need VIRTUAL_ENV in the justfile environment
-export VIRTUAL_ENV  := `echo ${VIRTUAL_ENV:-.venv}`
-
-export BIN := VIRTUAL_ENV + "/bin"
-
 set dotenv-load := true
 
 # set docker environment to one with mounted database dir if DATABASE_DIR env var is set
@@ -36,7 +30,7 @@ clean:
 
 # Ensure precommit is installed
 @install-precommit:
-    test -f {{source_directory()}}/.git/hooks/pre-commit || $BIN/pre-commit install
+    test -f {{source_directory()}}/.git/hooks/pre-commit || uv run pre-commit install
 
 # Update readable uv requirements format file
 uvmirror file="requirements.uvmirror":
@@ -64,9 +58,9 @@ check-lockfile:
     uv lock --check
 
 # Run the python tests, excluding the functional tests. Run coverage.
-test-py *ARGS: devenv
-    $BIN/python manage.py collectstatic --no-input && \
-    $BIN/python -m pytest \
+test-py *ARGS:
+    uv run manage.py collectstatic --no-input && \
+    uv run python -m pytest \
     --cov=builder \
     --cov=codelists \
     --cov=coding_systems \
@@ -77,46 +71,46 @@ test-py *ARGS: devenv
     -m "not functional" {{ ARGS }}
 
 # Run the python tests, excluding the functional tests. Don't run coverage.
-test-py-nocov *ARGS: devenv
-    $BIN/python manage.py collectstatic --no-input && \
-    $BIN/python -m pytest \
+test-py-nocov *ARGS:
+    uv run manage.py collectstatic --no-input && \
+    uv run -m pytest \
     -m "not functional" {{ ARGS }}
 
 # Run the Python functional tests, using Playwright.
-test-functional *ARGS: devenv
-    $BIN/python manage.py collectstatic --no-input && \
-    $BIN/python -m pytest \
+test-functional *ARGS:
+    uv run manage.py collectstatic --no-input && \
+    uv run -m pytest \
     -m "functional" {{ ARGS }}
 
 # Run all the tests
 test: assets-test test-py test-functional
 
 # Lint and check formatting but don't modify anything
-check *args: check-lockfile devenv
-    $BIN/ruff format --diff --quiet .
-    $BIN/ruff check --output-format=full .
-    $BIN/djhtml --tabwidth 2 --check templates/
+check *args: check-lockfile
+    uv run ruff format --diff --quiet .
+    uv run ruff check --output-format=full .
+    uv run djhtml --tabwidth 2 --check templates/
 
 # Fix the things we can automate: linting, formatting, import sorting
-fix: devenv
-    $BIN/ruff check --fix .
-    $BIN/ruff format .
-    $BIN/djhtml --tabwidth 2 templates/
+fix:
+    uv run ruff check --fix .
+    uv run ruff format .
+    uv run djhtml --tabwidth 2 templates/
 
 # Setup/update local dev environment
-dev-setup: devenv assets
-    $BIN/python manage.py migrate
+dev-setup: assets
+    uv run manage.py migrate
 
 # Run the dev project
-run: devenv
-    $BIN/python manage.py runserver localhost:7000
+run:
+    uv run manage.py runserver localhost:7000
 
 # Run a Django management command
-manage command *args: devenv
-    $BIN/python manage.py {{command}} {{args}}
+manage command *args:
+    uv run manage.py {{command}} {{args}}
 
 # Generate migrations and apply unapplied ones
-migrations: devenv
+migrations:
     just manage makemigrations
     just manage migrate
 
@@ -157,8 +151,8 @@ assets-build:
     touch assets/dist/.written
 
 # Ensure django's collectstatic is run if needed
-collectstatic: devenv
-    ./scripts/collect-me-maybe.sh $BIN/python
+collectstatic:
+    uv run ./scripts/collect-me-maybe.sh
 
 # Install npm toolchain, build assets, and then collect assets
 assets: assets-install assets-build collectstatic
@@ -217,7 +211,7 @@ build-dbs-for-local-development nuclear="":
         # - Remove old coding system release dbs (with confirmation)
         # - Create and migrate new coding system release dbs
         # - Load test data into coding system release dbs
-        $BIN/python manage.py setup_local_dev_databases
+        uv run manage.py setup_local_dev_databases
     else
         echo "Skipping creation of a new empty core db.sqlite3. Run with 'nuclear' parameter to enable."
     fi
@@ -272,8 +266,8 @@ docker-check-migrations *args="":
 
 # Run script to update the NHS PCD refsets following a new release
 update-pcd-refsets *args="":
-    $BIN/python manage.py runscript update_nhs_refsets --script-args='{{ args }}'
+    uv run manage.py runscript update_nhs_refsets --script-args='{{ args }}'
 
 # Run script to update the NHS drug refsets following a new release
 update-drug-refsets *args="":
-    $BIN/python manage.py runscript update_nhs_refsets --script-args='--drugs {{ args }}'
+    uv run manage.py runscript update_nhs_refsets --script-args='--drugs {{ args }}'

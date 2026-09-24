@@ -21,11 +21,11 @@ clean:
 # like production. devenv keeps them (--inexact), so that developers can
 # install their choice of tooling.
 
-# Ensure dev dependencies installed and up to date
+# Install and sync development dependencies
 @devenv: _env && install-precommit
     uv sync --inexact
 
-# Ensure prod dependencies installed and up to date
+# Install and sync production dependencies
 @prodenv:
     uv sync --no-dev
 
@@ -58,7 +58,7 @@ update-dependencies: upgrade-all && uvmirror
 check-lockfile:
     uv lock --check
 
-# Run the python tests, excluding the functional tests. Run coverage.
+# Run non-functional Python tests, coverage
 test-py *args:
     uv run manage.py collectstatic --no-input && \
     uv run python -m pytest \
@@ -71,7 +71,7 @@ test-py *args:
     --cov-report term-missing:skip-covered \
     -m "not functional" "$@"
 
-# Run the python tests, excluding the functional tests. Don't run coverage.
+# Run nonfunctional Python tests, no coverage
 test-py-nocov *args:
     uv run manage.py collectstatic --no-input && \
     uv run -m pytest \
@@ -86,13 +86,13 @@ test-functional *args:
 # Run all the tests
 test: assets-test test-py test-functional
 
-# Lint and check formatting but don't modify anything
+# Lint, check formatting, no change
 check *args: check-lockfile
     uv run ruff format --diff --quiet .
     uv run ruff check --output-format=full .
     uv run djhtml --tabwidth 2 --check templates/
 
-# Fix the things we can automate: linting, formatting, import sorting
+# Fix linting, formatting, import sorting
 fix:
     uv run ruff check --fix .
     uv run ruff format .
@@ -110,12 +110,12 @@ run:
 manage *args:
     uv run manage.py "$@"
 
-# Generate migrations and apply unapplied ones
+# Make migrations and apply as needed
 migrations:
     just manage makemigrations
     just manage migrate
 
-# Remove built assets and collected static files
+# Remove built/collected  assets/static files
 assets-clean:
     rm -rf assets/dist
     rm -rf staticfiles
@@ -151,11 +151,11 @@ assets-build:
     npm run build
     touch assets/dist/.written
 
-# Ensure django's collectstatic is run if needed
+# Run django's collectstatic if needed
 collectstatic:
     uv run ./scripts/collect-me-maybe.sh
 
-# Install npm toolchain, build assets, and then collect assets
+# Install npm, build and collect assets
 assets: assets-install assets-build collectstatic
 
 # Rebuild all npm/static assets
@@ -183,7 +183,7 @@ assets-test: assets-install
     npm run lint
     npm run test:coverage
 
-# Build a lightweight local development setup using test fixture data.
+# Build dev setup with test fixture data
 build-dbs-for-local-development nuclear="":
     #!/usr/bin/env bash
     set -euo pipefail
@@ -229,7 +229,7 @@ docker-check-js: _env
 docker-check-py: _env
     {{ just_executable() }} docker/check-py {{ docker_env }}
 
-# Run python non-functional tests in docker container
+# Run Python non-functional tests, docker
 docker-test-py *args="": _env
     {{ just_executable() }} docker/test-py {{ args }}
 
@@ -253,22 +253,24 @@ docker-serve env="dev" *args="": _env
 docker-run *args="bash": _env
     {{ just_executable() }} docker/run {{ docker_env }} {{ args }}
 
-# Exec command in an existing dev docker container
+# Exec command dev docker container
 docker-exec *args="bash": _env
     {{ just_executable() }} docker/exec {{ docker_env }} {{ args }}
 
-# Run tests in docker container
+# Run docker smoke test
 docker-smoke-test host="http://localhost:7000" env="prod": _env
     {{ just_executable() }} docker/smoke-test {{ host }} {{env}}
 
-# Check migrations in the dev docker container
+# Check migrations in docker container
 docker-check-migrations *args="":
     {{ just_executable() }} docker/check-migrations {{ docker_env }} {{ args }}
 
-# Run script to update the NHS PCD refsets following a new release
+# The external data source update recipes should be run after a new release.
+
+# Update NHS PCD refsets
 update-pcd-refsets *args:
     uv run manage.py runscript update_nhs_refsets --script-args="$@"
 
-# Run script to update the NHS drug refsets following a new release
+# Update NHS drug refsets
 update-drug-refsets *args:
     uv run manage.py runscript update_nhs_refsets --script-args="--drugs $@"

@@ -1,7 +1,7 @@
 set dotenv-load := true
 set positional-arguments := true
 
-# set docker environment to one with mounted database dir if DATABASE_DIR env var is set
+# set Docker environment to one with mounted database dir if DATABASE_DIR env var is set
 docker_env := if env("DATABASE_DIR", "unset") == "unset" { "dev" } else { "dev-mount-db-dir" }
 
 # List available commands
@@ -217,51 +217,51 @@ build-dbs-for-local-development nuclear="":
         echo "Skipping creation of a new empty core db.sqlite3. Run with 'nuclear' parameter to enable."
     fi
 
-# Build docker image env=dev|prod
+# Build Docker image env=dev|prod
 docker-build env="dev": _env
     {{ just_executable() }} docker/build {{ env }}
 
-# Run js checks in docker container
+# Run JavaScript checks in Docker container
 docker-check-js: _env
     {{ just_executable() }} docker/check-js
 
-# Run js checks in docker container
+# Run Python checks in Docker container
 docker-check-py: _env
     {{ just_executable() }} docker/check-py {{ docker_env }}
 
-# Run Python non-functional tests, docker
+# Run Python non-functional tests, Docker
 docker-test-py *args="": _env
     {{ just_executable() }} docker/test-py {{ args }}
 
-# Run functional tests in docker container
+# Run functional tests in Docker container
 docker-test-functional *args="": _env
     {{ just_executable() }} docker/test-functional {{ args }}
 
-# Run js tests in docker container
+# Run JavaScript tests in Docker container
 docker-test-js: _env
     {{ just_executable() }} docker/test-js
 
-# Run tests in docker container
+# Run tests in Docker container
 docker-test: _env
     {{ just_executable() }} docker/test
 
-# Run dev server in docker container
+# Run dev server in Docker container
 docker-serve env="dev" *args="": _env
     {{ just_executable() }} docker/serve {{ if env == "dev" { docker_env } else { env } }} {{ args }}
 
-# Run cmd in dev docker continer
+# Run cmd in dev Docker continer
 docker-run *args="bash": _env
     {{ just_executable() }} docker/run {{ docker_env }} {{ args }}
 
-# Exec command dev docker container
+# Exec command dev Docker container
 docker-exec *args="bash": _env
     {{ just_executable() }} docker/exec {{ docker_env }} {{ args }}
 
-# Run docker smoke test
+# Run Docker smoke test
 docker-smoke-test host="http://localhost:7000" env="prod": _env
     {{ just_executable() }} docker/smoke-test {{ host }} {{env}}
 
-# Check migrations in docker container
+# Check migrations in Docker container
 docker-check-migrations *args="":
     {{ just_executable() }} docker/check-migrations {{ docker_env }} {{ args }}
 

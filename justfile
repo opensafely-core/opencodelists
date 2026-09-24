@@ -17,47 +17,35 @@ default:
 clean:
     rm -rf .venv
 
+# Ensure all project dependencies are installed and up-to-date with
+# the lockfile. The project is re-locked before syncing, so any
+# changes to pyproject.toml are reflected in the environment
+# (https://docs.astral.sh/uv/concepts/projects/sync/#locking-and-syncing).
+# Disable the dev dependency group (--no-dev) and remove any
+# extraneous packages (default uv sync behaviour)
+# (https://docs.astral.sh/uv/reference/cli/#uv-sync)
 # Ensure prod dependencies installed and up to date
-prodenv:
-    #!/usr/bin/env bash
-    set -euo pipefail
-
-    # Ensure all project dependencies are installed and up-to-date with
-    # the lockfile. The project is re-locked before syncing, so any
-    # changes to pyproject.toml are reflected in the environment
-    # (https://docs.astral.sh/uv/concepts/projects/sync/#locking-and-syncing).
-    # Disable the dev dependency group (--no-dev) and remove any
-    # extraneous packages (default uv sync behaviour)
-    # (https://docs.astral.sh/uv/reference/cli/#uv-sync)
+@prodenv:
     uv sync --no-dev
 
 # Create the .env if it does not exist
-_env:
-    #!/usr/bin/env bash
-    set -euo pipefail
-
+@_env:
     test -f .env || cp dotenv-sample .env
 
+# Ensure all project dependencies are installed and up-to-date with the
+# lockfile. The project is re-locked before syncing, so any changes to
+# pyproject.toml are reflected in the environment
+# (https://docs.astral.sh/uv/concepts/projects/sync/#locking-and-syncing).  Do
+# not remove extraneous packages (--inexact). This allows developers to have
+# their choice of local developer experience packages installed in the
+# environment by installing them once manually, without this recipe removing
+# them.  (https://docs.astral.sh/uv/reference/cli/#uv-sync--inexact)
 # Ensure dev dependencies installed and up to date
-devenv: _env && install-precommit
-    #!/usr/bin/env bash
-    set -euo pipefail
-
-    # Ensure all project dependencies are installed and up-to-date with
-    # the lockfile. The project is re-locked before syncing, so any
-    # changes to pyproject.toml are reflected in the environment
-    # (https://docs.astral.sh/uv/concepts/projects/sync/#locking-and-syncing).
-    # Do not remove extraneous packages (--inexact). This allows developers to
-    # have their choice of local developer experience packages installed in the
-    # environment by installing them once manually, without this recipe removing them.
-    # (https://docs.astral.sh/uv/reference/cli/#uv-sync--inexact)
+@devenv: _env && install-precommit
     uv sync --inexact
 
 # Ensure precommit is installed
-install-precommit:
-    #!/usr/bin/env bash
-    set -euo pipefail
-
+@install-precommit:
     test -f {{source_directory()}}/.git/hooks/pre-commit || $BIN/pre-commit install
 
 # Update readable uv requirements format file

@@ -10,17 +10,15 @@ set dotenv-load := true
 # set docker environment to one with mounted database dir if DATABASE_DIR env var is set
 docker_env := if env("DATABASE_DIR", "unset") == "unset" { "dev" } else { "dev-mount-db-dir" }
 
-# list available commands
+# List available commands
 default:
     @{{ just_executable() }} --list
 
-
-# clean up temporary files
+# Clean up temporary files
 clean:
     rm -rf .venv
 
-
-# ensure prod dependencies installed and up to date
+# Ensure prod dependencies installed and up to date
 prodenv:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -34,18 +32,17 @@ prodenv:
     # (https://docs.astral.sh/uv/reference/cli/#uv-sync)
     uv sync --no-dev
 
-
+# Create the .env if it does not exist
 _env:
     #!/usr/bin/env bash
     set -euo pipefail
 
     test -f .env || cp dotenv-sample .env
 
-
 # && dependencies are run after the recipe has run. Needs just>=0.9.9. This is
 # a killer feature over Makefiles.
 #
-# ensure dev dependencies installed and up to date
+# Ensure dev dependencies installed and up to date
 devenv: _env && install-precommit
     #!/usr/bin/env bash
     set -euo pipefail
@@ -60,8 +57,7 @@ devenv: _env && install-precommit
     # (https://docs.astral.sh/uv/reference/cli/#uv-sync--inexact)
     uv sync --inexact
 
-
-# ensure precommit is installed
+# Ensure precommit is installed
 install-precommit:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -69,7 +65,7 @@ install-precommit:
     BASE_DIR=$(git rev-parse --show-toplevel)
     test -f $BASE_DIR/.git/hooks/pre-commit || $BIN/pre-commit install
 
-# update readable uv requirements format file
+# Update readable uv requirements format file
 uvmirror file="requirements.uvmirror":
     rm -f {{ file }}
     uv export --format requirements-txt --frozen --no-hashes --all-groups --all-extras > {{ file }}
@@ -79,21 +75,20 @@ uvmirror file="requirements.uvmirror":
 # and update both the lockfile and environment.
 # Development and transitive packages are included. Packages in the
 # environment that are not present in the lockfile are not removed.
-# upgrade a single package + its dependencies
+# Upgrade a single package + its dependencies
 upgrade-package package: && devenv
     uv lock --upgrade-package {{ package }}
 
-# upgrade all dependencies
+# Upgrade all dependencies
 upgrade-all: && devenv
     uv lock --upgrade
 
-# upgrade lockfile, environment, and uvmirror
+# Upgrade lockfile, environment, and uvmirror
 update-dependencies: upgrade-all && uvmirror
 
-# validate uv.lock
+# Validate uv.lock
 check-lockfile:
     uv lock --check
-
 
 # *ARGS is variadic, 0 or more. This allows us to do `just test -k match`, for example.
 # Run the python tests, excluding the functional tests. Run coverage.
@@ -124,22 +119,21 @@ test-functional *ARGS: devenv
 # Run all the tests
 test: assets-test test-py test-functional
 
-# lint and check formatting but don't modify anything
+# Lint and check formatting but don't modify anything
 check *args: check-lockfile devenv
     $BIN/ruff format --diff --quiet .
     $BIN/ruff check --output-format=full .
     $BIN/djhtml --tabwidth 2 --check templates/
 
-# fix the things we can automate: linting, formatting, import sorting
+# Fix the things we can automate: linting, formatting, import sorting
 fix: devenv
     $BIN/ruff check --fix .
     $BIN/ruff format .
     $BIN/djhtml --tabwidth 2 templates/
 
-# setup/update local dev environment
+# Setup/update local dev environment
 dev-setup: devenv assets
     $BIN/python manage.py migrate
-
 
 # Run the dev project
 run: devenv
@@ -159,7 +153,6 @@ assets-clean:
     rm -rf assets/dist
     rm -rf staticfiles
 
-
 # Install the Node.js dependencies
 assets-install *args="":
     #!/usr/bin/env bash
@@ -172,7 +165,6 @@ assets-install *args="":
 
     npm ci --include=dev {{ args }}
     touch node_modules/.written
-
 
 # Build the Node.js assets
 assets-build:
@@ -192,20 +184,17 @@ assets-build:
     npm run build
     touch assets/dist/.written
 
-
 # Ensure django's collectstatic is run if needed
 collectstatic: devenv
     ./scripts/collect-me-maybe.sh $BIN/python
 
-
-# install npm toolchain, build assets, and then collect assets
+# Install npm toolchain, build assets, and then collect assets
 assets: assets-install assets-build collectstatic
 
-
-# rebuild all npm/static assets
+# Rebuild all npm/static assets
 assets-rebuild: assets-clean assets
 
-
+# Run dev assets server
 assets-run: assets-install
     #!/usr/bin/env bash
     set -euo pipefail
@@ -217,16 +206,15 @@ assets-run: assets-install
 
     npm run dev
 
-
+# Run NPM typecheck and lint
 assets-lint: assets-install
     npm run typecheck
     npm run lint
 
-
+# Run NPM lint and tests
 assets-test: assets-install
     npm run lint
     npm run test:coverage
-
 
 # Build a lightweight local development setup using test fixture data.
 build-dbs-for-local-development nuclear="":
@@ -262,62 +250,51 @@ build-dbs-for-local-development nuclear="":
         echo "Skipping creation of a new empty core db.sqlite3. Run with 'nuclear' parameter to enable."
     fi
 
-
-
-# build docker image env=dev|prod
+# Build docker image env=dev|prod
 docker-build env="dev": _env
     {{ just_executable() }} docker/build {{ env }}
 
-
-# run js checks in docker container
+# Run js checks in docker container
 docker-check-js: _env
     {{ just_executable() }} docker/check-js
 
-
-# run js checks in docker container
+# Run js checks in docker container
 docker-check-py: _env
     {{ just_executable() }} docker/check-py {{ docker_env }}
 
-
-# run python non-functional tests in docker container
+# Run python non-functional tests in docker container
 docker-test-py *args="": _env
     {{ just_executable() }} docker/test-py {{ args }}
 
-# run functional tests in docker container
+# Run functional tests in docker container
 docker-test-functional *args="": _env
     {{ just_executable() }} docker/test-functional {{ args }}
 
-# run js tests in docker container
+# Run js tests in docker container
 docker-test-js: _env
     {{ just_executable() }} docker/test-js
 
-
-# run tests in docker container
+# Run tests in docker container
 docker-test: _env
     {{ just_executable() }} docker/test
 
-
-# run dev server in docker container
+# Run dev server in docker container
 docker-serve env="dev" *args="": _env
     {{ just_executable() }} docker/serve {{ if env == "dev" { docker_env } else { env } }} {{ args }}
 
-
-# run cmd in dev docker continer
+# Run cmd in dev docker continer
 docker-run *args="bash": _env
     {{ just_executable() }} docker/run {{ docker_env }} {{ args }}
 
-
-# exec command in an existing dev docker container
+# Exec command in an existing dev docker container
 docker-exec *args="bash": _env
     {{ just_executable() }} docker/exec {{ docker_env }} {{ args }}
 
-
-# run tests in docker container
+# Run tests in docker container
 docker-smoke-test host="http://localhost:7000" env="prod": _env
     {{ just_executable() }} docker/smoke-test {{ host }} {{env}}
 
-
-# check migrations in the dev docker container
+# Check migrations in the dev docker container
 docker-check-migrations *args="":
     {{ just_executable() }} docker/check-migrations {{ docker_env }} {{ args }}
 

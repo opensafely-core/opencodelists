@@ -126,8 +126,8 @@ assets-install *args:
     set -euo pipefail
 
 
-    # exit if lock file has not changed since we installed them. -nt == "newer than",
-    # but we negate with || to avoid error exit code
+    # Exit if lock file has not changed since we installed them. -nt == "newer than",
+    # but we negate with || to avoid error exit code.
     test package-lock.json -nt node_modules/.written || exit 0
 
     npm ci --include=dev "$@"
@@ -139,11 +139,10 @@ assets-build:
     set -euo pipefail
 
 
-    # find files which are newer than dist/.written in the src directory. grep
+    # Find files which are newer than dist/.written in the src directory. grep
     # will exit with 1 if there are no files in the result.  We negate this
-    # with || to avoid error exit code
-    # we wrap the find in an if in case dist/.written is missing so we don't
-    # trigger a failure prematurely
+    # with || to avoid error exit code.  We wrap the find in an if in case
+    # dist/.written is missing so we don't trigger a failure prematurely.
     if test -f assets/dist/.written; then
         find assets/src -type f -newer assets/dist/.written | grep -q . || exit 0
     fi

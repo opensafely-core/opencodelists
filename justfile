@@ -20,24 +20,6 @@ clean:
     rm -rf .venv
 
 
-# ensure valid virtualenv
-virtualenv:
-    #!/usr/bin/env bash
-    set -euo pipefail
-
-    # allow users to specify python version in .env
-    PYTHON_VERSION=${PYTHON_VERSION:-python3.12}
-
-    # Error if venv does not contain the version of Python we expect
-    if test -d $VIRTUAL_ENV; then
-        test -e $BIN/$PYTHON_VERSION || \
-        { echo "Did not find $PYTHON_VERSION in $VIRTUAL_ENV (try deleting the virtualenv (just clean) and letting it re-build)"; exit 1; }
-    fi
-
-    # create venv
-    test -d $VIRTUAL_ENV || uv venv $VIRTUAL_ENV
-
-
 # ensure prod dependencies installed and up to date
 prodenv:
     #!/usr/bin/env bash

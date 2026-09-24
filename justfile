@@ -58,8 +58,7 @@ install-precommit:
     #!/usr/bin/env bash
     set -euo pipefail
 
-    BASE_DIR=$(git rev-parse --show-toplevel)
-    test -f $BASE_DIR/.git/hooks/pre-commit || $BIN/pre-commit install
+    test -f {{source_directory()}}/.git/hooks/pre-commit || $BIN/pre-commit install
 
 # Update readable uv requirements format file
 uvmirror file="requirements.uvmirror":

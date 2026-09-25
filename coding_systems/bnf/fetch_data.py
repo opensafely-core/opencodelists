@@ -94,3 +94,33 @@ def release_csv_outdated(latest_bnf_release_info, latest_bnf_release_csv_path):
         csv_date == latest_bnf_release_info.date
         and csv_version == latest_bnf_release_info.version
     )
+
+
+def download_latest_bnf_release(latest_bnf_release, download_directory: Path):
+    """
+    Download the latest BNF coding system release CSV from the NHSBSA ODP API.
+
+    Returns the Path of the downloaded CSV file.
+    """
+    filename = (
+        f"bnf_code_current_{latest_bnf_release.date}"
+        f"_version_{latest_bnf_release.version}.csv"
+    )
+    download_path = download_directory / filename
+
+    try:
+        with requests.get(
+            latest_bnf_release.url,
+            stream=True,
+            timeout=10,
+        ) as response:
+            response.raise_for_status()
+
+            with download_path.open("wb") as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    f.write(chunk)
+    except RequestException as e:
+        e.add_note("Failed to download the latest BNF release CSV from ODP")
+        raise
+
+    return download_path

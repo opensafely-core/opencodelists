@@ -1,10 +1,12 @@
 from pathlib import Path
 
 import pytest
+import responses
 from requests.exceptions import HTTPError, Timeout
 
 from coding_systems.bnf.fetch_data import (
     BNFReleaseInfo,
+    download_latest_bnf_release,
     get_bnf_release_date_and_version,
     get_current_year_bnf_releases_info,
     get_latest_bnf_release_csv_info,
@@ -146,3 +148,35 @@ def test_release_csv_outdated_with_outdated_csv(csv_path):
     )
 
     assert release_csv_outdated(latest_bnf_release_info, csv_path)
+
+
+@responses.activate
+def test_download_latest_bnf_release_success(mock_bnf_data_dir):
+    latest_bnf_release_info = BNFReleaseInfo(
+        date="202609",
+        name="BNF_CODE_CURRENT_202609_VERSION_90",
+        url="https://example.com/download/bnf_code_current_202609_version_90.csv",
+        version=90,
+    )
+
+    csv_file = """\
+        BNF_CHAPTER,BNF_CHAPTER_CODE
+        "Gastro-Intestinal System",01
+        "Cardiovascular System",02
+    """
+
+    responses.get(
+        latest_bnf_release_info.url,
+        body=csv_file.encode("utf-8"),
+        status=200,
+    )
+
+    downloaded_path = download_latest_bnf_release(
+        latest_bnf_release_info,
+        mock_bnf_data_dir,
+    )
+
+    assert downloaded_path == (
+        mock_bnf_data_dir / "bnf_code_current_202609_version_90.csv"
+    )
+    assert downloaded_path.read_text() == csv_file

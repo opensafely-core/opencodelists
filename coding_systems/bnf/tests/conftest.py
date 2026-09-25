@@ -25,6 +25,7 @@ def mocked_odp_response():
             ]
         }
     }
+
     return mock_odp_response
 
 

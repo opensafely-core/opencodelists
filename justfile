@@ -1,155 +1,67 @@
-# just has no idiom for setting a default value for an environment variable
-# so we shell out, as we need VIRTUAL_ENV in the justfile environment
-export VIRTUAL_ENV  := `echo ${VIRTUAL_ENV:-.venv}`
-
-export BIN := VIRTUAL_ENV + "/bin"
-
-# Load .env files by default
 set dotenv-load := true
+set positional-arguments := true
 
-# set docker environment to one with mounted database dir if DATABASE_DIR env var is set
+# set Docker environment to one with mounted database dir if DATABASE_DIR env var is set
 docker_env := if env("DATABASE_DIR", "unset") == "unset" { "dev" } else { "dev-mount-db-dir" }
 
-# list available commands
+# List available commands
 default:
     @{{ just_executable() }} --list
 
-
-# clean up temporary files
+# Clean up temporary files
 clean:
     rm -rf .venv
 
-
-# ensure valid virtualenv
-virtualenv:
-    #!/usr/bin/env bash
-    set -euo pipefail
-
-    # allow users to specify python version in .env
-    PYTHON_VERSION=${PYTHON_VERSION:-python3.12}
-
-    # Error if venv does not contain the version of Python we expect
-    if test -d $VIRTUAL_ENV; then
-        test -e $BIN/$PYTHON_VERSION || \
-        { echo "Did not find $PYTHON_VERSION in $VIRTUAL_ENV (try deleting the virtualenv (just clean) and letting it re-build)"; exit 1; }
-    fi
-
-    # create venv
-    test -d $VIRTUAL_ENV || uv venv $VIRTUAL_ENV
-
-
-# ensure prod dependencies installed and up to date
-prodenv:
-    #!/usr/bin/env bash
-    set -euo pipefail
-
-    # Ensure all project dependencies are installed and up-to-date with
-    # the lockfile. The project is re-locked before syncing, so any
-    # changes to pyproject.toml are reflected in the environment
-    # (https://docs.astral.sh/uv/concepts/projects/sync/#locking-and-syncing).
-    # Disable the dev dependency group (--no-dev) and remove any
-    # extraneous packages (default uv sync behaviour)
-    # (https://docs.astral.sh/uv/reference/cli/#uv-sync)
-    uv sync --no-dev
-
-
-_env:
-    #!/usr/bin/env bash
-    set -euo pipefail
-
+# Create the .env if it does not exist
+@_env:
     test -f .env || cp dotenv-sample .env
 
+# devenv and prodenv lock and sync so the environment is up-to-date with the
+# lockfile. prodenv removes extra packages from the environment to be more
+# like production. devenv keeps them (--inexact), so that developers can
+# install their choice of tooling.
 
-# && dependencies are run after the recipe has run. Needs just>=0.9.9. This is
-# a killer feature over Makefiles.
-#
-# ensure dev dependencies installed and up to date
-devenv: _env && install-precommit
-    #!/usr/bin/env bash
-    set -euo pipefail
-
-    # Ensure all project dependencies are installed and up-to-date with
-    # the lockfile. The project is re-locked before syncing, so any
-    # changes to pyproject.toml are reflected in the environment
-    # (https://docs.astral.sh/uv/concepts/projects/sync/#locking-and-syncing).
-    # Do not remove extraneous packages (--inexact)
-    # (https://docs.astral.sh/uv/reference/cli/#uv-sync--inexact)
+# Install and sync development dependencies
+@devenv: _env && install-precommit
     uv sync --inexact
 
+# Install and sync production dependencies
+@prodenv:
+    uv sync --no-dev
 
-# ensure precommit is installed
-install-precommit:
-    #!/usr/bin/env bash
-    set -euo pipefail
+# Ensure precommit is installed
+@install-precommit:
+    test -f {{source_directory()}}/.git/hooks/pre-commit || uv run pre-commit install
 
-    BASE_DIR=$(git rev-parse --show-toplevel)
-    test -f $BASE_DIR/.git/hooks/pre-commit || $BIN/pre-commit install
+# Update readable uv requirements format file
+uvmirror file="requirements.uvmirror":
+    rm -f {{ file }}
+    uv export --format requirements-txt --frozen --no-hashes --all-groups --all-extras > {{ file }}
 
-
-# Upgrade a single package to the latest version per pyproject.toml
+# Both upgrade recipes upgrade dependencies specified in pyproject.toml to the
+# latest version available, while respecting the cooldown in its exclude-newer,
+# and update both the lockfile and environment.
+# Development and transitive packages are included. Packages in the
+# environment that are not present in the lockfile are not removed.
+# Upgrade a single package + its dependencies
 upgrade-package package: && devenv
-    #!/usr/bin/env bash
-    set -euo pipefail
-
     uv lock --upgrade-package {{ package }}
 
-
-# Move the cutoff date in pyproject.toml to N days ago (default: 7) at midnight UTC
-bump-uv-cutoff days="7":
-    #!/usr/bin/env -S uvx --with tomlkit python3.13
-    # Note we specify the python version here and we don't care if it's different to
-    # the .python-version; we need 3.11+ for the datetime code used.
-
-    import datetime
-    import tomlkit
-
-    with open("pyproject.toml", "rb") as f:
-        content = tomlkit.load(f)
-
-    new_datetime = (
-        datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=int("{{ days }}"))
-    ).replace(hour=0, minute=0, second=0, microsecond=0)
-    new_timestamp = new_datetime.strftime("%Y-%m-%dT%H:%M:%SZ")
-    if existing_timestamp := content["tool"]["uv"].get("exclude-newer"):
-        if new_datetime < datetime.datetime.fromisoformat(existing_timestamp):
-            print(
-                f"Existing cutoff {existing_timestamp} is more recent than {new_timestamp}, not updating."
-            )
-            exit(0)
-    content["tool"]["uv"]["exclude-newer"] = new_timestamp
-
-    with open("pyproject.toml", "w") as f:
-        tomlkit.dump(content, f)
-
-
-# Bump the timestamp cutoff to midnight UTC 7 days ago and upgrade all
-# dev and prod dependencies to the latest version per pyproject.toml,
-# then update the local venv.
-# This is the default input command to update-dependencies action
-# https://github.com/bennettoxford/update-dependencies-action
-update-dependencies: bump-uv-cutoff && devenv
+# Upgrade all dependencies
+upgrade-all: && devenv
     uv lock --upgrade
 
+# Upgrade lockfile, environment, and uvmirror
+update-dependencies: upgrade-all && uvmirror
 
-# validate uv.lock
+# Validate uv.lock
 check-lockfile:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    # Make sure dates in pyproject.toml and uv.lock are in sync
-    unset UV_EXCLUDE_NEWER
-    rc=0
-    uv lock --check || rc=$?
-    if test "$rc" != "0" ; then
-        echo "Timestamp cutoffs in uv.lock must match those in pyproject.toml. See DEVELOPERS.md for details and hints." >&2
-        exit $rc
-    fi
+    uv lock --check
 
-
-# *ARGS is variadic, 0 or more. This allows us to do `just test -k match`, for example.
-# Run the python tests, excluding the functional tests. Run coverage.
-test-py *ARGS: devenv
-    $BIN/python manage.py collectstatic --no-input && \
-    $BIN/python -m pytest \
+# Run non-functional Python tests, coverage
+test-py *args:
+    uv run manage.py collectstatic --no-input && \
+    uv run python -m pytest \
     --cov=builder \
     --cov=codelists \
     --cov=coding_systems \
@@ -157,72 +69,69 @@ test-py *ARGS: devenv
     --cov=opencodelists \
     --cov-report html \
     --cov-report term-missing:skip-covered \
-    -m "not functional" {{ ARGS }}
+    -m "not functional" "$@"
 
-# Run the python tests, excluding the functional tests. Don't run coverage.
-test-py-nocov *ARGS: devenv
-    $BIN/python manage.py collectstatic --no-input && \
-    $BIN/python -m pytest \
-    -m "not functional" {{ ARGS }}
+# Run nonfunctional Python tests, no coverage
+test-py-nocov *args:
+    uv run manage.py collectstatic --no-input && \
+    uv run -m pytest \
+    -m "not functional" "$@"
 
 # Run the Python functional tests, using Playwright.
-test-functional *ARGS: devenv
-    $BIN/python manage.py collectstatic --no-input && \
-    $BIN/python -m pytest \
-    -m "functional" {{ ARGS }}
+test-functional *args:
+    uv run manage.py collectstatic --no-input && \
+    uv run -m pytest \
+    -m "functional" "$@"
 
 # Run all the tests
 test: assets-test test-py test-functional
 
-# lint and check formatting but don't modify anything
-check *args: check-lockfile devenv
-    $BIN/ruff format --diff --quiet .
-    $BIN/ruff check --output-format=full .
-    $BIN/djhtml --tabwidth 2 --check templates/
+# Lint, check formatting, no change
+check *args: check-lockfile
+    uv run ruff format --diff --quiet .
+    uv run ruff check --output-format=full .
+    uv run djhtml --tabwidth 2 --check templates/
 
-# fix the things we can automate: linting, formatting, import sorting
-fix: devenv
-    $BIN/ruff check --fix .
-    $BIN/ruff format .
-    $BIN/djhtml --tabwidth 2 templates/
+# Fix linting, formatting, import sorting
+fix:
+    uv run ruff check --fix .
+    uv run ruff format .
+    uv run djhtml --tabwidth 2 templates/
 
-# setup/update local dev environment
-dev-setup: devenv assets
-    $BIN/python manage.py migrate
-
+# Setup/update local dev environment
+dev-setup: assets
+    uv run manage.py migrate
 
 # Run the dev project
-run: devenv
-    $BIN/python manage.py runserver localhost:7000
+run:
+    uv run manage.py runserver localhost:7000
 
 # Run a Django management command
-manage command *args: devenv
-    $BIN/python manage.py {{command}} {{args}}
+manage *args:
+    uv run manage.py "$@"
 
-# Generate migrations and apply unapplied ones
-migrations: devenv
+# Make migrations and apply as needed
+migrations:
     just manage makemigrations
     just manage migrate
 
-# Remove built assets and collected static files
+# Remove built/collected  assets/static files
 assets-clean:
     rm -rf assets/dist
     rm -rf staticfiles
 
-
 # Install the Node.js dependencies
-assets-install *args="":
+assets-install *args:
     #!/usr/bin/env bash
     set -euo pipefail
 
 
-    # exit if lock file has not changed since we installed them. -nt == "newer than",
-    # but we negate with || to avoid error exit code
+    # Exit if lock file has not changed since we installed them. -nt == "newer than",
+    # but we negate with || to avoid error exit code.
     test package-lock.json -nt node_modules/.written || exit 0
 
-    npm ci --include=dev {{ args }}
+    npm ci --include=dev "$@"
     touch node_modules/.written
-
 
 # Build the Node.js assets
 assets-build:
@@ -230,11 +139,10 @@ assets-build:
     set -euo pipefail
 
 
-    # find files which are newer than dist/.written in the src directory. grep
+    # Find files which are newer than dist/.written in the src directory. grep
     # will exit with 1 if there are no files in the result.  We negate this
-    # with || to avoid error exit code
-    # we wrap the find in an if in case dist/.written is missing so we don't
-    # trigger a failure prematurely
+    # with || to avoid error exit code.  We wrap the find in an if in case
+    # dist/.written is missing so we don't trigger a failure prematurely.
     if test -f assets/dist/.written; then
         find assets/src -type f -newer assets/dist/.written | grep -q . || exit 0
     fi
@@ -242,20 +150,17 @@ assets-build:
     npm run build
     touch assets/dist/.written
 
+# Run django's collectstatic if needed
+collectstatic:
+    uv run ./scripts/collect-me-maybe.sh
 
-# Ensure django's collectstatic is run if needed
-collectstatic: devenv
-    ./scripts/collect-me-maybe.sh $BIN/python
-
-
-# install npm toolchain, build assets, and then collect assets
+# Install npm, build and collect assets
 assets: assets-install assets-build collectstatic
 
-
-# rebuild all npm/static assets
+# Rebuild all npm/static assets
 assets-rebuild: assets-clean assets
 
-
+# Run dev assets server
 assets-run: assets-install
     #!/usr/bin/env bash
     set -euo pipefail
@@ -267,18 +172,17 @@ assets-run: assets-install
 
     npm run dev
 
-
+# Run NPM typecheck and lint
 assets-lint: assets-install
     npm run typecheck
     npm run lint
 
-
+# Run NPM lint and tests
 assets-test: assets-install
     npm run lint
     npm run test:coverage
 
-
-# Build a lightweight local development setup using test fixture data.
+# Build dev setup with test fixture data
 build-dbs-for-local-development nuclear="":
     #!/usr/bin/env bash
     set -euo pipefail
@@ -307,74 +211,65 @@ build-dbs-for-local-development nuclear="":
         # - Remove old coding system release dbs (with confirmation)
         # - Create and migrate new coding system release dbs
         # - Load test data into coding system release dbs
-        $BIN/python manage.py setup_local_dev_databases
+        uv run manage.py setup_local_dev_databases
     else
         echo "Skipping creation of a new empty core db.sqlite3. Run with 'nuclear' parameter to enable."
     fi
 
-
-
-# build docker image env=dev|prod
+# Build Docker image env=dev|prod
 docker-build env="dev": _env
     {{ just_executable() }} docker/build {{ env }}
 
-
-# run js checks in docker container
+# Run JavaScript checks in Docker container
 docker-check-js: _env
     {{ just_executable() }} docker/check-js
 
-
-# run js checks in docker container
+# Run Python checks in Docker container
 docker-check-py: _env
     {{ just_executable() }} docker/check-py {{ docker_env }}
 
-
-# run python non-functional tests in docker container
+# Run Python non-functional tests, Docker
 docker-test-py *args="": _env
     {{ just_executable() }} docker/test-py {{ args }}
 
-# run functional tests in docker container
+# Run functional tests in Docker container
 docker-test-functional *args="": _env
     {{ just_executable() }} docker/test-functional {{ args }}
 
-# run js tests in docker container
+# Run JavaScript tests in Docker container
 docker-test-js: _env
     {{ just_executable() }} docker/test-js
 
-
-# run tests in docker container
+# Run tests in Docker container
 docker-test: _env
     {{ just_executable() }} docker/test
 
-
-# run dev server in docker container
+# Run dev server in Docker container
 docker-serve env="dev" *args="": _env
     {{ just_executable() }} docker/serve {{ if env == "dev" { docker_env } else { env } }} {{ args }}
 
-
-# run cmd in dev docker continer
+# Run cmd in dev Docker continer
 docker-run *args="bash": _env
     {{ just_executable() }} docker/run {{ docker_env }} {{ args }}
 
-
-# exec command in an existing dev docker container
+# Exec command dev Docker container
 docker-exec *args="bash": _env
     {{ just_executable() }} docker/exec {{ docker_env }} {{ args }}
 
-
-# run tests in docker container
+# Run Docker smoke test
 docker-smoke-test host="http://localhost:7000" env="prod": _env
     {{ just_executable() }} docker/smoke-test {{ host }} {{env}}
 
-
-# check migrations in the dev docker container
+# Check migrations in Docker container
 docker-check-migrations *args="":
     {{ just_executable() }} docker/check-migrations {{ docker_env }} {{ args }}
 
-# Run script to update the NHS PCD refsets following a new release
-update-pcd-refsets *args="":
-    $BIN/python manage.py runscript update_nhs_refsets --script-args='{{ args }}'
+# The external data source update recipes should be run after a new release.
 
-# Run script to update the NHS drug refsets following a new release
-update-drug-refsets *args="":
-    $BIN/python manage.py runscript update_nhs_refsets --script-args='--drugs {{ args }}'
+# Update NHS PCD refsets
+update-pcd-refsets *args:
+    uv run manage.py runscript update_nhs_refsets --script-args="$@"
+
+# Update NHS drug refsets
+update-drug-refsets *args:
+    uv run manage.py runscript update_nhs_refsets --script-args="--drugs $@"

@@ -182,3 +182,62 @@ def test_download_latest_bnf_release_success(mock_bnf_data_dir):
         mock_bnf_data_dir / "bnf_code_current_202609_version_90.csv"
     )
     assert downloaded_path.read_text() == csv_file
+
+
+@responses.activate
+def test_download_latest_bnf_release_http_error(mock_bnf_data_dir):
+    latest_bnf_release_info = BNFReleaseInfo(
+        date="202609",
+        name="BNF_CODE_CURRENT_202609_VERSION_90",
+        url="https://example.com/download/bnf_code_current_202609_version_90.csv",
+        version=90,
+    )
+
+    csv_file = """\
+        BNF_CHAPTER,BNF_CHAPTER_CODE
+        "Gastro-Intestinal System",01
+        "Cardiovascular System",02
+    """
+
+    responses.get(
+        latest_bnf_release_info.url,
+        body=csv_file.encode("utf-8"),
+        status=500,
+    )
+
+    with pytest.raises(HTTPError) as exc_info:
+        download_latest_bnf_release(
+            latest_bnf_release_info,
+            mock_bnf_data_dir,
+        )
+
+    assert (
+        "Failed to download the latest BNF release CSV from ODP"
+        in exc_info.value.__notes__
+    )
+
+
+@responses.activate
+def test_download_latest_bnf_release_timeout(mock_bnf_data_dir):
+    latest_bnf_release_info = BNFReleaseInfo(
+        date="202609",
+        name="BNF_CODE_CURRENT_202609_VERSION_90",
+        url="https://example.com/download/bnf_code_current_202609_version_90.csv",
+        version=90,
+    )
+
+    responses.get(
+        latest_bnf_release_info.url,
+        body=Timeout("Request timed out"),
+    )
+
+    with pytest.raises(Timeout) as exc_info:
+        download_latest_bnf_release(
+            latest_bnf_release_info,
+            mock_bnf_data_dir,
+        )
+
+    assert (
+        "Failed to download the latest BNF release CSV from ODP"
+        in exc_info.value.__notes__
+    )

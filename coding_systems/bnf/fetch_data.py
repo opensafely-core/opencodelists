@@ -30,7 +30,7 @@ def get_bnf_release_date_and_version(name):
 
 
 # Find the latest BNF coding-system release published by ODP.
-def get_current_year_bnf_releases_info():
+def get_current_year_bnf_releases_data():
     """
     Get metadata for all BNF coding system releases published in the current calendar year (Jan to Dec) from the NHSBSA ODP API.
 
@@ -40,7 +40,8 @@ def get_current_year_bnf_releases_info():
     try:
         response = requests.get(url, timeout=10)
         response.raise_for_status()
-        return response
+        current_year_releases_info = response.json()
+        return current_year_releases_info
     except RequestException as e:
         e.add_note("Failed to fetch the latest BNF release information from ODP")
         raise
@@ -53,7 +54,7 @@ def get_latest_bnf_release_info(response):
     Returns a BNFReleaseInfo containing the name, date, version, and CSV download URL for the latest available BNF coding system release.
     """
 
-    latest_bnf_release_info = response.json()["result"]["resources"][-1]
+    latest_bnf_release_info = response["result"]["resources"][-1]
 
     # As of March 2025, release names are formatted as follows: 'BNF_CODE_CURRENT_202608_VERSION_90'
     name = latest_bnf_release_info["name"]

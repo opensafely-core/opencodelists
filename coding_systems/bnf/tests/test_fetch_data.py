@@ -8,30 +8,32 @@ from coding_systems.bnf.fetch_data import (
     BNFReleaseInfo,
     download_latest_bnf_release,
     get_bnf_release_date_and_version,
-    get_current_year_bnf_releases_info,
+    get_current_year_bnf_releases_data,
     get_latest_bnf_release_csv_info,
     get_latest_bnf_release_info,
     release_csv_outdated,
 )
 
 
-def test_get_current_year_bnf_releases_info_success(mocked_get):
+def test_get_current_year_bnf_releases_data_success(
+    mocked_get, mocked_odp_response_data
+):
 
-    response = get_current_year_bnf_releases_info()
+    response = get_current_year_bnf_releases_data()
 
     mocked_get.assert_called_once_with(
         "https://opendata.nhsbsa.net/api/3/action/package_show?id=bnf-code-information-current-year",
         timeout=10,
     )
-    response.raise_for_status.assert_called_once()
-    assert response is mocked_get.return_value
+    mocked_get.return_value.raise_for_status.assert_called_once()
+    assert response is mocked_odp_response_data
 
 
-def test_get_current_year_bnf_releases_info_http_error(mocked_get):
+def test_get_current_year_bnf_releases_data_http_error(mocked_get):
     mocked_get.return_value.raise_for_status.side_effect = HTTPError("500 Server Error")
 
     with pytest.raises(HTTPError) as exc_info:
-        get_current_year_bnf_releases_info()
+        get_current_year_bnf_releases_data()
 
     assert (
         "Failed to fetch the latest BNF release information from ODP"
@@ -39,10 +41,10 @@ def test_get_current_year_bnf_releases_info_http_error(mocked_get):
     )
 
 
-def test_get_current_year_bnf_releases_info_timeout(mocked_get):
+def test_get_current_year_bnf_releases_data_timeout(mocked_get):
     mocked_get.side_effect = Timeout("Request timed out")
     with pytest.raises(Timeout) as exc_info:
-        get_current_year_bnf_releases_info()
+        get_current_year_bnf_releases_data()
 
     assert (
         "Failed to fetch the latest BNF release information from ODP"
@@ -50,9 +52,9 @@ def test_get_current_year_bnf_releases_info_timeout(mocked_get):
     )
 
 
-def test_get_latest_bnf_release_info(mocked_odp_response):
+def test_get_latest_bnf_release_info(mocked_odp_response_data):
 
-    latest_bnf_release_info = get_latest_bnf_release_info(mocked_odp_response)
+    latest_bnf_release_info = get_latest_bnf_release_info(mocked_odp_response_data)
 
     assert latest_bnf_release_info == BNFReleaseInfo(
         name="BNF_CODE_CURRENT_202608_VERSION_90",

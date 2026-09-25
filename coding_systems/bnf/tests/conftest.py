@@ -1,13 +1,11 @@
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 import pytest
 
 
 @pytest.fixture
-def mocked_odp_response():
-    """Fixture to return a mocked ODP API response containing BNF release metadata in .json.return_value."""
-    mock_odp_response = Mock()
-    mock_odp_response.json.return_value = {
+def mocked_odp_response_data():
+    return {
         "result": {
             "resources": [
                 {
@@ -26,14 +24,11 @@ def mocked_odp_response():
         }
     }
 
-    return mock_odp_response
-
 
 @pytest.fixture
-def mocked_get(mocked_odp_response):
-    """Fixture to patch requests.get and return a mocked ODP API response."""
+def mocked_get(mocked_odp_response_data):
     with patch("coding_systems.bnf.fetch_data.requests.get") as mocked_get:
-        mocked_get.return_value = mocked_odp_response
+        mocked_get.return_value.json.return_value = mocked_odp_response_data
         yield mocked_get
 
 

@@ -1,3 +1,5 @@
+import "@testing-library/jest-dom/vitest";
+
 // Patch the timezone to confirm 1 hour difference is applied to UTC strings
 process.env.TZ = "Etc/GMT-1";
 

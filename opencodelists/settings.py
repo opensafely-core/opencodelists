@@ -122,6 +122,8 @@ INSTALLED_APPS = [
     "django_structlog",
     "django_vite",
     "slippers",
+    "allauth",
+    "allauth.account",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -142,6 +144,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django_structlog.middlewares.RequestMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
 ]
 
 if DEBUG_TOOLBAR:
@@ -406,3 +409,8 @@ FORMS_URLFIELD_ASSUME_HTTPS = True
 
 # Directory for image screenshots used in docs
 SCREENSHOT_DIR = BASE_DIR / "static" / "img" / "docs"
+
+# DJANGO-ALLAUTH
+AUTHENTICATION_BACKENDS = [
+    "allauth.account.auth_backends.AuthenticationBackend",
+]

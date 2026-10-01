@@ -1,3 +1,23 @@
+"""Fetch the latest BNF coding system release from the NHSBSA Open Data Portal (ODP) API.
+
+This module contains the data-fetching script run by the
+`fetch_bnf_data` Django management command.
+
+The script entry point is `fetch_data`, which:
+
+1. finds the latest BNF release CSV stored locally;
+2. fetches the current year's release metadata from the NHSBSA ODP API;
+3. compares the latest local and ODP releases; and
+4. downloads the latest CSV when the local data is missing or out of date.
+
+To execute the script, run:
+
+`dokku run opencodelists python manage.py fetch_bnf_data /storage/data`
+
+BNF current year release information is available from:
+https://opendata.nhsbsa.net/dataset/bnf-code-information-current-year
+"""
+
 import re
 from collections import namedtuple
 from pathlib import Path

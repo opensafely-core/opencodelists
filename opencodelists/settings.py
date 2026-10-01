@@ -414,3 +414,13 @@ SCREENSHOT_DIR = BASE_DIR / "static" / "img" / "docs"
 AUTHENTICATION_BACKENDS = [
     "allauth.account.auth_backends.AuthenticationBackend",
 ]
+
+# The list of fields to complete in the signup form. Fields marked with an
+# asterisk (e.g. 'username*') are required.
+ACCOUNT_SIGNUP_FIELDS = ["username*", "email*", "password1*", "password2*"]
+
+# Disable email verification (for now)
+ACCOUNT_EMAIL_VERIFICATION = "none"
+
+# Users can't change their email (yet)
+ACCOUNT_MAX_EMAIL_ADDRESSES = 1

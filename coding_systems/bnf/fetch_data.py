@@ -1,3 +1,27 @@
+"""Fetch the latest BNF coding system release from the NHSBSA Open Data Portal (ODP) API.
+
+This module handles fetching the release CSV from the ODP API and is
+used by the `fetch_bnf_data` Django management command.
+
+The `import_data.py` module handles importing the associated metadata
+into the core database and loading the release data into a newly created
+coding system release database.
+
+In this module, the script entry point is `fetch_data`, which:
+
+1. finds the latest BNF release CSV stored locally;
+2. fetches the current year's release metadata from the NHSBSA ODP API;
+3. compares the latest local and ODP releases; and
+4. downloads the latest CSV when the local data is missing or out of date.
+
+To execute the script, run:
+
+`dokku run opencodelists python manage.py fetch_bnf_data /storage/data`
+
+BNF current year release information is available from:
+https://opendata.nhsbsa.net/dataset/bnf-code-information-current-year
+"""
+
 import re
 from collections import namedtuple
 from pathlib import Path
@@ -44,12 +68,25 @@ def fetch_data(directory: str) -> Path | None:
 
 
 def parse_name(name):
-    """Given a BNF release name or filename, extract the release date and version."""
+    """Given a BNF release name or filename, extract the release date and version.
 
-    # BNF CSVs use legacy (`bnf_code_202608_version_90.csv`) and
-    # current (`bnf_code_current_202503_version_88.csv`) naming conventions.
-    # ODP release names use the format `BNF_CODE_CURRENT_202608_VERSION_90';
-    # the August 2025 release appended `_FINAL`.
+    Supports:
+    - Legacy CSV filenames, e.g. `bnf_code_202412_version_86.csv`.
+    - Current CSV filenames, e.g. `bnf_code_current_202608_version_90.csv`.
+    - ODP release names, e.g. `BNF_CODE_CURRENT_202608_VERSION_90`.
+    - ODP release names with a `_FINAL` suffix, as used in August 2025.
+
+    Returns a tuple of `(date, version)`, where date is a `str` in YYYYMM
+    format and version is an `int`.
+
+    For example:
+        >>> date, version = parse_name("bnf_code_current_202608_version_90.csv")
+        >>> date
+        '202608'
+        >>> version
+        90
+    """
+
     match = re.match(
         r"^BNF_CODE_(?:CURRENT_)?(\d{6})_VERSION_(\d+)(?:_FINAL)?(?:\.csv)?$",
         name,

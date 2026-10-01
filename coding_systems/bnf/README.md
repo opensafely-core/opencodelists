@@ -10,8 +10,14 @@ We obtain the data from the NHSBSA Open Data Portal (ODP). New releases are publ
 The name of each release contains the date and version for that release, for example, "BNF Code Information - Current - June 2026 Version 90".
 Each monthly release is published as a CSV file whose name includes the year, month and release version. For example, `bnf_code_current_202606_version_90.csv` corresponds to the June 2026 release of version 90.
 
-Download the latest BNF release CSV and copy it to the BNF data folder on dokku3,
-at `/var/lib/dokku/data/storage/opencodelists/data/bnf/`.
+To fetch the latest BNF release CSV, run:
+
+```sh
+dokku run opencodelists python manage.py fetch_bnf_data /storage/data
+```
+
+The command checks the existing BNF data and downloads the latest release from the NHSBSA Open Data Portal when required.
+For details of the fetching process and implementation, see [`coding_systems/bnf/fetch_data.py`](fetch_data.py).
 
 To import the data, run:
 

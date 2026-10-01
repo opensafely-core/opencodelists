@@ -415,9 +415,12 @@ AUTHENTICATION_BACKENDS = [
     "allauth.account.auth_backends.AuthenticationBackend",
 ]
 
+# We need to add the "name" field to the default AllauthSignupForm class
+ACCOUNT_SIGNUP_FORM_CLASS = "opencodelists.forms.AllauthSignupForm"
+
 # The list of fields to complete in the signup form. Fields marked with an
 # asterisk (e.g. 'username*') are required.
-ACCOUNT_SIGNUP_FIELDS = ["username*", "email*", "password1*", "password2*"]
+ACCOUNT_SIGNUP_FIELDS = ["username*", "name*", "email*", "password1*", "password2*"]
 
 # Disable email verification (for now)
 ACCOUNT_EMAIL_VERIFICATION = "none"

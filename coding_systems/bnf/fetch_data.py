@@ -18,12 +18,16 @@ BNF current year release information is available from:
 https://opendata.nhsbsa.net/dataset/bnf-code-information-current-year
 """
 
+import logging
 import re
 from collections import namedtuple
 from pathlib import Path
 
 import requests
 from requests.exceptions import RequestException
+
+
+log = logging.getLogger(__name__)
 
 
 BNFReleaseInfo = namedtuple(
@@ -53,8 +57,10 @@ def fetch_data(directory: str) -> Path | None:
         latest_release_info,
         csv_path,
     ):
+        log.debug("BNF release already up to date")
         return None
 
+    log.info("New BNF release available: %s.", latest_release_info.name)
     new_csv_path = download_csv(
         latest_release_info,
         bnf_data_dir,
@@ -94,6 +100,7 @@ def get_all_releases():
     """
     url = "https://opendata.nhsbsa.net/api/3/action/package_show?id=bnf-code-information-current-year"
     try:
+        log.debug("Fetching ODP metadata for all BNF coding system releases...")
         response = requests.get(url, timeout=10)
         response.raise_for_status()
         current_year = response.json()
@@ -178,10 +185,12 @@ def download_csv(latest_bnf_release, download_directory: Path):
             response.raise_for_status()
 
             with download_path.open("wb") as f:
+                log.info("Downloading the latest BNF release CSV...")
                 for chunk in response.iter_content(chunk_size=8192):
                     f.write(chunk)
     except RequestException as e:
         e.add_note("Failed to download the latest BNF release CSV from ODP")
         raise
 
+    log.info("Downloaded BNF release to: %s", download_path)
     return download_path

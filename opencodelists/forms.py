@@ -1,7 +1,3 @@
-import csv
-import operator
-from io import StringIO
-
 from django import forms
 from django.contrib.auth import password_validation
 from django.core.validators import RegexValidator
@@ -118,8 +114,14 @@ class CodelistCreateForm(forms.Form):
 
         csv_has_header = self.cleaned_data["csv_has_header"]
 
+        # Eventually coding system version may be a selectable field, but for now it
+        # just defaults to using the most recent one.
+        coding_system = CODING_SYSTEMS[
+            self.cleaned_data["coding_system_id"]
+        ].get_by_release_or_most_recent()
+
         try:
-            data = f.read().decode("utf-8-sig")
+            codes = coding_system.codes_from_csv_file(f, csv_has_header)
         except UnicodeDecodeError as exception:
             raise forms.ValidationError(
                 "File could not be read. Please ensure the file contains CSV "
@@ -127,46 +129,11 @@ class CodelistCreateForm(forms.Form):
                 f"in the UTF-8 format. Error details: {exception}."
             )
 
-        # Eventually coding system version may be a selectable field, but for now it
-        # just defaults to using the most recent one.
-        coding_system = CODING_SYSTEMS[
-            self.cleaned_data["coding_system_id"]
-        ].get_by_release_or_most_recent()
-
-        csv_reader = csv.reader(StringIO(data))
-        if csv_has_header:
-            next(csv_reader, None)
-
-        codes = [row[0] for row in csv_reader if row]
-
-        validate_csv_data_codes(coding_system, codes)
+        try:
+            coding_system.validate_csv_data_codes(codes)
+        except ValueError as e:
+            raise forms.ValidationError(str(e))
         return codes
-
-
-def validate_csv_data_codes(coding_system, codes):
-    # Fully implemented codings systems have a `lookup_names` method that is used to
-    # validate the codes in the CSV upload.  However, we also support uploads for some
-    # coding systems that we don't maintain data for (e.g. OPCS4, ReadV2).  Skip code
-    # validation for these systems, and just allow upload of the CSV data as it is.
-    if not coding_system.has_database:
-        return
-    unknown_codes = set(codes) - set(coding_system.lookup_names(codes))
-    unknown_codes_and_ixs = sorted(
-        [(codes.index(code), code) for code in unknown_codes],
-        key=operator.itemgetter(0),
-    )
-
-    if unknown_codes_and_ixs:
-        line = unknown_codes_and_ixs[0][0] + 1
-        code = unknown_codes_and_ixs[0][1]
-        if len(unknown_codes_and_ixs) == 1:
-            msg = f"CSV file contains 1 unknown code ({code}) on line {line}"
-        else:
-            num = len(unknown_codes_and_ixs)
-            suffix = "" if num == 1 else "s"
-            msg = f"CSV file contains {num} unknown code{suffix} -- the first ({code}) is on line {line}"
-        msg += f" ({coding_system.short_name} release {coding_system.release_name}, valid from {coding_system.release.valid_from})"
-        raise forms.ValidationError(msg)
 
 
 class RegisterForm(forms.ModelForm):

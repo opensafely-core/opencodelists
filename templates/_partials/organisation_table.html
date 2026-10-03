@@ -8,14 +8,14 @@
           <thead class="border-b-slate-300 bg-slate-100 text-left text-sm font-semibold text-slate-900">
             <tr>
               {% if under_review_codelists %}
-                <th class="px-3 py-3.5 pl-4 whitespace-nowrap sm:pl-6">Name</th>
+                {% include "_partials/organisation_table_sort_header.html" with column_sort=sort_options.name label="Name" th_class="px-3 py-3.5 pl-4 whitespace-nowrap sm:pl-6" only %}
                 <th class="px-3 py-3.5 whitespace-nowrap">Version</th>
-                <th class="px-3 py-3.5 pr-3 whitespace-nowrap sm:pr-6">Created</th>
+                {% include "_partials/organisation_table_sort_header.html" with column_sort=sort_options.created_at label="Created" th_class="px-3 py-3.5 pr-3 whitespace-nowrap sm:pr-6" only %}
               {% else %}
-                <th class="px-3 py-3.5 pl-4 whitespace-nowrap sm:pl-6">Name</th>
+                {% include "_partials/organisation_table_sort_header.html" with column_sort=sort_options.name label="Name" th_class="px-3 py-3.5 pl-4 whitespace-nowrap sm:pl-6" only %}
                 <th class="px-3 py-3.5 whitespace-nowrap">Coding system</th>
                 <th class="px-3 py-3.5 whitespace-nowrap">Description</th>
-                <th class="px-3 py-3.5 pr-3 whitespace-nowrap sm:pr-6">Last updated</th>
+                {% include "_partials/organisation_table_sort_header.html" with column_sort=sort_options.updated_at label="Last updated" th_class="px-3 py-3.5 pr-3 whitespace-nowrap sm:pr-6" only %}
               {% endif %}
             </tr>
           </thead>
@@ -74,7 +74,7 @@
         </table>
 
         {% if page_obj.has_other_pages %}
-          {% include "_partials/organisation_table_pagination.html" with page_obj=page_obj q=q only %}
+          {% include "_partials/organisation_table_pagination.html" with page_obj=page_obj pagination=pagination only %}
         {% endif %}
       </div>
     </div>

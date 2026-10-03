@@ -81,7 +81,115 @@
         </summary>
         <div class="border-t border-t-blue-100 py-6 pl-10 pr-6">
           {% form_input_upload field=form.csv_data %}
-          {{ form.csv_has_header.label }} {{ form.csv_has_header }}
+
+          <!-- Loading indicator -->
+          <div id="csv-loading" class="mt-6 hidden">
+            <div class="flex items-center gap-3 text-slate-700">
+              <svg class="animate-spin h-5 w-5 text-blue-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <span class="text-sm">Processing CSV...</span>
+            </div>
+          </div>
+
+          <!-- CSV Preview and Detection Results -->
+          <div id="csv-analysis-section" class="rounded-md outline-2 -outline-offset-1 outline-slate-300 hidden">
+            <div class="bg-slate-100 p-4 rounded-sm mb-4">
+              <div class="text-sm text-slate-700 mb-3">
+                <h2 class="text-lg font-semibold text-slate-900 mb-4">Detected structure</h2>
+                <ul class="list-disc pl-5 mt-2 space-y-1">
+                  <li id="no-header-detected">No header row detected</li>
+                  <li id="header-detected">
+                    <span id="detected-header-rows" class="font-mono font-semibold text-black">-</span>
+                    <span class="inline-block rounded-sm border border-slate-200 bg-yellow-100 px-1 py-0.5 font-medium text-yellow-900">header</span>
+                    row<span id="detected-header-rows-plural"></span> detected, data starts at row
+                    <span id="detected-data-start" class="font-mono font-semibold text-black">-</span>
+                  </li>
+                  <li>
+                    <span id="detected-code-count" class="font-mono font-semibold text-black">-</span>
+                    <span id="detected-coding-system" class="inline-block rounded-sm border border-slate-200 px-1 py-0.5 bg-blue-100 text-black font-bold">-</span>
+                    code<span id="detected-code-count-plural"></span> in column
+                    <span id="detected-code-column" class="font-mono font-semibold text-black">-</span>
+                  </li>
+                </ul>
+              </div>
+              <div class="mt-3 bg-white border border-slate-300 rounded-sm overflow-auto max-h-64">
+                <table class="text-xs border-collapse w-full">
+                  <tbody id="csv-preview-table">
+                  </tbody>
+                </table>
+              </div>
+              <div id="csv-warnings" class="mt-4 text-sm text-red-700 hidden">
+                <p class="font-semibold">Warning:</p>
+                <p id="csv-warning-message"></p>
+                <p>This will fail to create a codelist, so please edit the csv file and try again</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Error display -->
+          <div id="csv-errors" class="mt-6 hidden">
+            <div class="rounded-md bg-red-50 p-4">
+              <div class="flex">
+                <div class="shrink-0">
+                  {% icon_exclamation_circle_mini class="size-5 text-red-400" %}
+                </div>
+                <div class="ml-3">
+                  <h3 class="text-sm font-medium text-red-800">There is a problem with your CSV:</h3>
+                  <p id="csv-error-message" class="text-sm text-red-700"></p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Descendants Info (shows after preview if descendants exist) -->
+          <div id="csv-descendants-section" class="mt-6 hidden">
+            <div class="bg-amber-50 border border-amber-200 p-4 rounded-sm">
+
+              <h2 class="text-lg font-semibold mb-4">Missing child codes detected</h2>
+              <p class="mb-4">
+                Some of the codes you uploaded have related child codes that are not included
+                in your CSV. This may be intentional.
+              </p>
+              <p class="mb-4">
+                If you are sure you want to exclude all of these child codes, select the checkbox
+                below. Otherwise, you can continue by clicking "Create a draft codelist", and on the
+                next screen you'll be able to review each missing child code and decide individually
+                whether to include or exclude it.
+              </p>
+
+              <div class="mb-6">
+                {% include "opencodelists/checkbox.html" with field=form.exclude_child_codes %}
+              </div>
+
+              <!-- All Missing Descendants Table -->
+              <div class="mt-6">
+                <div class="bg-white border border-amber-300 rounded-sm p-4">
+                  <h3 class="text-base font-semibold text-slate-900 mb-3">
+                    <span id="missing-descendants-count">0</span> missing codes
+                  </h3>
+                  <div class="overflow-x-auto">
+                    <table class="min-w-full text-sm border-collapse">
+                      <thead>
+                        <tr class="border-b border-slate-300">
+                          <th class="text-left py-2 px-3 font-semibold text-slate-700">Code</th>
+                          <th class="text-left py-2 px-3 font-semibold text-slate-700">Description</th>
+                        </tr>
+                      </thead>
+                      <tbody id="csv-missing-descendants-table-body">
+                      </tbody>
+                    </table>
+                  </div>
+                  <div id="csv-missing-descendants-show-more" class="mt-3 text-center hidden">
+                    <button type="button" class="text-sm text-blue-700 hover:text-blue-800 font-semibold underline cursor-pointer">
+                      Show all
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </details>
     </div>
@@ -91,7 +199,8 @@
     </div>
 
     <button
-      class="flex w-fit mx-auto justify-center cursor-pointer rounded-md bg-green-700 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs transition-colors hover:bg-green-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700"
+      id="create-codelist-button"
+      class="flex w-fit mx-auto justify-center cursor-pointer rounded-md bg-green-700 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs transition-colors hover:bg-green-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-green-700"
       type="submit"
     >
       Create a draft codelist
@@ -101,6 +210,7 @@
 
 {% block extra_js %}
   <script>
+    /* -------- "plausible" event tracking for coding system selection -------- */
     const selectInput = document.getElementById(
       "{{ form.coding_system_id.id_for_label }}",
     );
@@ -110,5 +220,283 @@
       const codingSystemId = e.target.value.toLowerCase().replace(/\W/g, "");
       newCodelistForm.classList = `${newCodelistFormClassList} plausible-event-newcodelist=${codingSystemId}`;
     });
+
+    // Duplicate of the function in _utils.ts - but this file is pure JS so can't import it
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+
+    const fileInput = document.querySelector('input[type="file"][name="csv_data"]');
+    const helpTextDiv = document.getElementById('id_{{ form.csv_data.html_name }}_helptext');
+    const loadingDiv = document.getElementById('csv-loading');
+    const analysisSection = document.getElementById('csv-analysis-section');
+    const errorDiv = document.getElementById('csv-errors');
+    const errorMessageEl = document.getElementById('csv-error-message');
+    const dataStartEl = document.getElementById('detected-data-start');
+    const detectedHeaderRowsEl = document.getElementById('detected-header-rows');
+    const detectedHeaderRowsPluralEl = document.getElementById('detected-header-rows-plural');
+    const codeCountEl = document.getElementById('detected-code-count');
+    const detectedCodeCountPluralEl = document.getElementById('detected-code-count-plural');
+    const noHeaderEl = document.getElementById('no-header-detected');
+    const headerEl = document.getElementById('header-detected');
+    const codeColumnEl = document.getElementById('detected-code-column');
+    const codingSystemEl = document.getElementById('detected-coding-system');
+    const previewTable = document.getElementById('csv-preview-table');
+    const warningsDiv = document.getElementById('csv-warnings');
+    const csvWarningMessage = document.getElementById('csv-warning-message');
+    const descendantsSection = document.getElementById('csv-descendants-section');
+    const excludeChildCodesCheckbox = document.querySelector('input[name="exclude_child_codes"]');
+    const createButton = document.getElementById('create-codelist-button');
+
+
+    function clearAnalysis() {
+      helpTextDiv.classList.remove('hidden');
+      loadingDiv.classList.add('hidden');
+      analysisSection.classList.add('hidden');
+      errorDiv.classList.add('hidden');
+      descendantsSection.classList.add('hidden');
+      previewTable.innerHTML = '';
+      enableButton();
+    }
+
+    function renderCsvPreview(rows, numberOfRows, firstDataRowIdx, codeColumnIdx) {
+      previewTable.innerHTML = '';
+
+      for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
+        const tr = document.createElement('tr');
+        if(i < firstDataRowIdx) {
+          tr.className = 'bg-yellow-100'; // Header row(s) styling
+        }
+
+        for (let j = 0; j < row.length; j++) {
+          const td = document.createElement('td');
+          td.className = 'border border-slate-200 px-2 py-1';
+          if (j === codeColumnIdx && i >= firstDataRowIdx) {
+            td.className += ' bg-blue-100 font-bold'; // Clinical code column styling
+          } else if (i < firstDataRowIdx) {
+            td.className += ' text-yellow-900 font-medium font-semibold'; // Header row text styling
+          } else {
+            td.className += ' text-slate-700'; // Non-header, non clinical code cells
+          }
+          td.textContent = row[j] || '';
+          tr.appendChild(td);
+        }
+        previewTable.appendChild(tr);
+      }
+
+      // append row with ellipsis if more rows exist
+      if (numberOfRows + firstDataRowIdx > rows.length) {
+        const tr = document.createElement('tr');
+        for (let j = 0; j < rows[0].length; j++) {
+          const td = document.createElement('td');
+          td.className = 'border border-slate-200 px-2 py-1 text-slate-700';
+          if (j === codeColumnIdx) {
+            td.className += ' bg-blue-100 font-semibold';
+          }
+          td.textContent = '...' + (numberOfRows - rows.length + firstDataRowIdx) + ' more rows';
+          tr.appendChild(td);
+        }
+        previewTable.appendChild(tr);
+      }
+    }
+
+    function displayError(message = 'Unknown error') {
+      loadingDiv.classList.add('hidden');
+      analysisSection.classList.add('hidden');
+      errorDiv.classList.remove('hidden');
+      errorMessageEl.textContent = message;
+      disableButton();
+    }
+
+    function renderHeaderRowBullet(dataStartRow, firstDataRowIdx) {
+      // Render "data starts at row X"...
+      dataStartEl.textContent = `${dataStartRow}`;
+
+      if(firstDataRowIdx > 0) {
+        // Header row detected
+        detectedHeaderRowsEl.textContent = firstDataRowIdx;
+        if (firstDataRowIdx > 1) {
+          detectedHeaderRowsPluralEl.textContent = 's';
+        } else {
+          detectedHeaderRowsPluralEl.textContent = '';
+        }
+        headerEl.classList.remove('hidden');
+        noHeaderEl.classList.add('hidden');
+      } else {
+        // No header row detected
+        noHeaderEl.classList.remove('hidden');
+        headerEl.classList.add('hidden');
+      }
+    }
+
+    function renderCodingSystemBullet(detectedSystem, numberOfRows, codeColIdx) {
+      codeColumnEl.textContent = codeColIdx + 1;
+
+      if (numberOfRows === 1) {
+        detectedCodeCountPluralEl.textContent = '';
+      } else {
+        detectedCodeCountPluralEl.textContent = 's';
+      }
+      codingSystemEl.textContent = detectedSystem || 'Unknown';
+      codeCountEl.textContent = numberOfRows;
+    }
+
+    function renderWarning(warning) {
+      if (warning) {
+        csvWarningMessage.textContent = warning;
+        warningsDiv.classList.remove('hidden');
+        disableButton();
+      } else {
+        warningsDiv.classList.add('hidden');
+        enableButton();
+      }
+    }
+
+    function renderMissingDescendantsTable(allMissing) {
+      const countEl = document.getElementById('missing-descendants-count');
+      const tableBody = document.getElementById('csv-missing-descendants-table-body');
+      const showMoreContainer = document.getElementById('csv-missing-descendants-show-more');
+
+      countEl.textContent = allMissing.length;
+      tableBody.innerHTML = '';
+
+      function renderRows(count) {
+        tableBody.innerHTML = '';
+        const toShow = allMissing.slice(0, count);
+
+        toShow.forEach((item, index) => {
+          const tr = document.createElement('tr');
+          tr.className = index % 2 === 0 ? 'bg-white' : 'bg-slate-50';
+
+          const codeTd = document.createElement('td');
+          codeTd.className = 'py-2 px-3 font-mono text-xs';
+          codeTd.textContent = item.code;
+          tr.appendChild(codeTd);
+
+          const termTd = document.createElement('td');
+          termTd.className = 'py-2 px-3';
+          termTd.textContent = item.term;
+          tr.appendChild(termTd);
+
+          tableBody.appendChild(tr);
+        });
+
+        if (count < allMissing.length) {
+          showMoreContainer.classList.remove('hidden');
+        } else {
+          showMoreContainer.classList.add('hidden');
+        }
+
+        updateMissingDescendantsStyle();
+      }
+
+      renderRows(10); // Initial render with 10 rows
+
+      // Handle "Show all" button
+      const showMoreBtn = showMoreContainer.querySelector('button');
+      showMoreBtn.onclick = () => {
+        renderRows(allMissing.length); // Render all rows
+      };
+    }
+
+    function updateMissingDescendantsStyle() {
+      const isExcludeChecked = !!document.querySelector('input[name="exclude_child_codes"]:checked');
+      const cells = document.querySelectorAll('#csv-missing-descendants-table-body td');
+      cells.forEach((td) => {
+        td.classList.toggle('line-through', isExcludeChecked);
+        td.classList.toggle('text-neutral-500', isExcludeChecked);
+      });
+    }
+
+    function renderMissingDescendants(missingDescendants) {
+      if (missingDescendants && missingDescendants.length > 0) {
+        descendantsSection.classList.remove('hidden');
+        renderMissingDescendantsTable(missingDescendants);
+      } else {
+        descendantsSection.classList.add('hidden');
+      }
+    }
+
+    function disableButton() {
+      createButton.disabled = true;
+    }
+
+    function enableButton() {
+      createButton.disabled = false;
+    }
+
+    async function handlePreview() {
+      clearAnalysis();
+      const file = fileInput.files && fileInput.files[0];
+      if (!file) return;
+
+      loadingDiv.classList.remove('hidden');
+
+      try {
+        const formData = new FormData();
+        formData.append('csv_data', file, file.name || 'upload.csv');
+        const codingSystemId = selectInput.value;
+        if (codingSystemId) {
+          formData.append('coding_system_id', codingSystemId);
+        }
+
+        const url = "{% url 'csv-descendants-preview' username=user.username %}";
+        const resp = await fetch(url, {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'X-Requested-With': 'fetch',
+            'X-CSRFToken': getCookie('csrftoken') || ''
+          }
+        });
+
+        loadingDiv.classList.add('hidden');
+
+        const data = await resp.json();
+        if (!resp.ok) {
+          displayError(data.error);
+          return;
+        }
+
+        // Hide help text after successful upload
+        helpTextDiv.classList.add('hidden');
+        analysisSection.classList.remove('hidden');
+
+        const numberOfRows = data.uploaded_count || 0;
+        const firstDataRowIdx = data.detected_first_data_row || 0;
+        const codeColIdx = data.detected_code_column || 0;
+        const detectedSystem = data.detected_coding_system_id;
+        // Convert 0-based first_data_row_idx to 1-based display
+        const dataStartRow = firstDataRowIdx + 1;
+
+        renderWarning(data.warning);
+        renderHeaderRowBullet(dataStartRow, firstDataRowIdx);
+        renderCodingSystemBullet(detectedSystem, numberOfRows, codeColIdx);
+        renderCsvPreview(data.rows_preview, numberOfRows, firstDataRowIdx, codeColIdx);
+        renderMissingDescendants(data.all_missing_descendants);
+      } catch (e) {
+        displayError(`An unexpected error occurred while analyzing the CSV: ${e.message}`);
+      }
+    }
+
+    fileInput.addEventListener('change', handlePreview);
+
+    selectInput.addEventListener('change', () => {
+      if (fileInput.files && fileInput.files.length) handlePreview();
+    });
+
+    excludeChildCodesCheckbox.addEventListener('change', updateMissingDescendantsStyle);
   </script>
 {% endblock %}

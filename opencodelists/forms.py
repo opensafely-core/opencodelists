@@ -12,6 +12,23 @@ from codelists.models import Handle
 from .models import User
 
 
+class AllauthSignupForm(forms.Form):
+    """Collect the name required by the custom user model during signup."""
+
+    name = forms.CharField(max_length=255)
+    field_order = [
+        "username",
+        "name",
+        "email",
+        "password1",
+        "password2",
+    ]
+
+    def signup(self, request, user):
+        user.name = self.cleaned_data["name"]
+        user.save(update_fields=["name"])
+
+
 class UserPasswordForm(forms.Form):
     """
     A form to let a user set their password without entering their old one.

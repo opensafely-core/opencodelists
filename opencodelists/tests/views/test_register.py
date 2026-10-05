@@ -47,7 +47,7 @@ def test_post_failure_password_mismatch(client):
     with assert_no_difference(User.objects.count):
         rsp = client.post("/accounts/register/", data)
 
-    assert b"The two password fields didn&#x27;t match." in rsp.content
+    assert b"You must type the same password each time." in rsp.content
 
 
 def test_post_failure_duplicate_username(client, user):
@@ -77,4 +77,4 @@ def test_post_failure_duplicate_email(client, user):
     with assert_no_difference(User.objects.count):
         rsp = client.post("/accounts/register/", data)
 
-    assert b"A user with this email address already exists." in rsp.content
+    assert b"A user is already registered with this email address." in rsp.content

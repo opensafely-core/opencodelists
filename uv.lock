@@ -593,6 +593,19 @@ wheels = [
 ]
 
 [[package]]
+name = "django-allauth"
+version = "65.19.4"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "asgiref" },
+    { name = "django" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/c2/2c/4c7a046f363396093d825df208d1b621ec9591ac30ea4657c26cda5f549c/django_allauth-65.19.4.tar.gz", hash = "sha256:7ea5f0057f91fa25f9ca7814f84aed63a66096b43df073fbdf1ef0167bc92f1d", size = 2293509, upload-time = "2026-09-17T13:29:20.775Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/53/04/7e47e7f33c25f1edbc5d5278fc4cdf1875399eecdcb36b5588c53550f770/django_allauth-65.19.4-py3-none-any.whl", hash = "sha256:a4f13476ad460ab1098af6be41ae72ed1d07498dd4514e05b9daef09a6c1cabd", size = 2075786, upload-time = "2026-09-17T13:27:51.745Z" },
+]
+
+[[package]]
 name = "django-anymail"
 version = "15.2"
 source = { registry = "https://pypi.org/simple" }
@@ -1264,6 +1277,7 @@ dependencies = [
     { name = "crispy-bootstrap4" },
     { name = "dj-database-url" },
     { name = "django" },
+    { name = "django-allauth" },
     { name = "django-anymail" },
     { name = "django-cors-headers" },
     { name = "django-crispy-forms" },
@@ -1313,6 +1327,7 @@ requires-dist = [
     { name = "crispy-bootstrap4" },
     { name = "dj-database-url" },
     { name = "django", specifier = ">=5.2,<6.0" },
+    { name = "django-allauth" },
     { name = "django-anymail", extras = ["mailgun"] },
     { name = "django-cors-headers" },
     { name = "django-crispy-forms" },

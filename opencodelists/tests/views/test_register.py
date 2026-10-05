@@ -40,8 +40,8 @@ def test_post_failure_password_mismatch(client):
         "username": "user",
         "name": "Prof User",
         "email": "user@example.com",
-        "password1": "password",
-        "password2": "wordpass",
+        "password1": "hCSeKtZg",
+        "password2": "hCSeKtZh",
     }
 
     with assert_no_difference(User.objects.count):

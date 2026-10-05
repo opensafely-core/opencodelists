@@ -1,3 +1,4 @@
+from allauth.account import urls as allauth_account_urls
 from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
@@ -31,6 +32,29 @@ organisations_patterns = [
     path("", views.organisations, name="organisations"),
 ]
 
+account_url_names = {
+    "account_login",
+    "account_logout",
+    "account_change_password",
+    "account_reset_password",
+    "account_reset_password_done",
+    "account_reset_password_from_key",
+    "account_reset_password_from_key_done",
+    "account_set_password",
+    "account_signup",
+}
+account_urlpatterns = [
+    path(
+        "register/",
+        url.callback,
+        name=url.name,
+    )
+    if url.name == "account_signup"
+    else url
+    for url in allauth_account_urls.urlpatterns
+    if url.name in account_url_names
+]
+
 if settings.DEBUG_TOOLBAR:  # pragma: no cover
     debug_toolbar_urls = [path("__debug__/", include("debug_toolbar.urls"))]
 else:
@@ -45,6 +69,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("accounts/", include("django.contrib.auth.urls")),
     path("accounts/register/", views.register, name="register"),
+    path("allauth/", include(account_urlpatterns)),
     path("builder/", include("builder.urls")),
     path("conversions/", include("conversions.urls")),
     path("coding-systems/", include("coding_systems.versioning.urls")),

@@ -5,6 +5,7 @@ antlr4-python3-runtime==4.13.2
 asgiref==3.12.1
     # via
     #   django
+    #   django-allauth
     #   django-cors-headers
     #   django-structlog
 bcrypt==5.0.0
@@ -43,6 +44,7 @@ django==5.2.17
     # via
     #   crispy-bootstrap4
     #   dj-database-url
+    #   django-allauth
     #   django-anymail
     #   django-cors-headers
     #   django-crispy-forms
@@ -55,6 +57,8 @@ django==5.2.17
     #   djangorestframework
     #   opencodelists
     #   slippers
+django-allauth==65.19.4
+    # via opencodelists
 django-anymail==15.2
     # via opencodelists
 django-cors-headers==4.9.0

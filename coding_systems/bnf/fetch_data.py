@@ -24,7 +24,6 @@ https://opendata.nhsbsa.net/dataset/bnf-code-information-current-year
 
 import logging
 import re
-from collections import namedtuple
 from pathlib import Path
 
 import requests
@@ -32,12 +31,6 @@ from requests.exceptions import RequestException
 
 
 log = logging.getLogger(__name__)
-
-
-BNFReleaseInfo = namedtuple(
-    "BNFReleaseInfo",
-    ["name", "date", "version", "url"],
-)
 
 
 def fetch_data(directory: str) -> Path | None:
@@ -55,18 +48,30 @@ def fetch_data(directory: str) -> Path | None:
 
     odp_response = get_all_releases()
 
-    latest_release_info = find_latest_release(odp_response)
+    # Get metadata for the latest BNF coding system release, using
+    # the release date and version from the resource name rather than ODP's
+    # resource ordering, so "latest" is defined by the BNF release itself.
+    latest = max(
+        odp_response["result"]["resources"],
+        key=lambda resource: parse_name(resource["name"]),
+    )
+    name = latest["name"]
+    url = latest["url"]
+    date, version = parse_name(name)
 
     if csv_path is not None and have_latest_csv(
-        latest_release_info,
+        date,
+        version,
         csv_path,
     ):
         log.info("Latest BNF release CSV file already exists locally: %s.", csv_path)
         return None
 
-    log.info("New BNF release available: %s.", latest_release_info.name)
+    log.info("New BNF release available: %s.", name)
     new_csv_path = download_csv(
-        latest_release_info,
+        date,
+        version,
+        url,
         bnf_data_dir,
     )
 
@@ -126,35 +131,6 @@ def get_all_releases():
         raise
 
 
-def find_latest_release(response_data):
-    """
-    Get metadata for the latest BNF coding system release.
-
-    Returns a BNFReleaseInfo containing the name, date, version, and
-    CSV download URL for the latest available BNF coding system release.
-    """
-
-    # Use the release date and version from the resource name rather than ODP's
-    # resource ordering, so "latest" is defined by the BNF release itself.
-    latest = max(
-        response_data["result"]["resources"],
-        key=lambda resource: parse_name(resource["name"]),
-    )
-
-    name = latest["name"]
-
-    url = latest["url"]
-
-    date, version = parse_name(name)
-
-    return BNFReleaseInfo(
-        date=date,
-        name=name,
-        url=url,
-        version=version,
-    )
-
-
 def find_latest_local_csv(directory: Path):
     """Given a directory containing BNF coding system release CSVs,
     return the path to the latest release, or `None` if no releases exist."""
@@ -169,32 +145,26 @@ def find_latest_local_csv(directory: Path):
     return latest_csv_path
 
 
-def have_latest_csv(latest_bnf_release_info, latest_bnf_release_csv_path):
+def have_latest_csv(latest_date, latest_version, latest_bnf_release_csv_path):
     """Determine whether the latest local BNF release CSV we have on
     disk is the latest release available from the ODP API."""
     csv_date, csv_version = parse_name(latest_bnf_release_csv_path.name)
 
-    return (
-        csv_date == latest_bnf_release_info.date
-        and csv_version == latest_bnf_release_info.version
-    )
+    return csv_date == latest_date and csv_version == latest_version
 
 
-def download_csv(latest_bnf_release, download_directory: Path):
+def download_csv(date, version, url, download_directory: Path):
     """
     Download the latest BNF coding system release CSV from the NHSBSA ODP API.
 
     Returns the Path of the downloaded CSV file.
     """
-    filename = (
-        f"bnf_code_current_{latest_bnf_release.date}"
-        f"_version_{latest_bnf_release.version}.csv"
-    )
+    filename = f"bnf_code_current_{date}_version_{version}.csv"
     download_path = download_directory / filename
 
     try:
         with requests.get(
-            latest_bnf_release.url,
+            url,
             stream=True,
             timeout=10,
         ) as response:

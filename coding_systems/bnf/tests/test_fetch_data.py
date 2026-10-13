@@ -6,30 +6,28 @@ import responses
 from requests.exceptions import HTTPError, Timeout
 
 from coding_systems.bnf.fetch_data import (
-    BNFReleaseInfo,
     download_csv,
     fetch_data,
     find_latest_local_csv,
-    find_latest_release,
     get_all_releases,
     have_latest_csv,
     parse_name,
 )
 
 
-CURRENT_RELEASE_INFO = BNFReleaseInfo(
-    name="BNF_CODE_CURRENT_202608_VERSION_90",
-    date="202608",
-    version=90,
-    url="https://example.com/download/bnf_code_current_202608_version_90.csv",
-)
+CURRENT_RELEASE_INFO = {
+    "name": "BNF_CODE_CURRENT_202608_VERSION_90",
+    "date": "202608",
+    "version": 90,
+    "url": "https://example.com/download/bnf_code_current_202608_version_90.csv",
+}
 
-NEW_RELEASE_INFO = BNFReleaseInfo(
-    date="202609",
-    name="BNF_CODE_CURRENT_202609_VERSION_90",
-    url="https://example.com/download/bnf_code_current_202609_version_90.csv",
-    version=90,
-)
+NEW_RELEASE_INFO = {
+    "date": "202609",
+    "name": "BNF_CODE_CURRENT_202609_VERSION_90",
+    "url": "https://example.com/download/bnf_code_current_202609_version_90.csv",
+    "version": 90,
+}
 
 CSV_FILE = """\
 BNF_CHAPTER,BNF_CHAPTER_CODE
@@ -143,13 +141,6 @@ def test_get_all_releases_data_timeout(mocked_get):
     )
 
 
-def test_find_latest_release(mocked_odp_data):
-
-    latest_info = find_latest_release(mocked_odp_data)
-
-    assert latest_info == CURRENT_RELEASE_INFO
-
-
 @pytest.mark.parametrize(
     "name",
     [
@@ -220,11 +211,13 @@ def test_find_latest_local_csv_no_files(mock_empty_base_dir):
 
 def test_have_latest_csv_with_latest_local_csv():
 
-    latest_odp_release = CURRENT_RELEASE_INFO
+    local_csv = Path("bnf_code_current_202608_version_90.csv")
 
-    latest_local_csv = Path("bnf_code_current_202608_version_90.csv")
-
-    assert have_latest_csv(latest_odp_release, latest_local_csv)
+    assert have_latest_csv(
+        CURRENT_RELEASE_INFO["date"],
+        CURRENT_RELEASE_INFO["version"],
+        local_csv,
+    )
 
 
 @pytest.mark.parametrize(
@@ -242,23 +235,26 @@ def test_have_latest_csv_with_latest_local_csv():
 )
 def test_have_latest_csv_with_outdated_local_csv(csv_path):
 
-    latest_odp_release = CURRENT_RELEASE_INFO
-
-    assert not have_latest_csv(latest_odp_release, csv_path)
+    assert not have_latest_csv(
+        CURRENT_RELEASE_INFO["date"],
+        CURRENT_RELEASE_INFO["version"],
+        csv_path,
+    )
 
 
 @responses.activate
 def test_download_csv_success(mock_base_dir):
-    latest_odp_release = NEW_RELEASE_INFO
 
     responses.get(
-        latest_odp_release.url,
+        NEW_RELEASE_INFO["url"],
         body=CSV_FILE.encode("utf-8"),
         status=200,
     )
 
     new_csv = download_csv(
-        latest_odp_release,
+        NEW_RELEASE_INFO["date"],
+        NEW_RELEASE_INFO["version"],
+        NEW_RELEASE_INFO["url"],
         mock_base_dir / "bnf",
     )
 
@@ -268,17 +264,18 @@ def test_download_csv_success(mock_base_dir):
 
 @responses.activate
 def test_download_csv_http_error(mock_base_dir):
-    latest_odp_release = NEW_RELEASE_INFO
 
     responses.get(
-        latest_odp_release.url,
+        NEW_RELEASE_INFO["url"],
         body=CSV_FILE.encode("utf-8"),
         status=500,
     )
 
     with pytest.raises(HTTPError) as exc_info:
         download_csv(
-            latest_odp_release,
+            NEW_RELEASE_INFO["date"],
+            NEW_RELEASE_INFO["version"],
+            NEW_RELEASE_INFO["url"],
             mock_base_dir / "bnf",
         )
 
@@ -290,16 +287,17 @@ def test_download_csv_http_error(mock_base_dir):
 
 @responses.activate
 def test_download_csv_timeout_error(mock_base_dir):
-    latest_odp_release = NEW_RELEASE_INFO
 
     responses.get(
-        latest_odp_release.url,
+        NEW_RELEASE_INFO["url"],
         body=Timeout("Request timed out"),
     )
 
     with pytest.raises(Timeout) as exc_info:
         download_csv(
-            latest_odp_release,
+            NEW_RELEASE_INFO["date"],
+            NEW_RELEASE_INFO["version"],
+            NEW_RELEASE_INFO["url"],
             mock_base_dir / "bnf",
         )
 
@@ -311,8 +309,6 @@ def test_download_csv_timeout_error(mock_base_dir):
 
 @responses.activate
 def test_fetch_data_existing_csv_new_release_available(mock_base_dir):
-
-    latest_odp_release = NEW_RELEASE_INFO
 
     responses.get(
         "https://opendata.nhsbsa.net/api/3/action/package_show?id=bnf-code-information-current-year",
@@ -327,6 +323,10 @@ def test_fetch_data_existing_csv_new_release_available(mock_base_dir):
                         "name": "BNF_CODE_CURRENT_202609_VERSION_90",
                         "url": "https://example.com/download/bnf_code_current_202609_version_90.csv",
                     },
+                    {
+                        "name": "BNF_CODE_CURRENT_202607_VERSION_90",
+                        "url": "https://example.com/download/bnf_code_current_202607_version_90.csv",
+                    },
                 ]
             }
         },
@@ -334,7 +334,7 @@ def test_fetch_data_existing_csv_new_release_available(mock_base_dir):
     )
 
     responses.get(
-        latest_odp_release.url,
+        NEW_RELEASE_INFO["url"],
         body=CSV_FILE.encode("utf-8"),
         status=200,
     )
@@ -348,8 +348,6 @@ def test_fetch_data_existing_csv_new_release_available(mock_base_dir):
 @responses.activate
 def test_fetch_data_no_existing_csv(mock_empty_base_dir):
 
-    latest_odp_release = NEW_RELEASE_INFO
-
     responses.get(
         "https://opendata.nhsbsa.net/api/3/action/package_show?id=bnf-code-information-current-year",
         json={
@@ -370,7 +368,7 @@ def test_fetch_data_no_existing_csv(mock_empty_base_dir):
     )
 
     responses.get(
-        latest_odp_release.url,
+        NEW_RELEASE_INFO["url"],
         body=CSV_FILE.encode("utf-8"),
         status=200,
     )

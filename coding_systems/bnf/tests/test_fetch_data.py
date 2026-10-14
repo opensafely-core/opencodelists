@@ -9,7 +9,7 @@ from coding_systems.bnf.fetch_data import (
     download_csv,
     fetch_data,
     find_latest_local_csv,
-    get_all_releases,
+    get_release_metadata,
     have_latest_csv,
     parse_name,
 )
@@ -106,9 +106,9 @@ def mock_empty_bnf_data_dir(tmp_path):
     return csv_dir
 
 
-def test_get_all_releases_success(mocked_get, mocked_odp_data):
+def test_get_release_metadata_success(mocked_get, mocked_odp_data):
 
-    response = get_all_releases()
+    response = get_release_metadata()
 
     mocked_get.assert_called_once_with(
         "https://opendata.nhsbsa.net/api/3/action/package_show?id=bnf-code-information-current-year",
@@ -118,11 +118,11 @@ def test_get_all_releases_success(mocked_get, mocked_odp_data):
     assert response is mocked_odp_data
 
 
-def test_get_all_releases_http_error(mocked_get):
+def test_get_release_metadata_http_error(mocked_get):
     mocked_get.return_value.raise_for_status.side_effect = HTTPError("500 Server Error")
 
     with pytest.raises(HTTPError) as exc_info:
-        get_all_releases()
+        get_release_metadata()
 
     assert (
         "Failed to fetch the current year's BNF release metadata from ODP"
@@ -130,10 +130,10 @@ def test_get_all_releases_http_error(mocked_get):
     )
 
 
-def test_get_all_releases_data_timeout(mocked_get):
+def test_get_release_metadata_data_timeout(mocked_get):
     mocked_get.side_effect = Timeout("Request timed out")
     with pytest.raises(Timeout) as exc_info:
-        get_all_releases()
+        get_release_metadata()
 
     assert (
         "Failed to fetch the current year's BNF release metadata from ODP"

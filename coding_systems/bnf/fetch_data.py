@@ -48,7 +48,7 @@ def fetch_data(csv_directory: Path) -> Path | None:
 
     csv_path = find_latest_local_csv(csv_directory)
 
-    odp_response = get_all_releases()
+    odp_response = get_release_metadata()
 
     # Get metadata for the latest BNF coding system release, using
     # the release date and version from the resource name rather than ODP's
@@ -115,7 +115,7 @@ def parse_name(name):
     return date, version
 
 
-def get_all_releases():
+def get_release_metadata():
     """
     Get metadata for all BNF coding system releases published in the
     current calendar year (Jan to Dec) from the NHSBSA ODP API.

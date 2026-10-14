@@ -7,7 +7,11 @@ The `import_data.py` module handles importing the associated metadata
 into the core database and loading the release data into a newly created
 coding system release database.
 
-In this module, the script entry point is `fetch_data`, which:
+In this module, the script entry point is `fetch_data`.
+`csv_directory` is the directory containing existing BNF release
+CSVs and the destination for newly-downloaded CSVs.
+
+This script:
 
 1. finds the latest BNF release CSV stored locally;
 2. fetches the current year's release metadata from the NHSBSA ODP API;
@@ -16,7 +20,7 @@ In this module, the script entry point is `fetch_data`, which:
 
 To execute the script, run:
 
-`dokku run opencodelists python manage.py fetch_bnf_data /storage/data`
+`dokku run opencodelists python manage.py fetch_bnf_data /storage/data/bnf`
 
 BNF current year release information is available from:
 https://opendata.nhsbsa.net/dataset/bnf-code-information-current-year
@@ -33,7 +37,7 @@ from requests.exceptions import RequestException
 log = logging.getLogger(__name__)
 
 
-def fetch_data(directory: str) -> Path | None:
+def fetch_data(csv_directory: Path) -> Path | None:
     """
     Download the latest BNF coding system release CSV from the NHSBSA
     ODP API if it is not already available locally.
@@ -42,9 +46,7 @@ def fetch_data(directory: str) -> Path | None:
     release is already up to date.
     """
 
-    bnf_data_dir = Path(directory) / "bnf"
-
-    csv_path = find_latest_local_csv(bnf_data_dir)
+    csv_path = find_latest_local_csv(csv_directory)
 
     odp_response = get_all_releases()
 
@@ -72,7 +74,7 @@ def fetch_data(directory: str) -> Path | None:
         date,
         version,
         url,
-        bnf_data_dir,
+        csv_directory,
     )
 
     return new_csv_path
@@ -131,10 +133,10 @@ def get_all_releases():
         raise
 
 
-def find_latest_local_csv(directory: Path):
+def find_latest_local_csv(csv_directory: Path):
     """Given a directory containing BNF coding system release CSVs,
     return the path to the latest release, or `None` if no releases exist."""
-    existing_files = directory.glob("*.csv")
+    existing_files = csv_directory.glob("*.csv")
 
     latest_csv_path = max(
         existing_files,
@@ -153,14 +155,17 @@ def have_latest_csv(latest_date, latest_version, latest_bnf_release_csv_path):
     return csv_date == latest_date and csv_version == latest_version
 
 
-def download_csv(date, version, url, download_directory: Path):
+def download_csv(date, version, url, csv_directory: Path):
     """
     Download the latest BNF coding system release CSV from the NHSBSA ODP API.
+
+    `csv_directory` is the directory containing existing BNF release CSVs
+    and the destination for newly-downloaded CSVs.
 
     Returns the Path of the downloaded CSV file.
     """
     filename = f"bnf_code_current_{date}_version_{version}.csv"
-    download_path = download_directory / filename
+    download_path = csv_directory / filename
 
     try:
         with requests.get(

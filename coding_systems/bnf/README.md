@@ -13,7 +13,7 @@ Each monthly release is published as a CSV file whose name includes the year, mo
 To fetch the latest BNF release CSV, run:
 
 ```sh
-dokku run opencodelists python manage.py fetch_bnf_data /storage/data
+dokku run opencodelists python manage.py fetch_bnf_data /storage/data/bnf
 ```
 
 The command checks the existing BNF data and downloads the latest release from the NHSBSA Open Data Portal when required.

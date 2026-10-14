@@ -72,7 +72,7 @@ def mocked_get(mocked_odp_data):
 
 
 @pytest.fixture
-def mock_base_dir(tmp_path):
+def mock_bnf_data_dir(tmp_path):
     """Fixture to create a temporary directory with a 'bnf' subdirectory containing mock BNF coding release system CSVs.
 
     Returns the temporary directory Path object.
@@ -91,11 +91,11 @@ def mock_base_dir(tmp_path):
     for file in csv_files:
         (csv_dir / file).touch()
 
-    return tmp_path
+    return csv_dir
 
 
 @pytest.fixture
-def mock_empty_base_dir(tmp_path):
+def mock_empty_bnf_data_dir(tmp_path):
     """Fixture to create a temporary directory with an empty 'bnf' subdirectory.
 
     Returns the temporary directory Path object.
@@ -103,7 +103,7 @@ def mock_empty_base_dir(tmp_path):
     csv_dir = tmp_path / "bnf"
     csv_dir.mkdir()
 
-    return tmp_path
+    return csv_dir
 
 
 def test_get_all_releases_success(mocked_get, mocked_odp_data):
@@ -197,14 +197,14 @@ def test_parse_name_invalid(name):
     assert str(exc_info.value) == (f"Unexpected BNF release name: {name}")
 
 
-def test_find_latest_local_csv_existing_files(mock_base_dir):
-    csv_path = find_latest_local_csv(mock_base_dir / "bnf")
+def test_find_latest_local_csv_existing_files(mock_bnf_data_dir):
+    csv_path = find_latest_local_csv(mock_bnf_data_dir)
 
     assert csv_path.name == "bnf_code_current_202608_version_90.csv"
 
 
-def test_find_latest_local_csv_no_files(mock_empty_base_dir):
-    csv_path = find_latest_local_csv(mock_empty_base_dir / "bnf")
+def test_find_latest_local_csv_no_files(mock_empty_bnf_data_dir):
+    csv_path = find_latest_local_csv(mock_empty_bnf_data_dir)
 
     assert csv_path is None
 
@@ -243,7 +243,7 @@ def test_have_latest_csv_with_outdated_local_csv(csv_path):
 
 
 @responses.activate
-def test_download_csv_success(mock_base_dir):
+def test_download_csv_success(mock_bnf_data_dir):
 
     responses.get(
         NEW_RELEASE_INFO["url"],
@@ -255,15 +255,15 @@ def test_download_csv_success(mock_base_dir):
         NEW_RELEASE_INFO["date"],
         NEW_RELEASE_INFO["version"],
         NEW_RELEASE_INFO["url"],
-        mock_base_dir / "bnf",
+        mock_bnf_data_dir,
     )
 
-    assert new_csv == (mock_base_dir / "bnf" / "bnf_code_current_202609_version_90.csv")
+    assert new_csv == (mock_bnf_data_dir / "bnf_code_current_202609_version_90.csv")
     assert new_csv.read_text() == CSV_FILE
 
 
 @responses.activate
-def test_download_csv_http_error(mock_base_dir):
+def test_download_csv_http_error(mock_bnf_data_dir):
 
     responses.get(
         NEW_RELEASE_INFO["url"],
@@ -276,7 +276,7 @@ def test_download_csv_http_error(mock_base_dir):
             NEW_RELEASE_INFO["date"],
             NEW_RELEASE_INFO["version"],
             NEW_RELEASE_INFO["url"],
-            mock_base_dir / "bnf",
+            mock_bnf_data_dir,
         )
 
     assert (
@@ -286,7 +286,7 @@ def test_download_csv_http_error(mock_base_dir):
 
 
 @responses.activate
-def test_download_csv_timeout_error(mock_base_dir):
+def test_download_csv_timeout_error(mock_bnf_data_dir):
 
     responses.get(
         NEW_RELEASE_INFO["url"],
@@ -298,7 +298,7 @@ def test_download_csv_timeout_error(mock_base_dir):
             NEW_RELEASE_INFO["date"],
             NEW_RELEASE_INFO["version"],
             NEW_RELEASE_INFO["url"],
-            mock_base_dir / "bnf",
+            mock_bnf_data_dir,
         )
 
     assert (
@@ -308,7 +308,7 @@ def test_download_csv_timeout_error(mock_base_dir):
 
 
 @responses.activate
-def test_fetch_data_existing_csv_new_release_available(mock_base_dir):
+def test_fetch_data_existing_csv_new_release_available(mock_bnf_data_dir):
 
     responses.get(
         "https://opendata.nhsbsa.net/api/3/action/package_show?id=bnf-code-information-current-year",
@@ -339,14 +339,14 @@ def test_fetch_data_existing_csv_new_release_available(mock_base_dir):
         status=200,
     )
 
-    new_csv = fetch_data(mock_base_dir)
+    new_csv = fetch_data(mock_bnf_data_dir)
 
-    assert new_csv == (mock_base_dir / "bnf" / "bnf_code_current_202609_version_90.csv")
+    assert new_csv == (mock_bnf_data_dir / "bnf_code_current_202609_version_90.csv")
     assert new_csv.read_text() == CSV_FILE
 
 
 @responses.activate
-def test_fetch_data_no_existing_csv(mock_empty_base_dir):
+def test_fetch_data_no_existing_csv(mock_empty_bnf_data_dir):
 
     responses.get(
         "https://opendata.nhsbsa.net/api/3/action/package_show?id=bnf-code-information-current-year",
@@ -373,17 +373,17 @@ def test_fetch_data_no_existing_csv(mock_empty_base_dir):
         status=200,
     )
 
-    new_csv = fetch_data(mock_empty_base_dir)
+    new_csv = fetch_data(mock_empty_bnf_data_dir)
 
     assert new_csv == (
-        mock_empty_base_dir / "bnf" / "bnf_code_current_202609_version_90.csv"
+        mock_empty_bnf_data_dir / "bnf_code_current_202609_version_90.csv"
     )
     assert new_csv.read_text() == CSV_FILE
 
 
 @responses.activate
 def test_fetch_data_existing_csv_no_new_release_available(
-    mock_base_dir, mocked_odp_data
+    mock_bnf_data_dir, mocked_odp_data
 ):
 
     responses.get(
@@ -392,7 +392,7 @@ def test_fetch_data_existing_csv_no_new_release_available(
         status=200,
     )
 
-    new_csv = fetch_data(mock_base_dir)
+    new_csv = fetch_data(mock_bnf_data_dir)
 
     assert new_csv is None
     assert len(responses.calls) == 1

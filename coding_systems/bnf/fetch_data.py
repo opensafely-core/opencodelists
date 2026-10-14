@@ -50,9 +50,9 @@ def fetch_data(csv_directory: Path) -> Path | None:
 
     odp_response = get_release_metadata()
 
-    # Get metadata for the latest BNF coding system release, using
-    # the release date and version from the resource name rather than ODP's
-    # resource ordering, so "latest" is defined by the BNF release itself.
+    # Identify the latest release using the release date and version
+    # encoded in each resource's name, rather than relying on
+    # the order of resources returned by the ODP API.
     latest = max(
         odp_response["result"]["resources"],
         key=lambda resource: parse_name(resource["name"]),
@@ -177,6 +177,8 @@ def download_csv(date, version, url, csv_directory: Path):
 
             with download_path.open("wb") as f:
                 log.info("Downloading the latest BNF release CSV...")
+                # chunk_size value matches that used in `TrudDownloader.get_file()`
+                # and `Downloader.get_file()`.
                 for chunk in response.iter_content(chunk_size=8192):
                     f.write(chunk)
     except RequestException as e:

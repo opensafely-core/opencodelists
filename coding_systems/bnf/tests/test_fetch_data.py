@@ -1,4 +1,3 @@
-from pathlib import Path
 from unittest.mock import patch
 
 import pytest
@@ -8,9 +7,7 @@ from requests.exceptions import HTTPError, Timeout
 from coding_systems.bnf.fetch_data import (
     download_csv,
     fetch_data,
-    find_latest_local_csv,
     get_release_metadata,
-    have_latest_csv,
     parse_name,
 )
 
@@ -197,51 +194,6 @@ def test_parse_name_invalid(name):
     assert str(exc_info.value) == (f"Unexpected BNF release name: {name}")
 
 
-def test_find_latest_local_csv_existing_files(mock_bnf_data_dir):
-    csv_path = find_latest_local_csv(mock_bnf_data_dir)
-
-    assert csv_path.name == "bnf_code_current_202608_version_90.csv"
-
-
-def test_find_latest_local_csv_no_files(mock_empty_bnf_data_dir):
-    csv_path = find_latest_local_csv(mock_empty_bnf_data_dir)
-
-    assert csv_path is None
-
-
-def test_have_latest_csv_with_latest_local_csv():
-
-    local_csv = Path("bnf_code_current_202608_version_90.csv")
-
-    assert have_latest_csv(
-        CURRENT_RELEASE_INFO["date"],
-        CURRENT_RELEASE_INFO["version"],
-        local_csv,
-    )
-
-
-@pytest.mark.parametrize(
-    "csv_path",
-    [
-        pytest.param(
-            Path("bnf_code_current_202607_version_90.csv"),
-            id="older_date",
-        ),
-        pytest.param(
-            Path("bnf_code_current_202608_version_88.csv"),
-            id="older_version",
-        ),
-    ],
-)
-def test_have_latest_csv_with_outdated_local_csv(csv_path):
-
-    assert not have_latest_csv(
-        CURRENT_RELEASE_INFO["date"],
-        CURRENT_RELEASE_INFO["version"],
-        csv_path,
-    )
-
-
 @responses.activate
 def test_download_csv_success(mock_bnf_data_dir):
 
@@ -308,7 +260,7 @@ def test_download_csv_timeout_error(mock_bnf_data_dir):
 
 
 @responses.activate
-def test_fetch_data_existing_csv_new_release_available(mock_bnf_data_dir):
+def test_fetch_data_existing_csv_newer_date_release_available(mock_bnf_data_dir):
 
     responses.get(
         "https://opendata.nhsbsa.net/api/3/action/package_show?id=bnf-code-information-current-year",
@@ -342,6 +294,41 @@ def test_fetch_data_existing_csv_new_release_available(mock_bnf_data_dir):
     new_csv = fetch_data(mock_bnf_data_dir)
 
     assert new_csv == (mock_bnf_data_dir / "bnf_code_current_202609_version_90.csv")
+    assert new_csv.read_text() == CSV_FILE
+
+
+@responses.activate
+def test_fetch_data_existing_csv_newer_version_release_available(
+    mock_empty_bnf_data_dir,
+):
+    csv_directory = mock_empty_bnf_data_dir
+
+    (csv_directory / "bnf_code_current_202609_version_88.csv").touch()
+
+    responses.get(
+        "https://opendata.nhsbsa.net/api/3/action/package_show?id=bnf-code-information-current-year",
+        json={
+            "result": {
+                "resources": [
+                    {
+                        "name": "BNF_CODE_CURRENT_202609_VERSION_90",
+                        "url": "https://example.com/download/bnf_code_current_202609_version_90.csv",
+                    },
+                ]
+            }
+        },
+        status=200,
+    )
+
+    responses.get(
+        NEW_RELEASE_INFO["url"],
+        body=CSV_FILE.encode("utf-8"),
+        status=200,
+    )
+
+    new_csv = fetch_data(csv_directory)
+
+    assert new_csv == (csv_directory / "bnf_code_current_202609_version_90.csv")
     assert new_csv.read_text() == CSV_FILE
 
 

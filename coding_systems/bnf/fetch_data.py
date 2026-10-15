@@ -46,7 +46,13 @@ def fetch_data(csv_directory: Path) -> Path | None:
     release is already up to date.
     """
 
-    csv_path = find_latest_local_csv(csv_directory)
+    # Find the latest local release file
+    existing_files = csv_directory.glob("*.csv")
+    csv_path = max(
+        existing_files,
+        default=None,
+        key=lambda file: parse_name(file.name),
+    )
 
     odp_response = get_release_metadata()
 
@@ -61,13 +67,16 @@ def fetch_data(csv_directory: Path) -> Path | None:
     url = latest["url"]
     date, version = parse_name(name)
 
-    if csv_path is not None and have_latest_csv(
-        date,
-        version,
-        csv_path,
-    ):
-        log.info("Latest BNF release CSV file already exists locally: %s.", csv_path)
-        return None
+    # Check whether the latest local CSV matches the latest ODP release.
+    if csv_path is not None:
+        csv_date, csv_version = parse_name(csv_path.name)
+
+        if csv_date == date and csv_version == version:
+            log.info(
+                "Latest BNF release CSV file already exists locally: %s",
+                csv_path,
+            )
+            return None
 
     log.info("New BNF release available: %s.", name)
     new_csv_path = download_csv(
@@ -131,28 +140,6 @@ def get_release_metadata():
     except RequestException as e:
         e.add_note("Failed to fetch the current year's BNF release metadata from ODP")
         raise
-
-
-def find_latest_local_csv(csv_directory: Path):
-    """Given a directory containing BNF coding system release CSVs,
-    return the path to the latest release, or `None` if no releases exist."""
-    existing_files = csv_directory.glob("*.csv")
-
-    latest_csv_path = max(
-        existing_files,
-        default=None,
-        key=lambda file: parse_name(file.name),
-    )
-
-    return latest_csv_path
-
-
-def have_latest_csv(latest_date, latest_version, latest_bnf_release_csv_path):
-    """Determine whether the latest local BNF release CSV we have on
-    disk is the latest release available from the ODP API."""
-    csv_date, csv_version = parse_name(latest_bnf_release_csv_path.name)
-
-    return csv_date == latest_date and csv_version == latest_version
 
 
 def download_csv(date, version, url, csv_directory: Path):

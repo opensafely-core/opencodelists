@@ -15,7 +15,7 @@ from coding_systems.snomedct import ecl_parser
 from opencodelists.models import User
 
 from .codeset import Codeset
-from .coding_systems import most_recent_database_alias
+from .coding_systems import CODING_SYSTEMS
 from .hierarchy import Hierarchy
 from .models import CachedHierarchy, Codelist, CodeObj, Handle, Status
 from .search import do_search
@@ -750,7 +750,12 @@ def convert_bnf_codelist_version_to_dmd(version, published=False):
     dmd_methodology = (
         f"Converted from [pseudo-BNF system codelist]({version.get_absolute_url()})"
     )
-    dmd_alias = most_recent_database_alias("dmd")
+    most_recent_dmd = CODING_SYSTEMS["dmd"].get_by_release_or_most_recent()
+    codes = most_recent_dmd.codes_from_csv(
+        csv_data=dmd_csv_data, csv_has_header=True, lookup_code_column=True
+    )
+    most_recent_dmd.validate_csv_data_codes(codes)
+    dmd_alias = most_recent_dmd.database_alias
     dmd_references = [
         {"text": ref.text, "url": ref.url} for ref in version.codelist.references.all()
     ]
@@ -764,14 +769,16 @@ def convert_bnf_codelist_version_to_dmd(version, published=False):
 
     if existing_handle:
         for existing_version in existing_handle.codelist.versions.all():
-            if existing_version.csv_data == dmd_csv_data.replace("\r", ""):
+            if set(existing_version.codes) == set(codes):
                 raise IntegrityError("Version with identical csv_data exists")
-        converted_codelist = create_old_style_version(
-            codelist=existing_handle.codelist,
-            csv_data=dmd_csv_data,
+        converted_codelist = existing_handle.codelist
+        create_version_with_codes(
+            codelist=converted_codelist,
+            codes=codes,
             coding_system_database_alias=dmd_alias,
             author=version.author,
-        ).codelist
+            status=Status.UNDER_REVIEW,
+        )
 
         update_codelist(
             codelist=converted_codelist,
@@ -787,7 +794,7 @@ def convert_bnf_codelist_version_to_dmd(version, published=False):
             ],
         )
     else:
-        converted_codelist = create_old_style_codelist(
+        converted_codelist = create_codelist_with_codes(
             owner=owner,
             name=dmd_name,
             slug=dmd_slug,
@@ -795,9 +802,10 @@ def convert_bnf_codelist_version_to_dmd(version, published=False):
             coding_system_database_alias=dmd_alias,
             methodology=dmd_methodology,
             description=dmd_description,
-            csv_data=dmd_csv_data,
+            codes=codes,
             references=dmd_references,
             author=version.author,
+            status=Status.UNDER_REVIEW,
         )
     if published:
         publish_version(version=converted_codelist.versions.last())

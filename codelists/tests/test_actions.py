@@ -595,11 +595,7 @@ def test_convert_bnf_codelist_version_to_dmd(bnf_version_asthma, dmd_bnf_mapping
 
     # status is under review by default
     assert dmd_version.status == "under review"
-    assert dmd_version.csv_data == (
-        "dmd_type,dmd_id,dmd_name,bnf_code\n"
-        "VMP,10514511000001106,Adrenaline (base) 220micrograms/dose inhaler,0301012A0AAABAB\n"
-        "VMP,10525011000001107,Adrenaline (base) 220micrograms/dose inhaler refill,0301012A0AAACAC\n"
-    )
+    assert set(dmd_version.codes) == {"10514511000001106", "10525011000001107"}
 
 
 def test_cannot_convert_non_bnf_codelist_to_dmd(version):
@@ -632,12 +628,11 @@ def test_can_update_converted_dmd_codelist(bnf_version_asthma, dmd_bnf_mapping_d
 
     # status is under review by default
     assert dmd_version.status == "under review"
-    assert dmd_version.csv_data == (
-        "dmd_type,dmd_id,dmd_name,bnf_code\n"
-        "VMP,35936411000001109,Salbutamol 100micrograms/dose breath actuated inhaler,0301011R0AAADAD\n"
-        "VMP,10514511000001106,Adrenaline (base) 220micrograms/dose inhaler,0301012A0AAABAB\n"
-        "VMP,10525011000001107,Adrenaline (base) 220micrograms/dose inhaler refill,0301012A0AAACAC\n"
-    )
+    assert set(dmd_version.codes) == {
+        "35936411000001109",
+        "10514511000001106",
+        "10525011000001107",
+    }
 
 
 def test_converting_bnf_to_dmd_preserves_author(

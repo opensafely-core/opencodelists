@@ -32,6 +32,8 @@ BNF_CHAPTER,BNF_CHAPTER_CODE
 "Cardiovascular System",02
 """
 
+ODP_URL = "https://opendata.nhsbsa.net/api/3/action/package_show?id=bnf-code-information-current-year"
+
 
 @pytest.fixture
 def mocked_odp_data():
@@ -108,7 +110,7 @@ def test_get_release_metadata_success(mocked_get, mocked_odp_data):
     response = get_release_metadata()
 
     mocked_get.assert_called_once_with(
-        "https://opendata.nhsbsa.net/api/3/action/package_show?id=bnf-code-information-current-year",
+        ODP_URL,
         timeout=10,
     )
     mocked_get.return_value.raise_for_status.assert_called_once()
@@ -263,7 +265,7 @@ def test_download_csv_timeout_error(mock_bnf_data_dir):
 def test_fetch_data_existing_csv_newer_date_release_available(mock_bnf_data_dir):
 
     responses.get(
-        "https://opendata.nhsbsa.net/api/3/action/package_show?id=bnf-code-information-current-year",
+        ODP_URL,
         json={
             "result": {
                 "resources": [
@@ -272,8 +274,8 @@ def test_fetch_data_existing_csv_newer_date_release_available(mock_bnf_data_dir)
                         "url": "https://example.com/download/bnf_code_current_202608_version_90.csv",
                     },
                     {
-                        "name": "BNF_CODE_CURRENT_202609_VERSION_90",
-                        "url": "https://example.com/download/bnf_code_current_202609_version_90.csv",
+                        "name": NEW_RELEASE_INFO["name"],
+                        "url": NEW_RELEASE_INFO["url"],
                     },
                     {
                         "name": "BNF_CODE_CURRENT_202607_VERSION_90",
@@ -306,13 +308,17 @@ def test_fetch_data_existing_csv_newer_version_release_available(
     (csv_directory / "bnf_code_current_202609_version_88.csv").touch()
 
     responses.get(
-        "https://opendata.nhsbsa.net/api/3/action/package_show?id=bnf-code-information-current-year",
+        ODP_URL,
         json={
             "result": {
                 "resources": [
                     {
-                        "name": "BNF_CODE_CURRENT_202609_VERSION_90",
-                        "url": "https://example.com/download/bnf_code_current_202609_version_90.csv",
+                        "name": "BNF_CODE_CURRENT_202608_VERSION_90",
+                        "url": "https://example.com/download/bnf_code_current_202608_version_90.csv",
+                    },
+                    {
+                        "name": NEW_RELEASE_INFO["name"],
+                        "url": NEW_RELEASE_INFO["url"],
                     },
                 ]
             }
@@ -336,7 +342,7 @@ def test_fetch_data_existing_csv_newer_version_release_available(
 def test_fetch_data_no_existing_csv(mock_empty_bnf_data_dir):
 
     responses.get(
-        "https://opendata.nhsbsa.net/api/3/action/package_show?id=bnf-code-information-current-year",
+        ODP_URL,
         json={
             "result": {
                 "resources": [
@@ -345,8 +351,8 @@ def test_fetch_data_no_existing_csv(mock_empty_bnf_data_dir):
                         "url": "https://example.com/download/bnf_code_current_202608_version_90.csv",
                     },
                     {
-                        "name": "BNF_CODE_CURRENT_202609_VERSION_90",
-                        "url": "https://example.com/download/bnf_code_current_202609_version_90.csv",
+                        "name": NEW_RELEASE_INFO["name"],
+                        "url": NEW_RELEASE_INFO["url"],
                     },
                 ]
             }
@@ -374,7 +380,7 @@ def test_fetch_data_existing_csv_no_new_release_available(
 ):
 
     responses.get(
-        "https://opendata.nhsbsa.net/api/3/action/package_show?id=bnf-code-information-current-year",
+        ODP_URL,
         json=mocked_odp_data,
         status=200,
     )

@@ -1,6 +1,17 @@
+from datetime import datetime
+
+import pytest
+from django.utils import timezone
+
 from codelists.actions import publish_version
-from codelists.models import Handle, Status
+from codelists.models import Codelist, CodelistVersion, Handle, Status
 from opencodelists.list_utils import flatten
+
+
+def aware_datetime(year: int, month: int, day: int) -> datetime:
+    """Return a timezone-aware datetime for deterministic timestamp assertions."""
+
+    return timezone.make_aware(datetime(year, month, day))
 
 
 def test_published_index_only_returns_public_codelists_with_published_versions(
@@ -51,14 +62,76 @@ def test_paginate_published_codelists(client, organisation, create_codelists):
     assert len(page_obj.object_list) == min(50, len(published_for_organisation) - 50)
 
 
-def test_published_pagination_preserves_search_query(
-    client, organisation, create_codelists
+@pytest.mark.parametrize(
+    ("path", "status"),
+    [
+        ("", Status.PUBLISHED),
+        ("under-review/", Status.UNDER_REVIEW),
+    ],
+)
+def test_organisation_pagination_preserves_search_and_sort_query(
+    client, organisation, create_codelists, path, status
 ):
-    create_codelists(70, owner=organisation, status=Status.PUBLISHED)
+    create_codelists(70, owner=organisation, status=status)
 
-    rsp = client.get(f"/codelist/{organisation.slug}/", {"q": "Codelist"})
+    rsp = client.get(
+        f"/codelist/{organisation.slug}/{path}",
+        {"q": "Codelist", "sort": "name", "direction": "desc"},
+    )
 
-    assert 'href="?page=2&q=Codelist"' in rsp.content.decode()
+    assert rsp.context["pagination"]["next_url"] == (
+        "?page=2&q=Codelist&sort=name&direction=desc"
+    )
+    assert 'href="?page=2&amp;q=Codelist&amp;sort=name&amp;direction=desc"' in (
+        rsp.content.decode()
+    )
+
+
+@pytest.mark.parametrize(
+    ("sort", "direction", "expected_names"),
+    [
+        (
+            "name",
+            "asc",
+            ["SNOMED alpha", "SNOMED Bravo", "SNOMED Charlie"],
+        ),
+        (
+            "name",
+            "desc",
+            ["SNOMED Charlie", "SNOMED Bravo", "SNOMED alpha"],
+        ),
+        (
+            "updated_at",
+            "asc",
+            ["SNOMED Charlie", "SNOMED alpha", "SNOMED Bravo"],
+        ),
+        (
+            "updated_at",
+            "desc",
+            ["SNOMED Bravo", "SNOMED alpha", "SNOMED Charlie"],
+        ),
+    ],
+)
+def test_published_codelists_search_and_sort(
+    client, organisation, create_codelist, sort, direction, expected_names
+):
+    bravo = create_codelist("SNOMED Bravo")
+    alpha = create_codelist("SNOMED alpha")
+    charlie = create_codelist("SNOMED Charlie")
+    create_codelist("Ignored published")
+
+    Codelist.objects.filter(pk=bravo.pk).update(updated_at=aware_datetime(2020, 3, 1))
+    Codelist.objects.filter(pk=alpha.pk).update(updated_at=aware_datetime(2020, 2, 1))
+    Codelist.objects.filter(pk=charlie.pk).update(updated_at=aware_datetime(2020, 1, 1))
+
+    rsp = client.get(
+        f"/codelist/{organisation.slug}/",
+        {"q": "SNOMED", "sort": sort, "direction": direction},
+    )
+
+    assert [
+        codelist.name for codelist in rsp.context["page_obj"].object_list
+    ] == expected_names
 
 
 def test_published_index_does_not_duplicate_codelists_with_multiple_published_versions(
@@ -148,6 +221,59 @@ def test_paginate_under_review_versions(client, organisation, create_codelists):
     rsp = client.get(f"/codelist/{organisation.slug}/under-review/?page=2")
     page_obj = rsp.context["page_obj"]
     assert len(page_obj.object_list) == min(50, len(under_review_for_organisation) - 50)
+
+
+@pytest.mark.parametrize(
+    ("sort", "direction", "expected_names"),
+    [
+        (
+            "name",
+            "asc",
+            ["DM+D alpha", "DM+D Bravo", "DM+D Charlie"],
+        ),
+        (
+            "name",
+            "desc",
+            ["DM+D Charlie", "DM+D Bravo", "DM+D alpha"],
+        ),
+        (
+            "created_at",
+            "asc",
+            ["DM+D Charlie", "DM+D alpha", "DM+D Bravo"],
+        ),
+        (
+            "created_at",
+            "desc",
+            ["DM+D Bravo", "DM+D alpha", "DM+D Charlie"],
+        ),
+    ],
+)
+def test_under_review_versions_search_and_sort(
+    client, organisation, create_codelist, sort, direction, expected_names
+):
+    bravo = create_codelist("DM+D Bravo", status=Status.UNDER_REVIEW)
+    alpha = create_codelist("DM+D alpha", status=Status.UNDER_REVIEW)
+    charlie = create_codelist("DM+D Charlie", status=Status.UNDER_REVIEW)
+    create_codelist("Ignored review", status=Status.UNDER_REVIEW)
+
+    CodelistVersion.objects.filter(codelist=bravo).update(
+        created_at=aware_datetime(2020, 3, 1)
+    )
+    CodelistVersion.objects.filter(codelist=alpha).update(
+        created_at=aware_datetime(2020, 2, 1)
+    )
+    CodelistVersion.objects.filter(codelist=charlie).update(
+        created_at=aware_datetime(2020, 1, 1)
+    )
+
+    rsp = client.get(
+        f"/codelist/{organisation.slug}/under-review/",
+        {"q": "DM+D", "sort": sort, "direction": direction},
+    )
+
+    assert (
+        [version.codelist.name for version in rsp.context["page_obj"].object_list]
+    ) == expected_names
 
 
 def test_search_only_returns_codelists_with_under_review_versions(

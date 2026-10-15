@@ -1,27 +1,15 @@
-# codelists/tests/views/assertions.py:
-ursula@test.ac.uk
-# codelists/tests/test_forms.py:
-fred@example.co.uk
-# opencodelists/tests/test_forms.py:
-unknown@test.com
-# opencodelists/tests/management/commands/test_create_user.py:
-foo@bar.com
-# opencodelists/tests/test_sentry_cron_functions.py:
-ecae920f60aa7a6a3e16d50d121ce4f2@o123456.ingest.sentry.io
-# DEPLOY.md:
-xxx@xxx.ingest.sentry.io
-# opencodelists/tests/fixtures.py:
-alice@test.ac.uk
-# opencodelists/tests/fixtures.py:
-bob@test.ac.uk
-# opencodelists/tests/fixtures.py:
-charlie@example.co.uk
-# opencodelists/tests/fixtures.py:
-dave@example.co.uk
-# opencodelists/tests/fixtures.py:
-eve@example.co.uk
-
 # Bennett domains
 @dokku3.ebmdatalab.net
 @opencodelists.org
 @opensafely.org
+
+# Test domains
+@example.com
+@example.net
+@example.org
+
+# DEPLOY.md:
+xxx@xxx.ingest.sentry.io
+
+# opencodelists/tests/test_sentry_cron_functions.py:
+ecae920f60aa7a6a3e16d50d121ce4f2@o123456.ingest.sentry.io

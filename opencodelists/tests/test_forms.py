@@ -45,10 +45,12 @@ def test_membership_create_form_already_member(organisation, organisation_user):
 
 def test_membership_create_form_no_user(organisation):
     form = MembershipCreateForm(
-        {"user_idenitfier": "unknown@test.com"}, organisation=organisation
+        {"user_idenitfier": "unknown@example.com"}, organisation=organisation
     )
     assert form.is_valid() is False
-    assert form.errors == {"user_idenitfier": ["User unknown@test.com does not exist"]}
+    assert form.errors == {
+        "user_idenitfier": ["User unknown@example.com does not exist"]
+    }
 
 
 class TestCodelistCreateForm:

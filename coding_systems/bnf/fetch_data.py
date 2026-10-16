@@ -46,6 +46,11 @@ def fetch_data(csv_directory: Path) -> Path | None:
     release is already up to date.
     """
 
+    if not csv_directory.is_dir():
+        raise FileNotFoundError(
+            f"BNF CSV directory does not exist or is not a directory: {csv_directory}"
+        )
+
     # Find the latest local release file
     existing_files = csv_directory.glob("*.csv")
     csv_path = max(

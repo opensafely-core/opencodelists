@@ -389,3 +389,24 @@ def test_fetch_data_existing_csv_no_new_release_available(
 
     assert new_csv is None
     assert len(responses.calls) == 1
+
+
+@pytest.mark.parametrize(
+    "path, is_file",
+    [
+        pytest.param("not_a_dir.csv", True, id="csv_file"),
+        pytest.param("non_existent_dir", False, id="non_existent_dir"),
+    ],
+)
+def test_fetch_data_invalid_csv_directory(tmp_path, path, is_file):
+    csv_directory = tmp_path / path
+
+    if is_file:
+        csv_directory.touch()
+
+    with pytest.raises(FileNotFoundError) as exc_info:
+        fetch_data(csv_directory)
+
+    assert str(exc_info.value) == (
+        f"BNF CSV directory does not exist or is not a directory: {csv_directory}"
+    )

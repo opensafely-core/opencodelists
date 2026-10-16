@@ -1,0 +1,15 @@
+# Bennett domains
+@dokku3.ebmdatalab.net
+@opencodelists.org
+@opensafely.org
+
+# Test domains
+@example.com
+@example.net
+@example.org
+
+# DEPLOY.md:
+xxx@xxx.ingest.sentry.io
+
+# opencodelists/tests/test_sentry_cron_functions.py:
+ecae920f60aa7a6a3e16d50d121ce4f2@o123456.ingest.sentry.io

@@ -336,7 +336,9 @@ def build_fixtures():
     #   - old_style_codelist
     #   - new_style_codelist
     #   - codelist_from_scratch
-    organisation = create_organisation(name="Test University", url="https://test.ac.uk")
+    organisation = create_organisation(
+        name="Test University", url="https://example.org"
+    )
 
     # another_organisation
     another_organisation = create_organisation(
@@ -346,7 +348,7 @@ def build_fixtures():
     # organisation_admin
     # - is admin for organisation
     organisation_admin = User.objects.create_user(
-        username="alice", password="test", email="alice@test.ac.uk", name="Alice"
+        username="alice", password="test", email="alice@example.org", name="Alice"
     )
     add_user_to_organisation(
         user=organisation_admin, organisation=organisation, date_joined="2020-02-29"
@@ -359,7 +361,7 @@ def build_fixtures():
     # - has one codelist:
     #   - user_codelist
     organisation_user = User.objects.create_user(
-        username="bob", password="test", email="bob@test.ac.uk", name="Bob"
+        username="bob", password="test", email="bob@example.org", name="Bob"
     )
     add_user_to_organisation(
         user=organisation_user, organisation=organisation, date_joined="2020-02-29"
@@ -375,7 +377,7 @@ def build_fixtures():
     collaborator = User.objects.create_user(
         username="charlie",
         password="test",
-        email="charlie@example.co.uk",
+        email="charlie@example.com",
         name="Charlie",
     )
 
@@ -385,7 +387,7 @@ def build_fixtures():
     user_without_organisation = User.objects.create_user(
         username="dave",
         password="test",
-        email="dave@example.co.uk",
+        email="dave@example.com",
         name="Dave",
     )
     set_api_token(user=user_without_organisation)
@@ -394,7 +396,7 @@ def build_fixtures():
     user_with_no_api_token = User.objects.create_user(
         username="eve",
         password="test",
-        email="eve@example.co.uk",
+        email="eve@example.com",
         name="Eve",
     )
 

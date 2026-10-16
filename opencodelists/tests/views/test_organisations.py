@@ -77,7 +77,7 @@ def test_add_member(
     client.force_login(organisation_admin)
 
     response = client.post(
-        organisation_members_url, data={"user_idenitfier": "unknown@test.com"}
+        organisation_members_url, data={"user_idenitfier": "unknown@example.com"}
     )
     assert response.context["form"].is_valid() is False
 

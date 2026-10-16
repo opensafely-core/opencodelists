@@ -182,7 +182,7 @@ def test_signoff_form_ordered_by_username(
     User.objects.create_user(
         username="Fred",
         password="test",
-        email="fred@example.co.uk",
+        email="fred@example.com",
         name="Fred",
     )
 

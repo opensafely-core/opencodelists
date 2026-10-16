@@ -19,7 +19,7 @@ def assert_post_unauthenticated(client, url):
 
 def assert_unauthorised(client, method, url):
     user = User.objects.create_user(
-        username="ursula", password="test", email="ursula@test.ac.uk", name="Ursula"
+        username="ursula", password="test", email="ursula@example.org", name="Ursula"
     )
     client.force_login(user)
     response = getattr(client, method)(url)

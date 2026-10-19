@@ -39,7 +39,7 @@ distlib==0.4.3
     # via virtualenv
 dj-database-url==3.1.2
     # via opencodelists
-django==5.2.17
+django==5.2.18
     # via
     #   crispy-bootstrap4
     #   dj-database-url
@@ -74,14 +74,14 @@ django-taggit==6.1.0
     # via opencodelists
 django-vite==3.2.0
     # via opencodelists
-djangorestframework==3.18.1
+djangorestframework==3.18.3
     # via opencodelists
 djhtml==3.0.11
 et-xmlfile==2.0.0
     # via openpyxl
-faker==40.40.0
+faker==40.43.0
     # via opencodelists
-filelock==4.0.11
+filelock==4.1.1
     # via
     #   python-discovery
     #   virtualenv
@@ -97,14 +97,14 @@ grpcio==1.84.0
     # via opentelemetry-exporter-otlp-proto-grpc
 gunicorn==26.2.0
     # via opencodelists
-hypothesis==6.168.4
+hypothesis==6.169.0
 identify==2.6.20
     # via pre-commit
 idna==3.20
     # via
     #   django-anymail
     #   requests
-iniconfig==2.3.0
+iniconfig==2.3.1
     # via pytest
 invoke==3.0.3
     # via paramiko
@@ -116,11 +116,11 @@ nh3==0.3.7
     # via opencodelists
 nodeenv==1.11.0
     # via pre-commit
-numpy==2.5.3
+numpy==2.5.4
     # via pandas
 openpyxl==3.1.5
     # via opencodelists
-opentelemetry-api==1.45.0
+opentelemetry-api==1.45.1
     # via
     #   opentelemetry-exporter-http-transport
     #   opentelemetry-exporter-otlp-proto-grpc
@@ -130,48 +130,48 @@ opentelemetry-api==1.45.0
     #   opentelemetry-instrumentation-wsgi
     #   opentelemetry-sdk
     #   opentelemetry-semantic-conventions
-opentelemetry-exporter-http-transport==0.66b0
+opentelemetry-exporter-http-transport==0.66b1
     # via opentelemetry-exporter-otlp-proto-http
-opentelemetry-exporter-otlp==1.45.0
+opentelemetry-exporter-otlp==1.45.1
     # via opencodelists
-opentelemetry-exporter-otlp-common==0.66b0
+opentelemetry-exporter-otlp-common==0.66b1
     # via
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
-opentelemetry-exporter-otlp-proto-common==1.45.0
+opentelemetry-exporter-otlp-proto-common==1.45.1
     # via
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
-opentelemetry-exporter-otlp-proto-grpc==1.45.0
+opentelemetry-exporter-otlp-proto-grpc==1.45.1
     # via opentelemetry-exporter-otlp
-opentelemetry-exporter-otlp-proto-http==1.45.0
+opentelemetry-exporter-otlp-proto-http==1.45.1
     # via opentelemetry-exporter-otlp
-opentelemetry-instrumentation==0.66b0
+opentelemetry-instrumentation==0.66b1
     # via
     #   opentelemetry-instrumentation-django
     #   opentelemetry-instrumentation-wsgi
-opentelemetry-instrumentation-django==0.66b0
+opentelemetry-instrumentation-django==0.66b1
     # via opencodelists
-opentelemetry-instrumentation-wsgi==0.66b0
+opentelemetry-instrumentation-wsgi==0.66b1
     # via opentelemetry-instrumentation-django
-opentelemetry-proto==1.45.0
+opentelemetry-proto==1.45.1
     # via
     #   opentelemetry-exporter-otlp-proto-common
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
-opentelemetry-sdk==1.45.0
+opentelemetry-sdk==1.45.1
     # via
     #   opencodelists
     #   opentelemetry-exporter-otlp-common
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
-opentelemetry-semantic-conventions==0.66b0
+opentelemetry-semantic-conventions==0.66b1
     # via
     #   opentelemetry-instrumentation
     #   opentelemetry-instrumentation-django
     #   opentelemetry-instrumentation-wsgi
     #   opentelemetry-sdk
-opentelemetry-util-http==0.66b0
+opentelemetry-util-http==0.66b1
     # via
     #   opentelemetry-instrumentation-django
     #   opentelemetry-instrumentation-wsgi
@@ -184,7 +184,7 @@ packaging==26.3
     #   virtualenv
 pandas==3.0.6
 paramiko==5.0.0
-platformdirs==4.12.3
+platformdirs==4.13.0
     # via virtualenv
 playwright==1.63.0
     # via pytest-playwright
@@ -197,7 +197,7 @@ protobuf==7.36.2
     # via
     #   googleapis-common-protos
     #   opentelemetry-proto
-pycparser==3.0 ; implementation_name != 'PyPy' and platform_python_implementation != 'PyPy'
+pycparser==3.11 ; implementation_name != 'PyPy' and platform_python_implementation != 'PyPy'
     # via cffi
 pyee==13.0.1
     # via playwright
@@ -207,22 +207,19 @@ pynacl==1.6.2
     # via paramiko
 pytest==9.1.1
     # via
-    #   pytest-base-url
     #   pytest-cov
     #   pytest-django
     #   pytest-playwright
-pytest-base-url==2.1.0
-    # via pytest-playwright
 pytest-cov==7.1.0
 pytest-django==4.14.0
-pytest-playwright==0.9.0
+pytest-playwright==0.10.0
 python-dateutil==2.9.0.post0
     # via pandas
-python-discovery==1.6.1
+python-discovery==1.6.2
     # via virtualenv
 python-ipware==4.1.1
     # via django-ipware
-python-slugify==8.0.4
+python-slugify==9.1.3
     # via pytest-playwright
 pyyaml==6.0.3
     # via
@@ -233,10 +230,11 @@ requests==2.34.2
     # via
     #   django-anymail
     #   opencodelists
-    #   pytest-base-url
+    #   opentelemetry-exporter-http-transport
+    #   opentelemetry-exporter-otlp-proto-http
     #   responses
 responses==0.26.3
-ruff==0.16.10
+ruff==0.17.0
 sentry-sdk==2.71.0
     # via opencodelists
 six==1.17.0
@@ -248,7 +246,7 @@ slippers==0.7.1
     # via opencodelists
 sortedcontainers==2.4.0
     # via hypothesis
-soupsieve==2.10
+soupsieve==3.0.2
     # via beautifulsoup4
 sqlean-py==3.50.4.5
     # via opencodelists
@@ -285,11 +283,10 @@ tzdata==2026.5 ; sys_platform == 'emscripten' or sys_platform == 'win32'
 urllib3==2.8.0
     # via
     #   django-anymail
-    #   opentelemetry-exporter-http-transport
     #   requests
     #   responses
     #   sentry-sdk
-virtualenv==21.14.5
+virtualenv==21.14.7
     # via pre-commit
 whitenoise==6.12.0
     # via opencodelists

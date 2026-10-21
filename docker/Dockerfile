@@ -2,7 +2,7 @@
 
 ## These build args are used in FROM lines, so need to be declared globally and have defaults set.
 ARG NODE_VERSION
-ARG UV_VERSION=0.11
+ARG UV_VERSION=0.13
 
 #################################################
 #

@@ -3,11 +3,11 @@ from opencodelists import actions
 
 def test_create_organisation():
     o = actions.create_organisation(
-        name="Another Test University", url="https://another-test.ac.uk"
+        name="Another Test University", url="https://example.org"
     )
     assert o.name == "Another Test University"
     assert o.slug == "another-test-university"
-    assert o.url == "https://another-test.ac.uk"
+    assert o.url == "https://example.org"
 
 
 def test_add_user_to_organisation(organisation, user_without_organisation):

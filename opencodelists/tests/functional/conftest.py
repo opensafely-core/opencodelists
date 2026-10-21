@@ -46,7 +46,7 @@ def login_context_for_user(browser, client, live_server):
             name=f"{username} Test User",
         )
         if org:
-            organisation = create_organisation(name=org, url="https://test.ac.uk")
+            organisation = create_organisation(name=org, url="https://example.org")
             add_user_to_organisation(
                 user=user, organisation=organisation, date_joined="2020-02-29"
             )

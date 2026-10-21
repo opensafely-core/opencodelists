@@ -30,7 +30,7 @@ def test_create_user_args(capsys, organisation):
     call_command(
         "create_user",
         "username",
-        "--email=foo@bar.com",
+        "--email=foo@example.com",
         "--name=fullname",
         "--admin",
         "--password=foobar123",
@@ -38,7 +38,7 @@ def test_create_user_args(capsys, organisation):
     )
 
     user = User.objects.get(username="username")
-    assert user.email == "foo@bar.com"
+    assert user.email == "foo@example.com"
     assert user.name == "fullname"
     assert user.is_admin
     assert user.check_password("foobar123")
@@ -51,7 +51,7 @@ def test_create_user_args(capsys, organisation):
     call_command(
         "create_user",
         "username",
-        "--email=foo@bar.com",
+        "--email=foo@example.com",
         "--name=fullname",
         "--admin",
         "--password=foobar123",
@@ -59,7 +59,7 @@ def test_create_user_args(capsys, organisation):
     )
 
     user = User.objects.get(username="username")
-    assert user.email == "foo@bar.com"
+    assert user.email == "foo@example.com"
     assert user.name == "fullname"
     assert user.is_admin
     assert user.check_password("foobar123")
@@ -77,7 +77,7 @@ def test_update_user(capsys, user_without_organisation, organisation):
     call_command(
         "create_user",
         username,
-        "--email=foo@bar.com",
+        "--email=foo@example.com",
         "--name=fullname",
         "--admin",
         "--password=foobar123",
@@ -85,7 +85,7 @@ def test_update_user(capsys, user_without_organisation, organisation):
     )
 
     user = User.objects.get(username=username)
-    assert user.email == "foo@bar.com"
+    assert user.email == "foo@example.com"
     assert user.name == "fullname"
     assert user.is_admin
     assert user.check_password("foobar123")
@@ -98,7 +98,7 @@ def test_update_user(capsys, user_without_organisation, organisation):
     call_command(
         "create_user",
         username,
-        "--email=foo@bar.com",
+        "--email=foo@example.com",
         "--name=fullname",
         "--admin",
         "--password=foobar123",
@@ -106,7 +106,7 @@ def test_update_user(capsys, user_without_organisation, organisation):
     )
 
     user = User.objects.get(username=username)
-    assert user.email == "foo@bar.com"
+    assert user.email == "foo@example.com"
     assert user.name == "fullname"
     assert user.is_admin
     assert user.check_password("foobar123")

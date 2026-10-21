@@ -1,6 +1,10 @@
 default_language_version:
   python: python3.12
 
+default_install_hook_types:
+  - pre-commit
+  - pre-push
+
 repos:
   - repo: local
     hooks:
@@ -32,5 +36,10 @@ repos:
       language: system
       types: [shell]
       args: [-e, SC1091]
+
+  - repo: https://github.com/bennettoxford/emailcheck
+    rev: 18e35bf701d5075f6a789f41f08b2e0b26cd2b57
+    hooks:
+      - id: emailcheck
 
 exclude: coding_systems/snomedct/parser_utils/

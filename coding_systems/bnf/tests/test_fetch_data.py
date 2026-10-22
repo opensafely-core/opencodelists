@@ -1,0 +1,412 @@
+from unittest.mock import patch
+
+import pytest
+import responses
+from requests.exceptions import HTTPError, Timeout
+
+from coding_systems.bnf.fetch_data import (
+    download_csv,
+    fetch_data,
+    get_release_metadata,
+    parse_name,
+)
+
+
+CURRENT_RELEASE_INFO = {
+    "name": "BNF_CODE_CURRENT_202608_VERSION_90",
+    "date": "202608",
+    "version": 90,
+    "url": "https://example.com/download/bnf_code_current_202608_version_90.csv",
+}
+
+NEW_RELEASE_INFO = {
+    "date": "202609",
+    "name": "BNF_CODE_CURRENT_202609_VERSION_90",
+    "url": "https://example.com/download/bnf_code_current_202609_version_90.csv",
+    "version": 90,
+}
+
+CSV_FILE = """\
+BNF_CHAPTER,BNF_CHAPTER_CODE
+"Gastro-Intestinal System",01
+"Cardiovascular System",02
+"""
+
+ODP_URL = "https://opendata.nhsbsa.net/api/3/action/package_show?id=bnf-code-information-current-year"
+
+
+@pytest.fixture
+def mocked_odp_data():
+    """Fixture that returns a dict of data representing a deserialized ODP API response."""
+    return {
+        "result": {
+            "resources": [
+                {
+                    "name": "BNF_CODE_CURRENT_202503_VERSION_88",
+                    "url": "https://example.com/download/bnf_code_current_202503_version_88.csv",
+                },
+                {
+                    "name": "BNF_CODE_CURRENT_202608_VERSION_90",
+                    "url": "https://example.com/download/bnf_code_current_202608_version_90.csv",
+                },
+                {
+                    "name": "BNF_CODE_CURRENT_202607_VERSION_90_FINAL",
+                    "url": "https://example.com/download/bnf_code_current_202607_version_90.csv",
+                },
+            ]
+        }
+    }
+
+
+@pytest.fixture
+def mocked_get(mocked_odp_data):
+    """Patch requests.get() in coding_systems.bnf.fetch_data.
+
+    The mocked response's `.json()` method returns the
+    `mocked_odp_data` fixture.
+    """
+    with patch("coding_systems.bnf.fetch_data.requests.get") as mocked_get:
+        mocked_get.return_value.json.return_value = mocked_odp_data
+        yield mocked_get
+
+
+@pytest.fixture
+def mock_bnf_data_dir(tmp_path):
+    """Fixture to create a temporary directory with a 'bnf' subdirectory containing mock BNF coding release system CSVs.
+
+    Returns the temporary directory Path object.
+    """
+    csv_dir = tmp_path / "bnf"
+    csv_dir.mkdir()
+
+    csv_files = [
+        "bnf_code_current_202608_version_90.csv",
+        "bnf_code_current_202508_version_90.csv",
+        "bnf_code_current_202508_version_88.csv",
+        "bnf_code_current_202502_version_88.csv",
+        "bnf_code_current_202409_version_86.csv",
+    ]
+
+    for file in csv_files:
+        (csv_dir / file).touch()
+
+    return csv_dir
+
+
+@pytest.fixture
+def mock_empty_bnf_data_dir(tmp_path):
+    """Fixture to create a temporary directory with an empty 'bnf' subdirectory.
+
+    Returns the temporary directory Path object.
+    """
+    csv_dir = tmp_path / "bnf"
+    csv_dir.mkdir()
+
+    return csv_dir
+
+
+def test_get_release_metadata_success(mocked_get, mocked_odp_data):
+
+    response = get_release_metadata()
+
+    mocked_get.assert_called_once_with(
+        ODP_URL,
+        timeout=10,
+    )
+    mocked_get.return_value.raise_for_status.assert_called_once()
+    assert response is mocked_odp_data
+
+
+def test_get_release_metadata_http_error(mocked_get):
+    mocked_get.return_value.raise_for_status.side_effect = HTTPError("500 Server Error")
+
+    with pytest.raises(HTTPError) as exc_info:
+        get_release_metadata()
+
+    assert (
+        "Failed to fetch the current year's BNF release metadata from ODP"
+        in exc_info.value.__notes__
+    )
+
+
+def test_get_release_metadata_data_timeout(mocked_get):
+    mocked_get.side_effect = Timeout("Request timed out")
+    with pytest.raises(Timeout) as exc_info:
+        get_release_metadata()
+
+    assert (
+        "Failed to fetch the current year's BNF release metadata from ODP"
+        in exc_info.value.__notes__
+    )
+
+
+@pytest.mark.parametrize(
+    "name",
+    [
+        pytest.param(
+            "BNF_CODE_CURRENT_202608_VERSION_90",
+            id="name_upper",
+        ),
+        pytest.param(
+            "bnf_code_current_202608_version_90",
+            id="name_lower",
+        ),
+        pytest.param(
+            "BNF_CODE_CURRENT_202608_VERSION_90_FINAL",
+            id="name_upper_final",
+        ),
+        pytest.param(
+            "bnf_code_current_202608_version_90.csv",
+            id="filename_lower",
+        ),
+        pytest.param(
+            "BNF_CODE_CURRENT_202608_VERSION_90.csv",
+            id="filename_upper",
+        ),
+        pytest.param(
+            "bnf_code_current_202608_version_90_final.csv",
+            id="filename_lower_final",
+        ),
+        pytest.param(
+            "bnf_code_202608_version_90.csv",
+            id="filename_legacy",
+        ),
+    ],
+)
+def test_parse_name(name):
+    date, version = parse_name(name)
+    assert date == "202608"
+    assert version == 90
+
+
+@pytest.mark.parametrize(
+    "name",
+    [
+        pytest.param("not_a_bnf_file.csv", id="invalid_name"),
+        pytest.param(
+            "bnf_code_current_202608.csv",
+            id="missing_version",
+        ),
+    ],
+)
+def test_parse_name_invalid(name):
+    with pytest.raises(ValueError) as exc_info:
+        parse_name(name)
+
+    assert str(exc_info.value) == (f"Unexpected BNF release name: {name}")
+
+
+@responses.activate
+def test_download_csv_success(mock_bnf_data_dir):
+
+    responses.get(
+        NEW_RELEASE_INFO["url"],
+        body=CSV_FILE.encode("utf-8"),
+        status=200,
+    )
+
+    new_csv = download_csv(
+        NEW_RELEASE_INFO["date"],
+        NEW_RELEASE_INFO["version"],
+        NEW_RELEASE_INFO["url"],
+        mock_bnf_data_dir,
+    )
+
+    assert new_csv == (mock_bnf_data_dir / "bnf_code_current_202609_version_90.csv")
+    assert new_csv.read_text() == CSV_FILE
+
+
+@responses.activate
+def test_download_csv_http_error(mock_bnf_data_dir):
+
+    responses.get(
+        NEW_RELEASE_INFO["url"],
+        body=CSV_FILE.encode("utf-8"),
+        status=500,
+    )
+
+    with pytest.raises(HTTPError) as exc_info:
+        download_csv(
+            NEW_RELEASE_INFO["date"],
+            NEW_RELEASE_INFO["version"],
+            NEW_RELEASE_INFO["url"],
+            mock_bnf_data_dir,
+        )
+
+    assert (
+        "Failed to download the latest BNF release CSV from ODP"
+        in exc_info.value.__notes__
+    )
+
+
+@responses.activate
+def test_download_csv_timeout_error(mock_bnf_data_dir):
+
+    responses.get(
+        NEW_RELEASE_INFO["url"],
+        body=Timeout("Request timed out"),
+    )
+
+    with pytest.raises(Timeout) as exc_info:
+        download_csv(
+            NEW_RELEASE_INFO["date"],
+            NEW_RELEASE_INFO["version"],
+            NEW_RELEASE_INFO["url"],
+            mock_bnf_data_dir,
+        )
+
+    assert (
+        "Failed to download the latest BNF release CSV from ODP"
+        in exc_info.value.__notes__
+    )
+
+
+@responses.activate
+def test_fetch_data_existing_csv_newer_date_release_available(mock_bnf_data_dir):
+
+    responses.get(
+        ODP_URL,
+        json={
+            "result": {
+                "resources": [
+                    {
+                        "name": "BNF_CODE_CURRENT_202608_VERSION_90",
+                        "url": "https://example.com/download/bnf_code_current_202608_version_90.csv",
+                    },
+                    {
+                        "name": NEW_RELEASE_INFO["name"],
+                        "url": NEW_RELEASE_INFO["url"],
+                    },
+                    {
+                        "name": "BNF_CODE_CURRENT_202607_VERSION_90",
+                        "url": "https://example.com/download/bnf_code_current_202607_version_90.csv",
+                    },
+                ]
+            }
+        },
+        status=200,
+    )
+
+    responses.get(
+        NEW_RELEASE_INFO["url"],
+        body=CSV_FILE.encode("utf-8"),
+        status=200,
+    )
+
+    new_csv = fetch_data(mock_bnf_data_dir)
+
+    assert new_csv == (mock_bnf_data_dir / "bnf_code_current_202609_version_90.csv")
+    assert new_csv.read_text() == CSV_FILE
+
+
+@responses.activate
+def test_fetch_data_existing_csv_newer_version_release_available(
+    mock_empty_bnf_data_dir,
+):
+    csv_directory = mock_empty_bnf_data_dir
+
+    (csv_directory / "bnf_code_current_202609_version_88.csv").touch()
+
+    responses.get(
+        ODP_URL,
+        json={
+            "result": {
+                "resources": [
+                    {
+                        "name": "BNF_CODE_CURRENT_202608_VERSION_90",
+                        "url": "https://example.com/download/bnf_code_current_202608_version_90.csv",
+                    },
+                    {
+                        "name": NEW_RELEASE_INFO["name"],
+                        "url": NEW_RELEASE_INFO["url"],
+                    },
+                ]
+            }
+        },
+        status=200,
+    )
+
+    responses.get(
+        NEW_RELEASE_INFO["url"],
+        body=CSV_FILE.encode("utf-8"),
+        status=200,
+    )
+
+    new_csv = fetch_data(csv_directory)
+
+    assert new_csv == (csv_directory / "bnf_code_current_202609_version_90.csv")
+    assert new_csv.read_text() == CSV_FILE
+
+
+@responses.activate
+def test_fetch_data_no_existing_csv(mock_empty_bnf_data_dir):
+
+    responses.get(
+        ODP_URL,
+        json={
+            "result": {
+                "resources": [
+                    {
+                        "name": "BNF_CODE_CURRENT_202608_VERSION_90",
+                        "url": "https://example.com/download/bnf_code_current_202608_version_90.csv",
+                    },
+                    {
+                        "name": NEW_RELEASE_INFO["name"],
+                        "url": NEW_RELEASE_INFO["url"],
+                    },
+                ]
+            }
+        },
+        status=200,
+    )
+
+    responses.get(
+        NEW_RELEASE_INFO["url"],
+        body=CSV_FILE.encode("utf-8"),
+        status=200,
+    )
+
+    new_csv = fetch_data(mock_empty_bnf_data_dir)
+
+    assert new_csv == (
+        mock_empty_bnf_data_dir / "bnf_code_current_202609_version_90.csv"
+    )
+    assert new_csv.read_text() == CSV_FILE
+
+
+@responses.activate
+def test_fetch_data_existing_csv_no_new_release_available(
+    mock_bnf_data_dir, mocked_odp_data
+):
+
+    responses.get(
+        ODP_URL,
+        json=mocked_odp_data,
+        status=200,
+    )
+
+    new_csv = fetch_data(mock_bnf_data_dir)
+
+    assert new_csv is None
+    assert len(responses.calls) == 1
+
+
+@pytest.mark.parametrize(
+    "path, is_file",
+    [
+        pytest.param("not_a_dir.csv", True, id="csv_file"),
+        pytest.param("non_existent_dir", False, id="non_existent_dir"),
+    ],
+)
+def test_fetch_data_invalid_csv_directory(tmp_path, path, is_file):
+    csv_directory = tmp_path / path
+
+    if is_file:
+        csv_directory.touch()
+
+    with pytest.raises(FileNotFoundError) as exc_info:
+        fetch_data(csv_directory)
+
+    assert str(exc_info.value) == (
+        f"BNF CSV directory does not exist or is not a directory: {csv_directory}"
+    )

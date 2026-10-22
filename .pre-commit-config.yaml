@@ -16,7 +16,7 @@ repos:
       require_serial: true
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c # v6.0.0
+    rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c  # frozen: v6.0.0
     hooks:
     - id: trailing-whitespace
     - id: end-of-file-fixer
@@ -38,7 +38,7 @@ repos:
       args: [-e, SC1091]
 
   - repo: https://github.com/bennettoxford/emailcheck
-    rev: 18e35bf701d5075f6a789f41f08b2e0b26cd2b57
+    rev: cb3b06644f4954861f5867b6235cdf9c000b74e2  # frozen: v1.0.1
     hooks:
       - id: emailcheck
 

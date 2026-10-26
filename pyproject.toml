@@ -13,6 +13,7 @@ dependencies = [
     "dj-database-url",
     # Pin to 5.2.x until 6.0 is released and we are happy with 6.0 compatibility
     "django>=5.2,<6.0",
+    "django-allauth",
     "django-anymail[mailgun]",
     "django-cors-headers",
     "django-crispy-forms",

@@ -36,3 +36,4 @@ jobs:
     - uses: bennettoxford/update-dependencies-action@b77a22bcfe1d06020d908e64c9828fe944da3a5e # v1
       with:
         token: ${{ steps.generate-token.outputs.token }}
+        pr_label: "dependencies,python"

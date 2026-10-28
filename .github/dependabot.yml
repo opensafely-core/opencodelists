@@ -15,6 +15,9 @@ updates:
         dependency-type: "production"
       development-dependencies:
         dependency-type: "development"
+    labels:
+      - "dependencies"
+      - "javascript"
 
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -29,6 +32,9 @@ updates:
       codeql-action:
         patterns:
           - "github/codeql-action/**"
+    labels:
+      - "dependencies"
+      - "github_actions"
 
   - package-ecosystem: "pre-commit"
     directory: "/"
@@ -39,3 +45,5 @@ updates:
       timezone: "Europe/London"
     cooldown:
       default-days: 7
+    labels:
+      - "dependencies"

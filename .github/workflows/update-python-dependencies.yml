@@ -14,7 +14,7 @@ concurrency:
 jobs:
   update-dependencies:
     name: Update Python dependencies
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
     - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
@@ -28,7 +28,7 @@ jobs:
     - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
       id: generate-token
       with:
-        app-id: 1031449  # opensafely-core Create PR app
+        client-id: 1031449  # opensafely-core Create PR app
         private-key: ${{ secrets.CREATE_PR_APP_PRIVATE_KEY }}
         permission-contents: write
         permission-pull-requests: write
@@ -36,3 +36,4 @@ jobs:
     - uses: bennettoxford/update-dependencies-action@b77a22bcfe1d06020d908e64c9828fe944da3a5e # v1
       with:
         token: ${{ steps.generate-token.outputs.token }}
+        pr_label: "dependencies,python"

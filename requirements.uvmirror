@@ -35,7 +35,7 @@ crispy-bootstrap4==2026.2
     # via opencodelists
 cryptography==50.0.2
     # via paramiko
-distlib==0.4.3
+distlib==0.4.4
     # via virtualenv
 dj-database-url==3.1.2
     # via opencodelists
@@ -81,7 +81,7 @@ et-xmlfile==2.0.0
     # via openpyxl
 faker==40.43.0
     # via opencodelists
-filelock==4.1.1
+filelock==4.2.4
     # via
     #   python-discovery
     #   virtualenv
@@ -97,7 +97,7 @@ grpcio==1.84.0
     # via opentelemetry-exporter-otlp-proto-grpc
 gunicorn==26.2.0
     # via opencodelists
-hypothesis==6.169.1
+hypothesis==6.170.5
 identify==2.6.20
     # via pre-commit
 idna==3.20
@@ -183,12 +183,12 @@ packaging==26.3
     #   pytest
     #   virtualenv
 pandas==3.0.6
-paramiko==5.0.0
-platformdirs==4.13.0
+paramiko==5.1.0
+platformdirs==4.13.5
     # via virtualenv
 playwright==1.64.0
     # via pytest-playwright
-pluggy==1.6.0
+pluggy==1.7.0
     # via
     #   pytest
     #   pytest-cov
@@ -215,7 +215,7 @@ pytest-django==4.14.0
 pytest-playwright==0.10.0
 python-dateutil==2.9.0.post0
     # via pandas
-python-discovery==1.6.2
+python-discovery==1.6.4
     # via virtualenv
 python-ipware==4.1.1
     # via django-ipware
@@ -234,7 +234,7 @@ requests==2.34.2
     #   opentelemetry-exporter-otlp-proto-http
     #   responses
 responses==0.26.3
-ruff==0.17.0
+ruff==0.17.1
 sentry-sdk==2.72.0
     # via opencodelists
 six==1.17.0
@@ -286,7 +286,7 @@ urllib3==2.8.0
     #   requests
     #   responses
     #   sentry-sdk
-virtualenv==21.14.7
+virtualenv==21.14.12
     # via pre-commit
 whitenoise==6.12.0
     # via opencodelists

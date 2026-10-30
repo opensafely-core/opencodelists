@@ -12,7 +12,7 @@ We obtain the mapping data from the NHS Business Services Authority [2].  New ma
 ## Automated updates
 
 The latest mapping file is imported automatically, via a cron job that runs `import_latest_release.sh mappings.bnfdmd` each Wednesday.
-If the latest release file is already on disk at /storage/data/mappings.bnfdmd/, it will not be reimported.
+If the latest release file is already on the mounted volume block storage at /mnt/volume_opencodelists_coding_system_data/opencodelists/data/mappings.bnfdmd/, it will not be reimported.
 In case of a failed import, you may need to delete the corresponding release file to enable the import to re-run.
 
 

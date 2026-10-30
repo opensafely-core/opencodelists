@@ -17,7 +17,7 @@ Run:
 just manage import_latest_data icd10 ./coding_systems/icd10/data
 
 # Production
-dokku run opencodelists python manage.py import_latest_data icd10 /storage/data/icd10/
+dokku run opencodelists python manage.py import_latest_data icd10 /mnt/volume_opencodelists_coding_system_data/opencodelists/data/icd10/
 dokku ps:restart opencodelists
 ```
 

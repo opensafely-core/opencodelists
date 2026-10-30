@@ -31,12 +31,12 @@ be reimported.
 
 ## Manual updates
 To import the latest release, run:
-  ./manage.py import_latest_data snomedct path/to/snomedct/download/dir/in/dokku/app
+  ./manage.py import_latest_data snomedct path/to/snomedct/download/dir/in/dokku/mounted/storage
 
 On dokku3, import the latest release with:
 
   dokku run opencodelists python manage.py import_latest_data snomedct \
-    /storage/data/snomedct/ && dokku ps:restart opencodelists
+    /mnt/volume_opencodelists_coding_system_data/opencodelists/data/snomedct/ && dokku ps:restart opencodelists
 
 If you need to download an earlier release, go to the TRUD release page and identify the required
 release, which will be a zip file called something like uk_sct2cl_32.10.0_20220216000001Z.zip. You
@@ -46,7 +46,7 @@ as the "valid-from" date.  Note that this is usually a few days after the date i
 
 To import the data, run:
     ./manage.py import_coding_system_data snomedct
-    path/to/snomedct/download/dir/in/dokku/app
+    path/to/snomedct/download/dir/in/dokku/mounted/storage
     --release <release_name> --valid-from YYYY-MM-DD --import-ref <ref>
 
 - `release` is a short label for this coding system release - the official version number
@@ -64,7 +64,7 @@ For the example above (`uk_sct2cl_32.10.0_20220216000001Z.zip`), the data should
 imported with:
 
     dokku run opencodelists python manage.py import_coding_system_data snomedct \
-    /storage/data/snomedct \
+    /mnt/volume_opencodelists_coding_system_data/opencodelists/data/snomedct \
     --release 32.10.0 \
     --valid-from 2022-02-23
 

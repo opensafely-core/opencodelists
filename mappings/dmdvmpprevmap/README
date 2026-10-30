@@ -11,7 +11,7 @@ we maintain a mapping of the current to previous IDs across historical releases.
 
 Historical data from March 2019 to 12 Dec 2022 has been extracted from the
 release downloads into a single csv file, located at
-`/var/lib/dokku/data/storage/opencodelists/data/dmdvmpprevmap/dmd_vpid_vpidprev_mapping_20221208.csv.gz`
+`/mnt/volume_opencodelists_coding_system_data/opencodelists/data/dmdvmpprevmap/dmd_vpid_vpidprev_mapping_20221208.csv.gz`
 (See scripts/fetch_vmp_prev.py for re-creating/updating this file.)
 
 For releases after 12 Dec 2022, the mappings are updated when each new release is
@@ -21,4 +21,4 @@ If the historical data needs to be re-imported, it can be run with:
 
     dokku run opencodelists python manage.py \
     import_mapping_data dmdvmpprevmap \
-    /storage/data/dmdvmpprevmap/dmd_vpid_vpidprev_mapping_20221208.csv.gz
+    /mnt/volume_opencodelists_coding_system_data/opencodelists/data/dmdvmpprevmap/dmd_vpid_vpidprev_mapping_20221208.csv.gz

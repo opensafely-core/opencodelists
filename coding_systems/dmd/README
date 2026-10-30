@@ -21,12 +21,12 @@ deploy/bin/import_latest_dmd.sh each Monday.
 
 ## Manual updates
 To import the latest release, run:
-  ./manage.py import_latest_data dmd path/to/dmd/download/dir/in/dokku/app
+  ./manage.py import_latest_data dmd path/to/dmd/download/dir/in/dokku/mounted/storage
 
 On dokku3, import the latest release with:
 
   dokku run opencodelists python manage.py import_latest_data dmd \
-    /storage/data/dmd/ && dokku ps:restart opencodelists
+    /mnt/volume_opencodelists_coding_system_data/opencodelists/data/dmd/ && dokku ps:restart opencodelists
 
 
 If you need to import an earlier release, first identify the release number and valid from date (both can be retrieved from the date in the filename).  To avoid confusion, label the release with the year as well as the release number.
@@ -36,7 +36,7 @@ The release will be retrieved via the TRUD API (as a zipfile, named something li
 Find the release number and valid from date from the release page, and run:
 
     ./manage.py import_coding_system_data dmd
-    path/to/dmd/download/dir/in/dokku/app
+    path/to/dmd/download/dir/in/dokku/mounted/storage
     --release <release_name> --valid-from YYYY-MM-DD --import-ref <ref>
 
 - `release` is a short label for this coding system release - the release year/number as
@@ -54,7 +54,7 @@ For the example above (release 11.3.0, valid from 2022-11-28), the data should b
 imported with:
 
     dokku run opencodelists python manage.py import_coding_system_data dmd \
-    /storage/data/dmd/ \
+    /mnt/volume_opencodelists_coding_system_data/opencodelists/data/dmd/ \
     --release '2022 11.3.0' \
     --valid-from 2022-11-28
 

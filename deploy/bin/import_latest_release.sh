@@ -37,7 +37,7 @@ CRONTAB=$(extract_crontab "$CODING_SYSTEM" "$SCRIPT_DIR/cronfile")
 SENTRY_CRON_URL=$(sentry_cron_url "$SENTRY_DSN" "$SENTRY_MONITOR_NAME")
 
 REPO_ROOT="/app"
-DOWNLOAD_DIR="/storage/data/${CODING_SYSTEM}"
+DOWNLOAD_DIR="/coding_system_data_block_storage/data/${CODING_SYSTEM}"
 # make the log dir if necessary
 LOG_DIR=/var/lib/dokku/data/storage/opencodelists/coding_systems/error_logs
 mkdir -p "${LOG_DIR}"

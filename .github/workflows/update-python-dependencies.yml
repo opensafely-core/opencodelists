@@ -33,7 +33,7 @@ jobs:
         permission-contents: write
         permission-pull-requests: write
 
-    - uses: bennettoxford/update-dependencies-action@b77a22bcfe1d06020d908e64c9828fe944da3a5e # v1
+    - uses: bennettoxford/update-dependencies-action@ee0450e084dc9b8ecce8d2988a9bb79e57844906 # v1
       with:
         token: ${{ steps.generate-token.outputs.token }}
         pr_label: "dependencies,python"

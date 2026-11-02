@@ -2,7 +2,7 @@
 #    uv export --format requirements-txt --frozen --no-hashes --all-groups --all-extras
 antlr4-python3-runtime==4.13.2
     # via opencodelists
-asgiref==3.12.1
+asgiref==3.13.0
     # via
     #   django
     #   django-cors-headers
@@ -11,9 +11,9 @@ bcrypt==5.0.0
     # via paramiko
 beautifulsoup4==4.15.0
     # via opencodelists
-brotli==1.2.0
+brotli==1.2.1
     # via whitenoise
-certifi==2026.10.19
+certifi==2026.10.23
     # via
     #   requests
     #   sentry-sdk
@@ -29,7 +29,7 @@ colorama==0.4.6 ; sys_platform == 'win32'
     # via
     #   pytest
     #   tqdm
-coverage==7.16.2
+coverage==7.17.0
     # via pytest-cov
 crispy-bootstrap4==2026.2
     # via opencodelists
@@ -68,7 +68,7 @@ django-extensions==4.1
     # via opencodelists
 django-ipware==8.0.0
     # via django-structlog
-django-structlog==10.1.0
+django-structlog==11.0.0
     # via opencodelists
 django-taggit==6.1.0
     # via opencodelists
@@ -87,17 +87,17 @@ filelock==4.2.4
     #   virtualenv
 furl==2.1.4
     # via opencodelists
-googleapis-common-protos==1.75.5
+googleapis-common-protos==1.76.0
     # via
     #   opentelemetry-exporter-otlp-proto-grpc
     #   opentelemetry-exporter-otlp-proto-http
 greenlet==3.5.6
     # via playwright
-grpcio==1.84.0
+grpcio==1.85.0
     # via opentelemetry-exporter-otlp-proto-grpc
 gunicorn==26.2.0
     # via opencodelists
-hypothesis==6.170.5
+hypothesis==6.170.11
 identify==2.6.20
     # via pre-commit
 idna==3.20
@@ -182,11 +182,11 @@ packaging==26.3
     #   opentelemetry-instrumentation
     #   pytest
     #   virtualenv
-pandas==3.0.6
+pandas==3.1.0
 paramiko==5.1.0
 platformdirs==4.13.5
     # via virtualenv
-playwright==1.64.0
+playwright==1.64.1
     # via pytest-playwright
 pluggy==1.7.0
     # via
@@ -197,7 +197,7 @@ protobuf==7.36.2
     # via
     #   googleapis-common-protos
     #   opentelemetry-proto
-pycparser==3.11 ; implementation_name != 'PyPy' and platform_python_implementation != 'PyPy'
+pycparser==3.12 ; implementation_name != 'PyPy' and platform_python_implementation != 'PyPy'
     # via cffi
 pyee==14.0.0
     # via playwright
@@ -213,7 +213,7 @@ pytest==9.1.1
 pytest-cov==7.1.0
 pytest-django==4.14.0
 pytest-playwright==0.10.0
-python-dateutil==2.9.0.post0
+python-dateutil==3.0.0
     # via pandas
 python-discovery==1.6.4
     # via virtualenv
@@ -234,8 +234,8 @@ requests==2.34.2
     #   opentelemetry-exporter-otlp-proto-http
     #   responses
 responses==0.26.3
-ruff==0.17.1
-sentry-sdk==2.72.0
+ruff==0.17.2
+sentry-sdk==2.73.0
     # via opencodelists
 six==1.17.0
     # via
@@ -246,7 +246,7 @@ slippers==0.7.1
     # via opencodelists
 sortedcontainers==2.4.0
     # via hypothesis
-soupsieve==3.0.3
+soupsieve==3.0.4
     # via beautifulsoup4
 sqlean-py==3.50.4.5
     # via opencodelists
@@ -275,18 +275,19 @@ typing-extensions==4.16.0
     #   opentelemetry-semantic-conventions
     #   pyee
     #   slippers
-tzdata==2026.5 ; sys_platform == 'emscripten' or sys_platform == 'win32'
+tzdata==2026.5
     # via
     #   django
     #   faker
     #   pandas
+    #   python-dateutil
 urllib3==2.8.0
     # via
     #   django-anymail
     #   requests
     #   responses
     #   sentry-sdk
-virtualenv==21.14.12
+virtualenv==21.14.13
     # via pre-commit
 whitenoise==6.12.0
     # via opencodelists

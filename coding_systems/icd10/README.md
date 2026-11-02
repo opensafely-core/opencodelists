@@ -10,14 +10,17 @@ The importer then loads two editions (`2016` and `2019`) into the imported datab
 
 ## Current import workflow
 
-Run:
+For local development, run:
 
-```bash
-# Local development
+```sh
 just manage import_latest_data icd10 ./coding_systems/icd10/data
+```
 
-# Production
-dokku run opencodelists python manage.py import_latest_data icd10 /storage/data/icd10/
+On dokku3, import the latest release with:
+
+```sh
+dokku run opencodelists python manage.py import_latest_data icd10 \
+  /coding_system_data_block_storage/data/icd10/
 dokku ps:restart opencodelists
 ```
 
@@ -39,7 +42,7 @@ Expected differences and inclusion/exclusion decisions are defined in:
 
 - `coding_systems/icd10/known_diffs/`
 
-If import fails with unexpected differences, update this module with the new expected diff decisions, then rerun the import.
+If the import fails with unexpected differences, update this module with the new expected diff decisions, then rerun the import.
 
 ## Release metadata behavior
 
@@ -51,7 +54,7 @@ For ICD-10, release metadata is generated automatically by the downloader:
 
 ## Output cache directory
 
-The `release_dir` you pass to `import_latest_data` is used to cache:
+The release directory passed to `import_latest_data` is used to cache:
 
 - downloaded WHO ZIPs
 - scraped NHS ZIP/XML artifacts

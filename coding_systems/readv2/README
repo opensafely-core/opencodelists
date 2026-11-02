@@ -1,5 +1,4 @@
-Read v2
--------
+# Read v2
 
 Read v2 is a retired system of clinical terms.
 

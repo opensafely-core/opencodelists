@@ -1,5 +1,8 @@
+from datetime import UTC
+
 from django.contrib import admin
 from django.db.models import Exists, OuterRef, Q
+from django.utils.formats import date_format
 from rest_framework.authtoken.admin import TokenAdmin
 
 from codelists.models import CodelistVersion, Handle
@@ -73,6 +76,7 @@ class UserAdmin(admin.ModelAdmin):
         "username",
         "name",
         "email",
+        "get_last_login",
         "is_admin",
         "get_organisations",
     ]
@@ -83,6 +87,12 @@ class UserAdmin(admin.ModelAdmin):
         OrganisationMemberFilter,
     ]
     inlines = [MembershipInline]
+
+    @admin.display(description="Last login (UTC)", ordering="last_login")
+    def get_last_login(self, obj):
+        if obj.last_login is None:
+            return None
+        return date_format(obj.last_login.astimezone(UTC), "j M Y H:i")
 
     @admin.display(description="Organisations")
     def get_organisations(self, obj):

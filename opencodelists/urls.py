@@ -1,6 +1,8 @@
+from allauth.account import urls as allauth_account_urls
+from allauth.account import views as allauth_account_views
 from django.conf import settings
 from django.contrib import admin
-from django.urls import include, path
+from django.urls import include, path, re_path
 from django.views.generic import RedirectView
 
 from . import views
@@ -31,6 +33,47 @@ organisations_patterns = [
     path("", views.organisations, name="organisations"),
 ]
 
+account_url_names = {
+    "account_login",
+    "account_logout",
+    "account_change_password",
+    "account_reset_password",
+    "account_reset_password_done",
+    "account_reset_password_from_key_done",
+    "account_set_password",
+    "account_signup",
+}
+account_urlpatterns = [
+    path(
+        "register/",
+        url.callback,
+        name=url.name,
+    )
+    if url.name == "account_signup"
+    else url
+    for url in allauth_account_urls.urlpatterns
+    if url.name in account_url_names
+]
+
+# Our user primary keys are usernames, which can contain hyphens and underscores.
+password_reset_username_regex = r"[a-zA-Z0-9_-]+"
+
+# Match the whole key (timestamp-hash or set-password) so its hyphen cannot be
+# mistaken for a hyphen in the username. Allauth uses KEY when reversing the
+# route to build password reset emails.
+password_reset_key_regex = r"[0-9a-z]+-[0-9a-z]+|KEY"
+
+# Replace allauth's password reset route to support usernames containing
+# hyphens and underscores.
+account_urlpatterns.append(
+    re_path(
+        rf"^password/reset/key/(?P<uidb36>{password_reset_username_regex})-"
+        rf"(?P<key>{password_reset_key_regex})/$",
+        allauth_account_views.password_reset_from_key,
+        name="account_reset_password_from_key",
+    )
+)
+
 if settings.DEBUG_TOOLBAR:  # pragma: no cover
     debug_toolbar_urls = [path("__debug__/", include("debug_toolbar.urls"))]
 else:
@@ -43,8 +86,7 @@ urlpatterns = [
     path("superusers/", include("superusers.urls")),
     path("organisations/", include(organisations_patterns)),
     path("admin/", admin.site.urls),
-    path("accounts/", include("django.contrib.auth.urls")),
-    path("accounts/register/", views.register, name="register"),
+    path("accounts/", include(account_urlpatterns)),
     path("builder/", include("builder.urls")),
     path("conversions/", include("conversions.urls")),
     path("coding-systems/", include("coding_systems.versioning.urls")),

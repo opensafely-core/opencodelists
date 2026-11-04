@@ -28,9 +28,9 @@ To import the latest release, run:
 ./manage.py import_latest_data snomedct DATA_DIR
 ```
 
-- `DATA_DIR` is the path to the directory where the release will be downloaded.
+- `DATA_DIR` is the path on the local filesystem to the directory where the release will be downloaded.
 
-On dokku3, import the latest release with:
+On the dokku3 host, the directory on the Block Storage volume is `/mnt/volume_opencodelists_coding_system_data/opencodelists/data/snomedct/`. Dokku bind-mounts it into OpenCodelists application containers at `/coding_system_data_block_storage/data/snomedct/`. Import the latest release with:
 
 ```sh
 dokku run opencodelists python manage.py import_latest_data snomedct \
@@ -49,7 +49,7 @@ dokku run opencodelists python manage.py import_coding_system_data snomedct \
   --import-ref IMPORT_REF
 ```
 
-- `DATA_DIR` is the download directory on dokku3: `/coding_system_data_block_storage/data/snomedct/`.
+- `DATA_DIR` is the path inside the OpenCodelists application container to the download directory. For the application container on dokku3, use `/coding_system_data_block_storage/data/snomedct/`.
 - `RELEASE_NAME` is the official version number described above.
 - `VALID_FROM` is the release date in `YYYY-MM-DD` format, not the date the data are imported into OpenCodelists.
 - `IMPORT_REF` is an optional reference for additional information. Omit it to default to the downloaded zip filename.

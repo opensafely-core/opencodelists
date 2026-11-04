@@ -22,9 +22,9 @@ To import the latest release, run:
 ./manage.py import_latest_data dmd DATA_DIR
 ```
 
-- `DATA_DIR` is the path to the directory where the release will be downloaded.
+- `DATA_DIR` is the path on the local filesystem to the directory where the release will be downloaded.
 
-On dokku3, import the latest release with:
+On the dokku3 host, the directory on the Block Storage volume is `/mnt/volume_opencodelists_coding_system_data/opencodelists/data/dmd/`. Dokku bind-mounts it into OpenCodelists application containers at `/coding_system_data_block_storage/data/dmd/`. Import the latest release with:
 
 ```sh
 dokku run opencodelists python manage.py import_latest_data dmd \
@@ -43,7 +43,7 @@ dokku run opencodelists python manage.py import_coding_system_data dmd \
   --import-ref IMPORT_REF
 ```
 
-- `DATA_DIR` is the path to the download directory on dokku3: `/coding_system_data_block_storage/data/dmd/`.
+- `DATA_DIR` is the path inside the OpenCodelists application container to the download directory. For the application container on dokku3, use `/coding_system_data_block_storage/data/dmd/`.
 - `RELEASE_NAME` is a short label for this coding system release: the release year/number as described above.
 - `VALID_FROM` is the date that this release is valid from (not the date it is being imported into OpenCodelists), in `YYYY-MM-DD` format.
 - `IMPORT_REF` is an optional long-form reference field for any other potential references or comments on this import if desired. Omit it to default to the name of the downloaded zipfile.

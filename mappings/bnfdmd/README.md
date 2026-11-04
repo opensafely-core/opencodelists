@@ -10,7 +10,9 @@ We obtain the mapping data from the [NHS Business Services Authority](https://ww
 
 ## Automated updates
 
-The latest mapping file is imported automatically, via a cron job that runs the script at `deploy/bin/import_latest_release.sh mappings.bnfdmd` each Wednesday. If the latest release file is already in `/coding_system_data_block_storage/data/mappings.bnfdmd/`, it will not be reimported. After a failed import, you may need to delete the corresponding release file to allow the import to run again.
+The latest mapping file is imported automatically, via a cron job that runs the script at `deploy/bin/import_latest_release.sh mappings.bnfdmd` each Wednesday. The directory on the Block Storage volume is available at `/mnt/volume_opencodelists_coding_system_data/opencodelists/data/mappings.bnfdmd/` on the dokku3 host and is bind-mounted into OpenCodelists application containers at `/coding_system_data_block_storage/data/mappings.bnfdmd/`.
+
+If the latest release file already exists, it will not be reimported. After a failed import, you may need to delete the corresponding release file from the directory on the dokku3 host to allow the import to run again.
 
 ## Manual updates
 

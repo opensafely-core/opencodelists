@@ -16,7 +16,7 @@ For local development, run:
 just manage import_latest_data icd10 ./coding_systems/icd10/data
 ```
 
-On dokku3, import the latest release with:
+On the dokku3 host, the directory on the Block Storage volume is `/mnt/volume_opencodelists_coding_system_data/opencodelists/data/icd10/`. Dokku bind-mounts it into OpenCodelists application containers at `/coding_system_data_block_storage/data/icd10/`. The import command runs inside a container, so it uses the container path:
 
 ```sh
 dokku run opencodelists python manage.py import_latest_data icd10 \

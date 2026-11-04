@@ -6,7 +6,7 @@ For more details, see [our most popular blog post](https://www.bennett.ox.ac.uk/
 
 We obtain the data from the NHSBSA Open Data Portal (ODP). New releases are published monthly. [The release page](https://opendata.nhsbsa.net/dataset/bnf-code-information-current-year) displays each release for the current calendar year in the Data and Resources section. The name of each release contains the date and version for that release, for example, "BNF Code Information - Current - June 2026 Version 90". Each monthly release is published as a CSV file whose name includes the year, month and release version. For example, `bnf_code_current_202606_version_90.csv` corresponds to the June 2026 release of version 90.
 
-Download the latest BNF release CSV and copy it to the BNF data folder on dokku3: `/coding_system_data_block_storage/data/bnf/`.
+Download the latest BNF release CSV and copy it to the BNF data folder on dokku3: `/mnt/volume_opencodelists_coding_system_data/opencodelists/data/`.
 
 To import the data, run:
 

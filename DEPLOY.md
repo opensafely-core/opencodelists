@@ -14,7 +14,7 @@ dokku$ dokku apps:create opencodelists
 dokku$ dokku domains:add opencodelists www.opencodelists.org
 ```
 
-### Create storage for sqlite db and backups and load db into it
+### Create storage for the core db and load the db into it
 ```sh
 dokku$ mkdir /var/lib/dokku/data/storage/opencodelists
 dokku$ chown dokku:dokku /var/lib/dokku/data/storage/opencodelists
@@ -24,46 +24,19 @@ dokku$ chown dokku:dokku /var/lib/dokku/data/storage/opencodelists/*
 dokku$ dokku storage:mount opencodelists /var/lib/dokku/data/storage/opencodelists/:/storage
 ```
 
-Add block storage to the droplet with the following steps:
 
-- Log in to the DigitalOcean Dashboard
-- Go to Droplets
-- Select dokku3
-- Select Volumes tab
-- Press the Add Volume button
-- Use the modal to configure, create, and mount the volume, selecting the droplet name, desired volume size,  "Automatically format and mount", and "EXT4".
+### Create and configure block storage for dokku3
 
-Run the following commands to set up the mount manually:
-```
-mkdir -p /mnt/volume_opencodelists_backups/opencodelists
-sudo chown -R 10003:10003 /mnt/volume_opencodelists_backups/opencodelists
-sudo chmod 755 /mnt/volume_opencodelists_backups/opencodelists
-dokku storage:mount opencodelists /mnt/volume_opencodelists_backups/opencodelists:/block_storage
-```
+OpenCodelists uses two DigitalOcean block storage volumes attached to dokku3:
 
-You can resize block storage to increase its size but never decrease. You must
-ensure that nothing is writing to the volume while you do this to avoid data
-corruption. Steps:
+- **Core database backups**: available at `/mnt/volume_opencodelists_backups/opencodelists` on the `dokku3` filesystem, and `/block_storage` inside the application container
+- **Coding-system release data**: available at `/mnt/volume_opencodelists_coding_system_data/opencodelists` on the `dokku3` filesystem, and `/coding_system_data_block_storage` inside the opencodelists app container
 
-- Log in to the DigitalOcean Dashboard
-- Go to Droplets
-- Select dokku3
-- Select Volumes tab
-- Select "Increase storage size" from the "..." menu against the volume.
-- Increase by the required amount in the modal and click the "Increase storage size" button.
+Both volumes are mounted on `dokku3` and bind-mounted into the opencodelists app; these mount configurations persist across Droplet reboots and application redeployments.
 
-Then SSH to the droplet to resize the file system to use all available blocks:
+For volume creation, configuration, persistent mounting, permissions, resizing and SnapShooter backups, see [OpenCodelists block storage](add-url-once-available) in the team manual.
 
-```
-# Check the free disk on the mounted device before your change.
-df /mnt/volume_opencodelists_backups/ -h
-# Check the size of the block device.
-lsblk
-# Resize the device in the file system to use all available blocks.
-sudo resize2fs /dev/sda
-# Check the free disk on the mounted device after your change.
-df /mnt/volume_opencodelists_backups/ -h
-```
+
 
 ### Configure app
 

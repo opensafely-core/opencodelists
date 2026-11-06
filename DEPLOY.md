@@ -34,7 +34,7 @@ OpenCodelists uses two DigitalOcean block storage volumes attached to dokku3:
 
 Both volumes are mounted on `dokku3` and bind-mounted into the opencodelists app; these mount configurations persist across Droplet reboots and application redeployments.
 
-For volume creation, configuration, persistent mounting, permissions, resizing and SnapShooter backups, see [OpenCodelists block storage](add-url-once-available) in the team manual.
+For volume creation, configuration, persistent mounting, permissions, resizing and SnapShooter backups, see [OpenCodelists block storage](https://bennett.wiki/tech-group/playbooks/opencodelists-volume-storage/) in the team manual.
 
 
 

@@ -196,6 +196,12 @@ DATABASE_DIR=/home/YOUR_USERNAME/opencodelists-dbs
 
 Restart the app with `just run`.
 
+### Coding system release data storage
+
+OpenCodelists uses a block storage volume to store coding system release data separately from `dokku3`'s local filesystem.
+
+For details of the production storage architecture, setup and maintenance, see the [OpenCodelists block storage](https://bennett.wiki/tech-group/playbooks/opencodelists-volume-storage/) documentation in the team manual.
+
 ## Dependency management
 We use [Dependabot](https://github.com/opensafely-core/opencodelists/blob/main/.github/dependabot.yml) and an [automated update workflow](https://github.com/opensafely-core/opencodelists/blob/main/.github/workflows/update-python-dependencies.yml) to keep our dependencies up to date.
 

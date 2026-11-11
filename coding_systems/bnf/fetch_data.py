@@ -20,7 +20,7 @@ This script:
 
 To execute the script, run:
 
-`dokku run opencodelists python manage.py fetch_bnf_data /storage/data/bnf`
+`dokku run opencodelists python manage.py fetch_bnf_data /coding_system_data_block_storage/data/bnf/`
 
 BNF release information is available from the NHSBSA ODP:
 

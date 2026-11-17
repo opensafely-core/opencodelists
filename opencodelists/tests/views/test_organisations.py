@@ -44,7 +44,7 @@ def test_get_organisation_members(
     )
     response = client.get(organisation_members_url)
     assert response.status_code == 302
-    assert response.url == f"{reverse('login')}?next={organisation_members_url}"
+    assert response.url == f"{reverse('account_login')}?next={organisation_members_url}"
 
     # not a member
     client.force_login(user_without_organisation)

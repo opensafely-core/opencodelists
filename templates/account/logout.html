@@ -1,0 +1,11 @@
+{% extends "base-tw.html" %}
+
+{% block title_extra %}Log out{% endblock %}
+
+{% block content %}
+  {% url 'account_logout' as logout_url %}
+
+  {% #registration_form action=logout_url button_text="Log out" csrf_token=csrf_token extra_content=extra_content form=form title="Log out of your account" %}
+    {{ redirect_field }}
+  {% /registration_form %}
+{% endblock content %}

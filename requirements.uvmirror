@@ -29,7 +29,7 @@ colorama==0.4.6 ; sys_platform == 'win32'
     # via
     #   pytest
     #   tqdm
-coverage==7.17.2
+coverage==7.17.3
     # via pytest-cov
 crispy-bootstrap4==2026.2
     # via opencodelists
@@ -79,9 +79,9 @@ djangorestframework==3.18.3
 djhtml==3.0.11
 et-xmlfile==2.0.0
     # via openpyxl
-faker==40.44.0
+faker==40.54.0
     # via opencodelists
-filelock==4.2.9
+filelock==4.2.10
     # via
     #   python-discovery
     #   virtualenv
@@ -95,7 +95,7 @@ greenlet==3.5.6
     # via playwright
 grpcio==1.85.1
     # via opentelemetry-exporter-otlp-proto-grpc
-gunicorn==26.2.0
+gunicorn==27.0.1
     # via opencodelists
 hypothesis==6.170.15
 identify==2.6.20
@@ -116,7 +116,7 @@ nh3==0.3.7
     # via opencodelists
 nodeenv==1.12.0
     # via pre-commit
-numpy==2.5.4
+numpy==2.5.5
     # via pandas
 openpyxl==3.1.5
     # via opencodelists
@@ -186,7 +186,7 @@ pandas==3.1.1
 paramiko==5.1.0
 platformdirs==4.14.5
     # via virtualenv
-playwright==1.64.1
+playwright==1.65.2
     # via pytest-playwright
 pluggy==1.7.0
     # via
@@ -199,8 +199,6 @@ protobuf==7.36.2
     #   opentelemetry-proto
 pycparser==3.12 ; implementation_name != 'PyPy' and platform_python_implementation != 'PyPy'
     # via cffi
-pyee==14.0.0
-    # via playwright
 pygments==2.21.0
     # via pytest
 pynacl==1.6.2
@@ -234,8 +232,8 @@ requests==2.34.2
     #   opentelemetry-exporter-otlp-proto-http
     #   responses
 responses==0.26.3
-ruff==0.17.4
-sentry-sdk==2.74.0
+ruff==0.17.5
+sentry-sdk==2.75.0
     # via opencodelists
 six==1.17.0
     # via
@@ -245,7 +243,7 @@ slippers==0.7.1
     # via opencodelists
 sortedcontainers==2.4.0
     # via hypothesis
-soupsieve==4.0.1
+soupsieve==4.1.1
     # via beautifulsoup4
 sqlean-py==3.50.4.5
     # via opencodelists
@@ -272,7 +270,6 @@ typing-extensions==4.16.0
     #   opentelemetry-exporter-otlp-proto-http
     #   opentelemetry-sdk
     #   opentelemetry-semantic-conventions
-    #   pyee
     #   slippers
 tzdata==2026.6
     # via

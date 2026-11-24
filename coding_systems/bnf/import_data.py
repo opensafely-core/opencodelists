@@ -11,8 +11,31 @@ logger = structlog.get_logger()
 
 
 def import_data(
-    release_csv, release_name, valid_from, import_ref=None, check_compatibility=True
+    release_csv,
+    release_name,
+    valid_from,
+    import_ref=None,
+    check_compatibility=True,
 ):
+    return import_release(
+        release_csv,
+        release_name,
+        valid_from,
+        import_ref=import_ref,
+        check_compatibility=check_compatibility,
+    )
+
+
+def import_release(
+    release_csv,
+    release_name,
+    valid_from,
+    import_ref=None,
+    check_compatibility=True,
+    **kwargs,
+):
+    """Import an existing BNF coding system release CSV into OpenCodelists."""
+
     release_path = Path(release_csv)
     if release_path.suffix.lower() != ".csv":
         raise ValueError(f"Expected file path str ending '.csv', got '{release_path}'.")

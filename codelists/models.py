@@ -476,24 +476,26 @@ class CodelistVersion(models.Model):
     def has_hierarchy(self):
         return self.coding_system.is_builder_compatible()
 
-    def calculate_hierarchy(self):
+    def calculate_hierarchy(self, coding_system=None):
         """Return Hierarchy of codes related to this CodelistVersion."""
         if self.csv_data:
-            return self._calculate_old_style_hierarchy()
+            return self._calculate_old_style_hierarchy(coding_system=None)
         else:
-            return self._calculate_new_style_hierarchy()
+            return self._calculate_new_style_hierarchy(coding_system=None)
 
-    def _calculate_old_style_hierarchy(self):
+    def _calculate_old_style_hierarchy(self, coding_system):
         if not self.has_hierarchy:
             # If coding system does not define relationships, then we cannot build a
             # hierarchy, and so it's not clear what a hierarchy is for.
             return
 
-        return Hierarchy.from_codes(self.coding_system, self.codes)
+        return Hierarchy.from_codes(coding_system or self.coding_system, self.codes)
 
-    def _calculate_new_style_hierarchy(self):
+    def _calculate_new_style_hierarchy(self, coding_system):
         code_to_status = dict(self.code_objs.values_list("code", "status"))
-        return Hierarchy.from_codes(self.coding_system, list(code_to_status))
+        return Hierarchy.from_codes(
+            coding_system or self.coding_system, list(code_to_status)
+        )
 
     @cached_property
     def hierarchy(self):

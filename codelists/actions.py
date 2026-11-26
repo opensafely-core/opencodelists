@@ -452,7 +452,7 @@ def _create_version_with_codes(
         for code, status in codeset.code_to_status.items()
     )
 
-    cache_hierarchy(version=clv, hierarchy=hierarchy)
+    cache_hierarchy(version=clv)
 
     return clv
 

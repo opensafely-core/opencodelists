@@ -9,7 +9,10 @@ from builder.actions import save as save_draft_for_review
 from codelists.coding_systems import CODING_SYSTEMS
 from codelists.hierarchy import Hierarchy
 from codelists.models import Status
-from coding_systems.base.import_data_utils import update_codelist_version_compatibility
+from coding_systems.base.import_data_utils import (
+    _check_version_by_hierarchy,
+    update_codelist_version_compatibility,
+)
 from coding_systems.base.tests.dynamic_db_classes import DynamicDatabaseTestCase
 from coding_systems.bnf.models import Concept
 from coding_systems.conftest import mock_migrate_coding_system
@@ -367,3 +370,20 @@ class TestUpdateCodelistVersionCompatibilityIsOrderInsensitive(
 
         update_codelist_version_compatibility("bnf", self.bnf_release.database_alias)
         assert self.bnf_review_version_with_search.compatible_releases.exists()
+
+
+class TestCodelistVersionCompatibilityRoundTrips(
+    BaseCodingSystemDynamicDatabaseTestCase
+):
+    db_aliases = [
+        "bnf_import-data_20221101",
+    ]
+
+    @pytest.mark.usefixtures("_get_bnf_release", "_get_bnf_review_version_with_search")
+    def test_codelist_version_compatibility_round_trips(
+        self,
+    ):
+        assert _check_version_by_hierarchy(
+            self.bnf_review_version_with_search.coding_system,
+            self.bnf_review_version_with_search,
+        )

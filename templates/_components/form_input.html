@@ -25,11 +25,11 @@
   </div>
 
   {% if help_text %}
-    <div class="prose prose-sm mt-4 text-slate-700">
+    <div class="prose prose-sm mt-4 text-slate-700 prose-a:link">
       {{ help_text }}
     </div>
   {% elif field.help_text %}
-    <div class="prose prose-sm mt-4 text-slate-700">
+    <div class="prose prose-sm mt-4 text-slate-700 prose-a:link">
       {{ field.help_text }}
     </div>
   {% endif %}

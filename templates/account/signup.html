@@ -3,12 +3,12 @@
 {% block title_extra %}Register for an OpenCodelists account{% endblock %}
 
 {% block content %}
-  {% url 'register' as register_url %}
+  {% url 'account_signup' as register_url %}
 
   {% fragment as extra_content %}
     <p class="mt-10 text-center text-sm/6 text-slate-600">
       Already have an account?
-      <a href="{% url 'login' %}" class="font-semibold text-blue-700 underline decoration-transparent underline-offset-2 transition-colors hover:text-blue-900 hover:decoration-blue-900">Log in now</a>
+      <a href="{% url 'account_login' %}" class="font-semibold text-blue-700 underline decoration-transparent underline-offset-2 transition-colors hover:text-blue-900 hover:decoration-blue-900">Log in now</a>
     </p>
   {% endfragment extra_content %}
 
@@ -19,4 +19,4 @@
     {% form_input field=form.password1 autocomplete="new-password" %}
     {% form_input field=form.password2 autocomplete="new-password" %}
   {% /registration_form %}
-{% endblock %}
+{% endblock content %}

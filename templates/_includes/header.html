@@ -36,16 +36,16 @@
                   <li>
                     <a
                       class="block p-2 pt-2.5 bg-white text-blue-800 font-semibold transition-colors hover:bg-blue-50 hover:text-blue-950"
-                      href="{% url 'password_change' %}">
+                      href="{% url 'account_change_password' %}">
                       Change password
                     </a>
                   </li>
                   <li>
-                    <form action="{% url 'logout' %}" method="POST">
+                    <form action="{% url 'account_logout' %}" method="POST">
                       {% csrf_token %}
                       <button
                         class="block w-full cursor-pointer text-left p-2 bg-white text-blue-800 font-semibold transition-colors hover:bg-blue-50 hover:text-blue-950"
-                        href="{% url 'logout' %}"
+                        href="{% url 'account_logout' %}"
                       >
                         Log out
                       </button>
@@ -56,10 +56,10 @@
             </details-utils>
           </li>
         {% else %}
-          {% url 'register' as register_url %}
+          {% url 'account_signup' as register_url %}
           {% nav_link title="Register" href=register_url %}
 
-          {% url 'login' as login_url %}
+          {% url 'account_login' as login_url %}
           {% nav_link title="Log in" href=login_url|add:"?next="|add:request.path %}
         {% endif %}
       </ul>

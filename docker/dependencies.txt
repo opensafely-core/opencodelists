@@ -10,3 +10,5 @@ zstd
 curl
 # Remote file-copying tool, used for copying backups to block storage.
 rsync
+# Required by the Node.js executable bundled with Playwright 1.65+.
+libatomic1
